@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 
+  Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:component xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:p="http://primefaces.org/ui" xmlns:composite="http://java.sun.com/jsf/composite"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <composite:interface>
+    <composite:attribute name="title" required="true" />
+    <composite:attribute name="toolbarId" required="false" default="toolbar" />
+    <composite:attribute name="titleWidth" required="false" default="220px" />
+    <composite:attribute name="objectName" required="false" default="items" />
+    <composite:attribute name="reRender" required="false" />
+    <composite:attribute name="showRightComponents" required="false" default="false" />
+    <composite:attribute name="showSelectAll" required="false" default="true" />
+    <composite:attribute name="selectAllLabel" required="false" default="Select All" />
+    <composite:attribute name="widgetVar" required="false" default="confirmDeleteMultiple" />
+    <composite:attribute name="selectNoneLabel" required="false" default="Unselect All" />
+    <composite:attribute name="deleteSelectedLabel" required="false" default="Delete Selected" />
+    <composite:attribute name="showDeleteSelected" required="false" default="true" />
+    <composite:attribute name="selectionTracker" required="false"
+      shortDescription="An instance of a com.intuit.tank.util.Multiselectable object if this toolbar supports multi select" />
+    <composite:attribute name="shortToolbar" required="false" default="false" />
+
+    <composite:facet name="actions" />
+    <composite:facet name="additional-group" />
+  </composite:interface>
+
+  <composite:implementation>
+    <p:toolbar id="#{cc.attrs.toolbarId}" style="height: 40px;">
+
+      <p:toolbarGroup align="left" rendered="#{cc.attrs.title.length() gt 0}">
+        <h:panelGroup layout="block" styleClass="toolbar-ui ellipsis" style="width:#{cc.attrs.titleWidth};">
+          <h:outputText value="#{cc.attrs.title}" title="#{cc.attrs.title}" styleClass="ts-header-menu-itm pad15Right header-font-size" />
+        </h:panelGroup>
+      </p:toolbarGroup>
+
+      <p:toolbarGroup align="left">
+        <h:panelGroup>
+          <composite:renderFacet name="actions" />
+        </h:panelGroup>
+      </p:toolbarGroup>
+      
+      <p:separator />
+      
+      <p:toolbarGroup rendered="#{cc.attrs.selectionTracker ne null and cc.attrs.shortToolbar eq 'false'}" align="left">
+        <h:panelGroup layout="block" styleClass="toolbar-ui">
+          <p:commandButton id="deleteSelectedBtn" value="#{cc.attrs.deleteSelectedLabel}" type="button"
+            style=" background-image: url(#{request.contextPath}/resources/gfx/16/delete.png);
+                    background-repeat: no-repeat;
+                    background-position: 3px 5px;
+                    border-radius:5px;"
+            styleClass="icon-button" disabled="#{!cc.attrs.selectionTracker.hasSelected()}"
+            onclick="PF('#{cc.attrs.widgetVar}').show()" rendered="#{cc.attrs.showDeleteSelected}"/>
+        </h:panelGroup>
+
+        <p:confirmDialog id="#{cc.attrs.toolbarId}-confirm"
+          message="Are you sure you want to delete selected #{cc.attrs.objectName}?" header="Confirm Delete"
+           widgetVar="#{cc.attrs.widgetVar}">
+          <p:commandButton value="OK" id="okDeleteAllBtn" oncomplete="PF('#{cc.attrs.widgetVar}').hide();" ajax="true"
+            action="#{cc.attrs.selectionTracker.deleteSelected}" update="deleteSelectedBtn, #{cc.attrs.reRender}" />
+          <h:panelGroup styleClass="horizontal-spacer" />
+          <p:commandButton value="Cancel" onclick="PF('#{cc.attrs.widgetVar}').hide();" type="button" />
+        </p:confirmDialog>
+      </p:toolbarGroup>
+
+
+      <p:toolbarGroup align="right" rendered="#{cc.attrs.showRightComponents eq 'true' and cc.attrs.shortToolbar eq 'false'}">
+        <composite:renderFacet name="additional-group" />
+      </p:toolbarGroup>
+
+      <p:toolbarGroup align="right" rendered="#{cc.attrs.selectionTracker ne null and cc.attrs.showSelectAll eq 'true'}">
+        <h:panelGroup layout="block" styleClass="toolbar-ui">
+          <h:panelGroup styleClass="ts-header-menu-itm ">
+            <p:commandLink value="#{cc.attrs.selectAllLabel}" action="#{cc.attrs.selectionTracker.selectAll}"
+              update="deleteSelectedBtn, #{cc.attrs.reRender}" ajax="true" />
+          </h:panelGroup>
+          <h:panelGroup styleClass="ts-header-menu-itm ">
+            <p:commandLink value="#{cc.attrs.selectNoneLabel}" action="#{cc.attrs.selectionTracker.unselectAll}"
+              update="deleteSelectedBtn, #{cc.attrs.reRender}" ajax="true" />
+          </h:panelGroup>
+        </h:panelGroup>
+      </p:toolbarGroup>
+    </p:toolbar>
+  </composite:implementation>
+</ui:component>

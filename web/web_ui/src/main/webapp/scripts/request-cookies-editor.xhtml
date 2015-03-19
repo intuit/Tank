@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+xmlns:ts="http://java.sun.com/jsf/composite/tag" 
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:s="http://jboss.com/products/seam/taglib">
+
+  <div class="formRow">
+    
+      <ts:tip tipId="headerTip"
+                text="Request Cookies are for informational purposes only. They are not used in any way in the request. 
+                To add a cookie to the request, use a Cookie script step"  />
+  </div>
+  <div class="clear-both vertical-spacer" />
+  <div class="height300 overflow-auto">
+
+    <p:dataTable value="#{requestCookiesEditor.requestCookies}" var="coo" id="requestCookieTable"
+      styleClass="striped highlight">
+      <f:facet name="noData">
+                Nothing found
+            </f:facet>
+
+      <p:column style="width:200px;" styleClass="ellipsis">
+        <f:facet name="header">
+          <h:outputText value="Cookie" />
+        </f:facet>
+        <h:outputText value="#{coo.key}" styleClass="gray"/>
+      </p:column>
+
+      <p:column style="width:400px;" styleClass="ellipsis" >
+        <f:facet name="header">
+          <h:outputText value="Value" />
+        </f:facet>
+        <h:outputText value="#{coo.value}" styleClass="gray" />
+      </p:column>
+
+    </p:dataTable>
+  </div>
+
+  <h:outputStylesheet>
+    .value-column {
+        width : 30%;
+    }
+    .header-column {
+        width : 50%;
+    }
+    .operations-column {
+        width : 20%;
+    }    
+  </h:outputStylesheet>
+</ui:composition>

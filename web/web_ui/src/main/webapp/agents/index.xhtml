@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui"
+  xmlns:pe="http://primefaces.org/ui/extensions" template="/WEB-INF/templates/tank.xhtml">
+  <ui:define name="content">
+
+
+
+    <div>
+      <h:form id="mainForm">
+        <ts:toolbar title="Job queue" showRightComponents="true" id="mainTB">
+          <f:facet name="actions">
+            <h:panelGroup layout="block" styleClass="toolbar-ui">
+              <h:panelGroup>
+                <p:selectBooleanCheckbox id="filterFinishedBoxId" value="#{jobQueueManager.filterFinished}">
+                  <p:ajax event="change" update=":mainForm:jobTableId, :mainForm:messages" />
+                </p:selectBooleanCheckbox>
+                <h:outputLabel value="Filter finished jobs" for="filterFinishedBoxId" />
+              </h:panelGroup>
+              <h:panelGroup>
+                <h:outputText value="Refresh interval" styleClass="formLabel pad15Left pad15Right">
+                </h:outputText>
+                <h:inputText value="#{jobQueueManager.refreshTimeSeconds}" maxlength="3" size="5" onchange="submit()">
+                </h:inputText>
+              </h:panelGroup>
+              <h:panelGroup styleClass="formButton pad15Left">
+                <p:commandButton action="#{jobQueueManager.refreshData()}" value="Refresh" onstart="saveScrollPos()"
+                  oncomplete="getScrollPos()" update=":mainForm:jobTableId, :mainForm:refreshDiv, :vldFormStatus"
+                  ajax="true"
+                  style="background-image: url(#{request.contextPath}/resources/gfx/16/refresh.png);
+					background-repeat: no-repeat;
+					background-position: 3px 5px;
+					border-radius:5px;"
+                  styleClass="icon-button h-space" />
+              </h:panelGroup>
+            </h:panelGroup>
+          </f:facet>
+          <f:facet name="additional-group">
+            <p:selectCheckboxMenu value="#{jobQueueManager.tablePrefs.visibleColumns}" style="margin: 0 10px 0 20px;"
+              panelStyle="width:300px;" label="Visible Columns...">
+              <p:ajax event="change" update=":mainForm:jobTableId" process="@this" onstart="saveScrollPos()"
+                oncomplete="getScrollPos()" immediate="true" />
+              <p:ajax event="toggleSelect" update=":mainForm:jobTableId" process="@this" onstart="saveScrollPos()"
+                oncomplete="getScrollPos()" immediate="true" />
+              <f:selectItems value="#{jobQueueManager.tablePrefs.visibiltyList}" />
+            </p:selectCheckboxMenu>
+          </f:facet>
+        </ts:toolbar>
+
+        <div class="vertical-spacer" />
+        <p:growl globalOnly="true" id="messages" autoUpdate="true" />
+
+        <h:panelGroup id="refreshDiv" rendered="#{jobQueueManager.refreshEnabled}">
+
+          <p:poll id="agentRefreshPoll" interval="#{jobQueueManager.refreshInterval}" autoStart="true"
+            update=":mainForm:jobTableId, :vldFormStatus, :userDetailsForm:userDetailsContent, :tpsForm:tpsDetailsContent"
+            onstart="saveScrollPos()" oncomplete="getScrollPos()" listener="#{jobQueueManager.refreshData()}">
+          </p:poll>
+        </h:panelGroup>
+
+        <pe:remoteCommand id="resizeListener" name="resizeFinished" update="jobTableId" />
+
+        <p:treeTable style="width:#{jobQueueManager.tablePrefs.totalSize}px;" id="jobTableId" var="node"
+          value="#{jobQueueManager.rootNode}" resizableColumns="true" liveResize="false" scrollable="true"
+          scrollHeight="450" scrollWidth="100%">
+
+          <p:ajax event="expand" listener="#{jobQueueManager.onNodeExpand}" update="jobTableId"
+            onstart="saveScrollPos()" oncomplete="getScrollPos()" />
+          <p:ajax event="collapse" listener="#{jobQueueManager.onNodeCollapse}" update="jobTableId"
+            onstart="saveScrollPos()" oncomplete="getScrollPos()" />
+
+          <p:ajax event="colResize" update="jobTableId" listener="#{jobQueueManager.tablePrefs.onResize}" global="true"
+            onstart="saveScrollPos()" oncomplete="getScrollPos()" immediate="true" />
+
+
+          <p:column id="nameColumn" style="width:#{jobQueueManager.tablePrefs.getSize('nameColumn')}px;"
+            headerText="Name" styleClass="ellipsis min-column-size"
+            rendered="#{jobQueueManager.tablePrefs.isVisible('nameColumn')}">
+            <p:commandLink ajax="true" action="#{jobQueueManager.setCurrentJobInstance(node)}"
+              oncomplete="PF('validatePopup').show();" update=":validatePopupID" rendered="#{node.jobNode}">
+              <h:outputText value="#{node.name}" title="#{node.name}" />
+            </p:commandLink>
+            <h:outputText value="#{node.name}" title="#{node.name}" rendered="#{!node.jobNode}" />
+          </p:column>
+
+
+          <p:column id="idColumn" style="width:#{jobQueueManager.tablePrefs.getSize('idColumn')}px; text-align: right;"
+            headerText="ID" styleClass="ellipsis min-column-size"
+            rendered="#{jobQueueManager.tablePrefs.isVisible('idColumn')}">
+            <h:outputText value="#{node.id}" rendered="#{node.type ne 'project'}" />
+          </p:column>
+
+
+
+          <p:column id="statusColumn" headerText="Status" styleClass="ellipsis min-column-size"
+            style="width:#{jobQueueManager.tablePrefs.getSize('statusColumn')}px;"
+            rendered="#{jobQueueManager.tablePrefs.isVisible('statusColumn')}">
+            <h:outputText value="#{node.status}" />
+          </p:column>
+
+          <p:column id="regionColumn" style="width:#{jobQueueManager.tablePrefs.getSize('regionColumn')}px;"
+            headerText="Region" styleClass="ellipsis min-column-size"
+            rendered="#{jobQueueManager.tablePrefs.isVisible('regionColumn')}">
+            <h:outputText value="#{node.region}" />
+          </p:column>
+
+          <p:column id="activeUsersColumn"
+            style="width:#{jobQueueManager.tablePrefs.getSize('activeUsersColumn')}px;text-align:right;"
+            headerText="Active Users" styleClass="ellipsis min-column-size"
+            rendered="#{jobQueueManager.tablePrefs.isVisible('activeUsersColumn')}">
+            <p:commandLink ajax="true" id="lnkUserDetailsActive" action="#{jobQueueManager.setCurrentJobInstance(node)}"
+              oncomplete="PF('userDetailsPopup').show();" update=":userDetailsPopupID">
+              <h:outputText value="#{node.activeUsers}" />
+            </p:commandLink>
+          </p:column>
+
+          <p:column id="totalUsersColumn"
+            style="width:#{jobQueueManager.tablePrefs.getSize('totalUsersColumn')}px; text-align:right;"
+            headerText="Total Users" styleClass="ellipsis min-column-size"
+            rendered="#{jobQueueManager.tablePrefs.isVisible('totalUsersColumn')}">
+            <p:commandLink ajax="true" id="lnkUserDetails" action="#{jobQueueManager.setCurrentJobInstance(node)}"
+              oncomplete="PF('userDetailsPopup').show();" update=":userDetailsPopupID">
+              <h:outputText value="#{node.totalUsers}" />
+            </p:commandLink>
+          </p:column>
+
+          <p:column id="tpsColumn" headerText="TPS" styleClass="ellipsis min-column-size"
+            style="width:#{jobQueueManager.tablePrefs.getSize('tpsColumn')}px; text-align:right;"
+            rendered="#{jobQueueManager.tablePrefs.isVisible('tpsColumn')}">
+            <p:commandLink ajax="true" id="lnkTotalTPSBt" action="#{jobQueueManager.setCurrentJobInstance(node)}"
+              oncomplete="PF('tpsDetailsPopup').show();" update=":tpsForm:tpsDetailsContent">
+              <h:outputText value="#{node.tps}" />
+            </p:commandLink>
+          </p:column>
+
+          <p:column id="validationColumn"
+            style="width:#{jobQueueManager.tablePrefs.getSize('validationColumn')}px; text-align:right;"
+            headerText="Validation Failures" styleClass="ellipsis min-column-size"
+            rendered="#{jobQueueManager.tablePrefs.isVisible('validationColumn')}">
+            <p:commandLink ajax="true" id="btnVldErrs" action="#{jobQueueManager.setCurrentJobInstance(node)}"
+              oncomplete="PF('validationStatusPopup').show();" update=":validationStatusPopupID"
+              rendered="#{!node.getType().equals('project')}">
+              <h:outputText value="#{node.numFailures.total} (Details)" title="Total Failures" />
+            </p:commandLink>
+          </p:column>
+
+          <p:column id="startTimeColumn"
+            style="width:#{jobQueueManager.tablePrefs.getSize('startTimeColumn')}px; text-align:right;"
+            headerText="Start Time" styleClass="ellipsis min-column-size"
+            rendered="#{jobQueueManager.tablePrefs.isVisible('startTimeColumn')}">
+            <h:outputText value="#{node.startTime}" />
+          </p:column>
+
+          <p:column id="endTimeColumn"
+            style="width:#{jobQueueManager.tablePrefs.getSize('endTimeColumn')}px; text-align:right;"
+            headerText="End Time" styleClass="ellipsis min-column-size"
+            rendered="#{jobQueueManager.tablePrefs.isVisible('endTimeColumn')}">
+            <h:outputText value="#{node.endTime}" />
+          </p:column>
+
+          <p:column id="actionsColumn"
+            style="width:#{jobQueueManager.tablePrefs.getSize('actionsColumn')}px; text-align:right;"
+            styleClass="ellipsis min-column-size" rendered="#{jobQueueManager.tablePrefs.isVisible('actionsColumn')}">
+            <div class="float-left">
+
+              <p:commandButton id="btnRun" action="#{jobQueueAction.run(node)}" value="R" title="Run"
+                onerror="window.location.reload()"
+                disabled="#{!node.isRunnable() or !jobQueueManager.canControlJob(node)}" ajax="true"
+                update=":mainForm:jobTableId" />
+              <p:commandButton id="btnKill" action="#{jobQueueAction.kill(node)}" value="K" title="Kill"
+                onerror="window.location.reload()"
+                disabled="#{!node.isKillable() or !jobQueueManager.canControlJob(node)}" ajax="true"
+                update=":mainForm:jobTableId" />
+              <p:commandButton id="btnPauseRamp" action="#{jobQueueAction.pauseRamp(node)}" value="PR"
+                title="Pause Ramp" onerror="window.location.reload()"
+                disabled="#{!node.isRampPausable() or !jobQueueManager.canControlJob(node)}" ajax="true"
+                update=":mainForm:jobTableId" />
+              <!-- <p:commandButton id="btnPause" action="#{jobQueueAction.pause(node)}" value="P" title="Pause"
+                   onerror="window.location.reload()" disabled="#{!node.isPausable()}" ajax="true"
+                   update=":mainForm:jobTableId" /> -->
+              <p:commandButton id="btnStop" action="#{jobQueueAction.stop(node)}" value="S" title="Stop"
+                onerror="window.location.reload()"
+                disabled="#{!node.isStopable() or !jobQueueManager.canControlJob(node)}" ajax="true"
+                update=":mainForm:jobTableId" />
+              <p:commandButton id="btnDelete" action="#{jobQueueManager.deleteJobInstance(node)}" value="X"
+                onerror="window.location.reload()"
+                rendered="#{node.isDeleteable() and jobQueueManager.canControlJob(node)}" ajax="false" title="Delete"
+                update=":mainForm:jobTableId, :mainForm:messages" />
+            </div>
+            <div class="float-right">
+              <h:outputLink title="View Summary Timing Data" target="_new"
+                rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
+                value="#{request.contextPath}/rest/v1/report-service/timing/summary/html/#{node.id}">
+                <h:graphicImage value="/resources/gfx/16/table_chart.png" width="16" height="16"
+                  style="padding: 5px 0; margin-right:5px;" />
+              </h:outputLink>
+
+              <h:outputLink title="View Periodic Timing Data" target="_new"
+                rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
+                value="#{request.contextPath}/rest/v1/report-service/timing/periodic/html/#{node.id}">
+                <h:graphicImage value="/resources/gfx/16/table_heatmap.png" width="16" height="16"
+                  style="padding: 5px 0; margin-right:5px;" />
+              </h:outputLink>
+
+              <h:outputLink title="Download CSV Timing Data"
+                rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
+                value="#{request.contextPath}/rest/v1/report-service/timing/csv/#{node.id}">
+                <h:graphicImage value="/resources/gfx/16/table_excel.png" width="16" height="16"
+                  style="padding: 5px 0; margin-right:5px;" />
+              </h:outputLink>
+
+              <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'job'}"
+                value="#{request.contextPath}/rest/v1/project-service/download/script/#{node.id}">
+                <h:graphicImage value="/resources/gfx/16/script_go.png" width="16" height="16"
+                  style="padding: 5px 0; margin-right:5px;" />
+              </h:outputLink>
+
+              <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'project'}"
+                value="#{request.contextPath}/rest/v1/project-service/download/script/project/#{node.id}">
+                <h:graphicImage value="/resources/gfx/16/script_go.png" width="16" height="16"
+                  style="padding: 5px 0; margin-right:5px;" />
+              </h:outputLink>
+            </div>
+          </p:column>
+
+        </p:treeTable>
+
+      </h:form>
+    </div>
+    <p:dialog id="validatePopupID" appendTo="@(body)" dynamic="true" widgetVar="validatePopup" width="500" height="500"
+      header="Validate Script" modal="true" resizable="true" position="center">
+      <p:scrollPanel style="width:450px;height:400px; padding:10px;" mode="native"
+        rendered="#{jobQueueManager.currentJobInstance ne null}">
+        <h:outputText value="#{jobQueueManager.currentJobInstance.jobDetails}" escape="false" />
+      </p:scrollPanel>
+
+      <div class="vertical-spacer" />
+
+      <p:commandButton value="Close" type="button" styleClass="h-space" onclick="PF('validatePopup').hide();" />
+    </p:dialog>
+    <p:dialog id="validationStatusPopupID"  dynamic="true" widgetVar="validationStatusPopup"
+      width="300" height="160" header="Validation Errors" resizable="true" position="center">
+      <h:panelGroup id="vldFormStatus">
+        <div class="formRow">
+          <div class="smallFormLabelDiv">
+            <h:outputText value="ID: " style="font-weight:bold" />
+          </div>
+          <div class="formLabelDiv">
+            <h:outputText value="#{jobQueueManager.currentJobInstance.id}" />
+          </div>
+        </div>
+        <div class="formRow">
+          <div class="smallFormLabelDiv">
+            <h:outputText value="Total: " style="font-weight:bold" />
+          </div>
+          <div class="smallFormLabelDiv">
+            <h:outputText value="#{jobQueueManager.currentJobInstance.numFailures.getTotal()}" />
+          </div>
+        </div>
+        <div class="formRow">
+          <div class="smallFormLabelDiv">
+            <h:outputText value="Kills: " />
+          </div>
+          <div class="smallFormLabelDiv">
+            <h:outputText value="#{jobQueueManager.currentJobInstance.numFailures.getValidationKills()}" />
+          </div>
+        </div>
+        <div class="formRow">
+          <div class="smallFormLabelDiv">
+            <h:outputText value="Aborts: " />
+          </div>
+          <div class="smallFormLabelDiv">
+            <h:outputText value="#{jobQueueManager.currentJobInstance.numFailures.getValidationAborts()}" />
+          </div>
+        </div>
+        <div class="formRow">
+          <div class="smallFormLabelDiv">
+            <h:outputText value="Gotos: " />
+          </div>
+          <div class="smallFormLabelDiv">
+            <h:outputText value="#{jobQueueManager.currentJobInstance.numFailures.getValidationGotos()}" />
+          </div>
+        </div>
+        <div class="formRow">
+          <div class="smallFormLabelDiv">
+            <h:outputText value="Skips: " />
+          </div>
+          <div class="smallFormLabelDiv">
+            <h:outputText value="#{jobQueueManager.currentJobInstance.numFailures.getValidationSkips()}" />
+          </div>
+        </div>
+        <div class="vertical-spacer" />
+
+        <p:commandButton value="Close" type="button" styleClass="h-space" onclick="PF('validationStatusPopup').hide();" />
+      </h:panelGroup>
+    </p:dialog>
+
+    <p:dialog id="userDetailsPopupID"  dynamic="true" widgetVar="userDetailsPopup" width="900"
+      height="600" header="User Details" resizable="true" position="center">
+      <h:form id="userDetailsForm">
+        <h:panelGroup id="userDetailsContent" rendered="#{jobQueueManager.currentJobInstance ne null}">
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputText value="ID: " />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="Job " rendered="#{jobQueueManager.currentJobInstance.type eq 'job'}" />
+              <h:outputText value="Project " rendered="#{jobQueueManager.currentJobInstance.type eq 'project'}" />
+              <h:outputText value="#{jobQueueManager.currentJobInstance.id} - " />
+              <h:outputText value="#{jobQueueManager.currentJobInstance.name}" />
+            </div>
+          </div>
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputText value="Total Users: " />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="#{jobQueueManager.currentJobInstance.totalUsers}" />
+            </div>
+          </div>
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputText value="Active Users: " />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="#{jobQueueManager.currentJobInstance.activeUsers}" />
+            </div>
+          </div>
+          <div class="vertical-spacer" />
+
+          <p:dataTable id="userDetailsTableID" widgetVar="userDetailsTable" var="userDetail"
+            rendered="#{jobQueueManager.currentJobInstance.userDetails ne null}"
+            value="#{jobQueueManager.currentJobInstance.userDetails}" emptyMessage="No user details available.">
+
+            <p:column id="scriptNameCol" headerText="Script Name" styleClass="ellipsis min-column-size" width="75%">
+              <h:outputText value="#{userDetail.script}" title="#{userDetail.script}" />
+            </p:column>
+
+            <p:column id="numUsersColumn" headerText="Users" styleClass="ellipsis min-column-size align-right"
+              width="25%">
+              <h:outputText value="#{userDetail.users}" title="#{userDetail.users}" />
+            </p:column>
+          </p:dataTable>
+
+
+          <div class="vertical-spacer" />
+          <h:panelGroup rendered="#{jobQueueManager.chartModel ne null}" id="chartScript">
+            <script type="text/javascript">
+      //<![CDATA[
+     if( $.jqplot)
+       $.jqplot.config.enablePlugins = true;
+    
+      var userDetailsExtender = function() {
+          var myoptions = {
+                 
+            axes: {
+                xaxis: {
+                renderer: $.jqplot.DateAxisRenderer,
+                min: #{jobQueueManager.chartModel.min},
+                max: #{jobQueueManager.chartModel.max},
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    formatString: '%H:%M',
+                        angle: -45
+                    }
+                },
+                yaxis: {
+                    min:0,
+                    tickOptions: {
+                        formatString: '%.0f'
+                    }
+                }
+            },
+            seriesDefaults: {
+                lineWidth: 0.9,
+                markerOptions: {
+                    show: true,
+                    size: 2, 
+                    shadow: false
+                }
+            },
+            cursor:{ 
+                show: true,
+                zoom: true,
+                showTooltip: false,
+                showVerticalLine: true,
+                showHorizontalLine: true,
+                dblClickReset: true
+              },
+            legend: {
+                show: true,
+                placement: 'outsideGrid',
+                location: 'e'
+              },
+            highlighter: {
+                show: true,
+                tooltipAxes: 'xy',
+                showTooltip: true, 
+                sizeAdjust: 10,
+                showMarker: true,
+                tooltipLocation: 'se',
+                //bringSeriesToFront: true, 
+                useAxesFormatters: false,
+                // You can customize the tooltip format string of the highlighter
+                // to include any arbitrary text or html and use format string
+                // placeholders (%s here) to represent x and y values.
+                //tooltipFormatString:  '%.1f',
+                //formatString:'<span style="display:none;">%s</span><span class="graph-point-label"> %d</span>'
+                tooltipContentEditor: function (str, seriesIndex, pointIndex, plot) {
+
+                    var date = new Date(plot.data[seriesIndex][pointIndex][0]);
+                    var value = plot.data[seriesIndex][pointIndex][1];
+                    var seriesName = plot.series[seriesIndex].label;
+                    var seriesColor = plot.seriesColors[seriesIndex];
+                    //debug examine the console object to get other values
+                    //console.log(plot);
+                    var html = "<div class='chartTip'><span class='chartTipTitle' style='color: " + seriesColor + ";'>";
+                    html += "Script Name: " + seriesName;
+                    html += "</span>  <br/><span class='chartTipLabel'>Time : </span><span class='chartTipValue'>";
+                    html += dateFormat(date, "HH:MM:ss");
+                    html += "</span>  <br/><span class='chartTipLabel'>Number of Users : </span><span class='chartTipValue'>";
+                    html += value;
+                    html += "  </span></div>";
+        
+                    return html;
+                }
+              } 
+            
+            
+          }
+          //do a deep merge
+          $.extend(true, this.cfg, myoptions);
+      }
+      
+
+      
+
+      
+      //]]>
+      </script>
+            <p:chart type="line" model="#{jobQueueManager.chartModel}"  style="height:400px"
+              title="User Details over Time" extender="userDetailsExtender" />
+          </h:panelGroup>
+          <div class="vertical-spacer" />
+        </h:panelGroup>
+        <p:commandButton value="Close" type="button" styleClass="h-space" onclick="PF('userDetailsPopup').hide();" />
+      </h:form>
+    </p:dialog>
+
+    <!-- TPS Dialog -->
+
+    <p:dialog id="tpsDetailsPopupID"  dynamic="true" widgetVar="tpsDetailsPopup" width="900"
+      height="600" header="TPS Details" resizable="true" position="center">
+      <h:form id="tpsForm">
+        <h:panelGroup id="tpsDetailsContent" rendered="#{jobQueueManager.currentJobInstance ne null}">
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputText value="ID: " />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="Job " rendered="#{jobQueueManager.currentJobInstance.type eq 'job'}" />
+              <h:outputText value="Project " rendered="#{jobQueueManager.currentJobInstance.type eq 'project'}" />
+              <h:outputText value="#{jobQueueManager.currentJobInstance.id} - " />
+              <h:outputText value="#{jobQueueManager.currentJobInstance.name}" />
+            </div>
+          </div>
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputText value="Total Users: " />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="#{jobQueueManager.currentJobInstance.totalUsers}" />
+            </div>
+          </div>
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputText value="Active Users: " />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="#{jobQueueManager.currentJobInstance.activeUsers}" />
+            </div>
+          </div>
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputText value="Current TPS: " />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="#{projectJobQueueManager.currentJobInstance.tps}" />
+            </div>
+          </div>
+          <div class="vertical-spacer" />
+
+          <h:panelGroup rendered="#{jobQueueManager.tpsChartModel ne null}" id="chartScript">
+            <script type="text/javascript">
+      //<![CDATA[
+     if( $.jqplot)
+       $.jqplot.config.enablePlugins = true;
+    
+      var tpsDetailsExtender = function() {
+          var myoptions = {
+                 
+            axes: {
+                xaxis: {
+                renderer: $.jqplot.DateAxisRenderer,
+                min: #{jobQueueManager.tpsChartModel.min},
+                max: #{jobQueueManager.tpsChartModel.max},
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    formatString: '%H:%M',
+                        angle: -45
+                    }
+                },
+                yaxis: {
+                    min:0,
+                    tickOptions: {
+                        formatString: '%.0f'
+                    }
+                }
+            },
+            seriesDefaults: {
+                lineWidth: 0.9,
+                markerOptions: {
+                    show: true,
+                    size: 5, 
+                    shadow: false
+                }
+            },
+            legend: {
+                show: true,
+                placement: 'outsideGrid',
+                location: 'e'
+              },
+            cursor:{ 
+                show: true,
+                zoom: true,
+                showTooltip: false,
+                showVerticalLine: true,
+                showHorizontalLine: true,
+                dblClickReset: true
+                
+              },
+            highlighter: {
+                show: true,
+                tooltipAxes: 'xy',
+                showTooltip: true, 
+                sizeAdjust: 10,
+                showMarker: true,
+                tooltipLocation: 'se',
+                //bringSeriesToFront: true, 
+                useAxesFormatters: false,
+                // You can customize the tooltip format string of the highlighter
+                // to include any arbitrary text or html and use format string
+                // placeholders (%s here) to represent x and y values.
+                //tooltipFormatString:  '%.1f',
+                //formatString:'<span style="display:none;">%s</span><span class="graph-point-label"> %d</span>'
+                tooltipContentEditor: function (str, seriesIndex, pointIndex, plot) {
+
+                    var date = new Date(plot.data[seriesIndex][pointIndex][0]);
+                    var value = plot.data[seriesIndex][pointIndex][1];
+                    var seriesName = plot.series[seriesIndex].label;
+                    var seriesColor = plot.seriesColors[seriesIndex];
+                    //debug examine the console object to get other values
+                    //console.log(plot);
+                    var html = "<div class='chartTip'><span class='chartTipTitle' style='color: " + seriesColor + ";'>";
+                    html += seriesName;
+                    html += "</span>  <br/><span class='chartTipLabel'>Time : </span><span class='chartTipValue'>";
+                    html += dateFormat(date, "HH:MM:ss");
+                    html += "</span>  <br/><span class='chartTipLabel'>TPS : </span><span class='chartTipValue'>";
+                    html += value;
+                    html += "  </span></div>";
+        
+                    return html;
+                }
+              } 
+            
+            
+          }
+          //do a deep merge
+          $.extend(true, this.cfg, myoptions);
+      }
+      //]]>
+      </script>
+            <p:chart type="line" model="#{jobQueueManager.tpsChartModel}" style="height:400px"
+              title="TPS Details over Time" extender="tpsDetailsExtender" />
+          </h:panelGroup>
+          <div class="vertical-spacer" />
+        </h:panelGroup>
+        <p:commandButton value="Close" type="button" styleClass="h-space" onclick="PF('tpsDetailsPopup').hide();" />
+      </h:form>
+    </p:dialog>
+
+    <!-- Add scripts that are needed here so the ordering is correct. -->
+
+    <h:outputScript library="primefaces" name="primefaces.js" target="head" />
+
+    <h:outputScript library="primefaces" name="charts/charts.js" target="head" />
+    <h:outputStylesheet library="primefaces" name="charts/charts.css" target="head" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.highlighter.js" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.canvasOverlay.js" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.cursor.js" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.categoryAxisRenderer.js" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.canvasAxisLabelRenderer.js" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.canvasTextRenderer.js" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.barRenderer.js" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.dateAxisRenderer.js" />
+  </ui:define>
+
+</ui:composition>

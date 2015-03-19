@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+      http://java.sun.com/xml/ns/javaee
+      http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+
+  <!-- This is an optional parameter, but it makes troubleshooting errors 
+    much easier You should remove this context parameter before deploying to 
+    production! -->
+  <Context>
+    <ResourceLink global='jdbc/watsDS' name='jdbc/watsDS'
+      type="javax.sql.Datasource" />
+  </Context>
+  <distributable />
+
+  <resource-ref>
+    <description>DB Connection</description>
+    <res-ref-name>jdbc/watsDS</res-ref-name>
+    <res-type>javax.sql.DataSource</res-type>
+    <res-auth>Container</res-auth>
+  </resource-ref>
+
+  <context-param>
+    <param-name>com.sun.faces.enableMissingResourceLibraryDetection</param-name>
+    <param-value>true</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>primefaces.THEME</param-name>
+    <param-value>redmond</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>javax.faces.PROJECT_STAGE</param-name>
+    <param-value>Development</param-value>
+  </context-param>
+  <context-param>
+    <param-name>javax.faces.FACELETS_SKIP_COMMENTS</param-name>
+    <param-value>true</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>com.sun.faces.expressionFactory</param-name>
+    <param-value>org.jboss.el.ExpressionFactoryImpl</param-value>
+  </context-param>
+
+  <listener>
+    <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>org.jboss.seam.servlet.event.ServletEventBridgeListener</listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>org.jboss.seam.solder.resourceLoader.servlet.ResourceListener</listener-class>
+  </listener>
+
+  <filter>
+    <filter-name>Servlet Event Bridge Filter</filter-name>
+    <filter-class>org.jboss.seam.servlet.event.ServletEventBridgeFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>Servlet Event Bridge Filter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter>
+    <filter-name>Catch Exception Filter</filter-name>
+    <filter-class>org.jboss.seam.servlet.exception.CatchExceptionFilter</filter-class>
+  </filter>
+
+
+  <filter-mapping>
+    <filter-name>Catch Exception Filter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter>
+    <filter-name>PrimeFaces FileUpload Filter</filter-name>
+    <filter-class>org.primefaces.webapp.filter.FileUploadFilter</filter-class>
+    <init-param>
+      <param-name>thresholdSize</param-name>
+      <param-value>1048576</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>PrimeFaces FileUpload Filter</filter-name>
+    <servlet-name>Faces Servlet</servlet-name>
+  </filter-mapping>
+  <filter>
+    <filter-name>UserName Filter</filter-name>
+    <filter-class>com.intuit.tank.util.UserNameFilter</filter-class>
+  </filter>
+  <filter>
+    <filter-name>RestSecurity Filter</filter-name>
+    <filter-class>com.intuit.tank.util.RestSecurityFilter</filter-class>
+  </filter>
+  <!-- <listener> <listener-class>org.jboss.seam.faces.beanManager.BeanManagerServletContextListener</listener-class> 
+    </listener> -->
+  <!-- Weld Jetty/Tomcat specific configuration parameters *** The <listener> 
+    and <resource-env-ref> elements can be deleted when running in a Java EE 
+    6 container *** -->
+
+  <!-- Activate the JSF 2.0 servlet -->
+  <servlet>
+    <servlet-name>Faces Servlet</servlet-name>
+    <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet>
+    <servlet-name>Intuit Tank REST API</servlet-name>
+    <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+    <init-param>
+      <param-name>com.sun.jersey.config.property.resourceConfigClass</param-name>
+      <param-value>com.sun.jersey.api.core.PackagesResourceConfig</param-value>
+    </init-param>
+    <init-param>
+      <param-name>com.sun.jersey.config.property.packages</param-name>
+      <param-value>com.intuit.tank.service.impl.v1;</param-value>
+    </init-param>
+    <init-param>
+      <param-name>com.sun.jersey.config.feature.Formatted</param-name>
+      <param-value>true</param-value>
+    </init-param>
+    <!-- See: http://n2.nabble.com/SAX-Feature-error-in-Jersey-1-1-4-1-td4581700.html -->
+    <init-param>
+      <param-name>com.sun.jersey.config.feature.DisableXmlSecurity</param-name>
+      <param-value>true</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <!-- Tell the context which URLs to process with JSF -->
+  <servlet-mapping>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>*.jsf</url-pattern>
+  </servlet-mapping>
+
+  <filter-mapping>
+    <filter-name>RestSecurity Filter</filter-name>
+    <servlet-name>Intuit Tank REST API</servlet-name>
+  </filter-mapping>
+
+  <filter-mapping>
+    <filter-name>UserName Filter</filter-name>
+    <servlet-name>Faces Servlet</servlet-name>
+  </filter-mapping>
+
+  <servlet-mapping>
+    <servlet-name>Intuit Tank REST API</servlet-name>
+    <url-pattern>/rest/*</url-pattern>
+  </servlet-mapping>
+
+  <session-config>
+    <session-timeout>60</session-timeout>
+  </session-config>
+
+  <!-- This section is optional. We are allowing index.jsf to handle the 
+    root URL (i.e., /). -->
+  <welcome-file-list>
+    <!-- Add additional files here, if desired, for example: <welcome-file>index.html</welcome-file> -->
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.jsf</welcome-file>
+  </welcome-file-list>
+  <resource-env-ref>
+    <description>Object factory for the CDI Bean Manager</description>
+    <resource-env-ref-name>BeanManager</resource-env-ref-name>
+    <resource-env-ref-type>javax.enterprise.inject.spi.BeanManager</resource-env-ref-type>
+  </resource-env-ref>
+
+</web-app>

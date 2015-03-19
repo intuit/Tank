@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:s="http://jboss.org/seam/faces"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag"
+  xmlns:p="http://primefaces.org/ui"
+  template="/WEB-INF/templates/tank.xhtml">
+  <ui:define name="content">
+
+    <h:form id="mainForm">
+    
+
+      <ts:toolbar
+        title="#{userEdit.user.id eq null ? 'New' : 'Edit'} User"
+        toolbarId="userTB">
+        <f:facet name="actions">
+          <h:panelGroup styleClass="toolbar-ui">
+            <p:commandButton id="tbSaveBtn" value="Save"
+              action="#{userEdit.save()}"
+              title="Save Changes to Project #{projectBean.project.name}"
+              update=":mainForm:messages"
+              style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
+                    background-repeat: no-repeat;
+                    background-position: 3px 5px;
+                    border-radius:5px;"
+              styleClass="icon-button h-space" />
+            <p:commandButton id="tbCancelBtn"
+              action="#{userEdit.cancel()}" value="Cancel"
+              immediate="true"
+              style=" background-image: url(#{request.contextPath}/resources/gfx/16/cancel.png);
+                    background-repeat: no-repeat;
+                    background-position: 3px 5px;
+                    border-radius:5px;"
+              styleClass="icon-button h-space" />
+          </h:panelGroup>
+        </f:facet>
+      </ts:toolbar>
+
+      <div class="vertical-spacer" />
+      <p:growl globalOnly="true" id="messages" />
+
+      <div class="formDiv">
+        <div class="formRow">
+          <div class="formLabelDiv">
+            <h:outputLabel for="newusername" value="Login Name"
+              styleClass="formLabel required" />
+          </div>
+          <div class="formInputDiv">
+            <h:inputText id="newusername" value="#{userEdit.user.name}"
+              styleClass="formInput inputWidthMedium" />
+          </div>
+        </div>
+        <div class="formRow">
+          <div class="formLabelDiv">
+            <h:outputLabel for="passwordEnter" value="New Password"
+              styleClass="formLabel required" />
+          </div>
+          <div class="formInputDiv">
+            <p:password id="passwordEnter" value="#{userEdit.password}"
+              styleClass="formInput inputWidthMedium" />
+          </div>
+        </div>
+        <div class="formRow">
+          <div class="formLabelDiv">
+            <h:outputLabel for="passwordConfirm"
+              value="Confirm Password" styleClass="formLabel required" />
+          </div>
+          <div class="formInputDiv">
+            <h:inputSecret id="passwordConfirm"
+              value="#{userEdit.passwordConfirm}"
+              styleClass="formInput inputWidthMedium" />
+          </div>
+        </div>
+
+
+        <div class="formRow">
+          <div class="formLabelDiv">
+            <h:outputLabel for="email" value="Email"
+              styleClass="formLabel required" />
+          </div>
+          <div class="formInputDiv">
+            <h:inputText id="email" value="#{userEdit.user.email}"
+              styleClass="formInput inputWidthMedium" />
+          </div>
+        </div>
+        <div class="formRow">
+          <div class="formLabelDiv">
+            <h:outputLabel for="apiToken" value="API Token"
+              styleClass="formLabel" />
+          </div>
+          <div class="formInputDiv">
+            <h:panelGroup id="tokenGroup">
+              <h:outputText id="apiToken"
+                value="#{userEdit.user.apiToken}" />
+              <p:commandButton action="#{userEdit.generateApiToken}"
+                value="Generate API Token"
+                immediate="true" update="tokenGroup"
+                rendered="#{userEdit.user.apiToken == null}" ajax="true" />
+            </h:panelGroup>
+          </div>
+        </div>
+
+        <div class="formRow">
+          <div class="formLabelDiv">
+            <h:outputLabel for="groupsList" value="Groups"
+              styleClass="formLabel required" />
+          </div>
+          <div class="formInputDiv">
+            <p:pickList id="groupShuffleListId"
+              value="#{userEdit.selectionModel}" var="group"
+              itemValue="#{group}" itemLabel="#{group}"
+              showTargetControls="false" showSourceControls="false">
+              <f:facet name="sourceCaption">Available Groups</f:facet>
+              <f:facet name="targetCaption">Member Groups</f:facet>
+
+            </p:pickList>
+          </div>
+        </div>
+      </div>
+    </h:form>
+
+  </ui:define>
+</ui:composition>

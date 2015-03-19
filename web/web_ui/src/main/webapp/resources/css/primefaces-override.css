@@ -1,0 +1,71 @@
+.ui-widget,.ui-widget input,.ui-widget select,.ui-widget textarea,.ui-widget button {
+  font-size: 12px;
+}
+
+
+.CodeMirror {
+  border: 1px solid gray;
+}
+
+.ui-corner-tr,.ui-corner-tl,.ui-corner-all {
+  border-radius: 0;
+}
+
+.ui-button-text-only .ui-button-text {
+  padding: 3px;
+}
+
+.ui-widget-content .ui-datatable-odd {
+  background-color: #DBEAFF;
+}
+
+.ui-widget-content .ui-datatable-even {
+  background-color: #FFFFFF;
+}
+
+.ui-widget-content .ui-datatable-even:hover,.ui-widget-content .ui-datatable-odd:hover {
+  background-color: #FFFEE2;
+}
+
+.ui-widget-content {
+  background-image: none;
+}
+
+.ui-datatable-scrollable-header,.ui-datatable-scrollable-footer {
+  background: none;
+}
+
+.ui-tabs .ui-tabs-panel {
+  padding: 1em .4em;
+}
+
+.ui-accordion .ui-accordion-content {
+  border-right: 1px solid #79B7E7;
+  border-left: 1px solid #79B7E7;
+  border-bottom: 1px solid #79B7E7;
+}
+
+.rf-pp-hdr {
+  background:
+    url("/wats-proxy/javax.faces.resource/images/ui-bg_gloss-wave_55_5c9ccc_500x100.png.jsf?ln=primefaces-redmond")
+    repeat-x scroll 50% 50% #5C9CCC;
+}
+
+.rf-pp-hdr-cnt {
+  color: #FFFFFF;
+}
+
+.ui-tabs .ui-tabs-panel {
+  background-color: #ffffff;
+}
+
+.scriptOrderMarker .ui-orderlist-list {
+  width: 400px;
+  height: 400px
+}
+.ui-datatable-scrollable-body {
+  position: relative;
+}
+.ui-treetable-scrollable-body {
+  position: relative;
+}

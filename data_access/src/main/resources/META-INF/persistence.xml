@@ -1,0 +1,109 @@
+<!--
+  #%L
+  Data Access
+  %%
+  Copyright (C) 2011 - 2015 Intuit Inc.
+  %%
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+  #L%
+  -->
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+  version="2.0">
+  <persistence-unit name="wats" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <non-jta-data-source>java:comp/env/jdbc/watsDS</non-jta-data-source>
+
+    <class>com.intuit.tank.project.DataFile</class>
+    <class>com.intuit.tank.project.ScriptFilter</class>
+    <class>com.intuit.tank.project.ScriptFilterAction</class>
+    <class>com.intuit.tank.project.ScriptFilterCondition</class>
+    <class>com.intuit.tank.project.ScriptFilterGroup</class>
+    <class>com.intuit.tank.project.JobVMInstance</class>
+    <class>com.intuit.tank.project.ColumnPreferences</class>
+    <class>com.intuit.tank.project.Preferences</class>
+    <class>com.intuit.tank.project.Project</class>
+    <class>com.intuit.tank.project.RequestData</class>
+    <class>com.intuit.tank.project.Script</class>
+    <class>com.intuit.tank.project.ScriptGroup</class>
+    <class>com.intuit.tank.project.ScriptGroupStep</class>
+    <class>com.intuit.tank.project.ScriptStep</class>
+    <class>com.intuit.tank.project.VMInstance</class>
+    <class>com.intuit.tank.project.JobConfiguration</class>
+    <class>com.intuit.tank.project.JobInstance</class>
+    <class>com.intuit.tank.project.JobQueue</class>
+    <class>com.intuit.tank.project.JobNotification</class>
+    <class>com.intuit.tank.project.JobRecipient</class>
+    <class>com.intuit.tank.project.JobRegion</class>
+    <class>com.intuit.tank.project.Workload</class>
+    <class>com.intuit.tank.project.WatsRevisionInfo</class>
+    <class>com.intuit.tank.project.SerializedScriptStep</class>
+    <class>com.intuit.tank.project.ExternalScript</class>
+    <class>com.intuit.tank.project.SummaryData</class>
+    <class>com.intuit.tank.project.PeriodicData</class>
+    <class>com.intuit.tank.project.TestPlan</class>
+    
+    <class>com.intuit.tank.project.User</class>
+    <class>com.intuit.tank.project.Group</class>
+
+    <properties>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5Dialect" />
+      <property name="hibernate.hbm2ddl.auto" value="update" />
+
+      <!-- JDBC connection pool (use the built-in) -->
+      <property name="hibernate.connection.pool_size" value="10" />
+
+      <!-- configuration pool via c3p0 -->
+      <!-- <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
+      <property name="hibernate.connection.provider_class" value="org.hibernate.connection.C3P0ConnectionProvider" />
+      <property name="hibernate.c3p0.min_size" value="1" />
+      <property name="hibernate.c3p0.max_size" value="40" />
+      <property name="hibernate.c3p0.timeout" value="120" />
+      <property name="hibernate.c3p0.idle_test_period" value="60" />
+      <property name="hibernate.c3p0.max_statements" value="10" />
+      <property name="hibernate.c3p0.preferredTestQuery" value="select 1" />
+
+      <property name="hibernate.connection.autoReconnect" value="true"/>
+      <property name="hibernate.connection.autoReconnectForPools" value="true"/> -->
+
+
+
+
+      <!-- Enable Hibernate's automatic session context management -->
+      <property name="hibernate.current_session_context_class" value="thread" />
+      <property name="hibernate.hibernate.cache.use_query_cache" value="true" />
+      <property name="hibernate.cache.use_second_level_cache" value="false" />
+      <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider" />
+      <property name="hibernate.transaction.flush_before_completion" value="true" />
+      <property name="hibernate.connection.autocommit" value="false" />
+      <property name="hibernate.connection.release_mode" value="after_transaction" />
+
+      <property name="hibernate.transaction.auto_close_session" value="false" />
+
+
+
+      <!-- Echo all executed SQL to stdout -->
+      <property name="hibernate.show_sql" value="false" />
+
+      <!-- Envers Listeners -->
+      <property name="hibernate.ejb.event.post-insert"
+        value="org.hibernate.ejb.event.EJB3PostInsertEventListener,org.hibernate.envers.event.AuditEventListener" />
+      <property name="hibernate.ejb.event.post-update"
+        value="org.hibernate.ejb.event.EJB3PostUpdateEventListener,org.hibernate.envers.event.AuditEventListener" />
+      <property name="hibernate.ejb.event.post-delete"
+        value="org.hibernate.ejb.event.EJB3PostDeleteEventListener,org.hibernate.envers.event.AuditEventListener" />
+      <property name="hibernate.ejb.event.pre-collection-update" value="org.hibernate.envers.event.AuditEventListener" />
+      <property name="hibernate.ejb.event.pre-collection-remove" value="org.hibernate.envers.event.AuditEventListener" />
+      <property name="hibernate.ejb.event.post-collection-recreate" value="org.hibernate.envers.event.AuditEventListener" />
+
+      <property name="org.hibernate.envers.auditTableSuffix" value="_version" />
+      <property name="org.hibernate.envers.revisionFieldName" value="rev" />
+      <property name="org.hibernate.envers.revisionTypeFieldName" value="rev_type" />
+
+
+    </properties>
+  </persistence-unit>
+</persistence>

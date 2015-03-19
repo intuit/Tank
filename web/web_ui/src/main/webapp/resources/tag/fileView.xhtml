@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 
+  Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:component xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:pe="http://primefaces.org/ui/extensions"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:p="http://primefaces.org/ui"
+  xmlns:composite="http://java.sun.com/jsf/composite"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <composite:interface>
+    <composite:attribute name="fileName" required="true" />
+    <composite:attribute name="widgetVar" required="true" />
+    <composite:attribute name="url" required="true" />
+    <composite:attribute name="poll" required="true" />
+    <composite:attribute name="lines" required="true" />
+    <composite:attribute name="height" required="false"/>
+  </composite:interface>
+
+  <composite:implementation>
+
+    <h:outputScript target="head" library="js" name="codemirror.js" />
+    <h:outputStylesheet target="head" library="js" name="codemirror.css" />
+    <style type="text/css">
+      .CodeMirror {
+        border: 1px solid black;
+        height: #{cc.attrs.height}px;
+    }
+</style>
+    <h:panelGroup layout="block" style="margin: 10px;">
+      <h:outputText value="Viewing File #{cc.attrs.fileName}" />
+      <p:commandButton value="Pause" type="button"
+        styleClass="pauseButton h-space v-space" />
+      <p:commandButton value="Wrap Lines" type="button"
+        styleClass="wrapButton h-space v-space" />
+    </h:panelGroup>
+
+    <textarea id="#{cc.attrs.widgetVar}" class="#{cc.attrs.widgetVar}"
+      style="border: 1px thin black;" />
+
+    <script type="text/javascript">
+    //<![CDATA[
+    var #{cc.attrs.widgetVar} = CodeMirror.fromTextArea($("##{cc.attrs.widgetVar}").get(0),  {
+                mode: "text/plain", 
+                value: "",
+                lineNumbers: true, 
+                lineWrapping: false,
+                readOnly: true, 
+                theme: "eclipse"}
+            );
+            
+    (function() {
+
+        var pausetoggle = ".pauseButton";
+        var wraptoggle = ".wrapButton";
+
+        var url = "#{cc.attrs.url}";
+        var lines = #{cc.attrs.lines};
+        var poll = #{cc.attrs.poll} * 1000;
+
+        var kill = false;
+        var loading = false;
+        var pause = false;
+        var wrap = false;
+        var log_data = "";
+        var log_size = 0;
+
+        function get_log() {
+            if (kill | loading){
+                return;
+            }
+            if (pause) {
+            	if (poll > 0) {
+                    setTimeout(get_log, poll);
+                }
+            	return;
+            }
+            loading = true;
+
+            var theUrl;
+            if (log_size === 0) {
+                theUrl = url + "?from=" + (-lines).toString();
+            } else{
+                theUrl = url + "?from=" + (log_size).toString();
+            }
+
+            $.ajax(theUrl, {
+                dataType : "text",
+                cache : false,
+                global: false,
+                success : function(data, s, xhr) {
+                    loading = false;
+                    var size;
+                    if (xhr.status === 200) {
+                        size = data.length;
+                        if (xhr.getResponseHeader("X-Total-Content-Length") !== null) {
+                            size = xhr.getResponseHeader("X-Total-Content-Length");
+                        }
+                    }
+
+                        log_data = data;
+
+                    log_size = size;
+                    show_log();
+                    if (poll > 0) {
+                        setTimeout(get_log, poll);
+                    }
+                },
+                error : function(xhr, s, t) {
+                    loading = false;
+
+                    if (xhr.status == 404) {
+                    	error("Call to " + theUrl + " returned 404.");
+                    	if (poll > 0) {
+                            setTimeout(get_log, poll);
+                        }
+                    } else {
+                        if (s == "error")
+                            error(xhr.statusText);
+                        else
+                            error("AJAX Error: " + s);
+                    }
+                }
+            });
+        }
+
+        function scrollToEnd() {
+        	var lastLine = #{cc.attrs.widgetVar}.getDoc().lastLine();
+        	#{cc.attrs.widgetVar}.scrollIntoView(lastLine);
+        }
+
+        function show_log() {
+            /* if (pause) {
+                return;
+            } */
+
+           
+            #{cc.attrs.widgetVar}.setValue(#{cc.attrs.widgetVar}.getValue() + log_data);
+            scrollToEnd();
+        }
+
+        function error(what) {
+            kill = true;
+
+            #{cc.attrs.widgetVar}.setValue(
+                    "An error occured. Reloading may help; no promises: " + what);
+            scrollToEnd();
+        }
+
+        $(document).ready(function() {
+            $(window).error(error);
+            
+            /* Add pause toggle */
+            $(pausetoggle).click(function(e) {
+                pause = !pause;
+                $(pausetoggle).children( ".ui-button-text" ).text(pause ? "Unpause" : "Pause");
+                //show_log();
+                e.preventDefault();
+            });
+            /* Add pause toggle */
+            $(wraptoggle).click(function(e) {
+                wrap = !wrap;
+                #{cc.attrs.widgetVar}.setOption("lineWrapping", wrap);
+                                 
+                $(wraptoggle).children( ".ui-button-text" ).text(wrap ? "Unwrap Lines" : "Wrap Lines");
+                
+                //show_log();
+                e.preventDefault();
+            });
+
+            get_log();
+        });
+
+    })();
+// ]]>
+    </script>
+
+
+  </composite:implementation>
+</ui:component>

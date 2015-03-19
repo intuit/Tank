@@ -1,0 +1,147 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:s="http://jboss.org/seam/faces"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui">
+
+  <h:panelGroup layout="block" styleClass="clearfix">
+    <div class="float-left">
+      <p:commandButton ajax="true" value="Add Test Plan" update=":testPlanPopupID" immediate="true"
+        action="#{addTestPlan.clear()}" oncomplete="PF('testPlanPopup').show();"
+        style=" background-image: url(#{request.contextPath}/resources/gfx/16/application_add.png);
+                              background-repeat: no-repeat;
+                              background-position: 3px 5px;
+                              border-radius:5px;"
+        styleClass="icon-button h-space" />
+    </div>
+    <div class="float-left" style="margin-left: 20px;">
+      <h:outputLink title="Download Harness XML"
+        value="#{request.contextPath}/rest/v1/project-service/download/script/project/#{projectBean.project.id}">
+        <h:graphicImage value="/resources/gfx/16/script_go.png" width="16" height="16" style="padding: 5px 0;" />
+      </h:outputLink>
+    </div>
+  </h:panelGroup>
+  <div class="vertical-spacer" />
+  <h:panelGroup id="testPlanPanel">
+    <p:tabView value="#{workloadScripts.testPlans}" var="testPlan" id="testPlanTabViewID"
+      activeIndex="#{workloadScripts.tabIndex}" widgetVar="testPlanTabView">
+      <p:ajax event="tabChange" listener="#{workloadScripts.onChange}" />
+      <p:tab title="#{testPlan.name} (#{testPlan.userPercentage}%)">
+
+        <div class="formDiv">
+
+          <div class="formRow">
+            <div class="formLabelDiv">
+              <h:outputLabel for="tplanName" value="Name" styleClass="formLabel required" />
+            </div>
+            <div class="formInputDiv">
+              <p:inplace label="#{testPlan.name}" editor="true">
+                <p:ajax event="save" update=":mainForm:projectTabPanelID:testPlanPanel" />
+                <p:message for="tplanName" />
+                <h:inputText id="tplanName" styleClass="formInput inputWidthMedium" value="#{testPlan.name}"
+                  required="true" requiredMessage="Name cannot be empty." />
+              </p:inplace>
+            </div>
+          </div>
+          <div class="formRow">
+            <div class="formLabelDiv">
+              <h:outputLabel for="tpUserPercentSP" value="User Percentage" styleClass="formLabel required" />
+            </div>
+            <div class="formInputDiv">
+              <p:inplace label="#{testPlan.userPercentage} %" editor="true">
+                <p:ajax event="save" update=":mainForm:projectTabPanelID:testPlanPanel" />
+                <p:message for="tpUserPercentSP" />
+                <p:spinner id="tpUserPercentSP" styleClass="formInput" maxlength="3"
+                  validatorMessage="User Percentage must be between 0 and 100." value="#{testPlan.userPercentage}"
+                  min="0" max="100">
+                  <f:validateLongRange minimum="0" maximum="100" />
+                </p:spinner>
+              </p:inplace>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="vertical-spacer" />
+
+        <h:panelGroup layout="block" styleClass="clearfix">
+          <div class="float-left">
+            <p:commandButton ajax="true" value="Insert Script Group" update=":scriptGroupPopupID" immediate="true"
+              action="#{workloadScripts.initCurrentGroup}" oncomplete="PF('scriptGroupPopup').show();"
+              style=" background-image: url(#{request.contextPath}/resources/gfx/16/application_add.png);
+                                    background-repeat: no-repeat;
+                                    background-position: 3px 5px;
+                                    border-radius:5px;"
+              styleClass="icon-button h-space" />
+          </div>
+
+          <div class="float-left">
+            <p:commandButton ajax="true" value="Delete Test Plan" oncomplete="PF('confirmTestPlanDelete').show();"
+              disabled="#{workloadScripts.deleteTestPlanDisabled}" immediate="true"
+              update=":testPlanDeletePopup"
+              style=" background-image: url(#{request.contextPath}/resources/gfx/16/delete.png);
+                                    background-repeat: no-repeat;
+                                    background-position: 3px 5px;
+                                    border-radius:5px;"
+              styleClass="icon-button h-space" />
+          </div>
+
+        </h:panelGroup>
+        <div class="vertical-spacer" />
+
+        <h:panelGroup layout="block" id="scriptGroupDiv">
+          <p:dataTable id="scriptGroupTableId" value="#{testPlan.scriptGroups}" var="group" rowIndexVar="rowIndex"
+            emptyMessage="No script groups. Add Script Groups using the button above." styleClass="full-width"
+            resizableColumns="true">
+
+            <p:column id="groupNameColumn" style="width:400px;">
+              <f:facet name="header">
+                <h:outputText value="Name" />
+              </f:facet>
+              <p:commandLink update=":editScriptGroupID" ajax="true" action="#{workloadScripts.setScriptGroup(group)}"
+                oncomplete="PF('editScriptGroup').show();">
+                <h:outputText value="#{group.name}" title="Edit #{group.name}?" />
+              </p:commandLink>
+            </p:column>
+            <p:column id="loopColumn" style="width: 150px">
+              <f:facet name="header">
+                <h:outputText value="Loop" />
+              </f:facet>
+              <p:inplace label="#{group.loop}" editor="true">
+                <h:inputText value="#{group.loop}" required="true" requiredMessage="Group Loop cannot be empty."
+                  styleClass="inputWidthXSmall" />
+              </p:inplace>
+            </p:column>
+
+            <p:column id="operationColumn" style="width: 100px;">
+
+              <p:commandLink oncomplete="PF('confirmScriptGroupDelete').show();" ajax="true"
+                action="#{workloadScripts.setCurrentScriptGroup(group)}"
+                update=":scriptDeletePopup">
+                <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+              </p:commandLink>
+
+              <p:commandLink update=":editScriptGroupID" ajax="true" action="#{workloadScripts.setScriptGroup(group)}"
+                oncomplete="PF('editScriptGroup').show();">
+                <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+                  style="padding: 2px;" title="Edit #{group.name}?" />
+              </p:commandLink>
+
+              <p:commandLink update=":scriptGroupPopupID" ajax="true"
+                action="#{workloadScripts.initCurrentGroup(testPlan)}" immediate="true"
+                oncomplete="PF('scriptGroupPopup').show();">
+                <f:param name="insertIndex" value="#{rowIndex}" />
+                <h:graphicImage value="/resources/gfx/16/application_add.png" width="16px" height="16px"
+                  style="padding: 2px;" title="Insert Script Group before #{group.name}." />
+              </p:commandLink>
+
+
+            </p:column>
+          </p:dataTable>
+        </h:panelGroup>
+      </p:tab>
+    </p:tabView>
+  </h:panelGroup>
+
+  
+
+
+</ui:composition>

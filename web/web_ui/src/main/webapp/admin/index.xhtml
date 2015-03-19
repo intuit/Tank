@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui"
+  xmlns:s="http://jboss.org/seam/faces" template="/WEB-INF/templates/tank.xhtml">
+  <ui:define name="content">
+    <s:viewAction action="#{tsConversationManager.end}" />
+    <h:form>
+      <ts:toolbar title="Administration" />
+      <div class="vertical-spacer" />
+      <p:growl globalOnly="true" id="messages" />
+      <div style="padding: 10px;">
+        <dl>
+          <dt>
+            <h:outputLink value="users.jsf" styleClass="table-header-font-size">Administer Users</h:outputLink>
+          </dt>
+          <dd>Add Users, Modify User properties and assign users to groups.</dd>
+
+          <dt>
+            <h:outputLink value="logs.jsf" styleClass="table-header-font-size">View Log Files</h:outputLink>
+          </dt>
+          <dd>View Server log files.</dd>
+
+          <dt>
+            <h:commandLink action="#{logConfig.setLogLevel('DEBUG')}" value="DEBUG" />
+          </dt>
+          <dd>Sets the log level to DEBUG.</dd>
+          <dt>
+            <h:commandLink action="#{logConfig.setLogLevel('INFO')}" value="INFO" />
+          </dt>
+          <dd>Sets the log level to INFO. (default)</dd>
+          <dt>
+            <h:commandLink action="#{logConfig.setLogLevel('WARN')}" value="WARN" />
+          </dt>
+          <dd>Sets the log level to WARN.</dd>
+          <dt>
+            <h:commandLink action="#{logConfig.setLogLevel('ERROR')}" value="ERROR" />
+          </dt>
+          <dd>Sets the log level to ERROR.</dd>
+
+        </dl>
+      </div>
+
+    </h:form>
+  </ui:define>
+</ui:composition>

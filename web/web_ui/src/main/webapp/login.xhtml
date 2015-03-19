@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" 
+  xmlns:p="http://primefaces.org/ui" xmlns:pe="http://primefaces.org/ui/extensions"
+  template="/WEB-INF/templates/tank.xhtml">
+  <ui:define name="content">
+    <p:growl globalOnly="true" id="messages" />
+    
+    <h:inputHidden value="#{tsAuthenticator.getUri()}" />
+
+    <div class="vertical-spacer" />
+
+
+    <h:form id="login" rendered="#{not identity.loggedIn}">
+      <p:growl globalOnly="true" id="messages" sticky="true"/>
+      <div class="formRow">
+        <div class="formLabelDiv">
+          <h:outputLabel for="username" value="Login Name" styleClass="formLabel required" />
+        </div>
+        <div class="formInputDiv">
+          <h:inputText id="username" value="#{credentials.username}" styleClass="formInput" />
+        </div>
+      </div>
+      <div class="formRow">
+        <div class="formLabelDiv">
+          <h:outputLabel for="password" value="Password" styleClass="formLabel required" />
+        </div>
+        <div class="formInputDiv">
+          <h:inputSecret id="password" value="#{credentials.password}" styleClass="formInput" />
+        </div>
+      </div>
+      <div class="vertical-spacer" />
+      <div class="formRow">
+        <div class="buttonBox">
+          <p:commandButton id="login" action="#{tsAuthenticator.login}" value="Login" ajax="false"/>
+        </div>
+      </div>
+
+
+      <!-- <div class="formRow">
+        <h:link id="register" outcome="/register.xhtml" value="Request Account" />
+      </div>
+       -->
+    </h:form>
+
+    <h:form rendered="#{identity.loggedIn}">
+      <p>You are logged in as #{identity.user.id}.</p>
+      <h:commandLink action="#{identity.logout}" value="Logout" />
+    </h:form>
+    
+  </ui:define>
+</ui:composition>

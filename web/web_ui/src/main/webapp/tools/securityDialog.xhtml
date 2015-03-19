@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:p="http://primefaces.org/ui"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag">
+  
+  
+  <p:dialog id="securityPopupId" 
+    widgetVar="securityPopup" width="900" height="600"
+    header="Security Issues for Applets" modal="true" resizable="true"
+    position="center">
+    <h:form id="securityPopupForm">
+      <div style="margin: 10px 0;">Since Java 7 update 51, Java
+        does not allow applets to run with self signed certificates. If
+        you see this screen or something like it:</div>
+      <div style="margin: 20px 20px;">
+        <img style="padding: 5px; border: 1px solid black;"
+          src="images/JavaCPSecurity.png" />
+      </div>
+      <div style="margin: 10px 0;">
+        You will need to import the certificates used to sign the
+        applets if you want to run as an applet. You can still run the
+        tools by downloading them and running locally.
+        <ol>
+          <li>Download this certificate file: <a
+            href="self_signed_tank.p12">self_signed_tank.p12</a></li>
+          <li>Open the Java Control Panel.
+            <div style="margin: 20px 20px;">
+              <img style="padding: 5px; border: 1px solid black;"
+                src="images/JavaCPSecurity.png" />
+            </div>
+            <ul>
+              <li>Mac - From System Preferences, Other section,
+                click on Java</li>
+              <li>Windows - From Control Panels, click on Java</li>
+            </ul>
+          </li>
+          <li>Go To Security tab and click on Managed Certificates.</li>
+          <li>Select the Certificate type as Signer CA.</li>
+          <li>Click Import and select the self_signed_tank.p12 file you
+            downloaded earlier.</li>
+          <li>Restart your browser and launch the applet again.</li>
+        </ol>
+      </div>
+      <div style="margin: 10px 0;">
+        NOTE** If you are running Safari on Mac, you will need to set
+        the plug in to run java in unsafe mode for this site.
+        <ol>
+          <li>Open Safari Preferences and go to Security Tab</li>
+          <li>Click on on Manage Website Settings
+            <div style="margin: 10px 20px;">
+              <img style="padding: 5px; border: 1px solid black;"
+                src="images/safariSecurity.png" />
+            </div>
+          </li>
+          <li>Click on the java plugin and set the current open
+            website to run in unsafe mode.
+            <div style="margin: 20px 20px;">
+              <img style="padding: 5px; border: 1px solid black;"
+                src="images/safariSafeMode.png" />
+            </div>
+          </li>
+        </ol>
+      </div>
+
+      <div class="vertical-spacer" />
+
+      <p:commandButton value="Close" type="button" styleClass="h-space"
+        onclick="PF('securityPopup').hide();" />
+    </h:form>
+  </p:dialog>
+</ui:composition>

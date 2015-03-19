@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:s="http://jboss.com/products/seam/taglib">
+  <div class="formRow">
+
+    <p:commandButton value="Assignment" action="#{responseContentEditor.insertAssignment()}" ajax="true"
+      update=":requestForm:request-editor-tab-panel,:requestForm:request-editor-tab-panel:assignmentContentTable"
+      style=" background-image: url(#{request.contextPath}/resources/gfx/16/lightbulb_add.png);
+                    background-repeat: no-repeat;
+                    background-position: 3px 5px;
+                    border-radius:5px;"
+      styleClass="icon-button h-space" />
+    <p:commandButton value="Raw Response" rendered="#{scriptRequestEditor.step.response ne null}"
+      onclick="PF('rawResponseDialog').show();" ajax="true" update=":rawResponseForm:rawResponseGroup"
+      style=" background-image: url(#{request.contextPath}/resources/gfx/16/magnifier.png);
+                    background-repeat: no-repeat;
+                    background-position: 3px 5px;
+                    border-radius:5px;"
+      styleClass="icon-button h-space" />
+    
+  </div>
+  <div class="clear-both vertical-spacer" />
+  <div class="height300 overflow-auto">
+    <div id="assignmentContentFormatDiv">
+      <p:selectOneRadio id="assignemntContentRadioGroup" value="#{scriptRequestEditor.step.respFormat}">
+        <f:selectItems value="#{scriptRequestEditor.responseFormats}" var="format" itemLabel="#{format.representation}"
+          itemValue="#{format.value}" />
+      </p:selectOneRadio>
+    </div>
+
+    <p:dataTable value="#{responseContentEditor.assignmentContent}" var="content" id="assignmentContentTable"
+      styleClass="striped highlight full-width">
+      <f:facet name="noData">
+        No Assignemnts
+    </f:facet>
+
+      <p:column style="width:125px;">
+        <f:facet name="header">
+          <h:outputText value="Location" />
+        </f:facet>
+
+        <p:inplace label="#{content.type}" editor="true" effectSpeed="fast" styleClass="ellipsis" style="width:125px;">
+          <p:selectOneMenu value="#{content.type}" style="width:75px;">
+            <f:selectItems value="#{responseContentEditor.dataLocationValues}" var="loc" itemLabel="#{loc.name()}"
+              itemValue="#{loc.name()}" />
+          </p:selectOneMenu>
+        </p:inplace>
+      </p:column>
+
+      <p:column style="width:200px;">
+        <f:facet name="header">
+          <h:outputText value="Variable" />
+        </f:facet>
+        <p:inplace styleClass="ellipsis" editor="true" style="width:200px;">
+          <p:inputText value="#{content.key}" styleClass="ellipsis" style="width:140px;" />
+        </p:inplace>
+      </p:column>
+
+      <p:column style="width:75px;">
+        <f:facet name="header">
+          <h:outputText value="Operator" />
+        </f:facet>
+        <h:outputText value="=" style="width:75px;" />
+      </p:column>
+
+      <p:column style="width:150px;">
+        <f:facet name="header">
+          <h:outputText value="Key" />
+        </f:facet>
+        <p:inplace styleClass="ellipsis" editor="true" style="width:150px;">
+          <p:inputText value="#{content.value}" styleClass="ellipsis" style="width:100px;"></p:inputText>
+        </p:inplace>
+      </p:column>
+
+      <p:column style="width:25px;">
+        <f:facet name="header">
+          <h:outputText value="" />
+        </f:facet>
+        <p:commandButton action="#{responseContentEditor.removeAssignment(content)}" update="@form"
+          icon="ui-icon ui-icon-close" title="Delete">
+        </p:commandButton>
+      </p:column>
+    </p:dataTable>
+  </div>
+</ui:composition>

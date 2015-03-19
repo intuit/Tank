@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:p="http://primefaces.org/ui">
+
+  <div id="addWorkloads">
+    <h:panelGroup id="scheduleJobPanelGroup">
+      <div class="formDiv">
+
+        <div class="formRow">
+          <div class="formLabelDiv">
+            <h:outputLabel for="nameTF" value="Job Name"
+              styleClass="formLabel required" />
+          </div>
+          <div class="formInputDiv">
+            <p:inputText id="nameTF" value="#{jobMaker.name}"
+              required="false"
+              requiredMessage="Job Name cannot be empty." />
+          </div>
+        </div>
+
+        <div class="formRow">
+          <div class="formLabelDiv">
+            <h:outputLabel for="loggingProfileCombo"
+              value="Logging Profile" styleClass="formLabel required" />
+          </div>
+          <div class="formInputDiv">
+            <p:selectOneMenu id="loggingProfileCombo"
+              value="#{jobMaker.loggingProfile}">
+              <f:selectItems value="#{projectUtilBean.loggingProfiles}" />
+            </p:selectOneMenu>
+          </div>
+        </div>
+
+        <div class="formRow">
+          <div class="formLabelDiv">
+            <h:outputLabel for="stopBehaviorCombo" value="Stop Behavior"
+              styleClass="formLabel required" />
+          </div>
+          <div class="formInputDiv">
+            <p:selectOneMenu id="stopBehaviorCombo"
+              value="#{jobMaker.stopBehavior}">
+              <f:selectItems value="#{projectUtilBean.stopBehaviors}" />
+            </p:selectOneMenu>
+          </div>
+        </div>
+
+        <div class="formRow">
+          <div class="formLabelDiv">
+            <h:outputLabel for="locationCombo" value="Location"
+              styleClass="formLabel required" />
+          </div>
+          <div class="formInputDiv">
+            <p:selectOneMenu id="locationCombo"
+              value="#{jobMaker.location}">
+              <f:selectItems value="#{projectUtilBean.locations}" />
+            </p:selectOneMenu>
+          </div>
+        </div>
+        <h:panelGroup rendered="#{!tankSettings.standalone}">
+          <div class="formRow">
+            <div class="formLabelDiv">
+              <h:outputLabel for="vmCombo" value="Agent Instance Type"
+                styleClass="formLabel required" />
+            </div>
+            <div class="formInputDiv">
+              <p:selectOneMenu id="vmCombo"
+                value="#{jobMaker.vmInstanceType}">
+                <f:selectItems
+                  value="#{projectUtilBean.vmInstanceTypes}" />
+                <p:ajax event="change" process="@this"
+                  update="numUsersPerInstance" />
+              </p:selectOneMenu>
+            </div>
+          </div>
+
+
+          <div class="formRow">
+            <div class="formLabelDiv">
+              <h:outputLabel for="numUsersPerInstance"
+                value="Max Users Per Agent"
+                styleClass="formLabel required" />
+            </div>
+            <div class="formInputDiv">
+              <p:inputText id="numUsersPerInstance"
+                value="#{jobMaker.numUsersPerAgent}" />
+            </div>
+          </div>
+
+          <div class="formRow">
+            <div class="formLabelDiv">
+              <h:outputLabel for="useEipsCB"
+                value="Assign Elastic Ips"
+                styleClass="formLabel required" />
+            </div>
+            <div class="formInputDiv">
+              <p:selectBooleanCheckbox id="useEipsCB"
+                value="#{jobMaker.useEips}" />
+            </div>
+          </div>
+        </h:panelGroup>
+
+        <div id="submitJobDiv" class="formRow">
+          <div class="formButton">
+            <p:commandButton id="submitJobButton"
+              value="Save And Review..."
+              action="#{jobMaker.createJobInstance()}"
+              update=":createJobPopupID" ajax="true"
+              oncomplete="PF('createJobPopup').show();"
+              disabled="#{not projectBean.canEditProject()}" />
+          </div>
+        </div>
+      </div>
+    </h:panelGroup>
+  </div>
+</ui:composition>

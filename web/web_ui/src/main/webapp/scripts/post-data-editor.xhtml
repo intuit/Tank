@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:s="http://jboss.com/products/seam/taglib">
+
+  <div class="formRow">
+    <p:commandButton value="Post Data" action="#{postDataEditor.insertParameter()}" ajax="true"
+      update=":requestForm:request-editor-tab-panel,:requestForm:request-editor-tab-panel:postDataTable"
+      style=" background-image: url(#{request.contextPath}/resources/gfx/16/lorry_add.png);
+                    background-repeat: no-repeat;
+                    background-position: 3px 5px;
+                    border-radius:5px;"
+      styleClass="icon-button h-space">
+    </p:commandButton>
+  </div>
+
+  <div class="clear-both vertical-spacer" />
+  <div class="height300 overflow-auto">
+    <div id="postDataFormatDiv">
+      <p:selectOneRadio id="postDataFormatRadioGroup" value="#{scriptRequestEditor.step.reqFormat}">
+        <f:selectItems value="#{scriptRequestEditor.requestFormats}" var="format" itemLabel="#{format.representation}"
+          itemValue="#{format.value}" />
+        <p:ajax event="change" update="postDataEditorGroup" />
+      </p:selectOneRadio>
+    </div>
+    <h:panelGroup id="postDataEditorGroup">
+      <p:inputTextarea value="#{scriptRequestEditor.step.payload}" cols="100" rows="25"
+        readonly="#{scriptRequestEditor.step.reqFormat eq 'multipart'}"
+        rendered="#{scriptRequestEditor.step.reqFormat ne 'nvp' }" />
+
+      <p:dataTable value="#{postDataEditor.postData}" var="data" id="postDataTable"
+        styleClass="striped highlight full-width" rendered="#{scriptRequestEditor.step.reqFormat eq 'nvp' }">
+        <f:facet name="noData">
+                Nothing found
+            </f:facet>
+
+        <p:column style="width:200px;">
+          <f:facet name="header">
+            <h:outputText value="Parameter" />
+          </f:facet>
+          <p:inplace styleClass="ellipsis" editor="true" style="width:200px;">
+            <p:inputText value="#{data.key}" styleClass="ellipsis" style="width:140px;" />
+          </p:inplace>
+        </p:column>
+
+        <p:column style="width:400px;">
+          <f:facet name="header">
+            <h:outputText value="Value" />
+          </f:facet>
+          <p:inplace styleClass="ellipsis" editor="true" style="width:400px;">
+            <p:inputText value="#{data.value}" styleClass="ellipsis" style="width:340px;"></p:inputText>
+          </p:inplace>
+        </p:column>
+
+        <p:column style="width:60px;">
+          <f:facet name="header">
+            <h:outputText value="" />
+          </f:facet>
+          <p:commandButton action="#{postDataEditor.removePostData(data)}" update="@form" icon="ui-icon ui-icon-close"
+            title="Delete">
+          </p:commandButton>
+        </p:column>
+      </p:dataTable>
+    </h:panelGroup>
+  </div>
+</ui:composition>

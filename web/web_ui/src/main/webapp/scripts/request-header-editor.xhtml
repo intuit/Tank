@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" 
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:s="http://jboss.com/products/seam/taglib">
+
+  <div class="formRow">
+    <p:commandButton value="Header" action="#{requestHeaderEditor.insertHeader()}" ajax="true"
+      update=":requestForm:request-editor-tab-panel,:requestForm:request-editor-tab-panel:requestHeaderTable"
+      style=" background-image: url(#{request.contextPath}/resources/gfx/16/newspaper_add.png);
+                    background-repeat: no-repeat;
+                    background-position: 3px 5px;
+                    border-radius:5px;"
+      styleClass="icon-button h-space" />
+      <p:spacer width="5px" height="5px" />
+      <ts:tip tipId="headerTip"
+                text="Headers that are grayed out will not be sent. To include these headers, Prepend 'X-Include-' to the header name. 
+                E.G. To include the Referer header change the key to 'X-Include-Referer'"  />
+    
+  </div>
+  <div class="clear-both vertical-spacer" />
+  <div class="height300 overflow-auto">
+    <p:dataTable value="#{requestHeaderEditor.requestHeaders}" var="requestHeader" id="requestHeaderTable"
+      styleClass="striped highlight">
+      <f:facet name="noData">
+                Nothing found
+            </f:facet>
+
+      <p:column style="width:200px;">
+        <f:facet name="header">
+          <h:outputText value="Header" />
+        </f:facet>
+        <!-- <h:outputText value="#{requestHeader.key}" /> -->
+        <p:inplace editor="true" styleClass="ellipsis #{requestHeaderEditor.getStyle(requestHeader.key)}" style="width: 200px;" >
+          <p:inputText value="#{requestHeader.key}" style="width:130px;"></p:inputText>
+        </p:inplace>
+      </p:column>
+
+      <p:column styleClass="width60Percent" style="width:400px;">
+        <f:facet name="header">
+          <h:outputText value="Value" />
+        </f:facet>
+        <!-- <h:outputText value="#{requestHeader.value}" /> -->
+        <p:inplace styleClass="ellipsis #{requestHeaderEditor.getStyle(requestHeader.key)}" editor="true" style="width: 400px;">
+          <p:inputText value="#{requestHeader.value}" style="width: 340px;" />
+        </p:inplace>
+      </p:column>
+
+      <p:column styleClass="width10Percent" style="width:60px;">
+        <f:facet name="header">
+          <h:outputText value="Remove" />
+        </f:facet>
+        <p:commandButton action="#{requestHeaderEditor.removeHeader(requestHeader)}" update="@form"
+          icon="ui-icon ui-icon-close" title="Delete">
+        </p:commandButton>
+
+      </p:column>
+    </p:dataTable>
+  </div>
+
+</ui:composition>

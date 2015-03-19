@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 
+  Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:component xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:p="http://primefaces.org/ui" xmlns:composite="http://java.sun.com/jsf/composite"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <composite:interface>
+    <composite:attribute name="entity" required="true" />
+  </composite:interface>
+
+  <composite:implementation>
+    <h:panelGroup rendered="#{ownerUtilBean.isOwnable(cc.attrs.entity)}">
+      <div class="formRow">
+        <div class="formLabelDiv">
+          <h:outputText value="Owner " />
+        </div>
+        <div class="formInputDiv">
+          <p:selectOneMenu value="#{cc.attrs.entity.creator}" rendered="#{ownerUtilBean.canChangeOwner(cc.attrs.entity)}">
+            <f:selectItems var="owner" value="#{ownerUtilBean.ownerList}" itemLabel="#{owner.name}"
+              itemValue="#{owner.name}" />
+          </p:selectOneMenu>
+          <h:outputText value="#{cc.attrs.entity.creator}" rendered="#{not ownerUtilBean.canChangeOwner(cc.attrs.entity)}" />
+        </div>
+      </div>
+    </h:panelGroup>
+    <h:panelGroup rendered="#{not ownerUtilBean.isOwnable(cc.attrs.entity)}">
+      <h:outputText value="Passed entity is not an OwnableEntity" />
+    </h:panelGroup>
+  </composite:implementation>
+</ui:component>

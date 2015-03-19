@@ -1,0 +1,55 @@
+package com.intuit.tank.harness;
+
+/*
+ * #%L
+ * Intuit Tank Agent (apiharness)
+ * %%
+ * Copyright (C) 2011 - 2015 Intuit Inc.
+ * %%
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * #L%
+ */
+
+import java.io.File;
+
+import org.apache.commons.httpclient.protocol.Protocol;
+
+import com.intuit.tank.harness.logging.LogUtil;
+import com.intuit.tank.harness.ssl.EasySSLProtocolSocketFactory;
+
+public class AgentUtil {
+    private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(AgentUtil.class);
+
+    public static void setTrustCerts() {
+        @SuppressWarnings("deprecation") Protocol easyhttps = new Protocol("https", new EasySSLProtocolSocketFactory(),
+                443);
+        Protocol.registerProtocol("https", easyhttps);
+
+    }
+
+    /**
+     * Verify that the testplans exist
+     * 
+     * @param plans
+     *            The list of test plans
+     * @return TRUE if all test plans exist; FALSE if one or more do not exist
+     */
+    public static boolean validateTestPlans(String plans) {
+        String[] testPlanLists = plans.split(",");
+        boolean output = true;
+
+        for (int t = 0; t < testPlanLists.length; t++) {
+            File xmlFile = new File(testPlanLists[t]);
+            if (!xmlFile.exists()) {
+                LOG.error(LogUtil.getLogMessage("File not found:  " + testPlanLists[t]));
+                System.err.println("File not found:  " + testPlanLists[t]);
+                output = false;
+            }
+        }
+        return output;
+    }
+
+}

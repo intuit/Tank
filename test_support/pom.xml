@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+
+  <groupId>com.intuit.tank</groupId>
+  <artifactId>test-support</artifactId>
+  <version>2.0</version>
+
+  <packaging>jar</packaging>
+  <description>Intuit Tank Test Support module</description>
+  <name>Intuit Tank Test support</name>
+
+  <inceptionYear>2010</inceptionYear>
+  <organization>
+    <name>Intuit Inc.</name>
+    <url>http://www.intuit.com</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>eclipse</name>
+      <url>http://www.eclipse.org/legal/epl-v10.html</url>
+      <distribution>repo</distribution>
+      <comments>A business-friendly OSS license</comments>
+    </license>
+  </licenses>
+
+  <build>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-webdav-jackrabbit</artifactId>
+        <version>1.0-beta-7</version>
+      </extension>
+    </extensions>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>1.8</version>
+
+        <configuration>
+        <licenseResolver>file://${env.TANK_HOME}/src/license</licenseResolver>
+          <verbose>true</verbose>
+          <addSvnKeyWords>false</addSvnKeyWords>
+          <inceptionYear>2011</inceptionYear>
+          <organizationName>Intuit Inc.</organizationName>
+          <canUpdateCopyright>true</canUpdateCopyright>
+          <licenseName>eclipse</licenseName>
+          <roots>
+            <root>src/main/java</root>
+            <root>src/main/resources</root>
+            <root>src/test/java</root>
+          </roots>
+          <excludes>
+            <exclude>**/org/**</exclude>
+          </excludes>
+        </configuration>
+
+      </plugin>
+      <plugin>
+        <groupId>com.atlassian.maven.plugins</groupId>
+        <artifactId>maven-clover2-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <generateHtml>true</generateHtml>
+          <generateXml>true</generateXml>
+          <methodContexts>
+            <private-constructor>(.* )?private +[a-zA-Z0-9_$]+ *\( *\).*</private-constructor>
+          </methodContexts>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+
+</project>

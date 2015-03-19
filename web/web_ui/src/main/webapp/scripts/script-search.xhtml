@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:s="http://jboss.org/seam/faces"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+  xmlns:p="http://primefaces.org/ui" template="/WEB-INF/templates/tank.xhtml">
+  <ui:define name="content">
+    <h:form id="searchForm">
+
+      <ts:toolbar title="Search - #{scriptEditor.script.name}" toolbarId="actionsTB" showRightComponents="false">
+        <f:facet name="actions">
+          <h:panelGroup styleClass="toolbar-ui">
+
+            <p:commandButton id="tbCancelBtn" action="#{scriptSearchBean.cancel()}" value="Back" immediate="true"
+              ajax="false"
+              style=" background-image: url(#{request.contextPath}/resources/gfx/16/document_page_previous.png);
+                    background-repeat: no-repeat;
+                    background-position: 3px 5px;
+                    border-radius:5px;"
+              styleClass="icon-button h-space" />
+          </h:panelGroup>
+        </f:facet>
+      </ts:toolbar>
+
+
+
+      <div class="vertical-spacer" />
+      <p:growl id="messages" />
+
+
+      <h:panelGroup id="searchFieldGroup">
+        <div class="formDiv">
+          <div class="formRow">
+            <div class="formLabelDiv">
+              <h:outputLabel for="searchString" value="Search Term: " styleClass="formLabel" />
+            </div>
+            <div class="formInputDiv">
+              <h:inputText id="searchString" value="#{scriptSearchBean.searchQuery}"
+                styleClass="formInput inputWidthMedium" />
+              <p:commandButton process="searchForm" update="searchForm" value="Search"
+                action="#{scriptSearchBean.runSearch()}">
+              </p:commandButton>
+              <p:commandButton value="Replace" action="#{scriptSearchBean.initReplacementDialog()}"
+                oncomplete="PF('replaceDialog').show();" update=":replaceForm">
+              </p:commandButton>
+            </div>
+          </div>
+        </div>
+      </h:panelGroup>
+
+      <h:panelGroup id="searchPanelGroup">
+        <p:fieldset legend="Search Options">
+          <h:panelGroup id="optionsPanel">
+            <p:accordionPanel style="width:1024px;">
+              <p:tab title="Request">
+                <p:dataGrid var="option" value="#{scriptSearchBean.requestSections}" columns="5" 
+                  styleClass="request-search-width">
+                  <p:column>
+                    <p:selectBooleanCheckbox value="#{option.selected}" />
+                    <h:outputText value="#{option.label}"></h:outputText>
+                  </p:column>
+                </p:dataGrid>
+              </p:tab>
+              <p:tab title="Think Time">
+                <p:dataGrid var="option" value="#{scriptSearchBean.thinkTimeSections}" columns="5"
+                  styleClass="think-search-width">
+                  <p:column>
+                    <p:selectBooleanCheckbox value="#{option.selected}" />
+                    <h:outputText value="#{option.label}"></h:outputText>
+                  </p:column>
+                </p:dataGrid>
+                <!-- 
+              <p:selectManyCheckbox id="thinkTimeSection" value="#{scriptEditor.selectedThinkTimeSection}"
+                layout="pageDirection">
+                <f:selectItems value="#{scriptEditor.thinkTimeSections}" var="option" itemLabel="#{option.value}"
+                  itemValue="#{option}" />
+              </p:selectManyCheckbox>-->
+              </p:tab>
+              <p:tab title="Sleep Time">
+                <p:dataGrid var="option" value="#{scriptSearchBean.sleepTimeSections}" columns="1"
+                  styleClass="sleep-search-width">
+                  <p:column>
+                    <p:selectBooleanCheckbox value="#{option.selected}" />
+                    <h:outputText value="#{option.label}"></h:outputText>
+                  </p:column>
+                </p:dataGrid>
+                <!-- 
+              <p:selectManyCheckbox id="sleepTimeSection" value="#{scriptEditor.selectedSleepTimeSection}"
+                layout="pageDirection">
+                <f:selectItems value="#{scriptEditor.sleepTimeSections}" var="option" itemLabel="#{option.value}"
+                  itemValue="#{option}" />
+              </p:selectManyCheckbox>-->
+              </p:tab>
+              <p:tab title="Variable">
+                <p:dataGrid var="option" value="#{scriptSearchBean.variableSections}" columns="5"
+                  styleClass="variable-search-width">
+                  <p:column style="width:100px;">
+                    <p:selectBooleanCheckbox value="#{option.selected}" />
+                    <h:outputText value="#{option.label}"></h:outputText>
+                  </p:column>
+                </p:dataGrid>
+                <!-- <p:selectManyCheckbox id="variableSection" value="#{scriptEditor.selectedVariableSection}"
+                layout="pageDirection">
+                <f:selectItems value="#{scriptEditor.variableSections}" var="option" itemLabel="#{option.value}"
+                  itemValue="#{option}" />
+              </p:selectManyCheckbox> -->
+              </p:tab>
+            </p:accordionPanel>
+          </h:panelGroup>
+        </p:fieldset>
+
+        <h:panelGroup id="searchResultsGroup">
+          <p:dataTable id="scriptStepTableId" var="step" rowKey="#{step.uuid}" value="#{scriptSearchBean.searchMatch}"
+            resizableColumns="true" rowIndexVar="rowIndex" headerSectionClass="rf-tb" bodyRowClass="pointer"
+             scrollable="true" scrollHeight="500" widgetVar="scriptStepTable">
+
+            
+            <p:column id="indexColumn" styleClass="ellipsis" style="width:50px;min-width: 50px;max-width:50px;">
+              <h:outputText value="#{step.stepIndex}" />
+            </p:column>
+
+            <p:column headerText="Group Name" id="groupNameColumn" styleClass="ellipsis min-column-size"
+              style="width:100px">
+              <h:outputText value="#{step.scriptGroupName}" style="width:75px;" />
+            </p:column>
+
+            <p:column headerText="Request Name" id="nameColumn" styleClass="ellipsis min-column-size"
+              style="width:100px" >
+              <h:outputText value="#{step.name}" style="width:75px;" />
+            </p:column>
+
+            <p:column headerText="Method" id="methodColumn" styleClass="ellipsis min-column-size" style="width:70px">
+              <h:outputText value="#{step.method}" />
+            </p:column>
+
+            <p:column headerText="Data" id="labelColumn" styleClass="ellipsis min-column-size" style="width:350px">
+              <h:outputText value="#{step.label}" />
+            </p:column>
+
+            <p:column headerText="MIME Type" id="mimeColumn" styleClass="ellipsis min-column-size" style="width:125px;">
+              <h:outputText value="#{step.mimetype}" title="#{step.mimetype}" styleClass="ellipsis" />
+            </p:column>
+
+            <p:column headerText="Comments" id="commentsColumn" styleClass="ellipsis min-column-size"
+              style="width:150px">
+              <h:outputText value="#{step.comments}" title="#{step.comments}" styleClass="ellipsis overflowEllipsis" />
+            </p:column>
+          </p:dataTable>
+        </h:panelGroup>
+      </h:panelGroup>
+    </h:form>
+
+    <p:dialog id="replaceDialogId" header="Replace" appendTo="@(body)" height="400" width="620" dynamic="true"
+      widgetVar="replaceDialog" modal="true">
+      <h:form id="replaceForm">
+
+        <h:panelGroup id="replacePanelGroup">
+          <div class="formRow">
+
+            <div class="smallFormLabelDiv">
+              <h:outputText value="Replace :" />
+            </div>
+            <div class="smallFormInputDiv">
+              <h:inputText value="#{scriptSearchBean.replaceString}" id="replaceInput">
+                <f:ajax event="keyup" execute="replaceInput" immediate="true" render="replaceEntityTableId"></f:ajax>
+              </h:inputText>
+            </div>
+          </div>
+          <div class="formRow">
+            <p:commandButton value="Next" action="#{scriptSearchBean.next()}" update="replaceEntityTableId"></p:commandButton>
+            <p:commandButton value="Previous" action="#{scriptSearchBean.previous()}" update="replaceEntityTableId"></p:commandButton>
+            <p:commandButton value="Replace" action="#{scriptSearchBean.replace()}" update="replaceEntityTableId, :searchForm:scriptStepTableId"></p:commandButton>
+            <p:commandButton value="Replace All" action="#{scriptSearchBean.replaceAll()}" update="replaceEntityTableId, :searchForm:scriptStepTableId"></p:commandButton>
+          </div>
+        </h:panelGroup>
+
+        <h:panelGroup id="replaceEntityPanelGroup">
+          <p:dataTable id="replaceEntityTableId" var="entity" value="#{scriptSearchBean.replaceEntity}"
+            resizableColumns="true" rowIndexVar="rowIndex" headerSectionClass="rf-tb" bodyRowClass="pointer"
+            style="width:100%" scrollable="true" scrollHeight="300" widgetVar="replaceEntityTable">
+
+            <p:column id="indexColumn" styleClass="ellipsis" style="width:50px;min-width: 50px;max-width:50px;">
+              <h:outputText value="#{rowIndex+1}" />
+            </p:column>
+
+            <p:column headerText="Section Name" id="sectionColumn" styleClass="ellipsis min-column-size"
+              style="width:100px">
+              <h:outputText value="#{entity.section.display}"/>
+            </p:column>
+
+            <p:column headerText="Before" id="beforeColumn" styleClass="ellipsis min-column-size" style="width:150px">
+              <h:outputText value="#{entity.before}"/>
+            </p:column>
+
+            <p:column headerText="After" id="afterColumn" styleClass="ellipsis min-column-size" style="width:150px">
+              <h:outputText value="#{entity.after}" />
+            </p:column>
+          </p:dataTable>
+        </h:panelGroup>
+
+      </h:form>
+    </p:dialog>
+  </ui:define>
+</ui:composition>

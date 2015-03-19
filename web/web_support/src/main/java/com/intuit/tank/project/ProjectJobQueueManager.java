@@ -1,0 +1,38 @@
+package com.intuit.tank.project;
+
+/*
+ * #%L
+ * JSF Support Beans
+ * %%
+ * Copyright (C) 2011 - 2015 Intuit Inc.
+ * %%
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * #L%
+ */
+
+import javax.faces.bean.ViewScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import com.intuit.tank.ProjectBean;
+
+@Named
+@ViewScoped
+public class ProjectJobQueueManager extends JobTreeTableBean {
+
+    private static final long serialVersionUID = 1L;
+
+    @Inject
+    private ProjectBean projectBean;
+
+    /**
+     * @{inheritDoc
+     */
+    @Override
+    protected Integer getRootJobId() {
+        return projectBean.getProject().getId();
+    }
+}

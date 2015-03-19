@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:s="http://jboss.org/seam/faces"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag"
+  xmlns:p="http://primefaces.org/ui"
+  xmlns:pe="http://primefaces.org/ui/extensions"
+  template="/WEB-INF/templates/tank.xhtml">
+  <ui:define name="content">
+    <s:viewAction action="#{tsConversationManager.end}" />
+    <h:form id="mainForm">
+      <ts:toolbar title="Log Viewer" />
+      <div class="vertical-spacer" />
+
+      <p:growl globalOnly="true" id="messages" />
+      <p:fieldset legend="Log Viewer Options">
+        <div style="padding: 10px;">
+          <div class="formRow">
+            <div class="float-left h-space">
+              <p:selectOneMenu value="#{logViewer.currentLogFile}">
+                <f:selectItem itemLabel="Select a log file" itemValue="" />
+                <f:selectItems value="#{logViewer.logFiles}" />
+              </p:selectOneMenu>
+            </div>
+
+            <div class="float-left h-space">
+              Initial Lines:
+              <pe:inputNumber value="#{logViewer.numLines}" minValue="0"
+                decimalPlaces="0" converter="javax.faces.Integer" />
+              <ts:tip tipId="numLinsesTip"
+                text="Number of lines to tail at start. Set to 0 to view entire file." />
+            </div>
+            <div class="float-left h-space">
+              Poll seconds:
+              <pe:inputNumber value="#{logViewer.pollSeconds}"
+                decimalPlaces="0" minValue="0" converter="javax.faces.Integer"/>
+              <ts:tip tipId="pollTip"
+                text="Poll time in seconds. Set to 0 to not poll." />
+            </div>
+            <div class="float-left h-space">
+              <p:commandButton value="Go" ajax="false" />
+            </div>
+
+          </div>
+        </div>
+      </p:fieldset>
+      <ts:fileView fileName="#{logViewer.currentLogFile}"
+        url="#{logViewer.logFileUrl}"
+        rendered="#{logViewer.logFileUrl ne null}" widgetVar="logViewer"
+        lines="#{logViewer.numLines}" height="500"
+        poll="#{logViewer.pollSeconds}" />
+
+    </h:form>
+  </ui:define>
+</ui:composition>

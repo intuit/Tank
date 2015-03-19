@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui"
+  template="/WEB-INF/templates/tank.xhtml">
+  <ui:define name="content">
+    <div style="padding:0 15px">
+      <h:form id="mainForm">
+
+        <div class="vertical-spacer" />
+        <div>
+          <h3>Tools</h3>
+        </div>
+        <p:fieldset legend="Applets">
+          <div class="pad10" style="margin-left:20px;">
+            <h:outputLink value="script-debugger.jsf" target="_blank">Intuit Tank Agent Visual Debugger</h:outputLink>
+          </div>
+          <div class="pad10" style="margin-left:20px;">
+            <h:outputLink value="script-filter.jsf" target="_blank">Intuit Tank Script Filter Editor</h:outputLink>
+          </div>
+        
+        </p:fieldset>
+        <div class="vertical-spacer" />
+
+        <p:fieldset legend="Downloadable Tools">
+          <div class="pad10" style="margin-left:20px;">
+            <h:outputLink value="Tank-Debugger-all.jar">Intuit Tank Agent Visual Debugger</h:outputLink>
+            (version #{buildVersion.version})
+            <h:outputText value="#{buildVersion.buildDate}" converter="tsDateConverter" />
+          </div>
+          <div class="pad10" style="margin-left:20px;">
+            <h:outputLink value="Tank-Script-Runner-all.jar">Intuit Tank Script Filter Editor</h:outputLink>
+            (version #{buildVersion.version})
+            <h:outputText value="#{buildVersion.buildDate}" converter="tsDateConverter" />
+          </div>
+          <div class="pad10" style="margin-left:20px;">
+            <h:outputLink value="Tank-Proxy-pkg.zip">Intuit Tank Proxy Package</h:outputLink>
+            (version #{buildVersion.version})
+            <h:outputText value="#{buildVersion.buildDate}" converter="tsDateConverter" />
+          </div>
+          <div class="pad10" style="margin-left:20px;">
+            <h:outputLink value="apiharness-1.0-pkg.zip">Api Test Harness Debugger Package</h:outputLink>
+            (version #{buildVersion.version})
+            <h:outputText value="#{buildVersion.buildDate}" converter="tsDateConverter" />
+          </div>
+        </p:fieldset>
+      </h:form>
+    </div>
+
+  </ui:define>
+
+</ui:composition>

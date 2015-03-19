@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui"
+  xmlns:pe="http://primefaces.org/ui/extensions">
+<f:view contentType="text/html">
+  <h:head profile="http://www.w3.org/2005/10/profile">
+    <link rel="icon" 
+      type="image/png" 
+      href="#{request.contextPath}/TankLogo.png" />
+    <title>Intuit Tank</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <h:outputScript target="head" library="primefaces" name="jquery/jquery.js" />
+    <!-- <h:outputScript target="head" library="primefaces" name="jquery/ui/jquery-ui.js" /> -->
+    <!-- Allows to use $ instead of jquery -->
+    <script type="text/javascript"> $ = jQuery;</script>
+
+    <script type="text/javascript" src="#{request.contextPath}/res/tank.js"></script>
+    <link type="text/css" href="#{request.contextPath}/resources/css/tank.css" rel="stylesheet" />
+    <link type="text/css" href="#{request.contextPath}/resources/css/primefaces-override.css" rel="stylesheet" />
+    <link type="text/css" href="#{request.contextPath}/resources/css/screen.css" rel="stylesheet" />
+  </h:head>
+  <h:body>
+    <div id="container">
+      <h:form id="topNavForm">
+        <div id="header" style="width: 100%; padding: 0;">
+          <p:toolbar id="bar" style="height: 54px;">
+          
+            <p:toolbarGroup align="left">
+              <h:outputLink value="#{request.contextPath}/">
+                <h:graphicImage value="/resources/gfx/TankLogo.svg" style="height:54px; width:151px; padding: 0 20px 0 0" />
+              </h:outputLink>
+            </p:toolbarGroup>
+          </p:toolbar>
+        </div>
+      </h:form>
+
+      <div id="content" class="content">
+        <ui:insert name="content">
+               [Template content will be inserted here]
+            </ui:insert>
+      </div>
+    </div>
+  </h:body>
+
+</f:view>
+</html>
+

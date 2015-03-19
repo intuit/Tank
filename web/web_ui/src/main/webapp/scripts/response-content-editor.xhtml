@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:s="http://jboss.com/products/seam/taglib">
+
+<div class="formRow">
+    <p:commandButton value="Raw Response" rendered="#{scriptRequestEditor.step.response ne null}"
+      onclick="PF('rawResponseDialog').show();" ajax="true" update=":rawResponseForm:rawResponseGroup"
+      style=" background-image: url(#{request.contextPath}/resources/gfx/16/magnifier.png);
+                    background-repeat: no-repeat;
+                    background-position: 3px 5px;
+                    border-radius:5px;"
+      styleClass="icon-button h-space"/>
+  </div>
+  
+  <div id="responeContentFormatDiv">
+    <p:selectOneRadio id="responseContentRadioGroup" value="#{scriptRequestEditor.step.respFormat}">
+      <f:selectItems value="#{scriptRequestEditor.responseFormats}" var="format" itemLabel="#{format.representation}"
+        itemValue="#{format.value}" />
+    </p:selectOneRadio>
+  </div>
+
+  <p:dataTable value="#{responseContentEditor.responseContent}" var="content" id="responseContentTable" 
+    styleClass="striped highlight full-width">
+    <f:facet name="noData">
+                Nothing found
+            </f:facet>
+
+    <p:column style="width:200px;">
+      <f:facet name="header">
+        <h:outputText value="Variable or Lookup String" />
+      </f:facet>
+      <!-- <h:outputText value="#{content.key}" /> -->
+      <p:inplace styleClass="ellipsis" editor="true" style="width:200px;">
+        <p:inputText value="#{content.key}" styleClass="ellipsis" style="width:140px;" />
+      </p:inplace>
+    </p:column>
+
+    <p:column style="width:150px;">
+      <f:facet name="header">
+        <h:outputText value="Operator" />
+      </f:facet>
+
+      <p:inplace label="#{content.operator}" editor="true" effectSpeed="fast" styleClass="ellipsis"
+        style="width:150px;" rendered="#{content.operator ne '='}">
+        <p:selectOneMenu value="#{content.operator}" style="width:100px;">
+          <f:selectItems value="#{responseContentEditor.validationValues}" var="validationType"
+            itemLabel="#{validationType.representation}" itemValue="#{validationType.value}" />
+        </p:selectOneMenu>
+      </p:inplace>
+
+      <h:outputText value="=" rendered="#{content.operator eq '='}" style="width:150px;" />
+    </p:column>
+
+    <p:column style="width:300px;">
+      <f:facet name="header">
+        <h:outputText value="Response Key or Literal" />
+      </f:facet>
+      <p:inplace styleClass="ellipsis" editor="true" style="width:300px;">
+        <p:inputText value="#{content.value}" styleClass="ellipsis" style="width:240px;"></p:inputText>
+      </p:inplace>
+    </p:column>
+
+    <p:column style="width:60px;">
+      <f:facet name="header">
+        <h:outputText value="" />
+      </f:facet>
+      <p:commandButton action="#{responseContentEditor.removeContent(content)}" update="@form"
+        icon="ui-icon ui-icon-close" title="Delete">
+      </p:commandButton>
+    </p:column>
+  </p:dataTable>
+</ui:composition>

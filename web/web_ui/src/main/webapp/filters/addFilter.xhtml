@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" template="/WEB-INF/templates/tank.xhtml">
+  <ui:define name="content">
+
+
+
+    <h:form id="addFilterForm">
+
+      <ts:toolbar title="New Script Filter">
+        <f:facet name="actions">
+          <h:panelGroup styleClass="toolbar-ui">
+            <p:commandButton id="tbSaveBtn" value="Save" action="#{scriptFilterCreationBean.save()}" title="Save Filter"
+              ajax="true" update=":addFilterForm:messages"
+              style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
+                    background-repeat: no-repeat;
+                    background-position: 3px 5px;
+                    border-radius:5px;"
+              styleClass="icon-button h-space"
+              disabled="#{!scriptFilterCreationBean.canEditFilter()}" />
+
+            <p:commandButton id="saveAsBt" value="Save As..." type="button"
+              rendered="#{scriptFilterCreationBean.editing}"
+              style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
+                    background-repeat: no-repeat;
+                    background-position: 3px 5px;
+                    border-radius:5px;"
+              styleClass="icon-button h-space" onclick="PF('saveAsConfirm').show()"
+              disabled="#{!scriptFilterCreationBean.canEditFilter()}" />
+
+            <p:commandButton id="tbCancelBtn" action="#{scriptFilterCreationBean.cancel()}" value="Cancel"
+              immediate="true" ajax="true"
+              style=" background-image: url(#{request.contextPath}/resources/gfx/16/cancel.png);
+                    background-repeat: no-repeat;
+                    background-position: 3px 5px;
+                    border-radius:5px;"
+              styleClass="icon-button h-space" />
+          </h:panelGroup>
+        </f:facet>
+      </ts:toolbar>
+
+      <div class="vertical-spacer" />
+      <p:growl globalOnly="true" id="messages" />
+      <div class="vertical-spacer" />
+
+      <div>
+        <div id="formRow">
+          <div class="formLabelDiv required">
+            <h:outputText value="Filter Name"></h:outputText>
+          </div>
+          <div class="formInput float-left">
+            <h:inputText id="filterNameId" value="#{scriptFilterCreationBean.name}" />
+          </div>
+        </div>
+
+        <div class="vertical-spacer clear-both" />
+
+        <div class="formRow">
+          <div class="formLabelDiv required">
+            <h:outputText value="Product Group"></h:outputText>
+          </div>
+          <div class="formInputDiv">
+            <p:selectOneMenu value="#{scriptFilterCreationBean.productName}">
+              <f:selectItems value="#{projectUtilBean.productNames}" />
+            </p:selectOneMenu>
+          </div>
+        </div>
+
+        <div class="formRow">
+          <div class="formLabelDiv required">
+            <h:outputText value="Filter Type"></h:outputText>
+          </div>
+          <div class="formInputDiv">
+            <p:selectOneRadio value="#{scriptFilterCreationBean.creationMode}" layout="pageDirection"
+              converter="tsScriptFilterTypeConverter">
+              <f:selectItems value="#{scriptFilterCreationBean.scriptFilterTypeList}" var="scriptFilterType"
+                itemLabel="#{scriptFilterType.display}" itemValue="#{scriptFilterType.name()}" />
+              <p:ajax update="@form" event="change" />
+            </p:selectOneRadio>
+          </div>
+        </div>
+
+        <h:panelGroup rendered="#{scriptFilterCreationBean.creationMode.display eq 'Internal Filter'}">
+          <h:panelGroup rendered="#{scriptFilterCreationBean.filter.id ne 0}">
+            <div class="formRow">
+              <ts:ownerBox entity="#{scriptFilterCreationBean.filter}"></ts:ownerBox>
+            </div>
+          </h:panelGroup>
+
+          <div class="vertical-spacer clear-both" />
+          <div class="formRow">
+            <div class="formLabelDiv">Conditions - If</div>
+            <div class="formInputDiv">
+              <p:selectOneRadio value="#{scriptFilterCreationBean.allConditionsPass}">
+                <f:selectItem id="allCondition" itemLabel="All" itemValue="true" />
+                <f:selectItem id="anyCondition" itemLabel="Any" itemValue="false" />
+              </p:selectOneRadio>
+            </div>
+          </div>
+          <div id="addConditionLink">
+            <p>
+              <p:commandButton action="#{scriptFilterConditionBean.setupNewCondition()}"
+                update=":conditionDialogID" value="Add Condition" ajax="true"
+                oncomplete="PF('conditionDialog').show();" />
+            </p>
+          </div>
+          <div id="filterConditionTableDiv">
+            <p>
+              <p:dataTable id="filterConditionTableId" value="#{scriptFilterCreationBean.conditions}" var="condition">
+                <p:column id="scopeColumn" headerText="Condition Scope">
+                  <p:commandLink update="filterConditionTableId,:conditionDialogID"
+                    title="Edit Condition" action="#{scriptFilterConditionBean.editCondition(condition)}"
+                    styleClass="pointer" oncomplete="PF('conditionDialog').show();">
+                    <h:outputText value="#{condition.scope}" />
+                  </p:commandLink>
+                </p:column>
+
+                <p:column id="conditionColumn" headerText="Condition">
+                  <h:outputText value="#{condition.condition}" />
+                </p:column>
+
+                <p:column id="valueColumn" headerText="Value">
+                  <h:outputText value="#{condition.value}" />
+                </p:column>
+
+                <p:column id="removeColumn">
+                  <p:commandButton id="btnRemoveCondition" value="X" immediate="true"
+                    action="#{scriptFilterCreationBean.removeCondition(condition)}" update="@form">
+                  </p:commandButton>
+                </p:column>
+              </p:dataTable>
+            </p>
+          </div>
+
+          <div id="actionsThenDiv">
+            <p>
+              Actions - Then
+              <p:commandButton action="#{scriptFilterActionBean.setupNewAction()}"
+                update=":actionDialogID" value="Add Action" ajax="true"
+                oncomplete="PF('actionDialog').show();" />
+            </p>
+          </div>
+
+          <div id="filterActionTableDiv">
+            <p>
+              <p:dataTable id="filterActionTableId" border="10" value="#{scriptFilterCreationBean.actions}" var="action">
+                <p:column id="actionsColumn" headerText="Action">
+                  <p:commandLink id="actionLink" update="filterActionTableId,:addActionForm:addActionPopupGroup"
+                    title="Edit Action" action="#{scriptFilterActionBean.editAction(action)}" styleClass="pointer"
+                    oncomplete="PF('actionDialog').show();">
+                    <h:outputText value="#{action.action}" title="#{action.action}" />
+                  </p:commandLink>
+                </p:column>
+
+                <p:column id="scopeColumn" headerText="Scope">
+                  <h:outputText value="#{action.scope}" />
+                </p:column>
+
+                <p:column id="keyColumn" headerText="Key">
+                  <h:outputText value="#{action.key}" />
+                </p:column>
+
+                <p:column id="valueColumn" headerText="Value">
+                  <h:outputText value="#{action.value}" />
+                </p:column>
+
+                <p:column id="removeColumn">
+                  <p:commandButton id="btnRemoveAction" value="X" immediate="true"
+                    action="#{scriptFilterCreationBean.removeAction(action)}" update=":addFilterForm">
+                  </p:commandButton>
+                </p:column>
+              </p:dataTable>
+            </p>
+          </div>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{scriptFilterCreationBean.creationMode.display eq 'External Filter'}">
+          <div class="vertical-spacer clear-both" />
+          <div class="formRow">
+            <div class="formLabelDiv">
+              <h:outputText value="External Script" />
+            </div>
+            <div class="formInputDiv">
+              <p:selectOneMenu value="#{scriptFilterCreationBean.selectedExternalScript}">
+                <f:selectItems value="#{scriptFilterCreationBean.externalScripts}" var="externalScript"
+                  itemLabel="#{externalScript.name}" itemValue="#{externalScript.id}" />
+              </p:selectOneMenu>
+            </div>
+          </div>
+        </h:panelGroup>
+      </div>
+
+      <p:confirmDialog id="saveAsConfirmID" header="Save As"  widgetVar="saveAsConfirm">
+        <f:facet name="message">
+          <h:outputText value="Save As: " />
+          <h:inputText value="#{scriptFilterCreationBean.saveAsName}" id="saveAsName"
+            styleClass="formInput inputWidthMedium" style="width:140px;" />
+        </f:facet>
+        <p:commandButton value="OK" id="SaveAsOk" ajax="false" action="#{scriptFilterCreationBean.saveAs}" />
+        <h:panelGroup styleClass="horizontal-spacer" id="dd" />
+        <p:commandButton value="Cancel" onclick="PF('saveAsConfirm').hide();" id="saveAsCancel" type="button" />
+      </p:confirmDialog>
+
+    </h:form>
+
+
+    <p:dialog id="conditionDialogID" appendTo="@(body)" widgetVar="conditionDialog" width="500" height="150"
+      header="Add Condition" modal="true" resizable="true" position="center">
+      <h:form id="addConditionForm">
+        <h:panelGroup id="addConditionPopupGroup">
+          <div class="formRow">
+            <div class="formLabelDiv required">Scope</div>
+            <div class="formInput float-left">
+              <p:selectOneMenu value="#{scriptFilterConditionBean.scope}">
+                <f:selectItems value="#{scriptFilterConditionBean.conditionScopeValues}" var="scope"
+                  itemLabel="#{scope.value}" itemValue="#{scope.value}" />
+              </p:selectOneMenu>
+            </div>
+          </div>
+
+          <div class="formRow">
+            <div class="formLabelDiv required">Condition</div>
+            <div class="formInput float-left">
+              <p:selectOneMenu value="#{scriptFilterConditionBean.conditionStr}">
+                <f:selectItems value="#{scriptFilterConditionBean.conditionValues}" var="condition"
+                  itemLabel="#{condition.value}" itemValue="#{condition.value}" />
+              </p:selectOneMenu>
+            </div>
+          </div>
+
+          <div class="formRow">
+            <div class="formLabelDiv required">Value</div>
+            <div class="formInput float-left">
+              <h:inputText id="currentConditionValueId" value="#{scriptFilterConditionBean.value}" />
+            </div>
+          </div>
+
+          <div class="formRow">
+            <div class="formButton">
+              <p:commandButton id="btnAddCondition" value="Add" action="#{scriptFilterConditionBean.done()}"
+                update="addConditionPopupGroup, :addFilterForm:filterConditionTableId"
+                onsuccess="PF('conditionDialog').hide()" />
+            </div>
+          </div>
+        </h:panelGroup>
+      </h:form>
+    </p:dialog>
+
+    <p:dialog id="actionDialogID" appendTo="@(body)" dynamic="true" widgetVar="actionDialog" width="500" height="200"
+      header="Add Action" modal="true" resizable="true" position="center">
+      <h:form id="addActionForm">
+
+        <h:panelGroup id="addActionPopupGroup">
+          <div>
+            <div class="formRow">
+              <div class="formLabelDiv required">Action</div>
+              <div class="formInput float-left">
+                <p:selectOneMenu id="actionMenu" value="#{scriptFilterActionBean.actionType}">
+                  <f:selectItems value="#{scriptFilterActionBean.actionValues}" />
+                  <f:ajax event="change" render="@form"></f:ajax>
+                </p:selectOneMenu>
+              </div>
+            </div>
+            <div class="vertical-spacer" />
+            <div class="formRow">
+              <h:panelGroup id="scopeBox">
+                <div class="formLabelDiv required">Scope</div>
+                <div class="formInput float-left">
+                  <p:selectOneMenu id="scopeMenu" value="#{scriptFilterActionBean.scope}">
+                    <f:selectItems value="#{scriptFilterActionBean.actionScopeValues}" />
+                    <f:ajax event="change" render="@form"></f:ajax>
+                  </p:selectOneMenu>
+                </div>
+              </h:panelGroup>
+            </div>
+            <div class="vertical-spacer" />
+            <div class="formRow">
+              <h:panelGroup id="keyBox" rendered="#{scriptFilterActionBean.keyBoxRendered}">
+                <div class="formLabelDiv required">Key</div>
+                <div class="formInput float-left">
+                  <h:inputText id="actionKeyInputId" value="#{scriptFilterActionBean.key}" />
+                </div>
+              </h:panelGroup>
+            </div>
+            <div class="formRow">
+              <h:panelGroup id="valuePrefixBox" rendered="#{scriptFilterActionBean.valuePrefixRendered}">
+                <div class="vertical-spacer" />
+                <div class="formLabelDiv required">Condition</div>
+                <div class="formInput float-left">
+                  <p:selectOneMenu id="actionValuePrefixInputId" value="#{scriptFilterActionBean.valuePrefix}"
+                    rendered="#{scriptFilterActionBean.validationScope}">
+                    <f:selectItems value="#{scriptFilterActionBean.validationValues}" var="validationType"
+                      itemLabel="#{validationType.representation}" itemValue="#{validationType.value}" />
+                  </p:selectOneMenu>
+                  <h:outputText id="actionValuePrefixAssignmentInputId" value="#{scriptFilterActionBean.valuePrefix}"
+                    rendered="#{scriptFilterActionBean.assignmentScope}" />
+                </div>
+              </h:panelGroup>
+            </div>
+            <div class="vertical-spacer" />
+            <div class="formRow">
+              <h:panelGroup id="valueBox" rendered="#{scriptFilterActionBean.valueBoxRendered}">
+                <div class="formLabelDiv required">Value</div>
+                <div class="formInput float-left">
+                  <h:inputText id="actionValueInputId" value="#{scriptFilterActionBean.value}" />
+                </div>
+              </h:panelGroup>
+            </div>
+            <div class="formRow">
+              <h:panelGroup id="valueOnFailBox" rendered="#{scriptFilterActionBean.onFailOptionsRendered}">
+                <div class="formLabelDiv required">On Failure</div>
+                <div class="formInput float-left">
+                  <p:selectOneMenu id="actionValueOnFailInputId" value="#{scriptFilterActionBean.value}" >
+                    <f:selectItems value="#{scriptFilterActionBean.onFailOptions}" var="failureValues"
+                        itemLabel="#{failureValues.displayName}" itemValue="#{failureValues.value}" />
+                  </p:selectOneMenu>
+                </div>
+              </h:panelGroup>
+            </div>
+            <div class="vertical-spacer" />
+            <div class="formRow">
+              <div class="formButton">
+                <p:commandButton id="btnAddAction" value="Add"
+                  update=":addFilterForm:filterActionTableId,:addActionForm:addActionPopupGroup"
+                  action="#{scriptFilterActionBean.done()}" oncomplete="PF('actionDialog').hide();">
+                </p:commandButton>
+              </div>
+            </div>
+          </div>
+        </h:panelGroup>
+      </h:form>
+    </p:dialog>
+
+  </ui:define>
+</ui:composition>

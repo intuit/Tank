@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.intuit.tank</groupId>
+    <artifactId>web-parent</artifactId>
+    <version>2.0</version>
+  </parent>
+
+  <artifactId>tank</artifactId>
+
+  <packaging>war</packaging>
+  <name>Tank Web App</name>
+  <description>Tank Web App</description>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>add-resource</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>add-resource</goal>
+                </goals>
+                <configuration>
+                  <resources>
+                    <resource>
+                      <directory>${project.parent.parent.basedir}/doc/tank_user_guide/target/docbook/publish/en-US</directory>
+                      <includes>
+                        <include>**/*</include>
+                      </includes>
+                      <targetPath>${project.build.directory}/tank/docs</targetPath>
+                    </resource>
+                    <resource>
+                      <directory>${project.parent.parent.basedir}/doc/tank_installation_guide/target/docbook/publish/en-US</directory>
+                      <includes>
+                        <include>**/*</include>
+                      </includes>
+                      <targetPath>${project.build.directory}/tank/docs/install-guide</targetPath>
+                    </resource>
+                    <resource>
+                      <directory>${project.parent.parent.build.directory}/site/apidocs</directory>
+                      <includes>
+                        <include>**/*</include>
+                      </includes>
+                      <targetPath>${project.build.directory}/tank/apidocs</targetPath>
+                    </resource>
+                    <resource>
+                      <directory>${project.parent.parent.basedir}/proxy-parent/proxy_pkg/target</directory>
+                      <includes>
+                        <include>Tank-Proxy-pkg.zip</include>
+                      </includes>
+                      <targetPath>${project.build.directory}/tank/tools</targetPath>
+                    </resource>
+                    <resource>
+                      <directory>${cert.dir}</directory>
+                      <includes>
+                        <include>${cert.p12}</include>
+                      </includes>
+                      <targetPath>${project.build.directory}/tank/tools</targetPath>
+                      
+                    </resource>
+                    <resource>
+                      <directory>${project.parent.parent.basedir}/agent/apiharness_pkg/target</directory>
+                      <includes>
+                        <include>apiharness-1.0-pkg.zip</include>
+                        <include>apiharness-1.0-all.jar</include>
+                      </includes>
+                      <targetPath>${project.build.directory}/tank/tools</targetPath>
+                    </resource>
+                    <resource>
+                      <directory>${project.parent.parent.basedir}/tools/script_filter_pkg/target</directory>
+                      <includes>
+                        <include>Tank-Script-Runner-all.jar</include>
+                      </includes>
+                      <targetPath>${project.build.directory}/tank/tools</targetPath>
+                    </resource>
+                    <resource>
+                      <directory>${project.parent.parent.basedir}/tools/agent_debugger_pkg/target</directory>
+                      <includes>
+                        <include>Tank-Debugger-all.jar</include>
+                      </includes>
+                      <targetPath>${project.build.directory}/tank/tools</targetPath>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.enunciate</groupId>
+            <artifactId>maven-enunciate-plugin</artifactId>
+            <configuration>
+              <configFile>enunciate.xml</configFile>
+            </configuration>
+
+            <executions>
+              <execution>
+                <goals>
+                  <goal>docs</goal>
+                </goals>
+                <configuration>
+                  <!-- the directory where to put the docs -->
+                  <docsDir>${project.build.directory}/tank/restdocs</docsDir>
+
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>de.javakaffee.msm</groupId>
+      <artifactId>msm-kryo-serializer</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>tank-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>migrate_scripts</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>filter-service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>job-service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>tank-mail</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>web-support</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>tank-vm-manager</artifactId>
+      <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>xercesImpl</artifactId>
+          <groupId>xerces</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>slf4j-api</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>slf4j-simple</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>project-service</artifactId>
+      <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>servlet-api</artifactId>
+          <groupId>javax.servlet</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>report-service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>user-service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>cloud-service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>datafile-service</artifactId>
+      <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>xml-apis</artifactId>
+          <groupId>xml-apis</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>agent-service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>automation-service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <artifactId>script-service</artifactId>
+      <groupId>${project.groupId}</groupId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- enunciate dependencies -->
+    <dependency>
+      <groupId>org.codehaus.enunciate</groupId>
+      <artifactId>enunciate-rt</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Common to JEE and Servlet containers -->
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.primefaces.themes</groupId>
+      <artifactId>redmond</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.weld.servlet</groupId>
+      <artifactId>weld-servlet</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.lowagie</groupId>
+      <artifactId>itext</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>jdom</groupId>
+      <artifactId>jdom</artifactId>
+    </dependency>
+
+
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <finalName>tank</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+            <manifestEntries>
+              <Implementation-Build-timestamp>${maven.build.timestamp}</Implementation-Build-timestamp>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+
+</project>

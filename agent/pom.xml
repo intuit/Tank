@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.intuit.tank</groupId>
+    <artifactId>tank-parent</artifactId>
+    <version>2.0</version>
+  </parent>
+
+  <artifactId>agent-parent</artifactId>
+
+  <packaging>pom</packaging>
+  <name>Agent Parent</name>
+
+  <modules>
+    <module>agent_startup</module>
+    <module>agent_standalone</module>
+    <module>apiharness</module>
+  </modules>
+
+  <profiles>
+
+    <profile>
+      <id>release</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <modules>
+        <module>apiharness_pkg</module>
+        <module>agent_startup_pkg</module>
+        <module>agent_standalone_pkg</module>
+      </modules>
+
+    </profile>
+
+  </profiles>
+
+</project>

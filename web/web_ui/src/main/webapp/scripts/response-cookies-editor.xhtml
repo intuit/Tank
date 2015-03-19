@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" 
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:s="http://jboss.com/products/seam/taglib">
+
+  <div class="height300 overflow-auto">
+  
+  <div class="formRow">
+
+      <ts:tip tipId="headerTip"
+                text="Response Cookies are for informational purposes only. They are not used in any way in the request."  />
+  </div>
+
+    <p:dataTable value="#{responseCookiesEditor.responseCookies}" var="coo" id="responseCookiesTable"
+      styleClass="striped highlight full-width" columnClasses="width30Percent,width70Percent">
+      <f:facet name="noData">
+                Nothing found
+            </f:facet>
+
+      <p:column id="cookie-response-header-column" styleClass="width30Percent">
+        <f:facet name="header">
+          <h:outputText value="Cookie" />
+        </f:facet>
+        <div class="overflowEllipsis">
+          <h:outputText value="#{coo.key}" />
+        </div>
+      </p:column>
+
+      <p:column id="cookie-response-value-column" styleClass="width70Percent">
+        <f:facet name="header">
+          <h:outputText value="Value" />
+        </f:facet>
+        <div class="overflowEllipsis">
+          <h:outputText value="#{coo.value}" />
+        </div>
+      </p:column>
+    </p:dataTable>
+  </div>
+</ui:composition>

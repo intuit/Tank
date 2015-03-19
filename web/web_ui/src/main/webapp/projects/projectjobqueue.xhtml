@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui" xmlns:pe="http://primefaces.org/ui/extensions" 
+  xmlns:ts="http://java.sun.com/jsf/composite/tag">
+
+
+  <ts:toolbar title="Job queue" showRightComponents="true">
+    <f:facet name="actions">
+      <h:panelGroup styleClass="toolbar-ui" style="width:600px;">
+        <p:selectBooleanCheckbox id="filterFinishedBoxId" value="#{projectJobQueueManager.filterFinished}">
+          <p:ajax event="change" update=":mainForm:projectTabPanelID:jobTableId, :mainForm:messages" />
+        </p:selectBooleanCheckbox>
+        <h:outputLabel value="Filter finished jobs" for="filterFinishedBoxId" />
+
+        <h:panelGroup styleClass="h-space">
+          <h:outputText value="Refresh interval" styleClass="formLabel pad15Left pad15Right">
+          </h:outputText>
+          <h:inputText value="#{projectJobQueueManager.refreshTimeSeconds}" maxlength="3" size="5" onchange="submit();">
+          </h:inputText>
+        </h:panelGroup>
+        
+        <h:panelGroup styleClass="h-space">
+          <p:commandButton action="#{projectJobQueueManager.refreshData()}" value="Refresh"
+            update=":mainForm:projectTabPanelID:jobTableId, :mainForm:projectTabPanelID:refreshDiv, :mainForm:messages, :vldDataForm"
+            ajax="true"
+            style=" background-image: url(#{request.contextPath}/resources/gfx/16/refresh.png);
+                                  background-repeat: no-repeat;
+                                  background-position: 3px 5px;
+                                  border-radius:5px;"
+            styleClass="icon-button h-space" />
+        </h:panelGroup>
+
+        <h:panelGroup styleClass="h-space">
+          <p:commandButton id="projectTotalBt" value="User Details" 
+            action="#{projectJobQueueManager.setCurrentJobInstance(projectJobQueueManager.rootNode.data)}" oncomplete="PF('userDetailsPopup').show();"
+            update=":userDetailsForm:userDetailsContent, :tpsForm:tpsDetailsContent"
+            style=" background-image: url(#{request.contextPath}/resources/gfx/16/chart_curve.png);
+                                  background-repeat: no-repeat;
+                                  background-position: 3px 5px;
+                                  border-radius:5px;"
+            styleClass="icon-button h-space" />
+
+          <p:commandButton id="projectTotalTPSBt" value="TPS Details" 
+            action="#{projectJobQueueManager.setCurrentJobInstance(projectJobQueueManager.rootNode.data)}" oncomplete="PF('tpsDetailsPopup').show();"
+            update=":userDetailsForm:userDetailsContent, :tpsForm:tpsDetailsContent"
+            style=" background-image: url(#{request.contextPath}/resources/gfx/16/chart_curve.png);
+                                  background-repeat: no-repeat;
+                                  background-position: 3px 5px;
+                                  border-radius:5px;"
+            styleClass="icon-button h-space" />
+          
+        </h:panelGroup>
+      </h:panelGroup>
+    </f:facet>
+    <f:facet name="additional-group">
+      <p:selectCheckboxMenu value="#{projectJobQueueManager.tablePrefs.visibleColumns}" style="margin: 0 10px 0 20px;"
+        panelStyle="width:300px;" label="Visible Columns...">
+        <p:ajax event="change" update=":mainForm:projectTabPanelID:jobTableId" process="@this" onstart="saveScrollPos()"
+          oncomplete="getScrollPos()" immediate="true" />
+        <p:ajax event="toggleSelect" update=":mainForm:projectTabPanelID:jobTableId" process="@this"
+          onstart="saveScrollPos()" oncomplete="getScrollPos()" immediate="true" />
+        <f:selectItems value="#{projectJobQueueManager.tablePrefs.visibiltyList}" />
+      </p:selectCheckboxMenu>
+    </f:facet>
+  </ts:toolbar>
+
+
+  <h:panelGroup id="refreshDiv" rendered="#{projectJobQueueManager.refreshEnabled}">
+    <p:poll id="refreshPoll" interval="#{projectJobQueueManager.refreshInterval}" autoStart="true"
+      update=":mainForm:projectTabPanelID:jobTableId, :mainForm:messages, :vldDataForm, :userDetailsForm:userDetailsContent, :tpsForm:tpsDetailsContent"
+      listener="#{projectJobQueueManager.refreshData()}" />
+  </h:panelGroup>
+  <div class="vertical-spacer"></div>
+  <div class="formTable">
+  <pe:remoteCommand id="resizeListener" name="resizeFinished" update="jobTableId" />
+    <p:treeTable id="jobTableId" var="node" 
+      style="width:#{projectJobQueueManager.tablePrefs.getMaxTotalSize(preferencesBean.screenWidth)}px;" 
+      value="#{projectJobQueueManager.rootNode}" resizableColumns="true" liveResize="false" scrollable="true"
+      scrollHeight="450" headerSectionClass="rf-tb" >
+
+      <p:ajax event="expand" listener="#{projectJobQueueManager.onNodeExpand}" update="jobTableId" />
+      <p:ajax event="collapse" listener="#{projectJobQueueManager.onNodeCollapse}" update="jobTableId" />
+      <p:ajax event="colResize" update="jobTableId" listener="#{projectJobQueueManager.tablePrefs.onResize}"
+        global="true" onstart="saveScrollPos()" oncomplete="getScrollPos()" immediate="true" />
+
+      <p:column id="nameColumn" style="width:#{projectJobQueueManager.tablePrefs.getSize('nameColumn')}px;"
+        headerText="Name" styleClass="ellipsis min-column-size"
+        rendered="#{projectJobQueueManager.tablePrefs.isVisible('nameColumn')}">
+        <p:commandLink ajax="true" action="#{projectJobQueueManager.setCurrentJobInstance(node)}"
+          oncomplete="PF('validatePopup').show();" update=":validatePopupID" rendered="#{node.jobNode}">
+          <h:outputText value="#{node.name}" title="#{node.name}" />
+        </p:commandLink>
+        <h:outputText value="#{node.name}" title="#{node.name}" rendered="#{!node.jobNode}" />
+      </p:column>
+
+
+      <p:column id="idColumn"
+        style="width:#{projectJobQueueManager.tablePrefs.getSize('idColumn')}px;text-align: right;" headerText="ID"
+        styleClass="ellipsis min-column-size" rendered="#{projectJobQueueManager.tablePrefs.isVisible('idColumn')}">
+        <h:outputText value="#{node.id}" rendered="#{node.type ne 'project'}" />
+      </p:column>
+
+
+
+      <p:column id="statusColumn" headerText="Status" styleClass="ellipsis min-column-size"
+        style="width:#{projectJobQueueManager.tablePrefs.getSize('statusColumn')}px;"
+        rendered="#{projectJobQueueManager.tablePrefs.isVisible('statusColumn')}">
+        <h:outputText value="#{node.status}" />
+      </p:column>
+
+      <p:column id="regionColumn" headerText="Region" styleClass="ellipsis min-column-size"
+        style="width:#{projectJobQueueManager.tablePrefs.getSize('regionColumn')}px;"
+        rendered="#{projectJobQueueManager.tablePrefs.isVisible('regionColumn')}">
+        <h:outputText value="#{node.region}" />
+      </p:column>
+
+      <p:column id="activeUsersColumn"
+        style="width:#{projectJobQueueManager.tablePrefs.getSize('activeUsersColumn')}px;text-align:right;"
+        headerText="Active Users" styleClass="ellipsis min-column-size"
+        rendered="#{projectJobQueueManager.tablePrefs.isVisible('activeUsersColumn')}">
+        <p:commandLink ajax="true" id="lnkUserDetailsActive"
+          action="#{projectJobQueueManager.setCurrentJobInstance(node)}" oncomplete="PF('userDetailsPopup').show();"
+          update=":userDetailsForm:userDetailsContent">
+          <h:outputText value="#{node.activeUsers}" />
+        </p:commandLink>
+      </p:column>
+
+      <p:column id="totalUsersColumn"
+        style="width:#{projectJobQueueManager.tablePrefs.getSize('totalUsersColumn')}px;text-align:right;"
+        headerText="Total Users" styleClass="ellipsis min-column-size"
+        rendered="#{projectJobQueueManager.tablePrefs.isVisible('totalUsersColumn')}">
+        <p:commandLink ajax="true" id="lnkUserDetailsTotal"
+          action="#{projectJobQueueManager.setCurrentJobInstance(node)}" oncomplete="PF('userDetailsPopup').show();"
+          update=":userDetailsForm:userDetailsContent">
+          <h:outputText value="#{node.totalUsers}" />
+        </p:commandLink>
+      </p:column>
+      
+      <p:column id="tpsColumn" headerText="TPS" styleClass="ellipsis min-column-size"
+        style="width:#{projectJobQueueManager.tablePrefs.getSize('tpsColumn')}px;text-align:right;"
+        rendered="#{projectJobQueueManager.tablePrefs.isVisible('tpsColumn')}">
+        <p:commandLink ajax="true" id="lnkTps"
+          action="#{projectJobQueueManager.setCurrentJobInstance(node)}" oncomplete="PF('tpsDetailsPopup').show();"
+          update=":tpsForm:tpsDetailsContent">
+            <h:outputText value="#{node.tps}" />
+        </p:commandLink>
+      </p:column>
+
+      <p:column id="validationColumn"
+        style="width:#{projectJobQueueManager.tablePrefs.getSize('validationColumn')}px;text-align:right;"
+        headerText="Validation Failures" styleClass="ellipsis min-column-size"
+        rendered="#{projectJobQueueManager.tablePrefs.isVisible('validationColumn')}">
+        <p:commandLink ajax="true" id="btnVldErrs" action="#{projectJobQueueManager.setCurrentJobInstance(node)}"
+          oncomplete="PF('validationStatusPopup').show();" update=":validationStatusPopupID"
+          rendered="#{!node.getType().equals('project')}">
+          <h:outputText value="#{node.numFailures.total} (Details)" title="Total Failures" />
+        </p:commandLink>
+      </p:column>
+
+      <p:column id="startTimeColumn"
+        style="width:#{projectJobQueueManager.tablePrefs.getSize('startTimeColumn')}px;text-align:right;"
+        headerText="Start Time" styleClass="ellipsis min-column-size"
+        rendered="#{projectJobQueueManager.tablePrefs.isVisible('startTimeColumn')}">
+        <h:outputText value="#{node.startTime}" />
+      </p:column>
+
+      <p:column id="endTimeColumn"
+        style="width:#{projectJobQueueManager.tablePrefs.getSize('endTimeColumn')}px;text-align:right;"
+        headerText="End Time" styleClass="ellipsis min-column-size"
+        rendered="#{projectJobQueueManager.tablePrefs.isVisible('endTimeColumn')}">
+        <h:outputText value="#{node.endTime}" />
+      </p:column>
+
+      <p:column id="actionsColumn"
+        style="width:#{projectJobQueueManager.tablePrefs.getSize('actionsColumn')}px;text-align:right;"
+        styleClass="ellipsis min-column-size" rendered="#{projectJobQueueManager.tablePrefs.isVisible('actionsColumn')}">
+        <div class="float-left">
+
+          <p:commandButton id="btnRun" action="#{jobQueueAction.run(node)}" value="R" title="Run"
+            onerror="window.location.reload()" disabled="#{!node.isRunnable() or !projectJobQueueManager.canControlJob(node)}"
+            ajax="true" update=":mainForm:projectTabPanelID:jobTableId" />
+          <p:commandButton id="btnKill" action="#{jobQueueAction.kill(node)}" value="K" title="Kill"
+            onerror="window.location.reload()" disabled="#{!node.isKillable() or !projectJobQueueManager.canControlJob(node)}"
+            ajax="true" update=":mainForm:projectTabPanelID:jobTableId" />
+          <p:commandButton id="btnPauseRamp" action="#{jobQueueAction.pauseRamp(node)}" value="PR" title="Pause Ramp"
+            onerror="window.location.reload()"
+            disabled="#{!node.isRampPausable() or !jobQueueManager.canControlJob(node)}" ajax="true"
+            update=":mainForm:projectTabPanelID:jobTableId" />
+          <!-- <p:commandButton id="btnPause" action="#{jobQueueAction.pause(node)}" value="P" title="Pause"
+                   onerror="window.location.reload()" disabled="#{!node.isPausable()}" ajax="true"
+                   update=":mainForm:projectTabPanelID:jobTableId" /> -->
+          <p:commandButton id="btnStop" action="#{jobQueueAction.stop(node)}" value="S" title="Stop"
+            onerror="window.location.reload()" disabled="#{!node.isStopable() or !projectJobQueueManager.canControlJob(node)}"
+            ajax="true" update=":mainForm:projectTabPanelID:jobTableId" />
+          <p:commandButton id="btnDelete" action="#{projectJobQueueManager.deleteJobInstance(node)}" value="X"
+            onerror="window.location.reload()" rendered="#{node.isDeleteable() and projectJobQueueManager.canControlJob(node)}"
+            ajax="false" title="Delete" update=":mainForm:projectTabPanelID:jobTableId, :mainForm:messages" />
+        </div>
+        <div class="float-right">
+          <h:outputLink title="View Summary Timing Data" target="_new"
+            rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
+            value="#{request.contextPath}/rest/v1/report-service/timing/summary/html/#{node.id}">
+            <h:graphicImage value="/resources/gfx/16/table_chart.png" width="16" height="16"
+              style="padding: 5px 0; margin-right:5px;" />
+          </h:outputLink>
+
+          <h:outputLink title="View Periodic Timing Data" target="_new"
+            rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
+            value="#{request.contextPath}/rest/v1/report-service/timing/periodic/html/#{node.id}">
+            <h:graphicImage value="/resources/gfx/16/table_heatmap.png" width="16" height="16"
+              style="padding: 5px 0; margin-right:5px;" />
+          </h:outputLink>
+
+          <h:outputLink title="Download CSV Timing Data"
+            rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
+            value="#{request.contextPath}/rest/v1/report-service/timing/csv/#{node.id}">
+            <h:graphicImage value="/resources/gfx/16/table_excel.png" width="16" height="16"
+              style="padding: 5px 0; margin-right:5px;" />
+          </h:outputLink>
+
+          <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'job'}"
+            value="#{request.contextPath}/rest/v1/project-service/download/script/#{node.id}">
+            <h:graphicImage value="/resources/gfx/16/script_go.png" width="16" height="16"
+              style="padding: 5px 0; margin-right:5px;" />
+          </h:outputLink>
+
+          <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'project'}"
+            value="#{request.contextPath}/rest/v1/project-service/download/script/project/#{node.id}">
+            <h:graphicImage value="/resources/gfx/16/script_go.png" width="16" height="16"
+              style="padding: 5px 0; margin-right:5px;" />
+          </h:outputLink>
+        </div>
+      </p:column>
+
+    </p:treeTable>
+  </div>
+</ui:composition>

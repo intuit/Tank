@@ -1,0 +1,782 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:s="http://jboss.org/seam/faces"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui"
+  template="/WEB-INF/templates/tank.xhtml">
+
+  <ui:define name="content">
+
+    <h:form id="mainForm">
+      <!--  Supporting popup panels -->
+
+
+      <!-- Main View Components -->
+
+      <ts:toolbar title="Project: #{projectBean.project.name}" toolbarId="actionsTB">
+        <f:facet name="actions">
+          <h:panelGroup styleClass="toolbar-ui" id="projectActions">
+            <p:commandButton id="tbSaveBtn" value="Save" action="#{projectBean.save()}" 
+                
+              title="Save Changes to Project #{projectBean.project.name}" ajax="true" 
+              update=":mainForm:projectData, :mainForm:messages"
+              style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
+				    background-repeat: no-repeat;
+				    background-position: 3px 5px;
+				    border-radius:5px;"
+              styleClass="icon-button h-space" disabled="#{not projectBean.canEditProject()}" />
+
+            <p:commandButton id="saveAsBt" value="Save As..." type="button"
+              style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
+				    background-repeat: no-repeat;
+				    background-position: 3px 5px;
+				    border-radius:5px;"
+              styleClass="icon-button h-space" onclick="PF('saveAsConfirm').show()"
+              disabled="#{not projectBean.canEditProject()}" />
+            <p:commandButton id="tbCancelBtn" action="#{projectBean.cancel()}" value="Cancel" immediate="true"
+              ajax="true"
+              style=" background-image: url(#{request.contextPath}/resources/gfx/16/cancel.png); 
+				    background-repeat: no-repeat;
+				    background-position: 3px 5px;
+				    border-radius:5px;"
+              styleClass="icon-button h-space" />
+
+          </h:panelGroup>
+        </f:facet>
+      </ts:toolbar>
+
+      <div class="vertical-spacer" />
+      <p:growl globalOnly="true" id="messages" autoUpdate="true" />
+
+      <!-- Top info rows -->
+      <h:panelGroup id="projectData">
+        <div class="formDiv">
+
+          <div class="formRow">
+            <div class="formLabelDiv">
+              <h:outputLabel for="projectNameTF" value="Name" styleClass="formLabel required" />
+            </div>
+            <div class="formInputDiv" title="#{projectBean.project.name} (id=#{projectBean.project.id})">
+              <p:inplace label="#{projectBean.project.name}" editor="true">
+                <h:inputText id="projectNameTF" styleClass="formInput inputWidthMedium"
+                  value="#{projectBean.project.name}" required="true" requiredMessage="Name cannot be empty." />
+              </p:inplace>
+            </div>
+          </div>
+
+          <div class="formRow">
+            <div class="formLabelDiv">
+              <h:outputLabel for="simTimeTF" value="Simulation Time" styleClass="formLabel required" />
+            </div>
+            <div class="formInputDiv">
+              <p:inplace label="#{usersAndTimes.simulationTime}" editor="true">
+                <h:inputText id="simTimeTF" styleClass="formInput inputWidthMedium"
+                  value="#{usersAndTimes.simulationTime}" inputWidth="200" />
+              </p:inplace>
+              <ts:tip tipId="simTimeTip"
+                text="Simulation time can be entered using days hours, min notation. E.G. '{num}d {num}h {num}m {num}s {num}ms' 
+                so these are equivelent: '1h 30m', '90m', '324000s', '324000000ms', or '324000000'.&lt;br/&gt;&lt;br/&gt;
+                Times can also be relative to ramp time &lt;b&gt;(RT)&lt;/b&gt; and execution time &lt;b&gt;(ET)&lt;/b&gt;. So 3RT or 3 * RT (3 times the ramp time) can be used. 
+                Additionally, any mathematical expression can be used. E.G. 3ET - .5RT (3 times execution time - half of the ramp time)&lt;br/&gt;&lt;br/&gt;
+                &lt;b&gt;Note&lt;/b&gt; - expressions with mathematical symbols must be separated by whitespace. 3ET+10m should be written as 3ET + 10m"  />
+
+            </div>
+          </div>
+
+          <div class="formRow">
+            <div class="formLabelDiv">
+              <h:outputLabel for="rampTimeTF" value="Ramp Time" styleClass="formLabel required" />
+            </div>
+            <div class="formInputDiv">
+              <p:inplace label="#{usersAndTimes.rampTime}" editor="true">
+                <h:inputText id="rampTimeTF" styleClass="formInput inputWidthMedium" value="#{usersAndTimes.rampTime}"
+                  inputWidth="200" />
+              </p:inplace>
+              <ts:tip tipId="rampTimeTip"
+                text="Ramp time can be entered using days hours, min notation. E.G. '{num}d {num}h {num}m {num}s {num}ms' 
+                so these are equivelent: '1h 30m', '90m', '324000s', '324000000ms', or '324000000'&lt;br/&gt;&lt;br/&gt;
+                Times can also be relative to simulation time &lt;b&gt;(ST)&lt;/b&gt; and execution time &lt;b&gt;(ET)&lt;/b&gt;. So .5ST or .5 * RT (half of the simulation time) can be used. 
+                Additionally, any mathematical expression can be used. E.G. 3ET - .5ST (3 times execution time - half of the simulation time)&lt;br/&gt;&lt;br/&gt;
+                &lt;b&gt;Note&lt;/b&gt; - expressions with mathematical symbols must be separated by whitespace. 3ET+10m should be written as 3ET + 10m" />
+
+            </div>
+          </div>
+
+          <div class="formRow">
+            <ts:ownerBox entity="#{projectBean.project}"></ts:ownerBox>
+          </div>
+
+          <div class="formRow">
+            <div class="formLabelDiv">
+              <h:outputText value="Total Users" styleClass="formLabel" />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="#{usersAndTimes.totalUsers}" id="totalUsersTF" />
+            </div>
+          </div>
+        </div>
+
+        <div class="vertical-spacer"></div>
+
+        <p:tabView id="projectTabPanelID" dynamic="true" cache="false" widgetVar="projectTabPanel"
+          styleClass="disabled-header">
+          <p:tab id="userTabId" title="Users And Times">
+            <ui:include src="./usersAndTimes.xhtml"></ui:include>
+          </p:tab>
+          <p:tab id="scriptsTabId" title="Scripts">
+            <ui:include src="./workloadScripts.xhtml"></ui:include>
+          </p:tab>
+          <p:tab id="fileAssociationTabId" title="Data Files">
+            <ui:include src="./associateFiles.xhtml"></ui:include>
+          </p:tab>
+          <p:tab id="notificationTabId" title="Notifications">
+            <ui:include src="./notifications.xhtml"></ui:include>
+          </p:tab>
+          <p:tab id="variablesTabId" title="Variables">
+            <ui:include src="./variables.xhtml"></ui:include>
+          </p:tab>
+          <p:tab id="scheduleTabId" title="Schedule Job">
+            <ui:include src="./addWorkloadToJobQueue.xhtml"></ui:include>
+          </p:tab>
+          <p:tab id="jobQueueTabId" title="Job Queue">
+            <ui:include src="./projectjobqueue.xhtml"></ui:include>
+          </p:tab>
+        </p:tabView>
+      </h:panelGroup>
+
+      <p:confirmDialog id="saveAsConfirmID" header="Save As"  widgetVar="saveAsConfirm">
+        <f:facet name="message">
+          <h:outputText value="Save As: " />
+          <h:inputText value="#{projectBean.saveAsName}" id="saveAsName" styleClass="formInput inputWidthMedium"
+            style="width:140px;" />
+        </f:facet>
+        <p:commandButton value="OK" id="SaveAsOk" ajax="false" action="#{projectBean.saveAs}" />
+        <h:panelGroup styleClass="horizontal-spacer" id="dd" />
+        <p:commandButton value="Cancel" onclick="PF('saveAsConfirm').hide();" id="saveAsCancel" type="button" />
+      </p:confirmDialog>
+    </h:form>
+
+
+    <p:dialog id="editScriptGroupID" appendTo="@(body)" dynamic="true" widgetVar="editScriptGroup" width="600"
+      height="550" header="Edit Script Group #{workloadScripts.scriptGroup.name}" modal="true" resizable="true"
+      showEffect="puff" position="center">
+      <h:form id="editGroupForm">
+        <h:panelGroup id="scriptEditForm">
+
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputLabel id="scriptGroupNameLabel" value="Name" />
+            </div>
+            <div class="smallFormInputDiv">
+              <h:inputText id="editScriptGroupName" styleClass="formInput inputWidthMedium"
+                value="#{workloadScripts.scriptGroup.name}" inputWidth="200" />
+            </div>
+          </div>
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputLabel id="scriptGroupNameLoop" value="Loop" />
+            </div>
+            <div class="smallFormInputDiv">
+              <h:inputText id="editScriptGroupLoop" styleClass="formInput inputWidthMedium"
+                value="#{workloadScripts.scriptGroup.loop}" inputWidth="200" />
+            </div>
+          </div>
+
+          <h:panelGroup id="listGroup">
+            <p:pickList id="scriptShuffleListId" value="#{workloadScripts.scriptSelectionModel}" var="script"
+              itemValue="#{script}" itemLabel="#{script.name}" filterMatchMode="contains" showSourceFilter="true"
+              showTargetFilter="true" converter="tsScriptConverter" showTargetControls="false"
+              showSourceControls="false">
+              <f:facet name="sourceCaption">Available</f:facet>
+              <f:facet name="targetCaption">Selected</f:facet>
+              <p:column headerText="File">
+                <h:outputText value="#{script}" />
+              </p:column>
+            </p:pickList>
+          </h:panelGroup>
+
+          <div id="scriptStepAddForm">
+            <p:commandButton value="Add scripts"
+              update=":editGroupForm:scriptShuffleListId, :editGroupForm:scriptStepTableId"
+              action="#{workloadScripts.addScriptGroupStep()}" ajax="true" />
+          </div>
+          <div class="vertical-spacer" />
+          <div style="height: 150px; overflow: auto; border: 1px solid black;">
+            <p:dataTable id="scriptStepTableId" value="#{workloadScripts.steps}" var="step" style="width:100%;"
+              noDataLabel="Add Scripts using the selector above.">
+
+              <p:column styleClass="ellipsis min-column-size" style="width: 270px;">
+                <f:facet name="header">
+                  <h:outputText value="Name" />
+                </f:facet>
+                <h:outputText value="#{step.script.name}" />
+              </p:column>
+
+              <p:column styleClass="ellipsis min-column-size" style="width:50px;">
+                <f:facet name="header">
+                  <h:outputText value="Loop" />
+                </f:facet>
+                <p:inplace label="#{step.loop}" editor="true">
+                  <h:inputText value="#{step.loop}" required="true" styleClass="inputWidthXSmall"
+                    requiredMessage="Loop must be specified." />
+                </p:inplace>
+              </p:column>
+
+              <p:column styleClass="ellipsis min-column-size" style="width:50px;">
+                <p:commandButton update="@form" ajax="true" action="#{workloadScripts.deleteScriptGroupStep(step)}"
+                  value="X" />
+              </p:column>
+            </p:dataTable>
+            <br />
+          </div>
+          <p:commandButton onclick="PF('editScriptGroup').hide();" type="button" value="Close" />
+        </h:panelGroup>
+      </h:form>
+    </p:dialog>
+    <p:dialog id="scriptGroupPopupID" appendTo="@(body)" dynamic="true" widgetVar="scriptGroupPopup" width="500"
+      height="150" header="Add Script Group" modal="true" resizable="true" position="center">
+      <h:form id="scriptGroupPopupForm">
+        <h:panelGroup id="scriptGroupPopupContent">
+
+          <div class="formRow">
+            <div class="float-left" style="width: 150px;">
+              <h:outputLabel for="ScriptGroupTF" value="Script Group" styleClass="formLabel required" />
+            </div>
+            <div class="float-left" style="width: 300px;">
+              <h:inputText id="ScriptGroupTF" value="#{workloadScripts.currentScriptGroup.name}"
+                styleClass="formInput inputWidthMedium defaultFocus" />
+            </div>
+          </div>
+
+          <div class="formRow">
+            <div class="float-left" style="width: 150px;">
+              <h:outputLabel for="groupLoopTF" value="Loop" styleClass="formLabel required" />
+            </div>
+            <div class="float-left" style="width: 300px;">
+              <h:inputText value="#{workloadScripts.currentScriptGroup.loop}" id="groupLoopTF"
+                styleClass="formInput inputWidthSmall" />
+            </div>
+          </div>
+        </h:panelGroup>
+        <div class="vertical-spacer" />
+        <div class="formRow">
+          <p:commandButton value="Add" process=":scriptGroupPopupID" update=":mainForm:projectTabPanelID:testPlanPanel"
+            action="#{workloadScripts.addScriptGroup()}" ajax="true" onsuccess="PF('scriptGroupPopup').hide();" />
+          <p:commandButton value="Cancel" type="button" styleClass="h-space" onclick="PF('scriptGroupPopup').hide();" />
+        </div>
+      </h:form>
+    </p:dialog>
+
+
+    <p:dialog id="testPlanPopupID" appendTo="@(body)" dynamic="true" widgetVar="testPlanPopup" width="500" height="150"
+      header="Add Test Plan" modal="true" resizable="true" position="center">
+      <h:form id="testPlanPopupForm">
+        <h:panelGroup id="testPlanPopupContent">
+
+          <div class="formRow">
+            <div class="float-left" style="width: 150px;">
+              <h:outputLabel for="testPlanPopupTF" value="Test Plan Name" styleClass="formLabel required" />
+            </div>
+            <div class="float-left" style="width: 300px;">
+              <h:inputText id="testPlanPopupTF" value="#{addTestPlan.name}" required="true"
+                requiredMessage="Name is required" styleClass="formInput inputWidthMedium defaultFocus" />
+              <p:watermark for="testPlanPopupTF" value="Test Plan Name" />
+            </div>
+          </div>
+
+          <div class="formRow">
+            <div class="float-left" style="width: 150px;">
+              <h:outputLabel for="testPlanPercentTF" value="User Percentage" styleClass="formLabel required" />
+            </div>
+            <div class="float-left" style="width: 300px;">
+              <p:spinner value="#{addTestPlan.percentage}" id="testPlanPercentTF" min="0" max="100"
+                styleClass="formInput " />
+            </div>
+          </div>
+        </h:panelGroup>
+        <div class="vertical-spacer" />
+        <div class="formRow">
+          <p:commandButton value="Add" update=":mainForm:projectTabPanelID:testPlanTabViewID"
+            action="#{addTestPlan.save}" ajax="true" onsuccess="PF('testPlanPopup').hide()" />
+          <p:commandButton value="Cancel" type="button" styleClass="h-space" onclick="PF('testPlanPopup').hide();" />
+        </div>
+      </h:form>
+    </p:dialog>
+
+    <p:dialog id="variablePopupID" appendTo="@(body)" dynamic="true" widgetVar="variablePopup" width="500" height="150"
+      header="Add Variable" modal="true" resizable="true" position="center">
+      <h:form id="variablePopupForm">
+        <h:panelGroup id="variablePopupContent">
+
+          <div class="formRow">
+            <div class="float-left" style="width: 150px;">
+              <h:outputLabel for="variableKeyTF" value="Key" styleClass="formLabel required" />
+            </div>
+            <div class="float-left" style="width: 300px;">
+              <h:inputText id="variableKeyTF" value="#{projectVariableEditor.currentEntry.key}"
+                styleClass="formInput inputWidthMedium defaultFocus" />
+            </div>
+          </div>
+
+          <div class="formRow">
+            <div class="float-left" style="width: 150px;">
+              <h:outputLabel for="variableValueTF" value="Value" styleClass="formLabel required" />
+            </div>
+            <div class="float-left" style="width: 300px;">
+              <h:inputText value="#{projectVariableEditor.currentEntry.value}" id="variableValueTF"
+                styleClass="formInput inputWidthMedium" />
+            </div>
+          </div>
+        </h:panelGroup>
+        <div class="vertical-spacer" />
+        <p:commandButton value="Add" process="@form"
+          update=":mainForm:projectTabPanelID:variablesTable,:mainForm:messages"
+          action="#{projectVariableEditor.addEntry()}" ajax="true" onsuccess="PF('variablePopup').hide();" />
+        <p:commandButton value="Cancel" type="button" styleClass="h-space" onclick="PF('variablePopup').hide();" />
+      </h:form>
+    </p:dialog>
+
+
+    <p:dialog id="createJobPopupID" appendTo="@(body)" dynamic="true" widgetVar="createJobPopup" width="800"
+      height="500" header="Add Job To Queue Job" modal="true" resizable="true" position="center">
+      <h:form id="addJobForm">
+        <p:scrollPanel style="width:90%;height:400px; padding:10px;" mode="native">
+          <h:outputText value="#{jobMaker.jobDetails}" escape="false" />
+        </p:scrollPanel>
+
+        <div class="vertical-spacer" />
+        <p:commandButton widgetVar="submitJobBT" rendered="#{jobMaker.isValid()}" onclick="PF('submitJobBT').disable();"
+          value="Add Job To Queue" action="#{jobMaker.addJobToQueue()}" ajax="true"
+          disabled="#{not projectBean.canEditProject()}" onsuccess="PF('createJobPopup').hide();PF('projectTabPanel').select(6)" />
+        <p:commandButton value="Cancel" type="button" styleClass="h-space" onclick="PF('createJobPopup').hide();" />
+      </h:form>
+    </p:dialog>
+
+    <p:dialog id="validatePopupID" appendTo="@(body)" dynamic="true" widgetVar="validatePopup" width="800" height="500"
+      header="Validate Script" modal="true" resizable="true" position="center">
+      <p:scrollPanel style="width:90%;height:400px; padding:10px;" mode="native"
+        rendered="#{projectJobQueueManager.currentJobInstance ne null}">
+        <h:outputText value="#{projectJobQueueManager.currentJobInstance.jobDetails}" escape="false" />
+      </p:scrollPanel>
+
+      <div class="vertical-spacer" />
+
+      <p:commandButton value="Close" type="button" styleClass="h-space" onclick="PF('validatePopup').hide();" />
+    </p:dialog>
+    <p:dialog id="validationStatusPopupID" appendTo="@(body)" dynamic="true" widgetVar="validationStatusPopup"
+      width="300" height="160" header="Validation Errors" resizable="true" modal="true" position="center">
+      <p:outputPanel id="vldDataForm" autoUpdate="true" rendered="#{projectJobQueueManager.currentJobInstance ne null}">
+        <div class="formRow">
+          <div class="smallFormLabelDiv">
+            <h:outputText value="ID: " style="font-weight:bold" />
+          </div>
+          <div class="smallFormLabelDiv">
+            <h:outputText value="#{projectJobQueueManager.currentJobInstance.id}" />
+          </div>
+        </div>
+        <div class="formRow">
+          <div class="smallFormLabelDiv">
+            <h:outputText value="Total: " style="font-weight:bold" />
+          </div>
+          <div class="smallFormLabelDiv">
+            <h:outputText value="#{projectJobQueueManager.currentJobInstance.numFailures.getTotal()}" />
+          </div>
+        </div>
+        <div class="formRow">
+          <div class="smallFormLabelDiv">
+            <h:outputText value="Kills: " />
+          </div>
+          <div class="smallFormLabelDiv">
+            <h:outputText value="#{projectJobQueueManager.currentJobInstance.numFailures.getValidationKills()}" />
+          </div>
+        </div>
+        <div class="formRow">
+          <div class="smallFormLabelDiv">
+            <h:outputText value="Aborts: " />
+          </div>
+          <div class="smallFormLabelDiv">
+            <h:outputText value="#{projectJobQueueManager.currentJobInstance.numFailures.getValidationAborts()}" />
+          </div>
+        </div>
+        <div class="formRow">
+          <div class="smallFormLabelDiv">
+            <h:outputText value="Gotos: " />
+          </div>
+          <div class="smallFormLabelDiv">
+            <h:outputText value="#{projectJobQueueManager.currentJobInstance.numFailures.getValidationGotos()}" />
+          </div>
+        </div>
+        <div class="formRow">
+          <div class="smallFormLabelDiv">
+            <h:outputText value="Skips: " />
+          </div>
+          <div class="smallFormLabelDiv">
+            <h:outputText value="#{projectJobQueueManager.currentJobInstance.numFailures.getValidationSkips()}" />
+          </div>
+        </div>
+        <div class="vertical-spacer" />
+
+        <p:commandButton value="Close" type="button" styleClass="h-space" onclick="PF('validationStatusPopup').hide();" />
+      </p:outputPanel>
+    </p:dialog>
+
+    <p:dialog id="userDetailsPopupID"  dynamic="true" widgetVar="userDetailsPopup" width="900"
+      height="600" header="User Details" resizable="true" position="center">
+      <h:form id="userDetailsForm">
+        <h:panelGroup id="userDetailsContent">
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputText value="ID: " />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="Job " rendered="#{projectJobQueueManager.currentJobInstance.type eq 'job'}" />
+              <h:outputText value="Project " rendered="#{projectJobQueueManager.currentJobInstance.type eq 'project'}" />
+              <h:outputText value="#{projectJobQueueManager.currentJobInstance.id} - " />
+              <h:outputText value="#{projectJobQueueManager.currentJobInstance.name}" />
+            </div>
+          </div>
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputText value="Total Users: " />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="#{projectJobQueueManager.currentJobInstance.totalUsers}" />
+            </div>
+          </div>
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputText value="Active Users: " />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="#{projectJobQueueManager.currentJobInstance.activeUsers}" />
+            </div>
+          </div>
+          <div class="vertical-spacer" />
+
+          <p:dataTable id="userDetailsTableID" widgetVar="userDetailsTable" var="userDetail"
+            rendered="#{projectJobQueueManager.currentJobInstance.userDetails ne null}"
+            value="#{projectJobQueueManager.currentJobInstance.userDetails}" emptyMessage="No user details available.">
+
+            <p:column id="scriptNameCol" headerText="Script Name" styleClass="ellipsis min-column-size" width="75%">
+              <h:outputText value="#{userDetail.script}" title="#{userDetail.script}" />
+            </p:column>
+
+            <p:column id="numUsersColumn" headerText="Users" styleClass="ellipsis min-column-size align-right"
+              width="25%">
+              <h:outputText value="#{userDetail.users}" title="#{userDetail.users}" />
+            </p:column>
+          </p:dataTable>
+
+
+          <div class="vertical-spacer" />
+          <h:panelGroup
+            rendered="#{projectJobQueueManager.chartModel ne null and projectJobQueueManager.chartModel.series.size() ne 0}"
+            id="chartScript">
+            <script type="text/javascript">
+      //<![CDATA[
+     if( $.jqplot)
+       $.jqplot.config.enablePlugins = true;
+    
+      var userDetailsExtender = function() {
+          var myoptions = {
+                 
+            axes: {
+                xaxis: {
+                renderer: $.jqplot.DateAxisRenderer,
+                min: #{projectJobQueueManager.chartModel.min},
+                max: #{projectJobQueueManager.chartModel.max},
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    formatString: '%H:%M:%S',
+                        angle: -45
+                    }
+                },
+                yaxis: {
+                    min:0,
+                    tickOptions: {
+                        formatString: '%.0f'
+                    }
+                }
+            },
+            cursor:{
+                show: true,
+                zoom:true,
+                showTooltip: false,
+                showVerticalLine: true,
+                showHorizontalLine: true,
+                dblClickReset: true
+              },
+              seriesDefaults: {
+                  lineWidth: 0.9,
+                  markerOptions: {
+                      show: true,
+                      size: 5, 
+                      shadow: false
+                  }
+              },
+              legend: {
+                show: true,
+                placement: 'outsideGrid',
+                location: 'e'
+              },
+            highlighter: {
+                show: true,
+                tooltipAxes: 'xy',
+                showTooltip: true, 
+                sizeAdjust: 10,
+                showMarker: true,
+                tooltipLocation: 'se',
+                //bringSeriesToFront: true, 
+                useAxesFormatters: false,
+                // You can customize the tooltip format string of the highlighter
+                // to include any arbitrary text or html and use format string
+                // placeholders (%s here) to represent x and y values.
+                //tooltipFormatString:  '%.1f',
+                //formatString:'<span style="display:none;">%s</span><span class="graph-point-label"> %d</span>'
+                tooltipContentEditor: function (str, seriesIndex, pointIndex, plot) {
+
+                    var date = new Date(plot.data[seriesIndex][pointIndex][0]);
+                    var value = plot.data[seriesIndex][pointIndex][1];
+                    var seriesName = plot.series[seriesIndex].label;
+                    var seriesColor = plot.seriesColors[seriesIndex];
+                    //debug examine the console object to get other values
+                    //console.log(plot);
+                    var html = "<div class='chartTip'><span class='chartTipTitle' style='color: " + seriesColor + ";'>";
+                    html += "Script Name: " + seriesName;
+                    html += "</span>  <br/><span class='chartTipLabel'>Time : </span><span class='chartTipValue'>";
+                    html += dateFormat(date, "HH:MM:ss");
+                    html += "</span>  <br/><span class='chartTipLabel'>Number of Users : </span><span class='chartTipValue'>";
+                    html += value;
+                    html += "  </span></div>";
+        
+                    return html;
+                }
+              } 
+            
+            
+          }
+          //do a deep merge
+          $.extend(true, this.cfg, myoptions);
+      }
+      
+
+      
+
+      
+      //]]>
+      </script>
+            <p:chart type="line" model="#{projectJobQueueManager.chartModel}" style="height:400px"
+              title="User Details over Time" extender="userDetailsExtender()" />
+          </h:panelGroup>
+
+          <div class="vertical-spacer" />
+          <p:commandButton value="Close" type="button" styleClass="h-space" onclick="PF('userDetailsPopup').hide();" />
+        </h:panelGroup>
+      </h:form>
+    </p:dialog>
+
+    <p:dialog id="tpsDetailsPopupID"  dynamic="true" widgetVar="tpsDetailsPopup" width="900"
+      height="600" header="Tps Details" resizable="true" position="center">
+      <h:form id="tpsForm">
+        <h:panelGroup id="tpsDetailsContent">
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputText value="ID: " />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="Job " rendered="#{projectJobQueueManager.currentJobInstance.type eq 'job'}" />
+              <h:outputText value="Project " rendered="#{projectJobQueueManager.currentJobInstance.type eq 'project'}" />
+              <h:outputText value="#{projectJobQueueManager.currentJobInstance.id} - " />
+              <h:outputText value="#{projectJobQueueManager.currentJobInstance.name}" />
+            </div>
+          </div>
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputText value="Total Users: " />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="#{projectJobQueueManager.currentJobInstance.totalUsers}" />
+            </div>
+          </div>
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputText value="Active Users: " />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="#{projectJobQueueManager.currentJobInstance.activeUsers}" />
+            </div>
+          </div>
+          <div class="formRow">
+            <div class="smallFormLabelDiv">
+              <h:outputText value="Current TPS: " />
+            </div>
+            <div class="formInputDiv">
+              <h:outputText value="#{projectJobQueueManager.currentJobInstance.tps}" />
+            </div>
+          </div>
+
+          <div class="vertical-spacer" />
+          <h:panelGroup
+            rendered="#{projectJobQueueManager.tpsChartModel ne null and projectJobQueueManager.tpsChartModel.series.size() ne 0}"
+            id="chartScript">
+            <script type="text/javascript">
+      //<![CDATA[
+     if( $.jqplot)
+       $.jqplot.config.enablePlugins = true;
+    
+      var tpsDetailsExtender = function() {
+          var myoptions = {
+                 
+            axes: {
+                xaxis: {
+                renderer: $.jqplot.DateAxisRenderer,
+                min: #{projectJobQueueManager.tpsChartModel.min},
+                max: #{projectJobQueueManager.tpsChartModel.max},
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    formatString: '%H:%M:%S',
+                        angle: -45
+                    }
+                },
+                yaxis: {
+                    min:0,
+                    tickOptions: {
+                        formatString: '%.0f'
+                    }
+                }
+            },
+            cursor:{
+                show: true,
+                zoom:true,
+                showTooltip: false,
+                showVerticalLine: true,
+                showHorizontalLine: true,
+                dblClickReset: true
+              },
+              seriesDefaults: {
+                  lineWidth: 0.9,
+                  markerOptions: {
+                      show: true,
+                      size: 5, 
+                      shadow: false
+                  }
+              },
+              legend: {
+                show: true,
+                placement: 'outsideGrid',
+                location: 'e'
+              },
+            highlighter: {
+                show: true,
+                tooltipAxes: 'xy',
+                showTooltip: true, 
+                sizeAdjust: 10,
+                showMarker: true,
+                tooltipLocation: 'se',
+                //bringSeriesToFront: true, 
+                useAxesFormatters: false,
+                // You can customize the tooltip format string of the highlighter
+                // to include any arbitrary text or html and use format string
+                // placeholders (%s here) to represent x and y values.
+                //tooltipFormatString:  '%.1f',
+                //formatString:'<span style="display:none;">%s</span><span class="graph-point-label"> %d</span>'
+                tooltipContentEditor: function (str, seriesIndex, pointIndex, plot) {
+
+                    var date = new Date(plot.data[seriesIndex][pointIndex][0]);
+                    var value = plot.data[seriesIndex][pointIndex][1];
+                    var seriesName = plot.series[seriesIndex].label;
+                    var seriesColor = plot.seriesColors[seriesIndex];
+                    //debug examine the console object to get other values
+                    //console.log(plot);
+                    var html = "<div class='chartTip'><span class='chartTipTitle' style='color: " + seriesColor + ";'>";
+                    html += seriesName;
+                    html += "</span>  <br/><span class='chartTipLabel'>Time : </span><span class='chartTipValue'>";
+                    html += dateFormat(date, "HH:MM:ss");
+                    html += "</span>  <br/><span class='chartTipLabel'>TPS : </span><span class='chartTipValue'>";
+                    html += value;
+                    html += "  </span></div>";
+        
+                    return html;
+                }
+              } 
+            
+            
+          }
+          //do a deep merge
+          $.extend(true, this.cfg, myoptions);
+      }
+      
+
+      
+
+      
+      //]]>
+      </script>
+            <style type="text/css">
+              .ui-selectcheckboxmenu.without-selectall {
+                display: none;
+              }
+            </style>
+            <div class="formRow">
+              <div class="smallFormLabelDiv">
+                <h:outputLabel for="keysSelectCB" value="KeysToShow" styleClass="formLabel" />
+              </div>
+              <div class="smallFormInputDiv">
+                <p:selectCheckboxMenu id="keysSelectCB"  value="#{projectJobQueueManager.selectedTpsKeys}"
+                  style="width:300px;" filterMatchMode="contains" filter="true" label="Select Keys To Display">
+                  <f:selectItems value="#{projectJobQueueManager.allTpsKeys}" />
+                  <p:ajax event="change" listener="#{projectJobQueueManager.keysChanged}" update="@form" />
+                </p:selectCheckboxMenu>
+              </div>
+            </div>
+            <p:chart type="line" id="tpsChart" model="#{projectJobQueueManager.tpsChartModel}" style="height:400px"
+              title="Tps Details over Time" extender="tpsDetailsExtender()" />
+          </h:panelGroup>
+
+          <div class="vertical-spacer" />
+          <p:commandButton value="Close" type="button" styleClass="h-space" onclick="PF('tpsDetailsPopup').hide();" />
+        </h:panelGroup>
+      </h:form>
+    </p:dialog>
+
+    <p:confirmDialog id="scriptDeletePopup" appendTo="@(body)" widgetVar="confirmScriptGroupDelete"
+      header="Confirm Delete"
+      message="Are you sure you want to delete Script Group #{workloadScripts.currentScriptGroup.name}?">
+      <h:form id="scriptDeleteForm">
+        <p:commandButton value="OK" id="okBtn1" action="#{workloadScripts.delete(workloadScripts.currentScriptGroup)}"
+          update=":mainForm:projectTabPanelID:testPlanTabViewID, :mainForm:messages"
+          onsuccess="PF('confirmScriptGroupDelete').hide();" />
+        <h:panelGroup styleClass="horizontal-spacer" />
+        <p:commandButton value="Cancel" onclick="confirmScriptGroupDelete.hide();" type="button" />
+      </h:form>
+    </p:confirmDialog>
+
+
+
+    <p:confirmDialog id="testPlanDeletePopup" appendTo="@(body)" widgetVar="confirmTestPlanDelete"
+      header="Confirm Delete"
+      message="Are you sure you want to delete Test Plan #{workloadScripts.currentTestPlan.name}?">
+      <h:form id="testPlanDeleteForm">
+        <p:commandButton value="OK" id="okBtn2"
+          action="#{workloadScripts.deleteTestPlan(workloadScripts.currentTestPlan)}" immediate="true"
+          update=":mainForm:projectTabPanelID:testPlanTabViewID, :mainForm:messages"
+          onsuccess="PF('confirmTestPlanDelete').hide();" />
+        <h:panelGroup styleClass="horizontal-spacer" />
+        <p:commandButton value="Cancel" onclick="PF('confirmTestPlanDelete').hide();" type="button" />
+      </h:form>
+    </p:confirmDialog>
+
+    <!-- Add scripts that are needed here so the ordering is correct. -->
+
+    <h:outputScript library="primefaces" name="primefaces.js" target="head" />
+
+    <h:outputScript library="primefaces" name="charts/charts.js" target="head" />
+    <h:outputStylesheet library="primefaces" name="charts/charts.css" target="head" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.highlighter.js" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.canvasOverlay.js" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.categoryAxisRenderer.js" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.canvasAxisLabelRenderer.js" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.canvasTextRenderer.js" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.barRenderer.js" />
+    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.dateAxisRenderer.js" />
+  </ui:define>
+</ui:composition>

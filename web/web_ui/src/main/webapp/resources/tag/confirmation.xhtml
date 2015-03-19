@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 
+  Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:component xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:p="http://primefaces.org/ui" xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:composite="http://java.sun.com/jsf/composite" xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <composite:interface>
+    <composite:attribute name="message" required="true" />
+    <composite:attribute name="caption" required="false" default="Confirm" />
+    <composite:attribute name="popupId" required="false" default="confirmation" />
+    <composite:attribute name="cancelLabel" required="false" default="Cancel" />
+  </composite:interface>
+
+  <composite:implementation>
+    <p:confirmDialog id="#{cc.attrs.popupId}ID" message="#{cc.attrs.message}" header="#{cc.attrs.caption}" 
+      widgetVar="#{cc.attrs.popupId}">
+      
+      <composite:insertChildren />
+      <h:panelGroup styleClass="horizontal-spacer" />
+      <p:commandButton value="#{cc.attrs.cancelLabel}" 
+        onclick="PF('#{cc.attrs.popupId}').hide();" type="button">
+      </p:commandButton>
+      
+    </p:confirmDialog>
+  </composite:implementation>
+</ui:component>

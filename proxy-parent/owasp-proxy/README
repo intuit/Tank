@@ -1,0 +1,44 @@
+This is the OWASP Proxy, a proxy library designed to be used in your own
+programs.
+
+It currently includes support for acting as a SOCKS 4 or 5 proxy, an HTTP 
+proxy, and an AJP (Apache JServ Protocol) proxy.
+
+It also includes support for intercepting SSL connections between a client 
+and server, by presenting a certificate and negotiating the SSL connection 
+as though it was the server. It can even generate "target-specific" certs,
+signed by a persistent CA cert, so that users can import the CA cert into
+their User-Agent (e.g. browser), and avoid the "invalid certificate" 
+warnings.
+
+Building OWASP Proxy
+--------------------
+
+OWASP Proxy has a Maven2 POM file, which makes it really easy to get set up
+in your favourite IDE. For example, getting set up for Eclipse is as easy as:
+
+$ mvn eclipse:eclipse
+
+Maven will download all the required dependencies, of which there are a few, 
+notably parts of the Spring Framework. These are only used by a single class,
+to facilitate storing conversations in a JDBC database. If this is not required
+you do not have to include these libraries as part of your application's 
+classpath.
+
+Using OWASP Proxy
+-----------------
+
+OWASP Proxy has a very simple sample Main class that exercises a lot of the
+inbuilt functionality. Running the Main class with suitable arguments will 
+configure a proxy that supports SOCKS 4 and 5, an HTTP or HTTPS reverse 
+proxy, as well as a standard HTTP proxy, that can intercept and record all
+HTTP conversations.
+
+Run the Main class with no arguments to see the format of the arguments.
+
+The upstream proxy specification is interpreted exactly as per the Proxy Auto
+Configuration file standard (proxy.pac). i.e. DIRECT indicates no upstream 
+proxy, PROXY 127.0.0.1:3128 indicates an HTTP proxy at localhost:3128, and 
+SOCKS localhost:1080 indicates a SOCKS proxy at localhost:1080
+
+Upstream proxies that require authentication are not yet supported.

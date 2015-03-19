@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.intuit.tank</groupId>
+    <artifactId>web-parent</artifactId>
+    <version>2.0</version>
+  </parent>
+
+  <artifactId>web-support</artifactId>
+
+  <packaging>jar</packaging>
+  <name>JSF Support Beans</name>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>datafile-service</artifactId>
+      <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>xml-apis</artifactId>
+          <groupId>xml-apis</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>report-service</artifactId>
+      <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>servlet-api</artifactId>
+          <groupId>javax.servlet</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>harness-data</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>agent</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>data-access</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>script-service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>cloud-service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>tank-script-processor</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>WebConversation</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>script-search</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.jsr166-mirror</groupId>
+      <artifactId>extra166y</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.jsr166-mirror</groupId>
+      <artifactId>jsr166y</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>jsr250-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.sun.faces</groupId>
+      <artifactId>jsf-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.sun.faces</groupId>
+      <artifactId>jsf-impl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>1.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.ocpsoft</groupId>
+      <artifactId>prettyfaces-jsf2</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.primefaces</groupId>
+      <artifactId>primefaces</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.primefaces.extensions</groupId>
+      <artifactId>primefaces-extensions</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.primefaces.extensions</groupId>
+      <artifactId>resources-ckeditor</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.primefaces.extensions</groupId>
+      <artifactId>resources-codemirror</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+    </dependency>
+
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.weld.servlet</groupId>
+      <artifactId>weld-servlet</artifactId>
+    </dependency>
+
+    <!-- Bean Validation API (JSR 303) -->
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.el</groupId>
+      <artifactId>jboss-el</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>el-api</artifactId>
+          <groupId>javax.el</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.seam.faces</groupId>
+      <artifactId>seam-faces</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.seam.catch</groupId>
+      <artifactId>seam-catch</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.seam.solder</groupId>
+      <artifactId>seam-solder</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.seam.security</groupId>
+      <artifactId>seam-security</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.seam.servlet</groupId>
+      <artifactId>seam-servlet</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.seam.persistence</groupId>
+      <artifactId>seam-persistence</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.seam.config</groupId>
+      <artifactId>seam-config-xml</artifactId>
+    </dependency>
+
+  </dependencies>
+
+</project>

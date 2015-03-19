@@ -1,0 +1,94 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.intuit.tank</groupId>
+    <artifactId>tools-parent</artifactId>
+    <version>2.0</version>
+  </parent>
+
+  <artifactId>script-filter</artifactId>
+
+  <packaging>jar</packaging>
+  <description>Tank Script Filter Tool</description>
+  <name>script-filter</name>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>script-engine</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>script-client</artifactId>
+      <version>${project.version}</version>
+
+      <exclusions>
+        <exclusion>
+          <artifactId>weld-core</artifactId>
+          <groupId>org.jboss.weld</groupId>
+        </exclusion>
+
+        <exclusion>
+          <artifactId>jersey-atom-abdera</artifactId>
+          <groupId>com.sun.jersey.contribs</groupId>
+        </exclusion>
+
+        <exclusion>
+          <artifactId>jersey-fastinfoset</artifactId>
+          <groupId>com.sun.jersey</groupId>
+        </exclusion>
+
+        <exclusion>
+          <artifactId>jaxb-impl</artifactId>
+          <groupId>com.sun.xml.bind</groupId>
+        </exclusion>
+
+        <exclusion>
+          <artifactId>jaxb-api</artifactId>
+          <groupId>javax.xml.bind</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+            <manifest>
+              <mainClass>com.intuit.tank.ScriptRunner</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.atlassian.maven.plugins</groupId>
+        <artifactId>maven-clover2-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/org/fife**/*.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

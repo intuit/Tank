@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:f="http://java.sun.com/jsf/core" 
+  xmlns:p="http://primefaces.org/ui"  xmlns:pe="http://primefaces.org/ui/extensions">
+<f:view contentType="text/html">
+  <h:head profile="http://www.w3.org/2005/10/profile">
+    <link rel="icon" 
+      type="image/png" 
+      href="#{request.contextPath}/TankLogo.png" />
+    <title>Intuit Tank</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <h:outputScript target="head" library="primefaces" name="jquery/jquery.js" />
+    <!-- <h:outputScript target="head" library="primefaces" name="jquery/ui/jquery-ui.js" /> -->
+    <!-- Allows to use $ instead of jquery -->
+    <script type="text/javascript"> $ = jQuery;</script>
+
+    <script type="text/javascript" src="#{request.contextPath}/res/tank.js"></script>
+    <link type="text/css" href="#{request.contextPath}/resources/css/tank.css" rel="stylesheet" />
+    <link type="text/css" href="#{request.contextPath}/resources/css/primefaces-override.css" rel="stylesheet" />
+    <link type="text/css" href="#{request.contextPath}/resources/css/screen.css" rel="stylesheet" />
+  </h:head>
+  <h:body>
+    <!-- <p:ajaxStatus style="width:16px;height:16px;">
+        <f:facet name="start">
+          <h:graphicImage value="/resources/gfx/32/loading.gif" />
+        </f:facet>
+
+        <f:facet name="complete">
+          <h:outputText value="" />
+        </f:facet>
+      </p:ajaxStatus>-->
+
+    <p:ajaxStatus onstart="showStatus()" oncomplete="hideStatus()" onerror="location.href='../';" />
+
+    <div id="container">
+      <h:form id="topNavForm">
+        <div id="header" style="width: 100%; padding: 0;">
+          <p:toolbar id="bar" style="height: 54px;">
+
+            <p:toolbarGroup align="left">
+              <h:outputLink value="#{request.contextPath}/">
+                <h:graphicImage value="/resources/gfx/TankLogo.svg" style="height:54px; width:151px; padding: 0 20px 0 0" />
+              </h:outputLink>
+            </p:toolbarGroup>
+
+            <p:toolbarGroup align="left" styleClass="pad10">
+
+              <h:panelGroup
+                styleClass="ts-header-menu-itm #{navigation.section eq 'projects' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
+                <h:outputLink value="#{request.contextPath}/projects">Project</h:outputLink>
+              </h:panelGroup>
+
+              <h:panelGroup
+                styleClass="ts-header-menu-itm #{navigation.section eq 'scripts' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
+                <h:outputLink value="#{request.contextPath}/scripts">Scripts</h:outputLink>
+              </h:panelGroup>
+
+              <h:panelGroup
+                styleClass="ts-header-menu-itm #{navigation.section eq 'filters' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
+                <h:outputLink value="#{request.contextPath}/filters">Filters</h:outputLink>
+              </h:panelGroup>
+
+              <h:panelGroup
+                styleClass="ts-header-menu-itm #{navigation.section eq 'agents' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
+                <h:outputLink value="#{request.contextPath}/agents">Agent Tracker</h:outputLink>
+              </h:panelGroup>
+
+              <h:panelGroup
+                styleClass="ts-header-menu-itm #{navigation.section eq 'datafiles' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
+                <h:outputLink value="#{request.contextPath}/datafiles">Data Files</h:outputLink>
+              </h:panelGroup>
+
+              <!-- <h:panelGroup
+                styleClass="ts-header-menu-itm #{navigation.section eq 'reports' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
+                <h:outputLink value="#{request.contextPath}/report">Reports</h:outputLink>
+              </h:panelGroup> -->
+
+              <h:panelGroup
+                styleClass="ts-header-menu-itm #{navigation.section eq 'tools' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
+                <h:outputLink value="#{request.contextPath}/tools">Tools</h:outputLink>
+              </h:panelGroup>
+
+              <h:panelGroup
+                styleClass="ts-header-menu-itm #{navigation.section eq 'admin' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
+                <h:outputLink value="#{request.contextPath}/admin"
+                  rendered="#{identity.inGroup('admin', 'tankUser')}">Admin</h:outputLink>
+              </h:panelGroup>
+
+
+            </p:toolbarGroup>
+
+            <p:separator />
+
+            <p:toolbarGroup align="right" style="width:200px; text-align: right;">
+              <h:panelGroup rendered="#{not identity.loggedIn}" styleClass="ts-header-menu-itm noBg noBorder">
+                <h:outputLink value="#{request.contextPath}/login.jsf">Login</h:outputLink>
+              </h:panelGroup>
+              <h:panelGroup rendered="#{identity.loggedIn}" styleClass="ts-header-menu-itm noBg noBorder">
+                <h:commandLink action="/tools/account.xhtml" value="Change Password" style="font-size: smaller;" />
+                <br />
+                <h:commandLink action="#{identity.logout}" value="Logout" />
+              </h:panelGroup>
+              <h:panelGroup styleClass="ts-header-menu-itm noBg noBorder">
+                <h:outputLink value="#{request.contextPath}/docs" target="help">Help</h:outputLink>
+              </h:panelGroup>
+            </p:toolbarGroup>
+          </p:toolbar>
+
+        </div>
+      </h:form>
+
+      <div id="content" class="content">
+
+        <ui:insert name="content">
+               [Template content will be inserted here]
+            </ui:insert>
+      </div>
+    </div>
+
+    <div id="ajaxStatus" class="status">
+      <div class="centerDiv align-center">
+        <h:graphicImage value="/resources/gfx/ajax-loader.gif" />
+      </div>
+      <div class="centerDiv align-center" style="margin-top: 10px;">
+        <h:outputText value="Loading..." style="font-weight: bold;" />
+      </div>
+
+    </div>
+    <h:form id="idleMonitor">
+      <p:poll autoStart="true" interval="300" listener="#{tsConversationManager.keepAlive}" immediate="true"
+        onerror="location.href='#{request.contextPath}'" />
+    </h:form>
+
+    <h:form id="resizeMonitor">
+      <pe:remoteCommand id="setSizesCommand" name="setScreenSizes" process="@this" 
+        actionListener="#{preferencesBean.setScreenSizes}">
+        <pe:methodSignature
+          parameters="java.lang.String, java.lang.String" />
+        <pe:methodParam name="width" />
+        <pe:methodParam name="height" />
+      </pe:remoteCommand>
+    </h:form>
+
+  </h:body>
+  
+</f:view>
+</html>
+

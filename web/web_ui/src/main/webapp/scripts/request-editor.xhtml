@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:s="http://jboss.com/products/seam/taglib">
+  <h:panelGroup id="requestEditorPanelGroup">
+    <p:messages />
+    <div class="clear-both vertical-spacer" />
+
+    <div class="formRowDiv float-left width30Percent">
+      <div id="hostLabelDiv" class="width80px float-left pad15Right pad15Top">Host</div>
+      <div id="nameInputDiv" class="pad15Top">
+        <h:inputText value="#{scriptRequestEditor.step.hostname}" defaultLabel="Enter Script Name"></h:inputText>
+      </div>
+    </div>
+
+    <div id="protocolDivId" class="formRowDiv float-left width30Percent">
+      <div id="protocolLabelDiv" class="width80px float-left pad15Right pad15Top">Protocol</div>
+      <div id="commentInputDiv" class="pad15Top">
+        <p:selectOneMenu value="#{scriptRequestEditor.step.protocol}">
+          <f:selectItem itemValue="http" itemLabel="http" />
+          <f:selectItem itemValue="https" itemLabel="https" />
+        </p:selectOneMenu>
+      </div>
+    </div>
+
+    <div id="loggingDivId" class="formRowDiv float-left width30Percent">
+      <div id="loggingLabelDiv" class="width80px float-left pad15Right pad15Top">Logging</div>
+      <div id="loggingInputDiv" class="pad15Top">
+        <h:inputText id="loggingEditorId" value="#{scriptRequestEditor.step.loggingKey}" />
+      </div>
+    </div>
+
+    <div class="clear-both vertical-spacer pad15Top" />
+    <div id="pathDivId" class="formRowDiv float-left width30Percent">
+      <div id="pathLabelDiv" class="width80px float-left pad15Right pad15Top">Path</div>
+      <div id="pathInputDiv" class="pad15Top">
+        <h:inputText id="pathEditorId" value="#{scriptRequestEditor.step.simplePath}" />
+      </div>
+    </div>
+
+
+    <div id="methodDivId" class="formRowDiv float-left width30Percent">
+      <div id="methodLabelDiv" class="width80px float-left pad15Right pad15Top">Method</div>
+      <div id="methodInputDiv" class="pad15Top">
+        <p:selectOneMenu value="#{scriptRequestEditor.step.method}">
+          <f:selectItem itemValue="GET" itemLabel="GET" />
+          <f:selectItem itemValue="POST" itemLabel="POST" />
+          <f:selectItem itemValue="PUT" itemLabel="PUT" />
+          <f:selectItem itemValue="DELETE" itemLabel="DELETE" />
+        </p:selectOneMenu>
+      </div>
+    </div>
+
+    <div class="formRowDiv float-left width30Percent">
+      <div class="width80px float-left pad15Right pad15Top">On Failure</div>
+      <div id="onFailureDiv" class="float-left pad15Top">
+        <p:selectOneMenu id="onFailureValueId" value="#{scriptRequestEditor.onFail}" styleClass="width80px">
+          <f:selectItems value="#{scriptRequestEditor.failureValues}" var="failureValues"
+            itemLabel="#{failureValues.displayName}" itemValue="#{failureValues.value}" />
+          <p:ajax event="change" process="@form" update="requestEditorPanelGroup" />
+        </p:selectOneMenu>
+      </div>
+    </div>
+
+    <div class="clear-both vertical-spacer pad15Top" />
+
+    <div id="groupNameDivId" class="formRowDiv float-left width30Percent">
+      <div id="groupNameLabelDiv" class="width80px float-left pad15Right pad15Top">Group</div>
+      <div id="groupNameInputDiv" class="pad15Top">
+        <h:inputText id="groupNameEditorId" value="#{scriptRequestEditor.step.scriptGroupName}" />
+      </div>
+    </div>
+
+    <div id="requestNameDivId" class="formRowDiv float-left width30Percent">
+      <div id="requestNameLabelDiv" class="width80px float-left pad15Right pad15Top">Name</div>
+      <div id="requestNameInputDiv" class="pad15Top">
+        <h:inputText id="requestNameEditorId" value="#{scriptRequestEditor.step.name}" />
+      </div>
+    </div>
+
+    <h:panelGroup styleClass="formRowDiv" rendered="#{scriptRequestEditor.onFail eq 'goto'}">
+      <div class="width80px float-left pad15Right pad15Top">Goto</div>
+      <div style="vertical-align: text-top;" class="pad15Top">
+        <p:autoComplete value="#{scriptRequestEditor.gotoGroup}" completeMethod="#{scriptEditor.complete}"
+          dropdown="true" />
+      </div>
+    </h:panelGroup>
+
+
+  </h:panelGroup>
+  <div class="clear-both vertical-spacer" />
+  <h:panelGroup class="height350">
+    <div class="height350 full-width">
+      <p:tabView id="request-editor-tab-panel">
+        <p:tab title="Request Header" id="requestHeaderTabId">
+            <ui:include src="./request-header-editor.xhtml"></ui:include>
+        </p:tab>
+        <p:tab title="Response Header" id="responseHeaderTabId">
+            <ui:include src="./response-header-editor.xhtml"></ui:include>
+        </p:tab>
+        <p:tab title="Cookies" id="requestCookieTabId">
+            <ui:include src="./request-cookies-editor.xhtml"></ui:include>
+        </p:tab>
+        <p:tab title="Response Cookies" id="responseCookieTabId">
+            <ui:include src="./response-cookies-editor.xhtml"></ui:include>
+        </p:tab>
+        <p:tab title="Query String" id="queryStringTabId">
+            <ui:include src="./query-string-editor.xhtml"></ui:include>
+        </p:tab>
+        <p:tab title="Post Data" id="postDataTabId">
+            <ui:include src="./post-data-editor.xhtml"></ui:include>
+        </p:tab>
+        <p:tab title="Validation" id="validationContentTabId">
+            <ui:include src="./validation-editor.xhtml"></ui:include>
+        </p:tab>
+        <p:tab title="Assignments" id="assignmentContentTabId">
+            <ui:include src="./assignment-editor.xhtml"></ui:include>
+        </p:tab>
+      </p:tabView>
+    </div>
+  </h:panelGroup>
+</ui:composition>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:s="http://jboss.org/seam/faces"
+  xmlns:p="http://primefaces.org/ui" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" template="/WEB-INF/templates/tank.xhtml">
+  <ui:define name="content">
+    <s:viewAction action="#{tsConversationManager.end}" />
+    <h:form id="filterAndFilterGroupForm">
+      <div class="vertical-spacer" />
+      <div>
+        <div class="width48Percent float-left pad2">
+
+          <ts:toolbar id="groupBar" widgetVar="confirmDeleteMultipleGroups" toolbarId="filterGroupToolbarId" title="Filter Groups" objectName="Filter Groups"
+            reRender=":filterAndFilterGroupForm:messages, :filterAndFilterGroupForm:filterGroupTableId, :filterAndFilterGroupForm:filterTableId"
+            selectionTracker="#{filterGroupBean}">
+            <f:facet name="actions">
+              <p:commandLink id="newFilterGroupLinkId" title="New Filter Group"
+                action="#{filterGroupCreationBean.newFilterGroup()}" ajax="true"
+                rendered="#{filterGroupCreationBean.canCreateFilterGroup()}">
+                <h:graphicImage id="newFilterGroupImageId" value="/resources/gfx/32/application_add.png" width="32"
+                  height="32" style="padding: 4px 15px 4px 15px;" />
+              </p:commandLink>
+            </f:facet>
+          </ts:toolbar>
+
+          <div class="vertical-spacer" />
+          
+          <p:growl globalOnly="true" id="messages" />
+
+          <p:dataTable id="filterGroupTableId" var="filterGroupEnvelope" value="#{filterGroupBean.selectionList}"
+            styleClass="filterGroupTable full-width" scrollable="true" scrollHeight="450">
+            
+            <p:ajax event="filter" listener="#{filterGroupBean.onFilter}" update="@this" />
+
+            <p:column id="checkColumn" style="width:20px;">
+              <f:facet name="header">
+                <h:outputText value="" />
+              </f:facet>
+              <p:selectBooleanCheckbox value="#{filterGroupEnvelope.selected}" id="selectBox">
+                <p:ajax event="change" listener="#{filterBean.processSelection(filterGroupEnvelope)}"
+                  update=":filterAndFilterGroupForm:filterTableId, :filterAndFilterGroupForm:groupBar:deleteSelectedBtn, :filterAndFilterGroupForm:filterBar:deleteSelectedBtn" />
+              </p:selectBooleanCheckbox>
+
+            </p:column>
+
+            <p:column id="nameColumn" filterBy="#{filterGroupEnvelope.entity.name}" filterFunction="#{filterUtil.contains}"
+              sortBy="#{filterGroupEnvelope.entity.name}" style="width:200px;">
+              <f:facet name="header">
+                <h:outputText value="Name" />
+              </f:facet>
+              <p:commandLink action="#{filterGroupCreationBean.editFilterGroup(filterGroupEnvelope.entity)}"
+                styleClass="pointer" title="Edit #{filterGroupEnvelope.entity.name}" ajax="true">
+                <h:outputText value="#{filterGroupEnvelope.entity.name}" title="#{filterGroupEnvelope.entity.name}" />
+              </p:commandLink>
+            </p:column>
+
+            <p:column id="productColumn" filterBy="#{filterGroupEnvelope.entity.productName}"
+              filterOptions="#{projectUtilBean.productNames}" filterMatchMode="exact"
+              sortBy="#{filterGroupEnvelope.entity.productName}">
+              <f:facet name="header">
+                <h:outputText value="Product" />
+              </f:facet>
+              <h:outputText value="#{filterGroupEnvelope.entity.productName}" />
+            </p:column>
+
+            <p:column id="operationColumn" style="width:45px;">
+              <f:facet name="header">
+                <h:outputText value="" />
+              </f:facet>
+              <h:panelGroup>
+
+                <p:commandLink title="Delete #{filterGroupEnvelope.entity.name}"
+                  oncomplete="PF('confirmFilterGroup').show();" ajax="true"
+                  action="#{filterGroupBean.setSelectedFilter(filterGroupEnvelope)}" update=":confirmFilterGroupId">
+                  <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+                </p:commandLink>
+
+                <p:commandLink id="editGroupLinkId"
+                  action="#{filterGroupCreationBean.editFilterGroup(filterGroupEnvelope.entity)}" styleClass="pointer"
+                  title="Edit #{filterGroupEnvelope.entity.name}" ajax="true">
+                  <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+                    style="padding: 2px;" title="Edit #{filterGroupEnvelope.entity.name}" />
+                </p:commandLink>
+              </h:panelGroup>
+
+            </p:column>
+          </p:dataTable>
+
+        </div>
+
+        <div class="float-right pad2 width48Percent">
+
+          <ts:toolbar id="filterBar" toolbarId="filterToolbarId" title="Filters" objectName="Filters" widgetVar="confirmDeleteMultipleFilters"
+            reRender=":filterAndFilterGroupForm:messages, :filterAndFilterGroupForm:filterGroupTableId, :filterAndFilterGroupForm:filterTableId"
+            selectionTracker="#{filterBean}">
+            <f:facet name="actions">
+              <h:panelGroup>
+                <p:commandLink title="New Filter" action="#{scriptFilterCreationBean.newFilter()}" ajax="true"
+                  rendered="#{scriptFilterCreationBean.canCreateFilter()}">
+                  <h:graphicImage value="/resources/gfx/32/application_add.png" width="32" height="32"
+                    style="padding: 4px 15px 4px 15px;" />
+                </p:commandLink>
+              </h:panelGroup>
+            </f:facet>
+          </ts:toolbar>
+
+          <div class="vertical-spacer" />
+          <p:dataTable id="filterTableId" var="filterEnvelope" value="#{filterBean.selectionList}"
+            styleClass="full-width" scrollable="true" scrollHeight="450">
+            
+            <p:ajax event="filter" listener="#{filterBean.onFilter}" update="@this" />
+
+            <p:column id="filterCheckColumn" style="width:25px;">
+              <f:facet name="header">
+                <h:outputText value="" />
+              </f:facet>
+              <p:selectBooleanCheckbox value="#{filterEnvelope.selected}" id="filterSelectBox">
+                <p:ajax event="change" update=":filterAndFilterGroupForm:filterBar:deleteSelectedBtn" />
+              </p:selectBooleanCheckbox>
+
+            </p:column>
+
+            <p:column id="filterNameColumn" filterBy="#{filterEnvelope.entity.name}" filterFunction="#{filterUtil.contains}"
+              style="width:200px;" sortBy="#{filterEnvelope.entity.name}">
+              <f:facet name="header">
+                <h:outputText value="Name" />
+              </f:facet>
+              <p:commandLink action="#{scriptFilterCreationBean.editFilter(filterEnvelope.entity)}" styleClass="pointer"
+                title="Edit #{filterEnvelope.entity.name}" ajax="true">
+                <h:outputText value="#{filterEnvelope.entity.name}" title="#{filterEnvelope.entity.name}" />
+              </p:commandLink>
+            </p:column>
+
+            <p:column id="filterProductColumn" filterBy="#{filterEnvelope.entity.productName}"
+              filterOptions="#{projectUtilBean.productNames}" filterMatchMode="exact"
+              sortBy="#{filterEnvelope.entity.productName}">
+              <f:facet name="header">
+                <h:outputText value="Products" />
+              </f:facet>
+              <h:outputText value="#{filterEnvelope.entity.productName}" />
+            </p:column>
+
+            <p:column id="filterOpColumn" style="width:45px;">
+              <f:facet name="header">
+                <h:outputText value="" />
+              </f:facet>
+              <h:panelGroup>
+
+                <p:commandLink title="Delete #{filterEnvelope.entity.name}" oncomplete="PF('confirmDelete').show();" ajax="true"
+                  action="#{filterBean.setSelectedFilter(filterEnvelope)}" update=":confirmDeleteFilterDialog, ">
+                  <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+                </p:commandLink>
+
+                <p:commandLink action="#{scriptFilterCreationBean.editFilter(filterEnvelope.entity)}"
+                  styleClass="pointer" title="Edit #{filterEnvelope.entity.name}" ajax="true">
+                  <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+                    style="padding: 2px;" title="Edit #{filterEnvelope.entity.name}" />
+                </p:commandLink>
+              </h:panelGroup>
+
+            </p:column>
+          </p:dataTable>
+        </div>
+
+      </div>
+      <div class="clear-both" />
+    </h:form>
+
+
+    <p:confirmDialog id="confirmDeleteFilterDialog" appendTo="@(body)" widgetVar="confirmDelete" header="Confirm Delete"
+      message="Are you sure you want to delete filter #{filterBean.selectedFilter.entity.name}?">
+      <h:form id="confirmDeleteFilterForm">
+        <p:commandButton value="OK" id="confirmDeleteOkBtn" action="#{filterBean.deleteSelectedFilter()}"
+          onsuccess="PF('confirmDelete').hide()"
+          update=":filterAndFilterGroupForm:filterTableId, :filterAndFilterGroupForm:filterBar:filterToolbarId, :filterAndFilterGroupForm:messages"
+          ajax="true" />
+        <h:panelGroup styleClass="horizontal-spacer" />
+        <p:commandButton value="Cancel" onclick="PF('confirmDelete').hide();" type="button">
+        </p:commandButton>
+      </h:form>
+    </p:confirmDialog>
+
+
+
+    <p:confirmDialog id="confirmFilterGroupId" appendTo="@(body)" widgetVar="confirmFilterGroup" header="Confirm Delete"
+      message="Are you sure you want to delete filter #{filterGroupBean.selectedFilter.entity.name}?">
+      <h:form id="confirmDeleteFilterGroupForm">
+        <p:commandButton value="OK" id="confirmDeleteOkBtn" action="#{filterGroupBean.deleteSelectedFilterGroup()}"
+          onsuccess="PF('confirmFilterGroup').hide()"
+          update=":filterAndFilterGroupForm:filterGroupTableId, :filterAndFilterGroupForm:filterTableId, :filterAndFilterGroupForm:filterBar:filterToolbarId, :filterAndFilterGroupForm:messages"
+          ajax="true" />
+        <h:panelGroup styleClass="horizontal-spacer" />
+        <p:commandButton value="Cancel" onclick="PF('confirmFilterGroup').hide();" type="button">
+        </p:commandButton>
+      </h:form>
+    </p:confirmDialog>
+
+  </ui:define>
+</ui:composition>
+

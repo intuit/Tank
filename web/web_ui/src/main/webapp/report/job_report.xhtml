@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:s="http://jboss.org/seam/faces"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui"
+  template="/WEB-INF/templates/tank.xhtml">
+  <ui:define name="content">
+    <s:viewAction action="#{tsConversationManager.end}" />
+    <h:form id="mainForm">
+      <div class="pad10Bottom">
+        <ts:toolbar title="Job Report" objectName="Report Entry" reRender=":mainForm:reportTable" toolbarId="toolbar"
+          id="mytoolbar" selectionTracker="#{jobReport}">
+          <f:facet name="actions">
+            <h:panelGroup layout="block" styleClass="toolbar-ui" id="exportButtons">
+              <p:commandButton id="pdfExport" value="Export PDF" ajax="false"
+                rendered="#{!jobReport.selectionList.isEmpty()}"
+                style="background-image: url(#{request.contextPath}/resources/gfx/16/file_extension_pdf.png);
+                    background-repeat: no-repeat;
+                    background-position: 3px 5px;
+                    border-radius:5px;"
+                  styleClass="icon-button h-space" >
+                <p:dataExporter type="pdf" target=":mainForm:reportTable" fileName="job-report" excludeColumns="0,8" />
+              </p:commandButton>
+              <p:commandButton id="csvExport" value="Export CSV" ajax="false"
+                rendered="#{!jobReport.selectionList.isEmpty()}"
+                style="background-image: url(#{request.contextPath}/resources/gfx/16/file_extension_xls.png);
+                    background-repeat: no-repeat;
+                    background-position: 3px 5px;
+                    border-radius:5px;"
+                  styleClass="icon-button h-space" >
+                <p:dataExporter type="csv" target=":mainForm:reportTable" fileName="job-report" excludeColumns="0,8" />
+              </p:commandButton>
+            </h:panelGroup>
+          </f:facet>
+        </ts:toolbar>
+      </div>
+
+      <div class="vertical-spacer" />
+      <p:growl globalOnly="true" id="messages" />
+
+      <div>
+        <p:fieldset legend="Report Options">
+          <div class="formDiv">
+
+            <div class="formRow">
+              <div class="formLabelDiv">
+                <h:outputLabel for="nameTF" value="Project Name" styleClass="formLabel" />
+              </div>
+              <div class="formInputDiv">
+                <h:inputText id="nameTF" value="#{jobReport.jobReportOptions.projectNameMatch}"
+                  styleClass="formInput inputWidthMedium" />
+              </div>
+            </div>
+            
+            <div class="formRow">
+              <div class="formLabelDiv">
+                <h:outputLabel for="minJobIdTF" value="Job Id" styleClass="formLabel" />
+              </div>
+              <div class="formInputDiv">
+                <h:inputText id="minJobIdTF" value="#{jobReport.jobReportOptions.jobIdStart}"
+                  styleClass="formInput inputWidthSmall" />
+                <h:outputText value=" To " />
+                <h:inputText id="maxJobIdTF" value="#{jobReport.jobReportOptions.jobIdEnd}"
+                  styleClass="formInput inputWidthSmall" />
+              </div>
+            </div>
+
+            <div class="formRow">
+              <div class="formLabelDiv">
+                <h:outputLabel for="minUsersTF" value="Users" styleClass="formLabel" />
+              </div>
+              <div class="formInputDiv">
+                <h:inputText id="minUsersTF" value="#{jobReport.jobReportOptions.minUsers}"
+                  styleClass="formInput inputWidthSmall" />
+                <h:outputText value=" To " />
+                <h:inputText id="maxUsersTF" value="#{jobReport.jobReportOptions.maxUsers}"
+                  styleClass="formInput inputWidthSmall" />
+              </div>
+            </div>
+            <div class="formRow">
+              <div class="formLabelDiv">
+                <h:outputLabel for="durationStartTF" value="Duration" styleClass="formLabel" />
+              </div>
+              <div class="formInputDiv">
+                <h:inputText id="durationStartTF" value="#{jobReport.jobReportOptions.durationStart}"
+                  styleClass="formInput inputWidthSmall" />
+                <h:outputText value=" To " />
+                <h:inputText id="durationEndTF" value="#{jobReport.jobReportOptions.durationEnd}"
+                  styleClass="formInput inputWidthSmall" />
+              </div>
+            </div>
+            <div class="formRow">
+              <div class="formLabelDiv">
+                <h:outputLabel for="durationStartTF" value="Dates" styleClass="formLabel" />
+              </div>
+              <div class="formInputDiv">
+                <p:calendar value="#{jobReport.jobReportOptions.startDate}" mode="popup" />
+
+                <h:outputText value=" at " />
+                <p:inputMask value="#{jobReport.jobReportOptions.startTimeString}" mask="99:99" styleClass="inputWidthXSmall"/>
+                <h:outputText value=" To " />
+                <p:calendar value="#{jobReport.jobReportOptions.endDate}" mode="popup" />
+                <h:outputText value=" at " />
+                <p:inputMask value="#{jobReport.jobReportOptions.endTimeString}" mask="99:99" styleClass="inputWidthXSmall" />
+              </div>
+            </div>
+
+
+          </div>
+
+          <p:commandButton value="Run Report" action="#{jobReport.runReport}"
+            update=":mainForm:reportTable, :mainForm:mytoolbar:exportButtons" />
+        </p:fieldset>
+      </div>
+      <div class="vertical-spacer" />
+
+      <p:dataTable id="reportTable" value="#{jobReport.selectionList}" var="selectableResult" widgetVar="reportTable"
+        resizableColumns="true" emptyMessage="Please select report options and run a report.">
+
+        <p:column id="selectColumn" styleClass="select-column ellipsis">
+          <p:selectBooleanCheckbox value="#{selectableResult.selected}" id="selectBox">
+            <p:ajax event="change" update=":mainForm:mytoolbar:deleteSelectedBtn" />
+          </p:selectBooleanCheckbox>
+        </p:column>
+
+        <p:column headerText="Project Name" id="nameColumn" styleClass="ellipsis min-column-size" style="width: 250px;"
+          sortBy="#{selectableResult.entity.projectName}">
+          <f:facet name="header">
+            <h:outputText value="Project Name" />
+          </f:facet>
+          <h:outputText value="#{selectableResult.entity.projectName}" />
+        </p:column>
+        
+        <p:column headerText="Job Name" id="jobNameCol" styleClass="ellipsis min-column-size" style="width: 100px;"
+          sortBy="#{selectableResult.entity.jobInstance.name}">
+          <f:facet name="header">
+            <h:outputText value="Job Name" />
+          </f:facet>
+          <h:outputText value="#{selectableResult.entity.jobInstance.name}" />
+        </p:column>
+        <p:column headerText="Job ID" id="idCol" styleClass="ellipsis min-column-size" style="width: 100px;"
+          sortBy="#{selectableResult.entity.jobInstance.id}">
+          <f:facet name="header">
+            <h:outputText value="Job ID" />
+          </f:facet>
+          <h:outputText value="#{selectableResult.entity.jobInstance.id}" />
+        </p:column>
+
+        <p:column id="startTimeColumn" styleClass="ellipsis min-column-size" style="width: 150px;"
+          sortBy="#{selectableResult.entity.jobInstance.startTime}">
+          <f:facet name="header">
+            <h:outputText value="Start Time" />
+          </f:facet>
+          <h:outputText value="#{selectableResult.entity.jobInstance.startTime}" converter="tsDateConverter" />
+        </p:column>
+
+
+
+        <p:column id="usersColumn" styleClass="ellipsis min-column-size" style="width: 100px;"
+          sortBy="#{selectableResult.entity.jobInstance.totalVirtualUsers}">
+          <f:facet name="header">
+            <h:outputText value="Total Users" />
+          </f:facet>
+          <h:outputText value="#{selectableResult.entity.jobInstance.totalVirtualUsers}" />
+        </p:column>
+
+        <p:column id="durationColumn" styleClass="ellipsis min-column-size" style="width: 100px;"
+          sortBy="#{selectableResult.entity.duration}">
+          <f:facet name="header">
+            <h:outputText value="Duration" />
+          </f:facet>
+          <h:outputText value="#{selectableResult.entity.duration}" converter="tsTimeDurationConverter" />
+        </p:column>
+
+        <p:column id="statusColumn" styleClass="ellipsis min-column-size" style="width: 100px;"
+          sortBy="#{selectableResult.entity.status}">
+          <f:facet name="header">
+            <h:outputText value="Job Status" />
+          </f:facet>
+          <h:outputText value="#{selectableResult.entity.status}" />
+        </p:column>
+
+        <p:column id="actionsColumn" styleClass="ellipsis actions-column-large">
+          <div class="float-left">
+            <p:commandLink title="Delete This Result" oncomplete="PF('confirmDelete').show();" ajax="true"
+              action="#{jobReport.setSelectedResult(selectableResult)}" update=":confirmDeleteDialog">
+              <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+            </p:commandLink>
+          </div>
+          <div class="float-right">
+          <h:outputLink title="View Summary Timing Data" target="_new" rendered="#{selectableResult.entity.status eq 'Completed' or selectableResult.entity.status eq 'Stopped'}"
+                value="#{request.contextPath}/rest/v1/report-service/timing/summary/html/#{selectableResult.entity.jobInstance.id}">
+                <h:graphicImage value="/resources/gfx/16/table_chart.png" width="16" height="16" style="padding: 5px 0; margin-right:5px;" />
+              </h:outputLink>
+              
+              <h:outputLink title="View Periodic Timing Data" target="_new" rendered="#{selectableResult.entity.status eq 'Completed' or selectableResult.entity.status eq 'Stopped'}"
+                value="#{request.contextPath}/rest/v1/report-service/timing/periodic/html/#{selectableResult.entity.jobInstance.id}">
+                <h:graphicImage value="/resources/gfx/16/table_heatmap.png" width="16" height="16" style="padding: 5px 0; margin-right:5px;" />
+              </h:outputLink>
+              
+              <h:outputLink title="Download CSV Timing Data"  rendered="#{selectableResult.entity.status eq 'Completed' or selectableResult.entity.status eq 'Stopped'}"
+                value="#{request.contextPath}/rest/v1/report-service/timing/csv/#{selectableResult.entity.jobInstance.id}">
+                <h:graphicImage value="/resources/gfx/16/table_excel.png" width="16" height="16" style="padding: 5px 0; margin-right:5px;" />
+              </h:outputLink>
+
+          <h:outputLink title="Download Harness XML" rendered="#{selectableResult.entity.status eq 'Completed' or selectableResult.entity.status eq 'Stopped'}"
+            value="#{request.contextPath}/rest/v1/project-service/download/script/#{selectableResult.entity.jobInstance.id}">
+            <h:graphicImage value="/resources/gfx/16/script_go.png" width="16" height="16" style="padding: 5px 0;" />
+          </h:outputLink>
+        </div>
+        </p:column>
+      </p:dataTable>
+
+
+    </h:form>
+
+    <p:confirmDialog id="confirmDeleteDialog" appendTo="@(body)" widgetVar="confirmDelete" header="Confirm Delete"
+      message="Are you sure you want to delete this Job Result?">
+      <h:form id="confirmDeletemainForm">
+        <p:commandButton value="OK" id="confirmDeleteOkBtn"
+          action="#{jobReport.delete(jobReport.selectedResult.entity)}" onsuccess="PF('confirmDelete').hide()"
+          update=":mainForm:reportTable :mainForm:messages" ajax="true" />
+        <h:panelGroup styleClass="horizontal-spacer" />
+        <p:commandButton value="Cancel" onclick="PF('confirmDelete').hide();" type="button">
+        </p:commandButton>
+      </h:form>
+    </p:confirmDialog>
+  </ui:define>
+</ui:composition>

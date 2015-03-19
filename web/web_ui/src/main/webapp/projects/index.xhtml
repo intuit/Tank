@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:s="http://jboss.org/seam/faces"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui" xmlns:pe="http://primefaces.org/ui/extensions" 
+  template="/WEB-INF/templates/tank.xhtml">
+  <ui:define name="content">
+    <s:viewAction action="#{tsConversationManager.end}" />
+    <div id="bv">
+      <h:form id="mainForm">
+        <ts:toolbar title="Projects" objectName="Projects" reRender=":mainForm:projectTableId"
+          selectionTracker="#{projectDescriptionBean}" showRightComponents="true" id="mainTB">
+          <f:facet name="actions">
+            <p:commandLink title="New Project" action="/projects/createProject.xhtml" immediate="true" ajax="true"
+              rendered="#{createProjectBean.canCreateProject()}">
+              <h:graphicImage value="/resources/gfx/32/application_add.png" width="32" height="32"
+                style="padding: 4px 15px 4px 15px;" />
+            </p:commandLink>
+          </f:facet>
+          <f:facet name="additional-group">
+            <p:selectCheckboxMenu value="#{projectDescriptionBean.tablePrefs.visibleColumns}"
+              style="margin: 0 10px 0 20px;" panelStyle="width:300px;" label="Visible Columns...">
+              <p:ajax event="change" update=":mainForm:projectTableId" process="@this" onstart="saveScrollPos()"
+                oncomplete="getScrollPos()" immediate="true" />
+              <p:ajax event="toggleSelect" update=":mainForm:projectTableId" process="@this" onstart="saveScrollPos()"
+                oncomplete="getScrollPos()" immediate="true" />
+              <f:selectItems value="#{projectDescriptionBean.tablePrefs.visibiltyList}" />
+            </p:selectCheckboxMenu>
+          </f:facet>
+        </ts:toolbar>
+
+        <div class="vertical-spacer" />
+        <p:growl globalOnly="true" id="messages" autoUpdate="true" />
+
+        <pe:remoteCommand id="resizeListener" name="resizeFinished" update="projectTableId" />
+        
+        <p:dataTable id="projectTableId" var="pe" rowIndexVar="rowIndex" widgetVar="projectTable"
+          value="#{projectDescriptionBean.selectionList}" rowStyleClass="pointer" liveResize="false" scrollable="true"
+          filteredValue="#{projectDescriptionBean.filteredData}" 
+          style="width:#{projectDescriptionBean.tablePrefs.getMaxTotalSize(preferencesBean.screenWidth)}px;" scrollHeight="450" sortBy="#{pe.entity.created}"
+          sortOrder="descending" paginator="true" rows="25" resizableColumns="true"
+          paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+          rowsPerPageTemplate="25,50,75,100">
+
+
+          <f:facet name="header">
+            <p:outputPanel style="text-align: right; width:100%" layout="block">
+              <h:outputText value="Search all fields: " />
+              <p:inputText id="globalFilter" onkeyup="PF('projectTable').filter()" style="width:150px" />
+            </p:outputPanel>
+          </f:facet>
+
+          <p:ajax event="colResize" update="projectTableId" listener="#{projectDescriptionBean.tablePrefs.onResize}"
+            global="true" onstart="saveScrollPos()" oncomplete="getScrollPos()" immediate="true" />
+
+          <p:ajax event="filter" listener="#{projectDescriptionBean.tableState.onFilter}" global="false"
+            immediate="true" />
+
+          <p:column id="selectColumn" styleClass=" ellipsis"
+            width="#{projectDescriptionBean.tablePrefs.getSize('selectColumn')}"
+            rendered="#{projectDescriptionBean.tablePrefs.isVisible('selectColumn')}" resizable="false">
+            <p:selectBooleanCheckbox value="#{pe.selected}" id="selectBox">
+              <p:ajax event="change" update=":mainForm:mainTB:deleteSelectedBtn" />
+            </p:selectBooleanCheckbox>
+          </p:column>
+
+          <p:column id="idColumn" headerText="ID" styleClass="ellipsis min-column-size"
+            width="#{projectDescriptionBean.tablePrefs.getSize('idColumn')}"
+            rendered="#{projectDescriptionBean.tablePrefs.isVisible('idColumn')}"
+            filterValue="#{projectDescriptionBean.tableState.getFilterValue('entity.id')}" filterStyle="width:40px;"
+            sortBy="#{pe.entity.id}" filterBy="#{pe.entity.id}" filterFunction="#{filterUtil.contains}">
+            <h:outputText value="#{pe.entity.id}" />
+          </p:column>
+
+
+          <p:column id="nameColumn" headerText="Name" styleClass="ellipsis min-column-size"
+            width="#{projectDescriptionBean.tablePrefs.getSize('nameColumn')}"
+            rendered="#{projectDescriptionBean.tablePrefs.isVisible('nameColumn')}"
+            filterValue="#{projectDescriptionBean.tableState.getFilterValue('entity.name')}" filterStyle="width:75px;"
+            sortBy="#{pe.entity.name}" filterBy="#{pe.entity.name}" filterFunction="#{filterUtil.contains}">
+            <p:commandLink id="nameOpen" action="#{projectBean.openProject(pe.entity)}" ajax="true">
+              <h:outputText value="#{pe.entity.name}" title="#{pe.entity.name} (id=#{pe.entity.id})" />
+            </p:commandLink>
+          </p:column>
+
+
+          <p:column id="productColumn" headerText="Product" styleClass="ellipsis min-column-size"
+            width="#{projectDescriptionBean.tablePrefs.getSize('productColumn')}"
+            rendered="#{projectDescriptionBean.tablePrefs.isVisible('productColumn')}"
+            filterValue="#{projectDescriptionBean.tableState.getFilterValue('entity.productName')}"
+            filterStyle="width:75px;" sortBy="#{pe.entity.productName}" filterBy="#{pe.entity.productName}"
+            filterOptions="#{projectUtilBean.productNames}" filterMatchMode="exact">
+            <h:outputText value="#{pe.entity.productName}" title="#{pe.entity.productName}" />
+          </p:column>
+
+          <p:column id="commentsColumn" headerText="Comments" styleClass="ellipsis min-column-size"
+            width="#{projectDescriptionBean.tablePrefs.getSize('commentsColumn')}"
+            rendered="#{projectDescriptionBean.tablePrefs.isVisible('commentsColumn')}"
+            filterValue="#{projectDescriptionBean.tableState.getFilterValue('entity.comments')}"
+            filterStyle="width:75px;" sortBy="#{pe.entity.comments}" filterBy="#{pe.entity.comments}"
+            filterFunction="#{filterUtil.contains}">
+            <h:outputText value="#{pe.entity.comments}" title="#{pe.entity.comments}" />
+          </p:column>
+
+          <p:column id="createColumn" headerText="Create Date" styleClass="ellipsis min-column-size"
+            width="#{projectDescriptionBean.tablePrefs.getSize('createColumn')}"
+            rendered="#{projectDescriptionBean.tablePrefs.isVisible('createColumn')}" sortBy="#{pe.entity.created}"
+            filterBy="#{preferencesBean.formatDate(pe.entity.created)}"
+            filterValue="#{projectDescriptionBean.tableState.getFilterValue('formatDate(pe.entity.created)')}"
+            filterStyle="width:75px;" filterFunction="#{filterUtil.contains}">
+            <h:outputText value="#{pe.entity.created}" converter="tsDateConverter" />
+          </p:column>
+
+          <p:column id="modifiedColumn" headerText="Modified Date" styleClass="ellipsis min-column-size"
+            width="#{projectDescriptionBean.tablePrefs.getSize('modifiedColumn')}"
+            rendered="#{projectDescriptionBean.tablePrefs.isVisible('modifiedColumn')}" sortBy="#{pe.entity.modified}"
+            filterBy="#{preferencesBean.formatDate(pe.entity.modified)}"
+            filterValue="#{projectDescriptionBean.tableState.getFilterValue('formatDate(pe.entity.modified)')}"
+            filterStyle="width:75px;" filterFunction="#{filterUtil.contains}">
+            <h:outputText value="#{pe.entity.modified}" converter="tsDateConverter" />
+          </p:column>
+
+          <p:column id="ownerColumn" headerText="Owner" styleClass="ellipsis min-column-size"
+            width="#{projectDescriptionBean.tablePrefs.getSize('ownerColumn')}"
+            rendered="#{projectDescriptionBean.tablePrefs.isVisible('ownerColumn')}"
+            filterValue="#{projectDescriptionBean.tableState.getFilterValue('entity.creator)')}"
+            sortBy="#{pe.entity.creator}" filterBy="#{pe.entity.creator}" filterMatchMode="exact"
+            filterOptions="#{projectDescriptionBean.creatorList}">
+            <h:outputText value="#{pe.entity.creator}" />
+          </p:column>
+
+          <p:column id="actionsColumn" styleClass="ellipsis min-column-size"
+            width="#{projectDescriptionBean.tablePrefs.getSize('actionsColumn')}"
+            rendered="#{projectDescriptionBean.tablePrefs.isVisible('actionsColumn')}" resizable="false">
+            <h:panelGroup>
+
+              <p:commandLink title="Delete #{pe.entity.name}" oncomplete="PF('confirmDelete').show()" ajax="true"
+                action="#{projectDescriptionBean.setSelectedProject(pe)}" update=":confirmDeleteDialog">
+                <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+              </p:commandLink>
+
+              <p:commandLink id="btnOpen" action="#{projectBean.openProject(pe.entity)}" title="Edit #{pe.entity.name}"
+                ajax="true">
+                <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+                  style="padding: 2px;" />
+              </p:commandLink>
+            </h:panelGroup>
+
+
+
+          </p:column>
+        </p:dataTable>
+      </h:form>
+    </div>
+
+    <p:confirmDialog id="confirmDeleteDialog" appendTo="@(body)" widgetVar="confirmDelete" header="Confirm Delete"
+      message="Are you sure you want to delete Project #{projectDescriptionBean.selectedProject.entity.name}?">
+      <h:form id="confirmDeletemainForm">
+        <p:commandButton value="OK" id="confirmDeleteOkBtn" action="#{projectDescriptionBean.deleteSelectedProject()}"
+          onsuccess="PF('confirmDelete').hide()" update=":mainForm:projectTableId, :mainForm:messages" ajax="true" />
+        <h:panelGroup styleClass="horizontal-spacer" />
+        <p:commandButton value="Cancel" onclick="PF('confirmDelete').hide();" type="button">
+        </p:commandButton>
+      </h:form>
+    </p:confirmDialog>
+  </ui:define>
+</ui:composition>

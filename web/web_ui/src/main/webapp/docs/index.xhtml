@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:s="http://jboss.org/seam/faces"
+  xmlns:p="http://primefaces.org/ui" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" template="/WEB-INF/templates/tank.xhtml">
+
+  <ui:define name="content">
+    <h:form id="mainForm">
+      <ts:toolbar title="Help" toolbarId="mainTB" id="mainTB" />
+
+      <p:growl id="growl" showDetail="true" showSummary="false"
+        autoUpdate="true" />
+
+      <div class="vertical-spacer" />
+      
+      <h3>Intuit Tank build ${buildVersion.version}</h3> 
+      <div class="vertical-spacer" />
+      <p:fieldset legend="User Guide">
+        <div>
+          <h:outputLink value="#{request.contextPath}/docs/html/index.html" target="tr_docs">Multi Page HTML</h:outputLink>
+          <div class="vertical-spacer" />
+          <h:outputLink value="#{request.contextPath}/docs/html_single/index.html" target="tr_docs">Single Page HTML</h:outputLink>
+        </div>
+      </p:fieldset>
+
+      <div class="vertical-spacer" />
+      <p:fieldset legend="Installation Guide">
+        <div>
+          <h:outputLink value="#{request.contextPath}/docs/install-guide/html/index.html" target="tr_docs">Multi Page HTML</h:outputLink>
+          <div class="vertical-spacer" />
+          <h:outputLink value="#{request.contextPath}/docs/install-guide/html_single/index.html" target="tr_docs">Single Page HTML</h:outputLink>
+        </div>
+      </p:fieldset>
+
+      <div class="vertical-spacer" />
+
+      <p:fieldset legend="Api Docs">
+        <div>
+          <h:outputLink value="#{request.contextPath}/restdocs/index.html" target="tr_docs">Rest API documentation</h:outputLink>
+          
+        </div>
+      </p:fieldset>
+
+    </h:form>
+
+  </ui:define>
+</ui:composition>

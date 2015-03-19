@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag"
+  xmlns:p="http://primefaces.org/ui"
+  template="/WEB-INF/templates/tank.xhtml">
+  <ui:define name="content">
+    <div>
+      <h:form id="mainForm">
+
+        <div class="vertical-spacer" />
+        <div>
+          <h3>Update Script Filters</h3>
+        </div>
+
+        <p:commandButton action="#{upgradeFilters.upgrade()}"
+          disabled="#{upgradeFilters.disabled}"
+          value="Upgreade Script Filters..."
+          onclick="PF('upBT').disable()" widgetVar="upBT"/>
+
+      </h:form>
+    </div>
+
+  </ui:define>
+
+</ui:composition>
