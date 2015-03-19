@@ -1,3 +1,5 @@
+![](https://github.com/intuit/tank/src/license/TankLogo.gif)
+
 #Intuit Tank
 
 Intuit Tank is a load test platform that runs in a cloud environment. It currently supports Amazon web interfaces and utilizes services from EC2, S3 and DynamoDb.
