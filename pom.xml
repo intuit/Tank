@@ -103,7 +103,7 @@
       </roles>
     </developer>
     <developer>
-      <id>hSomani</id>
+      <id>hsomani</id>
       <name>Happy Somani</name>
       <email>happy_somani@intuit.com</email>
       <organization>Intuit, Inc.</organization>
@@ -115,7 +115,7 @@
     </developer>
 
     <developer>
-      <id>bfiola</id>
+      <id>rchamela</id>
       <name>Ravi Chalmela</name>
       <email>Ravi_Chalmela@intuit.com</email>
       <organization>Intuit, Inc.</organization>
@@ -1302,6 +1302,12 @@
             </excludes>
           </configuration>
         </plugin>
+        
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>2.1</version>
+        </plugin>
 
       </plugins>
     </pluginManagement>
@@ -1309,6 +1315,11 @@
 
 
     <plugins>
+    
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+      </plugin>
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
