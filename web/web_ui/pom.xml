@@ -138,11 +138,7 @@
       <artifactId>tank-common</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>migrate_scripts</artifactId>
-      <version>${project.version}</version>
-    </dependency>
+   
 
     <dependency>
       <groupId>${project.groupId}</groupId>
