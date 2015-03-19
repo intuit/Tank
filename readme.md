@@ -1,4 +1,4 @@
-![](https://github.com/intuit/tank/src/license/TankLogo.gif)
+![](https://github.com/intuit/tank/src/TankLogo.gif)
 
 #Intuit Tank
 
