@@ -295,6 +295,10 @@
         <listitem>
           Download mysql connector and install in TOMCAT_HOME/lib
           <para><userinput>wget http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.30.tar.gz</userinput></para>
+          <para>or <userinput>wget http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.30.zip</userinput></para>
+        </listitem>
+        <listitem>
+            Uncompress and move the jar file mysql-connector-java-5.1.30-bin.jar to TOMCAT_HOME/lib
         </listitem>
         <listitem>
           Download Weld support jar and install in TOMCAT_HOME/lib
@@ -302,7 +306,7 @@
         </listitem>
         <listitem>
           Upload Intuit Tank war file from your build machine
-          <para><userinput>upload PROJECT_ROOT/web/web_ui/target/tank.war from your local machine.</userinput></para>
+          <para>upload PROJECT_ROOT/web/web_ui/target/tank.war from your local machine.</para>
         </listitem>
         <listitem>
           Move it to the webapps dir
@@ -313,12 +317,8 @@
           Create the tank directories. 
           <para><userinput>mkdir /mnt/ebs/wats; mkdir /mnt/ebs/wats/conf; mkdir /mnt/ebs/wats/jars</userinput></para>
        </listitem>
-       <listitem>
-          Add variable declarations to <code>/etc/profile</code> and add the following
-          <para><userinput>export WATS_PROPERTIES=/mnt/ebs/wats/conf</userinput></para>
-        </listitem>
         
-         <listitem>
+       <listitem>
           Add Datasource definition to server.xml
           <para>edit the file TOMCAT_HOME/conf/server.xml. Inside the &lt;GlobalNamingResources&gt; tag add the following replacing values appropriately:
             <example>

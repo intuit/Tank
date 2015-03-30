@@ -18,6 +18,17 @@
           <para><userinput>http://tomcat.apache.org/download-60.cgi</userinput></para>
         </listitem>
         <listitem>
+          Download mysql connector and install in TOMCAT_HOME/lib
+          <para><userinput>wget http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.30.tar.gz</userinput></para>
+        </listitem>
+        <listitem>
+            Uncompress and move the jar file mysql-connector-java-nnnn.jar to TOMCAT_HOME/lib
+        </listitem>
+        <listitem>
+          Download Weld support jar and install in TOMCAT_HOME/lib
+          <para><userinput>wget -O TOMCAT_HOME/lib http://central.maven.org/maven2/org/jboss/weld/servlet/weld-tomcat-support/1.0.1-Final/weld-tomcat-support-1.0.1-Final.jar</userinput></para>
+        </listitem>
+        <listitem>
           Build the project
           <para><userinput>mvn clean install -P release</userinput></para>
         </listitem>

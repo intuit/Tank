@@ -24,7 +24,7 @@
   <jar-file-storage>jars</jar-file-storage>
 
   <!-- name of this instance (no spaces). used in timing table names. -->
-  <instance-name>prod</instance-name>
+  <instance-name>tank</instance-name>
 
   <!-- The baseUrl for the controller. Must include the context (tank) -->
   <controller-base-url>http://localhost:8080/tank</controller-base-url>

@@ -17,12 +17,15 @@ Optional components can include a log aggregator as well as other instances to b
 
 ##Building Intuit Tank
 Intuit Tank uses Maven and should be able to be built using public repositories. 
+You may need to increase the default memory settings for maven to build. e.g. export MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=128m"
 
-There are several profiles 
+There are several profiles (for the initial build you should build the release profile so that the installation guide is built. e.g. mvn clean install -P release)
 * default -- builds source but does not build the docs or package tools.
 * release -- default plus docs and all tools and signs them using a self signed certificate.
 * clover -- runs clover code coverage.
 * static-analysis -- runs checkstyle and findbugs.
+
+
 
 
 There are several artifacts that are important.
