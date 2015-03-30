@@ -22,6 +22,8 @@ import java.util.Set;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
+import org.apache.commons.lang.math.NumberUtils;
+
 import com.intuit.tank.harness.data.AssignmentData;
 import com.intuit.tank.harness.data.ClearCookiesStep;
 import com.intuit.tank.harness.data.CookieStep;
@@ -333,10 +335,13 @@ public class ConverterUtil {
      * @return
      */
     private static String extractPort(String hostname) {
-        int index = hostname.indexOf(':');
+        int index = hostname.lastIndexOf(':');
         String port = null;
         if (index != -1 && index + 1 < hostname.length()) {
-            port = hostname.substring(index + 1);
+            String candidate = hostname.substring(index + 1);
+            if (NumberUtils.isDigits(candidate)) {
+                port = candidate;
+            } 
         }
         return port;
     }
