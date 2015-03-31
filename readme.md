@@ -2,18 +2,14 @@
 
 #Intuit Tank
 
-Intuit Tank is a load test platform that runs in a cloud environment. It currently supports Amazon web interfaces and utilizes services from EC2, S3 and DynamoDb.
+Intuit Tank is a load test platform that runs in a cloud environment. It currently supports Amazon web interfaces and utilizes services from EC2, S3, and DynamoDb.
 
 Intuit Tank has two main components: A controller and agents.
 
-The Controller is the central hub in the deployment. It supports the GUI for managing tests and for orchestrating. It utilizes Tomcat 6x for a web container communicates with the agents via http. 
-It exposes a RESTful interface for invoking services. Data is stored in a MySql database, on the file system, and in amazon DynamoDb.
+The Controller is the central hub in the deployment. It supports the GUI for managing tests and for orchestrating. It utilizes Tomcat 6x for a web container and communicates with the agents via http. 
+It exposes a RESTful interface for invoking services. Data is stored in a MySql database, on the file system, and in DynamoDb.
 
-Agents are instantiated on demand and exist for the duration of a test. They communicate with the controller via a combination of RESTful interfaces as well as the Message Queue.
-
-The Controller also interfaces with an instance of a JMS Queue (ActiveMQ), usually on the same instance as the controller. The Message Queue is used to coordinate starting and coordination of tests.
-
-Optional components can include a log aggregator as well as other instances to be started at the beginning of a test. These are configured in the settings.xml and can be stopped and re-used or terminated at the end of a test.
+Agents are instantiated on demand and exist for the duration of a test. They communicate with the controller via RESTful interfaces.
 
 ##Building Intuit Tank
 Intuit Tank uses Maven and should be able to be built using public repositories. 
