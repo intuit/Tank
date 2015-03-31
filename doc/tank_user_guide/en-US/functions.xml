@@ -62,66 +62,6 @@
     <variablelist>
 
       <varlistentry>
-        <term>getCSVData()</term>
-        <listitem>
-          <para>
-            Gets the value of the first column from the default csv file. equivalent of calling
-            getCSVData('csv-data.txt', 0, false)
-            (deprecated - use explicit csv file name)
-            <example>
-              <code>#{ioFunctions.getCSVData()}</code>
-              returns the first column in the default csv file.
-            </example>
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>getCSVData(int columnIndex)</term>
-        <listitem>
-          <para>
-            Gets the value of the specified column from the default csv file. equivalent of calling
-            getCSVData('csv-data.txt', columnIndex, false)
-            (deprecated - use explicit csv file name)
-            <orderedlist>
-              <title>Parameters</title>
-              <listitem>
-                columnIndex: Integer Zero indexed column number.
-              </listitem>
-            </orderedlist>
-            <example>
-              <code>#{ioFunctions.getCSVData(0)}</code>
-              returns the first column in the default csv file.
-            </example>
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>getCSVData(int columnIndex, boolean loop)</term>
-        <listitem>
-          <para>
-            Gets the value of the specified column from the default csv file with the specified looping behavior.
-            equivalent of calling getCSVData('csv-data.txt', columnIndex, loop)
-            (deprecated - use explicit csv file name)
-            <orderedlist>
-              <title>Parameters</title>
-              <listitem>
-                columnIndex: Integer Zero indexed column number.
-              </listitem>
-              <listitem>
-                loop: Boolean true to go back to the first line after all lines are read.
-              </listitem>
-            </orderedlist>
-            <example>
-              <code>#{ioFunctions.getCSVData(0, true)}</code>
-              returns the first column in the default csv file and loop if it uses all lines.
-            </example>
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
         <term>getCSVData(String fileName)</term>
         <listitem>
           <para>
@@ -444,7 +384,7 @@
                 prefixLength: Integer (required) The number of characters to use for the prefix.
               </listitem>
               <listitem>
-                format: String (required) The date format string to use. If empty, will use default for locale.
+                format: String (required) The date format string to use. 
               </listitem>
             </orderedlist>
             <example>
@@ -466,7 +406,7 @@
                 prefixLength: Integer (required) The number of characters to use for the prefix.
               </listitem>
               <listitem>
-                format: String (required) The date format string to use. If empty, will use default for locale.
+                format: String (required) The date format string to use. 
               </listitem>
             </orderedlist>
             <example>

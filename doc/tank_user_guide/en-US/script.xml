@@ -320,7 +320,7 @@
           <para>
             The path to the requested resource. The path can also be parameterize with variables.
             <example>
-              #function.string.concat./services/goldmember/.@authid.:0/.@appserver.:.@port./ajax/logEmail
+              #{rootContext}/ajax/logEmail
             </example>
           </para>
         </listitem>

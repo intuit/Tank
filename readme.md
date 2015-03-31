@@ -26,8 +26,6 @@ There are several profiles (for the initial build you should build the release p
 * static-analysis -- runs checkstyle and findbugs.
 
 
-
-
 There are several artifacts that are important.
 * web/web_ui/target/tank.war -- the main deployment file. Intended for deployment to a tomcat web server.
 * agent/agentManager_pkg/target/agent-startup-pkg.zip -- the agent app that gets started when the agent starts and manages communicating with the tank controller and coordinating the tests.
@@ -36,7 +34,7 @@ There are several artifacts that are important.
 * proxy-parent/proxy_pkg/target/Tank-Proxy-pkg.jar -- the proxy recording tool. A Tool to record scripts using your browser. 
 
 ##Guides
-Installation guide and User guide can be found in the docs folder and are built with the source.
+Installation guide and User guide can be found in the docs folder and are built with the source. and can also be found on our [wiki](https://github.com/intuit/Tank/wiki).
 
 ## Issues & Contributions
 Please [open an issue here on GitHub](https://github.com/intuit/tank/issues/new) if you have a problem, suggestion, or other comment.
@@ -46,3 +44,6 @@ Any contributions should include new or updated unit tests as necessary to maint
 
 ## License
 Tank is provided under the [Eclipse Public License - Version 1.0](http://www.eclipse.org/legal/epl-v10.html)
+
+## FAQ
+Please see our [FAQ on our wiki](https://github.com/intuit/Tank/wiki/FAQ).

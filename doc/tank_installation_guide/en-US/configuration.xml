@@ -22,7 +22,7 @@
     <para>These are settings used by the controller application for global things like locations and names.</para>
     <example>
         
-      <para><literallayout><![CDATA[
+      <para><screen><![CDATA[
         
     <!-- The server side storage directory for datafiles -->
     <data-file-storage>/mnt/wats/datafiles</data-file-storage>
@@ -60,7 +60,7 @@
       <mail.smtp.port>25</mail.smtp.port>
       <from-email>do_not_reply@myCompany.com</from-email>
     </mail>
-        ]]></literallayout></para>
+        ]]></screen></para>
         
     </example>
   </section>
@@ -70,7 +70,7 @@
     <para>These are configuration parameters used by the agents.</para>
     <example>
         
-      <para><literallayout><![CDATA[
+      <para><screen><![CDATA[
         
     <agent-config>
       <!-- Times used when calculating estimated run time -->
@@ -123,7 +123,7 @@
       </valid-mime-types>
   
     </agent-config>
-        ]]></literallayout></para>
+        ]]></screen></para>
         
     </example>
   </section>
@@ -133,7 +133,7 @@
     <para>These are settings used to start agent instances.</para>
     <example>
         
-      <para><literallayout><![CDATA[
+      <para><screen><![CDATA[
         
     <vm-manager>
       <default-region>US_EAST</default-region>
@@ -205,7 +205,7 @@
       </watchdog>
   
     </vm-manager>
-        ]]></literallayout></para>
+        ]]></screen></para>
         
     </example>
   </section>
@@ -214,7 +214,7 @@
     <para>These are settings for security and access control.</para>
     <example>
         
-      <para><literallayout><![CDATA[
+      <para><screen><![CDATA[
         
     <security>
       <!-- groups that can be assigned to users. set isDefault to tru to have these selected when creating new users -->
@@ -311,7 +311,7 @@
         </user>
       </users>
     </security>
-        ]]></literallayout></para>
+        ]]></screen></para>
         
     </example>
   </section>

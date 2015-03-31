@@ -2,7 +2,7 @@
 
 
 <chapter id="data_file">
-  <title>Data Files</title>
+  <title>Datafiles</title>
 
   <para>Data Files are external sources of data for your scripts. The lines will get evenly divided up among the agents
     for use.</para>

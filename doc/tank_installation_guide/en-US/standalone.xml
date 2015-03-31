@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<chapter id="Standalone">
-  <title>Standalone Environment</title>
+<chapter id="standalone">
+  <title>Standalone</title>
 
   <para>For standalone deployments, you will need to install the controller, database, 
   and as many agent machines as needed. These steps assume that you have java installed on all machines needed.</para>
@@ -74,12 +74,12 @@
           Add Datasource definition to server.xml
           <para>edit the file [TOMCAT_HOME]/conf/server.xml. Inside the &lt;GlobalNamingResources&gt; tag add the following replacing values appropriately:
             <example>
-               <para><literallayout>&lt;Resource name="jdbc/watsDS" auth="Container"
+               <para><screen>&lt;Resource name="jdbc/watsDS" auth="Container"
                  type="javax.sql.DataSource"
                  maxActive="100" maxIdle="30" maxWait="10000"
                  username="admin"  password="replace_password_here"
                  driverClassName="com.mysql.jdbc.Driver"
-                 url="jdbc:mysql://replace_host_name_here:3306/replace_db_name_here?autoReconnect=true" /&gt;</literallayout>
+                 url="jdbc:mysql://replace_host_name_here:3306/replace_db_name_here?autoReconnect=true" /&gt;</screen>
                 </para>
              </example>
            </para>
@@ -88,8 +88,8 @@
           Add Datasource definition to context.xml
           <para>edit the file [TOMCAT_HOME]/conf/context.xml. Inside the &lt;Context&gt; tag add the following:
             <example>
-               <para><literallayout>&lt;ResourceLink global='jdbc/watsDS' name='jdbc/watsDS'
-                type="javax.sql.Datasource" /&gt;</literallayout>
+               <para><screen>&lt;ResourceLink global='jdbc/watsDS' name='jdbc/watsDS'
+                type="javax.sql.Datasource" /&gt;</screen>
                 </para>
              </example>
            </para>
