@@ -42,6 +42,44 @@ import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
  * @generatedBy CodePro at 9/10/14 10:36 AM
  */
 public class ConverterUtilTest {
+    
+    @Test
+    public void testParseHost() {
+        String hostname = "www.company.com";
+        String result = ConverterUtil.extractHost(hostname);
+        Assert.assertEquals(hostname, result);
+        
+        hostname = "www.company.com:8080";
+        result = ConverterUtil.extractHost(hostname);
+        Assert.assertEquals("www.company.com", result);
+
+        hostname = "denis:angleton@www.company.com";
+        result = ConverterUtil.extractHost(hostname);
+        Assert.assertEquals("denis:angleton@www.company.com", result);
+        
+        hostname = "denis:angleton@www.company.com:8080";
+        result = ConverterUtil.extractHost(hostname);
+        Assert.assertEquals("denis:angleton@www.company.com", result);
+    }
+    @Test
+    public void testParsePort() {
+        String hostname = "www.company.com";
+        String result = ConverterUtil.extractPort(hostname);
+        Assert.assertEquals(null, result);
+        
+        hostname = "www.company.com:8080";
+        result = ConverterUtil.extractPort(hostname);
+        Assert.assertEquals("8080", result);
+        
+        hostname = "denis:angleton@www.company.com";
+        result = ConverterUtil.extractPort(hostname);
+        Assert.assertEquals(null, result);
+        
+        hostname = "denis:angleton@www.company.com:8080";
+        result = ConverterUtil.extractPort(hostname);
+        Assert.assertEquals("8080", result);
+    }
+    
     /**
      * Run the HDWorkload convertScriptToHdWorkload(Script) method test.
      * 

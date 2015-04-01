@@ -59,6 +59,7 @@ import com.intuit.tank.script.TimerAction;
 import com.intuit.tank.vm.api.enumerated.ValidationType;
 
 public class ConverterUtil {
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ConverterUtil.class);
 
     public static HDWorkload convertScriptToHdWorkload(Script script) {
 
@@ -334,7 +335,7 @@ public class ConverterUtil {
      * @param hostname
      * @return
      */
-    private static String extractPort(String hostname) {
+    protected static String extractPort(String hostname) {
         int index = hostname.lastIndexOf(':');
         String port = null;
         if (index != -1 && index + 1 < hostname.length()) {
@@ -350,9 +351,17 @@ public class ConverterUtil {
      * @param hostname
      * @return
      */
-    private static String extractHost(String hostname) {
-        if (hostname.indexOf(':') != -1) {
-            hostname = hostname.substring(0, hostname.indexOf(':'));
+    protected static String extractHost(String hostname) {
+        int index = hostname.lastIndexOf(':');
+        if (index != -1) {
+            try {
+                String port = hostname.substring(index + 1);
+                if (NumberUtils.isDigits(port)) {
+                    hostname = hostname.substring(0, index);
+                }
+            } catch (Exception e) {
+                LOG.error("Error parsing host");
+            }
         }
         return hostname;
     }

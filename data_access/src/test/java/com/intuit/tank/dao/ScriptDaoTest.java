@@ -139,12 +139,6 @@ public class ScriptDaoTest {
         Assert.assertEquals(first.getId(), list.get(0).getId());
         Assert.assertEquals(second.getId(), list.get(1).getId());
 
-        list = dao.findFiltered(ViewFilterType.LAST_MONTH);
-        Assert.assertEquals(3, list.size());
-        Assert.assertEquals(first.getId(), list.get(0).getId());
-        Assert.assertEquals(second.getId(), list.get(1).getId());
-        Assert.assertEquals(third.getId(), list.get(2).getId());
-
         list = dao.findFiltered(ViewFilterType.ALL);
         Assert.assertEquals(4, list.size());
         Assert.assertEquals(first.getId(), list.get(0).getId());
