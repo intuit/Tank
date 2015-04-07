@@ -1043,19 +1043,6 @@
         <version>${weld-version}</version>
         <scope>runtime</scope>
       </dependency>
-
-      <!--**************************************************************************** 
-        * * INTUIT COMPONENTS * **************************************************************************** -->
-      <!-- TTO Automation modules -->
-
-      <dependency>
-        <groupId>com.intuit.tank</groupId>
-        <artifactId>bbclient</artifactId>
-        <version>3.0.8</version>
-      </dependency>
-      <!-- <dependency> <groupId>com.intuit.tank</groupId> <artifactId>tto-auto-common</artifactId> 
-        <version>4.1.1</version> </dependency> -->
-
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
