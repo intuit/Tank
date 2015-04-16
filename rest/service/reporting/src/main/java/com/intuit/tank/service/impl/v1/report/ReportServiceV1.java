@@ -61,6 +61,7 @@ import com.intuit.tank.service.util.AuthUtil;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.common.util.ReportUtil;
 import com.intuit.tank.vm.common.util.TimingPageName;
+import com.intuit.tank.vm.settings.TankConfig;
 
 /**
  * ProjectServiceV1
@@ -191,12 +192,11 @@ public class ReportServiceV1 implements ReportService {
     @Override
     public Response getTimingCsv(final String jobId) {
         ResponseBuilder responseBuilder = Response.ok();
+        TankConfig tankConfig = new TankConfig();
         // AuthUtil.checkLoggedIn(servletContext);
-        File csvFile = new File("/mnt/wats/timing", DataBaseFactory.getDatabase().getDatabaseName(
-                TankDatabaseType.timing, jobId) + ".csv.gz");
+        File csvFile = new File(tankConfig.getTimingDir() , DataBaseFactory.getDatabase().getDatabaseName(TankDatabaseType.timing, jobId) + "_" + jobId + ".csv.gz");
         if (!csvFile.exists()) {
-            csvFile = new File("/mnt/wats/timing", DataBaseFactory.getDatabase().getDatabaseName(
-                    TankDatabaseType.timing, jobId) + ".csv");
+            csvFile = new File(tankConfig.getTimingDir(), DataBaseFactory.getDatabase().getDatabaseName(TankDatabaseType.timing, jobId) + "_" + jobId + ".csv");
         }
         if (csvFile.exists()) {
             final File finalCSV = csvFile;
@@ -219,8 +219,7 @@ public class ReportServiceV1 implements ReportService {
                     }
                 }
             };
-            String filename = DataBaseFactory.getDatabase().getDatabaseName(TankDatabaseType.timing,
-                    jobId)
+            String filename = DataBaseFactory.getDatabase().getDatabaseName(TankDatabaseType.timing, jobId) + "_" + jobId
                     + ".csv";
 
             responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");

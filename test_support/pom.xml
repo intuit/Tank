@@ -42,7 +42,7 @@
         <version>1.8</version>
 
         <configuration>
-        <licenseResolver>file://${env.TANK_HOME}/src/license</licenseResolver>
+          <licenseResolver>file://${env.TANK_HOME}/src/license</licenseResolver>
           <verbose>true</verbose>
           <addSvnKeyWords>false</addSvnKeyWords>
           <inceptionYear>2011</inceptionYear>
@@ -74,6 +74,15 @@
       </plugin>
     </plugins>
   </build>
+
+  <distributionManagement>
+    <repository>
+      <id>${repository.id}</id>
+      <name>Releases</name>
+      <url>${repository.url}</url>
+      <uniqueVersion>false</uniqueVersion>
+    </repository>
+  </distributionManagement>
 
 
 </project>

@@ -45,6 +45,7 @@ import com.intuit.tank.reporting.databases.PagedDatabaseResult;
 import com.intuit.tank.reporting.databases.TankDatabaseType;
 import com.intuit.tank.vm.common.util.MethodTimer;
 import com.intuit.tank.vm.common.util.ReportUtil;
+import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.settings.TimeUtil;
 
 /**
@@ -73,10 +74,10 @@ public class MetricsCalculator {
         CSVWriter csvWriter = null;
         try {
 
-            File parentFile = new File("/mnt/wats/timing");
+            File parentFile = new File(new TankConfig().getTimingDir());
             parentFile.mkdirs();
             csvFile = new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(new File(parentFile,
-                    db.getDatabaseName(TankDatabaseType.timing, jobId) + ".csv.gz"))));
+                    db.getDatabaseName(TankDatabaseType.timing, jobId) + "_" + jobId + ".csv.gz"))));
             boolean outputHeaderRow = true;
             csvWriter = new CSVWriter(csvFile);
             List<String> headers = new ArrayList<String>();

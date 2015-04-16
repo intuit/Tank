@@ -13,7 +13,6 @@ package com.intuit.tank.vm.settings;
  * #L%
  */
 
-
 import java.io.File;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -41,6 +40,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
     private static final String KEY_REST_SECURITY_ENABLED = "rest-security-enabled";
     private static final String KEY_TMP_FILE_STORAGE = "tmp-file-storage";
     private static final String KEY_JAR_FILE_STORAGE = "jar-file-storage";
+    private static final String KEY_TIMING_FILE_STORAGE = "timing-file-storage";
     private static final String KEY_MAIL_NODE = "mail";
     private static final String KEY_STANDALONE = "standalone";
 
@@ -100,6 +100,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
     public String getDataFileStorageDir() {
         return config.getString(KEY_DATA_FILE_STORAGE, "/mnt/wats/datafiles");
     }
+
     /**
      * @return true if rest security is enabled
      */
@@ -126,6 +127,13 @@ public class TankConfig extends BaseCommonsXmlConfig {
      */
     public String getJarDir() {
         return config.getString(KEY_JAR_FILE_STORAGE, "/mnt/wats/jars");
+    }
+
+    /**
+     * @return the Datafile storage root dir
+     */
+    public String getTimingDir() {
+        return config.getString(KEY_TIMING_FILE_STORAGE, "/mnt/wats/timing");
     }
 
     /**

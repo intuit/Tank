@@ -1043,19 +1043,6 @@
         <version>${weld-version}</version>
         <scope>runtime</scope>
       </dependency>
-
-      <!--**************************************************************************** 
-        * * INTUIT COMPONENTS * **************************************************************************** -->
-      <!-- TTO Automation modules -->
-
-      <dependency>
-        <groupId>com.intuit.tank</groupId>
-        <artifactId>bbclient</artifactId>
-        <version>3.0.8</version>
-      </dependency>
-      <!-- <dependency> <groupId>com.intuit.tank</groupId> <artifactId>tto-auto-common</artifactId> 
-        <version>4.1.1</version> </dependency> -->
-
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
@@ -1534,17 +1521,11 @@
 
   <distributionManagement>
     <repository>
-      <id>releases-repo</id>
-      <name>Releases Repo</name>
-      <url>${repo_release}</url>
+      <id>${repository.id}</id>
+      <name>Releases</name>
+      <url>${repository.url}</url>
       <uniqueVersion>false</uniqueVersion>
     </repository>
-    <snapshotRepository>
-      <id>snapshots-repo</id>
-      <name>Snapshots Repository</name>
-      <url>${repo_snapshot}</url>
-      <uniqueVersion>false</uniqueVersion>
-    </snapshotRepository>
   </distributionManagement>
 
 
