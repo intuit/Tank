@@ -28,7 +28,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.http.HttpStatus;
 import org.apache.log4j.Logger;
 
@@ -46,7 +48,6 @@ import com.amazonaws.services.dynamodbv2.model.BatchWriteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.BatchWriteItemResult;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
-import com.amazonaws.services.dynamodbv2.model.ConsumedCapacity;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.CreateTableResult;
 import com.amazonaws.services.dynamodbv2.model.DeleteRequest;
@@ -126,8 +127,10 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
         try {
             if (!hasTable(tableName)) {
                 logger.info("Creating table: " + tableName);
-                long readCapacity = config.getVmManagerConfig().getResultsReadCapacity();
-                long writeCapacity = config.getVmManagerConfig().getResultsWriteCapacity();
+                HierarchicalConfiguration resultsProviderConfig = config.getVmManagerConfig()
+                        .getResultsProviderConfig();
+                long readCapacity = getCapacity(resultsProviderConfig, "read-capacity", 10L);
+                long writeCapacity = getCapacity(resultsProviderConfig, "write-capacity", 50L);
                 ArrayList<AttributeDefinition> attributeDefinitions = new ArrayList<AttributeDefinition>();
                 attributeDefinitions.add(new AttributeDefinition().withAttributeName(
                         DatabaseKeys.JOB_ID_KEY.getShortKey()).withAttributeType(ScalarAttributeType.S));
@@ -153,6 +156,21 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
             logger.error(t, t);
             throw new RuntimeException(t);
         }
+    }
+
+    private long getCapacity(HierarchicalConfiguration resultsProviderConfig, String key, long defaultValue) {
+        long ret = defaultValue;
+        if (resultsProviderConfig != null) {
+            try {
+                String string = resultsProviderConfig.getString(key);
+                if (NumberUtils.isDigits(string)) {
+                    return Long.parseLong(string);
+                }
+            } catch (Exception e) {
+                logger.error(e.toString());
+            }
+        }
+        return ret;
     }
 
     /**
@@ -466,10 +484,10 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
             shouldRetry = false;
             try {
                 BatchWriteItemResult result = dynamoDb.batchWriteItem(request);
-//                List<ConsumedCapacity> consumedCapacity = result.getConsumedCapacity();
-//                for (ConsumedCapacity cap : consumedCapacity) {
-//                    System.out.println(cap.getCapacityUnits());
-//                }
+                // List<ConsumedCapacity> consumedCapacity = result.getConsumedCapacity();
+                // for (ConsumedCapacity cap : consumedCapacity) {
+                // System.out.println(cap.getCapacityUnits());
+                // }
             } catch (AmazonServiceException e) {
                 if (e instanceof ProvisionedThroughputExceededException) {
                     try {

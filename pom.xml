@@ -1521,17 +1521,11 @@
 
   <distributionManagement>
     <repository>
-      <id>releases-repo</id>
-      <name>Releases Repo</name>
-      <url>${repo_release}</url>
+      <id>${repository.id}</id>
+      <name>Releases</name>
+      <url>${repository.url}</url>
       <uniqueVersion>false</uniqueVersion>
     </repository>
-    <snapshotRepository>
-      <id>snapshots-repo</id>
-      <name>Snapshots Repository</name>
-      <url>${repo_snapshot}</url>
-      <uniqueVersion>false</uniqueVersion>
-    </snapshotRepository>
   </distributionManagement>
 
 

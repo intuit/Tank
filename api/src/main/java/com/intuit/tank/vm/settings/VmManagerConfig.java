@@ -216,16 +216,10 @@ public class VmManagerConfig implements Serializable {
     /**
      * @return the read capacity for dynamoDB tables.
      */
-    public long getResultsReadCapacity() {
-        String string = config.getString("results/read-capacity");
-        if (string != null) {
-            try {
-                return Long.parseLong(string);
-            } catch (Exception e) {
-                LOG.error(e.toString());
-            }
-        }
-        return 10L;
+    public HierarchicalConfiguration getResultsProviderConfig() {
+        SubnodeConfiguration ret = config.configurationAt("results/config");
+
+        return ret;
     }
     /**
      * @return the write capacity for dynamoDB tables.

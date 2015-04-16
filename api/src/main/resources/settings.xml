@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  #%L
-  Intuit Tank Api
-  %%
-  Copyright (C) 2011 - 2015 Intuit Inc.
-  %%
-  All rights reserved. This program and the accompanying materials
-  are made available under the terms of the Eclipse Public License v1.0
-  which accompanies this distribution, and is available at
-  http://www.eclipse.org/legal/epl-v10.html
-  #L%
-  -->
+<!-- #%L Intuit Tank Api %% Copyright (C) 2011 - 2015 Intuit Inc. %% All 
+  rights reserved. This program and the accompanying materials are made available 
+  under the terms of the Eclipse Public License v1.0 which accompanies this 
+  distribution, and is available at http://www.eclipse.org/legal/epl-v10.html 
+  #L% -->
 
 <tank-settings>
 
   <!-- The server side storage directory for datafiles -->
   <data-file-storage>datafiles</data-file-storage>
+  
+  <!-- The server side storage directory for timing data -->
+  <timing-file-storage>timing</timing-file-storage>
 
   <!-- The server side storage directory for temp script files -->
   <tmp-file-storage>tmpfiles</tmp-file-storage>
@@ -29,10 +25,12 @@
   <!-- The baseUrl for the controller. Must include the context (tank) -->
   <controller-base-url>http://localhost:8080/tank</controller-base-url>
 
-  <!-- if this instance is a standalone instance and should not start agents automatically. -->
+  <!-- if this instance is a standalone instance and should not start agents 
+    automatically. -->
   <standalone>false</standalone>
 
-  <!-- if this rest calls require authentication using api key or username/password or logged in via session -->
+  <!-- if this rest calls require authentication using api key or username/password 
+    or logged in via session -->
   <rest-security-enabled>true</rest-security-enabled>
 
   <!-- Products that can be selected by users for categorization -->
@@ -79,10 +77,12 @@
 
     <status_report_interval_milis>30000</status_report_interval_milis>
 
-    <!-- Max response time before waiting additional time between requests. Helps prevent backups if server is running too slow. (in ms.) -->
+    <!-- Max response time before waiting additional time between requests. 
+      Helps prevent backups if server is running too slow. (in ms.) -->
     <max-response-time>5000</max-response-time>
 
-    <!-- Max time to wait if response was too slow. Helps prevent backups if server is running too slow. (in ms.) -->
+    <!-- Max time to wait if response was too slow. Helps prevent backups 
+      if server is running too slow. (in ms.) -->
     <max-failed-wait-time>180000</max-failed-wait-time>
 
     <!-- Max amount of time after simulation time to run the test. -->
@@ -106,13 +106,13 @@
       <mime-type-regex>.*json.*</mime-type-regex>
       <mime-type-regex>.*xml.*</mime-type-regex>
     </valid-mime-types>
-    
+
     <!-- add any headers that should be added to each request -->
     <request-headers>
-        <header key="test_flag">test_flag</header>
+      <header key="test_flag">test_flag</header>
     </request-headers>
 
-    
+
   </agent-config>
 
 
@@ -126,7 +126,8 @@
       <!-- <eip>0.0.0.0</eip> -->
     </reserved-elastic-ips>
 
-    <!-- Default instance description items. can be overridden in instance descriptions. -->
+    <!-- Default instance description items. can be overridden in instance 
+      descriptions. -->
     <default-instance-description>
       <security-group>security_group</security-group>
       <keypair>myKey</keypair>
@@ -135,19 +136,13 @@
 
     <!-- Credentials for the cloud provider -->
     <credentials type="amazon">
-    <!-- Set credentials via system or java properties. -->
+      <!-- Set credentials via system or java properties. -->
       <secret-key-id-property>AWS_SECRET_KEY_ID</secret-key-id-property>
       <secret-key-property>AWS_SECRET_KEY</secret-key-property>
       <!-- Set if you want to specifiy credentials directly here. less secure! -->
-      <!-- 
-      <secret-key-id>[AWS_SECRET_KEY_ID]</secret-key-id>
-      <secret-key>[AWS_SECRET_KEY]</secret-key>
-       -->
+      <!-- <secret-key-id>[AWS_SECRET_KEY_ID]</secret-key-id> <secret-key>[AWS_SECRET_KEY]</secret-key> -->
       <!-- Set if you need a proxy to talk to amazon services -->
-      <!-- 
-      <proxy-host></proxy-host>
-      <proxy-port>80</proxy-port>
-      -->
+      <!-- <proxy-host></proxy-host> <proxy-port>80</proxy-port> -->
     </credentials>
 
     <!-- Instance descriptions for regions -->
@@ -164,39 +159,49 @@
         <keypair>[KEYPAIR]</keypair>
       </instance-descripion>
     </instance-descriptions>
-    
+
     <!-- used to set agent instnces and calculate costs. -->
     <instance-types type="amazon">
-        <type name="c3.large" cost=".105" users="500" cpus="2" ecus="7" mem="3.75" jvmArgs="-Xms2560m -Xmx2560m" />
-        <type name="c3.xlarge" cost=".21" users="2000" cpus="4" ecus="14" mem="7.5" jvmArgs="-Xms6g -Xmx6g" />
-        <type name="c3.2xlarge" cost=".42" users="4000" cpus="8" ecus="28" mem="15" default="true" jvmArgs="-Xms12g -Xmx12g" />
-        <type name="c3.4xlarge" cost=".84" users="8000" cpus="16" ecus="55" mem="30" jvmArgs="-Xms125g -Xmx25g" />
-        <type name="c3.8xlarge" cost="1.68" users="16000" cpus="32" ecus="108" mem="60" jvmArgs="-Xms50g -Xmx50g" />
+      <type name="c3.large" cost=".105" users="500" cpus="2" ecus="7"
+        mem="3.75" jvmArgs="-Xms2560m -Xmx2560m" />
+      <type name="c3.xlarge" cost=".21" users="2000" cpus="4" ecus="14"
+        mem="7.5" jvmArgs="-Xms6g -Xmx6g" />
+      <type name="c3.2xlarge" cost=".42" users="4000" cpus="8"
+        ecus="28" mem="15" default="true" jvmArgs="-Xms12g -Xmx12g" />
+      <type name="c3.4xlarge" cost=".84" users="8000" cpus="16"
+        ecus="55" mem="30" jvmArgs="-Xms125g -Xmx25g" />
+      <type name="c3.8xlarge" cost="1.68" users="16000" cpus="32"
+        ecus="108" mem="60" jvmArgs="-Xms50g -Xmx50g" />
     </instance-types>
 
 
     <!-- watchdog is used to check if all agents start correctly. -->
     <watchdog>
-      <!-- The maximum amount of time to wait for the agents to start before restarting -->
+      <!-- The maximum amount of time to wait for the agents to start before 
+        restarting -->
       <max-time-for-agent-start>5m</max-time-for-agent-start>
-      <!-- The maximum amount of time to wait for the agents to report to the controller before restarting -->
+      <!-- The maximum amount of time to wait for the agents to report to 
+        the controller before restarting -->
       <max-time-for-agent-report>10m</max-time-for-agent-report>
       <!-- the maximum number of restarts before stopping test -->
       <max-restarts>2</max-restarts>
       <!-- The amount of time to wait between checking for agent start -->
       <sleep-time-between-check>30s</sleep-time-between-check>
     </watchdog>
-    
+
     <results>
+      <provider>com.intuit.tank.persistence.databases.AmazonDynamoDatabaseDocApi</provider>
+      <config>
         <write-capacity>50</write-capacity>
         <read-capacity>10</read-capacity>
-        <provider>com.intuit.tank.persistence.databases.AmazonDynamoDatabaseDocApi</provider>
+      </config>
     </results>
 
   </vm-manager>
 
   <security>
-    <!-- groups that can be assigned to users. set isDefault to tru to have these selected when creating new users -->
+    <!-- groups that can be assigned to users. set isDefault to tru to have 
+      these selected when creating new users -->
     <groups>
       <group>admin</group>
       <group isDefault="true">user</group>
@@ -290,8 +295,9 @@
       </user>
     </users>
   </security>
-  
-  <!-- These are the scripts that get prepended to every extended script filter. -->
+
+  <!-- These are the scripts that get prepended to every extended script 
+    filter. -->
   <logic-step>
     <insert-before><![CDATA[
 // ######## Logging functions ##########
@@ -484,7 +490,7 @@ function setAction(action) {
 
 ]]>
     </insert-before>
-    
+
     <!-- these get added after the user input script. -->
     <append-after><![CDATA[
 
