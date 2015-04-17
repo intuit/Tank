@@ -1,51 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>com.intuit.tank</groupId>
-    <artifactId>agent-parent</artifactId>
-    <version>2.1</version>
+    <artifactId>tools-parent</artifactId>
+    <version>2.0</version>
   </parent>
 
-  <artifactId>agent-standalone-pkg</artifactId>
+  <artifactId>script-filter-package</artifactId>
 
   <packaging>pom</packaging>
-  <name>Agent Standalone Packaging</name>
-
+  <name>ScriptFilter Runner Packaging</name>
+  
   <dependencies>
+
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>agent-standalone</artifactId>
+      <artifactId>script-filter</artifactId>
       <version>${project.version}</version>
     </dependency>
-
   </dependencies>
+
+
 
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
 
         <configuration>
-        
-          <finalName>agent-standalone</finalName>
+          <finalName>Tank-Script-Runner</finalName>
           <descriptors>
             <descriptor>src/main/assembly/assembly.xml</descriptor>
-            <descriptor>src/main/assembly/zip-assembly.xml</descriptor>
           </descriptors>
           <archive>
             <manifest>
-              <mainClass>com.intuit.tank.standalone.agent.StandaloneAgentStartup</mainClass>
+              <mainClass>com.intuit.tank.tools.script.ScriptFilterRunner</mainClass>
             </manifest>
+            <manifestEntries>
+              <Permissions>all-permissions</Permissions>
+              <Application-Name>Intuit Tank Script Filter Editor</Application-Name>
+            </manifestEntries>
           </archive>
         </configuration>
         <executions>
@@ -58,6 +56,12 @@
           </execution>
         </executions>
       </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jarsigner-plugin</artifactId>
+      </plugin>
     </plugins>
   </build>
+
 </project>

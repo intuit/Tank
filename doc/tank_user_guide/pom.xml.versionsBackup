@@ -5,28 +5,28 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>tank-parent-doc</artifactId>
-    <version>2.1</version>
+    <version>2.0</version>
   </parent>
-  
-  <artifactId>tank-installation-guide</artifactId>
+
+  <artifactId>tank-user-guide</artifactId>
 
   <packaging>jdocbook</packaging>
-  <name>Tank Installation Guide</name>
+  <name>Tank User Documentation</name>
 
   <properties>
     <translation>en-US</translation>
-    <docname>Tank_Installation_Guide</docname>
+    <docname>Tank_User_Guide</docname>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>com.intuit.tank</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>pressgang-xslt-ns</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.intuit.tank</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>tank-common-jdocbook-style</artifactId>
       <version>${project.version}</version>
       <type>jdocbook-style</type>
@@ -49,11 +49,8 @@
               <directory>${project.basedir}/en-US/images</directory>
             </imageResource>
             <formats>
-              <!-- <format>
-                <formatName>pdf</formatName>
-                <stylesheetResource>classpath:/xslt/org/tank/pdf.xsl</stylesheetResource>
-                <finalName>${docname}.pdf</finalName>
-              </format> -->
+              <!-- <format> <formatName>pdf</formatName> <stylesheetResource>classpath:/xslt/org/tank/pdf.xsl</stylesheetResource> 
+                <finalName>${docname}.pdf</finalName> </format> -->
               <format>
                 <formatName>html</formatName>
                 <stylesheetResource>classpath:/xslt/org/tank/xhtml.xsl</stylesheetResource>
@@ -103,6 +100,7 @@
       </plugins>
     </pluginManagement>
     <plugins>
+      
       <plugin>
         <!-- Entry needed to enable jdocbook packaging -->
         <groupId>org.jboss.maven.plugins</groupId>
@@ -127,5 +125,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>

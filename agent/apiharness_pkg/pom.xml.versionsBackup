@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -5,22 +6,26 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>agent-parent</artifactId>
-    <version>2.1</version>
+    <version>2.0</version>
   </parent>
 
-  <artifactId>agent-standalone-pkg</artifactId>
+
+  <artifactId>apiharness</artifactId>
 
   <packaging>pom</packaging>
-  <name>Agent Standalone Packaging</name>
+  <name>Apiharness Packaging</name>
+
 
   <dependencies>
+
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>agent-standalone</artifactId>
+      <artifactId>agent</artifactId>
       <version>${project.version}</version>
     </dependency>
-
   </dependencies>
+
+
 
   <build>
     <plugins>
@@ -34,17 +39,15 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-
         <configuration>
-        
-          <finalName>agent-standalone</finalName>
+        <finalName>apiharness-1.0</finalName>
           <descriptors>
             <descriptor>src/main/assembly/assembly.xml</descriptor>
             <descriptor>src/main/assembly/zip-assembly.xml</descriptor>
           </descriptors>
           <archive>
             <manifest>
-              <mainClass>com.intuit.tank.standalone.agent.StandaloneAgentStartup</mainClass>
+              <mainClass>com.intuit.tank.harness.APITestHarness</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -60,4 +63,5 @@
       </plugin>
     </plugins>
   </build>
+
 </project>
