@@ -21,12 +21,12 @@ import org.apache.log4j.Logger;
 
 import com.intuit.tank.CloudServiceClient;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
-import com.intuit.tank.api.model.v1.cloud.TPSInfo;
-import com.intuit.tank.api.model.v1.cloud.TPSInfoContainer;
 import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.persistence.databases.DataBaseFactory;
 import com.intuit.tank.persistence.databases.DatabaseKeys;
+import com.intuit.tank.reporting.api.TPSInfo;
+import com.intuit.tank.reporting.api.TPSInfoContainer;
 import com.intuit.tank.reporting.databases.Attribute;
 import com.intuit.tank.reporting.databases.IDatabase;
 import com.intuit.tank.reporting.databases.Item;

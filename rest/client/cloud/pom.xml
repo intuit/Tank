@@ -27,6 +27,13 @@
       <artifactId>cloud-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>reporting-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>javax.mail</groupId>

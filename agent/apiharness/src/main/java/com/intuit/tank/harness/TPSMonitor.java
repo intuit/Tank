@@ -22,9 +22,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.intuit.tank.api.model.v1.cloud.TPSInfo;
-import com.intuit.tank.api.model.v1.cloud.TPSInfoContainer;
 import com.intuit.tank.http.BaseRequest;
+import com.intuit.tank.reporting.api.TPSInfo;
+import com.intuit.tank.reporting.api.TPSInfoContainer;
 import com.intuit.tank.vm.settings.TimeUtil;
 
 public class TPSMonitor {

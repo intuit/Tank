@@ -16,7 +16,15 @@ package com.intuit.tank.results;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import com.intuit.tank.reporting.api.Namespace;
 
 /**
  * WatsResult represents a result to log or store to database.
@@ -24,15 +32,40 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author dangleton
  * 
  */
+@XmlRootElement(name = "TankResult", namespace = Namespace.NAMESPACE_V1)
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "TankResultType", namespace = Namespace.NAMESPACE_V1, propOrder = {
+        "jobId",
+        "responseTime",
+        "statusCode",
+        "responseSize",
+        "requestName",
+        "error",
+        "timeStamp"
+})
 public class TankResult implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    @XmlElement(name = "jobId", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private String jobId;
+
+    @XmlElement(name = "responseTime", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int responseTime;
+
+    @XmlElement(name = "statusCode", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int statusCode;
+
+    @XmlElement(name = "responseSize", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int responseSize;
+
+    @XmlElement(name = "requestName", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private String requestName;
+
+    @XmlElement(name = "error", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private boolean error;
+
+    @XmlElement(name = "timestamp", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private Date timeStamp = new Date();
 
     /**

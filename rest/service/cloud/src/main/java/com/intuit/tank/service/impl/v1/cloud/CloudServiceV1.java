@@ -20,13 +20,11 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Stack;
-import java.util.TimeZone;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
@@ -34,6 +32,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 
@@ -42,8 +41,11 @@ import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 import com.intuit.tank.api.service.v1.cloud.CloudService;
 import com.intuit.tank.dao.SummaryDataDao;
 import com.intuit.tank.persistence.databases.DataBaseFactory;
+import com.intuit.tank.reporting.api.TPSReportingPackage;
 import com.intuit.tank.reporting.databases.IDatabase;
 import com.intuit.tank.reporting.databases.TankDatabaseType;
+import com.intuit.tank.results.TankResult;
+import com.intuit.tank.results.TankResultPackage;
 import com.intuit.tank.service.util.ResponseUtil;
 import com.intuit.tank.service.util.ServletInjector;
 
@@ -413,6 +415,34 @@ public class CloudServiceV1 implements CloudService {
             e.printStackTrace();
         }
         return ret;
+    }
+
+    @Override
+    public Response setTPSInfos(TPSReportingPackage reportingPackage) {
+        ResponseBuilder responseBuilder = null;
+        try {
+            //TODO: DA implement
+            responseBuilder = Response.status(Status.ACCEPTED);
+            
+        } catch (Exception e) {
+            LOG.error("Error determining status: " + e.getMessage(), e);
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        return responseBuilder.build();
+    }
+
+    @Override
+    public Response sendTimingResults(TankResultPackage results) {
+        ResponseBuilder responseBuilder = null;
+        try {
+            //TODO: DA implement
+            responseBuilder = Response.status(Status.ACCEPTED);
+            
+        } catch (Exception e) {
+            LOG.error("Error determining status: " + e.getMessage(), e);
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        return responseBuilder.build();
     }
 
 }

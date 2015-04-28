@@ -24,9 +24,13 @@ import javax.ws.rs.core.MediaType;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 import com.intuit.tank.api.service.v1.cloud.CloudService;
+import com.intuit.tank.reporting.api.TPSInfoContainer;
+import com.intuit.tank.reporting.api.TPSReportingPackage;
 import com.intuit.tank.rest.BaseRestClient;
 import com.intuit.tank.rest.RestServiceException;
 import com.intuit.tank.rest.util.ServiceConsants;
+import com.intuit.tank.results.TankResult;
+import com.intuit.tank.results.TankResultPackage;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
@@ -123,6 +127,32 @@ public class CloudServiceClient extends BaseRestClient {
         ClientResponse response = webResource.entity(status, MediaType.APPLICATION_XML_TYPE).put(ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
 
+    }
+
+    /**
+     * @{inheritDoc
+     */
+    public void postTpsResults(String jobId, String instanceId, TPSInfoContainer container)
+            throws RestServiceException,
+            UniformInterfaceException {
+        TPSReportingPackage tpsPackage = new TPSReportingPackage(jobId, instanceId, container);
+        WebResource webResource = client.resource(urlBuilder.buildUrl(CloudService.METHOD_TPS_INFO));
+        ClientResponse response = webResource.entity(tpsPackage, MediaType.APPLICATION_XML_TYPE).put(
+                ClientResponse.class);
+        exceptionHandler.checkStatusCode(response);
+    }
+
+    /**
+     * @{inheritDoc
+     */
+    public void postTimingResults(String jobId, String instanceId, List<TankResult> results)
+            throws RestServiceException,
+            UniformInterfaceException {
+        TankResultPackage tankResultPackage = new TankResultPackage(jobId, instanceId, results);
+        WebResource webResource = client.resource(urlBuilder.buildUrl(CloudService.METHOD_TIMING_RESULTS));
+        ClientResponse response = webResource.entity(tankResultPackage, MediaType.APPLICATION_XML_TYPE).put(
+                ClientResponse.class);
+        exceptionHandler.checkStatusCode(response);
     }
 
     /**

@@ -17,6 +17,7 @@
   <modules>
     <module>db</module>
     <module>api</module>
+    <module>cloud</module>
 
   </modules>
 

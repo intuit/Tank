@@ -31,6 +31,8 @@ import javax.ws.rs.core.Response;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.reporting.api.TPSReportingPackage;
+import com.intuit.tank.results.TankResultPackage;
 
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved
@@ -79,6 +81,9 @@ public interface CloudService {
 
     public static final String METHOD_GET_COST = "/costing/custom";
     public static final String METHOD_GET_COST_PREDEFINED = "/costing/predefined";
+    
+    public static final String METHOD_TPS_INFO = "/job/tps-info";
+    public static final String METHOD_TIMING_RESULTS = "/job/timing-results";
 
     /**
      * Test method to test if the service is up.
@@ -144,6 +149,24 @@ public interface CloudService {
     @PUT
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public void setVmStatus(@Nonnull @PathParam("instanceId") String instanceId, CloudVmStatus status);
+   
+    /**
+     * 
+     * @param reportingPackage
+     */
+    @Path(CloudService.METHOD_TPS_INFO)
+    @POST
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public Response setTPSInfos(@Nonnull TPSReportingPackage reportingPackage);
+    
+    /**
+     * 
+     * @param reportingPackage
+     */
+    @Path(CloudService.METHOD_TIMING_RESULTS)
+    @POST
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public Response sendTimingResults(@Nonnull TankResultPackage results);
 
     /**
      * 

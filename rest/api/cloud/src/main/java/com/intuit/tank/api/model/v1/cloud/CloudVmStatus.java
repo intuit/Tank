@@ -109,7 +109,7 @@ public class CloudVmStatus implements Serializable {
 
     @XmlElementWrapper(name = "userDetails", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "userDetail", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
-    public List<UserDetail> userDetails = new ArrayList<UserDetail>();
+    private List<UserDetail> userDetails = new ArrayList<UserDetail>();
 
     protected CloudVmStatus() {
     }
