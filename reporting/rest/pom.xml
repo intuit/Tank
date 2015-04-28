@@ -9,10 +9,10 @@
     <version>2.1</version>
   </parent>
 
-  <artifactId>reporting-cloud</artifactId>
+  <artifactId>reporting-rest</artifactId>
 
   <packaging>jar</packaging>
-  <name>Reporting cloud support</name>
+  <name>Reporting Rest support</name>
    
   <dependencies>
 
@@ -30,7 +30,7 @@
     
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>cloud-client</artifactId>
+      <artifactId>report-client</artifactId>
       <version>${project.version}</version>
     </dependency>
     

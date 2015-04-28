@@ -1,7 +1,7 @@
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved
  */
-package com.intuit.tank.reporting.cloud;
+package com.intuit.tank.reporting.rest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
-import com.intuit.tank.CloudServiceClient;
+import com.intuit.tank.client.v1.report.ReportServiceClientV1;
 import com.intuit.tank.reporting.api.ResultsReporter;
 import com.intuit.tank.reporting.api.TPSInfoContainer;
 import com.intuit.tank.results.TankResult;
@@ -24,15 +24,15 @@ import com.intuit.tank.vm.settings.TankConfig;
  * @author dangleton
  * 
  */
-public class CloudResultsReporter implements ResultsReporter {
+public class RestResultsReporter implements ResultsReporter {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(CloudResultsReporter.class);
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(RestResultsReporter.class);
 
     private static final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(10, 50, 60, TimeUnit.SECONDS,
             new ArrayBlockingQueue<Runnable>(50), Executors.defaultThreadFactory(),
             new ThreadPoolExecutor.DiscardOldestPolicy());
 
-    private CloudServiceClient client;
+    private ReportServiceClientV1 client;
 
     /**
      * @{inheritDoc
@@ -79,11 +79,11 @@ public class CloudResultsReporter implements ResultsReporter {
         }
     }
 
-    private CloudServiceClient getClient() {
+    private ReportServiceClientV1 getClient() {
         if (client == null) {
             TankConfig config = new TankConfig();
             config.getControllerBase();
-            client = new CloudServiceClient(config.getControllerBase());
+            client = new ReportServiceClientV1(config.getControllerBase());
         }
         return client;
 

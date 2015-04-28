@@ -403,46 +403,4 @@ public class CloudServiceV1 implements CloudService {
         // return AwsUtil.generateReport(calc);
     }
 
-    private Date parseDateString(String dateStr) {
-        Date ret = null;
-        try {
-            if (dateStr.indexOf('T') != -1) {
-                ret = dateFormatFull.parse(dateStr + " GMT");
-            } else {
-                ret = dateFormatShort.parse(dateStr + " GMT");
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return ret;
-    }
-
-    @Override
-    public Response setTPSInfos(TPSReportingPackage reportingPackage) {
-        ResponseBuilder responseBuilder = null;
-        try {
-            //TODO: DA implement
-            responseBuilder = Response.status(Status.ACCEPTED);
-            
-        } catch (Exception e) {
-            LOG.error("Error determining status: " + e.getMessage(), e);
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-        }
-        return responseBuilder.build();
-    }
-
-    @Override
-    public Response sendTimingResults(TankResultPackage results) {
-        ResponseBuilder responseBuilder = null;
-        try {
-            //TODO: DA implement
-            responseBuilder = Response.status(Status.ACCEPTED);
-            
-        } catch (Exception e) {
-            LOG.error("Error determining status: " + e.getMessage(), e);
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-        }
-        return responseBuilder.build();
-    }
-
 }
