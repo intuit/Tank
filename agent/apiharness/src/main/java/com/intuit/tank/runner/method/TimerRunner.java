@@ -49,8 +49,7 @@ class TimerRunner implements Runner {
                     testStep.getValue());
             if (tankResult != null
                     && NumberUtils.isDigits(APITestHarness.getInstance().getAgentRunData().getJobId())) {
-                String tableName = APITestHarness.getInstance().getOrCreateLoggingDBTable();
-                APITestHarness.getInstance().queueTimingResult(tableName, tankResult);
+                APITestHarness.getInstance().queueTimingResult(tankResult);
             }
         }
         return TankConstants.HTTP_CASE_PASS;

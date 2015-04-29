@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -239,9 +238,8 @@ public class RequestRunner implements Runner {
                 builder.withError(true);
             }
             if (!StringUtils.isEmpty(loggingKey)) {
-                String tableName = APITestHarness.getInstance().getOrCreateLoggingDBTable();
                 builder.withRequestName(loggingKey);
-                APITestHarness.getInstance().queueTimingResult(tableName, builder.build());
+                APITestHarness.getInstance().queueTimingResult(builder.build());
             }
             // else {
             // APITestHarness.getInstance().getTPMonitor().addToMap(TPSMonitor.NOT_LOGGED_KEY, req);

@@ -38,11 +38,22 @@ public class RestResultsReporter implements ResultsReporter {
      * @{inheritDoc
      */
     @Override
-    public void sendTpsResults(String jobId, String instanceId, TPSInfoContainer container) {
-        try {
-            getClient().postTpsResults(jobId, instanceId, container);
-        } catch (Exception e) {
-            LOG.error("Error storing TPS: " + e, e);
+    public void sendTpsResults(final String jobId, final String instanceId, final TPSInfoContainer container,
+            boolean async) {
+        Runnable task = new Runnable() {
+            public void run() {
+                try {
+                    getClient().postTpsResults(jobId, instanceId, container);
+                } catch (Exception t) {
+                    LOG.error("Error adding results: " + t.getMessage(), t);
+                    throw new RuntimeException(t);
+                }
+            }
+        };
+        if (async) {
+            EXECUTOR.execute(task);
+        } else {
+            task.run();
         }
     }
 

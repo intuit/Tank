@@ -51,6 +51,16 @@
     <mail.smtp.port>25</mail.smtp.port>
     <from-email>do_not_reply@mydomain.com</from-email>
   </mail>
+  
+  <reporting>
+  <!-- Provider that uses key value database. currently DynamoDB -->
+    <provider className="com.intuit.tank.reporting.db.DatabaseResultsReporter"/>
+    
+    <!-- Use this for Rest reporting directly to the controller. 
+    Only for standalone or all in one. will over tax the controller if used for large load -->
+    <!-- <provider className="com.intuit.tank.reporting.rest.RestResultsReporter" /> -->
+  
+  </reporting>
 
   <agent-config>
     <!-- Times used when calculating estimated run time -->

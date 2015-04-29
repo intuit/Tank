@@ -13,9 +13,7 @@ package com.intuit.tank.harness;
  * #L%
  */
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -23,17 +21,10 @@ import com.intuit.tank.CloudServiceClient;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
 import com.intuit.tank.harness.logging.LogUtil;
-import com.intuit.tank.persistence.databases.DataBaseFactory;
-import com.intuit.tank.persistence.databases.DatabaseKeys;
-import com.intuit.tank.reporting.api.TPSInfo;
 import com.intuit.tank.reporting.api.TPSInfoContainer;
-import com.intuit.tank.reporting.databases.Attribute;
-import com.intuit.tank.reporting.databases.IDatabase;
-import com.intuit.tank.reporting.databases.Item;
 import com.intuit.tank.vm.agent.messages.WatsAgentStatusResponse;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
-import com.intuit.tank.vm.common.util.ReportUtil;
 
 public class APIMonitor implements Runnable {
 
@@ -46,7 +37,6 @@ public class APIMonitor implements Runnable {
     private static CloudServiceClient client;
     private static CloudVmStatus status;
     private long reportInterval = APIMonitor.MIN_REPORT_TIME;
-    private String tpsTableName;
 
     public APIMonitor(CloudVmStatus vmStatus) {
         status = vmStatus;
@@ -54,8 +44,6 @@ public class APIMonitor implements Runnable {
             client = new CloudServiceClient(APITestHarness.getInstance().getTankConfig().getControllerBase());
             reportInterval = Math.max(APITestHarness.getInstance().getTankConfig().getAgentConfig()
                     .getStatusReportIntervalMilis(reportInterval), MIN_REPORT_TIME);
-            tpsTableName = APITestHarness.getInstance().getTankConfig().getInstanceName() + "_tps";
-            DataBaseFactory.getDatabase().createTable(tpsTableName);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -85,54 +73,10 @@ public class APIMonitor implements Runnable {
     }
 
     private void sendTps(final TPSInfoContainer tpsInfo) {
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    IDatabase db = DataBaseFactory.getDatabase();
-                    List<Item> items = new ArrayList<Item>();
-                    for (TPSInfo info : tpsInfo.getTpsInfos()) {
-                        Item item = createItem(info);
-                        items.add(item);
-                    }
-                    LOG.info("Sending " + items.size() + " to TPS Table " + tpsTableName);
-                    db.addItems(tpsTableName, items, false);
-                } catch (Exception e) {
-                    LOG.error("Error storing TPS: " + e, e);
-                }
-            }
-        });
-        t.setDaemon(true);
-        // t.setPriority(Thread.NORM_PRIORITY - 2);
-        t.start();
+        APITestHarness.getInstance().getResultsReporter()
+                .sendTpsResults(APITestHarness.getInstance().getAgentRunData().getJobId(), APITestHarness
+                        .getInstance().getAgentRunData().getInstanceId(), tpsInfo, true);
 
-    }
-
-    private Item createItem(TPSInfo info) {
-        Item item = new Item();
-        List<Attribute> attributes = new ArrayList<Attribute>();
-        String ts = ReportUtil.getTimestamp(info.getTimestamp());
-        addAttribute(attributes, DatabaseKeys.TIMESTAMP_KEY.getShortKey(), ts);
-        addAttribute(attributes, DatabaseKeys.JOB_ID_KEY.getShortKey(), APITestHarness.getInstance().getAgentRunData()
-                .getJobId());
-        addAttribute(attributes, DatabaseKeys.INSTANCE_ID_KEY.getShortKey(), APITestHarness.getInstance()
-                .getInstanceId());
-        addAttribute(attributes, DatabaseKeys.LOGGING_KEY_KEY.getShortKey(), info.getKey());
-        addAttribute(attributes, DatabaseKeys.PERIOD_KEY.getShortKey(), Integer.toString(info.getPeriodInSeconds()));
-        addAttribute(attributes, DatabaseKeys.TRANSACTIONS_KEY.getShortKey(), Integer.toString(info.getTransactions()));
-        item.setAttributes(attributes);
-        String name = APITestHarness.getInstance().getInstanceId()
-                + "_" + APITestHarness.getInstance().getAgentRunData().getJobId()
-                + "_" + info.getKey()
-                + "_" + ts;
-        item.setName(name);
-        return item;
-    }
-
-    public static void addAttribute(List<Attribute> attributes, String key, String value) {
-        if (value == null) {
-            value = "";
-        }
-        attributes.add(new Attribute(key, value));
     }
 
     /**

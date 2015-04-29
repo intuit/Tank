@@ -25,8 +25,10 @@ public interface ResultsReporter {
      *            the instance id
      * @param container
      *            the tps infos
+     * @param async
+     *            true if the job should be run asynchronpously
      */
-    public void sendTpsResults(String jobId, String instanceId, TPSInfoContainer container);
+    public void sendTpsResults(String jobId, String instanceId, TPSInfoContainer container, boolean async);
 
     /**
      * Send the timing results to storage.
@@ -37,10 +39,10 @@ public interface ResultsReporter {
      *            the instance id
      * @param results
      *            the reulsts
-     * @param asynch
+     * @param async
      *            true if the job should be run asynchronpously
      */
-    public void sendTimingResults(String jobId, String instanceId, List<TankResult> results, boolean asynch);
+    public void sendTimingResults(String jobId, String instanceId, List<TankResult> results, boolean async);
 
     /**
      * configure this service from config file.
