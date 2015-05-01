@@ -52,11 +52,12 @@ import au.com.bytecode.opencsv.CSVWriter;
 import com.intuit.tank.api.service.v1.report.ReportService;
 import com.intuit.tank.dao.PeriodicDataDao;
 import com.intuit.tank.dao.SummaryDataDao;
-import com.intuit.tank.persistence.databases.DataBaseFactory;
 import com.intuit.tank.project.PeriodicData;
 import com.intuit.tank.project.SummaryData;
-import com.intuit.tank.reporting.databases.IDatabase;
-import com.intuit.tank.reporting.databases.TankDatabaseType;
+import com.intuit.tank.reporting.api.TPSReportingPackage;
+import com.intuit.tank.reporting.factory.ReportingFactory;
+import com.intuit.tank.reporting.local.ResultsStorage;
+import com.intuit.tank.results.TankResultPackage;
 import com.intuit.tank.service.util.AuthUtil;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.common.util.ReportUtil;
@@ -77,7 +78,7 @@ public class ReportServiceV1 implements ReportService {
     @Context
     private ServletContext servletContext;
 
-    private static final FastDateFormat fmt = FastDateFormat.getInstance(ReportService.DATE_FORMAT,
+    private static final FastDateFormat FMT = FastDateFormat.getInstance(ReportService.DATE_FORMAT,
             TimeZone.getTimeZone("PST"));
 
     /**
@@ -97,18 +98,22 @@ public class ReportServiceV1 implements ReportService {
     public Response getFile(String filePath, String start) {
         ResponseBuilder responseBuilder = Response.ok();
         try {
-            String rootDir = "logs";
-            final File f = new File(rootDir, filePath);
-            if (!f.exists()) {
-                responseBuilder.status(Status.NOT_FOUND);
-            } else if (!f.isFile()) {
+            if (filePath.contains("..") || filePath.startsWith("/")) {
                 responseBuilder.status(Status.BAD_REQUEST);
-            } else if (!f.canRead()) {
-                responseBuilder.status(Status.FORBIDDEN);
             } else {
-                long total = f.length();
-                StreamingOutput streamer = FileReader.getFileStreamingOutput(f, total, start);
-                responseBuilder.header("X-total-Content-Length", total).entity(streamer);
+                String rootDir = "logs";
+                final File f = new File(rootDir, filePath);
+                if (!f.exists()) {
+                    responseBuilder.status(Status.NOT_FOUND);
+                } else if (!f.isFile()) {
+                    responseBuilder.status(Status.BAD_REQUEST);
+                } else if (!f.canRead()) {
+                    responseBuilder.status(Status.FORBIDDEN);
+                } else {
+                    long total = f.length();
+                    StreamingOutput streamer = FileReader.getFileStreamingOutput(f, total, start);
+                    responseBuilder.header("X-total-Content-Length", total).entity(streamer);
+                }
             }
         } catch (Exception e) {
             LOG.error("Error getting object: " + e, e);
@@ -125,34 +130,7 @@ public class ReportServiceV1 implements ReportService {
         AuthUtil.checkAdmin(servletContext);
         ResponseBuilder responseBuilder = Response.noContent();
         try {
-            IDatabase db = DataBaseFactory.getDatabase();
-            String tableName = db.getDatabaseName(TankDatabaseType.timing, jobId);
-            db.deleteForJob(tableName, jobId, true);
-        } catch (RuntimeException e) {
-            LOG.error("Error deleting timing data: " + e, e);
-            responseBuilder.status(Status.INTERNAL_SERVER_ERROR);
-            responseBuilder.entity("An error occurred while deleting the timing data.");
-        }
-        return responseBuilder.build();
-    }
-
-    /**
-     * @{inheritDoc
-     */
-    @Override
-    public Response processTimingLegacy(final String jobId) {
-        ResponseBuilder responseBuilder = Response.ok();
-        try {
-            Thread t = new Thread(new Runnable() {
-                public void run() {
-                    IDatabase db = DataBaseFactory.getDatabase();
-                    String tableName = "timing_job_" + jobId;
-                    SummaryReportRunner.generateSummary(tableName, jobId, db);
-                }
-            });
-            t.setDaemon(true);
-            t.start();
-            responseBuilder.entity("Generating legacysummary data for job " + jobId);
+            ReportingFactory.getResultsReader().deleteTimingForJob(jobId, true);
         } catch (RuntimeException e) {
             LOG.error("Error deleting timing data: " + e, e);
             responseBuilder.status(Status.INTERNAL_SERVER_ERROR);
@@ -170,9 +148,7 @@ public class ReportServiceV1 implements ReportService {
         try {
             Thread t = new Thread(new Runnable() {
                 public void run() {
-                    IDatabase db = DataBaseFactory.getDatabase();
-                    String tableName = db.getDatabaseName(TankDatabaseType.timing, jobId);
-                    SummaryReportRunner.generateSummary(tableName, jobId, db);
+                    SummaryReportRunner.generateSummary(jobId);
                 }
             });
             t.setDaemon(true);
@@ -194,9 +170,11 @@ public class ReportServiceV1 implements ReportService {
         ResponseBuilder responseBuilder = Response.ok();
         TankConfig tankConfig = new TankConfig();
         // AuthUtil.checkLoggedIn(servletContext);
-        File csvFile = new File(tankConfig.getTimingDir() , DataBaseFactory.getDatabase().getDatabaseName(TankDatabaseType.timing, jobId) + "_" + jobId + ".csv.gz");
+        File csvFile = new File(tankConfig.getTimingDir(), "timing_" + new TankConfig().getInstanceName()
+                + "_" + jobId + ".csv.gz");
         if (!csvFile.exists()) {
-            csvFile = new File(tankConfig.getTimingDir(), DataBaseFactory.getDatabase().getDatabaseName(TankDatabaseType.timing, jobId) + "_" + jobId + ".csv");
+            csvFile = new File(tankConfig.getTimingDir(), "timing_" + new TankConfig().getInstanceName()
+                    + "_" + jobId + ".csv");
         }
         if (csvFile.exists()) {
             final File finalCSV = csvFile;
@@ -219,7 +197,8 @@ public class ReportServiceV1 implements ReportService {
                     }
                 }
             };
-            String filename = DataBaseFactory.getDatabase().getDatabaseName(TankDatabaseType.timing, jobId) + "_" + jobId
+            String filename = "timing_" + new TankConfig().getInstanceName()
+                    + "_" + jobId
                     + ".csv";
 
             responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
@@ -346,7 +325,7 @@ public class ReportServiceV1 implements ReportService {
         list.add(ReportUtil.DOUBLE_NF.format(item.getMin()));
         list.add(ReportUtil.DOUBLE_NF.format(item.getMax()));
         list.add(ReportUtil.INT_NF.format(period));
-        list.add(fmt.format(item.getTimestamp()));
+        list.add(FMT.format(item.getTimestamp()));
         return list.toArray(new String[list.size()]);
     }
 
@@ -380,7 +359,7 @@ public class ReportServiceV1 implements ReportService {
                 }
             }
         };
-        String filename = DataBaseFactory.getDatabase().getDatabaseName(TankDatabaseType.timing_summary, jobId)
+        String filename = "timing_" + new TankConfig().getInstanceName() + "_" + jobId
                 + ".csv";
 
         responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
@@ -538,6 +517,45 @@ public class ReportServiceV1 implements ReportService {
         return responseBuilder.build();
     }
 
+    @Override
+    public Response setTPSInfos(final TPSReportingPackage reportingPackage) {
+        ResponseBuilder responseBuilder = null;
+        try {
+            new Thread(new Runnable() {
+                public void run() {
+                    ResultsStorage.instance().storeTpsResults(reportingPackage.getJobId(),
+                            reportingPackage.getInstanceId(),
+                            reportingPackage.getContainer());
+                }
+            }).start();
+            responseBuilder = Response.status(Status.ACCEPTED);
+
+        } catch (Exception e) {
+            LOG.error("Error determining status: " + e.getMessage(), e);
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        return responseBuilder.build();
+    }
+
+    @Override
+    public Response sendTimingResults(final TankResultPackage results) {
+        ResponseBuilder responseBuilder = null;
+        try {
+            new Thread(new Runnable() {
+                public void run() {
+                    ResultsStorage.instance().storeTimingResults(results.getJobId(), results.getInstanceId(),
+                            results.getResults());
+                }
+            }).start();
+            responseBuilder = Response.status(Status.ACCEPTED);
+
+        } catch (Exception e) {
+            LOG.error("Error determining status: " + e.getMessage(), e);
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        return responseBuilder.build();
+    }
+
     private void writeRow(StringBuilder out, String[] line, String cell, String bgColor) {
         out.append("<tr style='background-color: " + bgColor + ";'>");
         for (String s : line) {
@@ -548,8 +566,15 @@ public class ReportServiceV1 implements ReportService {
         out.append("</tr>");
     }
 
+    /**
+     * 
+     * ReportServiceV1 DataAverager
+     * 
+     * @author dangleton
+     * 
+     */
     private static class DataAverager {
-        List<PeriodicData> l = new ArrayList<PeriodicData>();
+        private List<PeriodicData> l = new ArrayList<PeriodicData>();
         private int period;
 
         DataAverager(int period) {

@@ -128,7 +128,7 @@ public class ReportUtil {
         sdf.setTimeZone(TimeZone.getTimeZone("PST"));
         return sdf.format(date);
     }
-    
+
     public static Date parseTimestamp(String dateString) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         sdf.setTimeZone(TimeZone.getTimeZone("PST"));

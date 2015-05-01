@@ -14,9 +14,11 @@ package com.intuit.tank.api.service.v1.report;
  */
 
 import javax.annotation.Nonnull;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -26,6 +28,9 @@ import javax.ws.rs.core.Response;
 
 import org.codehaus.enunciate.jaxrs.TypeHint;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
+
+import com.intuit.tank.reporting.api.TPSReportingPackage;
+import com.intuit.tank.results.TankResultPackage;
 
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved
@@ -52,6 +57,8 @@ public interface ReportService {
     public static final String METHOD_PROCESS_TIMING = "/processs/timing";
     public static final String METHOD_PROCESS_TIMING_LEGACY = "/process/timing/legacy";
     public static final String METHOD_TIMING = "/timing";
+    public static final String METHOD_TPS_INFO = "/report/tps-info";
+    public static final String METHOD_TIMING_RESULTS = "/report/timing-results";
 
     public static final String DATE_FORMAT = "yyyy.MM.dd-HH:mm:ss.S";
 
@@ -65,6 +72,24 @@ public interface ReportService {
     @GET
     @Nonnull
     public String ping();
+    
+    /**
+     * 
+     * @param reportingPackage
+     */
+    @Path(ReportService.METHOD_TPS_INFO)
+    @POST
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public Response setTPSInfos(@Nonnull TPSReportingPackage reportingPackage);
+    
+    /**
+     * 
+     * @param reportingPackage
+     */
+    @Path(ReportService.METHOD_TIMING_RESULTS)
+    @POST
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public Response sendTimingResults(@Nonnull TankResultPackage results);
 
     /**
      * Gets all MetricDescriptors and returns them in a list.
@@ -88,17 +113,7 @@ public interface ReportService {
     @TypeHint(String.class)
     public Response processSummary(@PathParam("jobId") String jobId);
 
-    /**
-     * Test method to test if the service is up.
-     * 
-     * @return non-null String value.
-     */
-    @Path(ReportService.METHOD_PROCESS_TIMING_LEGACY + "/{jobId}")
-    @Produces({ MediaType.TEXT_PLAIN })
-    @GET
-    @Nonnull
-    @TypeHint(String.class)
-    public Response processTimingLegacy(@PathParam("jobId") String jobId);
+   
 
     /**
      * Retrieves the .

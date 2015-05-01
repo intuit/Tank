@@ -32,15 +32,14 @@ import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.PeriodicDataDao;
 import com.intuit.tank.dao.SummaryDataDao;
 import com.intuit.tank.persistence.databases.BucketDataItem;
-import com.intuit.tank.persistence.databases.DataBaseFactory;
 import com.intuit.tank.persistence.databases.MetricsCalculator;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.PeriodicData;
 import com.intuit.tank.project.PeriodicDataBuilder;
 import com.intuit.tank.project.SummaryData;
 import com.intuit.tank.project.SummaryDataBuilder;
-import com.intuit.tank.reporting.databases.IDatabase;
-import com.intuit.tank.reporting.databases.TankDatabaseType;
+import com.intuit.tank.reporting.api.ResultsReader;
+import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.common.util.MethodTimer;
 import com.intuit.tank.vm.event.JobEvent;
@@ -77,11 +76,8 @@ public class SummaryReportRunner implements Runnable {
      */
     @Override
     public void run() {
-        IDatabase db = DataBaseFactory.getDatabase();
         String jobId = jobEvent.getJobId();
-        String tableName = db.getDatabaseName(TankDatabaseType.timing,
-                jobEvent.getJobId());
-        generateSummary(tableName, jobEvent.getJobId(), db);
+        generateSummary(jobEvent.getJobId());
         jobEventProducer.fire(new JobEvent(jobId, getSummaryEventMessage(),
                 JobLifecycleEvent.SUMMARY_REPORT_FINISHED));
     }
@@ -106,14 +102,12 @@ public class SummaryReportRunner implements Runnable {
      * @param db
      * @param tableName
      */
-    public static void generateSummary(String tableName, String jobIdString,
-            IDatabase db) {
+    public static void generateSummary(String jobIdString) {
         synchronized (jobIdString) {
-            LOG.info("generateSummary: job " + jobIdString + " checking table "
-                    + tableName);
-            if (db.hasJobData(tableName, jobIdString)) {
-                LOG.info("Generating Summary Report for job " + jobIdString
-                        + "...");
+            LOG.info("generateSummary: job " + jobIdString);
+            ResultsReader resultsReader = ReportingFactory.getResultsReader();
+            if (resultsReader.hasTimingData(jobIdString)) {
+                LOG.info("Generating Summary Report for job " + jobIdString + "...");
                 SummaryDataDao dao = new SummaryDataDao();
                 int jobId = Integer.parseInt(jobIdString);
                 if (dao.findByJobId(jobId).size() == 0) {
@@ -122,8 +116,7 @@ public class SummaryReportRunner implements Runnable {
                     MetricsCalculator metricsCalculator = new MetricsCalculator();
                     JobInstance jobInstance = new JobInstanceDao()
                             .findById(Integer.valueOf(jobIdString));
-                    metricsCalculator.retrieveAndCalculateTimingData(tableName,
-                            jobIdString,
+                    metricsCalculator.retrieveAndCalculateTimingData(jobIdString,
                             calculateSteadyStateStart(jobInstance),
                             calculateSteadyStateEnd(jobInstance));
                     mt.markAndLog("calculated timing data");
@@ -179,7 +172,7 @@ public class SummaryReportRunner implements Runnable {
                         + " has no data.");
             }
             // now delete timing data
-            db.deleteForJob(tableName, jobIdString, true);
+            resultsReader.deleteTimingForJob(jobIdString, true);
         }
     }
 

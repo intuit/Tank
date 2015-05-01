@@ -24,6 +24,12 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>reporting-rest</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>script-engine</artifactId>
       <version>${project.version}</version>
     </dependency>

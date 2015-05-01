@@ -42,18 +42,13 @@ import com.intuit.tank.AgentServiceClient;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.VMStatus;
 import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
-import com.intuit.tank.harness.AmazonUtil;
-import com.intuit.tank.harness.CloudMetaDataType;
-import com.intuit.tank.harness.HostInfo;
-import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
-import com.intuit.tank.persistence.databases.DataBaseFactory;
-import com.intuit.tank.reporting.databases.IDatabase;
-import com.intuit.tank.reporting.databases.TankDatabaseType;
+import com.intuit.tank.reporting.api.ResultsReporter;
+import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.results.TankResult;
 import com.intuit.tank.runner.TestPlanRunner;
 import com.intuit.tank.vm.agent.messages.AgentData;
@@ -94,7 +89,6 @@ public class APITestHarness {
     private WatsAgentCommand cmd = WatsAgentCommand.run;
     private Thread[] sessionThreads;
     private CountDownLatch doneSignal;
-    private String loggingDBTable;
     private boolean loggedSimTime;
     private int currentUsers = 0;
     private Vector<TankResult> results = new Vector<TankResult>();
@@ -104,6 +98,7 @@ public class APITestHarness {
     private FlowController flowControllerTemplate;
     private Map<Long, FlowController> controllerMap = new HashMap<Long, FlowController>();
     private TPSMonitor tpsMonitor;
+    private ResultsReporter resultsReporter;
 
     static {
         try {
@@ -147,6 +142,7 @@ public class APITestHarness {
 
     private APITestHarness() {
         tankConfig = new TankConfig();
+        resultsReporter = ReportingFactory.getResultsReporter();
         validationFailures = new ValidationStatus();
         setFlowControllerTemplate(new DefaultFlowController());
         agentRunData = new AgentRunData();
@@ -247,6 +243,7 @@ public class APITestHarness {
             agentRunData.setActiveProfile(AmazonUtil.getLoggingProfile());
         }
         agentRunData.setMachineName(instanceId);
+        agentRunData.setInstanceId(instanceId);
 
         if (controllerBase != null) {
             startHttp(controllerBase);
@@ -307,7 +304,7 @@ public class APITestHarness {
                     try {
                         Thread.sleep(200);
                     } catch (InterruptedException e) {
-                     //ignore   
+                        // ignore
                     }
                 } else {
                     LOG.error("Error getting amazon host. maybe local.");
@@ -487,29 +484,6 @@ public class APITestHarness {
 
     }
 
-    public String getOrCreateLoggingDBTable() {
-        if (loggingDBTable == null) {
-            createLoggingDb();
-        }
-        return loggingDBTable;
-    }
-
-    /**
-     * 
-     */
-    public synchronized void createLoggingDb() {
-        if (loggingDBTable == null && logTiming) {
-            try {
-                IDatabase db = DataBaseFactory.getDatabase();
-                String tableName = db.getDatabaseName(TankDatabaseType.timing, agentRunData.getJobId());
-                db.createTable(tableName);
-                loggingDBTable = tableName;
-            } catch (Exception e) {
-                logTiming = false;
-            }
-        }
-    }
-
     /**
      * 
      */
@@ -687,7 +661,7 @@ public class APITestHarness {
                     APIMonitor.setJobStatus(JobStatus.Completed);
                     APIMonitor.setDoMonitor(false);
                 }
-                sendBatchToDB(loggingDBTable, false);
+                sendBatchToDB(false);
                 // sleep for 60 seconds to let wily agent clear any data
                 try {
                     Thread.sleep(60000);
@@ -879,24 +853,24 @@ public class APITestHarness {
         return cmd;
     }
 
-    public void queueTimingResult(String tableName, TankResult result) {
-        if (tableName != null && logTiming) {
+    public void queueTimingResult(TankResult result) {
+        if (logTiming) {
             results.add(result);
             if (results.size() >= BATCH_SIZE) {
-                sendBatchToDB(tableName, true);
+                sendBatchToDB(true);
             }
         }
     }
 
-    private void sendBatchToDB(String tableName, boolean asynch) {
-        if (results.size() != 0 && tableName != null && logTiming) {
+    private void sendBatchToDB(boolean asynch) {
+        if (results.size() != 0 && logTiming) {
             final List<TankResult> l = new ArrayList<TankResult>();
             synchronized (results) {
                 // logger.info("sendBatchToDB(" + tableName + "); sending " + results.size() + " results.");
                 l.addAll(results);
                 results.clear();
             }
-            DataBaseFactory.getDatabase().addTimingResults(tableName, l, asynch);
+            resultsReporter.sendTimingResults(getAgentRunData().getJobId(), getAgentRunData().getInstanceId(), l, false);
         }
     }
 
@@ -947,7 +921,13 @@ public class APITestHarness {
 
     public void setDebug(boolean b) {
         DEBUG = true;
+    }
 
+    /**
+     * @return the resultsReporter
+     */
+    public ResultsReporter getResultsReporter() {
+        return resultsReporter;
     }
 
 }

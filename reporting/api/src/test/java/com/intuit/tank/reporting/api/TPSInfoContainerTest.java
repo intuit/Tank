@@ -1,4 +1,4 @@
-package com.intuit.tank.api.model.v1.cloud;
+package com.intuit.tank.reporting.api;
 
 /*
  * #%L
@@ -13,17 +13,14 @@ package com.intuit.tank.api.model.v1.cloud;
  * #L%
  */
 
-import java.text.DateFormat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
-
-import com.intuit.tank.api.model.v1.cloud.TPSInfo;
-import com.intuit.tank.api.model.v1.cloud.TPSInfoContainer;
-
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  * The class <code>TPSInfoContainerTest</code> contains tests for the class <code>{@link TPSInfoContainer}</code>.
