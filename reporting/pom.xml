@@ -18,7 +18,7 @@
     <module>db</module>
     <module>api</module>
     <module>rest</module>
-
+    <module>local</module>
   </modules>
 
   <dependencies>

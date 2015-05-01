@@ -36,6 +36,7 @@ import com.intuit.tank.reporting.api.Namespace;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TankResultType", namespace = Namespace.NAMESPACE_V1, propOrder = {
         "jobId",
+        "instanceId",
         "responseTime",
         "statusCode",
         "responseSize",
@@ -49,6 +50,9 @@ public class TankResult implements Serializable {
 
     @XmlElement(name = "jobId", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private String jobId;
+
+    @XmlElement(name = "instanceId", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
+    private String instanceId;
 
     @XmlElement(name = "responseTime", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int responseTime;
@@ -81,6 +85,21 @@ public class TankResult implements Serializable {
      */
     public void setJobId(String jobId) {
         this.jobId = jobId;
+    }
+
+    /**
+     * @return the instanceId
+     */
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    /**
+     * @param instanceId
+     *            the instanceId to set
+     */
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
     }
 
     public int getResponseTime() {

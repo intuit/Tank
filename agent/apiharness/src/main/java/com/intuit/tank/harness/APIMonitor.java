@@ -133,7 +133,7 @@ public class APIMonitor implements Runnable {
                 status.setUserDetails(APITestHarness.getInstance().getUserTracker().getSnapshot());
                 client.setVmStatus(status.getInstanceId(), status);
             } catch (Exception e) {
-                LOG.error("Error sending status to controller: " + e.toString());
+                LOG.error("Error sending status to controller: " + e.toString(), e);
             }
         }
     }

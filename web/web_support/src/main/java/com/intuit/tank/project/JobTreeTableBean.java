@@ -17,7 +17,6 @@ package com.intuit.tank.project;
  */
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -60,19 +59,14 @@ import com.intuit.tank.job.ActJobNodeBean;
 import com.intuit.tank.job.JobNodeBean;
 import com.intuit.tank.job.ProjectNodeBean;
 import com.intuit.tank.job.VMNodeBean;
-import com.intuit.tank.persistence.databases.DataBaseFactory;
-import com.intuit.tank.persistence.databases.DatabaseKeys;
 import com.intuit.tank.prefs.TablePreferences;
 import com.intuit.tank.prefs.TableViewState;
 import com.intuit.tank.qualifier.Modified;
+import com.intuit.tank.reporting.api.ResultsReader;
 import com.intuit.tank.reporting.api.TPSInfo;
-import com.intuit.tank.reporting.databases.Attribute;
-import com.intuit.tank.reporting.databases.IDatabase;
-import com.intuit.tank.reporting.databases.Item;
+import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.util.ExceptionHandler;
 import com.intuit.tank.vm.common.util.MethodTimer;
-import com.intuit.tank.vm.common.util.ReportUtil;
-import com.intuit.tank.vm.settings.TankConfig;
 
 /**
  * JobTreeTableBean
@@ -123,13 +117,11 @@ public abstract class JobTreeTableBean implements Serializable {
 
     protected TablePreferences tablePrefs;
     protected TableViewState tableState = new TableViewState();
-    private String tpsTableName;
 
     @PostConstruct
     public void init() {
         tablePrefs = new TablePreferences(userPrefs.getPreferences().getJobsTableColumns());
         tablePrefs.registerListener(userPrefs);
-        tpsTableName = new TankConfig().getInstanceName() + "_tps";
     }
 
     /**
@@ -242,7 +234,7 @@ public abstract class JobTreeTableBean implements Serializable {
         chartModel = null;
         if (currentJobInstance != null && currentJobInstance.getStatusDetailMap() != null) {
             chartModel = new TrackingCartesianChartModel();
-            
+
             Map<String, ChartSeries> seriesMap = new HashMap<String, ChartSeries>();
             Map<Date, List<UserDetail>> detailMap = currentJobInstance.getStatusDetailMap();
             List<Date> dateList = new ArrayList<Date>(detailMap.keySet());
@@ -302,9 +294,9 @@ public abstract class JobTreeTableBean implements Serializable {
                             seriesMap.put(info.getKey(), series);
                         }
                         series.set(d.getTime(), info.getTPS());
-                        total += info.getTPS();
-                        tpsChartModel.addDate(d);
                     }
+                    total += info.getTPS();
+                    tpsChartModel.addDate(d);
                 }
                 totalSeries.set(d.getTime(), total);
             }
@@ -323,8 +315,6 @@ public abstract class JobTreeTableBean implements Serializable {
     private Map<Date, Map<String, TPSInfo>> getTpsMap() {
         Map<Date, Map<String, TPSInfo>> ret = new HashMap<Date, Map<String, TPSInfo>>();
         try {
-            IDatabase db = DataBaseFactory.getDatabase();
-            StringBuilder query = new StringBuilder();
             JobNodeBean vmInstance = null;
             List<JobNodeBean> jobNodes = new ArrayList<JobNodeBean>();
             if (currentJobInstance.getType().equalsIgnoreCase("project")) {
@@ -337,59 +327,18 @@ public abstract class JobTreeTableBean implements Serializable {
             } else if (currentJobInstance.getType().equalsIgnoreCase("vm")) {
                 vmInstance = currentJobInstance;
             }
+            ResultsReader resultsReader = ReportingFactory.getResultsReader();
             if (!jobNodes.isEmpty()) {
-                query.append(DatabaseKeys.JOB_ID_KEY.getShortKey()).append(" in(");
-                boolean insertComma = false;
+                List<String> jobs = new ArrayList<String>();
                 for (JobNodeBean jobNode : jobNodes) {
-                    if (insertComma) {
-                        query.append(",");
-                    }
-                    query.append("'").append(jobNode.getJobId()).append("'");
-                    insertComma = true;
+                    jobs.add(jobNode.getJobId());
                 }
-                query.append(") ");
+                ret = resultsReader.getTpsMapForJob(jobs.toArray(new String[jobs.size()]));
             }
             if (vmInstance != null) {
-                query.append(DatabaseKeys.JOB_ID_KEY.getShortKey()).append(" = ").append("'").append(vmInstance.getJobId())
-                        .append("' ").append(" and ").append(DatabaseKeys.INSTANCE_ID_KEY.getShortKey()).append(" = ")
-                        .append("'").append(vmInstance.getId()).append("' ");
+                ret = resultsReader.getTpsMapForInstance(vmInstance.getJobId(), vmInstance.getId());
             }
-            // run the query
-            List<Item> items = db.getItems(tpsTableName, null, null, null, query.toString());
-            for (Item item : items) {
-                String loggingKey = null;
-                Date timestamp = null;
-                int transactions = 0;
-                int period = 0;
 
-                for (Attribute att : item.getAttributes()) {
-                    if (DatabaseKeys.LOGGING_KEY_KEY.getShortKey().equals(att.getName())) {
-                        loggingKey = att.getValue();
-                    } else if (DatabaseKeys.TIMESTAMP_KEY.getShortKey().equals(att.getName())) {
-                        try {
-                            timestamp = ReportUtil.parseTimestamp(att.getValue());
-                        } catch (ParseException e) {
-                            LOG.error("Error processing timestamp " + att.getValue() + ":" + e);
-                            continue;
-                        }
-                    } else if (DatabaseKeys.TRANSACTIONS_KEY.getShortKey().equals(att.getName())) {
-                        transactions = Integer.parseInt(att.getValue());
-                    } else if (DatabaseKeys.PERIOD_KEY.getShortKey().equals(att.getName())) {
-                        period = Integer.parseInt(att.getValue());
-                    }
-                }
-                TPSInfo info = new TPSInfo(timestamp, loggingKey, transactions, period);
-                Map<String, TPSInfo> map = ret.get(timestamp);
-                if (map == null) {
-                    map = new HashMap<String, TPSInfo>();
-                    ret.put(timestamp, map);
-                }
-                TPSInfo existing = map.get(loggingKey);
-                if (existing != null) {
-                    info = existing.add(info);
-                }
-                map.put(loggingKey, info);
-            }
         } catch (Exception e) {
             LOG.error("Error getting TPS map.");
         }

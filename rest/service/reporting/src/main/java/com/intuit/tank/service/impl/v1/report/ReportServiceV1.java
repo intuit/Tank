@@ -52,12 +52,11 @@ import au.com.bytecode.opencsv.CSVWriter;
 import com.intuit.tank.api.service.v1.report.ReportService;
 import com.intuit.tank.dao.PeriodicDataDao;
 import com.intuit.tank.dao.SummaryDataDao;
-import com.intuit.tank.persistence.databases.DataBaseFactory;
 import com.intuit.tank.project.PeriodicData;
 import com.intuit.tank.project.SummaryData;
 import com.intuit.tank.reporting.api.TPSReportingPackage;
-import com.intuit.tank.reporting.databases.IDatabase;
-import com.intuit.tank.reporting.databases.TankDatabaseType;
+import com.intuit.tank.reporting.factory.ReportingFactory;
+import com.intuit.tank.reporting.local.ResultsStorage;
 import com.intuit.tank.results.TankResultPackage;
 import com.intuit.tank.service.util.AuthUtil;
 import com.intuit.tank.vm.common.TankConstants;
@@ -131,9 +130,7 @@ public class ReportServiceV1 implements ReportService {
         AuthUtil.checkAdmin(servletContext);
         ResponseBuilder responseBuilder = Response.noContent();
         try {
-            IDatabase db = DataBaseFactory.getDatabase();
-            String tableName = db.getDatabaseName(TankDatabaseType.timing, jobId);
-            db.deleteForJob(tableName, jobId, true);
+            ReportingFactory.getResultsReader().deleteTimingForJob(jobId, true);
         } catch (RuntimeException e) {
             LOG.error("Error deleting timing data: " + e, e);
             responseBuilder.status(Status.INTERNAL_SERVER_ERROR);
@@ -151,9 +148,7 @@ public class ReportServiceV1 implements ReportService {
         try {
             Thread t = new Thread(new Runnable() {
                 public void run() {
-                    IDatabase db = DataBaseFactory.getDatabase();
-                    String tableName = db.getDatabaseName(TankDatabaseType.timing, jobId);
-                    SummaryReportRunner.generateSummary(tableName, jobId, db);
+                    SummaryReportRunner.generateSummary(jobId);
                 }
             });
             t.setDaemon(true);
@@ -175,12 +170,10 @@ public class ReportServiceV1 implements ReportService {
         ResponseBuilder responseBuilder = Response.ok();
         TankConfig tankConfig = new TankConfig();
         // AuthUtil.checkLoggedIn(servletContext);
-        File csvFile = new File(tankConfig.getTimingDir(), DataBaseFactory.getDatabase().getDatabaseName(
-                TankDatabaseType.timing, jobId)
+        File csvFile = new File(tankConfig.getTimingDir(), "timing_" + new TankConfig().getInstanceName()
                 + "_" + jobId + ".csv.gz");
         if (!csvFile.exists()) {
-            csvFile = new File(tankConfig.getTimingDir(), DataBaseFactory.getDatabase().getDatabaseName(
-                    TankDatabaseType.timing, jobId)
+            csvFile = new File(tankConfig.getTimingDir(), "timing_" + new TankConfig().getInstanceName()
                     + "_" + jobId + ".csv");
         }
         if (csvFile.exists()) {
@@ -204,8 +197,8 @@ public class ReportServiceV1 implements ReportService {
                     }
                 }
             };
-            String filename = DataBaseFactory.getDatabase().getDatabaseName(TankDatabaseType.timing, jobId) + "_"
-                    + jobId
+            String filename = "timing_" + new TankConfig().getInstanceName()
+                    + "_" + jobId
                     + ".csv";
 
             responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
@@ -366,7 +359,7 @@ public class ReportServiceV1 implements ReportService {
                 }
             }
         };
-        String filename = DataBaseFactory.getDatabase().getDatabaseName(TankDatabaseType.timing_summary, jobId)
+        String filename = "timing_" + new TankConfig().getInstanceName() + "_" + jobId
                 + ".csv";
 
         responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
@@ -525,10 +518,16 @@ public class ReportServiceV1 implements ReportService {
     }
 
     @Override
-    public Response setTPSInfos(TPSReportingPackage reportingPackage) {
+    public Response setTPSInfos(final TPSReportingPackage reportingPackage) {
         ResponseBuilder responseBuilder = null;
         try {
-            // TODO: DA implement
+            new Thread(new Runnable() {
+                public void run() {
+                    ResultsStorage.instance().storeTpsResults(reportingPackage.getJobId(),
+                            reportingPackage.getInstanceId(),
+                            reportingPackage.getContainer());
+                }
+            }).start();
             responseBuilder = Response.status(Status.ACCEPTED);
 
         } catch (Exception e) {
@@ -539,10 +538,15 @@ public class ReportServiceV1 implements ReportService {
     }
 
     @Override
-    public Response sendTimingResults(TankResultPackage results) {
+    public Response sendTimingResults(final TankResultPackage results) {
         ResponseBuilder responseBuilder = null;
         try {
-            // TODO: DA implement
+            new Thread(new Runnable() {
+                public void run() {
+                    ResultsStorage.instance().storeTimingResults(results.getJobId(), results.getInstanceId(),
+                            results.getResults());
+                }
+            }).start();
             responseBuilder = Response.status(Status.ACCEPTED);
 
         } catch (Exception e) {
@@ -562,8 +566,15 @@ public class ReportServiceV1 implements ReportService {
         out.append("</tr>");
     }
 
+    /**
+     * 
+     * ReportServiceV1 DataAverager
+     * 
+     * @author dangleton
+     * 
+     */
     private static class DataAverager {
-        List<PeriodicData> l = new ArrayList<PeriodicData>();
+        private List<PeriodicData> l = new ArrayList<PeriodicData>();
         private int period;
 
         DataAverager(int period) {

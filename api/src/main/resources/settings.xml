@@ -53,13 +53,20 @@
   </mail>
   
   <reporting>
-  <!-- Provider that uses key value database. currently DynamoDB -->
-    <provider className="com.intuit.tank.reporting.db.DatabaseResultsReporter"/>
-    
+    <provider>
+    <!-- Reporter that uses key value database. currently DynamoDB -->
+      <reporter>com.intuit.tank.reporting.db.DatabaseResultsReporter</reporter>
+      <reader>com.intuit.tank.reporting.db.DatabaseResultsReader</reader>
+      <config></config>
+      
+    </provider>
+      
     <!-- Use this for Rest reporting directly to the controller. 
-    Only for standalone or all in one. will over tax the controller if used for large load -->
-    <!-- <provider className="com.intuit.tank.reporting.rest.RestResultsReporter" /> -->
-  
+      Only for standalone or all in one. will over tax the controller if used for large load -->
+    <!-- <provider>
+      <reporter>com.intuit.tank.reporting.rest.RestResultsReporter</reporter>
+      <reader>com.intuit.tank.reporting.rest.RestResultsReader</reader>
+    </provider> -->
   </reporting>
 
   <agent-config>

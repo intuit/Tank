@@ -243,6 +243,7 @@ public class APITestHarness {
             agentRunData.setActiveProfile(AmazonUtil.getLoggingProfile());
         }
         agentRunData.setMachineName(instanceId);
+        agentRunData.setInstanceId(instanceId);
 
         if (controllerBase != null) {
             startHttp(controllerBase);

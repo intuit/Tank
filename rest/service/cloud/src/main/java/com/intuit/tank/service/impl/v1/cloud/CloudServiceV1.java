@@ -44,6 +44,7 @@ import com.intuit.tank.persistence.databases.DataBaseFactory;
 import com.intuit.tank.reporting.api.TPSReportingPackage;
 import com.intuit.tank.reporting.databases.IDatabase;
 import com.intuit.tank.reporting.databases.TankDatabaseType;
+import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.results.TankResult;
 import com.intuit.tank.results.TankResultPackage;
 import com.intuit.tank.service.util.ResponseUtil;
@@ -115,8 +116,7 @@ public class CloudServiceV1 implements CloudService {
         ResponseBuilder responseBuilder = null;
         try {
             responseBuilder = Response.ok();
-            IDatabase database = DataBaseFactory.getDatabase();
-            boolean hasTable = database.hasTable(database.getDatabaseName(TankDatabaseType.timing, jobId));
+            boolean hasTable = ReportingFactory.getResultsReader().hasTimingData(jobId);
             boolean hasEntries = new SummaryDataDao().findByJobId(Integer.parseInt(jobId)).size() != 0;
             String status = "Gathering";
             if (hasEntries && !hasTable) {

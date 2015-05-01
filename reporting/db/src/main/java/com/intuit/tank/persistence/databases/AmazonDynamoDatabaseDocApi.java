@@ -48,6 +48,7 @@ import com.amazonaws.services.dynamodbv2.model.BatchWriteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.BatchWriteItemResult;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
+import com.amazonaws.services.dynamodbv2.model.ConsumedCapacity;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.CreateTableResult;
 import com.amazonaws.services.dynamodbv2.model.DeleteRequest;
@@ -464,6 +465,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
         addAttribute(attributes, DatabaseKeys.RESPONSE_TIME_KEY.getShortKey(),
                 String.valueOf(result.getResponseTime()));
         addAttribute(attributes, DatabaseKeys.RESPONSE_SIZE_KEY.getShortKey(), String.valueOf(result.getResponseSize()));
+        addAttribute(attributes, DatabaseKeys.INSTANCE_ID_KEY.getShortKey(), String.valueOf(result.getInstanceId()));
         addAttribute(attributes, DatabaseKeys.IS_ERROR_KEY.getShortKey(), String.valueOf(result.isError()));
         return attributes;
     }
@@ -484,10 +486,16 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
             shouldRetry = false;
             try {
                 BatchWriteItemResult result = dynamoDb.batchWriteItem(request);
-                // List<ConsumedCapacity> consumedCapacity = result.getConsumedCapacity();
-                // for (ConsumedCapacity cap : consumedCapacity) {
-                // System.out.println(cap.getCapacityUnits());
-                // }
+                if (result != null) {
+                    try {
+                        List<ConsumedCapacity> consumedCapacity = result.getConsumedCapacity();
+                        for (ConsumedCapacity cap : consumedCapacity) {
+                            logger.info(cap.getCapacityUnits());
+                        }
+                    } catch (Exception e) {
+                        // ignore this
+                    }
+                }
             } catch (AmazonServiceException e) {
                 if (e instanceof ProvisionedThroughputExceededException) {
                     try {

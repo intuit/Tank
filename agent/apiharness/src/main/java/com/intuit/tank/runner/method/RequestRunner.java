@@ -228,7 +228,8 @@ public class RequestRunner implements Runner {
     private void processPerfResponse(String result, String uniqueName, int threadNum, BaseRequest req, BaseResponse resp) {
         try {
             TankResultBuilder builder = new TankResultBuilder();
-            builder.withJobId(APITestHarness.getInstance().getAgentRunData().getJobId());
+            builder.withJobId(APITestHarness.getInstance().getAgentRunData().getJobId())
+            .withInstanceId(APITestHarness.getInstance().getAgentRunData().getInstanceId());
             if (resp != null) {
                 builder.withResponseTime((int) resp.getResponseTime());
                 builder.withStatusCode(resp.getHttpCode());

@@ -90,7 +90,7 @@ public class ReportServiceClientV1 extends BaseRestClient {
             UniformInterfaceException {
         TPSReportingPackage tpsPackage = new TPSReportingPackage(jobId, instanceId, container);
         WebResource webResource = client.resource(urlBuilder.buildUrl(ReportService.METHOD_TPS_INFO));
-        ClientResponse response = webResource.entity(tpsPackage, MediaType.APPLICATION_XML_TYPE).put(
+        ClientResponse response = webResource.entity(tpsPackage, MediaType.APPLICATION_XML_TYPE).post(
                 ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
     }
@@ -108,7 +108,7 @@ public class ReportServiceClientV1 extends BaseRestClient {
             UniformInterfaceException {
         TankResultPackage tankResultPackage = new TankResultPackage(jobId, instanceId, results);
         WebResource webResource = client.resource(urlBuilder.buildUrl(ReportService.METHOD_TIMING_RESULTS));
-        ClientResponse response = webResource.entity(tankResultPackage, MediaType.APPLICATION_XML_TYPE).put(
+        ClientResponse response = webResource.entity(tankResultPackage, MediaType.APPLICATION_XML_TYPE).post(
                 ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
     }

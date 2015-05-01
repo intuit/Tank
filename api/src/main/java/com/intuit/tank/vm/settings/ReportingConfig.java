@@ -38,10 +38,11 @@ public class ReportingConfig implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ReportingConfig.class);
 
-    private static final String KEY_PROVIDER = "provider";
-    private static final String KEY_CLASSNAME = "@className";
+    private static final String KEY_READER = "provider/reader";
+    private static final String KEY_REPORTER = "provider/reporter";
     private static final String KEY_CONFIG = "provider/config";
-    private static final String DEFAULT_PROVIDER = "com.intuit.tank.reporting.db.DatabaseResultsReporter";
+    private static final String DEFAULT_REPORTER = "com.intuit.tank.reporting.db.DatabaseResultsReporter";
+    private static final String DEFAULT_READER = "com.intuit.tank.reporting.db.DatabaseResultsReader";
 
     private HierarchicalConfiguration config;
 
@@ -52,23 +53,45 @@ public class ReportingConfig implements Serializable {
     /**
      * @return the products
      */
-    public String getProviderClass() {
-        String ret = DEFAULT_PROVIDER;
+    public String getReporterClass() {
+        String ret = DEFAULT_REPORTER;
         if (config != null) {
             try {
-                SubnodeConfiguration configurationAt = config.configurationAt(KEY_PROVIDER);
-                String string = configurationAt.getString(KEY_CLASSNAME);
+                SubnodeConfiguration configurationAt = config.configurationAt(KEY_REPORTER);
+                String string = configurationAt.getString("");
                 if (StringUtils.isNotBlank(string)) {
                     ret = string;
                 } else {
-                    LOG.warn("Provider not configured. Using default of " + ret);
+                    LOG.warn("Reporter not configured. Using default of " + ret);
                 }
             } catch (Exception e) {
-                LOG.warn("Provider specified more than once. Using default of " + ret);
+                LOG.warn("Reporter specified more than once. Using default of " + ret);
             }
         }
         return ret;
     }
+
+    /**
+     * @return the products
+     */
+    public String getReaderClass() {
+        String ret = DEFAULT_READER;
+        if (config != null) {
+            try {
+                SubnodeConfiguration configurationAt = config.configurationAt(KEY_READER);
+                String string = configurationAt.getString("");
+                if (StringUtils.isNotBlank(string)) {
+                    ret = string;
+                } else {
+                    LOG.warn("Reader not configured. Using default of " + ret);
+                }
+            } catch (Exception e) {
+                LOG.warn("Reader specified more than once. Using default of " + ret);
+            }
+        }
+        return ret;
+    }
+
     /**
      * @return the products
      */

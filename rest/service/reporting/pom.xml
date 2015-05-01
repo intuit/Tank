@@ -39,6 +39,11 @@
       <artifactId>reporting-db</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>reporting-local-storage</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>net.sf.opencsv</groupId>
