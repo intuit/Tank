@@ -30,10 +30,11 @@ There are several artifacts that are important.
 * proxy-parent/proxy_pkg/target/Tank-Proxy-pkg.jar -- the proxy recording tool. A Tool to record scripts using your browser. 
 
 ##Quickstart
-There is a shell script to install and configure a standalone controller and agent and configured with a java database for Mac and Linux.  
-Windows users should install some POSIX tooling such as [Babun](http://babun.github.io) or [Cygwin](https://www.cygwin.com) .It can be downloaded 
-from our [public site](http://tank-public.s3-website-us-east-1.amazonaws.com/all-in-one.sh) or in the root of the distribution. 
-You can use this version for small tests to try out the tools but should not use it for large scale or production testing.
+There is a shell script to install and configure a standalone controller and agent and configured with a java database for 
+Mac and Linux. Windows users should install some POSIX tooling such as [Babun](http://babun.github.io) or [Cygwin](https://www.cygwin.com). 
+It can be downloaded from our [public site](http://tank-public.s3-website-us-east-1.amazonaws.com/all-in-one.sh) or 
+in the root of the distribution. You can use this version for small tests to try out the tools but should not use 
+it for large scale or production testing.
 
 ##Guides
 Installation guide and User guide can be found in the docs folder and are built with the source. and can also be found on our [wiki](https://github.com/intuit/Tank/wiki).
