@@ -37,9 +37,13 @@ import org.apache.commons.io.FileUtils;
  * @author dangleton
  * 
  */
-public class FileReader {
+public final class FileReader {
 
-    private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(FileReader.class);
+    private FileReader() {
+        // empty private constructor
+    }
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(FileReader.class);
 
     /**
      * Gets a StreamingOutput from the passedin file from start to end or from beginning to end if start is greater than
@@ -56,7 +60,8 @@ public class FileReader {
         if (start != null) {
             try {
                 l = Long.parseLong(start);
-                if (l < 0) {// num lines to get from end
+                // num lines to get from end
+                if (l < 0) {
                     l = getStartChar(f, Math.abs(l), total);
                 }
             } catch (Exception e) {

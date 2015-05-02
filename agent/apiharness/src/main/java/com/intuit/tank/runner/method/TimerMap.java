@@ -48,6 +48,7 @@ public class TimerMap {
     public void start(String name) {
         TankResult result = TankResultBuilder.tankResult()
                 .withJobId(APITestHarness.getInstance().getAgentRunData().getJobId()).withRequestName(name)
+                .withInstanceId(APITestHarness.getInstance().getAgentRunData().getInstanceId())
                 .withStatusCode(-1)
                 .build();
         resultsMap.put(name, result);

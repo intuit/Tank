@@ -7,6 +7,8 @@
 
 package com.intuit.tank.results;
 
+import java.util.Date;
+
 /*
  * #%L
  * Reporting API
@@ -56,6 +58,18 @@ class TankResultBuilderBase<GeneratorT extends TankResultBuilderBase<GeneratorT>
     public GeneratorT withJobId(String aValue) {
         instance.setJobId(aValue);
 
+        return (GeneratorT) this;
+    }
+    @SuppressWarnings("unchecked")
+    public GeneratorT withInstanceId(String aValue) {
+        instance.setInstanceId(aValue);
+        
+        return (GeneratorT) this;
+    }
+    @SuppressWarnings("unchecked")
+    public GeneratorT withTimestamp(Date aValue) {
+        instance.setTimeStamp(aValue);
+        
         return (GeneratorT) this;
     }
 

@@ -1,4 +1,4 @@
-package com.intuit.tank.api.model.v1.cloud;
+package com.intuit.tank.reporting.api;
 
 /*
  * #%L
@@ -18,7 +18,7 @@ import java.util.Date;
 
 import org.junit.*;
 
-import com.intuit.tank.api.model.v1.cloud.TPSInfo;
+import com.intuit.tank.reporting.api.TPSInfo;
 
 import static org.junit.Assert.*;
 

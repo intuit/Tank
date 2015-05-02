@@ -21,10 +21,10 @@ import org.testng.annotations.Test;
 import static org.junit.Assert.*;
 
 import com.amazonaws.http.HttpRequest;
-import com.intuit.tank.api.model.v1.cloud.TPSInfoContainer;
 import com.intuit.tank.harness.TPSMonitor;
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.binary.BinaryRequest;
+import com.intuit.tank.reporting.api.TPSInfoContainer;
 
 /**
  * The class <code>TPSMonitorTest</code> contains tests for the class <code>{@link TPSMonitor}</code>.

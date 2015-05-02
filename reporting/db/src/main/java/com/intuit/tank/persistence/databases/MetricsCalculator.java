@@ -21,28 +21,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
 import javax.annotation.Nonnull;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
-import com.intuit.tank.reporting.databases.Attribute;
-import com.intuit.tank.reporting.databases.IDatabase;
-import com.intuit.tank.reporting.databases.Item;
-import com.intuit.tank.reporting.databases.PagedDatabaseResult;
-import com.intuit.tank.reporting.databases.TankDatabaseType;
+import com.intuit.tank.reporting.api.PagedTimingResults;
+import com.intuit.tank.reporting.api.ResultsReader;
+import com.intuit.tank.reporting.factory.ReportingFactory;
+import com.intuit.tank.results.TankResult;
 import com.intuit.tank.vm.common.util.MethodTimer;
 import com.intuit.tank.vm.common.util.ReportUtil;
 import com.intuit.tank.vm.settings.TankConfig;
@@ -60,83 +55,64 @@ public class MetricsCalculator {
 
     private Map<String, DescriptiveStatistics> summaryResults = new HashMap<String, DescriptiveStatistics>();
     private Map<String, Map<Date, BucketDataItem>> bucketItems = new HashMap<String, Map<Date, BucketDataItem>>();
+    private static final String[] FIELDS = {
+            DatabaseKeys.TIMESTAMP_KEY.getShortKey(),
+            DatabaseKeys.JOB_ID_KEY.getShortKey(),
+            DatabaseKeys.INSTANCE_ID_KEY.getShortKey(),
+            DatabaseKeys.LOGGING_KEY_KEY.getShortKey(),
+            DatabaseKeys.STATUS_CODE_KEY.getShortKey(),
+            DatabaseKeys.RESPONSE_TIME_KEY.getShortKey(),
+            DatabaseKeys.RESPONSE_SIZE_KEY.getShortKey(),
+            DatabaseKeys.IS_ERROR_KEY.getShortKey()
+    };
 
     /**
      * @param object2
      * @param start
      * @{inheritDoc
      */
-    public void retrieveAndCalculateTimingData(String tableName, @Nonnull String jobId, Date start, Date end) {
+    public void retrieveAndCalculateTimingData(@Nonnull String jobId, Date start, Date end) {
         MethodTimer mt = new MethodTimer(LOG, this.getClass(), "retrieveAndCalculateSummaryTimingCsv");
-        IDatabase db = DataBaseFactory.getDatabase();
         int period = 15;
         Writer csvFile = null;
         CSVWriter csvWriter = null;
         try {
-
+            ResultsReader resultsReader = ReportingFactory.getResultsReader();
             File parentFile = new File(new TankConfig().getTimingDir());
             parentFile.mkdirs();
             csvFile = new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(new File(parentFile,
-                    db.getDatabaseName(TankDatabaseType.timing, jobId) + "_" + jobId + ".csv.gz"))));
-            boolean outputHeaderRow = true;
+                    "timing_" + new TankConfig().getInstanceName() + "_" + jobId + ".csv.gz"))));
             csvWriter = new CSVWriter(csvFile);
-            List<String> headers = new ArrayList<String>();
             int count = 0;
             Object nextToken = null;
+            csvWriter.writeNext(FIELDS);
             do {
-                PagedDatabaseResult pagedItems = db.getPagedItems(tableName, jobId, nextToken, null, null, null);
-                for (Item item : pagedItems.getItems()) {
+                PagedTimingResults results = resultsReader.getPagedTimingResults(jobId, nextToken);
+                for (TankResult result : results.getResults()) {
                     count++;
-                    if (outputHeaderRow) {
-                        for (Attribute attr : item.getAttributes()) {
-                            headers.add(attr.getName());
-                        }
-                        csvWriter.writeNext(headers.toArray(new String[headers.size()]));
-                        outputHeaderRow = false;
-                    }
-                    Map<String, String> entries = new HashMap<String, String>();
-                    for (Attribute attr : item.getAttributes()) {
-                        entries.put(attr.getName(), attr.getValue());
-                    }
-                    String[] entryArray = new String[headers.size()];
-                    for (int i = 0; i < headers.size(); i++) {
-                        entryArray[i] = entries.get(headers.get(i));
-                    }
+                    String[] entryArray = getCsvArray(result);
                     csvWriter.writeNext(entryArray);
                     if (count % 1000 == 0) {
                         csvWriter.flush();
                     }
-                    String loggingKey = entries.get(DatabaseKeys.LOGGING_KEY_KEY.getShortKey());
-                    String value = entries.get(DatabaseKeys.RESPONSE_TIME_KEY.getShortKey());
-                    Date date = null;
-                    boolean skip = true;
-                    try {
-                        date = ReportUtil.parseTimestamp(entries
-                                .get(DatabaseKeys.TIMESTAMP_KEY.getShortKey()));
-                        skip = skipDate(date, start, end);
-                    } catch (ParseException e) {
-                        LOG.warn("Cannot parse date: " + entries.get(DatabaseKeys.TIMESTAMP_KEY.getShortKey()));
+
+                    double d = result.getResponseTime();
+                    if (!skipDate(result.getTimeStamp(), start, end)) {
+                        DescriptiveStatistics statistics = summaryResults.get(result.getRequestName());
+                        if (statistics == null) {
+                            statistics = new DescriptiveStatistics();
+                            summaryResults.put(result.getRequestName(), statistics);
+                        }
+                        statistics.addValue(d);
+                    }
+                    if (result.getTimeStamp() != null) {
+                        Date periodDate = TimeUtil.normalizeToPeriod(period, result.getTimeStamp());
+                        DescriptiveStatistics bucketStats = getBucketStats(result.getRequestName(), period, periodDate);
+                        bucketStats.addValue(d);
                     }
 
-                    if (NumberUtils.isNumber(value)) {
-                        double d = Double.parseDouble(value);
-                        if (!skip) {
-                            DescriptiveStatistics statistics = summaryResults.get(loggingKey);
-                            if (statistics == null) {
-                                statistics = new DescriptiveStatistics();
-                                summaryResults.put(loggingKey, statistics);
-                            }
-                            statistics.addValue(d);
-                        }
-                        if (date != null) {
-                            Date periodDate = TimeUtil.normalizeToPeriod(period, date);
-                            DescriptiveStatistics bucketStats = getBucketStats(loggingKey, period, periodDate);
-                            bucketStats.addValue(d);
-                        }
-
-                    }
                 }
-                nextToken = pagedItems.getNextToken();
+                nextToken = results.getNextToken();
             } while (nextToken != null);
             csvWriter.flush();
             mt.endAndLog();
@@ -157,6 +133,21 @@ public class MetricsCalculator {
             }
             IOUtils.closeQuietly(csvFile);
         }
+    }
+
+    private String[] getCsvArray(TankResult result) {
+        String[] ret = new String[FIELDS.length];
+        ret[0] = ReportUtil.getTimestamp(result.getTimeStamp());
+        ret[1] = result.getJobId();
+        ret[2] = result.getInstanceId();
+        ret[3] = result.getRequestName();
+        ret[3] = Integer.toString(result.getStatusCode());
+        ret[3] = Integer.toString(result.getResponseTime());
+        ret[3] = Integer.toString(result.getResponseSize());
+        ret[3] = Boolean.toString(result.isError());
+
+        // DatabaseKeys.IS_ERROR_KEY.getShortKey()
+        return ret;
     }
 
     private boolean skipDate(Date date, Date start, Date end) {
