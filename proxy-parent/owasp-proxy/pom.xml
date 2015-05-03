@@ -49,36 +49,6 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>com.atlassian.maven.plugins</groupId>
-        <artifactId>maven-clover2-plugin</artifactId>
-        <version>3.1.0</version>
-        <configuration>
-          <generateHtml>true</generateHtml>
-          <generateXml>true</generateXml>
-          <includesTestSourceRoots>false</includesTestSourceRoots>
-          <methodContexts>
-            <private-constructor>(.* )?private +[a-zA-Z0-9_$]+ *\(
-              *\).*</private-constructor>
-          </methodContexts>
-          <excludes combine.children="append">
-            <exclude>**/org/**/*.java</exclude>
-            <exclude>**/trial/**/*.java</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.0</version>
-        <configuration>
-          <compilerVersion>1.6</compilerVersion>
-          <source>1.6</source>
-          <target>1.6</target>
-        </configuration>
-      </plugin>
-      <plugin>
         <artifactId>maven-source-plugin</artifactId>
         <version>2.1.2</version>
         <executions>
