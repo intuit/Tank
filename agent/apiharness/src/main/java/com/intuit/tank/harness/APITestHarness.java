@@ -563,13 +563,15 @@ public class APITestHarness {
             List<TestPlanStarter> testPlans = new ArrayList<TestPlanStarter>();
             int total = 0;
             for (HDTestPlan plan : hdWorkload.getPlans()) {
-                plan.setVariables(hdWorkload.getVariables());
-                TestPlanStarter starter = new TestPlanStarter(plan, agentRunData.getNumUsers());
-                total += starter.getNumThreads();
-                testPlans.add(starter);
-                LOG.info(LogUtil.getLogMessage("Users for Test Plan " + plan.getTestPlanName() + " at "
-                        + plan.getUserPercentage()
-                        + "% = " + starter.getNumThreads()));
+                if (plan.getUserPercentage() > 0) {
+                    plan.setVariables(hdWorkload.getVariables());
+                    TestPlanStarter starter = new TestPlanStarter(plan, agentRunData.getNumUsers());
+                    total += starter.getNumThreads();
+                    testPlans.add(starter);
+                    LOG.info(LogUtil.getLogMessage("Users for Test Plan " + plan.getTestPlanName() + " at "
+                            + plan.getUserPercentage()
+                            + "% = " + starter.getNumThreads()));
+                }
             }
             LOG.info(LogUtil.getLogMessage("Total Users calculated for all test Plans = " + total));
             if (total != agentRunData.getNumUsers()) {
@@ -870,7 +872,8 @@ public class APITestHarness {
                 l.addAll(results);
                 results.clear();
             }
-            resultsReporter.sendTimingResults(getAgentRunData().getJobId(), getAgentRunData().getInstanceId(), l, false);
+            resultsReporter
+                    .sendTimingResults(getAgentRunData().getJobId(), getAgentRunData().getInstanceId(), l, false);
         }
     }
 
