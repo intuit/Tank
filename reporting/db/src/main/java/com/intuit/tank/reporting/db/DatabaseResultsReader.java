@@ -63,7 +63,7 @@ public class DatabaseResultsReader implements ResultsReader {
         String tableName = db.getDatabaseName(TankDatabaseType.timing, jobId);
         List<TankResult> results = new ArrayList<TankResult>();
         try {
-            PagedDatabaseResult pagedItems = db.getPagedItems(tableName, jobId, nextToken, null, null, null);
+            PagedDatabaseResult pagedItems = db.getPagedItems(tableName, nextToken, null, null, jobId);
             for (Item item : pagedItems.getItems()) {
                 results.add(ItemToTankResult(item));
             }
@@ -131,44 +131,29 @@ public class DatabaseResultsReader implements ResultsReader {
     }
 
     @Override
-    public Map<Date, Map<String, TPSInfo>> getTpsMapForInstance(String jobId, String instanceId) {
-        return getTpsMap(instanceId, jobId);
+    public Map<Date, Map<String, TPSInfo>> getTpsMapForInstance(Date minDate, String jobId, String instanceId) {
+        return getTpsMap(minDate, instanceId, jobId);
     }
 
     @Override
-    public Map<Date, Map<String, TPSInfo>> getTpsMapForJob(String... jobId) {
-        return getTpsMap(null, jobId);
+    public Map<Date, Map<String, TPSInfo>> getTpsMapForJob(Date minDate, String... jobId) {
+        return getTpsMap(minDate, null, jobId);
     }
 
-    private Map<Date, Map<String, TPSInfo>> getTpsMap(String instanceId, String... jobIds) {
+    private Map<Date, Map<String, TPSInfo>> getTpsMap(Date minDate, String instanceId, String... jobIds) {
         Map<Date, Map<String, TPSInfo>> ret = new HashMap<Date, Map<String, TPSInfo>>();
         try {
             IDatabase db = DataBaseFactory.getDatabase();
             String tpsTableName = new TankConfig().getInstanceName() + "_tps";
             if (db.hasTable(tpsTableName)) {
-                StringBuilder query = new StringBuilder();
 
-                if (instanceId != null) {
-                    query.append(DatabaseKeys.JOB_ID_KEY.getShortKey()).append(" = ").append("'")
-                            .append(jobIds[0])
-                            .append("' ").append(" and ").append(DatabaseKeys.INSTANCE_ID_KEY.getShortKey())
-                            .append(" = ")
-                            .append("'").append(instanceId).append("' ");
-                } else if (jobIds.length != 0) {
-                    query.append(DatabaseKeys.JOB_ID_KEY.getShortKey()).append(" in(");
-                    boolean insertComma = false;
-                    for (String id : jobIds) {
-                        if (insertComma) {
-                            query.append(",");
-                        }
-                        query.append("'").append(id).append("'");
-                        insertComma = true;
+                if (jobIds != null && jobIds.length > 0) {
+
+                    String dateString = null;
+                    if (minDate != null) {
+                        dateString = ReportUtil.getTimestamp(minDate);
                     }
-                    query.append(") ");
-                }
-                if (query.length() > 0) {
-                    // run the query
-                    List<Item> items = db.getItems(tpsTableName, null, null, null, query.toString());
+                    List<Item> items = db.getItems(tpsTableName, dateString, null, instanceId, jobIds);
                     for (Item item : items) {
                         String loggingKey = null;
                         Date timestamp = null;

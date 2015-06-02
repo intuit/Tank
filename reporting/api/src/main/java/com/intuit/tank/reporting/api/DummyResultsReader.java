@@ -57,7 +57,7 @@ public class DummyResultsReader implements ResultsReader {
      * @{inheritDoc
      */
     @Override
-    public Map<Date, Map<String, TPSInfo>> getTpsMapForJob(String... jobId) {
+    public Map<Date, Map<String, TPSInfo>> getTpsMapForJob(Date minDate, String... jobId) {
         return new HashMap<Date, Map<String, TPSInfo>>();
     }
 
@@ -65,7 +65,7 @@ public class DummyResultsReader implements ResultsReader {
      * @{inheritDoc
      */
     @Override
-    public Map<Date, Map<String, TPSInfo>> getTpsMapForInstance(String jobId, String instanceId) {
+    public Map<Date, Map<String, TPSInfo>> getTpsMapForInstance(Date minDate, String jobId, String instanceId) {
         return new HashMap<Date, Map<String, TPSInfo>>();
     }
 

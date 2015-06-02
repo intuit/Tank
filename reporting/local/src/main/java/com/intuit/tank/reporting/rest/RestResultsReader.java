@@ -23,8 +23,6 @@ import com.intuit.tank.results.TankResult;
  */
 public class RestResultsReader implements ResultsReader {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(RestResultsReader.class);
-
     @Override
     public List<TankResult> getAllTimingResults(String jobId) {
         return ResultsStorage.instance().getAllTimingResults(jobId);
@@ -46,21 +44,18 @@ public class RestResultsReader implements ResultsReader {
     }
 
     @Override
-    public Map<Date, Map<String, TPSInfo>> getTpsMapForJob(String... jobId) {
-        return ResultsStorage.instance().getTpsMapForJob(jobId);
+    public Map<Date, Map<String, TPSInfo>> getTpsMapForJob(Date minDate, String... jobId) {
+        return ResultsStorage.instance().getTpsMapForJob(minDate, jobId);
     }
 
     @Override
-    public Map<Date, Map<String, TPSInfo>> getTpsMapForInstance(String jobId, String instanceId) {
-        return ResultsStorage.instance().getTpsMapForInstance(jobId, instanceId);
+    public Map<Date, Map<String, TPSInfo>> getTpsMapForInstance(Date minDate, String jobId, String instanceId) {
+        return ResultsStorage.instance().getTpsMapForInstance(minDate, jobId, instanceId);
     }
 
     @Override
     public void config(HierarchicalConfiguration config) {
-        // TODO Auto-generated method stub
-        
+        // nothing to do
     }
-
-    
 
 }

@@ -32,7 +32,7 @@
 
         <h:panelGroup styleClass="h-space">
           <p:commandButton id="projectTotalBt" value="User Details" 
-            action="#{projectJobQueueManager.setCurrentJobInstance(projectJobQueueManager.rootNode.data)}" oncomplete="PF('userDetailsPopup').show();"
+            action="#{projectJobQueueManager.setCurrentJobInstanceForUser(projectJobQueueManager.rootNode.data)}" oncomplete="PF('userDetailsPopup').show();"
             update=":userDetailsForm:userDetailsContent, :tpsForm:tpsDetailsContent"
             style=" background-image: url(#{request.contextPath}/resources/gfx/16/chart_curve.png);
                                   background-repeat: no-repeat;
@@ -41,7 +41,7 @@
             styleClass="icon-button h-space" />
 
           <p:commandButton id="projectTotalTPSBt" value="TPS Details" 
-            action="#{projectJobQueueManager.setCurrentJobInstance(projectJobQueueManager.rootNode.data)}" oncomplete="PF('tpsDetailsPopup').show();"
+            action="#{projectJobQueueManager.setCurrentJobInstanceForTPS(projectJobQueueManager.rootNode.data)}" oncomplete="PF('tpsDetailsPopup').show();"
             update=":userDetailsForm:userDetailsContent, :tpsForm:tpsDetailsContent"
             style=" background-image: url(#{request.contextPath}/resources/gfx/16/chart_curve.png);
                                   background-repeat: no-repeat;
@@ -119,7 +119,7 @@
         headerText="Active Users" styleClass="ellipsis min-column-size"
         rendered="#{projectJobQueueManager.tablePrefs.isVisible('activeUsersColumn')}">
         <p:commandLink ajax="true" id="lnkUserDetailsActive"
-          action="#{projectJobQueueManager.setCurrentJobInstance(node)}" oncomplete="PF('userDetailsPopup').show();"
+          action="#{projectJobQueueManager.setCurrentJobInstanceForUser(node)}" oncomplete="PF('userDetailsPopup').show();"
           update=":userDetailsForm:userDetailsContent">
           <h:outputText value="#{node.activeUsers}" />
         </p:commandLink>
@@ -130,7 +130,7 @@
         headerText="Total Users" styleClass="ellipsis min-column-size"
         rendered="#{projectJobQueueManager.tablePrefs.isVisible('totalUsersColumn')}">
         <p:commandLink ajax="true" id="lnkUserDetailsTotal"
-          action="#{projectJobQueueManager.setCurrentJobInstance(node)}" oncomplete="PF('userDetailsPopup').show();"
+          action="#{projectJobQueueManager.setCurrentJobInstanceForUser(node)}" oncomplete="PF('userDetailsPopup').show();"
           update=":userDetailsForm:userDetailsContent">
           <h:outputText value="#{node.totalUsers}" />
         </p:commandLink>
@@ -140,7 +140,7 @@
         style="width:#{projectJobQueueManager.tablePrefs.getSize('tpsColumn')}px;text-align:right;"
         rendered="#{projectJobQueueManager.tablePrefs.isVisible('tpsColumn')}">
         <p:commandLink ajax="true" id="lnkTps"
-          action="#{projectJobQueueManager.setCurrentJobInstance(node)}" oncomplete="PF('tpsDetailsPopup').show();"
+          action="#{projectJobQueueManager.setCurrentJobInstanceForTPS(node)}" oncomplete="PF('tpsDetailsPopup').show();"
           update=":tpsForm:tpsDetailsContent">
             <h:outputText value="#{node.tps}" />
         </p:commandLink>

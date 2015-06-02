@@ -62,7 +62,7 @@ public interface ResultsReader {
      * @return Map of maps
      */
     @Nonnull
-    public Map<Date, Map<String, TPSInfo>> getTpsMapForJob(String... jobId);
+    public Map<Date, Map<String, TPSInfo>> getTpsMapForJob(Date minDate, String... jobId);
 
     /**
      * Gets the TPS data as a map of maps for the instance.
@@ -74,7 +74,7 @@ public interface ResultsReader {
      * @return Map of maps
      */
     @Nonnull
-    public Map<Date, Map<String, TPSInfo>> getTpsMapForInstance(String jobId, String instanceId);
+    public Map<Date, Map<String, TPSInfo>> getTpsMapForInstance(Date minDate, String jobId, String instanceId);
 
     /**
      * configure this service from config file.

@@ -111,12 +111,14 @@ public abstract class JobTreeTableBean implements Serializable {
     protected abstract Integer getRootJobId();
 
     private Map<String, TreeNode> nodeMap = new HashMap<String, TreeNode>();
+//    private Map<Date, Map<String, TPSInfo>> tpsMap = new HashMap<Date, Map<String, TPSInfo>>();
 
     @Inject
     private PreferencesBean userPrefs;
 
     protected TablePreferences tablePrefs;
     protected TableViewState tableState = new TableViewState();
+    private Date lastDate = null;
 
     @PostConstruct
     public void init() {
@@ -181,7 +183,17 @@ public abstract class JobTreeTableBean implements Serializable {
 
     public void setCurrentJobInstance(JobNodeBean currentJobInstance) {
         this.currentJobInstance = currentJobInstance;
+    }
+
+    public void setCurrentJobInstanceForUser(JobNodeBean currentJobInstance) {
+        setCurrentJobInstance(currentJobInstance);
         initChartModel();
+    }
+
+    public void setCurrentJobInstanceForTPS(JobNodeBean currentJobInstance) {
+        setCurrentJobInstance(currentJobInstance);
+//        tpsMap.clear();
+//        lastDate = new Date(0);
         initializeTpsModel();
     }
 
@@ -278,6 +290,9 @@ public abstract class JobTreeTableBean implements Serializable {
             mt.markAndLog("get tpsMap from DynamoDb");
             List<Date> dateList = new ArrayList<Date>(tpsDetailMap.keySet());
             Collections.sort(dateList);
+//            if (dateList.size() > 0) {
+//                lastDate = new Date(dateList.get(dateList.size() - 1).getTime() + 1000);
+//            }
             ChartSeries totalSeries = new ChartSeries(TOTAL_TPS_SERIES_KEY);
             for (Date d : dateList) {
                 int total = 0;
@@ -333,10 +348,10 @@ public abstract class JobTreeTableBean implements Serializable {
                 for (JobNodeBean jobNode : jobNodes) {
                     jobs.add(jobNode.getJobId());
                 }
-                ret = resultsReader.getTpsMapForJob(jobs.toArray(new String[jobs.size()]));
+                ret = resultsReader.getTpsMapForJob(this.lastDate, jobs.toArray(new String[jobs.size()]));
             }
             if (vmInstance != null) {
-                ret = resultsReader.getTpsMapForInstance(vmInstance.getJobId(), vmInstance.getId());
+                ret = resultsReader.getTpsMapForInstance(this.lastDate, vmInstance.getJobId(), vmInstance.getId());
             }
 
         } catch (Exception e) {
