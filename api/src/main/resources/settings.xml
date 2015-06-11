@@ -312,6 +312,11 @@
     filter. -->
   <logic-step>
     <insert-before><![CDATA[
+// ######## Compatability mode for java 8. ##########
+try {
+   load("nashorn:mozilla_compat.js");
+} catch (exception){}
+
 // ######## Logging functions ##########
 
 /**
