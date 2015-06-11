@@ -8,12 +8,12 @@
   <para>Functions and Variables both use the same format. They start with either a # or $ and then are enclosed in
     parentheses. e.g. #{functionType.function(param, param2)} or ${functionType.function(param, param2)}.
     Variables have
-    no parentheses. e.g. ${varName}
+    no parentheses. e.g. #{varName}
   </para>
   <para>Functions or variables can be nested in other functions. e.g.
-    #{stringFunctions.base64(ioFunctions.getFileData(fileName)} In this example the variable is fileName which is
+    #{stringFunctions.toBase64(ioFunctions.getFileData(fileName)} In this example the variable is fileName which is
     passed
-    to the getFileDataFunction which is passed to the base64 function.
+    to the getFileDataFunction which is passed to the toBase64 function.
   </para>
   <para>
     There are 6 built in function types.
@@ -152,7 +152,7 @@
         <term>getFileBytes(String fileName)</term>
         <listitem>
           <para>
-            Reads the specified file and returns it as a byte array (byte[]). This function can only be used as input to another function that returns a String such as base64Encode.
+            Reads the specified file and returns it as a byte array (byte[]). This function can only be used as input to another function that returns a String such as toBase64.
             <orderedlist>
               <title>Parameters</title>
               <listitem>
