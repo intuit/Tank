@@ -276,16 +276,31 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public PagedDatabaseResult getPagedItems(String tableName, String jobId, Object nextToken, String minRange,
-            String maxRange, String query) {
+    public PagedDatabaseResult getPagedItems(String tableName, Object nextToken, String minRange,
+            String maxRange, String instanceId, String... jobId) {
         List<Item> ret = new ArrayList<Item>();
         Map<String, AttributeValue> lastKeyEvaluated = (Map<String, AttributeValue>) nextToken;
         ScanRequest scanRequest = new ScanRequest().withTableName(tableName);
         Map<String, Condition> conditions = new HashMap<String, Condition>();
-        if (jobId != null) {
-            Condition jobIdCondition = new Condition().withComparisonOperator(ComparisonOperator.EQ)
-                    .withAttributeValueList(new AttributeValue().withS(jobId));
+        if (jobId != null && jobId.length > 0) {
+            Condition jobIdCondition = new Condition();
+            if (jobId.length == 1) {
+                jobIdCondition.withComparisonOperator(ComparisonOperator.EQ)
+                        .withAttributeValueList(new AttributeValue().withS(jobId[0]));
+            } else {
+                jobIdCondition.withComparisonOperator(ComparisonOperator.IN);
+                for (String jid : jobId) {
+                    jobIdCondition.withAttributeValueList(new AttributeValue().withS(jid));
+                }
+            }
             conditions.put(DatabaseKeys.JOB_ID_KEY.getShortKey(), jobIdCondition);
+        }
+        if (StringUtils.isNotBlank(instanceId)) {
+            // add a filter
+            Condition filter = new Condition();
+            filter.withComparisonOperator(ComparisonOperator.EQ).withAttributeValueList(
+                    new AttributeValue().withS(instanceId));
+            scanRequest.addScanFilterEntry(DatabaseKeys.INSTANCE_ID_KEY.getShortKey(), filter);
         }
         Condition rangeKeyCondition = new Condition();
         if (minRange != null && maxRange != null) {
@@ -320,12 +335,13 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
      * @{inheritDoc
      */
     @Override
-    public List<Item> getItems(String tableName, String jobId, String minRange, String maxRange, String query) {
+    public List<Item> getItems(String tableName, String minRange, String maxRange, String instanceId,
+            String... jobId) {
         List<Item> ret = new ArrayList<Item>();
         Object lastKeyEvaluated = null;
         do {
-            PagedDatabaseResult pagedItems = getPagedItems(tableName, jobId, lastKeyEvaluated, minRange, maxRange,
-                    query);
+            PagedDatabaseResult pagedItems = getPagedItems(tableName, lastKeyEvaluated, minRange, maxRange,
+                    instanceId, jobId);
             ret.addAll(pagedItems.getItems());
             lastKeyEvaluated = pagedItems.getNextToken();
         } while (lastKeyEvaluated != null);
@@ -375,7 +391,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
             public void run() {
                 MethodTimer mt = new MethodTimer(logger, this.getClass(), "deleteForJob (" + jobId + ")");
 
-                List<Item> items = getItems(tableName, jobId, null, null, null);
+                List<Item> items = getItems(tableName, null, null, null, jobId);
                 if (!items.isEmpty()) {
                     List<WriteRequest> requests = new ArrayList<WriteRequest>();
                     try {

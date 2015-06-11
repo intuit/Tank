@@ -321,7 +321,7 @@ public class APITestHarness {
         if (capacity < 0) {
             capacity = AmazonUtil.getCapacity();
         }
-        VMRegion region = VMRegion.US_EAST;
+        VMRegion region = VMRegion.STANDALONE;
         if (AmazonUtil.isInAmazon()) {
             try {
                 region = AmazonUtil.getVMRegion();
@@ -687,7 +687,7 @@ public class APITestHarness {
     public CloudVmStatus getInitialStatus() {
         CloudVmStatus status = null;
         try {
-            VMRegion region = VMRegion.US_EAST;
+            VMRegion region = VMRegion.STANDALONE;
             String secGroups = "unknown";
             if (AmazonUtil.isInAmazon()) {
                 try {

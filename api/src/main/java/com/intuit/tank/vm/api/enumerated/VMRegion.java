@@ -20,18 +20,18 @@ package com.intuit.tank.vm.api.enumerated;
  * 
  */
 public enum VMRegion {
-    // East("us-east-1", "US East (Northern Virginia)", "ec2.us-east-1.amazonaws.com"),//legacy
-    // West("us-west-1", "US West (Northern California)", "ec2.us-west-1.amazonaws.com"),//legacy
-    US_EAST("us-east-1", "US East (Northern Virginia)", "ec2.us-east-1.amazonaws.com"),
-    US_WEST_1("us-west-1", "US West (Northern California)", "ec2.us-west-1.amazonaws.com"),
-    US_WEST_2("us-west-2", "US West (Oregon)", "ec2.us-west-2.amazonaws.com"),
-    EUROPE("eu-west-1", "EU (Ireland)", "ec2.eu-west-1.amazonaws.com"),
-    ASIA_1("ap-southeast-1", "Asia Pacific (Singapore)", "ec2.ap-southeast-1.amazonaws.com"),
-    ASIA_2("ap-southeast-2", "Asia Pacific (Sydney)", "ec2.ap-southeast-2.amazonaws.com"),
-    ASIA_3("ap-northeast-1", "Asia Pacific (Tokyo)", "ec2.ap-northeast-1.amazonaws.com"),
-    SOUTH_AMERICA("sa-east-1", "South America (Sao Paulo)", "ec2.sa-east-1.amazonaws.com");
+    STANDALONE("standalone-agent", "Standalone", "Standalone Agent", ""),
+    US_EAST("us-east-1", "Virginia", "US East (Northern Virginia)", "ec2.us-east-1.amazonaws.com"),
+    US_WEST_1("us-west-1", "Northern California", "US West (Northern California)", "ec2.us-west-1.amazonaws.com"),
+    US_WEST_2("us-west-2", "Oregon", "US West (Oregon)", "ec2.us-west-2.amazonaws.com"),
+    EUROPE("eu-west-1", "Ireland", "EU (Ireland)", "ec2.eu-west-1.amazonaws.com"),
+    ASIA_1("ap-southeast-1", "Singapore", "Asia Pacific (Singapore)", "ec2.ap-southeast-1.amazonaws.com"),
+    ASIA_2("ap-southeast-2", "Sydney", "Asia Pacific (Sydney)", "ec2.ap-southeast-2.amazonaws.com"),
+    ASIA_3("ap-northeast-1", "Tokyo", "Asia Pacific (Tokyo)", "ec2.ap-northeast-1.amazonaws.com"),
+    SOUTH_AMERICA("sa-east-1", "Sao Paulo", "South America (Sao Paulo)", "ec2.sa-east-1.amazonaws.com");
 
     private String description;
+    private String name;
     private String endpoint;
     private String region;
 
@@ -41,10 +41,18 @@ public enum VMRegion {
      * @param desc
      * @param endpoint
      */
-    private VMRegion(String region, String desc, String endpoint) {
+    private VMRegion(String region, String name, String desc, String endpoint) {
         this.description = desc;
+        this.name = name;
         this.endpoint = endpoint;
         this.region = region;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
     }
 
     /**

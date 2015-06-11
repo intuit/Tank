@@ -334,7 +334,6 @@ public class CloudVmStatusTest {
         assertEquals("Agent", result.getConfigName());
         assertEquals("AGENT", result.name());
         assertEquals("AGENT", result.toString());
-        assertEquals(1, result.ordinal());
     }
 
     /**
@@ -488,7 +487,6 @@ public class CloudVmStatusTest {
         assertEquals("ec2.ap-southeast-1.amazonaws.com", result.getEndpoint());
         assertEquals("Asia Pacific (Singapore)", result.getDescription());
         assertEquals("ASIA_1", result.name());
-        assertEquals(4, result.ordinal());
     }
 
     /**

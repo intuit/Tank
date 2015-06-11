@@ -75,7 +75,6 @@ public class ReportingInstanceCpTest {
         assertEquals("US East (Northern Virginia)", result.toString());
         assertEquals("ec2.us-east-1.amazonaws.com", result.getEndpoint());
         assertEquals("US_EAST", result.name());
-        assertEquals(0, result.ordinal());
     }
 
     /**
@@ -98,7 +97,6 @@ public class ReportingInstanceCpTest {
         assertEquals("US East (Northern Virginia)", result.toString());
         assertEquals("ec2.us-east-1.amazonaws.com", result.getEndpoint());
         assertEquals("US_EAST", result.name());
-        assertEquals(0, result.ordinal());
     }
 
     /**

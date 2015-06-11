@@ -255,8 +255,9 @@ public class AmazonInstance implements IEnvironmentInstance {
                                 .describeAddresses(new DescribeAddressesRequest());
                         Set<String> reserved = config.getVmManagerConfig().getReservedElasticIps();
                         for (Address address : describeAddresses.getAddresses()) {
-                            
-                            if ("standard".equalsIgnoreCase(address.getDomain()) && StringUtils.isBlank(address.getInstanceId())) {
+
+                            if ("standard".equalsIgnoreCase(address.getDomain())
+                                    && StringUtils.isBlank(address.getInstanceId())) {
                                 String ip = address.getPublicIp();
                                 if (!reserved.contains(ip)) {
                                     availableEips.add(ip);
@@ -437,8 +438,9 @@ public class AmazonInstance implements IEnvironmentInstance {
     public List<VMInformation> kill(List<String> instanceIds) {
         List<VMInformation> result = new ArrayList<VMInformation>();
         try {
-            result.addAll(killForRegion(VMRegion.US_EAST, instanceIds));
-            result.addAll(killForRegion(VMRegion.US_WEST_1, instanceIds));
+            for (VMRegion region : config.getVmManagerConfig().getRegions()) {
+                result.addAll(killForRegion(region, instanceIds));
+            }
             asynchEc2Client.setEndpoint(vmRegion.getEndpoint());
         } catch (Exception ex) {
             logger.error(ex.getMessage());
@@ -622,7 +624,8 @@ public class AmazonInstance implements IEnvironmentInstance {
                             if (associated) {
                                 logger.info(instanceId + " associated with " + publicIp);
                             } else if (count % 5 == 0) {
-                                logger.info(instanceId + " not associated yet" + publicIp + ". Retrying... count = " + count);
+                                logger.info(instanceId + " not associated yet" + publicIp + ". Retrying... count = "
+                                        + count);
                             }
                         } catch (Exception e) {
                             if (count < 5) {
@@ -659,8 +662,9 @@ public class AmazonInstance implements IEnvironmentInstance {
     public List<VMInformation> stopInstances(List<String> instanceIds) {
         List<VMInformation> result = new ArrayList<VMInformation>();
         try {
-            result.addAll(stopForRegion(VMRegion.US_EAST, instanceIds));
-            result.addAll(stopForRegion(VMRegion.US_WEST_1, instanceIds));
+            for (VMRegion region : config.getVmManagerConfig().getRegions()) {
+                result.addAll(killForRegion(region, instanceIds));
+            }
             asynchEc2Client.setEndpoint(vmRegion.getEndpoint());
         } catch (Exception ex) {
             logger.error(ex.getMessage());

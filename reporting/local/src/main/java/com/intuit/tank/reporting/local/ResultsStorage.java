@@ -96,7 +96,7 @@ public final class ResultsStorage {
         timingResultMap.remove(jobId);
     }
 
-    public Map<Date, Map<String, TPSInfo>> getTpsMapForJob(String... jobId) {
+    public Map<Date, Map<String, TPSInfo>> getTpsMapForJob(Date minDate, String... jobId) {
         List<TPSInfoContainer> containers = new ArrayList<TPSInfoContainer>();
         for (String id : jobId) {
             Map<String, List<TPSInfoContainer>> map = tpsMap.get(id);
@@ -107,10 +107,10 @@ public final class ResultsStorage {
             }
         }
         LOG.info("Have " + containers.size() + " containers for jobs " + Arrays.toString(jobId));
-        return getTpsMapForJob(containers);
+        return getTpsMapForJob(minDate, containers);
     }
 
-    public Map<Date, Map<String, TPSInfo>> getTpsMapForInstance(String jobId, String instanceId) {
+    public Map<Date, Map<String, TPSInfo>> getTpsMapForInstance(Date minDate, String jobId, String instanceId) {
         List<TPSInfoContainer> containers = new ArrayList<TPSInfoContainer>();
         Map<String, List<TPSInfoContainer>> map = tpsMap.get(jobId);
         if (map != null) {
@@ -120,23 +120,25 @@ public final class ResultsStorage {
             }
         }
         LOG.info("Have " + containers.size() + " containers for job " + jobId + " and instance " + instanceId);
-        return getTpsMapForJob(containers);
+        return getTpsMapForJob(minDate, containers);
     }
 
-    private Map<Date, Map<String, TPSInfo>> getTpsMapForJob(List<TPSInfoContainer> conatiners) {
+    private Map<Date, Map<String, TPSInfo>> getTpsMapForJob(Date minDate, List<TPSInfoContainer> conatiners) {
         Map<Date, Map<String, TPSInfo>> ret = new HashMap<Date, Map<String, TPSInfo>>();
         for (TPSInfoContainer container : conatiners) {
             for (TPSInfo info : container.getTpsInfos()) {
-                Map<String, TPSInfo> map = ret.get(info.getTimestamp());
-                if (map == null) {
-                    map = new HashMap<String, TPSInfo>();
-                    ret.put(info.getTimestamp(), map);
+                if (minDate != null && info.getTimestamp().getTime() >= minDate.getTime()) {
+                    Map<String, TPSInfo> map = ret.get(info.getTimestamp());
+                    if (map == null) {
+                        map = new HashMap<String, TPSInfo>();
+                        ret.put(info.getTimestamp(), map);
+                    }
+                    TPSInfo existing = map.get(info.getKey());
+                    if (existing != null) {
+                        info = existing.add(info);
+                    }
+                    map.put(info.getKey(), info);
                 }
-                TPSInfo existing = map.get(info.getKey());
-                if (existing != null) {
-                    info = existing.add(info);
-                }
-                map.put(info.getKey(), info);
             }
         }
         return ret;

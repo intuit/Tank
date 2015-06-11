@@ -105,7 +105,7 @@ public interface IDatabase {
      *            the maxRange as a String in format DATE_FORMAT
      * @return
      */
-    public List<Item> getItems(String tableName, String jobId, String minRange, String maxRange, String query);
+    public List<Item> getItems(String tableName, String minRange, String maxRange, String instanceId, String... jobId);
 
     /**
      * 
@@ -116,8 +116,8 @@ public interface IDatabase {
      * @param maxRange
      * @return
      */
-    public PagedDatabaseResult getPagedItems(String tableName, String jobId, Object nextToken, String minRange,
-            String maxRange, String query);
+    public PagedDatabaseResult getPagedItems(String tableName, Object nextToken, String minRange,
+            String maxRange, String instanceId, String... jobId);
 
     /**
      * 
