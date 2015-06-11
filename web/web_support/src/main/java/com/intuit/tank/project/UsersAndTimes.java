@@ -14,9 +14,13 @@ package com.intuit.tank.project;
  */
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -27,13 +31,11 @@ import org.jboss.seam.international.status.Messages;
 
 import com.intuit.tank.ProjectBean;
 import com.intuit.tank.dao.JobConfigurationDao;
-import com.intuit.tank.project.JobConfiguration;
-import com.intuit.tank.project.JobRegion;
-import com.intuit.tank.project.Workload;
 import com.intuit.tank.util.TestParamUtil;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
+import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.settings.TimeUtil;
 
 /**
@@ -55,8 +57,12 @@ public class UsersAndTimes implements Serializable {
     @Inject
     private ProjectBean projectBean;
 
+    private TankConfig tankConfig = new TankConfig();
+
     @Inject
     private Messages messages;
+
+    private List<JobRegion> jobRegions;
 
     /**
      * initializes the instance variables with the project and workload
@@ -67,100 +73,140 @@ public class UsersAndTimes implements Serializable {
      *            the value of the workload that should be assigned.
      */
     public void init() {
-
+        getJobRegions();
     }
+    
+   
 
-    /**
-     * @return The number of users in the east region.
-     */
-    public String getEastUsers() {
-        return getUsersForRegion(VMRegion.US_EAST);
-    }
+    public List<JobRegion> getJobRegions() {
+        if (jobRegions == null) {
 
-    /**
-     * Sets the number of east users
-     * 
-     * @param eastUsers
-     *            The number of users in the east region.
-     */
-    public void setEastUsers(String users) {
-        if (!TestParamUtil.isValidExpression(users)) {
-            messages.error("Cannot parse users " + users);
-        } else {
-            setUsersForRegion(VMRegion.US_EAST, users);
-        }
-    }
+            Set<JobRegion> regions = projectBean.getJobConfiguration().getJobRegions();
 
-    /**
-     * @return the number of users in the west region.
-     */
-    public String getWestUsers() {
-        return getUsersForRegion(VMRegion.US_WEST_1);
-    }
+            Set<VMRegion> configuredRegions = new HashSet<VMRegion>(tankConfig.getVmManagerConfig()
+                    .getConfiguredRegions());
+            if (tankConfig.getStandalone()) {
+                JobRegion standaloneRegion = new JobRegion(VMRegion.STANDALONE, "0");
+                for (JobRegion region : regions) {
+                    if (region.getRegion() == VMRegion.US_EAST || region.getRegion() == VMRegion.STANDALONE) {
+                        standaloneRegion = region;
+                        standaloneRegion.setRegion(VMRegion.STANDALONE);
+                        break;
+                    }
+                }
+                regions.clear();
+                regions.add(standaloneRegion);
+            } else {
+                for (JobRegion region : regions) {
+                    configuredRegions.remove(region.getRegion());
+                }
+                for (VMRegion region : configuredRegions) {
+                    if (tankConfig.getStandalone()) {
 
-    /**
-     * Sets the number of users in the west region
-     * 
-     * @param users
-     *            the number of users in the west region
-     */
-    public void setWestUsers(String users) {
-        if (!TestParamUtil.isValidExpression(users)) {
-            messages.error("Cannot parse users " + users);
-        } else {
-            setUsersForRegion(VMRegion.US_WEST_1, users);
-        }
-    }
-
-    /**
-     * Helps in setting the values of the users in a particular region
-     * 
-     * @param region
-     *            The region where the users are to be set.
-     * @param users
-     *            The value of the number of users that is to be set.
-     */
-    private void setUsersForRegion(VMRegion region, String users) {
-        Set<JobRegion> jobRegions = projectBean.getJobConfiguration().getJobRegions();
-
-        if (jobRegions.isEmpty() || jobRegions.size() < 2) {
-            JobRegion ejr = new JobRegion();
-            ejr.setUsers("0");
-            ejr.setRegion(VMRegion.US_EAST);
-
-            JobRegion wjr = new JobRegion();
-            wjr.setUsers("0");
-            wjr.setRegion(VMRegion.US_WEST_1);
-            jobRegions.add(ejr);
-            jobRegions.add(wjr);
-        }
-        for (JobRegion jobRegion : jobRegions) {
-            if (jobRegion.getRegion() == region) {
-                jobRegion.setUsers(users);
-                break;
+                    } else {
+                        regions.add(new JobRegion(region, "0"));
+                    }
+                }
             }
+            jobRegions = new ArrayList<JobRegion>(regions);
+            Collections.sort(jobRegions);
         }
+        return jobRegions;
+
     }
 
-    /**
-     * Returns the number of users in a given region
-     * 
-     * @param region
-     *            The region.
-     * @return the number of users in the given region
-     * @see com.intuit.tank.vm.api.enumerated.VMRegion
-     */
-    private String getUsersForRegion(VMRegion region) {
-        String retVal = "0";
-        Set<JobRegion> jobRegions = projectBean.getJobConfiguration().getJobRegions();
-        for (JobRegion jobRegion : jobRegions) {
-            if (jobRegion.getRegion() == region) {
-                retVal = jobRegion.getUsers();
-                break;
-            }
-        }
-        return retVal;
-    }
+    //
+    // /**
+    // * @return The number of users in the east region.
+    // */
+    // public String getEastUsers() {
+    // return getUsersForRegion(VMRegion.US_EAST);
+    // }
+    //
+    // /**
+    // * Sets the number of east users
+    // *
+    // * @param eastUsers
+    // * The number of users in the east region.
+    // */
+    // public void setEastUsers(String users) {
+    // if (!TestParamUtil.isValidExpression(users)) {
+    // messages.error("Cannot parse users " + users);
+    // } else {
+    // setUsersForRegion(VMRegion.US_EAST, users);
+    // }
+    // }
+    //
+    // /**
+    // * @return the number of users in the west region.
+    // */
+    // public String getWestUsers() {
+    // return getUsersForRegion(VMRegion.US_WEST_1);
+    // }
+    //
+    // /**
+    // * Sets the number of users in the west region
+    // *
+    // * @param users
+    // * the number of users in the west region
+    // */
+    // public void setWestUsers(String users) {
+    // if (!TestParamUtil.isValidExpression(users)) {
+    // messages.error("Cannot parse users " + users);
+    // } else {
+    // setUsersForRegion(VMRegion.US_WEST_1, users);
+    // }
+    // }
+    //
+    // /**
+    // * Helps in setting the values of the users in a particular region
+    // *
+    // * @param region
+    // * The region where the users are to be set.
+    // * @param users
+    // * The value of the number of users that is to be set.
+    // */
+    // private void setUsersForRegion(VMRegion region, String users) {
+    // Set<JobRegion> jobRegions = projectBean.getJobConfiguration().getJobRegions();
+    //
+    // if (jobRegions.isEmpty() || jobRegions.size() < 2) {
+    // JobRegion ejr = new JobRegion();
+    // ejr.setUsers("0");
+    // ejr.setRegion(VMRegion.US_EAST);
+    //
+    // JobRegion wjr = new JobRegion();
+    // wjr.setUsers("0");
+    // wjr.setRegion(VMRegion.US_WEST_1);
+    // jobRegions.add(ejr);
+    // jobRegions.add(wjr);
+    // }
+    // for (JobRegion jobRegion : jobRegions) {
+    // if (jobRegion.getRegion() == region) {
+    // jobRegion.setUsers(users);
+    // break;
+    // }
+    // }
+    // }
+    //
+    // /**
+    // * Returns the number of users in a given region
+    // *
+    // * @param region
+    // * The region.
+    // * @return the number of users in the given region
+    // * @see com.intuit.tank.vm.api.enumerated.VMRegion
+    // */
+    // private String getUsersForRegion(VMRegion region) {
+    // String retVal = "0";
+    // Set<JobRegion> jobRegions = projectBean.getJobConfiguration().getJobRegions();
+    // for (JobRegion jobRegion : jobRegions) {
+    // if (jobRegion.getRegion() == region) {
+    // retVal = jobRegion.getUsers();
+    // break;
+    // }
+    // }
+    // return retVal;
+    // }
 
     /**
      * Persists the workload object in the database. It also fires an event for project modified.
@@ -357,7 +403,9 @@ public class UsersAndTimes implements Serializable {
         Set<JobRegion> jobRegions = projectBean.getJobConfiguration().getJobRegions();
         for (JobRegion jobRegion : jobRegions) {
             try {
-                totalUsers += Integer.valueOf(jobRegion.getUsers());
+                if (NumberUtils.isDigits(jobRegion.getUsers())) {
+                    totalUsers += Integer.valueOf(jobRegion.getUsers());
+                }
             } catch (NumberFormatException e) {
                 LOG.info("cannot parse users" + jobRegion.getUsers());
             }

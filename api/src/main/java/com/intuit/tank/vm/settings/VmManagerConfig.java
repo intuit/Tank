@@ -164,6 +164,21 @@ public class VmManagerConfig implements Serializable {
 
     /**
      * 
+     * @return
+     */
+    @Nonnull
+    public List<VMRegion> getConfiguredRegions() {
+        List<VMRegion> ret = new ArrayList<VMRegion>();
+        for (VMRegion r : regionMap.keySet()) {
+            if (getInstanceForRegionAndType(r, VMImageType.AGENT) != null) {
+                ret.add(r);
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * 
      * @param name
      * @return
      */
@@ -213,6 +228,7 @@ public class VmManagerConfig implements Serializable {
         }
         return "com.intuit.tank.persistence.databases.AmazonDynamoDatabaseDocApi";
     }
+
     /**
      * @return the read capacity for dynamoDB tables.
      */
@@ -221,6 +237,7 @@ public class VmManagerConfig implements Serializable {
 
         return ret;
     }
+
     /**
      * @return the write capacity for dynamoDB tables.
      */

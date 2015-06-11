@@ -14,12 +14,9 @@ package com.intuit.tank.vm.api.enumerated;
  */
 
 public enum VMImageType {
+    SUPPORT("Support"),
     CONTROLLER("Controller"),
-    AGENT("Agent"),
-    BROKER("JMS"),
-    SPLUNK("Splunk"),
-    HA_PROXY("HaProxy"),
-    PERSISTENCE("WILY");
+    AGENT("Agent");
 
     private String configName;
 

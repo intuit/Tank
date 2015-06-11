@@ -74,7 +74,7 @@
   <div class="vertical-spacer" />
   <p:commandButton value="#{logicStepEditor.buttonLabel}" update=":scriptBrowserForm,:logicForm"
     action="#{logicStepEditor.addToScript()}" onstart="saveScrollPos()" oncomplete="getScrollPos()"
-    onsuccess="logicDialog.hide();">
+    onsuccess="PF('logicDialog').hide();">
   </p:commandButton>
 
   <p:commandButton value="Test Data" styleClass="h-space" update=":logicDataForm:logicDataGroup"

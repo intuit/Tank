@@ -7,53 +7,29 @@
   xmlns:p="http://primefaces.org/ui">
 
   <div class="formDiv">
-
+    <ui:repeat value="#{usersAndTimes.jobRegions}" var="jobRegion">
+    
     <div class="formRow">
       <div class="formLabelDiv">
-        <h:outputLabel for="eastUsersTF" value="East Region Users" rendered="#{!tankSettings.standalone}"
-          styleClass="formLabel" />
-        <h:outputLabel for="eastUsersTF" value="Users" rendered="#{tankSettings.standalone}"
+        <h:outputLabel for="usersTF" value="#{jobRegion.region.name} Users" 
           styleClass="formLabel" />
       </div>
       <div class="formInputDiv">
-        <p:inplace label="#{usersAndTimes.eastUsers}" editor="true"
-          id="eastUsersIn">
-          <h:inputText id="eastUsersTF"
-            value="#{usersAndTimes.eastUsers}"
+        <p:inplace label="#{jobRegion.users}" editor="true">
+          <h:inputText id="usersTF"
+            value="#{jobRegion.users}"
             styleClass="formInput inputWidthSmall" required="false"
-            requiredMessage="East Users cannot be empty." />
+            requiredMessage="#{jobRegion.region.description} Users cannot be empty." />
           <p:ajax event="save" update=":mainForm:totalUsersTF" />
         </p:inplace>
-        <ts:tip tipId="eastUsersTip"
+        <ts:tip tipId="UserTip"
           text="Users can be entered as an absolute number or a relative expression.&lt;br/&gt;&lt;br/&gt;
                 Number of users can also be relative to simulation time &lt;b&gt;(ST)&lt;/b&gt;, ramp time &lt;b&gt;(RT)&lt;/b&gt;, and execution time &lt;b&gt;(ET)&lt;/b&gt;. So 4 * RT / 1000 (4 users every second) can be used.
                 &lt;br/&gt;&lt;br/&gt;
                 &lt;b&gt;Note&lt;/b&gt; - expressions with mathematical symbols must be separated by whitespace. 3ET+10m should be written as 3ET + 10m" />
       </div>
     </div>
-    <h:panelGroup rendered="#{!tankSettings.standalone}">
-      <div class="formRow">
-        <div class="formLabelDiv">
-          <h:outputLabel for="westUsersTF" value="West Region Users"
-            styleClass="formLabel" />
-        </div>
-        <div class="formInputDiv">
-          <p:inplace label="#{usersAndTimes.westUsers}" editor="true"
-            id="westUsersIn">
-            <h:inputText id="westUsersTF" inputWidth="100"
-              value="#{usersAndTimes.westUsers}"
-              styleClass="formInput inputWidthSmall" required="false"
-              requiredMessage="West Users cannot be empty." />
-            <p:ajax event="save" update=":mainForm:totalUsersTF" />
-          </p:inplace>
-          <ts:tip tipId="westUsersTip"
-            text="Users can be entered as an absolute number or a relative expression.&lt;br/&gt;&lt;br/&gt;
-                Number of users can also be relative to simulation time &lt;b&gt;(ST)&lt;/b&gt;, ramp time &lt;b&gt;(RT)&lt;/b&gt;, and execution time &lt;b&gt;(ET)&lt;/b&gt;. So 4 * RT / 1000 (4 users every second) can be used.
-                &lt;br/&gt;&lt;br/&gt;
-                &lt;b&gt;Note&lt;/b&gt; - expressions with mathematical symbols must be separated by whitespace. 3ET+10m should be written as 3ET + 10m" />
-        </div>
-      </div>
-    </h:panelGroup>
+    </ui:repeat>
 
     <div class="formRow">
       <div class="formLabelDiv">
