@@ -17,6 +17,7 @@ package com.intuit.tank.tools.debugger;
  */
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
@@ -63,6 +64,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SquiggleUnderlineHighlightPainter;
 import org.fife.ui.rtextarea.GutterIconInfo;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
@@ -455,6 +457,7 @@ public class AgentDebuggerFrame extends JFrame {
             TestStep unmarshalledStep = JaxbUtil.unmarshall(stepXML, TestStep.class);
             scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(
                     scriptEditorTA.getLineStartOffset(unmarshalledStep.getStepIndex()), modifiedIcon);
+            
             DebugStep debugStep = steps.get(unmarshalledStep.getStepIndex());
             debugStep.setStepRun(unmarshalledStep);
             if (currentTestPlan != null) {
@@ -750,6 +753,7 @@ public class AgentDebuggerFrame extends JFrame {
     public void start() {
         startWaiting();
         flowController = new DebuggerFlowController(this);
+        scriptEditorTA.getHighlighter().removeAllHighlights();
         actionComponents.start();
         loggerTA.setText("");
         loggerTA.setCaretPosition(0);
@@ -897,6 +901,17 @@ public class AgentDebuggerFrame extends JFrame {
                         debugStep.setExitVariables(context.getVariables().getVaribleValues());
                         debugStep.setRequest(context.getRequest());
                         debugStep.setResponse(context.getResponse());
+                    }
+                    try {
+                        if (context.getResponse() != null && (context.getResponse().getHttpCode() >= 400 || context.getResponse().getHttpCode() == -1)) {
+                            //highlight the line
+                            int lineStartOffset = scriptEditorTA.getLineStartOffset(currentRunningStep);
+                            int lineEndOffset = scriptEditorTA.getLineEndOffset(currentRunningStep);
+                            
+                            scriptEditorTA.getHighlighter().addHighlight(lineStartOffset, lineEndOffset, new SquiggleUnderlineHighlightPainter(Color.RED));
+                        }
+                    } catch (BadLocationException e1) {
+                        e1.printStackTrace();
                     }
                     if (!context.getErrors().isEmpty()) {
                         try {
