@@ -151,7 +151,6 @@ public class AgentMngrAPIResponseCpTest {
         assertEquals("Asia Pacific (Singapore)", result.toString());
         assertEquals("ec2.ap-southeast-1.amazonaws.com", result.getEndpoint());
         assertEquals("ASIA_1", result.name());
-        assertEquals(4, result.ordinal());
     }
 
     /**
