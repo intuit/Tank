@@ -1,3 +1,7 @@
+// ######## Compatability mode for java 8. ##########
+try {
+   load("nashorn:mozilla_compat.js");
+} catch (exception){}
 
 /**
  * prints the line to the output. will be log
