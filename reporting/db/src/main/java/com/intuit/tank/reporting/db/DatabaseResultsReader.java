@@ -191,7 +191,7 @@ public class DatabaseResultsReader implements ResultsReader {
                 }
             }
         } catch (Exception e) {
-            LOG.error("Error getting TPS map.");
+            LOG.error("Error getting TPS map: " + e, e);
         }
         return ret;
     }
