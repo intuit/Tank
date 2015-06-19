@@ -71,7 +71,6 @@ public class TcpInterceptorTest {
     public void setup() throws Exception {
         listen = new InetSocketAddress("localhost", 9998);
         StreamInterceptor<InetSocketAddress, InetSocketAddress> si = new StreamInterceptor<InetSocketAddress, InetSocketAddress>() {
-            @Override
             public void connected(StreamHandle cs, StreamHandle sc,
                     InetSocketAddress cl, InetSocketAddress sl) {
                 logger.info("Connected " + cl + " to " + sl);
@@ -87,7 +86,6 @@ public class TcpInterceptorTest {
                 }
             }
 
-            @Override
             public void inputClosed(StreamHandle handle) {
                 logger.info(handle + " : input closed, closing output");
                 handle.close();
@@ -98,14 +96,12 @@ public class TcpInterceptorTest {
                 }
             }
 
-            @Override
             public void readException(StreamHandle handle, IOException ioe) {
                 logger.info(handle + ": error reading: " + ioe);
                 if (!handlers.contains(handle))
                     fail("readException called for nonexistent handler");
             }
 
-            @Override
             public void received(StreamHandle handle, byte[] b, int off, int len) {
                 // logger.info(handle + ": received '" + new String(b, off, len)
                 // + "'");
