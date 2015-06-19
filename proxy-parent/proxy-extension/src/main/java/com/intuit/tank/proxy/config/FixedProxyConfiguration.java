@@ -29,6 +29,7 @@ public class FixedProxyConfiguration implements ProxyConfiguration {
 
     private int port = 8888;
     private String outputFile = "recordedOutput.xml";
+    private String certificateAuthorityPath = "auto_generated_ca.p12";
     private Set<ConfigInclusionExclusionRule> exclusions = new HashSet<ConfigInclusionExclusionRule>();
     private Set<ConfigInclusionExclusionRule> inclusions = new HashSet<ConfigInclusionExclusionRule>();
 
@@ -60,6 +61,12 @@ public class FixedProxyConfiguration implements ProxyConfiguration {
     public boolean isFollowRedirects() {
         return true;
     }
+    
+    @Override
+    public String getCertificateAuthorityPath() {
+    	return certificateAuthorityPath;
+    }
+    
 
     /**
      * @{inheritDoc
@@ -147,6 +154,14 @@ public class FixedProxyConfiguration implements ProxyConfiguration {
      */
     public void setOutputFile(String outputFile) {
         this.outputFile = outputFile;
+    }
+    
+    /**
+     * @param certificateAuthorityPath
+     * 				the path to the certificate authority
+     */
+    public void setCertificateAuthorityPath(String certificateAuthorityPath) {
+    	this.certificateAuthorityPath = certificateAuthorityPath;
     }
 
     /**

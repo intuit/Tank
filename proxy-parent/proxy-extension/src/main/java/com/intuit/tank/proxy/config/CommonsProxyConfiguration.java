@@ -44,7 +44,7 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
     public static final String DEFAULT_CONFIG = "recording-proxy-config-default.xml";
     public static final String SUGGESTED_CONFIG_NAME = "recording-proxy-config.xml";
 
-    private String configPath = "recording-proxy-config.xml";
+    private String configPath = "recording-proxy-config.xml";    
     private XMLConfiguration config;
     private FileChangedReloadingStrategy reloadingStrategy;
 
@@ -90,6 +90,14 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
      */
     public String getOutputFile() {
         return config.getString("output-file", new File("recordedOutput.xml").getAbsolutePath());
+    }
+    
+    /**
+     * @{inheritDoc
+     */
+    @Override
+    public String getCertificateAuthorityPath() {
+    	return config.getString("certificate-authority-path", new File("auto_generated_ca.p12").getAbsolutePath());
     }
 
     /**
