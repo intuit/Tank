@@ -57,7 +57,6 @@ public class AuthenticatingHttpRequestHandler implements HttpRequestHandler {
      * 
      * @see org.owasp.proxy.http.server.HttpRequestHandler#dispose()
      */
-    @Override
     public void dispose() throws IOException {
         delegate.dispose();
     }
@@ -68,7 +67,6 @@ public class AuthenticatingHttpRequestHandler implements HttpRequestHandler {
      * @see org.owasp.proxy.http.server.HttpRequestHandler#handleRequest(java.net .InetAddress,
      * org.owasp.proxy.http.StreamingRequest, boolean)
      */
-    @Override
     public StreamingResponse handleRequest(InetAddress source,
             StreamingRequest request, boolean isContinue) throws IOException,
             MessageFormatException {

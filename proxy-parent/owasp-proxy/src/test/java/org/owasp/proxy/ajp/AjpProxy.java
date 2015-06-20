@@ -64,7 +64,6 @@ public class AjpProxy {
          * 
          * @see org.owasp.proxy.daemon.ConnectionHandler#handleConnection(java.net .Socket)
          */
-        @Override
         public void handleConnection(Socket socket) throws IOException {
             PrintStream dump = System.err;
             String sock = "AJP " + socket.toString();

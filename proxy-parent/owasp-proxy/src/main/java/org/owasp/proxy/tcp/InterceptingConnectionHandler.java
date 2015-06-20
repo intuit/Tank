@@ -75,7 +75,6 @@ public class InterceptingConnectionHandler implements TargetedConnectionHandler 
      * @see org.owasp.proxy.daemon.TargetedConnectionHandler#handleConnection(java .net.Socket,
      * java.net.InetSocketAddress)
      */
-    @Override
     public void handleConnection(final Socket client, InetSocketAddress target)
             throws IOException {
         InetSocketAddress clientLabel, serverLabel;

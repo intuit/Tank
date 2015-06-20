@@ -35,7 +35,12 @@ public interface ProxyConfiguration {
      * @return the port
      */
     public abstract boolean isFollowRedirects();
-
+    
+    /**
+     * @return the path to the certificate authority (if provided).
+     */
+    public abstract String getCertificateAuthorityPath();
+    
     /**
      * @return the outputFile
      */
