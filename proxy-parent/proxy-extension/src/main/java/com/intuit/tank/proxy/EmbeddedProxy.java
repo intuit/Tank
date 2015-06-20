@@ -191,29 +191,6 @@ public class EmbeddedProxy implements TransactionRecordedListener {
 					+ e.getLocalizedMessage());
 			throw e;
 		}
-		FileWriter pem = null;
-		try {
-			pem = new FileWriter("auto_generated_ca.pem");
-			pem.write(ssl.getCACert());
-		} catch (IOException e) {
-			System.err.println("Error writing CA cert : "
-					+ e.getLocalizedMessage());
-			throw e;
-		} catch (CertificateEncodingException e) {
-			System.err.println("Error writing CA cert : "
-					+ e.getLocalizedMessage());
-			throw e;
-		} finally {
-			if (pem != null)
-				try {
-					pem.close();
-				} catch (IOException e) {
-					System.err
-							.println("Error closing PEM file after writing : "
-									+ e.getLocalizedMessage());
-					throw e;
-				}
-		}
 	}
 
 	/**

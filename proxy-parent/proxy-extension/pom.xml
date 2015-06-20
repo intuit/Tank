@@ -23,8 +23,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.owasp</groupId>
-      <artifactId>proxy</artifactId>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>owasp-proxy</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
