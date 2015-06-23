@@ -16,6 +16,7 @@ package com.intuit.tank.dao;
  * #L%
  */
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class JobRegionDao extends BaseDao<JobRegion> {
      * @param jobRegions
      * @return
      */
-    public static Set<JobRegion> cleanRegions(Set<JobRegion> jobRegions) {
+    public static Set<JobRegion> cleanRegions(Collection<JobRegion> jobRegions) {
         Map<VMRegion, JobRegion> map = new HashMap<VMRegion, JobRegion>();
         for (JobRegion region : jobRegions) {
             JobRegion existing = map.get(region.getRegion());

@@ -101,7 +101,7 @@ public class ReportingConfig implements Serializable {
             try {
                 ret = config.configurationAt(KEY_CONFIG);
             } catch (Exception e) {
-                LOG.error("Provider config specifed more than once.");
+                LOG.error("Provider config not specified or specifed more than once.");
             }
         }
         return ret;

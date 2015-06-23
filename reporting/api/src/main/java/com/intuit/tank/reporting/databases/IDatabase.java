@@ -117,7 +117,7 @@ public interface IDatabase {
      * @return
      */
     public PagedDatabaseResult getPagedItems(String tableName, Object nextToken, String minRange,
-            String maxRange, String instanceId, String... jobId);
+            String maxRange, String instanceId, String jobId);
 
     /**
      * 
