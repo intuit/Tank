@@ -202,11 +202,13 @@
     </watchdog>
 
     <results>
+      <!-- 
       <config>
         <write-capacity>50</write-capacity>
         <read-capacity>10</read-capacity>
       </config>
-      <provider>com.intuit.tank.persistence.databases.AmazonDynamoDatabaseDocApi</provider>
+      <provider>com.intuit.tank.persistence.databases.AmazonDynamoDatabaseDocApi</provider> -->
+      <provider>com.intuit.tank.persistence.databases.AmazonSimpleDatabase</provider>
     </results>
 
   </vm-manager>

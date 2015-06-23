@@ -42,6 +42,11 @@ public class DatabaseResultsReporter implements ResultsReporter {
 
     private String tpsTableName;
     private String timingTableName;
+    private IDatabase db;
+
+    public DatabaseResultsReporter() {
+        db = DataBaseFactory.getDatabase();
+    }
 
     /**
      * @{inheritDoc
@@ -53,15 +58,16 @@ public class DatabaseResultsReporter implements ResultsReporter {
         Runnable task = new Runnable() {
             public void run() {
                 try {
-                    IDatabase db = DataBaseFactory.getDatabase();
                     List<Item> items = new ArrayList<Item>();
                     for (TPSInfo info : container.getTpsInfos()) {
                         Item item = createItem(jobId, instanceId, info);
                         items.add(item);
                     }
-                    String tableName = getTpsTableName(db);
-                    LOG.info("Sending " + items.size() + " to TPS Table " + tableName);
-                    db.addItems(tableName, items, false);
+                    if (!items.isEmpty()) {
+                        String tableName = getTpsTableName(db);
+                        LOG.info("Sending " + items.size() + " to TPS Table " + tableName);
+                        db.addItems(tableName, items, false);
+                    }
                 } catch (Exception t) {
                     LOG.error("Error adding results: " + t.getMessage(), t);
                     throw new RuntimeException(t);
@@ -81,7 +87,6 @@ public class DatabaseResultsReporter implements ResultsReporter {
      */
     @Override
     public void sendTimingResults(String jobId, String instanceId, List<TankResult> results, boolean async) {
-        IDatabase db = DataBaseFactory.getDatabase();
         String tableName = getTimingTableName(db, jobId);
         if (results.size() != 0 && tableName != null) {
             final List<TankResult> l = new ArrayList<TankResult>();
@@ -127,7 +132,7 @@ public class DatabaseResultsReporter implements ResultsReporter {
 
     private String getTimingTableName(IDatabase db, String jobId) {
         if (StringUtils.isBlank(timingTableName)) {
-            timingTableName = db.getDatabaseName(TankDatabaseType.timing, null);
+            timingTableName = db.getDatabaseName(TankDatabaseType.timing, jobId);
             db.createTable(timingTableName);
         }
         return timingTableName;

@@ -37,6 +37,12 @@ public class DatabaseResultsReader implements ResultsReader {
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(DatabaseResultsReader.class);
 
+    private IDatabase db;
+
+    public DatabaseResultsReader() {
+        db = DataBaseFactory.getDatabase();
+    }
+
     /**
      * 
      * @{inheritDoc
@@ -59,11 +65,10 @@ public class DatabaseResultsReader implements ResultsReader {
      */
     @Override
     public PagedTimingResults getPagedTimingResults(String jobId, Object nextToken) {
-        IDatabase db = DataBaseFactory.getDatabase();
         String tableName = db.getDatabaseName(TankDatabaseType.timing, jobId);
         List<TankResult> results = new ArrayList<TankResult>();
         try {
-            PagedDatabaseResult pagedItems = db.getPagedItems(tableName, nextToken, null, null, jobId);
+            PagedDatabaseResult pagedItems = db.getPagedItems(tableName, nextToken, null, null, null, jobId);
             for (Item item : pagedItems.getItems()) {
                 results.add(ItemToTankResult(item));
             }
@@ -83,7 +88,6 @@ public class DatabaseResultsReader implements ResultsReader {
      */
     @Override
     public boolean hasTimingData(String jobId) {
-        IDatabase db = DataBaseFactory.getDatabase();
         String tableName = db.getDatabaseName(TankDatabaseType.timing, jobId);
         return db.hasJobData(tableName, jobId);
     }
@@ -118,7 +122,7 @@ public class DatabaseResultsReader implements ResultsReader {
 
     @Override
     public void deleteTimingForJob(String jobId, boolean asynch) {
-        IDatabase db = DataBaseFactory.getDatabase();
+
         String tableName = db.getDatabaseName(TankDatabaseType.timing, jobId);
         db.deleteForJob(tableName, jobId, asynch);
 
@@ -127,7 +131,6 @@ public class DatabaseResultsReader implements ResultsReader {
     @Override
     public void config(HierarchicalConfiguration config) {
         // nothing to do
-
     }
 
     @Override
@@ -143,7 +146,6 @@ public class DatabaseResultsReader implements ResultsReader {
     private Map<Date, Map<String, TPSInfo>> getTpsMap(Date minDate, String instanceId, String... jobIds) {
         Map<Date, Map<String, TPSInfo>> ret = new HashMap<Date, Map<String, TPSInfo>>();
         try {
-            IDatabase db = DataBaseFactory.getDatabase();
             String tpsTableName = new TankConfig().getInstanceName() + "_tps";
             if (db.hasTable(tpsTableName)) {
 

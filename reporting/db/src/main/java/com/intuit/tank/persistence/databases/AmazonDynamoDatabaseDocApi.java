@@ -277,22 +277,16 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     @SuppressWarnings("unchecked")
     @Override
     public PagedDatabaseResult getPagedItems(String tableName, Object nextToken, String minRange,
-            String maxRange, String instanceId, String... jobId) {
+            String maxRange, String instanceId, String jobId) {
         List<Item> ret = new ArrayList<Item>();
         Map<String, AttributeValue> lastKeyEvaluated = (Map<String, AttributeValue>) nextToken;
         ScanRequest scanRequest = new ScanRequest().withTableName(tableName);
         Map<String, Condition> conditions = new HashMap<String, Condition>();
-        if (jobId != null && jobId.length > 0) {
+        if (jobId != null) {
             Condition jobIdCondition = new Condition();
-            if (jobId.length == 1) {
-                jobIdCondition.withComparisonOperator(ComparisonOperator.EQ)
-                        .withAttributeValueList(new AttributeValue().withS(jobId[0]));
-            } else {
-                jobIdCondition.withComparisonOperator(ComparisonOperator.IN);
-                for (String jid : jobId) {
-                    jobIdCondition.withAttributeValueList(new AttributeValue().withS(jid));
-                }
-            }
+            jobIdCondition.withComparisonOperator(ComparisonOperator.EQ)
+                    .withAttributeValueList(new AttributeValue().withS(jobId));
+
             conditions.put(DatabaseKeys.JOB_ID_KEY.getShortKey(), jobIdCondition);
         }
         if (StringUtils.isNotBlank(instanceId)) {
@@ -336,15 +330,17 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
      */
     @Override
     public List<Item> getItems(String tableName, String minRange, String maxRange, String instanceId,
-            String... jobId) {
+            String... jobIds) {
         List<Item> ret = new ArrayList<Item>();
-        Object lastKeyEvaluated = null;
-        do {
-            PagedDatabaseResult pagedItems = getPagedItems(tableName, lastKeyEvaluated, minRange, maxRange,
-                    instanceId, jobId);
-            ret.addAll(pagedItems.getItems());
-            lastKeyEvaluated = pagedItems.getNextToken();
-        } while (lastKeyEvaluated != null);
+        for (String jobId : jobIds) {
+            Object lastKeyEvaluated = null;
+            do {
+                PagedDatabaseResult pagedItems = getPagedItems(tableName, lastKeyEvaluated, minRange, maxRange,
+                        instanceId, jobId);
+                ret.addAll(pagedItems.getItems());
+                lastKeyEvaluated = pagedItems.getNextToken();
+            } while (lastKeyEvaluated != null);
+        }
         return ret;
     }
 

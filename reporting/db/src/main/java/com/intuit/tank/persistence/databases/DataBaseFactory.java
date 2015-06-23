@@ -30,24 +30,24 @@ public class DataBaseFactory {
     
     public static final VmManagerConfig config = new TankConfig().getVmManagerConfig();
     
-    private static IDatabase provider;
-    private static String providerClass;
+//    private static IDatabase provider;
+//    private static String providerClass;
 
     public static final IDatabase getDatabase() {
-        if (provider == null || !provider.getClass().getName().equals(providerClass)) {
-            initProvider();
-        }
-        return provider;
+//        if (provider == null || !provider.getClass().getName().equals(providerClass)) {
+            return initProvider();
+//        }
+//        return provider;
     }
 
-    private static synchronized void initProvider() {
+    private static IDatabase initProvider() {
+        IDatabase provider = null;
         String resultsProvider = new TankConfig().getVmManagerConfig().getResultsProvider();
         try {
             provider = (IDatabase) Class.forName(resultsProvider).newInstance();
-            providerClass = provider.getClass().getName();
         } catch (Exception e) {
             provider = new AmazonDynamoDatabaseDocApi();
-            providerClass = provider.getClass().getName();
         }
+        return provider;
     }
 }
