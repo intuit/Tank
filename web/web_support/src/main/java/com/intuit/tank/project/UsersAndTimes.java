@@ -75,8 +75,6 @@ public class UsersAndTimes implements Serializable {
     public void init() {
         getJobRegions();
     }
-    
-   
 
     public List<JobRegion> getJobRegions() {
         if (jobRegions == null) {
@@ -87,15 +85,19 @@ public class UsersAndTimes implements Serializable {
                     .getConfiguredRegions());
             if (tankConfig.getStandalone()) {
                 JobRegion standaloneRegion = new JobRegion(VMRegion.STANDALONE, "0");
+                boolean found = false;
                 for (JobRegion region : regions) {
                     if (region.getRegion() == VMRegion.US_EAST || region.getRegion() == VMRegion.STANDALONE) {
                         standaloneRegion = region;
                         standaloneRegion.setRegion(VMRegion.STANDALONE);
+                        found = true;
                         break;
                     }
                 }
-                regions.clear();
-                regions.add(standaloneRegion);
+                if (!found) {
+                    regions.clear();
+                    regions.add(standaloneRegion);
+                }
             } else {
                 for (JobRegion region : regions) {
                     configuredRegions.remove(region.getRegion());
@@ -216,7 +218,10 @@ public class UsersAndTimes implements Serializable {
         // workload.setJobConfiguration(jobConfiguration);
         // wd.saveOrUpdate(workload);
         // projectEvent.fire(project);
+//        projectBean.getJobConfiguration().getJobRegions().clear();
+//        projectBean.getJobConfiguration().getJobRegions().addAll(getJobRegions());
         new JobConfigurationDao().saveOrUpdate(projectBean.getJobConfiguration());
+        jobRegions = null;
     }
 
     public void copyTo(Workload copyTo) {
@@ -400,8 +405,7 @@ public class UsersAndTimes implements Serializable {
      */
     public int getTotalUsers() {
         int totalUsers = 0;
-        Set<JobRegion> jobRegions = projectBean.getJobConfiguration().getJobRegions();
-        for (JobRegion jobRegion : jobRegions) {
+        for (JobRegion jobRegion : getJobRegions()) {
             try {
                 if (NumberUtils.isDigits(jobRegion.getUsers())) {
                     totalUsers += Integer.valueOf(jobRegion.getUsers());
