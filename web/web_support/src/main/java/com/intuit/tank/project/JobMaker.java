@@ -295,7 +295,7 @@ public class JobMaker implements Serializable {
                     getVersions(dataFileDao, workload.getJobConfiguration().getDataFileIds(), DataFile.class));
             proposedJobInstance.getNotificationVersions().addAll(
                     getVersions(jobNotificationDao, workload.getJobConfiguration().getNotifications()));
-            Set<JobRegion> jobRegions = JobRegionDao.cleanRegions(workload.getJobConfiguration().getJobRegions());
+            Set<JobRegion> jobRegions = JobRegionDao.cleanRegions(usersAndTimes.getJobRegions());
             proposedJobInstance.setVariables(new HashMap<String, String>(workload.getJobConfiguration()
                     .getVariables()));
             proposedJobInstance.setAllowOverride(workload.getJobConfiguration().isAllowOverride());
