@@ -1,8 +1,6 @@
 package com.intuit.tank.persistence.databases;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +51,6 @@ public class AmazonSimpleDatabase implements IDatabase {
             new ArrayBlockingQueue<Runnable>(50), Executors.defaultThreadFactory(),
             new ThreadPoolExecutor.DiscardOldestPolicy());
 
-    public static final String DATE_FORMAT = "MM.dd.yyyy HH:mm:ss.S"; // for timestamps
 
     private static TankConfig config = new TankConfig();
 
@@ -415,10 +412,6 @@ public class AmazonSimpleDatabase implements IDatabase {
         attributes.add(new ReplaceableAttribute().withName(key).withValue(value));
     }
 
-    private static String getTimestamp(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-        return sdf.format(date);
-    }
 
     private void createDatabase() {
         CloudCredentials creds = config.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);

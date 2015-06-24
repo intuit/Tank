@@ -92,6 +92,9 @@ public abstract class JobTreeTableBean implements Serializable {
     private Messages messages;
     @Inject
     private Security security;
+    
+    @Inject
+    private PreferencesBean preferencesBean;
 
     @Inject
     private ExceptionHandler exceptionHandler;
@@ -571,7 +574,7 @@ public abstract class JobTreeTableBean implements Serializable {
                 CloudVmStatusContainer container = tracker.getVmStatusForJob(Integer.toString(jobInstance.getId()));
                 trackerJobs.remove(Integer.toString(jobInstance.getId()));
                 if (!filterFinished || jobInstance.getEndTime() == null) {
-                    ActJobNodeBean jobInstanceNode = new ActJobNodeBean(jobInstance, hasRights);
+                    ActJobNodeBean jobInstanceNode = new ActJobNodeBean(jobInstance, hasRights, preferencesBean.getDateTimeFormat());
                     pnb.addJob(jobInstanceNode);
                     TreeNode jobNode = new DefaultTreeNode(jobInstanceNode, null);
                     List<VMNodeBean> vmNodes = getVMStatus(jobInstance, hasRights);
@@ -631,7 +634,7 @@ public abstract class JobTreeTableBean implements Serializable {
         // this needs to be a JobNode, not a projectNode
         // need to make new constructor for ActJobNodeBean that just sets empty strings?
         CloudVmStatusContainer container = tracker.getVmStatusForJob(jobId);
-        ActJobNodeBean jobBeanNode = new ActJobNodeBean(jobId, container);
+        ActJobNodeBean jobBeanNode = new ActJobNodeBean(jobId, container, preferencesBean.getDateTimeFormat());
         JobQueue jq = jqd.findForJobId(Integer.valueOf(jobId));
         if (jq != null) {
             TreeNode projectNode = jobNodeMap.get(jq.getProjectId());
@@ -692,7 +695,7 @@ public abstract class JobTreeTableBean implements Serializable {
         if (container != null) {
             Set<CloudVmStatus> statuses = container.getStatuses();
             for (CloudVmStatus cloudVmStatus : statuses) {
-                VMNodeBean vmNode = new VMNodeBean(cloudVmStatus, hasRights);
+                VMNodeBean vmNode = new VMNodeBean(cloudVmStatus, hasRights, preferencesBean.getDateTimeFormat());
                 vmNode.setStatusDetailMap(container.getDetailMap());
                 vmNode.setTps(cloudVmStatus.getTotalTps());
                 vmNodes.add(vmNode);

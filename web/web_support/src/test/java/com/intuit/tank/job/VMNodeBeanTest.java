@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.time.FastDateFormat;
 import org.junit.*;
 
 import static org.junit.Assert.*;
@@ -53,7 +54,7 @@ public class VMNodeBeanTest {
         vmStatus.setUserDetails(new LinkedList());
         boolean hasRights = true;
 
-        VMNodeBean result = new VMNodeBean(vmStatus, hasRights);
+        VMNodeBean result = new VMNodeBean(vmStatus, hasRights, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -77,7 +78,7 @@ public class VMNodeBeanTest {
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
-        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true);
+        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         List<JobNodeBean> result = fixture.getSubNodes();
 
@@ -101,7 +102,7 @@ public class VMNodeBeanTest {
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
-        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true);
+        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         String result = fixture.getType();
 
@@ -125,7 +126,7 @@ public class VMNodeBeanTest {
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
-        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true);
+        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         boolean result = fixture.hasSubNodes();
 
@@ -149,7 +150,7 @@ public class VMNodeBeanTest {
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
-        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true);
+        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         boolean result = fixture.isKillable();
 
@@ -173,7 +174,7 @@ public class VMNodeBeanTest {
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
-        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true);
+        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         boolean result = fixture.isPausable();
 
@@ -197,7 +198,7 @@ public class VMNodeBeanTest {
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
-        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true);
+        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         boolean result = fixture.isRampPausable();
 
@@ -221,7 +222,7 @@ public class VMNodeBeanTest {
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
-        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true);
+        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         boolean result = fixture.isRunnable();
 
@@ -245,7 +246,7 @@ public class VMNodeBeanTest {
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
-        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true);
+        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         boolean result = fixture.isStopable();
 
@@ -269,7 +270,7 @@ public class VMNodeBeanTest {
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
-        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true);
+        VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         fixture.reCalculate();
 

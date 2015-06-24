@@ -26,22 +26,22 @@
           <div class="pad10" style="margin-left:20px;">
             <h:outputLink value="Tank-Debugger-all.jar">Intuit Tank Agent Visual Debugger</h:outputLink>
             (version #{buildVersion.version})
-            <h:outputText value="#{buildVersion.buildDate}" converter="tsDateConverter" />
+            <h:outputText value="#{buildVersion.buildDate}" converter="#{dateConverter}" />
           </div>
           <div class="pad10" style="margin-left:20px;">
             <h:outputLink value="Tank-Script-Runner-all.jar">Intuit Tank Script Filter Editor</h:outputLink>
             (version #{buildVersion.version})
-            <h:outputText value="#{buildVersion.buildDate}" converter="tsDateConverter" />
+            <h:outputText value="#{buildVersion.buildDate}" converter="#{dateConverter}" />
           </div>
           <div class="pad10" style="margin-left:20px;">
             <h:outputLink value="Tank-Proxy-pkg.zip">Intuit Tank Proxy Package</h:outputLink>
             (version #{buildVersion.version})
-            <h:outputText value="#{buildVersion.buildDate}" converter="tsDateConverter" />
+            <h:outputText value="#{buildVersion.buildDate}" converter="#{dateConverter}" />
           </div>
           <div class="pad10" style="margin-left:20px;">
             <h:outputLink value="apiharness-1.0-pkg.zip">Api Test Harness Debugger Package</h:outputLink>
             (version #{buildVersion.version})
-            <h:outputText value="#{buildVersion.buildDate}" converter="tsDateConverter" />
+            <h:outputText value="#{buildVersion.buildDate}" converter="#{dateConverter}" />
           </div>
         </p:fieldset>
       </h:form>

@@ -16,6 +16,7 @@ package com.intuit.tank.job;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.time.FastDateFormat;
 import org.junit.*;
 
 import static org.junit.Assert.*;
@@ -86,7 +87,7 @@ public class ProjectNodeBeanTest {
         project.setName("");
         ProjectNodeBean fixture = new ProjectNodeBean(project);
         fixture.setJobBeans(new LinkedList());
-        ActJobNodeBean jobNode = new ActJobNodeBean(new JobInstance(), true);
+        ActJobNodeBean jobNode = new ActJobNodeBean(new JobInstance(), true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         fixture.addJob(jobNode);
 

@@ -17,11 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang.time.FastDateFormat;
 
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.persistence.databases.DataBaseFactory;
 import com.intuit.tank.project.JobInstance;
+import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
 
 public class ActJobNodeBean extends JobNodeBean {
@@ -30,7 +32,7 @@ public class ActJobNodeBean extends JobNodeBean {
     private List<VMNodeBean> vmBeans = new ArrayList<VMNodeBean>();
     private String jobDetails;
 
-    public ActJobNodeBean(JobInstance job, boolean hasRights) {
+    public ActJobNodeBean(JobInstance job, boolean hasRights, FastDateFormat fmt) {
         super();
         this.setHasRights(hasRights);
         this.setName(job.getName());
@@ -44,20 +46,20 @@ public class ActJobNodeBean extends JobNodeBean {
         this.jobDetails = job.getJobDetails();
 
         if (job.getStartTime() != null) {
-            this.setStartTime(DateFormatUtils.format(job.getStartTime(), "MM/dd/yy HH:mm"));
+            this.setStartTime(fmt.format(job.getStartTime()));
         } else {
             this.setStartTime("");
         }
 
         if (job.getEndTime() != null) {
-            this.setEndTime(DateFormatUtils.format(job.getEndTime(), "MM/dd/yy HH:mm"));
+            this.setEndTime(fmt.format(job.getEndTime()));
         } else {
             this.setEndTime("");
         }
 
     }
 
-    public ActJobNodeBean(String jobId, CloudVmStatusContainer container) {
+    public ActJobNodeBean(String jobId, CloudVmStatusContainer container, FastDateFormat fmt) {
         super();
         this.setName(jobId);
         this.setJobId(jobId);
@@ -69,13 +71,13 @@ public class ActJobNodeBean extends JobNodeBean {
         this.setTotalUsers("");
 
         if (container.getStartTime() != null) {
-            this.setStartTime(DateFormatUtils.format(container.getStartTime(), "MM/dd/yy HH:mm"));
+            this.setStartTime(fmt.format(container.getStartTime()));
         } else {
             this.setStartTime("");
         }
 
         if (container.getEndTime() != null) {
-            this.setEndTime(DateFormatUtils.format(container.getEndTime(), "MM/dd/yy HH:mm"));
+            this.setEndTime(fmt.format(container.getEndTime()));
         } else {
             this.setEndTime("");
         }

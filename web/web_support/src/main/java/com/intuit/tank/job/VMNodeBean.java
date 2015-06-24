@@ -17,14 +17,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang.time.FastDateFormat;
 
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.vm.common.TankConstants;
 
 public class VMNodeBean extends JobNodeBean {
 
     private static final long serialVersionUID = 1L;
 
-    public VMNodeBean(CloudVmStatus vmStatus, boolean hasRights) {
+    public VMNodeBean(CloudVmStatus vmStatus, boolean hasRights, FastDateFormat fmt) {
         super();
         this.setHasRights(hasRights);
         this.setName("Agent");
@@ -40,13 +42,13 @@ public class VMNodeBean extends JobNodeBean {
         setTps(vmStatus.getTotalTps());
 
         if (vmStatus.getStartTime() != null) {
-            this.setStartTime(DateFormatUtils.format(vmStatus.getStartTime(), "MM/dd/yy HH:mm"));
+            this.setStartTime(fmt.format(vmStatus.getStartTime()));
         } else {
             this.setStartTime("");
         }
 
         if (vmStatus.getEndTime() != null) {
-            this.setEndTime(DateFormatUtils.format(vmStatus.getEndTime(), "MM/dd/yy HH:mm"));
+            this.setEndTime(fmt.format(vmStatus.getEndTime()));
         } else {
             this.setEndTime("");
         }

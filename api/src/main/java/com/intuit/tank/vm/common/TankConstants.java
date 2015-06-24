@@ -103,7 +103,8 @@ public class TankConstants {
     public static final String NOTIFICATIONS_EVENT_BASE_URL_KEY = "tankBaseUrl";
 
 
-    public static final String DATE_FORMAT = "MM/dd/yy HH:mm z";
+    public static final String DATE_FORMAT = "MM/dd/yy HH:mm";
+    public static final String DATE_FORMAT_WITH_TIMEZONE = DATE_FORMAT + " z";
 
     public static final String EXPRESSION_REGEX = "[\\#\\$]\\{([^\\}]*)\\}";
     public static final String CSV_EXPRESSION_REGEX = "[\\#\\$]\\{ioFunctions.getCSVData\\(([^\\)]*)\\).*";
