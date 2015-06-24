@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>tank-parent-doc</artifactId>
-    <version>2.1.5</version>
+    <version>2.1.6</version>
   </parent>
 
   <artifactId>tank-user-guide</artifactId>
