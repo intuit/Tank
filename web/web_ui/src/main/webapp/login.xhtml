@@ -35,6 +35,14 @@
           <p:commandButton id="login" action="#{tsAuthenticator.login}" value="Login" ajax="false"/>
         </div>
       </div>
+     
+      <h:inputHidden id="timeZone" value="#{preferencesBean.clientTimeZone}" converter="tsTimeZoneConverter" />
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/jstz-1.0.4.min.js" />
+      <script type="text/javascript">
+        var tz = jstz.determine(); // Determines the time zone of the browser client
+        tz.name(); // Returns the name of the time zone eg "Europe/Berlin"
+        $('#login\\:timeZone').val(tz.name());
+      </script>
 
 
       <!-- <div class="formRow">

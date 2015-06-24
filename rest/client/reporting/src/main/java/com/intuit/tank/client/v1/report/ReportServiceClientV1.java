@@ -48,8 +48,7 @@ import com.sun.jersey.api.client.WebResource;
  */
 public class ReportServiceClientV1 extends BaseRestClient {
 
-    private static final FastDateFormat FMT = FastDateFormat.getInstance(ReportService.DATE_FORMAT,
-            TimeZone.getTimeZone("PST"));
+    private static final FastDateFormat FMT = FastDateFormat.getInstance(ReportService.DATE_FORMAT);
     private static final String SERVICE_BASE_URL = ServiceConsants.REST_SERVICE_CONTEXT
             + ReportService.SERVICE_RELATIVE_PATH;
 

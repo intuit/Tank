@@ -191,7 +191,7 @@ public class PreferencesBeanTest {
         fixture.setScreenHeight(1);
         fixture.setTimestampFormat(FastDateFormat.getInstance());
 
-        FastDateFormat result = fixture.getDateTimeFotmat();
+        FastDateFormat result = fixture.getDateTimeFormat();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder

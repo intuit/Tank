@@ -13,20 +13,20 @@ package com.intuit.tank.job;
  * #L%
  */
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
-
-import static org.junit.Assert.*;
+import org.apache.commons.lang.time.FastDateFormat;
+import org.junit.Test;
 
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 import com.intuit.tank.api.model.v1.cloud.VMStatus;
 import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
-import com.intuit.tank.job.ActJobNodeBean;
-import com.intuit.tank.job.VMNodeBean;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Workload;
@@ -61,7 +61,7 @@ public class ActJobNodeBeanTest {
         job.setStartTime(new Date());
         boolean hasRights = true;
 
-        ActJobNodeBean result = new ActJobNodeBean(job, hasRights);
+        ActJobNodeBean result = new ActJobNodeBean(job, hasRights, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -89,7 +89,7 @@ public class ActJobNodeBeanTest {
         container.setEndTime(new Date());
         container.setStartTime(new Date());
 
-        ActJobNodeBean result = new ActJobNodeBean(jobId, container);
+        ActJobNodeBean result = new ActJobNodeBean(jobId, container, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -115,9 +115,9 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
-        VMNodeBean vmNode = new VMNodeBean(new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date()), true);
+        VMNodeBean vmNode = new VMNodeBean(new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date()), true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         fixture.addVMBean(vmNode);
 
@@ -146,7 +146,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         String result = fixture.getJobDetails();
@@ -177,7 +177,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         List<VMNodeBean> result = fixture.getSubNodes();
@@ -208,7 +208,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         String result = fixture.getType();
@@ -239,7 +239,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         List<VMNodeBean> result = fixture.getVmBeans();
@@ -270,7 +270,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         boolean result = fixture.hasSubNodes();
@@ -301,7 +301,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         boolean result = fixture.hasSubNodes();
@@ -332,7 +332,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         boolean result = fixture.isDeleteable();
@@ -363,7 +363,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         boolean result = fixture.isJobNode();
@@ -394,7 +394,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         boolean result = fixture.isKillable();
@@ -425,7 +425,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         boolean result = fixture.isKillable();
@@ -456,7 +456,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         boolean result = fixture.isPausable();
@@ -487,7 +487,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         boolean result = fixture.isPausable();
@@ -518,7 +518,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         boolean result = fixture.isRampPausable();
@@ -549,7 +549,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         boolean result = fixture.isRampPausable();
@@ -580,7 +580,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         boolean result = fixture.isRunnable();
@@ -611,7 +611,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         boolean result = fixture.isRunnable();
@@ -642,7 +642,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         boolean result = fixture.isStopable();
@@ -673,7 +673,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         boolean result = fixture.isStopable();
@@ -704,7 +704,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
         fixture.reCalculate();
@@ -734,7 +734,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setTotalVirtualUsers(1);
         jobInstance.setStatus(JobQueueStatus.Aborted);
         jobInstance.setStartTime(new Date());
-        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
         List<VMNodeBean> vmBeans = new LinkedList();
 

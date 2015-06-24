@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>service-parent</artifactId>
-    <version>2.1.5</version>
+    <version>2.1.6</version>
   </parent>
 
   <artifactId>project-service</artifactId>

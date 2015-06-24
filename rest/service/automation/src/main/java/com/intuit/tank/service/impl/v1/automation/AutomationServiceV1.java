@@ -20,8 +20,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -68,7 +66,6 @@ import com.intuit.tank.project.EntityVersion;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobDetailFormatter;
 import com.intuit.tank.project.JobInstance;
-import com.intuit.tank.project.JobNotification;
 import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.JobValidator;
@@ -87,13 +84,12 @@ import com.intuit.tank.service.util.ResponseUtil;
 import com.intuit.tank.service.util.ServletInjector;
 import com.intuit.tank.util.TestParamUtil;
 import com.intuit.tank.util.TestParameterContainer;
-import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.api.enumerated.ScriptDriver;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.common.TankConstants;
+import com.intuit.tank.vm.common.util.ReportUtil;
 import com.intuit.tank.vm.settings.ModificationType;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
-import com.intuit.tank.vm.settings.TankConfig;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 
@@ -108,7 +104,6 @@ public class AutomationServiceV1 implements AutomationService {
 
     private static final Logger LOG = Logger.getLogger(AutomationServiceV1.class);
 
-    private String preferredTimeStampFormat = "yyyy-MM-dd_HH-mm-ss";
 
     @Context
     private ServletContext servletContext;
@@ -196,10 +191,7 @@ public class AutomationServiceV1 implements AutomationService {
                 } finally {
                     IOUtils.closeQuietly(is);
                 }
-            }// else {
-             // responseBuilder = Response.status(Status.BAD_REQUEST);
-             // responseBuilder.entity("Requests to run automation jobs must contain a script to run.");
-             // }
+            }
              // now send off to service
             Project p = getOrCreateProject(request);
             JobInstance job = addJobToQueue(p, request, script);
@@ -283,9 +275,8 @@ public class AutomationServiceV1 implements AutomationService {
         Workload workload = p.getWorkloads().get(0);
         JobConfiguration jc = workload.getJobConfiguration();
         JobQueue queue = jobQueueDao.findOrCreateForProjectId(p.getId());
-        DateFormat df = new SimpleDateFormat(preferredTimeStampFormat);
         String name = request.getScriptName() + "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"
-                + df.format(new Date());
+                + ReportUtil.getTimestamp(new Date());
         JobInstance jobInstance = new JobInstance(workload, name);
         jobInstance.setScheduledTime(new Date());
         jobInstance.setLocation(jc.getLocation());

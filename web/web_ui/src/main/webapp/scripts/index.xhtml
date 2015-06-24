@@ -171,7 +171,7 @@
           filterBy="#{preferencesBean.formatDate(selectable.entity.created)}"
           filterFunction="#{filterUtil.contains}">
           <h:outputText value="#{selectable.entity.created}"
-            converter="tsDateConverter" />
+            converter="#{dateConverter}" />
         </p:column>
 
         <p:column id="modifiedColumn"
@@ -184,7 +184,7 @@
           filterBy="#{preferencesBean.formatDate(selectable.entity.modified)}"
           filterFunction="#{filterUtil.contains}">
           <h:outputText value="#{selectable.entity.modified}"
-            converter="tsDateConverter" />
+            converter="#{dateConverter}" />
         </p:column>
 
         <p:column id="ownerColumn" headerText="Owner"

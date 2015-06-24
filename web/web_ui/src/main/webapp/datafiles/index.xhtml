@@ -90,7 +90,7 @@
             filterBy="#{preferencesBean.formatDate(selectableDataFile.entity.created)}"
             filterValue="#{dataFileBrowser.tableState.getFilterValue('formatDate(selectableDataFile.entity.created)')}"
             filterStyle="width:75px;" filterFunction="#{filterUtil.contains}">
-            <h:outputText value="#{selectableDataFile.entity.created}" converter="tsDateConverter" />
+            <h:outputText value="#{selectableDataFile.entity.created}" converter="#{dateConverter}" />
           </p:column>
 
           <p:column id="modifiedColumn" headerText="Modified Date" styleClass="ellipsis min-column-size"
@@ -99,7 +99,7 @@
             filterBy="#{preferencesBean.formatDate(selectableDataFile.entity.modified)}"
             filterValue="#{dataFileBrowser.tableState.getFilterValue('formatDate(selectableDataFile.entity.modified)')}"
             filterStyle="width:75px;" filterFunction="#{filterUtil.contains}">
-            <h:outputText value="#{selectableDataFile.entity.modified}" converter="tsDateConverter" />
+            <h:outputText value="#{selectableDataFile.entity.modified}" converter="#{dateConverter}" />
           </p:column>
 
           <p:column id="ownerColumn" headerText="Owner" styleClass="ellipsis min-column-size"

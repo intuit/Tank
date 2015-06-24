@@ -31,6 +31,7 @@ import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 
 import com.intuit.tank.reporting.api.TPSReportingPackage;
 import com.intuit.tank.results.TankResultPackage;
+import com.intuit.tank.vm.common.util.ReportUtil;
 
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved
@@ -60,7 +61,7 @@ public interface ReportService {
     public static final String METHOD_TPS_INFO = "/report/tps-info";
     public static final String METHOD_TIMING_RESULTS = "/report/timing-results";
 
-    public static final String DATE_FORMAT = "yyyy.MM.dd-HH:mm:ss.S";
+    public static final String DATE_FORMAT = ReportUtil.DATE_FORMAT;
 
     /**
      * Test method to test if the service is up.
