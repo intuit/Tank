@@ -16,33 +16,24 @@ package com.intuit.tank.converter;
  * #L%
  */
 
-import java.text.ParseException;
+import java.util.TimeZone;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 
-import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.log4j.Logger;
 
-import com.intuit.tank.vm.common.TankConstants;
-
 /**
- * ListConverter
+ * TimeZoneConverter
  * 
  * @author dangleton
  * 
  */
-@FacesConverter(value = "tsDateConverter")
-public class DateConverter implements Converter {
-    private static final Logger LOG = Logger.getLogger(DateConverter.class);
-
-    /**
-     * 
-     */
-    private static final String PATTERN = TankConstants.DATE_FORMAT;
-    private static FastDateFormat DF = FastDateFormat.getInstance(DateConverter.PATTERN);
+@FacesConverter(value = "tsTimeZoneConverter")
+public class TimeZoneConverter implements Converter {
+    private static final Logger LOG = Logger.getLogger(TimeZoneConverter.class);
 
     /**
      * @{inheritDoc
@@ -50,13 +41,11 @@ public class DateConverter implements Converter {
     @Override
     public Object getAsObject(FacesContext facesContext, UIComponent uiComponent, String value) {
         try {
-            return DF.parseObject(value);
-        } catch (ParseException e) {
-            // throw new IllegalArgumentException("Passed in value was not a valid date format in the pattern of " +
-            // PATTERN);
-            LOG.error("Cannot parse date value of" + value + ". Must be in the pattern of " + PATTERN);
+            return TimeZone.getTimeZone(value);
+        } catch (Exception e) {
+            LOG.error("Cannot parse timezone value of " + value);
         }
-        return null;
+        return TimeZone.getDefault();
     }
 
     /**
@@ -64,7 +53,12 @@ public class DateConverter implements Converter {
      */
     @Override
     public String getAsString(FacesContext facesContext, UIComponent uiComponent, Object obj) {
-        return DF.format(obj);
+        String ret = "GMT";
+        if (obj instanceof TimeZone) {
+            TimeZone tz = (TimeZone) obj;
+            ret = tz.getDisplayName();
+        }
+        return ret;
     }
 
 }

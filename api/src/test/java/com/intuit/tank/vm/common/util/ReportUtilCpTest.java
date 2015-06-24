@@ -13,14 +13,13 @@ package com.intuit.tank.vm.common.util;
  * #L%
  */
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.Date;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.junit.*;
-
-import com.intuit.tank.vm.common.util.ReportUtil;
-
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  * The class <code>ReportUtilCpTest</code> contains tests for the class <code>{@link ReportUtil}</code>.
@@ -53,7 +52,8 @@ public class ReportUtilCpTest {
         String jobId = "";
 
         String result = ReportUtil.getBucketedTableName(jobId);
-
+        String timestamp = ReportUtil.getTimestamp(new Date());
+        System.out.println(timestamp);
 
         assertNotNull(result);
     }

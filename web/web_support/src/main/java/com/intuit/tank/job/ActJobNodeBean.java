@@ -22,6 +22,7 @@ import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.persistence.databases.DataBaseFactory;
 import com.intuit.tank.project.JobInstance;
+import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
 
 public class ActJobNodeBean extends JobNodeBean {
@@ -44,13 +45,13 @@ public class ActJobNodeBean extends JobNodeBean {
         this.jobDetails = job.getJobDetails();
 
         if (job.getStartTime() != null) {
-            this.setStartTime(DateFormatUtils.format(job.getStartTime(), "MM/dd/yy HH:mm"));
+            this.setStartTime(DateFormatUtils.format(job.getStartTime(), TankConstants.DATE_FORMAT));
         } else {
             this.setStartTime("");
         }
 
         if (job.getEndTime() != null) {
-            this.setEndTime(DateFormatUtils.format(job.getEndTime(), "MM/dd/yy HH:mm"));
+            this.setEndTime(DateFormatUtils.format(job.getEndTime(), TankConstants.DATE_FORMAT));
         } else {
             this.setEndTime("");
         }
@@ -69,13 +70,13 @@ public class ActJobNodeBean extends JobNodeBean {
         this.setTotalUsers("");
 
         if (container.getStartTime() != null) {
-            this.setStartTime(DateFormatUtils.format(container.getStartTime(), "MM/dd/yy HH:mm"));
+            this.setStartTime(DateFormatUtils.format(container.getStartTime(), TankConstants.DATE_FORMAT));
         } else {
             this.setStartTime("");
         }
 
         if (container.getEndTime() != null) {
-            this.setEndTime(DateFormatUtils.format(container.getEndTime(), "MM/dd/yy HH:mm"));
+            this.setEndTime(DateFormatUtils.format(container.getEndTime(), TankConstants.DATE_FORMAT));
         } else {
             this.setEndTime("");
         }

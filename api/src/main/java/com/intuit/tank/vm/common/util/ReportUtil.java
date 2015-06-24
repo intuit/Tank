@@ -37,17 +37,19 @@ import com.intuit.tank.vm.settings.TankConfig;
  */
 public class ReportUtil {
 
-    private static final String[] SUMMARY_HEADERS = { "Page ID", "Page Name", "Page Index", "Sample Size", "Mean",
-            "Median", "Min", "Max",
-            "Std Dev",
-            "Kurtosis", "Skewness", "Varience" };
+    private static final String[] SUMMARY_HEADERS = {"Page ID", "Page Name", "Page Index", 
+        "Sample Size", "Mean",
+        "Median", "Min", "Max",
+        "Std Dev",
+        "Kurtosis", "Skewness", "Varience" };
 
-    public static final String[] BUCKET_HEADERS = { "Job ID", "Page ID", "Page Name", "Page Index", "Sample Size",
-            "Average", "Min", "Max",
-            "Period", "Start Time" };
+    public static final String[] BUCKET_HEADERS = {"Job ID", "Page ID", "Page Name", 
+        "Page Index", "Sample Size",
+        "Average", "Min", "Max",
+        "Period", "Start Time" };
 
     public static final String JOB_ID_KEY = "JobId";
-    public static final String DATE_FORMAT = "yyyy.MM.dd-HH:mm:ss.S"; // for timestamps
+    public static final String DATE_FORMAT = "yyyy.MM.dd-HH:mm:ss.S z"; // for timestamps
     public static final String LOGGING_KEY = "LoggingKey";
 
     private static final Object[][] PERCENTILES = {

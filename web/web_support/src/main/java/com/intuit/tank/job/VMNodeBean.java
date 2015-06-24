@@ -19,6 +19,7 @@ import java.util.List;
 import org.apache.commons.lang.time.DateFormatUtils;
 
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.vm.common.TankConstants;
 
 public class VMNodeBean extends JobNodeBean {
 
@@ -40,13 +41,13 @@ public class VMNodeBean extends JobNodeBean {
         setTps(vmStatus.getTotalTps());
 
         if (vmStatus.getStartTime() != null) {
-            this.setStartTime(DateFormatUtils.format(vmStatus.getStartTime(), "MM/dd/yy HH:mm"));
+            this.setStartTime(DateFormatUtils.format(vmStatus.getStartTime(), TankConstants.DATE_FORMAT));
         } else {
             this.setStartTime("");
         }
 
         if (vmStatus.getEndTime() != null) {
-            this.setEndTime(DateFormatUtils.format(vmStatus.getEndTime(), "MM/dd/yy HH:mm"));
+            this.setEndTime(DateFormatUtils.format(vmStatus.getEndTime(), TankConstants.DATE_FORMAT));
         } else {
             this.setEndTime("");
         }

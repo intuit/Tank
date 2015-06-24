@@ -46,7 +46,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -73,8 +72,8 @@ import com.intuit.tank.project.Workload;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.event.JobEvent;
 import com.intuit.tank.vm.event.NotificationContext;
-import com.intuit.tank.vm.settings.TimeUtil;
 import com.intuit.tank.vm.settings.TankConfig;
+import com.intuit.tank.vm.settings.TimeUtil;
 
 /**
  * NotificationContextBuilder
@@ -203,8 +202,7 @@ public class NotificationContextBuilder {
     }
 
     private String cleanDate(Date d) {
-        return d == null ? NotificationContextBuilder.N_A : DateFormatUtils.format(d, DATE_FORMAT,
-                TimeZone.getTimeZone("PST"));
+        return d == null ? NotificationContextBuilder.N_A : DateFormatUtils.format(d, DATE_FORMAT);
     }
 
     private String formatInt(int i) {

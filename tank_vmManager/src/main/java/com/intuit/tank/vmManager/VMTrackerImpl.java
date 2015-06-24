@@ -49,6 +49,7 @@ import com.intuit.tank.project.Workload;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
+import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.event.JobEvent;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
@@ -310,7 +311,7 @@ public class VMTrackerImpl implements VMTracker {
                 String jobId = status.getJobId();
                 jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_FINISHED)
                         .addContextEntry(NOTIFICATIONS_EVENT_EVENT_TIME_KEY,
-                                new SimpleDateFormat("MM/dd/yy HH:mm").format(new Date())));
+                                new SimpleDateFormat(TankConstants.DATE_FORMAT).format(new Date())));
             }
             cloudVmStatusContainer.setEndTime(new Date());
         }

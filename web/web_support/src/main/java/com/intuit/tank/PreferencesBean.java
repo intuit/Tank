@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Observes;
@@ -36,6 +37,8 @@ import com.intuit.tank.project.ColumnPreferences;
 import com.intuit.tank.project.Preferences;
 import com.intuit.tank.project.ColumnPreferences.Hidability;
 import com.intuit.tank.project.ColumnPreferences.Visibility;
+import com.intuit.tank.vm.common.TankConstants;
+import com.intuit.tank.vm.common.util.ReportUtil;
 
 /**
  * PreferencesBean
@@ -48,24 +51,40 @@ import com.intuit.tank.project.ColumnPreferences.Visibility;
 public class PreferencesBean implements Serializable, PreferencesChangedListener {
 
     private static final long serialVersionUID = 1L;
-    private String preferredDateTimeFormat = "MM/dd/yy HH:mm";
-    private String preferredTimeStampFormat = "yyyy-MM-dd_HH-mm-ss";
+    private String preferredDateTimeFormat = TankConstants.DATE_FORMAT;
+    private String preferredTimeStampFormat = ReportUtil.DATE_FORMAT;
 
     private FastDateFormat timestampFormat;
 
     private FastDateFormat dateTimeFotmat;
-    
 
     private Preferences preferences;
 
     private int screenWidth = 1200;
     private int screenHeight = 600;
 
+    private TimeZone clientTimeZone = TimeZone.getTimeZone("GMT");
+
     /**
      * @return the preferences
      */
     public Preferences getPreferences() {
         return preferences;
+    }
+
+    /**
+     * @return the clientTimeZone
+     */
+    public TimeZone getClientTimeZone() {
+        return clientTimeZone;
+    }
+
+    /**
+     * @param clientTimeZone
+     *            the clientTimeZone to set
+     */
+    public void setClientTimeZone(TimeZone clientTimeZone) {
+        this.clientTimeZone = clientTimeZone;
     }
 
     /**

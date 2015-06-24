@@ -223,7 +223,6 @@ public class ReportServiceV1 implements ReportService {
                 Date maxDate = null;
                 try {
                     SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-                    sdf.setTimeZone(TimeZone.getTimeZone("PST"));
                     minDate = StringUtils.isBlank(min) ? null : sdf.parse(min);
                     maxDate = StringUtils.isBlank(max) ? null : sdf.parse(max);
                 } catch (ParseException e1) {
