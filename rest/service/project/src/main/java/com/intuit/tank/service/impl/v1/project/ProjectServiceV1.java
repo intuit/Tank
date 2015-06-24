@@ -21,8 +21,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -70,6 +68,7 @@ import com.intuit.tank.project.Workload;
 import com.intuit.tank.service.impl.v1.cloud.JobController;
 import com.intuit.tank.service.util.ResponseUtil;
 import com.intuit.tank.service.util.ServletInjector;
+import com.intuit.tank.vm.common.util.ReportUtil;
 
 /**
  * ProjectServiceV1
@@ -81,7 +80,6 @@ import com.intuit.tank.service.util.ServletInjector;
 public class ProjectServiceV1 implements ProjectService {
 
     private static final Logger LOG = Logger.getLogger(ProjectServiceV1.class);
-    private String preferredTimeStampFormat = "yyyy-MM-dd_HH-mm-ss";
 
     @Context
     private ServletContext servletContext;
@@ -280,9 +278,8 @@ public class ProjectServiceV1 implements ProjectService {
         Workload workload = p.getWorkloads().get(0);
         JobConfiguration jc = workload.getJobConfiguration();
         JobQueue queue = jobQueueDao.findOrCreateForProjectId(p.getId());
-        DateFormat df = new SimpleDateFormat(preferredTimeStampFormat);
         String name = p.getName() + "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"
-                + df.format(new Date());
+                + ReportUtil.getTimestamp(new Date());
         JobInstance jobInstance = new JobInstance(workload, name);
         jobInstance.setScheduledTime(new Date());
         jobInstance.setLocation(jc.getLocation());

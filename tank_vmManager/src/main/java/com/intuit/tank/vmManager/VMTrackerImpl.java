@@ -311,7 +311,7 @@ public class VMTrackerImpl implements VMTracker {
                 String jobId = status.getJobId();
                 jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_FINISHED)
                         .addContextEntry(NOTIFICATIONS_EVENT_EVENT_TIME_KEY,
-                                new SimpleDateFormat(TankConstants.DATE_FORMAT).format(new Date())));
+                                new SimpleDateFormat(TankConstants.DATE_FORMAT_WITH_TIMEZONE).format(new Date())));
             }
             cloudVmStatusContainer.setEndTime(new Date());
         }

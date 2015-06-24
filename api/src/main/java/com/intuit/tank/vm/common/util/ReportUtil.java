@@ -109,8 +109,8 @@ public class ReportUtil {
 
     /**
      * 
-     * @param jobId
-     * @return
+     * @param jobId the id
+     * @return tablename
      */
     public static final String getSummaryTableName(String jobId) {
         return "timing_summary_" + new TankConfig().getInstanceName();
@@ -127,13 +127,11 @@ public class ReportUtil {
 
     public static String getTimestamp(Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-        sdf.setTimeZone(TimeZone.getTimeZone("PST"));
         return sdf.format(date);
     }
 
     public static Date parseTimestamp(String dateString) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-        sdf.setTimeZone(TimeZone.getTimeZone("PST"));
         return sdf.parse(dateString);
     }
 

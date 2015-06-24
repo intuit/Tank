@@ -22,10 +22,13 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.log4j.Logger;
 
+import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.vm.common.TankConstants;
 
 /**
@@ -35,14 +38,15 @@ import com.intuit.tank.vm.common.TankConstants;
  * 
  */
 @FacesConverter(value = "tsDateConverter")
+@Named
 public class DateConverter implements Converter {
     private static final Logger LOG = Logger.getLogger(DateConverter.class);
 
-    /**
-     * 
-     */
     private static final String PATTERN = TankConstants.DATE_FORMAT;
     private static FastDateFormat DF = FastDateFormat.getInstance(DateConverter.PATTERN);
+    
+    @Inject
+    private PreferencesBean preferencesBean;
 
     /**
      * @{inheritDoc
@@ -50,7 +54,11 @@ public class DateConverter implements Converter {
     @Override
     public Object getAsObject(FacesContext facesContext, UIComponent uiComponent, String value) {
         try {
-            return DF.parseObject(value);
+            FastDateFormat fmt = DF;
+            if (preferencesBean != null) {
+                fmt = preferencesBean.getDateTimeFormat();
+            }
+            return fmt.parseObject(value);
         } catch (ParseException e) {
             // throw new IllegalArgumentException("Passed in value was not a valid date format in the pattern of " +
             // PATTERN);
@@ -64,7 +72,11 @@ public class DateConverter implements Converter {
      */
     @Override
     public String getAsString(FacesContext facesContext, UIComponent uiComponent, Object obj) {
-        return DF.format(obj);
+        FastDateFormat fmt = DF;
+        if (preferencesBean != null) {
+            fmt = preferencesBean.getDateTimeFormat();
+        }
+        return fmt.format(obj);
     }
 
 }

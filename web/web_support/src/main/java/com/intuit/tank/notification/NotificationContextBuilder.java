@@ -16,7 +16,6 @@ package com.intuit.tank.notification;
  * #L%
  */
 
-import static com.intuit.tank.vm.common.TankConstants.DATE_FORMAT;
 import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_DATA_FILES_KEY;
 import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_DURATION_KEY;
 import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_END_TIME_KEY;
@@ -202,7 +201,7 @@ public class NotificationContextBuilder {
     }
 
     private String cleanDate(Date d) {
-        return d == null ? NotificationContextBuilder.N_A : DateFormatUtils.format(d, DATE_FORMAT);
+        return d == null ? NotificationContextBuilder.N_A : DateFormatUtils.format(d, TankConstants.DATE_FORMAT_WITH_TIMEZONE);
     }
 
     private String formatInt(int i) {

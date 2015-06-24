@@ -150,7 +150,7 @@
           <f:facet name="header">
             <h:outputText value="Start Time" />
           </f:facet>
-          <h:outputText value="#{selectableResult.entity.jobInstance.startTime}" converter="tsDateConverter" />
+          <h:outputText value="#{selectableResult.entity.jobInstance.startTime}" converter="#{dateConverter}" />
         </p:column>
 
 

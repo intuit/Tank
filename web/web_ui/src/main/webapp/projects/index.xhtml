@@ -107,7 +107,7 @@
             filterBy="#{preferencesBean.formatDate(pe.entity.created)}"
             filterValue="#{projectDescriptionBean.tableState.getFilterValue('formatDate(pe.entity.created)')}"
             filterStyle="width:75px;" filterFunction="#{filterUtil.contains}">
-            <h:outputText value="#{pe.entity.created}" converter="tsDateConverter" />
+            <h:outputText value="#{pe.entity.created}" converter="#{dateConverter}" />
           </p:column>
 
           <p:column id="modifiedColumn" headerText="Modified Date" styleClass="ellipsis min-column-size"
@@ -116,7 +116,7 @@
             filterBy="#{preferencesBean.formatDate(pe.entity.modified)}"
             filterValue="#{projectDescriptionBean.tableState.getFilterValue('formatDate(pe.entity.modified)')}"
             filterStyle="width:75px;" filterFunction="#{filterUtil.contains}">
-            <h:outputText value="#{pe.entity.modified}" converter="tsDateConverter" />
+            <h:outputText value="#{pe.entity.modified}" converter="#{dateConverter}" />
           </p:column>
 
           <p:column id="ownerColumn" headerText="Owner" styleClass="ellipsis min-column-size"

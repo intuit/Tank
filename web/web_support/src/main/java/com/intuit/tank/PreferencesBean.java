@@ -34,9 +34,9 @@ import com.intuit.tank.admin.Deleted;
 import com.intuit.tank.dao.PreferencesDao;
 import com.intuit.tank.prefs.PreferencesChangedListener;
 import com.intuit.tank.project.ColumnPreferences;
-import com.intuit.tank.project.Preferences;
 import com.intuit.tank.project.ColumnPreferences.Hidability;
 import com.intuit.tank.project.ColumnPreferences.Visibility;
+import com.intuit.tank.project.Preferences;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.common.util.ReportUtil;
 
@@ -63,7 +63,15 @@ public class PreferencesBean implements Serializable, PreferencesChangedListener
     private int screenWidth = 1200;
     private int screenHeight = 600;
 
-    private TimeZone clientTimeZone = TimeZone.getTimeZone("GMT");
+    private TimeZone clientTimeZone = TimeZone.getTimeZone("PST");
+
+    /**
+     * 
+     */
+    public PreferencesBean() {
+        dateTimeFotmat = FastDateFormat.getInstance(TankConstants.DATE_FORMAT_WITH_TIMEZONE, clientTimeZone);
+        timestampFormat = FastDateFormat.getInstance(preferredTimeStampFormat);
+    }
 
     /**
      * @return the preferences
@@ -85,6 +93,7 @@ public class PreferencesBean implements Serializable, PreferencesChangedListener
      */
     public void setClientTimeZone(TimeZone clientTimeZone) {
         this.clientTimeZone = clientTimeZone;
+        dateTimeFotmat = FastDateFormat.getInstance(TankConstants.DATE_FORMAT, clientTimeZone);
     }
 
     /**
@@ -207,14 +216,6 @@ public class PreferencesBean implements Serializable, PreferencesChangedListener
         return ret;
     }
 
-    /**
-     * 
-     */
-    public PreferencesBean() {
-        dateTimeFotmat = FastDateFormat.getInstance(preferredDateTimeFormat);
-        timestampFormat = FastDateFormat.getInstance(preferredTimeStampFormat);
-    }
-
     public String getCollectionFilterString(Collection<? extends Object> c) {
         StringBuilder sb = new StringBuilder();
         if (c != null) {
@@ -246,7 +247,7 @@ public class PreferencesBean implements Serializable, PreferencesChangedListener
     /**
      * @return the dateTimeFotmat
      */
-    public FastDateFormat getDateTimeFotmat() {
+    public FastDateFormat getDateTimeFormat() {
         return dateTimeFotmat;
     }
 
