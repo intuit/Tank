@@ -51,7 +51,6 @@ public class AmazonSimpleDatabase implements IDatabase {
             new ArrayBlockingQueue<Runnable>(50), Executors.defaultThreadFactory(),
             new ThreadPoolExecutor.DiscardOldestPolicy());
 
-
     private static TankConfig config = new TankConfig();
 
     /**
@@ -380,6 +379,8 @@ public class AmazonSimpleDatabase implements IDatabase {
                     } catch (InterruptedException iex) {
                         logger.error("Caught InterruptedException exception", iex);
                     }
+                } else if ("DuplicateItemName".equals(e.getErrorCode())) {
+                    //ignore.
                 } else {
                     logger.error("Error writing to DB: " + e.getMessage());
                 }
@@ -411,7 +412,6 @@ public class AmazonSimpleDatabase implements IDatabase {
         }
         attributes.add(new ReplaceableAttribute().withName(key).withValue(value));
     }
-
 
     private void createDatabase() {
         CloudCredentials creds = config.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);

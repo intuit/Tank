@@ -59,8 +59,8 @@ public class APIMonitor implements Runnable {
                 TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPMonitor().getTPSInfo();
                 if (tpsInfo != null) {
                     newStatus.setTotalTps(tpsInfo.getTotalTps());
+                    sendTps(tpsInfo);
                 }
-                sendTps(tpsInfo);
                 client.setVmStatus(newStatus.getInstanceId(), newStatus);
                 APITestHarness.getInstance().checkAgentThreads();
                 Thread.sleep(reportInterval);
