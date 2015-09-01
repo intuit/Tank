@@ -18,6 +18,7 @@
     <module>script_engine</module>
     <module>script_engine_bundle</module>
     <module>agent_debugger</module>
+    <module>jenkins_plugin</module>
   </modules>
 
   <profiles>
@@ -27,6 +28,7 @@
         <activeByDefault>false</activeByDefault>
       </activation>
       <modules>
+        <module>jenkins_plugin</module>
         <module>agent_debugger_pkg</module>
         <module>script_filter_pkg</module>
         <module>script_engine_bundle</module>
