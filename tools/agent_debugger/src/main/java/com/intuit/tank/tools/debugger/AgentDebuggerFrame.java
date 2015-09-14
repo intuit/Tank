@@ -143,7 +143,6 @@ public class AgentDebuggerFrame extends JFrame {
     public AgentDebuggerFrame(final boolean isStandalone, String serviceUrl) throws HeadlessException {
         super("Intuit Tank Agent Debugger");
         workingDir = PanelBuilder.createWorkingDir(this, serviceUrl);
-        AgentUtil.setTrustCerts();
         setSize(new Dimension(1024, 800));
         setBounds(new Rectangle(getSize()));
         setPreferredSize(getSize());

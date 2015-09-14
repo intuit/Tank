@@ -18,6 +18,9 @@
     <module>agent_startup</module>
     <module>agent_standalone</module>
     <module>apiharness</module>
+    <module>http_client_3</module>
+    <module>http_client_4</module>
+    <module>agent_common</module>
   </modules>
 
   <profiles>

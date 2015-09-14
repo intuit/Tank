@@ -199,7 +199,7 @@ public class LogicStepEditor implements Serializable {
     }
 
     private BaseRequest createRequest() {
-        BaseRequest ret = new BaseRequest(null) {
+        BaseRequest ret = new BaseRequest(null, null) {
 
             @Override
             public void setNamespace(String name, String value) {

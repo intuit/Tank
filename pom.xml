@@ -51,6 +51,7 @@
     <version.jersey>1.4</version.jersey>
     <version.arquillian>1.1.5.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0.CR7</version.arquillian.tomcat>
+    <version.httpclient>4.5</version.httpclient>
   </properties>
 
 
@@ -676,12 +677,13 @@
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpcomponents-core</artifactId>
-        <version>4.2.5</version>
+        <version>${version.httpclient}</version>
       </dependency>
+      
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
-        <version>4.2.5</version>
+        <version>${version.httpclient}</version>
       </dependency>
 
 
@@ -873,7 +875,7 @@
       <dependency>
         <groupId>commons-httpclient</groupId>
         <artifactId>commons-httpclient</artifactId>
-        <version>3.1</version>
+        <version>3.0.1</version>
       </dependency>
       <dependency>
         <groupId>org.json</groupId>

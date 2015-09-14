@@ -35,6 +35,9 @@ public class HDTestPlan {
     @XmlAttribute
     private int userPercentage = 100;
 
+    @XmlAttribute
+    private String tankHttpClientClass = "com.intuit.tank.httpclient3.TankHttpClient3";
+
     @XmlElement(name = "testSuite")
     private List<HDScriptGroup> group = new ArrayList<HDScriptGroup>();
 
@@ -71,6 +74,21 @@ public class HDTestPlan {
      */
     public void setUserPercentage(int userPercentage) {
         this.userPercentage = userPercentage;
+    }
+
+    /**
+     * @return the httpClientClass
+     */
+    public String getTankHttpClientClass() {
+        return tankHttpClientClass;
+    }
+
+    /**
+     * @param httpClientClass
+     *            the httpClientClass to set
+     */
+    public void setTankHttpClientClass(String tankHttpClientClass) {
+        this.tankHttpClientClass = tankHttpClientClass;
     }
 
     /**

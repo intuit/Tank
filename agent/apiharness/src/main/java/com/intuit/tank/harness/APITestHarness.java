@@ -117,12 +117,6 @@ public class APITestHarness {
             System.err.println("Error setting property jdk.certpath.disabledAlgorithms: " + e1.toString());
             e1.printStackTrace();
         }
-        try {
-            AgentUtil.setTrustCerts();
-        } catch (Throwable e1) {
-            LOG.warn(LogUtil.getLogMessage("Error setting trust all cert checker: " + e1.toString(),
-                    LogEventType.System));
-        }
     }
 
     /**
@@ -163,7 +157,6 @@ public class APITestHarness {
         } catch (Throwable e1) {
             LOG.warn(LogUtil.getLogMessage("Error disabling SNI extension: " + e1.toString(), LogEventType.System));
         }
-        AgentUtil.setTrustCerts();
         if (args.length < 1) {
             usage();
             return;

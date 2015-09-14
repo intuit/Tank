@@ -1,31 +1,14 @@
 package com.intuit.tank.runner.method;
 
-/*
- * #%L
- * Intuit Tank Agent (apiharness)
- * %%
- * Copyright (C) 2011 - 2015 Intuit Inc.
- * %%
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * #L%
- */
+import static org.junit.Assert.assertNotNull;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.junit.*;
-
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import com.intuit.tank.harness.data.HDTestPlan;
-import com.intuit.tank.harness.data.TestStep;
 import com.intuit.tank.harness.data.VariableStep;
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.runner.TestPlanRunner;
 import com.intuit.tank.runner.TestStepContext;
-import com.intuit.tank.runner.method.TimerMap;
-import com.intuit.tank.runner.method.VariableRunner;
 
 /**
  * The class <code>VariableRunnerTest</code> contains tests for the class <code>{@link VariableRunner}</code>.
@@ -44,7 +27,7 @@ public class VariableRunnerTest {
     public void testVariableRunner_1()
         throws Exception {
         TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext tsc = new TestStepContext(new VariableStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
 
         VariableRunner result = new VariableRunner(tsc);

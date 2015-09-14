@@ -1,32 +1,18 @@
 package com.intuit.tank.harness.logging;
 
-/*
- * #%L
- * Intuit Tank Agent (apiharness)
- * %%
- * Copyright (C) 2011 - 2015 Intuit Inc.
- * %%
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * #L%
- */
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.junit.*;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
-
+import com.intuit.tank.harness.MockRequest;
 import com.intuit.tank.harness.data.ClearCookiesStep;
 import com.intuit.tank.harness.data.HDScript;
 import com.intuit.tank.harness.data.HDScriptGroup;
 import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.data.TestStep;
-import com.intuit.tank.harness.logging.LogEvent;
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.http.BaseRequest;
-import com.intuit.tank.http.binary.BinaryRequest;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.logging.SourceType;
@@ -95,7 +81,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -136,7 +122,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup((HDScriptGroup) null);
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -177,7 +163,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -222,7 +208,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -263,7 +249,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -304,7 +290,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -345,7 +331,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -386,7 +372,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -427,7 +413,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -468,7 +454,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -509,7 +495,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -550,7 +536,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
@@ -590,7 +576,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -631,7 +617,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -672,7 +658,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -713,7 +699,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -754,7 +740,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -795,7 +781,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -836,7 +822,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -877,7 +863,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -918,7 +904,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -959,7 +945,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1000,7 +986,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1041,7 +1027,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1082,7 +1068,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1123,7 +1109,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1164,7 +1150,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1205,7 +1191,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1246,7 +1232,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1287,7 +1273,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1328,7 +1314,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1369,7 +1355,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1410,7 +1396,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1421,7 +1407,7 @@ public class LogEventTest {
         fixture.setMessage("");
         fixture.setIteration("");
         fixture.setScript(new HDScript());
-        BaseRequest request = new BinaryRequest(new HttpClient());
+        BaseRequest request = new MockRequest();
 
         fixture.setRequest(request);
 
@@ -1451,7 +1437,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1492,7 +1478,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1533,7 +1519,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1574,7 +1560,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1615,7 +1601,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1656,7 +1642,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1697,7 +1683,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1738,7 +1724,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1779,7 +1765,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
@@ -1820,7 +1806,7 @@ public class LogEventTest {
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
+        fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
