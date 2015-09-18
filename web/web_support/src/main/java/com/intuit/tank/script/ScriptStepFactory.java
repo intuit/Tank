@@ -18,6 +18,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.intuit.tank.common.ScriptUtil;
+import com.intuit.tank.http.AuthScheme;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.ScriptConstants;
@@ -58,6 +60,56 @@ public class ScriptStepFactory {
 
         return think;
     }
+    
+    public static ScriptStep createAuthentication(String userName, String password, String realm, AuthScheme scheme, String host, String port) {
+        ScriptStep ret = new ScriptStep();
+        ret.setType(ScriptConstants.AUTHENTICATION);
+        Set<RequestData> ds = new HashSet<RequestData>();
+
+        RequestData rd = new RequestData();
+        rd.setType(ScriptConstants.AUTHENTICATION);
+        rd.setKey(ScriptConstants.AUTH_USER_NAME);
+        rd.setValue(userName);
+        ds.add(rd);
+        
+        rd = new RequestData();
+        rd.setType(ScriptConstants.AUTHENTICATION);
+        rd.setKey(ScriptConstants.AUTH_PASSWORD);
+        rd.setValue(password);
+        ds.add(rd);
+        
+        rd = new RequestData();
+        rd.setType(ScriptConstants.AUTHENTICATION);
+        rd.setKey(ScriptConstants.AUTH_REALM);
+        rd.setValue(realm);
+        ds.add(rd);
+        
+        rd = new RequestData();
+        rd.setType(ScriptConstants.AUTHENTICATION);
+        rd.setKey(ScriptConstants.AUTH_SCHEME);
+        rd.setValue(scheme.name());
+        ds.add(rd);
+        
+        rd = new RequestData();
+        rd.setType(ScriptConstants.AUTHENTICATION);
+        rd.setKey(ScriptConstants.AUTH_HOST);
+        rd.setValue(host);
+        ds.add(rd);
+        
+        rd = new RequestData();
+        rd.setType(ScriptConstants.AUTHENTICATION);
+        rd.setKey(ScriptConstants.AUTH_PORT);
+        rd.setValue(port);
+        ds.add(rd);
+
+      
+        ret.setData(ds);
+        ScriptUtil.updateStepLabel(ret);
+        ret.setComments("Authenticator " + scheme.name() + " " + host);
+        return ret;
+    }
+    
+    
 
     public static ScriptStep createSleepTime(String delay) {
         ScriptStep sleep = new ScriptStep();

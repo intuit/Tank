@@ -394,13 +394,14 @@ public class TestPlanRunner implements Runnable {
     public TankHttpClient initHttpClient() {
         try {
             //get the client from a factory and set it here.
-            TankHttpClient ret = (TankHttpClient) Class.forName(testPlan.getTankHttpClientClass()).newInstance();
+            TankHttpClient ret = (TankHttpClient) Class.forName(APITestHarness.getInstance().getTankHttpClientClass()).newInstance();
             Long connectionTimeout = APITestHarness.getInstance().getTankConfig().getAgentConfig().getConnectionTimeout();
             if (connectionTimeout != null) {
                 ret.setConnectionTimeout(connectionTimeout);
             }
             return ret;
         } catch (Exception e) {
+            LOG.error("TankHttpClient specified incorrectly: " + e, e);
             throw new RuntimeException(e);
         }
     }

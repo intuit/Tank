@@ -17,7 +17,7 @@ public class TankHttpClient4Test {
     @Test(groups=TestGroups.FUNCTIONAL)
     public void addAuth() {
         BaseRequest request = getRequest(new TankHttpClient4(), "http://httpbin.org/basic-auth/test/test_pass");
-        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withRealm("bogus").withScheme(AuthScheme.BASIC).build());
+        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withRealm("bogus").withScheme(AuthScheme.Basic).build());
        
         request.doGet(null);
         BaseResponse response = request.getResponse();
@@ -25,7 +25,7 @@ public class TankHttpClient4Test {
         Assert.assertEquals(401, response.getHttpCode());
         
         
-        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withRealm("Fake Realm").withScheme(AuthScheme.BASIC).build());
+        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withHost("httpbin.org").withRealm("Fake Realm").withScheme(AuthScheme.Basic).build());
         request.doGet(null);
         response = request.getResponse();
         Assert.assertNotNull(response);

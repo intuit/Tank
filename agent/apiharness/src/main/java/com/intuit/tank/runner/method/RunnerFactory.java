@@ -15,6 +15,7 @@ package com.intuit.tank.runner.method;
 
 import javax.annotation.Nonnull;
 
+import com.intuit.tank.harness.data.AuthenticationStep;
 import com.intuit.tank.harness.data.ClearCookiesStep;
 import com.intuit.tank.harness.data.CookieStep;
 import com.intuit.tank.harness.data.LogicStep;
@@ -32,6 +33,8 @@ public class RunnerFactory {
         Runner runner = null;
         if (testStep instanceof ThinkTimeStep) {
             runner = new ThinkTimeRunner(tsc);
+        } else if (testStep instanceof AuthenticationStep) {
+            runner = new AuthenticationRunner(tsc);
         } else if (testStep instanceof SleepTimeStep) {
             runner = new SleepTimeRunner(tsc);
         } else if (testStep instanceof VariableStep) {

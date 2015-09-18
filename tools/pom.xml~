@@ -18,7 +18,6 @@
     <module>script_engine</module>
     <module>script_engine_bundle</module>
     <module>agent_debugger</module>
-    <module>jenkins_plugin</module>
   </modules>
 
   <profiles>

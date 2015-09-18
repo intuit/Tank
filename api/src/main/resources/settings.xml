@@ -124,6 +124,12 @@
       <header key="test_flag">test_flag</header>
     </request-headers>
 
+    <!-- configured TankHttpClients. -->
+    <tank-http-clients>
+      <tank-client name="Apache HttpClient 3.1">com.intuit.tank.httpclient3.TankHttpClient3</tank-client>
+      <tank-client name="Apache HttpClient 4.5">com.intuit.tank.httpclient4.TankHttpClient4</tank-client>
+    </tank-http-clients>
+    <default-tank-client>Apache HttpClient 4.5</default-tank-client>
 
   </agent-config>
 

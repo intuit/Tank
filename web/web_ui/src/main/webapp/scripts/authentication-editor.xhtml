@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" 
+  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:s="http://jboss.com/products/seam/taglib">
+
+  <p:messages />
+  <div class="vertical-spacer clear-both" />
+
+  <div class="formRowDiv">
+    <div class="formLabelDiv required">Scheme</div>
+    <div class="formInput">
+      <p:selectOneMenu value="#{authenticationEditor.scheme}">
+       <f:selectItems value="#{authenticationEditor.authSchemes}"/>
+      </p:selectOneMenu>
+    </div>
+  </div>
+  
+
+  <div class="formRowDiv">
+    <div class="formLabelDiv required float-left">User Name</div>
+    <div class="formInput">
+      <h:inputText value="#{authenticationEditor.userName}" />
+    </div>
+  </div>
+  
+  <div class="formRowDiv">
+    <div class="formLabelDiv required">Password</div>
+    <div class="formInput">
+      <h:inputSecret value="#{authenticationEditor.password}" />
+    </div>
+  </div>
+  <div class="formRowDiv">
+    <div class="formLabelDiv">Host</div>
+    <div class="formInput">
+      <h:inputText value="#{authenticationEditor.host}" />
+      <ts:tip tipId="hostTip" text="The host this authentication should be used for. Leave empty to use of all hosts." />
+    </div>
+  </div>
+  
+  <div class="formRowDiv">
+    <div class="formLabelDiv">Port</div>
+    <div class="formInput">
+      <h:inputText value="#{authenticationEditor.port}" />
+      <ts:tip tipId="portTip" text="The port this authentication should be used for. Leave empty to use of all ports." />
+    </div>
+  </div>
+  <div class="formRowDiv">
+    <div class="formLabelDiv">Realm</div>
+    <div class="formInput">
+      <h:inputText value="#{authenticationEditor.realm}" />
+      <ts:tip tipId="realmTip" text="The realm this authentication should be used for. Leave empty to use of all realms." />
+    </div>
+  </div>
+
+  <div class="vertical-spacer clear-both" />
+  
+</ui:composition>

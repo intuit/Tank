@@ -75,6 +75,9 @@ public abstract class BaseJob extends BaseEntity {
     @Column(name = "stop_behavior")
     private String stopBehavior = StopBehavior.END_OF_SCRIPT_GROUP.name();
 
+    @Column(name = "tank_client_class")
+    private String tankClientClass = "com.intuit.tank.httpclient4.TankHttpClient4";
+
     @Column(name = "simulation_time")
     private int simulationTimeSeconds;
 
@@ -95,7 +98,7 @@ public abstract class BaseJob extends BaseEntity {
 
     @Column(name = "allow_variable_override")
     private Boolean allowOverride;
-    
+
     @Column(name = "use_eips")
     private Boolean useEips;
 
@@ -134,9 +137,25 @@ public abstract class BaseJob extends BaseEntity {
         this.numUsersPerAgent = copy.numUsersPerAgent;
         this.vmInstanceType = copy.vmInstanceType;
         this.useEips = copy.useEips;
+        this.tankClientClass = copy.getTankClientClass();
     }
 
     public abstract Map<String, String> getVariables();
+
+    /**
+     * @return the tankClientClass
+     */
+    public String getTankClientClass() {
+        return tankClientClass;
+    }
+
+    /**
+     * @param tankClientClass
+     *            the tankClientClass to set
+     */
+    public void setTankClientClass(String tankClientClass) {
+        this.tankClientClass = tankClientClass;
+    }
 
     /**
      * @return the allowOverride
@@ -152,13 +171,14 @@ public abstract class BaseJob extends BaseEntity {
     public void setAllowOverride(boolean allowOverride) {
         this.allowOverride = allowOverride;
     }
+
     /**
      * @return the allowOverride
      */
     public boolean isUseEips() {
         return useEips != null ? useEips : new TankConfig().getVmManagerConfig().isUseElasticIps();
     }
-    
+
     /**
      * @param allowOverride
      *            the allowOverride to set

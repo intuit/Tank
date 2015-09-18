@@ -87,6 +87,8 @@ public class ScriptEditor implements Serializable {
     @Inject
     private CookieStepEditor cookieStepEditor;
     @Inject
+    private AuthenticationEditor authenticationEditor;
+    @Inject
     private ThinkTimeEditor thinkTimeEditor;
     @Inject
     private SleepTimeEditor sleepTimeEditor;
@@ -627,6 +629,13 @@ public class ScriptEditor implements Serializable {
     public boolean isCookieStep(ScriptStep scriptStep) {
         return scriptStep.getType().equals(ScriptConstants.COOKIE);
     }
+    /**
+     * 
+     * @param scriptStep
+     */
+    public boolean isAuthStep(ScriptStep scriptStep) {
+        return scriptStep.getType().equals(ScriptConstants.AUTHENTICATION);
+    }
 
     /**
      * 
@@ -676,6 +685,14 @@ public class ScriptEditor implements Serializable {
      */
     public void editCookieStep(ScriptStep scriptStep) {
         cookieStepEditor.editCookieStep(scriptStep);
+        clearOrderList();
+    }
+    /**
+     * 
+     * @param scriptStep
+     */
+    public void editAuthStep(ScriptStep scriptStep) {
+        authenticationEditor.editAuthentication(scriptStep);
         clearOrderList();
     }
 

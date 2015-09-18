@@ -17,14 +17,14 @@ public class TankHttpClient3Test {
     @Test(groups = TestGroups.FUNCTIONAL)
     public void addBasicAuth() {
         BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbin.org/basic-auth/test/test_pass");
-        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withRealm("bogus").withScheme(AuthScheme.BASIC).build());
+        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withRealm("bogus").withScheme(AuthScheme.Basic).build());
 
         request.doGet(null);
         BaseResponse response = request.getResponse();
         Assert.assertNotNull(response);
         Assert.assertEquals(401, response.getHttpCode());
 
-        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withRealm("Fake Realm").withScheme(AuthScheme.BASIC).build());
+        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withRealm("Fake Realm").withScheme(AuthScheme.Basic).build());
         request.doGet(null);
         response = request.getResponse();
         Assert.assertNotNull(response);
@@ -36,14 +36,14 @@ public class TankHttpClient3Test {
     @Test(groups = TestGroups.FUNCTIONAL)
     public void addDigestAuth() {
         BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbin.org/digest-auth/auth/test/test_pass");
-        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withScheme(AuthScheme.BASIC).build());
+        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withScheme(AuthScheme.Basic).build());
 
         request.doGet(null);
         BaseResponse response = request.getResponse();
         Assert.assertNotNull(response);
         Assert.assertEquals(401, response.getHttpCode());
 
-        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withScheme(AuthScheme.DIGEST).build());
+        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withScheme(AuthScheme.Digest).build());
         request.doGet(null);
         response = request.getResponse();
         Assert.assertNotNull(response);

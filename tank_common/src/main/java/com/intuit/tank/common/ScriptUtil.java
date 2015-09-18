@@ -243,6 +243,25 @@ public class ScriptUtil {
                     label.append("Variable definition " + d.getKey() + "=>" + d.getValue());
                 }
             }
+        }  else if (step.getType().equalsIgnoreCase(ScriptConstants.AUTHENTICATION)) {
+            Set<RequestData> setData = step.getData();
+            if (null != setData) {
+                String scheme = "ALL";
+                String host = "";
+                String user = "";
+                Iterator<RequestData> iter = setData.iterator();
+                while (iter.hasNext()) {
+                    RequestData d = iter.next();
+                    if (d.getKey().equals(ScriptConstants.AUTH_SCHEME)) {
+                        scheme = d.getValue();
+                    } else if (d.getKey().equals(ScriptConstants.AUTH_HOST)) {
+                        host = d.getValue();
+                    } else if (d.getKey().equals(ScriptConstants.AUTH_USER_NAME)) {
+                        user = d.getValue();
+                    }
+                }
+                label.append("Authentication " + scheme + " [host: " + host + " user: " + user + "]");
+            }
         } else if (step.getType().equalsIgnoreCase(ScriptConstants.THINK_TIME)) {
 
             String min = "0";

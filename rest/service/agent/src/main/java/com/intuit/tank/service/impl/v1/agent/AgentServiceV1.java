@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
@@ -27,9 +29,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
-import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -41,6 +41,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinition;
+import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.api.service.v1.agent.AgentService;
 import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.service.util.ResponseUtil;
@@ -51,6 +53,7 @@ import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.Header;
 import com.intuit.tank.vm.agent.messages.Headers;
 import com.intuit.tank.vm.perfManager.StandaloneAgentTracker;
+import com.intuit.tank.vm.settings.AgentConfig;
 import com.intuit.tank.vm.settings.TankConfig;
 
 /**
@@ -194,6 +197,24 @@ public class AgentServiceV1 implements AgentService {
             }
         }
         responseBuilder.entity(headers);
+        return responseBuilder.build();
+    }
+
+    @Override
+    public Response getClients() {
+        ResponseBuilder responseBuilder = Response.ok();
+        AgentConfig config = new TankConfig().getAgentConfig();
+        Map<String, String> map = config.getTankClientMap();
+        List<TankHttpClientDefinition> definitions = new ArrayList<TankHttpClientDefinition>();
+        for(Entry<String, String> entry : map.entrySet()) {
+            definitions.add(new TankHttpClientDefinition(entry.getKey(), entry.getValue()));
+        }
+        String defaultDefinition = config.getTankClientDefault();
+        if (defaultDefinition == null && definitions.size() > 0) {
+            defaultDefinition = definitions.get(0).getName();
+        }
+        TankHttpClientDefinitionContainer container = new TankHttpClientDefinitionContainer(definitions, defaultDefinition);
+        responseBuilder.entity(container);
         return responseBuilder.build();
     }
 

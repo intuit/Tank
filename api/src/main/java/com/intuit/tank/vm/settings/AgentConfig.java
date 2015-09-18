@@ -40,6 +40,7 @@ public class AgentConfig implements Serializable {
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(AgentConfig.class);
 
     private static final String KEY_AGENT_DATA_FILE_STORAGE = "agent-data-file-storage";
+    private static final String KEY_TANK_CLIENT_DEFUALT = "default-tank-client";
 
     private static final String KEY_MAX_BODY_REPORT_SIZE = "max-body-report-size";
     private static final String KEY_SSL_TIMEOUT = "ssl-timeout";
@@ -47,6 +48,7 @@ public class AgentConfig implements Serializable {
     private static final String KEY_TPS_PERIOD = "tps-period";
 
     private static final String KEY_VALID_MIME_TYPES = "valid-mime-types/mime-type-regex";
+    private static final String KEY_TANK_HTTP_CLIENTS = "tank-http-clients/tank-client";
     private static final String KEY_POLL_TIME_MILIS = "status_report_interval_milis";
     private static final String KEY_MAX_FAILED_WAIT_TIME = "max-failed-wait-time";
     private static final String KEY_OVER_SIMULATION_MAX_TIME = "over-simulation-max-time";
@@ -58,7 +60,8 @@ public class AgentConfig implements Serializable {
     private static final String KEY_CONNECTION_TIMEOUT = "connection-timeout";
 
     private static final String KEY_REQUEST_HEADERS = "request-headers/header";
-    // private static final String KEY_RESULT_PROVIDERS = "result-providers/provider";
+    // private static final String KEY_RESULT_PROVIDERS =
+    // "result-providers/provider";
     private static final String KEY_HEADER_KEY = "@key";
     // private static final String KEY_DISPLAY_NAME = "@displayName";
     // private static final String KEY_DEFUALT = "@isDefault";
@@ -67,10 +70,12 @@ public class AgentConfig implements Serializable {
     private static final String KEY_MIN = "@min";
     private static final String KEY_MAX = "@max";
     private static final String KEY_FOR = "@for";
+    private static final String KEY_NAME = "@name";
 
     private HierarchicalConfiguration config;
     private Set<String> validMimeTypes;
     private Map<String, String> resultsProviderMap;
+    private Map<String, String> tankClientMap;
     private Map<String, String> requestHeaderMap;
     private Map<String, String> resultsTypeMap;
     private String defaultResultProvider;
@@ -81,11 +86,28 @@ public class AgentConfig implements Serializable {
     public AgentConfig(@Nonnull HierarchicalConfiguration config) {
         this.config = config;
         validMimeTypes = new HashSet<String>();
-        if (validMimeTypes != null) {
-            List<HierarchicalConfiguration> validMimes = config.configurationsAt(KEY_VALID_MIME_TYPES);
+        List<HierarchicalConfiguration> validMimes = config.configurationsAt(KEY_VALID_MIME_TYPES);
+        if (validMimes != null) {
             for (HierarchicalConfiguration c : validMimes) {
                 validMimeTypes.add(c.getString(""));
             }
+        }
+        tankClientMap = new HashMap<String, String>();
+        // <tank-http-clients>
+        // <tank-client name="Apache HttpClient
+        // 3.1">com.intuit.tank.httpclient3.TankHttpClient3</tank-client>
+        // <tank-client name="apache HttpClient
+        // 4.5">com.intuit.tank.httpclient4.TankHttpClient4</tank-client>
+        // <tank-http-clients>
+        List<HierarchicalConfiguration> tankClients = config.configurationsAt(KEY_TANK_HTTP_CLIENTS);
+        if (tankClients != null) {
+            for (HierarchicalConfiguration c : tankClients) {
+                tankClientMap.put(c.getString(KEY_NAME), c.getString(""));
+            }
+        }
+        if (tankClientMap.isEmpty()) {
+            tankClientMap.put("Apache HttpClient 3.1", "com.intuit.tank.httpclient3.TankHttpClient3");
+            tankClientMap.put("Apache HttpClient 4.5", "com.intuit.tank.httpclient4.TankHttpClient4");
         }
         resultsProviderMap = new HashMap<String, String>();
         resultsTypeMap = new HashMap<String, String>();
@@ -240,7 +262,8 @@ public class AgentConfig implements Serializable {
     }
 
     /**
-     * @return the Max amount of time to allow a thread to run after simulation time has been met
+     * @return the Max amount of time to allow a thread to run after simulation
+     *         time has been met
      */
     public long getOverSimulationMaxTime() {
         return config.getLong(KEY_OVER_SIMULATION_MAX_TIME, (1000 * 60 * 60 * 2));
@@ -260,6 +283,30 @@ public class AgentConfig implements Serializable {
      */
     public Collection<String> getTextMimeTypeRegex() {
         return validMimeTypes;
+    }
+    
+    
+    /**
+     * @return the Datafile storage root dir
+     */
+    public String getTankClientDefault() {
+        return config.getString(KEY_TANK_CLIENT_DEFUALT, "Apache HttpClient 4.5");
+    }
+    
+    /**
+     * @return the Datafile storage root dir
+     */
+    public String getTankClientClassDefault() {
+        String ret = getTankClientMap().get(getTankClientDefault());
+        return ret != null ? ret : "com.intuit.tank.httpclient4.TankHttpClient4";
+    }
+    
+
+    /**
+     * @return the tankClientMap
+     */
+    public Map<String, String> getTankClientMap() {
+        return tankClientMap;
     }
 
     /**

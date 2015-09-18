@@ -34,6 +34,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -99,6 +100,7 @@ public class APITestHarness {
     private Map<Long, FlowController> controllerMap = new HashMap<Long, FlowController>();
     private TPSMonitor tpsMonitor;
     private ResultsReporter resultsReporter;
+    private String tankHttpClientClass;
 
     static {
         try {
@@ -180,7 +182,9 @@ public class APITestHarness {
                 continue;
             } else if (values[0].equalsIgnoreCase("-ramp")) {
                 agentRunData.setRampTime(Long.parseLong(values[1]) * 60000);
-                // agentRunData.setRampT
+                continue;
+            } else if (values[0].equalsIgnoreCase("-client")) {
+                tankHttpClientClass = StringUtils.trim(values[1]);
                 continue;
             } else if (values[0].equalsIgnoreCase("-d")) {
                 Logger.getLogger("com.intuit.tank.http").setLevel(Level.DEBUG);
@@ -552,7 +556,11 @@ public class APITestHarness {
         doneSignal = new CountDownLatch(agentRunData.getNumUsers());
         try {
             HDWorkload hdWorkload = TestPlanSingleton.getInstance().getTestPlans().get(0);
+            if (StringUtils.isBlank(tankHttpClientClass)) {
+                tankHttpClientClass = hdWorkload.getTankHttpClientClass();
+            }
             agentRunData.setProjectName(hdWorkload.getName());
+            agentRunData.setTankhttpClientClass(tankHttpClientClass);
             List<TestPlanStarter> testPlans = new ArrayList<TestPlanStarter>();
             int total = 0;
             for (HDTestPlan plan : hdWorkload.getPlans()) {
@@ -925,5 +933,21 @@ public class APITestHarness {
     public ResultsReporter getResultsReporter() {
         return resultsReporter;
     }
+
+    /**
+     * @return the tankHttpClientClass
+     */
+    public String getTankHttpClientClass() {
+        return tankHttpClientClass;
+    }
+
+    /**
+     * @param tankHttpClientClass the tankHttpClientClass to set
+     */
+    public void setTankHttpClientClass(String tankHttpClientClass) {
+        this.tankHttpClientClass = tankHttpClientClass;
+    }
+    
+    
 
 }
