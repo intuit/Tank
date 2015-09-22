@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -301,9 +302,23 @@ public class AgentConfig implements Serializable {
         return ret != null ? ret : "com.intuit.tank.httpclient4.TankHttpClient4";
     }
     
+    /**
+     * @return the Datafile storage root dir
+     */
+    public String getTankClientName(String  clientClass) {
+        String ret = getTankClientDefault();
+        for (Entry<String, String> entry : getTankClientMap().entrySet()) {
+            if (entry.getValue().equals(clientClass)) {
+                ret = entry.getKey();
+                break;
+            }
+        }
+        return ret;
+    }
+    
 
     /**
-     * @return the tankClientMap
+     * @return the tankClientMap map of Tank Client name and class
      */
     public Map<String, String> getTankClientMap() {
         return tankClientMap;

@@ -33,6 +33,19 @@
             </p:selectOneMenu>
           </div>
         </div>
+        
+        <div class="formRow">
+          <div class="formLabelDiv">
+            <h:outputLabel for="TankClientCombo"
+              value="Tank Http Client" styleClass="formLabel required" />
+          </div>
+          <div class="formInputDiv">
+            <p:selectOneMenu id="TankClientCombo"
+              value="#{jobMaker.tankClientClass}">
+              <f:selectItems value="#{projectUtilBean.tankClientTypes}" />
+            </p:selectOneMenu>
+          </div>
+        </div>
 
         <div class="formRow">
           <div class="formLabelDiv">

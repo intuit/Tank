@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.intuit.tank</groupId>
@@ -584,11 +583,7 @@
         <version>${version.seam}</version>
       </dependency>
 
-      <!-- <dependency>
-        <groupId>org.owasp</groupId>
-        <artifactId>proxy</artifactId>
-        <version>1.1-SNAPSHOT</version>
-      </dependency> -->
+      <!-- <dependency> <groupId>org.owasp</groupId> <artifactId>proxy</artifactId> <version>1.1-SNAPSHOT</version> </dependency> -->
 
       <dependency>
         <groupId>org.hibernate</groupId>
@@ -679,7 +674,13 @@
         <artifactId>httpcomponents-core</artifactId>
         <version>${version.httpclient}</version>
       </dependency>
-      
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpmime</artifactId>
+        <version>${version.httpclient}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
@@ -865,8 +866,7 @@
         <!-- <version>1.1.9</version> -->
         <version>${version-aws-sdk}</version>
       </dependency>
-      <!-- <dependency> <groupId>wsdl4j</groupId> <artifactId>wsdl4j</artifactId> 
-        <version>1.6.2-fixed</version> </dependency> -->
+      <!-- <dependency> <groupId>wsdl4j</groupId> <artifactId>wsdl4j</artifactId> <version>1.6.2-fixed</version> </dependency> -->
       <dependency>
         <groupId>commons-discovery</groupId>
         <artifactId>commons-discovery</artifactId>
@@ -1181,9 +1181,7 @@
           <artifactId>findbugs-maven-plugin</artifactId>
           <version>2.5.2</version>
           <configuration>
-            <!-- Enables analysis which takes more memory but finds more 
-              bugs. If you run out of memory, changes the value of the effort element to 
-              'Low'. -->
+            <!-- Enables analysis which takes more memory but finds more bugs. If you run out of memory, changes the value of the effort element to 'Low'. -->
             <effort>Max</effort>
             <!-- Build doesn't fail if problems are found -->
             <failOnError>false</failOnError>
@@ -1195,8 +1193,7 @@
             <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
           </configuration>
           <executions>
-            <!-- Ensures that FindBugs inspects source code when project 
-              is compiled. -->
+            <!-- Ensures that FindBugs inspects source code when project is compiled. -->
             <execution>
               <id>analyze-compile</id>
               <phase>compile</phase>

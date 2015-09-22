@@ -104,10 +104,25 @@ public class JobMaker implements Serializable {
      * 
      * @return
      */
+    public String getTankClientClass() {
+        return projectBean.getJobConfiguration().getTankClientClass();
+    }
+    /**
+     * 
+     * @return
+     */
+    public void setTankClientClass(String tankClientClass) {
+        projectBean.getJobConfiguration().setTankClientClass(tankClientClass);
+    }
+
+    /**
+     * 
+     * @return
+     */
     public String getLoggingProfile() {
         return projectBean.getJobConfiguration().getLoggingProfile();
     }
-
+    
     /**
      * 
      * @param loggingProfile
@@ -285,6 +300,7 @@ public class JobMaker implements Serializable {
             proposedJobInstance.setLoggingProfile(getLoggingProfile());
             proposedJobInstance.setScheduledTime(new Date());
             proposedJobInstance.setUseEips(isUseEips());
+            proposedJobInstance.setTankClientClass(getTankClientClass());
             proposedJobInstance.setLocation(getLocation());
             proposedJobInstance.setVmInstanceType(getVmInstanceType());
             proposedJobInstance.setNumUsersPerAgent(getNumUsersPerAgent());

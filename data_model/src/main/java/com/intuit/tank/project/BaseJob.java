@@ -114,6 +114,7 @@ public abstract class BaseJob extends BaseEntity {
                 this.numUsersPerAgent = type.getUsers();
             }
         }
+        tankClientClass = new TankConfig().getAgentConfig().getTankClientClassDefault();
     }
 
     /**

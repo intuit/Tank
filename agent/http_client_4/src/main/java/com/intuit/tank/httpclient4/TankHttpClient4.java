@@ -16,7 +16,9 @@ import java.io.ByteArrayInputStream;
  */
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,6 +32,7 @@ import javax.annotation.Nonnull;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -52,6 +55,7 @@ import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -60,6 +64,7 @@ import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.log4j.Logger;
+import org.apache.tomcat.util.http.fileupload.MultipartStream;
 
 import com.intuit.tank.http.AuthCredentials;
 import com.intuit.tank.http.AuthScheme;
@@ -87,16 +92,16 @@ public class TankHttpClient4 implements TankHttpClient {
         try {
             SSLContextBuilder builder = new SSLContextBuilder();
             builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
-            sslsf = new SSLConnectionSocketFactory(
-                    builder.build(), new HostnameVerifier(){@Override
-                    public boolean verify(String arg0, SSLSession arg1) {
-                        return true;
-                    }});
+            sslsf = new SSLConnectionSocketFactory(builder.build(), new HostnameVerifier() {
+                @Override
+                public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+                }
+            });
         } catch (Exception e) {
             LOG.error("Error setting accept all: " + e, e);
         }
 
-        
         httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
         requestConfig = RequestConfig.custom().setSocketTimeout(30000).setConnectTimeout(30000).setCircularRedirectsAllowed(true).setAuthenticationEnabled(true).setRedirectsEnabled(true)
                 .setMaxRedirects(100).build();
@@ -137,15 +142,13 @@ public class TankHttpClient4 implements TankHttpClient {
      */
     @Override
     public void doPut(BaseRequest request) {
-            HttpPut httpput = new HttpPut(request.getRequestUrl());
-            // Multiple calls can be expensive, so get it once
-            String requestBody = request.getBody();
-            HttpEntity  entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
-            httpput.setEntity(entity);
-            sendRequest(request, httpput, requestBody);
+        HttpPut httpput = new HttpPut(request.getRequestUrl());
+        // Multiple calls can be expensive, so get it once
+        String requestBody = request.getBody();
+        HttpEntity entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+        httpput.setEntity(entity);
+        sendRequest(request, httpput, requestBody);
     }
-
-   
 
     /*
      * (non-Javadoc)
@@ -175,18 +178,16 @@ public class TankHttpClient4 implements TankHttpClient {
      */
     @Override
     public void doPost(BaseRequest request) {
-            HttpPost httppost = new HttpPost(request.getRequestUrl());
-            String requestBody = request.getBody();
-            HttpEntity entity = null;
-            if (BaseRequest.CONTENT_TYPE_MULTIPART.equalsIgnoreCase(request.getContentType())) {
-//                List<Part> parts = buildParts(request);
-//
-//                entity = new MultipartRequestEntity(parts.toArray(new Part[parts.size()]), httppost.getParams());
-            } else {
-                entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
-            }
-            httppost.setEntity(entity);
-            sendRequest(request, httppost, requestBody);
+        HttpPost httppost = new HttpPost(request.getRequestUrl());
+        String requestBody = request.getBody();
+        HttpEntity entity = null;
+        if (BaseRequest.CONTENT_TYPE_MULTIPART.equalsIgnoreCase(request.getContentType())) {
+            entity = buildParts(request);
+        } else {
+            entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+        }
+        httppost.setEntity(entity);
+        sendRequest(request, httppost, requestBody);
     }
 
     /*
@@ -220,7 +221,7 @@ public class TankHttpClient4 implements TankHttpClient {
     public void clearSession() {
         context.getCookieStore().clear();
     }
-    
+
     /**
      * 
      */
@@ -238,11 +239,9 @@ public class TankHttpClient4 implements TankHttpClient {
         if (StringUtils.isNotBlank(proxyhost)) {
             HttpHost proxy = new HttpHost(proxyhost, proxyport);
             DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-            httpclient = HttpClients.custom().setSSLSocketFactory(sslsf)
-                .setRoutePlanner(routePlanner)
-                .build();
+            httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).setRoutePlanner(routePlanner).build();
         } else {
-            
+
             httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
         }
     }
@@ -404,146 +403,145 @@ public class TankHttpClient4 implements TankHttpClient {
         }
     }
 
-//    private List<PartHolder> getPartsFromBody(BaseRequest request) {
-//        String s = new String(Base64.decodeBase64(request.getBody()));
-//        String boundary = StringUtils.substringBefore(s, "\r\n").substring(2);
-//        List<PartHolder> parameters = new ArrayList<PartHolder>();
-//        request.setBody(s);
-//        try {
-//            MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(s.getBytes()), boundary.getBytes());
-//            boolean nextPart = multipartStream.skipPreamble();
-//            while (nextPart) {
-//                String header = multipartStream.readHeaders();
-//                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//                multipartStream.readBodyData(bos);
-//                PartHolder p = new PartHolder(bos.toByteArray(), header);
-//                parameters.add(p);
-//                nextPart = multipartStream.readBoundary();
-//            }
-//        } catch (MultipartStream.MalformedStreamException e) {
-//            logger.error(e.toString(), e);
-//            // the stream failed to follow required syntax
-//        } catch (IOException e) {
-//            logger.error(e.toString(), e);
-//            // a read or write error occurred
-//        }
-//        return parameters;
-//    }
-//
-//    private List<Part> buildParts(BaseRequest request) {
-//        List<Part> parts = new ArrayList<Part>();
-//        for (PartHolder h : getPartsFromBody(request)) {
-//            if (h.getFileName() == null) {
-//                StringPart stringPart = new StringPart(h.getPartName(), new String(h.getBodyAsString()));
-//                if (h.isContentTypeSet()) {
-//                    stringPart.setContentType(h.getContentType());
-//                }
-//                parts.add(stringPart);
-//            } else {
-//                PartSource partSource = new ByteArrayPartSource(h.getFileName(), h.getBody());
-//                FilePart p = new FilePart(h.getPartName(), partSource);
-//                if (h.isContentTypeSet()) {
-//                    p.setContentType(h.getContentType());
-//                }
-//                parts.add(p);
-//            }
-//        }
-//        return parts;
-//    }
-//
-//    private static class PartHolder {
-//        private byte[] body;
-//        private String header;
-//        private Map<String, String> headerMap = new HashMap<String, String>();
-//        private Map<String, String> dispositionMap = new HashMap<String, String>();
-//
-//        public PartHolder(byte[] body, String header) {
-//            super();
-//            this.body = body;
-//            this.header = header;
-//            String[] headers = StringUtils.splitByWholeSeparator(this.header, "\r\n");
-//            for (String s : headers) {
-//                if (StringUtils.isNotBlank(s) && s.indexOf(':') != -1) {
-//                    String key = StringUtils.substringBefore(s, ":").trim();
-//                    String value = StringUtils.substringAfter(s, ":").trim();
-//                    headerMap.put(key, value);
-//                }
-//            }
-//            String[] dispositions = StringUtils.split(getContentDisposition(), ';');
-//            for (String s : dispositions) {
-//                if (StringUtils.isNotBlank(s) && s.indexOf('=') != -1) {
-//                    String key = removeQuotes(StringUtils.substringBefore(s, "=").trim());
-//                    String value = removeQuotes(StringUtils.substringAfter(s, "=").trim());
-//                    dispositionMap.put(key, value);
-//                }
-//            }
-//        }
-//
-//        /**
-//         * @return the body
-//         */
-//        public byte[] getBody() {
-//            return body;
-//        }
-//
-//        /**
-//         * @return the body as a string
-//         */
-//        public String getBodyAsString() {
-//            return new String(body, Charset.forName("UTF-8"));
-//        }
-//
-//        // Content-Disposition: form-data; name="uploadname1";
-//        // filename="diamond-sword.png"
-//        public String getPartName() {
-//            return dispositionMap.get("name");
-//        }
-//
-//        // Content-Disposition: form-data; name="uploadname1";
-//        // filename="diamond-sword.png"
-//        public String getFileName() {
-//            return dispositionMap.get("filename");
-//        }
-//
-//        // Content-Disposition: form-data; name="uploadname1";
-//        // filename="diamond-sword.png"
-//        public String getContentType() {
-//            String ct = headerMap.get("Content-Type");
-//            if (ct == null) {
-//                ct = "text/plain";
-//            }
-//            return ct;
-//        }
-//
-//        // Content-Disposition: form-data; name="uploadname1";
-//        // filename="diamond-sword.png"
-//        public String getContentDisposition() {
-//            String ct = headerMap.get("Content-Disposition");
-//            if (ct == null) {
-//                ct = "form-data";
-//            }
-//            return ct;
-//        }
-//
-//        /**
-//         * 
-//         * @return
-//         */
-//        public boolean isContentTypeSet() {
-//            return headerMap.get("Content-Type") != null;
-//        }
-//
-//        /**
-//         * 
-//         * @param s
-//         * @return
-//         */
-//        private String removeQuotes(String s) {
-//            s = StringUtils.removeEnd(s, "\"");
-//            s = StringUtils.removeStart(s, "\"");
-//            return s;
-//        }
-//
-//    }
+    private List<PartHolder> getPartsFromBody(BaseRequest request) {
+        String s = new String(Base64.decodeBase64(request.getBody()));
+        String boundary = StringUtils.substringBefore(s, "\r\n").substring(2);
+        List<PartHolder> parameters = new ArrayList<PartHolder>();
+        request.setBody(s);
+        try {
+            MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(s.getBytes()), boundary.getBytes());
+            boolean nextPart = multipartStream.skipPreamble();
+            while (nextPart) {
+                String header = multipartStream.readHeaders();
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                multipartStream.readBodyData(bos);
+                PartHolder p = new PartHolder(bos.toByteArray(), header);
+                parameters.add(p);
+                nextPart = multipartStream.readBoundary();
+            }
+        } catch (MultipartStream.MalformedStreamException e) {
+            LOG.error(e.toString(), e);
+            // the stream failed to follow required syntax
+        } catch (IOException e) {
+            LOG.error(e.toString(), e);
+            // a read or write error occurred
+        }
+        return parameters;
+    }
+
+    private HttpEntity buildParts(BaseRequest request) {
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        for (PartHolder h : getPartsFromBody(request)) {
+            if (h.getFileName() == null) {
+                if (h.isContentTypeSet()) {
+                    builder.addTextBody(h.getPartName(), new String(h.getBodyAsString()), ContentType.create(h.getContentType()));
+                } else {
+                    builder.addTextBody(h.getPartName(), new String(h.getBodyAsString()));
+                }
+            } else {
+                if (h.isContentTypeSet()) {
+                    builder.addBinaryBody(h.getPartName(), h.getBody(), ContentType.create(h.getContentType()), h.getFileName());
+                } else {
+                    builder.addBinaryBody(h.getFileName(), h.getBody());
+                }
+            }
+        }
+        return builder.build();
+    }
+
+    private static class PartHolder {
+        private byte[] body;
+        private String header;
+        private Map<String, String> headerMap = new HashMap<String, String>();
+        private Map<String, String> dispositionMap = new HashMap<String, String>();
+
+        public PartHolder(byte[] body, String header) {
+            super();
+            this.body = body;
+            this.header = header;
+            String[] headers = StringUtils.splitByWholeSeparator(this.header, "\r\n");
+            for (String s : headers) {
+                if (StringUtils.isNotBlank(s) && s.indexOf(':') != -1) {
+                    String key = StringUtils.substringBefore(s, ":").trim();
+                    String value = StringUtils.substringAfter(s, ":").trim();
+                    headerMap.put(key, value);
+                }
+            }
+            String[] dispositions = StringUtils.split(getContentDisposition(), ';');
+            for (String s : dispositions) {
+                if (StringUtils.isNotBlank(s) && s.indexOf('=') != -1) {
+                    String key = removeQuotes(StringUtils.substringBefore(s, "=").trim());
+                    String value = removeQuotes(StringUtils.substringAfter(s, "=").trim());
+                    dispositionMap.put(key, value);
+                }
+            }
+        }
+
+        /**
+         * @return the body
+         */
+        public byte[] getBody() {
+            return body;
+        }
+
+        /**
+         * @return the body as a string
+         */
+        public String getBodyAsString() {
+            return new String(body, Charset.forName("UTF-8"));
+        }
+
+        // Content-Disposition: form-data; name="uploadname1";
+        // filename="diamond-sword.png"
+        public String getPartName() {
+            return dispositionMap.get("name");
+        }
+
+        // Content-Disposition: form-data; name="uploadname1";
+        // filename="diamond-sword.png"
+        public String getFileName() {
+            return dispositionMap.get("filename");
+        }
+
+        // Content-Disposition: form-data; name="uploadname1";
+        // filename="diamond-sword.png"
+        public String getContentType() {
+            String ct = headerMap.get("Content-Type");
+            if (ct == null) {
+                ct = "text/plain";
+            }
+            return ct;
+        }
+
+        // Content-Disposition: form-data; name="uploadname1";
+        // filename="diamond-sword.png"
+        public String getContentDisposition() {
+            String ct = headerMap.get("Content-Disposition");
+            if (ct == null) {
+                ct = "form-data";
+            }
+            return ct;
+        }
+
+        /**
+         * 
+         * @return
+         */
+        public boolean isContentTypeSet() {
+            return headerMap.get("Content-Type") != null;
+        }
+
+        /**
+         * 
+         * @param s
+         * @return
+         */
+        private String removeQuotes(String s) {
+            s = StringUtils.removeEnd(s, "\"");
+            s = StringUtils.removeStart(s, "\"");
+            return s;
+        }
+
+    }
 
 }
