@@ -149,6 +149,7 @@
     <default-instance-description>
       <security-group>security_group</security-group>
       <keypair>myKey</keypair>
+      
       <reuse-instances>false</reuse-instances>
     </default-instance-description>
 
@@ -175,6 +176,11 @@
       <instance-descripion name="AGENT">
         <ami>[AMI-ID]</ami>
         <keypair>[KEYPAIR]</keypair>
+        <!--  if using roles. recommended over using security keys -->
+        <!-- <iam-role>role</iam-role> -->
+        <!--  optional if running ni a subnet in a vpc, use the subnetIds -->
+        <!-- <vpc-subnet>subnet-472b9f30</vpc-subnet>
+        <security-group-ids>sg-9f9936fb</security-group-ids> -->
       </instance-descripion>
     </instance-descriptions>
 

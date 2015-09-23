@@ -16,6 +16,7 @@ package com.intuit.tank.vmManager.environment.amazon;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -49,6 +50,7 @@ import com.amazonaws.services.ec2.model.DescribeAddressesRequest;
 import com.amazonaws.services.ec2.model.DescribeAddressesResult;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.amazonaws.services.ec2.model.IamInstanceProfileSpecification;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.InstanceStateChange;
 import com.amazonaws.services.ec2.model.InstanceType;
@@ -205,8 +207,6 @@ public class AmazonInstance implements IEnvironmentInstance {
             if (result == null) {
                 InstanceType size = AmazonInstance.getInstanceType(instanceRequest.getSize());
                 VmInstanceType vmType = config.getVmManagerConfig().getInstanceType(instanceRequest.getSize());
-                List<String> groupSet = new ArrayList<String>();
-                groupSet.add(instanceDescription.getSecurityGroup());
                 String keyPair = instanceDescription.getKeypair();
                 if (instanceRequest.getJobId() != null) {
                     instanceRequest.addUserData(TankConstants.KEY_JOB_ID, instanceRequest.getJobId());
@@ -271,7 +271,6 @@ public class AmazonInstance implements IEnvironmentInstance {
                 Collections.shuffle(randomizedIps);
                 RunInstancesRequest runInstancesRequest = new RunInstancesRequest(image, number, number);
                 runInstancesRequest.withInstanceType(size.toString()).withKeyName(keyPair)
-                        .withSecurityGroups(instanceDescription.getSecurityGroup())
                         .withMonitoring(true)
                         .withUserData(userData);
                 runInstancesRequest.withMonitoring(true);
@@ -279,6 +278,16 @@ public class AmazonInstance implements IEnvironmentInstance {
                 // add subnet if defined
                 if (!StringUtils.isEmpty(instanceDescription.getSubnetId())) {
                     runInstancesRequest.withSubnetId(instanceDescription.getSubnetId());
+                } 
+                Collection<String> c = getStringCollection(instanceDescription.getSecurityGroupIds()); 
+                if (!c.isEmpty()) {
+                    runInstancesRequest.withSecurityGroupIds(c);
+                } else {
+                    runInstancesRequest.withSecurityGroups(instanceDescription.getSecurityGroup());
+                }
+                if (StringUtils.isNotBlank(instanceDescription.getIamRole())) {
+                    IamInstanceProfileSpecification iamInstanceProfile = new IamInstanceProfileSpecification().withName(instanceDescription.getIamRole());
+                    runInstancesRequest.withIamInstanceProfile(iamInstanceProfile);
                 }
                 // add zone info if specified
                 if (!StringUtils.isEmpty(instanceDescription.getZone())) {
@@ -327,6 +336,17 @@ public class AmazonInstance implements IEnvironmentInstance {
             throw new RuntimeException(ex);
         }
         return result;
+    }
+
+    private Collection<String> getStringCollection(String s) {
+        Set<String> ret = new HashSet<String>();
+        if (StringUtils.isNotBlank(s)) {
+            String[] strings = StringUtils.split(s, ",");
+            for (String str : strings) {
+                ret.add(str.trim());
+            }
+        }
+        return ret;
     }
 
     /**
