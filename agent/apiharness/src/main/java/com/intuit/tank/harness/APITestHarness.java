@@ -306,6 +306,7 @@ public class APITestHarness {
                 } else {
                     LOG.error("Error getting amazon host. maybe local.");
                     String publicIp = new HostInfo().getPublicIp();
+                    
                     if (!publicIp.equals(HostInfo.UNKNOWN)) {
                         instanceUrl = "http://" + publicIp + ":"
                                 + tankConfig.getAgentConfig().getAgentPort();

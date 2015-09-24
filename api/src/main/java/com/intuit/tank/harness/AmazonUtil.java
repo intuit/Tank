@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.logging.LoggingProfile;
@@ -86,7 +87,11 @@ public class AmazonUtil {
     }
 
     public static String getPublicHostName() throws IOException {
-        return getMetaData(CloudMetaDataType.public_hostname);
+        String ret = getMetaData(CloudMetaDataType.public_hostname);
+        if (StringUtils.isBlank(ret)) {
+            ret = getMetaData(CloudMetaDataType.local_ipv4);
+        }
+        return ret;
     }
 
     /**
