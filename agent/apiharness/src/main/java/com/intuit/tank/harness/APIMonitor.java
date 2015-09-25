@@ -45,7 +45,7 @@ public class APIMonitor implements Runnable {
             reportInterval = Math.max(APITestHarness.getInstance().getTankConfig().getAgentConfig()
                     .getStatusReportIntervalMilis(reportInterval), MIN_REPORT_TIME);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("Error initializing monitor: " + e, e);
         }
     }
 

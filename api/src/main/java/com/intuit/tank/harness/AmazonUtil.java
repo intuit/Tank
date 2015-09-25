@@ -87,8 +87,14 @@ public class AmazonUtil {
     }
 
     public static String getPublicHostName() throws IOException {
-        String ret = getMetaData(CloudMetaDataType.public_hostname);
+        String ret = null;
+        try {
+            ret = getMetaData(CloudMetaDataType.public_hostname);
+        } catch (Exception e) {
+            LOG.warn("Failed getting public host: " + e);
+        }
         if (StringUtils.isBlank(ret)) {
+            LOG.info("getting local_ipv4...");
             ret = getMetaData(CloudMetaDataType.local_ipv4);
         }
         return ret;

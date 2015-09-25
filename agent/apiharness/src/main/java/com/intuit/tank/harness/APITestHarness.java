@@ -295,6 +295,7 @@ public class APITestHarness {
             try {
                 instanceUrl = "http://" + AmazonUtil.getPublicHostName() + ":"
                         + tankConfig.getAgentConfig().getAgentPort();
+                LOG.info("MyInstanceURL  = " + instanceUrl);
             } catch (IOException e1) {
                 tries++;
                 if (tries < 10) {
@@ -310,12 +311,14 @@ public class APITestHarness {
                     if (!publicIp.equals(HostInfo.UNKNOWN)) {
                         instanceUrl = "http://" + publicIp + ":"
                                 + tankConfig.getAgentConfig().getAgentPort();
+                        LOG.info("MyInstanceURL from hostinfo  = " + instanceUrl);
                     } else {
                         instanceUrl = "http://localhost:" + tankConfig.getAgentConfig().getAgentPort();
                     }
                 }
             }
         }
+        LOG.info("MyInstanceURL  = " + instanceUrl);
         if (capacity < 0) {
             capacity = AmazonUtil.getCapacity();
         }
@@ -598,9 +601,10 @@ public class APITestHarness {
                     tp++;
                 }
             }
-
+            LOG.info(LogUtil.getLogMessage("Have all testPlan runners configured"));
             // start status thread first only
             if (!isLocal && !isDebug() && NumberUtils.isDigits(agentRunData.getJobId())) {
+                LOG.info(LogUtil.getLogMessage("Starting monitor thread..."));
                 CloudVmStatus status = getInitialStatus();
                 monitorThread = new Thread(new APIMonitor(status));
                 monitorThread.setDaemon(true);
@@ -608,6 +612,7 @@ public class APITestHarness {
                 monitorThread.start();
             }
 
+            LOG.info(LogUtil.getLogMessage("Starting threads..."));
             // start initial users
             startTime = System.currentTimeMillis();
             DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
@@ -656,8 +661,8 @@ public class APITestHarness {
 
                 doneSignal.await();
             }
-        } catch (Exception t) {
-            LOG.error(LogUtil.getLogMessage(t.getMessage()), t);
+        } catch (Throwable t) {
+            LOG.error("error executing..." + t, t);
         } finally {
             LOG.info(LogUtil.getLogMessage("Test Complete..."));
             if (!isDebug() && NumberUtils.isDigits(agentRunData.getJobId())) {

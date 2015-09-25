@@ -16,7 +16,6 @@ import java.io.ByteArrayInputStream;
  */
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -419,10 +418,7 @@ public class TankHttpClient4 implements TankHttpClient {
                 parameters.add(p);
                 nextPart = multipartStream.readBoundary();
             }
-        } catch (MultipartStream.MalformedStreamException e) {
-            LOG.error(e.toString(), e);
-            // the stream failed to follow required syntax
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.error(e.toString(), e);
             // a read or write error occurred
         }

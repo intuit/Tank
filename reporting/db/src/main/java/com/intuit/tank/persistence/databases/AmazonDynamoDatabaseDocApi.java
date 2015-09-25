@@ -70,12 +70,14 @@ import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.amazonaws.services.dynamodbv2.model.TableDescription;
 import com.amazonaws.services.dynamodbv2.model.TableStatus;
 import com.amazonaws.services.dynamodbv2.model.WriteRequest;
+import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
 import com.intuit.tank.reporting.databases.Attribute;
 import com.intuit.tank.reporting.databases.IDatabase;
 import com.intuit.tank.reporting.databases.Item;
 import com.intuit.tank.reporting.databases.PagedDatabaseResult;
 import com.intuit.tank.reporting.databases.TankDatabaseType;
 import com.intuit.tank.results.TankResult;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.common.util.MethodTimer;
 import com.intuit.tank.vm.common.util.ReportUtil;
 import com.intuit.tank.vm.settings.CloudCredentials;
@@ -102,6 +104,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
      * @param dynamoDb
      */
     public AmazonDynamoDatabaseDocApi() {
+        VMRegion vmRegion = config.getVmManagerConfig().getDefaultRegion();
         CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
         if (creds != null && StringUtils.isNotBlank(creds.getKeyId())) {
             AWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
@@ -109,6 +112,9 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
         } else {
             this.dynamoDb = new AmazonDynamoDBClient(new ClientConfiguration());
         }
+
+        dynamoDb.setEndpoint(vmRegion.getEndpoint());
+        
     }
 
     /**

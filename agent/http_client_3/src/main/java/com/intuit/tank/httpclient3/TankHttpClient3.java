@@ -16,7 +16,6 @@ import java.io.ByteArrayInputStream;
  */
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -401,10 +400,7 @@ public class TankHttpClient3 implements TankHttpClient {
                 parameters.add(p);
                 nextPart = multipartStream.readBoundary();
             }
-        } catch (MultipartStream.MalformedStreamException e) {
-            logger.error(e.toString(), e);
-            // the stream failed to follow required syntax
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error(e.toString(), e);
             // a read or write error occurred
         }
