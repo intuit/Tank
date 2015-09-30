@@ -435,6 +435,8 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
         JPanel panel = new JPanel(new BorderLayout());
         JLabel label = new JLabel("Filter: ");
         panel.add(label, BorderLayout.WEST);
+        final JLabel countLabel = new JLabel(" Count: 0 ");
+        panel.add(countLabel, BorderLayout.EAST);
         final JTextField filterText = new JTextField("");
         filterText.addKeyListener(new KeyAdapter() {
             public void keyTyped(KeyEvent e) {
@@ -444,6 +446,7 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
                 } else {
                     try {
                         sorter.setRowFilter(RowFilter.regexFilter(text));
+                        countLabel.setText(" Count: " + sorter.getViewRowCount() + " ");
                     } catch (PatternSyntaxException pse) {
                         System.err.println("Bad regex pattern");
                     }
