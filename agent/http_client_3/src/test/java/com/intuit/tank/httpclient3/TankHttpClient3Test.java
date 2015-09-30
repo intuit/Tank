@@ -119,30 +119,30 @@ public class TankHttpClient3Test {
         Assert.assertTrue(response.getBody().contains("test-cookie"));
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
-    public void setProxy() {
-        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbin.org/ip");
-        request.getHttpclient().setProxy("168.9.128.152", 8080);
-        request.doGet(null);
-        BaseResponse response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getHttpCode());
-        String body = response.getBody();
-
-        request.doGet(null);
-        response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getHttpCode());
-        Assert.assertEquals(body, response.getBody());
-
-        // unset proxy
-        request.getHttpclient().setProxy(null, -1);
-        request.doGet(null);
-        response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getHttpCode());
-        Assert.assertNotEquals(body, response.getBody());
-    }
+//    @Test(groups = TestGroups.FUNCTIONAL)
+//    public void setProxy() {
+//        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbin.org/ip");
+//        request.getHttpclient().setProxy("168.9.128.152", 8080);
+//        request.doGet(null);
+//        BaseResponse response = request.getResponse();
+//        Assert.assertNotNull(response);
+//        Assert.assertEquals(200, response.getHttpCode());
+//        String body = response.getBody();
+//
+//        request.doGet(null);
+//        response = request.getResponse();
+//        Assert.assertNotNull(response);
+//        Assert.assertEquals(200, response.getHttpCode());
+//        Assert.assertEquals(body, response.getBody());
+//
+//        // unset proxy
+//        request.getHttpclient().setProxy(null, -1);
+//        request.doGet(null);
+//        response = request.getResponse();
+//        Assert.assertNotNull(response);
+//        Assert.assertEquals(200, response.getHttpCode());
+//        Assert.assertNotEquals(body, response.getBody());
+//    }
 
     @Test(groups = TestGroups.FUNCTIONAL)
     public void testSSL() {
