@@ -48,6 +48,7 @@ import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
+import com.intuit.tank.reporting.api.DummyResultsReporter;
 import com.intuit.tank.reporting.api.ResultsReporter;
 import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.results.TankResult;
@@ -138,7 +139,6 @@ public class APITestHarness {
 
     private APITestHarness() {
         tankConfig = new TankConfig();
-        resultsReporter = ReportingFactory.getResultsReporter();
         validationFailures = new ValidationStatus();
         setFlowControllerTemplate(new DefaultFlowController());
         agentRunData = new AgentRunData();
@@ -243,8 +243,10 @@ public class APITestHarness {
         agentRunData.setInstanceId(instanceId);
 
         if (controllerBase != null) {
+            resultsReporter = ReportingFactory.getResultsReporter();
             startHttp(controllerBase);
         } else {
+            resultsReporter = new DummyResultsReporter();
             TestPlanSingleton plans = TestPlanSingleton.getInstance();
             if (null == testPlanXmls) {
                 plans.setTestPlans(testPlans);

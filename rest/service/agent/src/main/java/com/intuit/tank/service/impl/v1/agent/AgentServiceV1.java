@@ -19,6 +19,7 @@ package com.intuit.tank.service.impl.v1.agent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,9 @@ import com.intuit.tank.api.service.v1.agent.AgentService;
 import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.service.util.ResponseUtil;
 import com.intuit.tank.service.util.ServletInjector;
+import com.intuit.tank.storage.FileData;
+import com.intuit.tank.storage.FileStorage;
+import com.intuit.tank.storage.FileStorageFactory;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
@@ -89,8 +93,7 @@ public class AgentServiceV1 implements AgentService {
         ResponseBuilder responseBuilder = null;
         try {
             responseBuilder = Response.ok();
-            JobManager jobManager = new ServletInjector<JobManager>().getManagedBean(
-                    servletContext, JobManager.class);
+            JobManager jobManager = new ServletInjector<JobManager>().getManagedBean(servletContext, JobManager.class);
             AgentTestStartData response = jobManager.registerAgentForJob(data);
             responseBuilder.entity(response);
         } catch (Exception e) {
@@ -125,52 +128,47 @@ public class AgentServiceV1 implements AgentService {
     public Response getSupportFiles() {
         ResponseBuilder responseBuilder = Response.ok();
         // AuthUtil.checkLoggedIn(servletContext);
-        final File jarDir = new File(new TankConfig().getJarDir());
+        final FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getJarDir(), false);
+
         final File harnessJar = new File(servletContext.getRealPath("/tools/" + HARNESS_JAR));
         LOG.info("harnessJar = " + harnessJar.getAbsolutePath());
-        if (jarDir.exists() && jarDir.isDirectory()) {
-            StreamingOutput streamingOutput = new StreamingOutput() {
-                @Override
-                public void write(OutputStream output) throws IOException, WebApplicationException {
-                    ZipOutputStream zip = new ZipOutputStream(output);
-                    try {
-                        boolean harnessJarExists = harnessJar.exists();
-                        if (harnessJarExists) {
-                            addFileToZip(harnessJar, zip);
+        final List<FileData> files = fileStorage.listFileData("");
+
+        StreamingOutput streamingOutput = new StreamingOutput() {
+            @Override
+            public void write(OutputStream output) throws IOException, WebApplicationException {
+                ZipOutputStream zip = new ZipOutputStream(output);
+                try {
+                    boolean harnessJarExists = harnessJar.exists();
+                    if (harnessJarExists) {
+                        addFileToZip(HARNESS_JAR, new FileInputStream(harnessJar), zip);
+                        zip.flush();
+                    }
+                    for (FileData fileData : files) {
+                        if (harnessJarExists && fileData.getFileName().equals(HARNESS_JAR)) {
+                            LOG.info("Not adding harness because we found it in the war.");
+                        } else {
+                            addFileToZip(fileData.getFileName(), fileStorage.readFileData(fileData), zip);
                             zip.flush();
                         }
-                        for (File f : jarDir.listFiles()) {
-                            if (f.isFile()) {
-                                if (harnessJarExists && f.getName().equals(HARNESS_JAR)) {
-                                    LOG.info("Not adding harness because we found it in the war.");
-                                } else {
-                                    addFileToZip(f, zip);
-                                    zip.flush();
-                                }
-                            }
-                        }
-
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    } finally {
-                        IOUtils.closeQuietly(zip);
                     }
+
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    IOUtils.closeQuietly(zip);
                 }
-            };
-            String filename = "agent-support-files.zip";
-            responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-            responseBuilder.entity(streamingOutput);
-        } else {
-            responseBuilder.status(Status.NOT_FOUND);
-        }
+            }
+        };
+        String filename = "agent-support-files.zip";
+        responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+        responseBuilder.entity(streamingOutput);
         return responseBuilder.build();
     }
 
-    private void addFileToZip(File srcFile, ZipOutputStream zip) throws Exception {
-
-        zip.putNextEntry(new ZipEntry(srcFile.getName()));
-        FileInputStream in = FileUtils.openInputStream(srcFile);
+    private void addFileToZip(String name, InputStream in, ZipOutputStream zip) throws Exception {
         try {
+            zip.putNextEntry(new ZipEntry(name));
             IOUtils.copy(in, zip);
         } finally {
             IOUtils.closeQuietly(in);
@@ -179,8 +177,7 @@ public class AgentServiceV1 implements AgentService {
 
     @Override
     public Response standaloneAgentAvailable(@Nonnull AgentAvailability availability) {
-        StandaloneAgentTracker tracker = new ServletInjector<StandaloneAgentTracker>().getManagedBean(
-                servletContext, StandaloneAgentTracker.class);
+        StandaloneAgentTracker tracker = new ServletInjector<StandaloneAgentTracker>().getManagedBean(servletContext, StandaloneAgentTracker.class);
         LOG.info("Adding agent availability: " + availability);
         tracker.addAvailability(availability);
         return Response.noContent().build();
@@ -206,7 +203,7 @@ public class AgentServiceV1 implements AgentService {
         AgentConfig config = new TankConfig().getAgentConfig();
         Map<String, String> map = config.getTankClientMap();
         List<TankHttpClientDefinition> definitions = new ArrayList<TankHttpClientDefinition>();
-        for(Entry<String, String> entry : map.entrySet()) {
+        for (Entry<String, String> entry : map.entrySet()) {
             definitions.add(new TankHttpClientDefinition(entry.getKey(), entry.getValue()));
         }
         String defaultDefinition = config.getTankClientDefault();

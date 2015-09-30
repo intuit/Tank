@@ -17,10 +17,9 @@ package com.intuit.tank.service.impl.v1.datafile;
  */
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -49,7 +48,11 @@ import com.intuit.tank.datafile.util.DataFileServiceUtil;
 import com.intuit.tank.project.DataFile;
 import com.intuit.tank.service.api.v1.DataFileService;
 import com.intuit.tank.service.util.ResponseUtil;
+import com.intuit.tank.storage.FileData;
+import com.intuit.tank.storage.FileStorage;
+import com.intuit.tank.storage.FileStorageFactory;
 import com.intuit.tank.util.DataFileUtil;
+import com.intuit.tank.vm.settings.TankConfig;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 
@@ -235,7 +238,8 @@ public class DataFileServiceV1 implements DataFileService {
      * @return
      */
     private StreamingOutput getStreamingOutput(final int offset, final int numLines, DataFile dataFile) {
-        final File f = DataFileUtil.getDataFilePath(dataFile);
+        final FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getDataFileStorageDir(), false);
+        final FileData fd = DataFileUtil.getFileData(dataFile);
         return new StreamingOutput() {
 
             public void write(OutputStream outputStream) {
@@ -244,9 +248,9 @@ public class DataFileServiceV1 implements DataFileService {
                 PrintWriter out = null;
                 try {
                     int nl = numLines;
-                    in = new BufferedReader(new FileReader(f));
+                    in = new BufferedReader(new InputStreamReader(fileStorage.readFileData(fd), "utf-8"));
                     out = new PrintWriter(outputStream);
-                    if (!f.getName().toLowerCase().endsWith(".csv")) {
+                    if (!fd.getFileName().toLowerCase().endsWith(".csv")) {
                         nl = -1;
                     }
                     // Read File Line By Line

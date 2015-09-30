@@ -422,6 +422,13 @@
         </varlistentry>
         
         <varlistentry>
+          <term>Tank Http Client</term>
+          <listitem>
+            <para>The client implementation you want to use to drive load.</para>
+          </listitem>
+        </varlistentry>
+        
+        <varlistentry>
           <term>Stop Behavior</term>
           <listitem>
             <para>Where you want the script to exit when stop command is issued.</para>

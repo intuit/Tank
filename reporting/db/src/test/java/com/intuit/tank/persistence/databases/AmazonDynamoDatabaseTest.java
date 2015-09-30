@@ -5,10 +5,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.apache.log4j.BasicConfigurator;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import com.amazonaws.ClientConfiguration;
@@ -23,6 +22,8 @@ import com.intuit.tank.results.TankResultBuilder;
 import com.intuit.tank.test.TestGroups;
 import com.intuit.tank.vm.common.util.ReportUtil;
 
+import junit.framework.Assert;
+
 public class AmazonDynamoDatabaseTest {
 
     private static final String TEST_JOB_ID = "TestJob1";
@@ -30,16 +31,21 @@ public class AmazonDynamoDatabaseTest {
     private static final int NUM_ENTRIES = 100;
     private AmazonDynamoDatabaseDocApi db;
     private AmazonDynamoDBClient dynamoDb;
+    
+    @BeforeSuite
+    public void init() {
+        BasicConfigurator.configure();
+    }
 
     @BeforeClass
     public void before() {
-        AWSCredentials credentials = new BasicAWSCredentials(System.getProperty("AWS_KEY_ID"),
+        AWSCredentials credentials = new BasicAWSCredentials(System.getProperty("AWS_SECRET_KEY_ID"),
                 System.getProperty("AWS_SECRET_KEY"));
         dynamoDb = new AmazonDynamoDBClient(credentials, new ClientConfiguration());
         db = new AmazonDynamoDatabaseDocApi(dynamoDb);
     }
 
-    @BeforeMethod
+//    @BeforeMethod
     public void cleanTables() {
         if (db != null) {
             try {
@@ -67,7 +73,7 @@ public class AmazonDynamoDatabaseTest {
         db.deleteTable(TEST_TABLE);
     }
 
-    @Test(groups = TestGroups.EXPERIMENTAL)
+//    @Test(groups = TestGroups.EXPERIMENTAL)
     public void testInsertTiming() {
         db.createTable(TEST_TABLE);
         boolean hasTable = db.hasTable(TEST_TABLE);
@@ -92,7 +98,7 @@ public class AmazonDynamoDatabaseTest {
         Assert.assertEquals(NUM_ENTRIES - 20 , items.size());
     }
 
-    @Test(groups = TestGroups.EXPERIMENTAL)
+//    @Test(groups = TestGroups.EXPERIMENTAL)
     public void testInsertTps() {
         db.createTable(TEST_TABLE);
         int numJobs = 3;

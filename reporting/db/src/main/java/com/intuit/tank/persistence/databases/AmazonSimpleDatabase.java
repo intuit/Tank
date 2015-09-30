@@ -37,7 +37,6 @@ import com.intuit.tank.reporting.databases.Item;
 import com.intuit.tank.reporting.databases.PagedDatabaseResult;
 import com.intuit.tank.reporting.databases.TankDatabaseType;
 import com.intuit.tank.results.TankResult;
-import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.common.util.ReportUtil;
 import com.intuit.tank.vm.settings.CloudCredentials;
 import com.intuit.tank.vm.settings.CloudProvider;
@@ -406,7 +405,6 @@ public class AmazonSimpleDatabase implements IDatabase {
     }
 
     private void createDatabase() {
-        VMRegion vmRegion = config.getVmManagerConfig().getDefaultRegion();
         CloudCredentials creds = config.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
         AWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
         ClientConfiguration config = new ClientConfiguration();
@@ -426,7 +424,6 @@ public class AmazonSimpleDatabase implements IDatabase {
         } else {
             this.db = new AmazonSimpleDBClient(config);
         }
-        db.setEndpoint(vmRegion.getEndpoint());
     }
 
 }
