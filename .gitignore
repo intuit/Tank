@@ -32,3 +32,6 @@ web/web_support/settings.xml
 searchDirectory
 pom.properties
 migrate_script
+tank_common/settings.xml
+tank_vmManager/settings.xml
+tank.mwb

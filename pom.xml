@@ -26,7 +26,7 @@
     <cert.store.password>tanktank</cert.store.password>
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
-
+    <version.okhttp>2.5.0</version.okhttp>
 
     <version.hibernate>3.5.6-Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
@@ -583,8 +583,6 @@
         <version>${version.seam}</version>
       </dependency>
 
-      <!-- <dependency> <groupId>org.owasp</groupId> <artifactId>proxy</artifactId> <version>1.1-SNAPSHOT</version> </dependency> -->
-
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
@@ -876,6 +874,11 @@
         <groupId>commons-httpclient</groupId>
         <artifactId>commons-httpclient</artifactId>
         <version>3.0.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.squareup.okhttp</groupId>
+        <artifactId>okhttp</artifactId>
+        <version>${version.okhttp}</version>
       </dependency>
       <dependency>
         <groupId>org.json</groupId>
