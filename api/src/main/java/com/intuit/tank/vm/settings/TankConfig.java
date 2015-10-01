@@ -43,6 +43,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
     private static final String KEY_TIMING_FILE_STORAGE = "timing-file-storage";
     private static final String KEY_MAIL_NODE = "mail";
     private static final String KEY_STANDALONE = "standalone";
+    private static final String KEY_ENCRYPT_S3 = "s3-encrypt";
 
     @SuppressWarnings("unused")
     private static final Logger LOG = Logger.getLogger(TankConfig.class);
@@ -108,6 +109,12 @@ public class TankConfig extends BaseCommonsXmlConfig {
      */
     public boolean isRestSecurityEnabled() {
         return config.getBoolean(KEY_REST_SECURITY_ENABLED, false);
+    }
+    /**
+     * @return true if rest security is enabled
+     */
+    public boolean isS3EncryptionEnabled() {
+        return config.getBoolean(KEY_ENCRYPT_S3, false);
     }
 
     /**

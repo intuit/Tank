@@ -27,6 +27,9 @@
   <!-- if this instance is a standalone instance and should not start agents 
     automatically. -->
   <standalone>false</standalone>
+  
+  <!--  set to true to encrypt data at rest in s3 buckets -->
+  <s3-encrypt>false</s3-encrypt>
 
   <!-- if this rest calls require authentication using api key or username/password 
     or logged in via session -->

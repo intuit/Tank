@@ -28,6 +28,7 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
@@ -48,6 +49,7 @@ public class S3FileStorage implements FileStorage, Serializable {
 
     private String bucketName;
     private boolean compress = true;
+    private boolean encrypt = true;
 
     private AmazonS3Client s3Client;
 
@@ -60,6 +62,7 @@ public class S3FileStorage implements FileStorage, Serializable {
         this.compress = compress;
         try {
             TankConfig tankConfig = new TankConfig();
+            encrypt = tankConfig.isS3EncryptionEnabled();
             CloudCredentials creds = tankConfig.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
             BasicAWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
             ClientConfiguration config = new ClientConfiguration();
@@ -93,6 +96,9 @@ public class S3FileStorage implements FileStorage, Serializable {
         OutputStream out = null;
         try {
             ObjectMetadata metaData = new ObjectMetadata();
+            if (encrypt) {
+                metaData.setSSEAlgorithm(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);     
+            }
             if (fileData.getAttributes() != null) {
                 for (Entry<String, String> entry : fileData.getAttributes().entrySet()) {
                     metaData.addUserMetadata(entry.getKey(), entry.getValue());
