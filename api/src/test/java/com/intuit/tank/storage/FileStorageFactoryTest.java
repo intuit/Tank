@@ -33,7 +33,9 @@ public class FileStorageFactoryTest {
     public void testFileStorage() throws Exception {
         String s = "This is a test";
         File f = new File("target/storage");
-        Files.deleteDirectoryContents(f);
+        if (f.exists() && f.isDirectory()) {
+            Files.deleteDirectoryContents(f);
+        }
         ByteArrayInputStream bis = new ByteArrayInputStream(s.getBytes());
         FileStorage storage = FileStorageFactory.getFileStorage(f.getAbsolutePath(), false);
         FileData fd = new FileData("", "test.txt");
@@ -56,7 +58,9 @@ public class FileStorageFactoryTest {
     public void testFileStorageCompressed() throws Exception {
         String s = "This is a test";
         File f = new File("target/storage");
-        Files.deleteDirectoryContents(f);
+        if (f.exists() && f.isDirectory()) {
+            Files.deleteDirectoryContents(f);
+        }
         FileStorage storage = FileStorageFactory.getFileStorage(f.getAbsolutePath(), true);
         ByteArrayInputStream bis = new ByteArrayInputStream(s.getBytes());
         FileData fd = new FileData("", "test.gz");
