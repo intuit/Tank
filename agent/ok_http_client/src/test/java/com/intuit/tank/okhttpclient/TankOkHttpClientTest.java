@@ -5,6 +5,8 @@ import java.nio.charset.Charset;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.tomcat.util.net.URL;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -28,6 +30,7 @@ public class TankOkHttpClientTest {
     @BeforeClass
     public void init() {
         BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.INFO);
     }
 
     @Test(groups = TestGroups.FUNCTIONAL)

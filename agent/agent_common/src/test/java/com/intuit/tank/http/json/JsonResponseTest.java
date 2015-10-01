@@ -16,6 +16,8 @@ package com.intuit.tank.http.json;
 import static org.junit.Assert.assertNotNull;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.testng.annotations.Test;
 
 import com.intuit.tank.http.json.JsonResponse;
@@ -24,6 +26,7 @@ public class JsonResponseTest {
 
     static {
         BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.INFO);
 
     }
 
