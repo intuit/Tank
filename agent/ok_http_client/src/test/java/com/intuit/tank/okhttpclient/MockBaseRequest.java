@@ -10,8 +10,7 @@ public class MockBaseRequest extends BaseRequest {
     }
 
     @Override
-    public void setKey(String key, String value) {
-    }
+    public void setKey(String key, String value) {}
 
     @Override
     public String getKey(String key) {

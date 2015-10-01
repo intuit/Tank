@@ -236,7 +236,7 @@
       </config>
       <provider>com.intuit.tank.persistence.databases.AmazonDynamoDatabaseDocApi</provider>
       <!-- <provider>com.intuit.tank.persistence.databases.AmazonSimpleDatabase</provider> -->
-
+    </results>
   </vm-manager>
 
   <security>

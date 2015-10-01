@@ -42,7 +42,6 @@ public class ScriptUtil {
     public static final String START_TIME_KEY = "_startTime";
     private static final Pattern p = Pattern.compile(TankConstants.EXPRESSION_REGEX);
     private static final Pattern csvPattern = Pattern.compile(TankConstants.CSV_EXPRESSION_REGEX);
-    private static TankConfig config = new TankConfig();
 
     public static long getRunTime(List<ScriptStep> steps, Map<String, String> variables) {
         long runTime = 0;
@@ -397,6 +396,7 @@ public class ScriptUtil {
     public static long calculateStepDuration(ScriptStep step, Map<String, String> variables) {
         long result = 0;
         try {
+            TankConfig config = new TankConfig();
             if (step.getType().equalsIgnoreCase("request")) {
                 result = config.getAgentConfig().getRange(step.getMethod()).getRandomValueWithin();
             } else if (step.getType().equalsIgnoreCase("variable")) {

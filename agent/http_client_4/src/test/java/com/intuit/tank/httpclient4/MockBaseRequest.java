@@ -2,7 +2,6 @@ package com.intuit.tank.httpclient4;
 
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.TankHttpClient;
-import com.intuit.tank.http.TankHttpLogger;
 
 public class MockBaseRequest extends BaseRequest {
 

@@ -9,7 +9,6 @@ import java.net.CookiePolicy;
 import java.net.HttpCookie;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.nio.charset.Charset;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -29,11 +28,9 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.tomcat.util.http.fileupload.MultipartStream;
 
 import com.intuit.tank.http.AuthCredentials;
 import com.intuit.tank.http.AuthScheme;
@@ -42,6 +39,7 @@ import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.http.TankCookie;
 import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.http.TankHttpUtil;
+import com.intuit.tank.http.TankHttpUtil.PartHolder;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.vm.settings.AgentConfig;
 import com.squareup.okhttp.Authenticator;
@@ -70,623 +68,426 @@ import com.squareup.okhttp.Response;
  */
 /**
  * Implements the OkHttpclient to support Http2.
+ * 
  * @author alfredom
  *
  */
 public class TankOkHttpClient implements TankHttpClient {
 
-	static Logger LOG = Logger.getLogger(TankOkHttpClient.class);
+    static Logger LOG = Logger.getLogger(TankOkHttpClient.class);
 
-	private OkHttpClient okHttpClient = new OkHttpClient();
-	private CookieManager cookieManager = new CookieManager();
-	private SSLSocketFactory sslSocketFactory;
+    private OkHttpClient okHttpClient = new OkHttpClient();
+    private CookieManager cookieManager = new CookieManager();
+    private SSLSocketFactory sslSocketFactory;
 
-	/**
-	 * no-arg constructor for OkHttp client
-	 */
-	public TankOkHttpClient() {
-		try {
-
-			final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-
-				@Override
-				public X509Certificate[] getAcceptedIssuers() {
-					return null;
-				}
-
-				@Override
-				public void checkServerTrusted(X509Certificate[] chain,
-						String authType) throws CertificateException {
-				}
-
-				@Override
-				public void checkClientTrusted(X509Certificate[] chain,
-						String authType) throws CertificateException {
-				}
-			} };
-
-			// Setup SSL to accept all certs
-			final SSLContext sslContext = SSLContext.getInstance("SSL");
-			sslContext.init(null, trustAllCerts, null);
-			sslSocketFactory = sslContext.getSocketFactory();
-
-			// Setup Cookie manager
-			cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-			CookieHandler.setDefault(cookieManager);
-			okHttpClient.setCookieHandler(cookieManager);
-
-			okHttpClient.setConnectTimeout(30000, TimeUnit.MILLISECONDS);
-			okHttpClient.setReadTimeout(30000, TimeUnit.MILLISECONDS); // Socket-timeout
-			okHttpClient.setFollowRedirects(true);
-			okHttpClient.setFollowSslRedirects(true);
-
-			
-			okHttpClient.setSslSocketFactory(sslSocketFactory);
-			okHttpClient.setHostnameVerifier(new HostnameVerifier() {
-
-				@Override
-				public boolean verify(String hostname, SSLSession session) {
-					return true;
-				}
-			});
-
-		} catch (Exception e) {
-			LOG.error("Error setting accept all: " + e, e);
-		}
-	}
-
-	public void setConnectionTimeout(long connectionTimeout) {
-		okHttpClient
-				.setConnectTimeout(connectionTimeout, TimeUnit.MILLISECONDS);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.intuit.tank.okhttpclient.TankHttpClient#doGet(com.intuit.tank.http.
-	 * BaseRequest)
-	 */
-	@Override
-	public void doGet(BaseRequest request) {
-		Builder builder = new Request.Builder();
-		builder.get();
-		builder.url(request.getRequestUrl());
-		sendRequest(request, builder, request.getBody(), "get");
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.intuit.tank.okhttpclient.TankHttpClient#doPut(com.intuit.tank.http.
-	 * BaseRequest)
-	 */
-	@Override
-	public void doPut(BaseRequest request) {
-		MediaType contentType = MediaType.parse(request.getContentType());
-		RequestBody requtestBody = RequestBody.create(contentType,
-				request.getBody());
-
-		Builder builder = new Request.Builder().url(request.getRequestUrl())
-				.put(requtestBody);
-
-		sendRequest(request, builder, request.getBody(), "put");
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.intuit.tank.okhttpclient.TankHttpClient#doDelete(com.intuit.tank.
-	 * http. BaseRequest)
-	 */
-	@Override
-	public void doDelete(BaseRequest request) {
-
-		Builder builder = new Request.Builder()
-			.delete()
-			.url(request.getRequestUrl());
-		String type = request.getKey("Content-Type");
-
-		if (StringUtils.isBlank(type)) {
-			request.setKey("Content-Type", "application/x-www-form-urlencoded");
-		}
-		sendRequest(request, builder, request.getBody(), "delete");
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.intuit.tank.okhttpclient.TankHttpClient#addAuth(com.intuit.tank.http.
-	 * AuthCredentials)
-	 */
-	@Override
-	public void addAuth(final AuthCredentials creds) {
-		okHttpClient.setAuthenticator(new InternalTankAuthenticator(creds));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.intuit.tank.okhttpclient.TankHttpClient#clearSession()
-	 */
-	@Override
-	public void clearSession() {
-		cookieManager.getCookieStore().removeAll();
-	}
-
-	/**
-     * 
+    /**
+     * no-arg constructor for OkHttp client
      */
-	@Override
-	public void setCookie(TankCookie cookie) {
+    public TankOkHttpClient() {
+        try {
 
-		HttpCookie httpCookie = new HttpCookie(cookie.getName(),
-				cookie.getValue());
-		httpCookie.setDomain(cookie.getDomain());
-		httpCookie.setPath(cookie.getPath());
-		try {
-			((CookieManager) okHttpClient.getCookieHandler()).getCookieStore()
-					.add(null, httpCookie);
-		} catch (Exception e) {
-			LOG.error("Error setting cookie: " + e, e);
-		}
+            final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
 
-	}
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
 
-	@Override
-	public void setProxy(String proxyhost, int proxyport) {
-		if (StringUtils.isNotBlank(proxyhost)) {
-			okHttpClient.setProxy(new Proxy(Proxy.Type.HTTP,
-					new InetSocketAddress(proxyhost, proxyport)));
-			okHttpClient.setSslSocketFactory(sslSocketFactory);
-		} else {
-			// Set proxy to direct
-			okHttpClient.setSslSocketFactory(sslSocketFactory);
-			okHttpClient.setProxy(Proxy.NO_PROXY);
-		}
-	}
+                @Override
+                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
 
-	
-	String getProxyInfo() {
-		return okHttpClient.getProxy().toString();
-	}
+                @Override
+                public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
+            } };
 
-	private void sendRequest(BaseRequest request,
-			@Nonnull Request.Builder builder, String requestBody, String method) {
-		String uri = null;
-		long waitTime = 0L;
-		try {
-			setHeaders(request, builder, request.getHeaderInformation());
+            // Setup SSL to accept all certs
+            final SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, trustAllCerts, null);
+            sslSocketFactory = sslContext.getSocketFactory();
 
-			List<String> cookies = new ArrayList<String>();
-			if (((CookieManager) okHttpClient.getCookieHandler())
-					.getCookieStore().getCookies() != null) {
-				for (HttpCookie httpCookie : ((CookieManager) okHttpClient
-						.getCookieHandler()).getCookieStore().getCookies()) {
-					cookies.add("REQUEST COOKIE: " + httpCookie.toString());
-				}
-			}
+            // Setup Cookie manager
+            cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+            CookieHandler.setDefault(cookieManager);
+            okHttpClient.setCookieHandler(cookieManager);
 
-			Request okRequest = builder.build();
-			uri = okRequest.uri().toString();
-			LOG.debug(request.getLogUtil().getLogMessage(
-					"About to " + okRequest.method() + " request to " + uri
-							+ " with requestBody  " + requestBody,
-					LogEventType.Informational));
-			request.logRequest(uri, requestBody, okRequest.method(),
-					request.getHeaderInformation(), cookies, false);
+            okHttpClient.setConnectTimeout(30000, TimeUnit.MILLISECONDS);
+            okHttpClient.setReadTimeout(30000, TimeUnit.MILLISECONDS); // Socket-timeout
+            okHttpClient.setFollowRedirects(true);
+            okHttpClient.setFollowSslRedirects(true);
 
-			Response response = okHttpClient.newCall(okRequest).execute();
-			long startTime = Long.parseLong(response
-					.header("OkHttp-Sent-Millis"));
-			long endTime = Long
-					.parseLong(response.header("OkHttp-Sent-Millis"));
+            okHttpClient.setSslSocketFactory(sslSocketFactory);
+            okHttpClient.setHostnameVerifier(new HostnameVerifier() {
 
-			// read response body
-			byte[] responseBody = new byte[0];
-			// check for no content headers
-			if (response.code() != 203 && response.code() != 202
-					&& response.code() != 204) {
-				try {
-					responseBody = response.body().bytes();
-				} catch (Exception e) {
-					LOG.warn("could not get response body: " + e);
-				}
-			}
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            });
 
-			processResponse(responseBody, startTime, endTime, request,
-					response.message(), response.code(), response.headers());
-			waitTime = endTime - startTime;
-		} catch (Exception ex) {
-			LOG.error(
-					request.getLogUtil().getLogMessage(
-							"Could not do " + method + " to url " + uri
-									+ " |  error: " + ex.toString(),
-							LogEventType.IO), ex);
-			throw new RuntimeException(ex);
-		} finally {
-			if (method.equalsIgnoreCase("post")
-					&& request.getLogUtil().getAgentConfig()
-							.getLogPostResponse()) {
-				LOG.info(request.getLogUtil().getLogMessage(
-						"Response from POST to " + request.getRequestUrl()
-								+ " got status code "
-								+ request.getResponse().getHttpCode()
-								+ " BODY { " + request.getResponse().getBody()
-								+ " }", LogEventType.Informational));
-			}
-		}
-		if (waitTime != 0) {
-			doWaitDueToLongResponse(request, waitTime, uri);
-		}
-	}
+        } catch (Exception e) {
+            LOG.error("Error setting accept all: " + e, e);
+        }
+    }
 
-	/**
-	 * Wait for the amount of time it took to get a response from the system if
-	 * the response time is over some threshold specified in the properties
-	 * file. This will ensure users don't bunch up together after a blip on the
-	 * system under test
-	 * 
-	 * @param responseTime
-	 *            - response time of the request; this will also be the time to
-	 *            sleep
-	 * @param uri
-	 */
-	private void doWaitDueToLongResponse(BaseRequest request,
-			long responseTime, String uri) {
-		try {
-			AgentConfig config = request.getLogUtil().getAgentConfig();
-			long maxAgentResponseTime = config.getMaxAgentResponseTime();
-			if (maxAgentResponseTime < responseTime) {
-				long waitTime = Math.min(config.getMaxAgentWaitTime(),
-						responseTime);
-				LOG.warn(request.getLogUtil().getLogMessage(
-						"Response time to slow | delaying " + waitTime
-								+ " ms | url --> " + uri, LogEventType.Script));
-				Thread.sleep(waitTime);
-			}
-		} catch (InterruptedException e) {
-			LOG.warn("Interrupted", e);
-		}
-	}
+    public void setConnectionTimeout(long connectionTimeout) {
+        okHttpClient.setConnectTimeout(connectionTimeout, TimeUnit.MILLISECONDS);
+    }
 
-	/**
-	 * Process the response data
-	 */
-	private void processResponse(byte[] bResponse, long startTime,
-			long endTime, BaseRequest request, String message, int httpCode,
-			Headers headers) {
-		BaseResponse response = request.getResponse();
-		try {
-			if (response == null) {
-				// Get response header information
-				String contentType = headers.get("ContentType");
-				if (StringUtils.isBlank(contentType)) {
-					contentType = "";
-				}
-				response = TankHttpUtil.newResponseObject(contentType);
-				request.setResponse(response);
-			}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.intuit.tank.okhttpclient.TankHttpClient#doGet(com.intuit.tank.http.
+     * BaseRequest)
+     */
+    @Override
+    public void doGet(BaseRequest request) {
+        Builder builder = new Request.Builder();
+        builder.get();
+        builder.url(request.getRequestUrl());
+        sendRequest(request, builder, request.getBody(), "get");
+    }
 
-			// Get response detail information
-			response.setHttpMessage(message);
-			response.setHttpCode(httpCode);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.intuit.tank.okhttpclient.TankHttpClient#doPut(com.intuit.tank.http.
+     * BaseRequest)
+     */
+    @Override
+    public void doPut(BaseRequest request) {
+        MediaType contentType = MediaType.parse(request.getContentType());
+        RequestBody requtestBody = RequestBody.create(contentType, request.getBody());
 
-			// Get response header information
-			for (String key : headers.names()) {
-				response.setHeader(key, headers.get(key));
-			}
+        Builder builder = new Request.Builder().url(request.getRequestUrl()).put(requtestBody);
 
-			if (((CookieManager) okHttpClient.getCookieHandler())
-					.getCookieStore().getCookies() != null) {
-				for (HttpCookie cookie : ((CookieManager) okHttpClient
-						.getCookieHandler()).getCookieStore().getCookies()) {
-					// System.out.println("in processResponse-getCookies");
-					// System.out.println(cookie.toString());
-					response.setCookie(cookie.getName(), cookie.getValue());
-				}
-			}
+        sendRequest(request, builder, request.getBody(), "put");
+    }
 
-			response.setResponseTime(endTime - startTime);
-			String contentType = response.getHttpHeader("Content-Type");
-			String contentEncode = response.getHttpHeader("Content-Encoding");
-			if (BaseResponse.isDataType(contentType) && contentEncode != null
-					&& contentEncode.toLowerCase().contains("gzip")) {
-				// decode gzip for data types
-				try {
-					GZIPInputStream in = new GZIPInputStream(
-							new ByteArrayInputStream(bResponse));
-					ByteArrayOutputStream out = new ByteArrayOutputStream();
-					IOUtils.copy(in, out);
-					bResponse = out.toByteArray();
-				} catch (Exception e) {
-					LOG.warn(request.getLogUtil().getLogMessage(
-							"cannot decode gzip stream: " + e,
-							LogEventType.System));
-				}
-			}
-			response.setResponseBody(bResponse);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.intuit.tank.okhttpclient.TankHttpClient#doDelete(com.intuit.tank.
+     * http. BaseRequest)
+     */
+    @Override
+    public void doDelete(BaseRequest request) {
 
-		} catch (Exception ex) {
-			LOG.warn("Unable to get response: " + ex.getMessage());
-		} finally {
-			response.logResponse();
-		}
-	}
+        Builder builder = new Request.Builder().delete().url(request.getRequestUrl());
+        String type = request.getKey("Content-Type");
 
-	/**
-	 * Set all the header keys defined by user
-	 *
-	 * @param connection
-	 */
-	@SuppressWarnings("rawtypes")
-	private void setHeaders(BaseRequest request, Builder builder,
-			HashMap<String, String> headerInformation) {
-		try {
-			Set set = headerInformation.entrySet();
-			Iterator iter = set.iterator();
+        if (StringUtils.isBlank(type)) {
+            request.setKey("Content-Type", "application/x-www-form-urlencoded");
+        }
+        sendRequest(request, builder, request.getBody(), "delete");
 
-			while (iter.hasNext()) {
-				Map.Entry mapEntry = (Map.Entry) iter.next();
-				builder.addHeader((String) mapEntry.getKey(),
-						(String) mapEntry.getValue());
-			}
-		} catch (Exception ex) {
-			LOG.warn(request.getLogUtil().getLogMessage(
-					"Unable to set header: " + ex.getMessage(),
-					LogEventType.System));
-		}
-	}
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.intuit.tank.okhttpclient.TankHttpClient#doPost(com.intuit.tank.http
-	 * .BaseRequest)
-	 */
-	@Override
-	public void doPost(BaseRequest request) {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.intuit.tank.okhttpclient.TankHttpClient#addAuth(com.intuit.tank.http.
+     * AuthCredentials)
+     */
+    @Override
+    public void addAuth(final AuthCredentials creds) {
+        okHttpClient.setAuthenticator(new InternalTankAuthenticator(creds));
+    }
 
-		MediaType contentType = MediaType.parse(request.getContentType() + ";"
-				+ request.getContentTypeCharSet());
-		Builder requestBuilder = new Request.Builder().url(request
-				.getRequestUrl());
-		RequestBody requestBodyEntity = null;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.intuit.tank.okhttpclient.TankHttpClient#clearSession()
+     */
+    @Override
+    public void clearSession() {
+        cookieManager.getCookieStore().removeAll();
+    }
 
-		if (BaseRequest.CONTENT_TYPE_MULTIPART.equalsIgnoreCase(request
-				.getContentType())) {
-			requestBodyEntity = buildParts(request);
-		} else {
-			requestBodyEntity = RequestBody.create(contentType,
-					request.getBody());
-		}
+    /**
+    * 
+    */
+    @Override
+    public void setCookie(TankCookie cookie) {
 
-		if (requestBodyEntity != null) {
-			requestBuilder.post(requestBodyEntity);
-		}
+        HttpCookie httpCookie = new HttpCookie(cookie.getName(), cookie.getValue());
+        httpCookie.setDomain(cookie.getDomain());
+        httpCookie.setPath(cookie.getPath());
+        try {
+            ((CookieManager) okHttpClient.getCookieHandler()).getCookieStore().add(null, httpCookie);
+        } catch (Exception e) {
+            LOG.error("Error setting cookie: " + e, e);
+        }
 
-		sendRequest(request, requestBuilder, request.getBody(), "post");
+    }
 
-	}
+    @Override
+    public void setProxy(String proxyhost, int proxyport) {
+        if (StringUtils.isNotBlank(proxyhost)) {
+            okHttpClient.setProxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyhost, proxyport)));
+            okHttpClient.setSslSocketFactory(sslSocketFactory);
+        } else {
+            // Set proxy to direct
+            okHttpClient.setSslSocketFactory(sslSocketFactory);
+            okHttpClient.setProxy(Proxy.NO_PROXY);
+        }
+    }
 
-	private RequestBody buildParts(BaseRequest request) {
+    String getProxyInfo() {
+        return okHttpClient.getProxy().toString();
+    }
 
-		MultipartBuilder multipartBuilder = new MultipartBuilder()
-				.type(MultipartBuilder.FORM);
+    private void sendRequest(BaseRequest request, @Nonnull Request.Builder builder, String requestBody, String method) {
+        String uri = null;
+        long waitTime = 0L;
+        try {
+            setHeaders(request, builder, request.getHeaderInformation());
 
-		for (PartHolder h : getPartsFromBody(request)) {
-			if (h.getFileName() == null) {
-				if (h.isContentTypeSet()) {
-					multipartBuilder.addFormDataPart(h.getPartName(), null,
-							RequestBody.create(
-									MediaType.parse(request.getContentType()),
-									h.getBody()));
-				} else {
-					multipartBuilder.addFormDataPart(h.getPartName(),
-							h.getBodyAsString());
-				}
-			} else {
-				if (h.isContentTypeSet()) {
-					multipartBuilder.addFormDataPart(h.getPartName(), h
-							.getFileName(), RequestBody.create(
-							MediaType.parse(request.getContentType()),
-							h.getBody()));
-				} else {
-					multipartBuilder.addFormDataPart(h.getPartName(),
-							h.getFileName(),
-							RequestBody.create(null, h.getBody()));
-				}
-			}
-		}
-		return multipartBuilder.build();
-	}
+            List<String> cookies = new ArrayList<String>();
+            if (((CookieManager) okHttpClient.getCookieHandler()).getCookieStore().getCookies() != null) {
+                for (HttpCookie httpCookie : ((CookieManager) okHttpClient.getCookieHandler()).getCookieStore().getCookies()) {
+                    cookies.add("REQUEST COOKIE: " + httpCookie.toString());
+                }
+            }
 
-	private List<PartHolder> getPartsFromBody(BaseRequest request) {
-		String s = new String(Base64.decodeBase64(request.getBody()));
-		String boundary = StringUtils.substringBefore(s, "\r\n").substring(2);
-		List<PartHolder> parameters = new ArrayList<PartHolder>();
-		request.setBody(s);
-		try {
-			MultipartStream multipartStream = new MultipartStream(
-					new ByteArrayInputStream(s.getBytes()), boundary.getBytes());
-			boolean nextPart = multipartStream.skipPreamble();
-			while (nextPart) {
-				String header = multipartStream.readHeaders();
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				multipartStream.readBodyData(bos);
-				PartHolder p = new PartHolder(bos.toByteArray(), header);
-				parameters.add(p);
-				nextPart = multipartStream.readBoundary();
-			}
-		} catch (MultipartStream.MalformedStreamException e) {
-			LOG.error(e.toString(), e);
-			// the stream failed to follow required syntax
-		} catch (IOException e) {
-			LOG.error(e.toString(), e);
-			// a read or write error occurred
-		}
-		return parameters;
-	}
+            Request okRequest = builder.build();
+            uri = okRequest.uri().toString();
+            LOG.debug(request.getLogUtil().getLogMessage("About to " + okRequest.method() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
+            request.logRequest(uri, requestBody, okRequest.method(), request.getHeaderInformation(), cookies, false);
 
-	private static class PartHolder {
-		private byte[] body;
-		private String header;
-		private Map<String, String> headerMap = new HashMap<String, String>();
-		private Map<String, String> dispositionMap = new HashMap<String, String>();
+            Response response = okHttpClient.newCall(okRequest).execute();
+            long startTime = Long.parseLong(response.header("OkHttp-Sent-Millis"));
+            long endTime = Long.parseLong(response.header("OkHttp-Sent-Millis"));
 
-		public PartHolder(byte[] body, String header) {
-			super();
-			this.body = body;
-			this.header = header;
-			String[] headers = StringUtils.splitByWholeSeparator(this.header,
-					"\r\n");
-			for (String s : headers) {
-				if (StringUtils.isNotBlank(s) && s.indexOf(':') != -1) {
-					String key = StringUtils.substringBefore(s, ":").trim();
-					String value = StringUtils.substringAfter(s, ":").trim();
-					headerMap.put(key, value);
-				}
-			}
-			String[] dispositions = StringUtils.split(getContentDisposition(),
-					';');
-			for (String s : dispositions) {
-				if (StringUtils.isNotBlank(s) && s.indexOf('=') != -1) {
-					String key = removeQuotes(StringUtils.substringBefore(s,
-							"=").trim());
-					String value = removeQuotes(StringUtils.substringAfter(s,
-							"=").trim());
-					dispositionMap.put(key, value);
-				}
-			}
-		}
+            // read response body
+            byte[] responseBody = new byte[0];
+            // check for no content headers
+            if (response.code() != 203 && response.code() != 202 && response.code() != 204) {
+                try {
+                    responseBody = response.body().bytes();
+                } catch (Exception e) {
+                    LOG.warn("could not get response body: " + e);
+                }
+            }
 
-		/**
-		 * @return the body
-		 */
-		public byte[] getBody() {
-			return body;
-		}
+            processResponse(responseBody, startTime, endTime, request, response.message(), response.code(), response.headers());
+            waitTime = endTime - startTime;
+        } catch (Exception ex) {
+            LOG.error(request.getLogUtil().getLogMessage("Could not do " + method + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO), ex);
+            throw new RuntimeException(ex);
+        } finally {
+            if (method.equalsIgnoreCase("post") && request.getLogUtil().getAgentConfig().getLogPostResponse()) {
+                LOG.info(request.getLogUtil().getLogMessage(
+                        "Response from POST to " + request.getRequestUrl() + " got status code " + request.getResponse().getHttpCode() + " BODY { " + request.getResponse().getBody() + " }",
+                        LogEventType.Informational));
+            }
+        }
+        if (waitTime != 0) {
+            doWaitDueToLongResponse(request, waitTime, uri);
+        }
+    }
 
-		/**
-		 * @return the body as a string
-		 */
-		public String getBodyAsString() {
-			return new String(body, Charset.forName("UTF-8"));
-		}
+    /**
+     * Wait for the amount of time it took to get a response from the system if
+     * the response time is over some threshold specified in the properties
+     * file. This will ensure users don't bunch up together after a blip on the
+     * system under test
+     * 
+     * @param responseTime
+     *            - response time of the request; this will also be the time to
+     *            sleep
+     * @param uri
+     */
+    private void doWaitDueToLongResponse(BaseRequest request, long responseTime, String uri) {
+        try {
+            AgentConfig config = request.getLogUtil().getAgentConfig();
+            long maxAgentResponseTime = config.getMaxAgentResponseTime();
+            if (maxAgentResponseTime < responseTime) {
+                long waitTime = Math.min(config.getMaxAgentWaitTime(), responseTime);
+                LOG.warn(request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
+                Thread.sleep(waitTime);
+            }
+        } catch (InterruptedException e) {
+            LOG.warn("Interrupted", e);
+        }
+    }
 
-		// Content-Disposition: form-data; name="uploadname1";
-		// filename="diamond-sword.png"
-		public String getPartName() {
-			return dispositionMap.get("name");
-		}
+    /**
+     * Process the response data
+     */
+    private void processResponse(byte[] bResponse, long startTime, long endTime, BaseRequest request, String message, int httpCode, Headers headers) {
+        BaseResponse response = request.getResponse();
+        try {
+            if (response == null) {
+                // Get response header information
+                String contentType = headers.get("ContentType");
+                if (StringUtils.isBlank(contentType)) {
+                    contentType = "";
+                }
+                response = TankHttpUtil.newResponseObject(contentType);
+                request.setResponse(response);
+            }
 
-		// Content-Disposition: form-data; name="uploadname1";
-		// filename="diamond-sword.png"
-		public String getFileName() {
-			return dispositionMap.get("filename");
-		}
+            // Get response detail information
+            response.setHttpMessage(message);
+            response.setHttpCode(httpCode);
 
-		// Content-Disposition: form-data; name="uploadname1";
-		// filename="diamond-sword.png"
-		@SuppressWarnings("unused")
-		public String getContentType() {
-			String ct = headerMap.get("Content-Type");
-			if (ct == null) {
-				ct = "text/plain";
-			}
-			return ct;
-		}
+            // Get response header information
+            for (String key : headers.names()) {
+                response.setHeader(key, headers.get(key));
+            }
 
-		// Content-Disposition: form-data; name="uploadname1";
-		// filename="diamond-sword.png"
-		public String getContentDisposition() {
-			String ct = headerMap.get("Content-Disposition");
-			if (ct == null) {
-				ct = "form-data";
-			}
-			return ct;
-		}
+            if (((CookieManager) okHttpClient.getCookieHandler()).getCookieStore().getCookies() != null) {
+                for (HttpCookie cookie : ((CookieManager) okHttpClient.getCookieHandler()).getCookieStore().getCookies()) {
+                    // System.out.println("in processResponse-getCookies");
+                    // System.out.println(cookie.toString());
+                    response.setCookie(cookie.getName(), cookie.getValue());
+                }
+            }
 
-		/**
-		 * 
-		 * @return
-		 */
-		public boolean isContentTypeSet() {
-			return headerMap.get("Content-Type") != null;
-		}
+            response.setResponseTime(endTime - startTime);
+            String contentType = response.getHttpHeader("Content-Type");
+            String contentEncode = response.getHttpHeader("Content-Encoding");
+            if (BaseResponse.isDataType(contentType) && contentEncode != null && contentEncode.toLowerCase().contains("gzip")) {
+                // decode gzip for data types
+                try {
+                    GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(bResponse));
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    IOUtils.copy(in, out);
+                    bResponse = out.toByteArray();
+                } catch (Exception e) {
+                    LOG.warn(request.getLogUtil().getLogMessage("cannot decode gzip stream: " + e, LogEventType.System));
+                }
+            }
+            response.setResponseBody(bResponse);
 
-		/**
-		 * 
-		 * @param s
-		 * @return
-		 */
-		private String removeQuotes(String s) {
-			s = StringUtils.removeEnd(s, "\"");
-			s = StringUtils.removeStart(s, "\"");
-			return s;
-		}
+        } catch (Exception ex) {
+            LOG.warn("Unable to get response: " + ex.getMessage());
+        } finally {
+            response.logResponse();
+        }
+    }
 
-	}
+    /**
+     * Set all the header keys defined by user
+     *
+     * @param connection
+     */
+    @SuppressWarnings("rawtypes")
+    private void setHeaders(BaseRequest request, Builder builder, HashMap<String, String> headerInformation) {
+        try {
+            Set set = headerInformation.entrySet();
+            Iterator iter = set.iterator();
 
-	private static final class InternalTankAuthenticator implements
-			Authenticator {
-		private AuthCredentials creds;
+            while (iter.hasNext()) {
+                Map.Entry mapEntry = (Map.Entry) iter.next();
+                builder.addHeader((String) mapEntry.getKey(), (String) mapEntry.getValue());
+            }
+        } catch (Exception ex) {
+            LOG.warn(request.getLogUtil().getLogMessage("Unable to set header: " + ex.getMessage(), LogEventType.System));
+        }
+    }
 
-		public InternalTankAuthenticator(AuthCredentials creds) {
-			this.creds = creds;
-		}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.intuit.tank.okhttpclient.TankHttpClient#doPost(com.intuit.tank.http
+     * .BaseRequest)
+     */
+    @Override
+    public void doPost(BaseRequest request) {
 
-		@Override
-		public Request authenticate(Proxy proxy, Response response)
-				throws IOException {
-			List<Challenge> challenges = response.challenges();
-			for (Challenge challenge : challenges) {
-				if (!matchRealm(challenge.getRealm())
-						|| !matchScheme(challenge.getScheme())) {
-					return null;
-				}
-			}
-			String credential = Credentials.basic(creds.getUserName(),
-					creds.getPassword());
-			if (credential.equals(response.request().header("Authorization"))) {
-				// If we already failed with these credentials, don't retry.
-				LOG.warn("Credentials already tried. not trying again");
-				return null;
-			}
-			return response.request().newBuilder()
-					.header("Authorization", credential).build();
-		}
+        MediaType contentType = MediaType.parse(request.getContentType() + ";" + request.getContentTypeCharSet());
+        Builder requestBuilder = new Request.Builder().url(request.getRequestUrl());
+        RequestBody requestBodyEntity = null;
 
-		@Override
-		public Request authenticateProxy(Proxy proxy, Response response)
-				throws IOException {
-			return null;
-		}
+        if (BaseRequest.CONTENT_TYPE_MULTIPART.equalsIgnoreCase(request.getContentType())) {
+            requestBodyEntity = buildParts(request);
+        } else {
+            requestBodyEntity = RequestBody.create(contentType, request.getBody());
+        }
 
-		private boolean matchRealm(String realm) {
-			boolean ret = true;
-			if (StringUtils.isNotBlank(creds.getRealm())) {
-				ret = creds.getRealm().equalsIgnoreCase(realm);
-			}
-			return ret;
-		}
+        if (requestBodyEntity != null) {
+            requestBuilder.post(requestBodyEntity);
+        }
 
-		private boolean matchScheme(String scheme) {
-			boolean ret = true;
-			if (!scheme.equalsIgnoreCase(AuthScheme.BASIC.getRepresentation())) {
-				ret = false;
-			} else {
-				if (creds.getScheme().getRepresentation() != null) {
-					ret = creds.getScheme().getRepresentation()
-							.equalsIgnoreCase(scheme);
-				}
-			}
-			return ret;
-		}
-	}
+        sendRequest(request, requestBuilder, request.getBody(), "post");
+
+    }
+
+    private RequestBody buildParts(BaseRequest request) {
+
+        MultipartBuilder multipartBuilder = new MultipartBuilder().type(MultipartBuilder.FORM);
+
+        for (PartHolder h : TankHttpUtil.getPartsFromBody(request)) {
+            if (h.getFileName() == null) {
+                if (h.isContentTypeSet()) {
+                    multipartBuilder.addFormDataPart(h.getPartName(), null, RequestBody.create(MediaType.parse(request.getContentType()), h.getBody()));
+                } else {
+                    multipartBuilder.addFormDataPart(h.getPartName(), h.getBodyAsString());
+                }
+            } else {
+                if (h.isContentTypeSet()) {
+                    multipartBuilder.addFormDataPart(h.getPartName(), h.getFileName(), RequestBody.create(MediaType.parse(request.getContentType()), h.getBody()));
+                } else {
+                    multipartBuilder.addFormDataPart(h.getPartName(), h.getFileName(), RequestBody.create(null, h.getBody()));
+                }
+            }
+        }
+        return multipartBuilder.build();
+    }
+
+    private static final class InternalTankAuthenticator implements Authenticator {
+        private AuthCredentials creds;
+
+        public InternalTankAuthenticator(AuthCredentials creds) {
+            this.creds = creds;
+        }
+
+        @Override
+        public Request authenticate(Proxy proxy, Response response) throws IOException {
+            List<Challenge> challenges = response.challenges();
+            for (Challenge challenge : challenges) {
+                if (!matchRealm(challenge.getRealm()) || !matchScheme(challenge.getScheme())) {
+                    return null;
+                }
+            }
+            String credential = Credentials.basic(creds.getUserName(), creds.getPassword());
+            if (credential.equals(response.request().header("Authorization"))) {
+                // If we already failed with these credentials, don't retry.
+                LOG.warn("Credentials already tried. not trying again");
+                return null;
+            }
+            return response.request().newBuilder().header("Authorization", credential).build();
+        }
+
+        @Override
+        public Request authenticateProxy(Proxy proxy, Response response) throws IOException {
+            return null;
+        }
+
+        private boolean matchRealm(String realm) {
+            boolean ret = true;
+            if (StringUtils.isNotBlank(creds.getRealm())) {
+                ret = creds.getRealm().equalsIgnoreCase(realm);
+            }
+            return ret;
+        }
+
+        private boolean matchScheme(String scheme) {
+            boolean ret = true;
+            if (!scheme.equalsIgnoreCase(AuthScheme.Basic.getRepresentation())) {
+                ret = false;
+            } else {
+                if (creds.getScheme().getRepresentation() != null) {
+                    ret = creds.getScheme().getRepresentation().equalsIgnoreCase(scheme);
+                }
+            }
+            return ret;
+        }
+    }
 }
