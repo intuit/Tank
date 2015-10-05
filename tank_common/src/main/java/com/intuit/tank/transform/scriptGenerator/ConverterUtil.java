@@ -635,6 +635,7 @@ public class ConverterUtil {
                 (!header.equalsIgnoreCase("host")
                         && !header.startsWith("Content")
                         && !header.equalsIgnoreCase("Connection")
+                        && !header.equalsIgnoreCase("Authorization")
                         && !header.equalsIgnoreCase("Cookie")
                         && !header.equalsIgnoreCase("Referer")
                         && !header.toLowerCase().startsWith("get ")
