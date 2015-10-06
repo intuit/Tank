@@ -27,6 +27,8 @@ import javax.validation.ConstraintViolationException;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -54,6 +56,7 @@ public class UpdateScriptGroupsTest {
     @BeforeClass
     public void configure() {
         BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.INFO);
         dao = new ScriptGroupDao();
         workloadDao = new WorkloadDao();
     }

@@ -1,5 +1,14 @@
 package com.intuit.tank.harness;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import org.testng.annotations.Test;
+
+import com.intuit.tank.http.BaseRequest;
+import com.intuit.tank.reporting.api.TPSInfoContainer;
+
 /*
  * #%L
  * Intuit Tank Agent (apiharness)
@@ -14,17 +23,6 @@ package com.intuit.tank.harness;
  */
 
 import junit.framework.Assert;
-
-import org.apache.commons.httpclient.HttpClient;
-import org.testng.annotations.Test;
-
-import static org.junit.Assert.*;
-
-import com.amazonaws.http.HttpRequest;
-import com.intuit.tank.harness.TPSMonitor;
-import com.intuit.tank.http.BaseRequest;
-import com.intuit.tank.http.binary.BinaryRequest;
-import com.intuit.tank.reporting.api.TPSInfoContainer;
 
 /**
  * The class <code>TPSMonitorTest</code> contains tests for the class <code>{@link TPSMonitor}</code>.

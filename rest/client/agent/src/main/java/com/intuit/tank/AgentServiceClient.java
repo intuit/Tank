@@ -21,6 +21,7 @@ import java.io.InputStream;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
+import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.api.service.v1.agent.AgentService;
 import com.intuit.tank.rest.BaseRestClient;
 import com.intuit.tank.rest.util.ServiceConsants;
@@ -71,6 +72,13 @@ public class AgentServiceClient extends BaseRestClient {
         ClientResponse response = webResource.accept(MediaType.APPLICATION_XML).get(ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
         return response.getEntity(String.class);
+    }
+    public TankHttpClientDefinitionContainer getClientDefinitions() {
+        UriBuilder uriBuilder = UriBuilder.fromUri(urlBuilder.buildUrl(AgentService.METHOD_CLIENTS));
+        WebResource webResource = client.resource(uriBuilder.build());
+        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML).get(ClientResponse.class);
+        exceptionHandler.checkStatusCode(response);
+        return response.getEntity(TankHttpClientDefinitionContainer.class);
     }
 
     public InputStream getSupportFiles() {

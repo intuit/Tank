@@ -62,7 +62,7 @@ public class TPSMonitor {
             List<Counter> subList = new ArrayList<TPSMonitor.Counter>(counters);
             for (Counter counter : subList) {
                 long entryTime = counter.time;
-                if (now > (entryTime + (period * 2))) {
+                if (now > (entryTime + (period * 4))) {
                     min = Math.min(min, entryTime);
                     max = Math.max(max, entryTime);
                     Map<String, Integer> map = tpsMap.get(counter.time);

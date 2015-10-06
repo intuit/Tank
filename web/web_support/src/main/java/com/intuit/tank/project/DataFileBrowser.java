@@ -31,7 +31,7 @@ import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
@@ -42,12 +42,15 @@ import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.datafile.util.DataFileServiceUtil;
 import com.intuit.tank.prefs.TablePreferences;
-import com.intuit.tank.project.DataFile;
 import com.intuit.tank.qualifier.Modified;
+import com.intuit.tank.storage.FileData;
+import com.intuit.tank.storage.FileStorage;
+import com.intuit.tank.storage.FileStorageFactory;
 import com.intuit.tank.util.DataFileUtil;
 import com.intuit.tank.util.Multiselectable;
 import com.intuit.tank.view.filter.ViewFilterType;
 import com.intuit.tank.vm.settings.AccessRight;
+import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.wrapper.SelectableBean;
 import com.intuit.tank.wrapper.SelectableWrapper;
 
@@ -216,10 +219,12 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
         if (currentEntries == null) {
             currentEntries = new ArrayList<String>();
             if (viewDatafile != null) {
+                FileData fd = DataFileUtil.getFileData(viewDatafile); 
                 try {
-                    currentEntries = FileUtils.readLines(DataFileUtil.getDataFilePath(viewDatafile));
+                    FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getDataFileStorageDir(), false);
+                    currentEntries = IOUtils.readLines(fileStorage.readFileData(fd));
                 } catch (IOException e) {
-                    LOG.error("Error reading file " + DataFileUtil.getDataFilePath(viewDatafile) + ": " + e, e);
+                    LOG.error("Error reading file " + fd.toString()+ ": " + e, e);
                     currentEntries.add("Error reading dataFile: " + e.toString());
                 }
             } else {

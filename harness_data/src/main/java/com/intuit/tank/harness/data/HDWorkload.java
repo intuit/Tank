@@ -27,7 +27,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "workload", namespace = HarnessDataNamespace.NAMESPACE_V1)
-@XmlType(name = "workload", propOrder = { "name", "description", "variables", "plans" })
+@XmlType(name = "workload", propOrder = { "name", "description", "tankHttpClientClass", "variables", "plans" })
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HDWorkload {
 
@@ -36,6 +36,9 @@ public class HDWorkload {
 
     @XmlAttribute
     private String description;
+
+    @XmlElement(name = "client-class")
+    private String tankHttpClientClass = "com.intuit.tank.httpclient3.TankHttpClient3";
 
     @XmlElement(name = "variables")
     private HDTestVariables variables;
@@ -48,6 +51,21 @@ public class HDWorkload {
      */
     public HDTestVariables getVariables() {
         return variables;
+    }
+
+    /**
+     * @return the tankHttpClientClass
+     */
+    public String getTankHttpClientClass() {
+        return tankHttpClientClass;
+    }
+
+    /**
+     * @param tankHttpClientClass
+     *            the tankHttpClientClass to set
+     */
+    public void setTankHttpClientClass(String tankHttpClientClass) {
+        this.tankHttpClientClass = tankHttpClientClass;
     }
 
     /**

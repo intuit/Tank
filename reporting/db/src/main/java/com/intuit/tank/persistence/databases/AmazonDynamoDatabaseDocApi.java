@@ -109,6 +109,8 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
         } else {
             this.dynamoDb = new AmazonDynamoDBClient(new ClientConfiguration());
         }
+
+        
     }
 
     /**

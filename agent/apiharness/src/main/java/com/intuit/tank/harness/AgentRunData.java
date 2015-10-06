@@ -34,6 +34,7 @@ public class AgentRunData {
     private StopBehavior stopBehavior = StopBehavior.END_OF_SCRIPT_GROUP;
     private int totalAgents = 1;
     private String projectName;
+    private String tankhttpClientClass;
     private LoggingProfile activeProfile = LoggingProfile.STANDARD;
 
     /**
@@ -79,6 +80,21 @@ public class AgentRunData {
      */
     public void setNumStartUsers(int numStartUsers) {
         this.numStartUsers = numStartUsers;
+    }
+
+    /**
+     * @return the tankhttpClientClass
+     */
+    public String getTankhttpClientClass() {
+        return tankhttpClientClass;
+    }
+
+    /**
+     * @param tankhttpClientClass
+     *            the tankhttpClientClass to set
+     */
+    public void setTankhttpClientClass(String tankhttpClientClass) {
+        this.tankhttpClientClass = tankhttpClientClass;
     }
 
     /**

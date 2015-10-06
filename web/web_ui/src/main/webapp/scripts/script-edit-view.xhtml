@@ -186,6 +186,9 @@
                   <p:menuitem value="Cookie" update=":cookieDialogId" action="#{cookieStepEditor.insertCookieStep()}"
                     oncomplete="PF('cookieDialog').show();" ajax="true" icon="ui-icon-tag">
                   </p:menuitem>
+                  <p:menuitem value="Authentication" update=":authenticationDialogId" action="#{authenticationEditor.insertAuthentication()}"
+                    oncomplete="PF('authenticationDialog').show();" ajax="true" icon="ui-icon-locked">
+                  </p:menuitem>
                   <p:menuitem value="Clear Session" action="#{clearCookiesEditor.insert()}"
                     update=":scriptBrowserForm,:requestForm" ajax="true" icon="ui-icon-copy" onstart="saveScrollPos()"
                     oncomplete="getScrollPos()">
@@ -423,6 +426,11 @@
               oncomplete="PF('cookieDialog').show();">
               <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
             </p:commandLink>
+            <p:commandLink id="linkAuth" update=":authenticationForm:authenticationPanelGroup" title="Edit "
+              rendered="#{scriptEditor.isAuthStep(step)}" action="#{scriptEditor.editAuthStep(step)}"
+              oncomplete="PF('authenticationDialog').show();">
+              <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
+            </p:commandLink>
             <p:commandLink id="linkSleeptime" update=":sleepTimeForm:sleepTimePanelGroup" title="Edit Sleep Time"
               rendered="#{scriptEditor.isSleepTime(step)}" action="#{scriptEditor.editSleepTime(step)}"
               oncomplete="PF('sleepTimeDialog').show();">
@@ -516,6 +524,12 @@
             <p:commandLink id="btnOpenCookie" update=":cookieForm:cookiePanelGroup" title="Edit "
               rendered="#{scriptEditor.isCookieStep(step)}" action="#{scriptEditor.editCookieStep(step)}"
               oncomplete="PF('cookieDialog').show();">
+              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+                style="padding: 2px;" />
+            </p:commandLink>
+            <p:commandLink id="btnOpenAuth" update=":authenticationForm:authenticationPanelGroup" title="Edit "
+              rendered="#{scriptEditor.isAuthStep(step)}" action="#{scriptEditor.editAuthStep(step)}"
+              oncomplete="PF('authenticationDialog').show();">
               <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
                 style="padding: 2px;" />
             </p:commandLink>
@@ -643,6 +657,11 @@
               oncomplete="PF('cookieDialog').show();">
               <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
             </p:commandLink>
+            <p:commandLink id="linkAuth" update=":authenticationForm:authenticationPanelGroup" title="Edit "
+              rendered="#{scriptEditor.isAuthStep(step)}" action="#{scriptEditor.editAuthStep(step)}"
+              oncomplete="PF('authenticationDialog').show();">
+              <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
+            </p:commandLink>
             <p:commandLink id="linkSleeptime" update=":sleepTimeForm:sleepTimePanelGroup" title="Edit Sleep Time"
               rendered="#{scriptEditor.isSleepTime(step)}" action="#{scriptEditor.editSleepTime(step)}"
               oncomplete="PF('sleepTimeDialog').show();">
@@ -736,6 +755,12 @@
             <p:commandLink id="btnOpenCookie" update=":cookieForm:cookiePanelGroup" title="Edit "
               rendered="#{scriptEditor.isCookieStep(step)}" action="#{scriptEditor.editCookieStep(step)}"
               oncomplete="PF('cookieDialog').show();">
+              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+                style="padding: 2px;" />
+            </p:commandLink>
+            <p:commandLink id="btnOpenAuth" update=":authenticationForm:authenticationPanelGroup" title="Edit "
+              rendered="#{scriptEditor.isAuthStep(step)}" action="#{scriptEditor.editAuthStep(step)}"
+              oncomplete="PF('authenticationDialog').show();">
               <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
                 style="padding: 2px;" />
             </p:commandLink>
@@ -1065,6 +1090,25 @@
       <h:form id="cookieForm">
         <h:panelGroup id="cookiePanelGroup">
           <ui:include src="./set-cookie-editor.xhtml"></ui:include>
+          <div class="vertical-spacer" />
+  
+          <p:commandButton value="#{cookieStepEditor.buttonLabel}" update=":scriptBrowserForm,:cookieForm"
+            action="#{cookieStepEditor.addToScript()}" onstart="saveScrollPos()" oncomplete="getScrollPos()"
+            onsuccess="PF('cookieDialog').hide();">
+          </p:commandButton>
+        </h:panelGroup>
+      </h:form>
+    </p:dialog>
+
+    <p:dialog id="authenticationDialogId" header="Insert Authentication" appendTo="@(body)" height="400" width="600" dynamic="true"
+      widgetVar="authenticationDialog" modal="true">
+      <h:form id="authenticationForm">
+        <h:panelGroup id="authenticationPanelGroup">
+          <ui:include src="./authentication-editor.xhtml" />
+          <div class="vertical-spacer" />
+          <p:commandButton value="#{authenticationEditor.buttonLabel}" update=":scriptBrowserForm,:authenticationForm"
+            action="#{authenticationEditor.addToScript()}" onstart="saveScrollPos()" oncomplete="getScrollPos()"
+            onsuccess="PF('authenticationDialog').hide();" />
         </h:panelGroup>
       </h:form>
     </p:dialog>

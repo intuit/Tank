@@ -62,7 +62,7 @@ public class TestParamUtilTest {
     @BeforeTest
     public void before() {
         BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.DEBUG);
+        Logger.getRootLogger().setLevel(Level.INFO);
     }
 
     @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "data")

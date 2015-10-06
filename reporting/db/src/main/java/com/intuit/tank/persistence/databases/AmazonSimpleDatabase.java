@@ -47,10 +47,8 @@ public class AmazonSimpleDatabase implements IDatabase {
     private static final int MAX_NUMBER_OF_RETRIES = 5;
     private AmazonSimpleDB db;
 
-    private static final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(10, 50, 60, TimeUnit.SECONDS,
-            new ArrayBlockingQueue<Runnable>(50), Executors.defaultThreadFactory(),
+    private static final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(10, 50, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(50), Executors.defaultThreadFactory(),
             new ThreadPoolExecutor.DiscardOldestPolicy());
-
 
     private static TankConfig config = new TankConfig();
 
@@ -135,8 +133,7 @@ public class AmazonSimpleDatabase implements IDatabase {
      * 
      * @{inheritDoc
      */
-    public void addTimingResults(final @Nonnull String tableName, final @Nonnull List<TankResult> messages,
-            boolean asynch) {
+    public void addTimingResults(final @Nonnull String tableName, final @Nonnull List<TankResult> messages, boolean asynch) {
         if (!messages.isEmpty()) {
             Runnable task = new Runnable() {
                 public void run() {
@@ -148,9 +145,9 @@ public class AmazonSimpleDatabase implements IDatabase {
                             item.setName(UUID.randomUUID().toString());
                             items.add(item);
                             if (items.size() == 25) {
-                                addItemsToTable(new BatchPutAttributesRequest(tableName,
-                                        new ArrayList<ReplaceableItem>(items)));
-                                // logger.info("Sending " + items.size() + " results to table " + tableName);
+                                addItemsToTable(new BatchPutAttributesRequest(tableName, new ArrayList<ReplaceableItem>(items)));
+                                // logger.info("Sending " + items.size() + "
+                                // results to table " + tableName);
                                 items.clear();
                             }
                         }
@@ -290,8 +287,7 @@ public class AmazonSimpleDatabase implements IDatabase {
      * @{inheritDoc
      */
     @Override
-    public PagedDatabaseResult getPagedItems(String tableName, Object token, String minRange,
-            String maxRange, String instanceId, String jobId) {
+    public PagedDatabaseResult getPagedItems(String tableName, Object token, String minRange, String maxRange, String instanceId, String jobId) {
         List<Item> ret = new ArrayList<Item>();
         String whereClause = null;
         if (minRange != null && maxRange != null) {
@@ -303,8 +299,7 @@ public class AmazonSimpleDatabase implements IDatabase {
         } else {
             whereClause = "";
         }
-        SelectRequest request = new SelectRequest("SELECT * from `" + tableName + "`" + whereClause)
-                .withConsistentRead(true);
+        SelectRequest request = new SelectRequest("SELECT * from `" + tableName + "`" + whereClause).withConsistentRead(true);
         String nextToken = (String) token;
         request.withNextToken(nextToken);
         SelectResult result = db.select(request);
@@ -324,8 +319,7 @@ public class AmazonSimpleDatabase implements IDatabase {
         for (String jobId : jobIds) {
             String nextToken = null;
             do {
-                PagedDatabaseResult pagedItems = getPagedItems(tableName, nextToken, minRange, maxRange, instanceId,
-                        jobId);
+                PagedDatabaseResult pagedItems = getPagedItems(tableName, nextToken, minRange, maxRange, instanceId, jobId);
                 ret.addAll(pagedItems.getItems());
                 nextToken = (String) pagedItems.getNextToken();
             } while (nextToken != null);
@@ -352,8 +346,7 @@ public class AmazonSimpleDatabase implements IDatabase {
      */
     private com.intuit.tank.reporting.databases.Item resultToItem(com.amazonaws.services.simpledb.model.Item item) {
         List<com.intuit.tank.reporting.databases.Attribute> attrs = new ArrayList<com.intuit.tank.reporting.databases.Attribute>();
-        com.intuit.tank.reporting.databases.Item ret = new com.intuit.tank.reporting.databases.Item(item.getName(),
-                attrs);
+        com.intuit.tank.reporting.databases.Item ret = new com.intuit.tank.reporting.databases.Item(item.getName(), attrs);
         for (Attribute attr : item.getAttributes()) {
             attrs.add(new com.intuit.tank.reporting.databases.Attribute(attr.getName(), attr.getValue()));
         }
@@ -371,8 +364,7 @@ public class AmazonSimpleDatabase implements IDatabase {
                 db.batchPutAttributes(request);
             } catch (AmazonServiceException e) {
                 int status = e.getStatusCode();
-                if (status == HttpStatus.SC_INTERNAL_SERVER_ERROR
-                        || status == HttpStatus.SC_SERVICE_UNAVAILABLE) {
+                if (status == HttpStatus.SC_INTERNAL_SERVER_ERROR || status == HttpStatus.SC_SERVICE_UNAVAILABLE) {
                     shouldRetry = true;
                     long delay = (long) (Math.random() * (Math.pow(4, retries++) * 100L));
                     try {
@@ -380,6 +372,8 @@ public class AmazonSimpleDatabase implements IDatabase {
                     } catch (InterruptedException iex) {
                         logger.error("Caught InterruptedException exception", iex);
                     }
+                } else if ("DuplicateItemName".equals(e.getErrorCode())) {
+                    // ignore.
                 } else {
                     logger.error("Error writing to DB: " + e.getMessage());
                 }
@@ -392,13 +386,11 @@ public class AmazonSimpleDatabase implements IDatabase {
         List<ReplaceableAttribute> attributes = new ArrayList<ReplaceableAttribute>();
         String timestamp = ReportUtil.getTimestamp(result.getTimeStamp());
         addAttribute(attributes, DatabaseKeys.TIMESTAMP_KEY.getShortKey(), timestamp);
-        addAttribute(attributes, DatabaseKeys.REQUEST_NAME_KEY.getShortKey(), timestamp + "-"
-                + UUID.randomUUID().toString());
+        addAttribute(attributes, DatabaseKeys.REQUEST_NAME_KEY.getShortKey(), timestamp + "-" + UUID.randomUUID().toString());
         addAttribute(attributes, DatabaseKeys.JOB_ID_KEY.getShortKey(), result.getJobId());
         addAttribute(attributes, DatabaseKeys.LOGGING_KEY_KEY.getShortKey(), result.getRequestName());
         addAttribute(attributes, DatabaseKeys.STATUS_CODE_KEY.getShortKey(), String.valueOf(result.getStatusCode()));
-        addAttribute(attributes, DatabaseKeys.RESPONSE_TIME_KEY.getShortKey(),
-                String.valueOf(result.getResponseTime()));
+        addAttribute(attributes, DatabaseKeys.RESPONSE_TIME_KEY.getShortKey(), String.valueOf(result.getResponseTime()));
         addAttribute(attributes, DatabaseKeys.RESPONSE_SIZE_KEY.getShortKey(), String.valueOf(result.getResponseSize()));
         addAttribute(attributes, DatabaseKeys.INSTANCE_ID_KEY.getShortKey(), String.valueOf(result.getInstanceId()));
         addAttribute(attributes, DatabaseKeys.IS_ERROR_KEY.getShortKey(), String.valueOf(result.isError()));
@@ -411,7 +403,6 @@ public class AmazonSimpleDatabase implements IDatabase {
         }
         attributes.add(new ReplaceableAttribute().withName(key).withValue(value));
     }
-
 
     private void createDatabase() {
         CloudCredentials creds = config.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
@@ -428,7 +419,11 @@ public class AmazonSimpleDatabase implements IDatabase {
             }
 
         }
-        this.db = new AmazonSimpleDBClient(credentials, config);
+        if (StringUtils.isNotBlank(creds.getKeyId()) && StringUtils.isNotBlank(creds.getKey())) {
+            this.db = new AmazonSimpleDBClient(credentials, config);
+        } else {
+            this.db = new AmazonSimpleDBClient(config);
+        }
     }
 
 }

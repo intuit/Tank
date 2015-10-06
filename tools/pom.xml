@@ -27,6 +27,7 @@
         <activeByDefault>false</activeByDefault>
       </activation>
       <modules>
+	      <!--<module>jenkins_plugin</module>-->
         <module>agent_debugger_pkg</module>
         <module>script_filter_pkg</module>
         <module>script_engine_bundle</module>

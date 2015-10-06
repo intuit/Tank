@@ -1,5 +1,7 @@
 package com.intuit.tank.runner;
 
+import static org.junit.Assert.assertNotNull;
+
 /*
  * #%L
  * Intuit Tank Agent (apiharness)
@@ -15,13 +17,9 @@ package com.intuit.tank.runner;
 
 import java.util.Map;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.junit.*;
-
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import com.intuit.tank.harness.data.HDTestPlan;
-import com.intuit.tank.runner.TestPlanRunner;
 
 /**
  * The class <code>TestPlanRunnerTest</code> contains tests for the class <code>{@link TestPlanRunner}</code>.
@@ -62,7 +60,7 @@ public class TestPlanRunnerTest {
     public void testGetHeaderMap_1()
             throws Exception {
         TestPlanRunner fixture = new TestPlanRunner(new HDTestPlan(), 1);
-        fixture.setHttpClient(new HttpClient());
+        fixture.setHttpClient(null);
         fixture.setUniqueName("");
         fixture.sslTimeout = 1L;
         fixture.lastSslHandshake = 1L;
@@ -74,97 +72,7 @@ public class TestPlanRunnerTest {
         assertNotNull(result);
     }
 
-    /**
-     * Run the HttpClient getHttpClient() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 5:53 PM
-     */
-    @Test
-    public void testGetHttpClient_1()
-            throws Exception {
-        TestPlanRunner fixture = new TestPlanRunner(new HDTestPlan(), 1);
-        fixture.setHttpClient(new HttpClient());
-        fixture.setUniqueName("");
-        fixture.sslTimeout = 1L;
-        fixture.lastSslHandshake = 1L;
-
-        HttpClient result = fixture.getHttpClient();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.runner.TestPlanRunner
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the HttpClient initHttpClient() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 5:53 PM
-     */
-    @Test
-    public void testInitHttpClient_1()
-            throws Exception {
-        TestPlanRunner fixture = new TestPlanRunner(new HDTestPlan(), 1);
-        fixture.setHttpClient(new HttpClient());
-        fixture.setUniqueName("");
-        fixture.sslTimeout = 1L;
-        fixture.lastSslHandshake = 1L;
-
-        HttpClient result = fixture.initHttpClient();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.runner.TestPlanRunner
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the HttpClient initHttpClient() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 5:53 PM
-     */
-    @Test
-    public void testInitHttpClient_2()
-            throws Exception {
-        TestPlanRunner fixture = new TestPlanRunner(new HDTestPlan(), 1);
-        fixture.setHttpClient(new HttpClient());
-        fixture.setUniqueName("");
-        fixture.sslTimeout = 1L;
-        fixture.lastSslHandshake = 1L;
-
-        HttpClient result = fixture.initHttpClient();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.runner.TestPlanRunner
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the void setHttpClient(HttpClient) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 5:53 PM
-     */
-    @Test
-    public void testSetHttpClient_1()
-            throws Exception {
-        TestPlanRunner fixture = new TestPlanRunner(new HDTestPlan(), 1);
-        fixture.setHttpClient(new HttpClient());
-        fixture.setUniqueName("");
-        fixture.sslTimeout = 1L;
-        fixture.lastSslHandshake = 1L;
-        HttpClient httpClient = new HttpClient();
-
-        fixture.setHttpClient(httpClient);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.runner.TestPlanRunner
-    }
+    
 
     /**
      * Run the void setUniqueName(String) method test.
@@ -177,7 +85,7 @@ public class TestPlanRunnerTest {
     public void testSetUniqueName_1()
             throws Exception {
         TestPlanRunner fixture = new TestPlanRunner(new HDTestPlan(), 1);
-        fixture.setHttpClient(new HttpClient());
+        fixture.setHttpClient(null);
         fixture.setUniqueName("");
         fixture.sslTimeout = 1L;
         fixture.lastSslHandshake = 1L;
