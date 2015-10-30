@@ -1,5 +1,7 @@
 package com.intuit.tank.runner.method;
 
+import static org.junit.Assert.assertNotNull;
+
 /*
  * #%L
  * Intuit Tank Agent (apiharness)
@@ -12,19 +14,14 @@ package com.intuit.tank.runner.method;
  * http://www.eclipse.org/legal/epl-v10.html
  * #L%
  */
-
-import org.junit.*;
-
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import com.intuit.tank.harness.data.ClearCookiesStep;
 import com.intuit.tank.harness.data.HDTestPlan;
-import com.intuit.tank.harness.data.TestStep;
 import com.intuit.tank.harness.test.data.Variables;
+import com.intuit.tank.runner.TestHttpClient;
 import com.intuit.tank.runner.TestPlanRunner;
 import com.intuit.tank.runner.TestStepContext;
-import com.intuit.tank.runner.method.ClearCookiesRunner;
-import com.intuit.tank.runner.method.TimerMap;
 
 /**
  * The class <code>ClearCookiesRunnerTest</code> contains tests for the class <code>{@link ClearCookiesRunner}</code>.
@@ -42,7 +39,7 @@ public class ClearCookiesRunnerTest {
     @Test
     public void testClearCookiesRunner_1()
         throws Exception {
-        TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1));
+        TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient()));
 
         ClearCookiesRunner result = new ClearCookiesRunner(tsc);
 
@@ -63,7 +60,7 @@ public class ClearCookiesRunnerTest {
     @Test
     public void testExecute_1()
         throws Exception {
-        ClearCookiesRunner fixture = new ClearCookiesRunner(new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1)));
+        ClearCookiesRunner fixture = new ClearCookiesRunner(new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient())));
 
         String result = fixture.execute();
 

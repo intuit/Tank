@@ -15,21 +15,12 @@ package com.intuit.tank.harness;
 
 import java.io.File;
 
-import org.apache.commons.httpclient.protocol.Protocol;
-
 import com.intuit.tank.harness.logging.LogUtil;
-import com.intuit.tank.harness.ssl.EasySSLProtocolSocketFactory;
 
 public class AgentUtil {
     private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(AgentUtil.class);
 
-    public static void setTrustCerts() {
-        @SuppressWarnings("deprecation") Protocol easyhttps = new Protocol("https", new EasySSLProtocolSocketFactory(),
-                443);
-        Protocol.registerProtocol("https", easyhttps);
-
-    }
-
+   
     /**
      * Verify that the testplans exist
      * 

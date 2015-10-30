@@ -75,9 +75,11 @@ public class CloudwatchInstance {
             CloudCredentials creds = config.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
             AWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
             ClientConfiguration clientConfig = new ClientConfiguration();
+            clientConfig.setMaxConnections(2);
             if (StringUtils.isNotBlank(creds.getProxyHost())) {
                 try {
                     clientConfig.setProxyHost(creds.getProxyHost());
+                    
                     if (StringUtils.isNotBlank(creds.getProxyPort())) {
                         clientConfig.setProxyPort(Integer.valueOf(creds.getProxyPort()));
                     }
@@ -86,10 +88,15 @@ public class CloudwatchInstance {
                 }
 
             }
-            asynchCloudWatchClient = new AmazonCloudWatchAsyncClient(credentials, clientConfig,
-                    Executors.newFixedThreadPool(2));
+            if (StringUtils.isNotBlank(creds.getKeyId()) && StringUtils.isNotBlank(creds.getKey())) {
+                asynchCloudWatchClient = new AmazonCloudWatchAsyncClient(credentials, clientConfig,
+                        Executors.newFixedThreadPool(2));
+                asyncSnsClient = new AmazonSNSAsyncClient(credentials, clientConfig, Executors.newFixedThreadPool(2));
+            } else {
+                asynchCloudWatchClient = new AmazonCloudWatchAsyncClient(clientConfig);
+                asyncSnsClient = new AmazonSNSAsyncClient(clientConfig);
+            }
             asynchCloudWatchClient.setRegion(Region.getRegion(Regions.fromName(vmRegion.getRegion())));
-            asyncSnsClient = new AmazonSNSAsyncClient(credentials, clientConfig, Executors.newFixedThreadPool(2));
             asyncSnsClient.setRegion(Region.getRegion(Regions.fromName(vmRegion.getRegion())));
         } catch (Exception ex) {
             logger.error(ex.getMessage());

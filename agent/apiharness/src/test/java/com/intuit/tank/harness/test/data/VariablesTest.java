@@ -17,6 +17,8 @@ import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -47,6 +49,7 @@ public class VariablesTest {
     @BeforeClass
     public void configure() {
         BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.INFO);
     }
 
     @Test(groups = TestGroups.FUNCTIONAL)

@@ -25,6 +25,7 @@ import javax.xml.bind.Marshaller;
 import org.apache.commons.lang.math.NumberUtils;
 
 import com.intuit.tank.harness.data.AssignmentData;
+import com.intuit.tank.harness.data.AuthenticationStep;
 import com.intuit.tank.harness.data.ClearCookiesStep;
 import com.intuit.tank.harness.data.CookieStep;
 import com.intuit.tank.harness.data.HDRequest;
@@ -45,6 +46,7 @@ import com.intuit.tank.harness.data.ThinkTimeStep;
 import com.intuit.tank.harness.data.TimerStep;
 import com.intuit.tank.harness.data.ValidationData;
 import com.intuit.tank.harness.data.VariableStep;
+import com.intuit.tank.http.AuthScheme;
 import com.intuit.tank.project.BaseJob;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
@@ -57,6 +59,7 @@ import com.intuit.tank.script.RequestDataType;
 import com.intuit.tank.script.ScriptConstants;
 import com.intuit.tank.script.TimerAction;
 import com.intuit.tank.vm.api.enumerated.ValidationType;
+import com.intuit.tank.vm.settings.TankConfig;
 
 public class ConverterUtil {
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ConverterUtil.class);
@@ -66,6 +69,7 @@ public class ConverterUtil {
         String name = "TestPlan for " + script.getName();
         name += " (id_" + script.getId() + ")";
         HDWorkload hdWorkload = new HDWorkload();
+        hdWorkload.setTankHttpClientClass(new TankConfig().getAgentConfig().getTankClientClassDefault());
 
         hdWorkload.setDescription(name);
         hdWorkload.setName(name);
@@ -99,6 +103,7 @@ public class ConverterUtil {
         name += " (id" + id + ")";
 
         HDWorkload hdWorkload = new HDWorkload();
+        hdWorkload.setTankHttpClientClass(job.getTankClientClass() != null ? job.getTankClientClass() : new TankConfig().getAgentConfig().getTankClientClassDefault());
 
         hdWorkload.setDescription(name);
         hdWorkload.setName(name);
@@ -200,6 +205,8 @@ public class ConverterUtil {
             testStep = convertThinkStep(scriptStep);
         } else if (ScriptConstants.VARIABLE.equals(scriptStep.getType())) {
             testStep = convertVariableStep(scriptStep);
+        } else if (ScriptConstants.AUTHENTICATION.equals(scriptStep.getType())) {
+            testStep = convertAuthenticationStep(scriptStep);
         } else if (ScriptConstants.COOKIE.equals(scriptStep.getType())) {
             testStep = convertCookieStep(scriptStep);
         } else if (ScriptConstants.LOGIC.equals(scriptStep.getType())) {
@@ -447,6 +454,26 @@ public class ConverterUtil {
         }
         return vs;
     }
+    private static TestStep convertAuthenticationStep(ScriptStep scriptStep) {
+        Set<RequestData> data = scriptStep.getData();
+        AuthenticationStep as = new AuthenticationStep();
+        for (RequestData requestData : data) {
+            if (ScriptConstants.AUTH_USER_NAME.equals(requestData.getKey())) {
+                as.setUserName(requestData.getValue());
+            } else if (ScriptConstants.AUTH_PASSWORD.equals(requestData.getKey())) {
+                as.setPassword(requestData.getValue());
+            } else if (ScriptConstants.AUTH_REALM.equals(requestData.getKey())) {
+                as.setRealm(requestData.getValue());
+            } else if (ScriptConstants.AUTH_SCHEME.equals(requestData.getKey())) {
+                as.setScheme(AuthScheme.getScheme(requestData.getValue()));
+            } else if (ScriptConstants.AUTH_HOST.equals(requestData.getKey())) {
+                as.setHost(requestData.getValue());
+            } else if (ScriptConstants.AUTH_PORT.equals(requestData.getKey())) {
+                as.setPort(requestData.getValue());
+            }
+        }
+        return as;
+    }
 
     private static TestStep convertThinkStep(ScriptStep scriptStep) {
         ThinkTimeStep tts = new ThinkTimeStep();
@@ -608,6 +635,7 @@ public class ConverterUtil {
                 (!header.equalsIgnoreCase("host")
                         && !header.startsWith("Content")
                         && !header.equalsIgnoreCase("Connection")
+                        && !header.equalsIgnoreCase("Authorization")
                         && !header.equalsIgnoreCase("Cookie")
                         && !header.equalsIgnoreCase("Referer")
                         && !header.toLowerCase().startsWith("get ")

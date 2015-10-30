@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 import org.codehaus.enunciate.jaxrs.TypeHint;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 
+import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
@@ -50,6 +51,7 @@ public interface AgentService {
     public static final String METHOD_SUPPORT = "/supportFiles";
     public static final String METHOD_HEADERS = "/headers";
     public static final String METHOD_AGENT_READY = "/agent/ready";
+    public static final String METHOD_CLIENTS = "/agent/clients";
     public static final String METHOD_AGENT_AVAILABILITY = "/agent/availability";
 
     /**
@@ -88,6 +90,18 @@ public interface AgentService {
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @TypeHint(AgentTestStartData.class)
     public Response agentReady(AgentData data);
+
+    /**
+     * gets the settings file
+     * 
+     * @return string of the settings file.
+     */
+    @Path(AgentService.METHOD_CLIENTS)
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Nonnull
+    @TypeHint(TankHttpClientDefinitionContainer.class)
+    public Response getClients();
 
     /**
      * gets the settings file

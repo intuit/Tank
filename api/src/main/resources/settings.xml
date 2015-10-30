@@ -2,17 +2,21 @@
 
 <tank-settings>
 
-  <!-- The server side storage directory for datafiles -->
+  <!-- The server side storage directory for datafiles. 
+  Can be an absolute or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-data-files -->
   <data-file-storage>datafiles</data-file-storage>
   
-  <!-- The server side storage directory for timing data -->
+  <!-- The server side storage directory for timing data.
+  Can be an absolute or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-timing-files -->
   <timing-file-storage>timing</timing-file-storage>
 
-  <!-- The server side storage directory for temp script files -->
-  <tmp-file-storage>tmpfiles</tmp-file-storage>
-
-  <!-- The server side storage directory for agent files to be sent to agents -->
+  <!-- The server side storage directory for agent files to be sent to agents. All files in this directory will be sent to each agent.
+  to override the default agent startup behavior, include a start_wats.sh script with modifications.
+  Can be an absolute or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-agent-supports -->
   <jar-file-storage>jars</jar-file-storage>
+
+  <!-- The server side storage directory for temp script files. must be local file system. -->
+  <tmp-file-storage>tmpfiles</tmp-file-storage>
 
   <!-- name of this instance (no spaces). used in timing table names. -->
   <instance-name>tank</instance-name>
@@ -23,6 +27,9 @@
   <!-- if this instance is a standalone instance and should not start agents 
     automatically. -->
   <standalone>false</standalone>
+  
+  <!--  set to true to encrypt data at rest in s3 buckets -->
+  <s3-encrypt>false</s3-encrypt>
 
   <!-- if this rest calls require authentication using api key or username/password 
     or logged in via session -->
@@ -124,6 +131,13 @@
       <header key="test_flag">test_flag</header>
     </request-headers>
 
+    <!-- configured TankHttpClients. -->
+    <tank-http-clients>
+      <tank-client name="Apache HttpClient 3.1">com.intuit.tank.httpclient3.TankHttpClient3</tank-client>
+      <tank-client name="Apache HttpClient 4.5">com.intuit.tank.httpclient4.TankHttpClient4</tank-client>
+      <tank-client name="OkHttp Client 2.5">com.intuit.tank.okhttpclient.TankOkHttpClient</tank-client>
+    </tank-http-clients>
+    <default-tank-client>Apache HttpClient 4.5</default-tank-client>
 
   </agent-config>
 
@@ -143,6 +157,12 @@
     <default-instance-description>
       <security-group>security_group</security-group>
       <keypair>myKey</keypair>
+        <!--  if using roles. recommended over using security keys -->
+        <!-- <iam-role>role</iam-role> -->
+        <!--  optional if running ni a subnet in a vpc, use the subnetIds -->
+        <!-- <vpc-subnet>subnet-472b9f30</vpc-subnet>
+        <security-group-ids>sg-9f9936fb</security-group-ids> -->
+      
       <reuse-instances>false</reuse-instances>
     </default-instance-description>
 
@@ -156,12 +176,22 @@
       <!-- Set if you need a proxy to talk to amazon services -->
       <!-- <proxy-host></proxy-host> <proxy-port>80</proxy-port> -->
     </credentials>
+    
+    <!-- Include any tags to add to agent instances. note that a maximum of 10 tags is allowed and tank uses 3 tags. -->
+    <tags>
+        <tag name="admin_contact">tank_admin</tag>
+    </tags>
 
     <!-- Instance descriptions for regions -->
     <instance-descriptions region="US_WEST_1">
       <instance-descripion name="AGENT">
         <ami>[AMI-ID]</ami>
         <keypair>[KEYPAIR]</keypair>
+                <!--  if using roles. recommended over using security keys -->
+        <!-- <iam-role>role</iam-role> -->
+        <!--  optional if running ni a subnet in a vpc, use the subnetIds -->
+        <!-- <vpc-subnet>subnet-472b9f30</vpc-subnet>
+        <security-group-ids>sg-9f9936fb</security-group-ids> -->
       </instance-descripion>
     </instance-descriptions>
 
@@ -169,6 +199,11 @@
       <instance-descripion name="AGENT">
         <ami>[AMI-ID]</ami>
         <keypair>[KEYPAIR]</keypair>
+        <!--  if using roles. recommended over using security keys -->
+        <!-- <iam-role>role</iam-role> -->
+        <!--  optional if running ni a subnet in a vpc, use the subnetIds -->
+        <!-- <vpc-subnet>subnet-472b9f30</vpc-subnet>
+        <security-group-ids>sg-9f9936fb</security-group-ids> -->
       </instance-descripion>
     </instance-descriptions>
 
@@ -201,16 +236,15 @@
       <sleep-time-between-check>30s</sleep-time-between-check>
     </watchdog>
 
-    <results>
-      <!-- 
+    <!--Configure the results database implementation if reporting is configured via com.intuit.tank.reporting.db.DatabaseResultsReporter -->
+      <results>
       <config>
         <write-capacity>50</write-capacity>
         <read-capacity>10</read-capacity>
       </config>
-      <provider>com.intuit.tank.persistence.databases.AmazonDynamoDatabaseDocApi</provider> -->
-      <provider>com.intuit.tank.persistence.databases.AmazonSimpleDatabase</provider>
+      <provider>com.intuit.tank.persistence.databases.AmazonDynamoDatabaseDocApi</provider>
+      <!-- <provider>com.intuit.tank.persistence.databases.AmazonSimpleDatabase</provider> -->
     </results>
-
   </vm-manager>
 
   <security>

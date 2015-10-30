@@ -1,5 +1,7 @@
 package com.intuit.tank.runner.method;
 
+import static org.junit.Assert.assertNotNull;
+
 /*
  * #%L
  * Intuit Tank Agent (apiharness)
@@ -12,12 +14,7 @@ package com.intuit.tank.runner.method;
  * http://www.eclipse.org/legal/epl-v10.html
  * #L%
  */
-
-import org.junit.*;
-
-import com.intuit.tank.runner.method.AgentLoggingOutputLogger;
-
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  * The class <code>AgentLoggingOutputLoggerTest</code> contains tests for the class <code>{@link AgentLoggingOutputLogger}</code>.

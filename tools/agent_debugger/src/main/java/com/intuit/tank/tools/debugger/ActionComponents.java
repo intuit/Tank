@@ -40,14 +40,15 @@ public class ActionComponents implements ScriptChangedListener {
     /**
      * 
      * @param testPlanChooser
+     * @param tankClientChooser 
      * @param actions
      */
-    public ActionComponents(boolean standalone, JComboBox testPlanChooser, ActionProducer actions) {
+    public ActionComponents(boolean standalone, JComboBox testPlanChooser, JComboBox<TankClientChoice> tankClientChooser, ActionProducer actions) {
         super();
         this.actions = actions;
         runTimingStepsCB = new JCheckBox("Run Timing Steps", false);
         createMenuBar(actions, standalone);
-        createToolBar(testPlanChooser, actions, standalone);
+        createToolBar(testPlanChooser, tankClientChooser, actions, standalone);
         createPopupMenu();
 
     }
@@ -146,10 +147,11 @@ public class ActionComponents implements ScriptChangedListener {
 
     /**
      * 
+     * @param tankClientChooser 
      * @param actions
      * @return
      */
-    private void createToolBar(JComboBox testPlanChooser, ActionProducer actions, boolean standalone) {
+    private void createToolBar(JComboBox testPlanChooser, JComboBox<TankClientChoice> tankClientChooser, ActionProducer actions, boolean standalone) {
         if (toolBar == null) {
             toolBar = new JToolBar("Toolbar");
             toolBar.setMargin(new Insets(5, 5, 5, 5));
@@ -200,6 +202,11 @@ public class ActionComponents implements ScriptChangedListener {
             titleLabel = new JLabel("");
             toolBar.add(titleLabel);
 
+            JPanel clientWrapper = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+            clientWrapper.add(new JLabel("Http Client: "));
+            clientWrapper.add(tankClientChooser);
+            toolBar.add(clientWrapper);
+            
             JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.TRAILING));
             wrapper.add(new JLabel("Test Plan: "));
             wrapper.add(testPlanChooser);

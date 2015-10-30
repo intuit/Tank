@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.jenkins-ci.plugins</groupId>
+		<artifactId>plugin</artifactId>
+		<!-- Baseline Jenkins version you use to build and test the plugin. Users 
+			must have this version or newer to run. -->
+		<version>1.580.1</version>
+		<relativePath />
+	</parent>
+	<groupId>com.intuit.tank</groupId>
+	<artifactId>tank-jenkins-plugin</artifactId>
+	<version>1.0</version>
+	<packaging>hpi</packaging>
+
+	<name>Intuit Tank Jenkins Plugin</name>
+	<description>Jenkins plugin that facilitates easy control of the Tank Recording Proxy around any type of build.</description>
+
+	<inceptionYear>2010</inceptionYear>
+  	<organization>
+    	<name>Intuit Inc.</name>
+    	<url>http://www.intuit.com</url>
+  	</organization>
+
+  	<licenses>
+    	<license>
+     	 	<name>eclipse</name>
+      		<url>http://www.eclipse.org/legal/epl-v10.html</url>
+      		<distribution>repo</distribution>
+      		<comments>A business-friendly OSS license</comments>
+    	</license>
+  	</licenses>
+
+	<properties>
+		<version.tank-proxy>2.1.6</version.tank-proxy>
+	</properties>
+
+	<build>
+    	<extensions>
+      		<extension>
+        		<groupId>org.apache.maven.wagon</groupId>
+        		<artifactId>wagon-webdav-jackrabbit</artifactId>
+        		<version>1.0-beta-7</version>
+      		</extension>
+    	</extensions>
+    	<plugins>
+      		<plugin>
+       		 	<groupId>org.codehaus.mojo</groupId>
+        		<artifactId>license-maven-plugin</artifactId>
+        		<version>1.8</version>
+
+        		<configuration>
+          			<licenseResolver>file://${env.TANK_HOME}/src/license</licenseResolver>
+          			<verbose>true</verbose>
+          			<addSvnKeyWords>false</addSvnKeyWords>
+          			<inceptionYear>2011</inceptionYear>
+          			<organizationName>Intuit Inc.</organizationName>
+          			<canUpdateCopyright>true</canUpdateCopyright>
+          			<licenseName>eclipse</licenseName>
+          			<roots>
+            			<root>src/main/java</root>
+            			<root>src/main/resources</root>
+            			<root>src/test/java</root>
+          			</roots>
+          			<excludes>
+           				<exclude>**/org/**</exclude>
+          			</excludes>
+        		</configuration>
+      		</plugin>
+    	</plugins>
+  	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.intuit.tank</groupId>
+			<artifactId>proxy-extension</artifactId>
+			<version>${version.tank-proxy}</version>
+		</dependency>
+	</dependencies>
+	<repositories>
+		<repository>
+			<id>repo.jenkins-ci.org</id>
+			<url>http://repo.jenkins-ci.org/public/</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>repo.jenkins-ci.org</id>
+			<url>http://repo.jenkins-ci.org/public/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<distributionManagement>
+    	<repository>
+      		<id>${repository.id}</id>
+      		<name>Releases</name>
+      		<url>${repository.url}</url>
+      		<uniqueVersion>false</uniqueVersion>
+    	</repository>
+  	</distributionManagement>
+</project>

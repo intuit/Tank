@@ -18,6 +18,8 @@ import static org.junit.Assert.assertNotNull;
 import javax.inject.Inject;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
@@ -53,6 +55,7 @@ public class HostInfoCpTest extends Arquillian {
     @BeforeClass
     public void configure() {
         BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.INFO);
     }
 
     /**

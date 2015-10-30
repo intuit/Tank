@@ -37,18 +37,19 @@ import com.intuit.tank.script.RequestDataType;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 
 /**
- * The class <code>ConverterUtilTest</code> contains tests for the class <code>{@link ConverterUtil}</code>.
+ * The class <code>ConverterUtilTest</code> contains tests for the class
+ * <code>{@link ConverterUtil}</code>.
  * 
  * @generatedBy CodePro at 9/10/14 10:36 AM
  */
 public class ConverterUtilTest {
-    
+
     @Test
     public void testParseHost() {
         String hostname = "www.company.com";
         String result = ConverterUtil.extractHost(hostname);
         Assert.assertEquals(hostname, result);
-        
+
         hostname = "www.company.com:8080";
         result = ConverterUtil.extractHost(hostname);
         Assert.assertEquals("www.company.com", result);
@@ -56,30 +57,31 @@ public class ConverterUtilTest {
         hostname = "denis:angleton@www.company.com";
         result = ConverterUtil.extractHost(hostname);
         Assert.assertEquals("denis:angleton@www.company.com", result);
-        
+
         hostname = "denis:angleton@www.company.com:8080";
         result = ConverterUtil.extractHost(hostname);
         Assert.assertEquals("denis:angleton@www.company.com", result);
     }
+
     @Test
     public void testParsePort() {
         String hostname = "www.company.com";
         String result = ConverterUtil.extractPort(hostname);
         Assert.assertEquals(null, result);
-        
+
         hostname = "www.company.com:8080";
         result = ConverterUtil.extractPort(hostname);
         Assert.assertEquals("8080", result);
-        
+
         hostname = "denis:angleton@www.company.com";
         result = ConverterUtil.extractPort(hostname);
         Assert.assertEquals(null, result);
-        
+
         hostname = "denis:angleton@www.company.com:8080";
         result = ConverterUtil.extractPort(hostname);
         Assert.assertEquals("8080", result);
     }
-    
+
     /**
      * Run the HDWorkload convertScriptToHdWorkload(Script) method test.
      * 
@@ -88,8 +90,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testConvertScriptToHdWorkload_1()
-            throws Exception {
+    public void testConvertScriptToHdWorkload_1() throws Exception {
         Script script = new Script();
         script.setSteps(new LinkedList());
         script.setName("");
@@ -110,8 +111,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testConvertWorkload_1()
-            throws Exception {
+    public void testConvertWorkload_1() throws Exception {
         Workload workload = new Workload();
         workload.setName("");
         workload.setParent(new Project());
@@ -133,8 +133,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetPostData_1()
-            throws Exception {
+    public void testGetPostData_1() throws Exception {
         Set<RequestData> postData = new HashSet();
 
         List<Header> result = ConverterUtil.getPostData(postData);
@@ -151,8 +150,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetPostData_2()
-            throws Exception {
+    public void testGetPostData_2() throws Exception {
         Set<RequestData> postData = new HashSet();
 
         List<Header> result = ConverterUtil.getPostData(postData);
@@ -162,15 +160,15 @@ public class ConverterUtilTest {
     }
 
     /**
-     * Run the List<Header> getRequestHeaders(Set<RequestData>,Set<RequestData>) method test.
+     * Run the List<Header> getRequestHeaders(Set<RequestData>,Set<RequestData>)
+     * method test.
      * 
      * @throws Exception
      * 
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetRequestHeaders_1()
-            throws Exception {
+    public void testGetRequestHeaders_1() throws Exception {
         Set<RequestData> headers = new HashSet();
         headers.add(new RequestData("X-Include-Referer", "myValue", RequestDataType.requestHeader.name()));
         headers.add(new RequestData("Referer", "myValueNotIncluded", RequestDataType.requestHeader.name()));
@@ -190,15 +188,15 @@ public class ConverterUtilTest {
     }
 
     /**
-     * Run the List<Header> getRequestHeaders(Set<RequestData>,Set<RequestData>) method test.
+     * Run the List<Header> getRequestHeaders(Set<RequestData>,Set<RequestData>)
+     * method test.
      * 
      * @throws Exception
      * 
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetRequestHeaders_2()
-            throws Exception {
+    public void testGetRequestHeaders_2() throws Exception {
         Set<RequestData> headers = new HashSet();
         Set<RequestData> cookies = new HashSet();
 
@@ -209,15 +207,15 @@ public class ConverterUtilTest {
     }
 
     /**
-     * Run the List<Header> getRequestHeaders(Set<RequestData>,Set<RequestData>) method test.
+     * Run the List<Header> getRequestHeaders(Set<RequestData>,Set<RequestData>)
+     * method test.
      * 
      * @throws Exception
      * 
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetRequestHeaders_3()
-            throws Exception {
+    public void testGetRequestHeaders_3() throws Exception {
         Set<RequestData> headers = new HashSet();
         Set<RequestData> cookies = new HashSet();
 
@@ -228,15 +226,15 @@ public class ConverterUtilTest {
     }
 
     /**
-     * Run the List<Header> getRequestHeaders(Set<RequestData>,Set<RequestData>) method test.
+     * Run the List<Header> getRequestHeaders(Set<RequestData>,Set<RequestData>)
+     * method test.
      * 
      * @throws Exception
      * 
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetRequestHeaders_4()
-            throws Exception {
+    public void testGetRequestHeaders_4() throws Exception {
         Set<RequestData> headers = new HashSet();
         Set<RequestData> cookies = null;
 
@@ -254,8 +252,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetResponseData_1()
-            throws Exception {
+    public void testGetResponseData_1() throws Exception {
         Set<RequestData> responseData = new HashSet();
 
         List<ResponseData> result = ConverterUtil.getResponseData(responseData);
@@ -272,8 +269,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetResponseData_2()
-            throws Exception {
+    public void testGetResponseData_2() throws Exception {
         Set<RequestData> responseData = new HashSet();
 
         List<ResponseData> result = ConverterUtil.getResponseData(responseData);
@@ -290,8 +286,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetResponseData_3()
-            throws Exception {
+    public void testGetResponseData_3() throws Exception {
         Set<RequestData> responseData = new HashSet();
 
         List<ResponseData> result = ConverterUtil.getResponseData(responseData);
@@ -308,8 +303,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetResponseData_4()
-            throws Exception {
+    public void testGetResponseData_4() throws Exception {
         Set<RequestData> responseData = new HashSet();
 
         List<ResponseData> result = ConverterUtil.getResponseData(responseData);
@@ -326,8 +320,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetResponseData_5()
-            throws Exception {
+    public void testGetResponseData_5() throws Exception {
         Set<RequestData> responseData = new HashSet();
 
         List<ResponseData> result = ConverterUtil.getResponseData(responseData);
@@ -344,8 +337,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetResponseData_6()
-            throws Exception {
+    public void testGetResponseData_6() throws Exception {
         Set<RequestData> responseData = new HashSet();
 
         List<ResponseData> result = ConverterUtil.getResponseData(responseData);
@@ -355,15 +347,15 @@ public class ConverterUtilTest {
     }
 
     /**
-     * Run the List<Header> getResponseHeaders(Set<RequestData>,Set<RequestData>) method test.
+     * Run the List<Header> getResponseHeaders(Set<RequestData>,Set
+     * <RequestData>) method test.
      * 
      * @throws Exception
      * 
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetResponseHeaders_1()
-            throws Exception {
+    public void testGetResponseHeaders_1() throws Exception {
         Set<RequestData> responseHeaders = new HashSet();
         Set<RequestData> responseCookies = new HashSet();
 
@@ -374,15 +366,15 @@ public class ConverterUtilTest {
     }
 
     /**
-     * Run the List<Header> getResponseHeaders(Set<RequestData>,Set<RequestData>) method test.
+     * Run the List<Header> getResponseHeaders(Set<RequestData>,Set
+     * <RequestData>) method test.
      * 
      * @throws Exception
      * 
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetResponseHeaders_2()
-            throws Exception {
+    public void testGetResponseHeaders_2() throws Exception {
         Set<RequestData> responseHeaders = new HashSet();
         Set<RequestData> responseCookies = new HashSet();
 
@@ -393,15 +385,15 @@ public class ConverterUtilTest {
     }
 
     /**
-     * Run the List<Header> getResponseHeaders(Set<RequestData>,Set<RequestData>) method test.
+     * Run the List<Header> getResponseHeaders(Set<RequestData>,Set
+     * <RequestData>) method test.
      * 
      * @throws Exception
      * 
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetResponseHeaders_3()
-            throws Exception {
+    public void testGetResponseHeaders_3() throws Exception {
         Set<RequestData> responseHeaders = new HashSet();
         Set<RequestData> responseCookies = new HashSet();
 
@@ -412,15 +404,15 @@ public class ConverterUtilTest {
     }
 
     /**
-     * Run the List<Header> getResponseHeaders(Set<RequestData>,Set<RequestData>) method test.
+     * Run the List<Header> getResponseHeaders(Set<RequestData>,Set
+     * <RequestData>) method test.
      * 
      * @throws Exception
      * 
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetResponseHeaders_4()
-            throws Exception {
+    public void testGetResponseHeaders_4() throws Exception {
         Set<RequestData> responseHeaders = new HashSet();
         Set<RequestData> responseCookies = new HashSet();
 
@@ -431,15 +423,15 @@ public class ConverterUtilTest {
     }
 
     /**
-     * Run the List<Header> getResponseHeaders(Set<RequestData>,Set<RequestData>) method test.
+     * Run the List<Header> getResponseHeaders(Set<RequestData>,Set
+     * <RequestData>) method test.
      * 
      * @throws Exception
      * 
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetResponseHeaders_5()
-            throws Exception {
+    public void testGetResponseHeaders_5() throws Exception {
         Set<RequestData> responseHeaders = new HashSet();
         Set<RequestData> responseCookies = new HashSet();
 
@@ -450,15 +442,15 @@ public class ConverterUtilTest {
     }
 
     /**
-     * Run the List<Header> getResponseHeaders(Set<RequestData>,Set<RequestData>) method test.
+     * Run the List<Header> getResponseHeaders(Set<RequestData>,Set
+     * <RequestData>) method test.
      * 
      * @throws Exception
      * 
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetResponseHeaders_6()
-            throws Exception {
+    public void testGetResponseHeaders_6() throws Exception {
         Set<RequestData> responseHeaders = new HashSet();
         Set<RequestData> responseCookies = new HashSet();
 
@@ -476,15 +468,15 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testGetWorkloadXML_1()
-            throws Exception {
+    public void testGetWorkloadXML_1() throws Exception {
         HDWorkload hdWorkload = new HDWorkload();
 
         String result = ConverterUtil.getWorkloadXML(hdWorkload);
 
-        assertEquals(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<ns2:workload xmlns:ns2=\"urn:com/intuit/tank/harness/data/v1\"/>\n",
-                result);
+        Assert.assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"));
+        Assert.assertTrue(result.contains("<ns2:workload xmlns:ns2=\"urn:com/intuit/tank/harness/data/v1\">"));
+        Assert.assertTrue(result.contains("<client-class>com.intuit.tank.httpclient3.TankHttpClient3</client-class>"));
+        Assert.assertTrue(result.contains("</ns2:workload>"));
     }
 
     /**
@@ -495,8 +487,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIncludedHeader_1()
-            throws Exception {
+    public void testIncludedHeader_1() throws Exception {
         String header = "Accept";
 
         boolean result = ConverterUtil.includedHeader(header);
@@ -512,8 +503,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIncludedHeader_2()
-            throws Exception {
+    public void testIncludedHeader_2() throws Exception {
         String header = "";
 
         boolean result = ConverterUtil.includedHeader(header);
@@ -529,8 +519,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIncludedHeader_3()
-            throws Exception {
+    public void testIncludedHeader_3() throws Exception {
         String header = "";
 
         boolean result = ConverterUtil.includedHeader(header);
@@ -546,8 +535,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIncludedHeader_4()
-            throws Exception {
+    public void testIncludedHeader_4() throws Exception {
         String header = "Content";
 
         boolean result = ConverterUtil.includedHeader(header);
@@ -563,8 +551,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIncludedHeader_5()
-            throws Exception {
+    public void testIncludedHeader_5() throws Exception {
         String header = "";
 
         boolean result = ConverterUtil.includedHeader(header);
@@ -580,8 +567,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIncludedHeader_6()
-            throws Exception {
+    public void testIncludedHeader_6() throws Exception {
         String header = "";
 
         boolean result = ConverterUtil.includedHeader(header);
@@ -597,8 +583,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIncludedHeader_7()
-            throws Exception {
+    public void testIncludedHeader_7() throws Exception {
         String header = "";
 
         boolean result = ConverterUtil.includedHeader(header);
@@ -614,8 +599,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIncludedHeader_8()
-            throws Exception {
+    public void testIncludedHeader_8() throws Exception {
         String header = "";
 
         boolean result = ConverterUtil.includedHeader(header);
@@ -631,8 +615,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIncludedHeader_9()
-            throws Exception {
+    public void testIncludedHeader_9() throws Exception {
         String header = "";
 
         boolean result = ConverterUtil.includedHeader(header);
@@ -648,8 +631,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIncludedHeader_10()
-            throws Exception {
+    public void testIncludedHeader_10() throws Exception {
         String header = "";
 
         boolean result = ConverterUtil.includedHeader(header);
@@ -665,8 +647,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIncludedHeader_11()
-            throws Exception {
+    public void testIncludedHeader_11() throws Exception {
         String header = "";
 
         boolean result = ConverterUtil.includedHeader(header);
@@ -682,8 +663,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIsAssignment_1()
-            throws Exception {
+    public void testIsAssignment_1() throws Exception {
         RequestData data = new RequestData("", "", "");
 
         boolean result = ConverterUtil.isAssignment(data);
@@ -699,8 +679,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIsAssignment_2()
-            throws Exception {
+    public void testIsAssignment_2() throws Exception {
         RequestData data = new RequestData("", "", "");
 
         boolean result = ConverterUtil.isAssignment(data);
@@ -716,8 +695,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIsAssignment_3()
-            throws Exception {
+    public void testIsAssignment_3() throws Exception {
         RequestData data = new RequestData("", "", "");
 
         boolean result = ConverterUtil.isAssignment(data);
@@ -733,8 +711,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIsAssignment_4()
-            throws Exception {
+    public void testIsAssignment_4() throws Exception {
         RequestData data = new RequestData("", "=", "responseData");
 
         boolean result = ConverterUtil.isAssignment(data);
@@ -750,8 +727,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIsAssignment_5()
-            throws Exception {
+    public void testIsAssignment_5() throws Exception {
         RequestData data = new RequestData("", "", "");
 
         boolean result = ConverterUtil.isAssignment(data);
@@ -767,8 +743,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIsAssignment_6()
-            throws Exception {
+    public void testIsAssignment_6() throws Exception {
         RequestData data = new RequestData("", "", "responseData");
 
         boolean result = ConverterUtil.isAssignment(data);
@@ -784,8 +759,7 @@ public class ConverterUtilTest {
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test
-    public void testIsAssignment_7()
-            throws Exception {
+    public void testIsAssignment_7() throws Exception {
         RequestData data = new RequestData("", "", "responseData");
 
         boolean result = ConverterUtil.isAssignment(data);

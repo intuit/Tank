@@ -34,6 +34,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -47,6 +48,7 @@ import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
+import com.intuit.tank.reporting.api.DummyResultsReporter;
 import com.intuit.tank.reporting.api.ResultsReporter;
 import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.results.TankResult;
@@ -99,6 +101,7 @@ public class APITestHarness {
     private Map<Long, FlowController> controllerMap = new HashMap<Long, FlowController>();
     private TPSMonitor tpsMonitor;
     private ResultsReporter resultsReporter;
+    private String tankHttpClientClass;
 
     static {
         try {
@@ -116,12 +119,6 @@ public class APITestHarness {
         } catch (Throwable e1) {
             System.err.println("Error setting property jdk.certpath.disabledAlgorithms: " + e1.toString());
             e1.printStackTrace();
-        }
-        try {
-            AgentUtil.setTrustCerts();
-        } catch (Throwable e1) {
-            LOG.warn(LogUtil.getLogMessage("Error setting trust all cert checker: " + e1.toString(),
-                    LogEventType.System));
         }
     }
 
@@ -142,7 +139,6 @@ public class APITestHarness {
 
     private APITestHarness() {
         tankConfig = new TankConfig();
-        resultsReporter = ReportingFactory.getResultsReporter();
         validationFailures = new ValidationStatus();
         setFlowControllerTemplate(new DefaultFlowController());
         agentRunData = new AgentRunData();
@@ -163,7 +159,6 @@ public class APITestHarness {
         } catch (Throwable e1) {
             LOG.warn(LogUtil.getLogMessage("Error disabling SNI extension: " + e1.toString(), LogEventType.System));
         }
-        AgentUtil.setTrustCerts();
         if (args.length < 1) {
             usage();
             return;
@@ -187,7 +182,9 @@ public class APITestHarness {
                 continue;
             } else if (values[0].equalsIgnoreCase("-ramp")) {
                 agentRunData.setRampTime(Long.parseLong(values[1]) * 60000);
-                // agentRunData.setRampT
+                continue;
+            } else if (values[0].equalsIgnoreCase("-client")) {
+                tankHttpClientClass = StringUtils.trim(values[1]);
                 continue;
             } else if (values[0].equalsIgnoreCase("-d")) {
                 Logger.getLogger("com.intuit.tank.http").setLevel(Level.DEBUG);
@@ -246,8 +243,10 @@ public class APITestHarness {
         agentRunData.setInstanceId(instanceId);
 
         if (controllerBase != null) {
+            resultsReporter = ReportingFactory.getResultsReporter();
             startHttp(controllerBase);
         } else {
+            resultsReporter = new DummyResultsReporter();
             TestPlanSingleton plans = TestPlanSingleton.getInstance();
             if (null == testPlanXmls) {
                 plans.setTestPlans(testPlans);
@@ -298,6 +297,7 @@ public class APITestHarness {
             try {
                 instanceUrl = "http://" + AmazonUtil.getPublicHostName() + ":"
                         + tankConfig.getAgentConfig().getAgentPort();
+                LOG.info("MyInstanceURL  = " + instanceUrl);
             } catch (IOException e1) {
                 tries++;
                 if (tries < 10) {
@@ -309,15 +309,18 @@ public class APITestHarness {
                 } else {
                     LOG.error("Error getting amazon host. maybe local.");
                     String publicIp = new HostInfo().getPublicIp();
+                    
                     if (!publicIp.equals(HostInfo.UNKNOWN)) {
                         instanceUrl = "http://" + publicIp + ":"
                                 + tankConfig.getAgentConfig().getAgentPort();
+                        LOG.info("MyInstanceURL from hostinfo  = " + instanceUrl);
                     } else {
                         instanceUrl = "http://localhost:" + tankConfig.getAgentConfig().getAgentPort();
                     }
                 }
             }
         }
+        LOG.info("MyInstanceURL  = " + instanceUrl);
         if (capacity < 0) {
             capacity = AmazonUtil.getCapacity();
         }
@@ -559,7 +562,11 @@ public class APITestHarness {
         doneSignal = new CountDownLatch(agentRunData.getNumUsers());
         try {
             HDWorkload hdWorkload = TestPlanSingleton.getInstance().getTestPlans().get(0);
+            if (StringUtils.isBlank(tankHttpClientClass)) {
+                tankHttpClientClass = hdWorkload.getTankHttpClientClass();
+            }
             agentRunData.setProjectName(hdWorkload.getName());
+            agentRunData.setTankhttpClientClass(tankHttpClientClass);
             List<TestPlanStarter> testPlans = new ArrayList<TestPlanStarter>();
             int total = 0;
             for (HDTestPlan plan : hdWorkload.getPlans()) {
@@ -596,9 +603,10 @@ public class APITestHarness {
                     tp++;
                 }
             }
-
+            LOG.info(LogUtil.getLogMessage("Have all testPlan runners configured"));
             // start status thread first only
             if (!isLocal && !isDebug() && NumberUtils.isDigits(agentRunData.getJobId())) {
+                LOG.info(LogUtil.getLogMessage("Starting monitor thread..."));
                 CloudVmStatus status = getInitialStatus();
                 monitorThread = new Thread(new APIMonitor(status));
                 monitorThread.setDaemon(true);
@@ -606,6 +614,7 @@ public class APITestHarness {
                 monitorThread.start();
             }
 
+            LOG.info(LogUtil.getLogMessage("Starting threads..."));
             // start initial users
             startTime = System.currentTimeMillis();
             DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
@@ -654,8 +663,8 @@ public class APITestHarness {
 
                 doneSignal.await();
             }
-        } catch (Exception t) {
-            LOG.error(LogUtil.getLogMessage(t.getMessage()), t);
+        } catch (Throwable t) {
+            LOG.error("error executing..." + t, t);
         } finally {
             LOG.info(LogUtil.getLogMessage("Test Complete..."));
             if (!isDebug() && NumberUtils.isDigits(agentRunData.getJobId())) {
@@ -932,5 +941,21 @@ public class APITestHarness {
     public ResultsReporter getResultsReporter() {
         return resultsReporter;
     }
+
+    /**
+     * @return the tankHttpClientClass
+     */
+    public String getTankHttpClientClass() {
+        return tankHttpClientClass;
+    }
+
+    /**
+     * @param tankHttpClientClass the tankHttpClientClass to set
+     */
+    public void setTankHttpClientClass(String tankHttpClientClass) {
+        this.tankHttpClientClass = tankHttpClientClass;
+    }
+    
+    
 
 }

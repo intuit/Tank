@@ -45,7 +45,7 @@ public class APIMonitor implements Runnable {
             reportInterval = Math.max(APITestHarness.getInstance().getTankConfig().getAgentConfig()
                     .getStatusReportIntervalMilis(reportInterval), MIN_REPORT_TIME);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("Error initializing monitor: " + e, e);
         }
     }
 
@@ -59,8 +59,8 @@ public class APIMonitor implements Runnable {
                 TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPMonitor().getTPSInfo();
                 if (tpsInfo != null) {
                     newStatus.setTotalTps(tpsInfo.getTotalTps());
+                    sendTps(tpsInfo);
                 }
-                sendTps(tpsInfo);
                 client.setVmStatus(newStatus.getInstanceId(), newStatus);
                 APITestHarness.getInstance().checkAgentThreads();
                 Thread.sleep(reportInterval);

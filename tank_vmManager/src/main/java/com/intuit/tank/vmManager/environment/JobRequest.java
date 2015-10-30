@@ -148,7 +148,7 @@ public class JobRequest implements Runnable {
             }
             return environment;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error(ex.getMessage(), ex);
             return null;
         }
     }

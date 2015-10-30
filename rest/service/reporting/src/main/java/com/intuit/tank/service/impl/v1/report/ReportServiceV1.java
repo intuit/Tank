@@ -17,7 +17,6 @@ package com.intuit.tank.service.impl.v1.report;
  */
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -47,8 +46,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.log4j.Logger;
 
-import au.com.bytecode.opencsv.CSVWriter;
-
 import com.intuit.tank.api.service.v1.report.ReportService;
 import com.intuit.tank.dao.PeriodicDataDao;
 import com.intuit.tank.dao.SummaryDataDao;
@@ -59,10 +56,15 @@ import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.reporting.local.ResultsStorage;
 import com.intuit.tank.results.TankResultPackage;
 import com.intuit.tank.service.util.AuthUtil;
+import com.intuit.tank.storage.FileData;
+import com.intuit.tank.storage.FileStorage;
+import com.intuit.tank.storage.FileStorageFactory;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.common.util.ReportUtil;
 import com.intuit.tank.vm.common.util.TimingPageName;
 import com.intuit.tank.vm.settings.TankConfig;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 /**
  * ProjectServiceV1
@@ -78,8 +80,7 @@ public class ReportServiceV1 implements ReportService {
     @Context
     private ServletContext servletContext;
 
-    private static final FastDateFormat FMT = FastDateFormat.getInstance(ReportService.DATE_FORMAT,
-            TimeZone.getTimeZone("PST"));
+    private static final FastDateFormat FMT = FastDateFormat.getInstance(ReportService.DATE_FORMAT, TimeZone.getTimeZone("PST"));
 
     /**
      * @{inheritDoc
@@ -168,26 +169,18 @@ public class ReportServiceV1 implements ReportService {
     @Override
     public Response getTimingCsv(final String jobId) {
         ResponseBuilder responseBuilder = Response.ok();
-        TankConfig tankConfig = new TankConfig();
+        final TankConfig tankConfig = new TankConfig();
         // AuthUtil.checkLoggedIn(servletContext);
-        File csvFile = new File(tankConfig.getTimingDir(), "timing_" + new TankConfig().getInstanceName()
-                + "_" + jobId + ".csv.gz");
-        if (!csvFile.exists()) {
-            csvFile = new File(tankConfig.getTimingDir(), "timing_" + new TankConfig().getInstanceName()
-                    + "_" + jobId + ".csv");
-        }
-        if (csvFile.exists()) {
-            final File finalCSV = csvFile;
+        final String fileName = "timing_" + tankConfig.getInstanceName() + "_" + jobId + ".csv.gz";
+
+        final FileStorage fileStorage = FileStorageFactory.getFileStorage(tankConfig.getTimingDir(), false);
+        final FileData fd = new FileData("", fileName);
+        if (fileStorage.exists(fd)) {
             StreamingOutput streamingOutput = new StreamingOutput() {
                 @Override
                 public void write(OutputStream output) throws IOException, WebApplicationException {
                     InputStream in = null;
-                    FileInputStream fio = new FileInputStream(finalCSV);
-                    if (finalCSV.getName().endsWith(".gz")) {
-                        in = new GZIPInputStream(new FileInputStream(finalCSV));
-                    } else {
-                        in = fio;
-                    }
+                    in = new GZIPInputStream(fileStorage.readFileData(fd));
                     try {
                         IOUtils.copy(in, output);
                     } catch (RuntimeException e) {
@@ -197,9 +190,7 @@ public class ReportServiceV1 implements ReportService {
                     }
                 }
             };
-            String filename = "timing_" + new TankConfig().getInstanceName()
-                    + "_" + jobId
-                    + ".csv";
+            String filename = "timing_" + tankConfig.getInstanceName() + "_" + jobId + ".csv";
 
             responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
             responseBuilder.entity(streamingOutput);
@@ -230,8 +221,7 @@ public class ReportServiceV1 implements ReportService {
                 }
                 PeriodicDataDao dao = new PeriodicDataDao();
                 List<PeriodicData> data = dao.findByJobId(Integer.parseInt(jobId), minDate, maxDate);
-                LOG.info("found " + data.size() + " entries for job " + jobId + " for dates " + minDate + " - "
-                        + maxDate);
+                LOG.info("found " + data.size() + " entries for job " + jobId + " for dates " + minDate + " - " + maxDate);
                 if (!data.isEmpty()) {
                     CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(output));
                     try {
@@ -305,7 +295,8 @@ public class ReportServiceV1 implements ReportService {
      * @param jobId
      * @param period
      * @param item
-     * @return "Job ID", "Page ID", "Page Name", "Index" "Sample Size", "Average", "Min", "Max", "Period", "Start Time"
+     * @return "Job ID", "Page ID", "Page Name", "Index" "Sample Size",
+     *         "Average", "Min", "Max", "Period", "Start Time"
      */
     protected String[] getBucketLine(String jobId, int period, PeriodicData item) {
         TimingPageName tpn = new TimingPageName(item.getPageId());
@@ -358,8 +349,7 @@ public class ReportServiceV1 implements ReportService {
                 }
             }
         };
-        String filename = "timing_" + new TankConfig().getInstanceName() + "_" + jobId
-                + ".csv";
+        String filename = "timing_" + new TankConfig().getInstanceName() + "_" + jobId + ".csv";
 
         responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
         responseBuilder.entity(streamingOutput);
@@ -368,10 +358,13 @@ public class ReportServiceV1 implements ReportService {
 
     /**
      * @param item
-     * @return "Page ID", "Page Name", "Index""Sample Size", "Mean", "Median", "Min", "Max", "Std Dev", "Kurtosis",
-     *         "Skewness", "Varience" { "10th Percentile", 10 }, { "20th Percentile", 20 }, { "30th Percentile", 30 }, {
-     *         "40th Percentile", 40 }, { "50th Percentile", 50 }, { "60th Percentile", 60 }, { "70th Percentile", 70 },
-     *         { "80th Percentile", 80 }, { "90th Percentile", 90 }, { "99th Percentile", 99 }
+     * @return "Page ID", "Page Name", "Index""Sample Size", "Mean", "Median",
+     *         "Min", "Max", "Std Dev", "Kurtosis", "Skewness", "Varience" {
+     *         "10th Percentile", 10 }, { "20th Percentile", 20 }, {
+     *         "30th Percentile", 30 }, { "40th Percentile", 40 }, {
+     *         "50th Percentile", 50 }, { "60th Percentile", 60 }, {
+     *         "70th Percentile", 70 }, { "80th Percentile", 80 }, {
+     *         "90th Percentile", 90 }, { "99th Percentile", 99 }
      */
     protected String[] getLine(SummaryData item) {
         TimingPageName tpn = new TimingPageName(item.getPageId());
@@ -445,9 +438,7 @@ public class ReportServiceV1 implements ReportService {
                 }
             } finally {
                 writer.append("</table>");
-                String downloadUrl = servletContext.getContextPath() + TankConstants.REST_SERVICE_CONTEXT
-                        + ReportService.SERVICE_RELATIVE_PATH + ReportService.METHOD_TIMING_SUMMARY_CSV + "/"
-                        + jobId;
+                String downloadUrl = servletContext.getContextPath() + TankConstants.REST_SERVICE_CONTEXT + ReportService.SERVICE_RELATIVE_PATH + ReportService.METHOD_TIMING_SUMMARY_CSV + "/" + jobId;
                 writer.append("<p>Download CSV file <a href='" + downloadUrl + "'>" + downloadUrl + "</a></p>");
             }
         } else {
@@ -501,8 +492,7 @@ public class ReportServiceV1 implements ReportService {
                 }
             } finally {
                 writer.append("</table>");
-                String downloadUrl = servletContext.getContextPath() + TankConstants.REST_SERVICE_CONTEXT
-                        + ReportService.SERVICE_RELATIVE_PATH + ReportService.METHOD_TIMING_PERIODIC_CSV + "/"
+                String downloadUrl = servletContext.getContextPath() + TankConstants.REST_SERVICE_CONTEXT + ReportService.SERVICE_RELATIVE_PATH + ReportService.METHOD_TIMING_PERIODIC_CSV + "/"
                         + jobId;
                 writer.append("<p>Download CSV file <a href='" + downloadUrl + "'>" + downloadUrl + "</a></p>");
             }
@@ -522,9 +512,7 @@ public class ReportServiceV1 implements ReportService {
         try {
             new Thread(new Runnable() {
                 public void run() {
-                    ResultsStorage.instance().storeTpsResults(reportingPackage.getJobId(),
-                            reportingPackage.getInstanceId(),
-                            reportingPackage.getContainer());
+                    ResultsStorage.instance().storeTpsResults(reportingPackage.getJobId(), reportingPackage.getInstanceId(), reportingPackage.getContainer());
                 }
             }).start();
             responseBuilder = Response.status(Status.ACCEPTED);
@@ -542,8 +530,7 @@ public class ReportServiceV1 implements ReportService {
         try {
             new Thread(new Runnable() {
                 public void run() {
-                    ResultsStorage.instance().storeTimingResults(results.getJobId(), results.getInstanceId(),
-                            results.getResults());
+                    ResultsStorage.instance().storeTimingResults(results.getJobId(), results.getInstanceId(), results.getResults());
                 }
             }).start();
             responseBuilder = Response.status(Status.ACCEPTED);

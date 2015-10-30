@@ -85,7 +85,7 @@ public class VMTrackerImpl implements VMTracker {
      * 
      */
     public VMTrackerImpl() {
-        devMode = !AmazonUtil.isInAmazon() || new TankConfig().getStandalone();
+        devMode = new TankConfig().getStandalone();
     }
 
     /**

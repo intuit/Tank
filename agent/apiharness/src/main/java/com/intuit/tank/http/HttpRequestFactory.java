@@ -1,43 +1,61 @@
 package com.intuit.tank.http;
 
-/*
- * #%L
- * Intuit Tank Agent (apiharness)
- * %%
- * Copyright (C) 2011 - 2015 Intuit Inc.
- * %%
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * #L%
- */
-
-import org.apache.commons.httpclient.HttpClient;
-
+import com.intuit.tank.harness.APITestHarness;
+import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.http.json.JsonRequest;
 import com.intuit.tank.http.json.PlainTextRequest;
 import com.intuit.tank.http.keyvalue.KeyValueRequest;
 import com.intuit.tank.http.multipart.MultiPartRequest;
 import com.intuit.tank.http.xml.XMLRequest;
+import com.intuit.tank.logging.LogEventType;
+import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.script.ScriptConstants;
+import com.intuit.tank.vm.settings.AgentConfig;
 
 public class HttpRequestFactory {
 
-    public static BaseRequest getHttpRequest(String format, HttpClient httpclient)
-            throws IllegalArgumentException {
+    public static BaseRequest getHttpRequest(String format, TankHttpClient httpclient) throws IllegalArgumentException {
         if (format.equalsIgnoreCase(ScriptConstants.XML_TYPE)) {
-            return new XMLRequest(httpclient);
+            return new XMLRequest(httpclient, new TankLogUtil());
         } else if (format.equalsIgnoreCase(ScriptConstants.NVP_TYPE)) {
-            return new KeyValueRequest(httpclient);
+            return new KeyValueRequest(httpclient, new TankLogUtil());
         } else if (format.equalsIgnoreCase(ScriptConstants.MULTI_PART_TYPE)) {
-            return new MultiPartRequest(httpclient);
+            return new MultiPartRequest(httpclient, new TankLogUtil());
         } else if (format.equalsIgnoreCase(ScriptConstants.JSON_TYPE)) {
-            return new JsonRequest(httpclient);
+            return new JsonRequest(httpclient, new TankLogUtil());
         } else if (format.equalsIgnoreCase(ScriptConstants.PLAIN_TEXT_TYPE)) {
-            return new PlainTextRequest(httpclient);
+            return new PlainTextRequest(httpclient, new TankLogUtil());
         } else {
             throw new IllegalArgumentException("unknow request format - " + format);
         }
+    }
+
+    public static final class TankLogUtil implements TankHttpLogger {
+
+        @Override
+        public String getLogMessage(String msg) {
+            return LogUtil.getLogMessage(msg);
+        }
+
+        @Override
+        public String getLogMessage(String msg, LogEventType type) {
+            return LogUtil.getLogMessage(msg, type);
+        }
+
+        @Override
+        public String getLogMessage(String msg, LogEventType type, LoggingProfile profile) {
+            return LogUtil.getLogMessage(msg, type, profile);
+        }
+
+        @Override
+        public boolean isTextMimeType(String mimeType) {
+            return LogUtil.isTextMimeType(mimeType);
+        }
+
+        @Override
+        public AgentConfig getAgentConfig() {
+            return APITestHarness.getInstance().getTankConfig().getAgentConfig();
+        }
+
     }
 }

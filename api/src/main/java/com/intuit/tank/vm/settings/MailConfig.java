@@ -36,7 +36,6 @@ public class MailConfig implements Serializable {
     private static final String KEY_MAIL_FROM = "mail-from";
     private static final String KEY_HOST = "mail.smtp.host";
     private static final String KEY_PORT = "mail.smtp.port";
-    private static final String KEY_AUTOMATION_ADMIN = "automation-admin-email";
 
     private HierarchicalConfiguration config;
 
