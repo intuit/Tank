@@ -48,11 +48,6 @@ public class IncreasingWorkLoad implements Runnable {
 
     @Override
     public void run() {
-        if (!AmazonUtil.isInAmazon()) {
-            LOG.warn("Running locally. ");
-            return;
-        }
-        LOG.debug("in perf run");
         try {
             askForAgents(new JobInstanceAgentModel(job));
         } catch (Exception th) {

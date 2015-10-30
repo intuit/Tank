@@ -25,6 +25,7 @@ import javax.enterprise.context.ApplicationScoped;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 /**
  * <message event="QUEUE_ADD"> <subject>Job {jobName} Added to Queue</subject> <body> <![CDATA[
@@ -41,6 +42,7 @@ import org.apache.commons.lang.StringUtils;
 public class MailMessageConfig extends BaseCommonsXmlConfig {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOG = Logger.getLogger(MailMessageConfig.class);
     private static final String KEY_MESSAGE_NODE = "message";
     private static final String KEY_EVENT = "@event";
     private static final String KEY_SUBJECT = "subject";
@@ -55,7 +57,10 @@ public class MailMessageConfig extends BaseCommonsXmlConfig {
 
     static {
         File file = new File(configName);
+        LOG.info("checking file " + file.getAbsolutePath() + ": exists=" + file.exists());
         if (!file.exists()) {
+            LOG.info("System.getenv('WATS_PROPERTIES') = '" + System.getenv("WATS_PROPERTIES") + "'");
+            LOG.info("System.getProperty('WATS_PROPERTIES') = '" + System.getProperty("WATS_PROPERTIES") + "'");
             if (System.getenv("WATS_PROPERTIES") != null) {
                 configName = System.getenv("WATS_PROPERTIES") + "/" + CONFIG_NAME;
             } else if (System.getProperty("WATS_PROPERTIES") != null) {

@@ -17,6 +17,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
+import org.apache.commons.lang.StringUtils;
+
 @XmlType(propOrder = { "key", "value" }, namespace = HarnessDataNamespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class ResponseData {
@@ -28,7 +30,7 @@ public abstract class ResponseData {
      * @return the key
      */
     public String getKey() {
-        return key;
+        return StringUtils.trim(key);
     }
 
     /**
@@ -43,7 +45,7 @@ public abstract class ResponseData {
      * @return the value
      */
     public String getValue() {
-        return value;
+        return StringUtils.trim(value);
     }
 
     /**

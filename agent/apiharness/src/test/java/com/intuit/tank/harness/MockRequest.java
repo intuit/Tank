@@ -21,8 +21,8 @@ public class MockRequest extends BaseRequest {
 
     private Date date = new Date();
 
-    protected MockRequest() {
-        super(null);
+    public MockRequest() {
+        super(null, null);
 
     }
 

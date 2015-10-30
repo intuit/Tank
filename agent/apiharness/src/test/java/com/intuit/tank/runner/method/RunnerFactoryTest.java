@@ -1,32 +1,15 @@
 package com.intuit.tank.runner.method;
 
-/*
- * #%L
- * Intuit Tank Agent (apiharness)
- * %%
- * Copyright (C) 2011 - 2015 Intuit Inc.
- * %%
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * #L%
- */
+import static org.junit.Assert.assertNotNull;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.junit.*;
-
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import com.intuit.tank.harness.data.ClearCookiesStep;
 import com.intuit.tank.harness.data.HDTestPlan;
-import com.intuit.tank.harness.data.TestStep;
 import com.intuit.tank.harness.test.data.Variables;
+import com.intuit.tank.runner.TestHttpClient;
 import com.intuit.tank.runner.TestPlanRunner;
 import com.intuit.tank.runner.TestStepContext;
-import com.intuit.tank.runner.method.Runner;
-import com.intuit.tank.runner.method.RunnerFactory;
-import com.intuit.tank.runner.method.TimerMap;
 
 /**
  * The class <code>RunnerFactoryTest</code> contains tests for the class <code>{@link RunnerFactory}</code>.
@@ -44,8 +27,8 @@ public class RunnerFactoryTest {
     @Test
     public void testGetRunner_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
 
         Runner result = RunnerFactory.getRunner(tsc);
@@ -67,8 +50,8 @@ public class RunnerFactoryTest {
     @Test
     public void testGetRunner_2()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
 
         Runner result = RunnerFactory.getRunner(tsc);
@@ -88,8 +71,8 @@ public class RunnerFactoryTest {
     @Test
     public void testGetRunner_3()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
 
         Runner result = RunnerFactory.getRunner(tsc);
@@ -109,8 +92,8 @@ public class RunnerFactoryTest {
     @Test
     public void testGetRunner_4()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
 
         Runner result = RunnerFactory.getRunner(tsc);
@@ -130,8 +113,8 @@ public class RunnerFactoryTest {
     @Test
     public void testGetRunner_5()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
 
         Runner result = RunnerFactory.getRunner(tsc);
@@ -151,8 +134,8 @@ public class RunnerFactoryTest {
     @Test
     public void testGetRunner_6()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
 
         Runner result = RunnerFactory.getRunner(tsc);
@@ -172,8 +155,8 @@ public class RunnerFactoryTest {
     @Test
     public void testGetRunner_7()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
 
         Runner result = RunnerFactory.getRunner(tsc);
@@ -193,8 +176,8 @@ public class RunnerFactoryTest {
     @Test
     public void testGetRunner_8()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
 
         Runner result = RunnerFactory.getRunner(tsc);

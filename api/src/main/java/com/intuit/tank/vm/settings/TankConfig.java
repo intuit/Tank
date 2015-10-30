@@ -43,8 +43,8 @@ public class TankConfig extends BaseCommonsXmlConfig {
     private static final String KEY_TIMING_FILE_STORAGE = "timing-file-storage";
     private static final String KEY_MAIL_NODE = "mail";
     private static final String KEY_STANDALONE = "standalone";
+    private static final String KEY_ENCRYPT_S3 = "s3-encrypt";
 
-    @SuppressWarnings("unused")
     private static final Logger LOG = Logger.getLogger(TankConfig.class);
 
     private static final String CONFIG_NAME = "settings.xml";
@@ -58,13 +58,17 @@ public class TankConfig extends BaseCommonsXmlConfig {
 
     static {
         File file = new File(configName);
+        LOG.info("checking file " + file.getAbsolutePath() + ": exists=" + file.exists());
         if (!file.exists()) {
+            LOG.info("System.getenv('WATS_PROPERTIES') = '" + System.getenv("WATS_PROPERTIES") + "'");
+            LOG.info("System.getProperty('WATS_PROPERTIES') = '" + System.getProperty("WATS_PROPERTIES") + "'");
             if (System.getenv("WATS_PROPERTIES") != null) {
                 configName = System.getenv("WATS_PROPERTIES") + "/" + CONFIG_NAME;
             } else if (System.getProperty("WATS_PROPERTIES") != null) {
                 configName = System.getProperty("WATS_PROPERTIES") + "/" + CONFIG_NAME;
             }
         }
+        LOG.info("Tank Configuratino location = " + configName);
     }
 
     private String configPath = configName;
@@ -108,6 +112,12 @@ public class TankConfig extends BaseCommonsXmlConfig {
      */
     public boolean isRestSecurityEnabled() {
         return config.getBoolean(KEY_REST_SECURITY_ENABLED, false);
+    }
+    /**
+     * @return true if rest security is enabled
+     */
+    public boolean isS3EncryptionEnabled() {
+        return config.getBoolean(KEY_ENCRYPT_S3, false);
     }
 
     /**

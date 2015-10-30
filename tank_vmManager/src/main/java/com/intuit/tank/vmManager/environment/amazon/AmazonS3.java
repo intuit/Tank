@@ -21,7 +21,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AccessControlList;
@@ -46,9 +48,24 @@ public class AmazonS3 {
         try {
             CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(
                     CloudProvider.amazon);
-            BasicAWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
-            s3Client = new AmazonS3Client(credentials);
-            // s3Client.setRegion(Region.getRegion(Regions.US_EAST_1));
+            ClientConfiguration config = new ClientConfiguration();
+            if (StringUtils.isNotBlank(System.getProperty("http.proxyHost"))) {
+                try {
+                    config.setProxyHost(System.getProperty("http.proxyHost"));
+                    if (StringUtils.isNotBlank(System.getProperty("http.proxyPort"))) {
+                        config.setProxyPort(Integer.valueOf(System.getProperty("http.proxyPort")));
+                    }
+                } catch (NumberFormatException e) {
+                    LOG.error("invalid proxy setup.");
+                }
+
+            }
+            if (StringUtils.isNotBlank(creds.getKeyId()) && StringUtils.isNotBlank(creds.getKey())) {
+                BasicAWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
+                this.s3Client = new AmazonS3Client(credentials, config);
+            } else {
+                this.s3Client = new AmazonS3Client(config);
+            }
         } catch (Exception ex) {
             LOG.error(ex.getMessage());
             throw new RuntimeException(ex);

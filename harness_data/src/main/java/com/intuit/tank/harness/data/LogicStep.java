@@ -16,6 +16,7 @@ package com.intuit.tank.harness.data;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -27,7 +28,7 @@ public class LogicStep extends TestStep implements FailableStep {
     @XmlAttribute
     private String name = "";
 
-    @XmlAttribute
+    @XmlElement
     private String script = "";
 
     @XmlAttribute

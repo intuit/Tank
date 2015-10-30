@@ -1,5 +1,7 @@
 package com.intuit.tank.runner.method;
 
+import static org.junit.Assert.assertNotNull;
+
 /*
  * #%L
  * Intuit Tank Agent (apiharness)
@@ -12,19 +14,14 @@ package com.intuit.tank.runner.method;
  * http://www.eclipse.org/legal/epl-v10.html
  * #L%
  */
-
-import org.junit.*;
-
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import com.intuit.tank.harness.data.ClearCookiesStep;
 import com.intuit.tank.harness.data.HDTestPlan;
-import com.intuit.tank.harness.data.TestStep;
 import com.intuit.tank.harness.test.data.Variables;
+import com.intuit.tank.runner.TestHttpClient;
 import com.intuit.tank.runner.TestPlanRunner;
 import com.intuit.tank.runner.TestStepContext;
-import com.intuit.tank.runner.method.SetCookieRunner;
-import com.intuit.tank.runner.method.TimerMap;
 
 /**
  * The class <code>SetCookieRunnerTest</code> contains tests for the class <code>{@link SetCookieRunner}</code>.
@@ -43,7 +40,7 @@ public class SetCookieRunnerTest {
     public void testSetCookieRunner_1()
             throws Exception {
         TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(),
-                new TestPlanRunner(new HDTestPlan(), 1));
+                new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient()));
 
         SetCookieRunner result = new SetCookieRunner(tsc);
 

@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -43,6 +41,7 @@ import com.intuit.tank.harness.test.RestartScriptException;
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.BaseResponse;
+import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.runner.method.TestStepRunner;
 import com.intuit.tank.runner.method.TimerMap;
@@ -60,7 +59,7 @@ public class TestPlanRunner implements Runnable {
     private String uniqueName;
     private HDTestPlan testPlan;
     private int threadNumber;
-    private HttpClient httpClient;
+    private TankHttpClient httpClient;
     private BaseRequest previousRequest = null;
     private BaseResponse previousResponse = null;
     private boolean finished = false;
@@ -77,6 +76,13 @@ public class TestPlanRunner implements Runnable {
         this.threadNumber = threadNumber;
         setHttpClient(initHttpClient());
     }
+    
+    public TestPlanRunner(HDTestPlan testPlan, int threadNumber, TankHttpClient client) {
+        headerMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
+        this.testPlan = testPlan;
+        this.threadNumber = threadNumber;
+        this.httpClient = client;
+    }
 
     /**
      * @return the headerMap
@@ -85,11 +91,11 @@ public class TestPlanRunner implements Runnable {
         return headerMap;
     }
 
-    public void setHttpClient(HttpClient httpClient) {
+    public void setHttpClient(TankHttpClient httpClient) {
         this.httpClient = httpClient;
     }
 
-    public HttpClient getHttpClient() {
+    public TankHttpClient getHttpClient() {
         return this.httpClient;
     }
 
@@ -392,20 +398,18 @@ public class TestPlanRunner implements Runnable {
         }
     }
 
-    public HttpClient initHttpClient() {
-        httpClient = new HttpClient();
-        httpClient.getParams().setCookiePolicy(
-                org.apache.commons.httpclient.cookie.CookiePolicy.BROWSER_COMPATIBILITY);
-        httpClient.getParams().setBooleanParameter("http.protocol.single-cookie-header", true);
-        httpClient.getParams().setBooleanParameter("http.protocol.allow-circular-redirects", true);
-        httpClient.getParams().setIntParameter("http.protocol.max-redirects", 100);
-        Long connectionTimeout = APITestHarness.getInstance().getTankConfig().getAgentConfig()
-                .getConnectionTimeout();
-        if (connectionTimeout != null) {
-            httpClient.getParams().setConnectionManagerTimeout(connectionTimeout);
+    public TankHttpClient initHttpClient() {
+        try {
+            //get the client from a factory and set it here.
+            TankHttpClient ret = (TankHttpClient) Class.forName(APITestHarness.getInstance().getTankHttpClientClass()).newInstance();
+            Long connectionTimeout = APITestHarness.getInstance().getTankConfig().getAgentConfig().getConnectionTimeout();
+            if (connectionTimeout != null) {
+                ret.setConnectionTimeout(connectionTimeout);
+            }
+            return ret;
+        } catch (Exception e) {
+            LOG.error("TankHttpClient specified incorrectly: " + e, e);
+            throw new RuntimeException(e);
         }
-        httpClient.setState(new HttpState());
-
-        return httpClient;
     }
 }

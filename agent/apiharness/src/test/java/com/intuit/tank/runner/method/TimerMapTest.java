@@ -1,5 +1,8 @@
 package com.intuit.tank.runner.method;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 /*
  * #%L
  * Intuit Tank Agent (apiharness)
@@ -12,13 +15,9 @@ package com.intuit.tank.runner.method;
  * http://www.eclipse.org/legal/epl-v10.html
  * #L%
  */
-
-import org.junit.*;
-
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import com.intuit.tank.results.TankResult;
-import com.intuit.tank.runner.method.TimerMap;
 
 /**
  * The class <code>TimerMapTest</code> contains tests for the class <code>{@link TimerMap}</code>.

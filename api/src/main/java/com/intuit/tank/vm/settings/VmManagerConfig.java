@@ -52,6 +52,7 @@ public class VmManagerConfig implements Serializable {
     private Map<CloudProvider, CloudCredentials> credentialsMap = new HashMap<CloudProvider, CloudCredentials>();
     private Map<VMRegion, Map<VMImageType, InstanceDescription>> regionMap = new HashMap<VMRegion, Map<VMImageType, InstanceDescription>>();
     private List<VmInstanceType> instanceTypes = new ArrayList<VmInstanceType>();
+    private List<InstanceTag> tagList = new ArrayList<InstanceTag>();
 
     /**
      * 
@@ -66,6 +67,16 @@ public class VmManagerConfig implements Serializable {
                 for (HierarchicalConfiguration credentialsConfig : creds) {
                     CloudCredentials cloudCredentials = new CloudCredentials(credentialsConfig);
                     credentialsMap.put(cloudCredentials.getType(), cloudCredentials);
+                }
+            }
+            
+            List<HierarchicalConfiguration> tags = config.configurationsAt("tags/tag");
+            if (tags != null) {
+                for (HierarchicalConfiguration tagsConfig : tags) {
+                    InstanceTag tag = new InstanceTag(tagsConfig.getString("@name"), tagsConfig.getString(""));
+                    if (tag.isValid()) {
+                        tagList.add(tag);
+                    }
                 }
             }
 
@@ -345,6 +356,10 @@ public class VmManagerConfig implements Serializable {
      */
     public Set<VMRegion> getRegions() {
         return regionMap.keySet();
+    }
+
+    public List<InstanceTag> getTags() {
+        return tagList;
     }
 
 }
