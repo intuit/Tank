@@ -29,7 +29,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.project.DataFile;
+import com.intuit.tank.storage.FileData;
+import com.intuit.tank.storage.FileStorage;
+import com.intuit.tank.storage.FileStorageFactory;
 import com.intuit.tank.util.DataFileUtil;
+import com.intuit.tank.vm.settings.TankConfig;
 
 /**
  * ProductDao
@@ -108,24 +112,11 @@ public class DataFileDao extends BaseDao<DataFile> {
      * @param fileName
      */
     private void storeFile(InputStream is, DataFile df) throws IOException, IllegalAccessException {
-        File parent = DataFileUtil.getParentDirectory(df.getId());
-        if (!parent.exists()) {
-            if (!parent.mkdirs()) {
-                throw new IllegalAccessException("Cannot create directory " + parent.getAbsolutePath());
-            }
-
-        }
+        FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getDataFileStorageDir(), false);
         String fileName = UUID.randomUUID().toString() + "_" + df.getPath();
-        File output = new File(parent, fileName);
-        FileOutputStream os = null;
-        LOG.debug("Storing DataFile content to " + output.getAbsolutePath());
-        try {
-            os = new FileOutputStream(output);
-            IOUtils.copy(is, os);
-        } finally {
-            IOUtils.closeQuietly(os);
-        }
         df.setFileName(fileName);
+        FileData fd = DataFileUtil.getFileData(df);
+        fileStorage.storeFileData(fd, is);
     }
 
 }

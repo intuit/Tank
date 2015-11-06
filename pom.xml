@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.intuit.tank</groupId>
@@ -27,11 +26,11 @@
     <cert.store.password>tanktank</cert.store.password>
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
-
+    <version.okhttp>2.5.0</version.okhttp>
 
     <version.hibernate>3.5.6-Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
-    <version-aws-sdk>1.9.24</version-aws-sdk>
+    <version-aws-sdk>1.10.20</version-aws-sdk>
     <tto.jar.version>1.2.0</tto.jar.version>
     <spring.version>2.5.6</spring.version>
 
@@ -51,6 +50,7 @@
     <version.jersey>1.4</version.jersey>
     <version.arquillian>1.1.5.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0.CR7</version.arquillian.tomcat>
+    <version.httpclient>4.5</version.httpclient>
   </properties>
 
 
@@ -583,12 +583,6 @@
         <version>${version.seam}</version>
       </dependency>
 
-      <!-- <dependency>
-        <groupId>org.owasp</groupId>
-        <artifactId>proxy</artifactId>
-        <version>1.1-SNAPSHOT</version>
-      </dependency> -->
-
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
@@ -676,12 +670,19 @@
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpcomponents-core</artifactId>
-        <version>4.2.5</version>
+        <version>${version.httpclient}</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpmime</artifactId>
+        <version>${version.httpclient}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
-        <version>4.2.5</version>
+        <version>${version.httpclient}</version>
       </dependency>
 
 
@@ -863,8 +864,7 @@
         <!-- <version>1.1.9</version> -->
         <version>${version-aws-sdk}</version>
       </dependency>
-      <!-- <dependency> <groupId>wsdl4j</groupId> <artifactId>wsdl4j</artifactId> 
-        <version>1.6.2-fixed</version> </dependency> -->
+      <!-- <dependency> <groupId>wsdl4j</groupId> <artifactId>wsdl4j</artifactId> <version>1.6.2-fixed</version> </dependency> -->
       <dependency>
         <groupId>commons-discovery</groupId>
         <artifactId>commons-discovery</artifactId>
@@ -873,7 +873,12 @@
       <dependency>
         <groupId>commons-httpclient</groupId>
         <artifactId>commons-httpclient</artifactId>
-        <version>3.1</version>
+        <version>3.0.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.squareup.okhttp</groupId>
+        <artifactId>okhttp</artifactId>
+        <version>${version.okhttp}</version>
       </dependency>
       <dependency>
         <groupId>org.json</groupId>
@@ -1179,9 +1184,7 @@
           <artifactId>findbugs-maven-plugin</artifactId>
           <version>2.5.2</version>
           <configuration>
-            <!-- Enables analysis which takes more memory but finds more 
-              bugs. If you run out of memory, changes the value of the effort element to 
-              'Low'. -->
+            <!-- Enables analysis which takes more memory but finds more bugs. If you run out of memory, changes the value of the effort element to 'Low'. -->
             <effort>Max</effort>
             <!-- Build doesn't fail if problems are found -->
             <failOnError>false</failOnError>
@@ -1193,8 +1196,7 @@
             <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
           </configuration>
           <executions>
-            <!-- Ensures that FindBugs inspects source code when project 
-              is compiled. -->
+            <!-- Ensures that FindBugs inspects source code when project is compiled. -->
             <execution>
               <id>analyze-compile</id>
               <phase>compile</phase>

@@ -71,7 +71,14 @@ public class HeaderParser {
                 list = new ArrayList<String>();
                 headerMap.put(header.getKey().toLowerCase(), list);
             }
-            list.add(header.getValue());
+            String value = header.getValue();
+            if (this.headerType == HeaderType.Request && header.getKey().equalsIgnoreCase("Authorization")) {
+                int index = value.indexOf(':');
+                if (index != -1) {
+                    value = value.substring(0, index) + " tank removed auth info";
+                }
+            }
+            list.add(value);
         }
     }
 

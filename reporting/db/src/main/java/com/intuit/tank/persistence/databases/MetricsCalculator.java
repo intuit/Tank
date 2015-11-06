@@ -17,8 +17,10 @@ package com.intuit.tank.persistence.databases;
  */
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Date;
@@ -32,16 +34,19 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
-import au.com.bytecode.opencsv.CSVWriter;
-
 import com.intuit.tank.reporting.api.PagedTimingResults;
 import com.intuit.tank.reporting.api.ResultsReader;
 import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.results.TankResult;
+import com.intuit.tank.storage.FileData;
+import com.intuit.tank.storage.FileStorage;
+import com.intuit.tank.storage.FileStorageFactory;
 import com.intuit.tank.vm.common.util.MethodTimer;
 import com.intuit.tank.vm.common.util.ReportUtil;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.settings.TimeUtil;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 /**
  * MetricsCalculator
@@ -76,12 +81,12 @@ public class MetricsCalculator {
         int period = 15;
         Writer csvFile = null;
         CSVWriter csvWriter = null;
+        InputStream is = null;
         try {
             ResultsReader resultsReader = ReportingFactory.getResultsReader();
-            File parentFile = new File(new TankConfig().getTimingDir());
-            parentFile.mkdirs();
-            csvFile = new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(new File(parentFile,
-                    "timing_" + new TankConfig().getInstanceName() + "_" + jobId + ".csv.gz"))));
+            String fileName = "timing_" + new TankConfig().getInstanceName() + "_" + jobId + ".csv.gz";
+            File f = File.createTempFile("timing", ".csv.gz");
+            csvFile = new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(f)));
             csvWriter = new CSVWriter(csvFile);
             int count = 0;
             Object nextToken = null;
@@ -115,6 +120,13 @@ public class MetricsCalculator {
                 nextToken = results.getNextToken();
             } while (nextToken != null);
             csvWriter.flush();
+            csvWriter.close();
+            csvWriter = null;
+            IOUtils.closeQuietly(csvFile);
+            FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getTimingDir(), false);
+            FileData fd = new FileData("",fileName);
+            is = new FileInputStream(f);
+            fileStorage.storeFileData(fd, is);
             mt.endAndLog();
             LOG.info("Processed " + count + " total items for job " + jobId);
         } catch (Exception e) {
@@ -132,6 +144,7 @@ public class MetricsCalculator {
                 }
             }
             IOUtils.closeQuietly(csvFile);
+            IOUtils.closeQuietly(is);
         }
     }
 

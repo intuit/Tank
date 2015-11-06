@@ -24,6 +24,8 @@ import java.util.TimeZone;
 import junit.framework.Assert;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -45,6 +47,7 @@ public class JobInstanceDaoTest {
     @BeforeClass
     public void setUp() {
         BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.INFO);
         dao = new JobInstanceDao();
         insertData();
     }

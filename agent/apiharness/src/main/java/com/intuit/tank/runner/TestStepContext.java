@@ -18,12 +18,11 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.httpclient.HttpClient;
-
 import com.intuit.tank.harness.data.TestStep;
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.BaseResponse;
+import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.runner.method.TimerMap;
 
 public class TestStepContext {
@@ -32,7 +31,7 @@ public class TestStepContext {
     private Variables variables;
     private String testPlanName;
     private String uniqueName;
-    private HttpClient httpClient;
+    private TankHttpClient httpClient;
     private TimerMap timerMap;
     private TestPlanRunner parent;
     private BaseRequest request;
@@ -159,7 +158,7 @@ public class TestStepContext {
     /**
      * @return the httpClient
      */
-    public HttpClient getHttpClient() {
+    public TankHttpClient getHttpClient() {
         return httpClient;
     }
 
@@ -167,7 +166,7 @@ public class TestStepContext {
      * @param httpClient
      *            the httpClient to set
      */
-    public void setHttpClient(HttpClient httpClient) {
+    public void setHttpClient(TankHttpClient httpClient) {
         this.httpClient = httpClient;
     }
 

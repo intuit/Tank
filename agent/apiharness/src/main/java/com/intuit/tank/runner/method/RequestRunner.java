@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
@@ -69,8 +68,6 @@ public class RequestRunner implements Runner {
     private String respFormat;
     private TestStepContext tsc;
 
-    private HttpClient httpClient;
-
     private HDResponse response;
 
     /**
@@ -82,8 +79,6 @@ public class RequestRunner implements Runner {
         testStep = (RequestStep) context.getTestStep();
         response = testStep.getResponse();
         uniqueName = context.getUniqueName();
-        httpClient = context.getHttpClient();
-
         initialize();
     }
 
@@ -112,7 +107,8 @@ public class RequestRunner implements Runner {
                         proxyPort = NumberUtils.toInt(proxyInfo[1]);
                     }
                     String proxyHost = proxyInfo[0];
-                    httpClient.getHostConfiguration().setProxy(proxyHost, proxyPort);
+                    tsc.getHttpClient().setProxy(proxyHost, proxyPort);
+                    
                 }
             } catch (Exception e) {
                 LOG.error("Error setting proxy " + proxy + ": " + e, e);
@@ -132,7 +128,7 @@ public class RequestRunner implements Runner {
 
         respFormat = StringUtils.isEmpty(response.getRespFormat()) ? "json" : response.getRespFormat();
 
-        baseRequest = HttpRequestFactory.getHttpRequest(reqFormat, httpClient);
+        baseRequest = HttpRequestFactory.getHttpRequest(reqFormat, tsc.getHttpClient());
         baseRequest.setHost(host);
         baseRequest.setProtocol(protocol);
         baseRequest.setPort(port);
@@ -150,8 +146,8 @@ public class RequestRunner implements Runner {
             baseRequest.setBody(variables.evaluate(payload));
         }
         LogUtil.getLogEvent().setRequest(baseRequest);
-        //unset proxy
-        httpClient.getHostConfiguration().setProxyHost(null);
+        //unset proxy TODO: add proxy and noproxy requ3est objects
+        tsc.getHttpClient().setProxy(null, -1);
     }
 
     /*

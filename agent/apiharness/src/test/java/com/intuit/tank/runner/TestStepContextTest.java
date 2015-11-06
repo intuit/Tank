@@ -1,5 +1,7 @@
 package com.intuit.tank.runner;
 
+import static org.junit.Assert.assertNotNull;
+
 /*
  * #%L
  * Intuit Tank Agent (apiharness)
@@ -15,10 +17,7 @@ package com.intuit.tank.runner;
 
 import java.util.List;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.junit.*;
-
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import com.intuit.tank.harness.data.ClearCookiesStep;
 import com.intuit.tank.harness.data.HDTestPlan;
@@ -29,9 +28,6 @@ import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.http.binary.BinaryRequest;
 import com.intuit.tank.http.binary.BinaryResponse;
-import com.intuit.tank.runner.ErrorContainer;
-import com.intuit.tank.runner.TestPlanRunner;
-import com.intuit.tank.runner.TestStepContext;
 import com.intuit.tank.runner.method.TimerMap;
 
 /**
@@ -55,8 +51,8 @@ public class TestStepContextTest {
         String testPlanName = "";
         String uniqueName = "";
         TimerMap timerMap = new TimerMap();
-        TestPlanRunner parent = new TestPlanRunner(new HDTestPlan(), 1);
-        parent.setHttpClient(new HttpClient());
+        TestPlanRunner parent = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        parent.setHttpClient(null);
 
         TestStepContext result = new TestStepContext(testStep, variables, testPlanName, uniqueName, timerMap, parent);
 
@@ -77,11 +73,11 @@ public class TestStepContextTest {
     @Test
     public void testAddError_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -103,11 +99,11 @@ public class TestStepContextTest {
     @Test
     public void testGetErrors_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -119,31 +115,7 @@ public class TestStepContextTest {
         assertNotNull(result);
     }
 
-    /**
-     * Run the HttpClient getHttpClient() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 5:53 PM
-     */
-    @Test
-    public void testGetHttpClient_1()
-        throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
-        TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
-        fixture.setResult("");
-        fixture.setResponse(new BinaryResponse());
-        fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
 
-        HttpClient result = fixture.getHttpClient();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.runner.TestPlanRunner
-        assertNotNull(result);
-    }
 
     /**
      * Run the TestPlanRunner getParent() method test.
@@ -155,11 +127,11 @@ public class TestStepContextTest {
     @Test
     public void testGetParent_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -181,11 +153,11 @@ public class TestStepContextTest {
     @Test
     public void testGetRequest_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -207,11 +179,11 @@ public class TestStepContextTest {
     @Test
     public void testGetResponse_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -233,11 +205,11 @@ public class TestStepContextTest {
     @Test
     public void testGetResult_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -259,11 +231,11 @@ public class TestStepContextTest {
     @Test
     public void testGetTestPlanName_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -285,11 +257,11 @@ public class TestStepContextTest {
     @Test
     public void testGetTestStep_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -311,11 +283,11 @@ public class TestStepContextTest {
     @Test
     public void testGetTimerMap_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -337,11 +309,11 @@ public class TestStepContextTest {
     @Test
     public void testGetUniqueName_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -363,11 +335,11 @@ public class TestStepContextTest {
     @Test
     public void testGetVariables_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -379,31 +351,6 @@ public class TestStepContextTest {
         assertNotNull(result);
     }
 
-    /**
-     * Run the void setHttpClient(HttpClient) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 5:53 PM
-     */
-    @Test
-    public void testSetHttpClient_1()
-        throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
-        TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
-        fixture.setResult("");
-        fixture.setResponse(new BinaryResponse());
-        fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
-        HttpClient httpClient = new HttpClient();
-
-        fixture.setHttpClient(httpClient);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.runner.TestPlanRunner
-    }
 
     /**
      * Run the void setRequest(BaseRequest) method test.
@@ -415,15 +362,15 @@ public class TestStepContextTest {
     @Test
     public void testSetRequest_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
-        BaseRequest request = new BinaryRequest(new HttpClient());
+        BaseRequest request = new BinaryRequest(null, null);
 
         fixture.setRequest(request);
 
@@ -441,11 +388,11 @@ public class TestStepContextTest {
     @Test
     public void testSetResponse_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -467,11 +414,11 @@ public class TestStepContextTest {
     @Test
     public void testSetResult_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -493,11 +440,11 @@ public class TestStepContextTest {
     @Test
     public void testSetTestPlanName_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -519,11 +466,11 @@ public class TestStepContextTest {
     @Test
     public void testSetTestStep_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));
@@ -545,11 +492,11 @@ public class TestStepContextTest {
     @Test
     public void testSetVariables_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1);
-        testPlanRunner.setHttpClient(new HttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
-        fixture.setRequest(new BinaryRequest(new HttpClient()));
-        fixture.setHttpClient(new HttpClient());
+        fixture.setRequest(new BinaryRequest(null, null));
+        fixture.setHttpClient(null);
         fixture.setResult("");
         fixture.setResponse(new BinaryResponse());
         fixture.addError(new ErrorContainer("", new ValidationData(), new ValidationData(), ""));

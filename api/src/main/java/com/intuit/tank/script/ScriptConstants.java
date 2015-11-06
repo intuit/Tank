@@ -27,9 +27,20 @@ public class ScriptConstants {
     public static final String LOGGING_KEY = "logging-key";
     public static final String MAX_TIME = "maxTime";
     public static final String MIN_TIME = "minTime";
+    
+    public static final String AUTH_USER_NAME = "userName";
+    public static final String AUTH_PASSWORD = "password";
+    public static final String AUTH_REALM = "realm";
+    public static final String AUTH_SCHEME = "scheme";
+    public static final String AUTH_HOST = "host";
+    public static final String AUTH_PORT = "port";
+    
+    
+    
     public static final String REQUEST = "request";
     public static final String COOKIE = "cookie";
     public static final String VARIABLE = "variable";
+    public static final String AUTHENTICATION = "authentication";
     public static final String CLEAR = "clear";
     public static final String SLEEP = "sleep";
     public static final String THINK_TIME = "thinkTime";

@@ -14,6 +14,8 @@ package com.intuit.tank.harness.functions;
  */
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -29,6 +31,7 @@ public class GenericFunctionsNGTest {
     @BeforeClass
     public void setUp() {
         BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.INFO);
         variables = new Variables();
     }
 

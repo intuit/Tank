@@ -55,7 +55,7 @@ public abstract class BaseCommonsXmlConfig implements Serializable {
             FileChangedReloadingStrategy reloadingStrategy = new FileChangedReloadingStrategy();
 
             File dataDirConfigFile = new File(configPath);
-
+//            LOG.info("Reading settings from " + dataDirConfigFile.getAbsolutePath());
             if (!dataDirConfigFile.exists()) {
                 // Load a default from the classpath:
                 // Note: we don't let new XMLConfiguration() lookup the resource
@@ -74,6 +74,7 @@ public abstract class BaseCommonsXmlConfig implements Serializable {
                     throw new RuntimeException("could not create directories.");
                 }
                 tmpConfig.save(dataDirConfigFile);
+                LOG.info("Saving settings file to " + dataDirConfigFile.getAbsolutePath());
             }
 
             if (dataDirConfigFile.exists()) {
@@ -90,6 +91,7 @@ public abstract class BaseCommonsXmlConfig implements Serializable {
             config.setReloadingStrategy(reloadingStrategy);
             initConfig(config);
         } catch (ConfigurationException e) {
+            LOG.error("Error reading settings file: " + e, e);
             throw new RuntimeException(e);
         }
     }

@@ -73,7 +73,6 @@ import com.intuit.tank.api.model.v1.project.KeyPair;
 import com.intuit.tank.api.model.v1.project.ProjectTO;
 import com.intuit.tank.client.v1.datafile.DataFileClient;
 import com.intuit.tank.harness.APITestHarness;
-import com.intuit.tank.harness.AgentUtil;
 import com.intuit.tank.harness.TestPlanSingleton;
 import com.intuit.tank.harness.data.HDScript;
 import com.intuit.tank.harness.data.HDScriptGroup;
@@ -112,6 +111,7 @@ public class AgentDebuggerFrame extends JFrame {
     private HDWorkload currentWorkload;
     private HDTestPlan currentTestPlan;
     private JComboBox testPlanChooser;
+    private JComboBox<TankClientChoice> tankClientChooser;
     private List<StepListener> stepChangedListeners = new ArrayList<StepListener>();
     private List<ScriptChangedListener> scriptChangedListeners = new ArrayList<ScriptChangedListener>();
     private Map<String, String> projectVariables = new HashMap<String, String>();
@@ -143,7 +143,6 @@ public class AgentDebuggerFrame extends JFrame {
     public AgentDebuggerFrame(final boolean isStandalone, String serviceUrl) throws HeadlessException {
         super("Intuit Tank Agent Debugger");
         workingDir = PanelBuilder.createWorkingDir(this, serviceUrl);
-        AgentUtil.setTrustCerts();
         setSize(new Dimension(1024, 800));
         setBounds(new Rectangle(getSize()));
         setPreferredSize(getSize());
@@ -179,7 +178,10 @@ public class AgentDebuggerFrame extends JFrame {
             }
         });
 
-        actionComponents = new ActionComponents(standalone, testPlanChooser, debuggerActions);
+        tankClientChooser = new JComboBox<TankClientChoice>();
+        debuggerActions.setChoiceComboBoxOptions(tankClientChooser);
+
+        actionComponents = new ActionComponents(standalone, testPlanChooser, tankClientChooser, debuggerActions);
         addScriptChangedListener(actionComponents);
         setJMenuBar(actionComponents.getMenuBar());
 
@@ -218,8 +220,7 @@ public class AgentDebuggerFrame extends JFrame {
                                 int line = scriptEditorTA.getLineOfOffset(offset);
                                 scriptEditorTA.setCurrentLine(line);
                             }
-                            popup.show(e.getComponent(),
-                                    e.getX(), e.getY());
+                            popup.show(e.getComponent(), e.getX(), e.getY());
                         }
                     } catch (BadLocationException e1) {
                         e1.printStackTrace();
@@ -234,8 +235,7 @@ public class AgentDebuggerFrame extends JFrame {
                         multiSelectEnd = end;
                         try {
                             scriptEditorTA.setEnabled(true);
-                            scriptEditorTA.select(scriptEditorTA.getLineStartOffset(start),
-                                    scriptEditorTA.getLineEndOffset(end));
+                            scriptEditorTA.select(scriptEditorTA.getLineStartOffset(start), scriptEditorTA.getLineEndOffset(end));
                             scriptEditorTA.setEnabled(false);
                         } catch (BadLocationException e1) {
                             e1.printStackTrace();
@@ -250,8 +250,7 @@ public class AgentDebuggerFrame extends JFrame {
             }
 
             private int getHash(MouseEvent e) {
-                return new HashCodeBuilder().append(e.getButton()).append(e.getSource().hashCode())
-                        .append(e.getPoint()).toHashCode();
+                return new HashCodeBuilder().append(e.getButton()).append(e.getSource().hashCode()).append(e.getPoint()).toHashCode();
             }
 
         });
@@ -286,6 +285,13 @@ public class AgentDebuggerFrame extends JFrame {
 
     public ActionProducer getDebuggerActions() {
         return debuggerActions;
+    }
+
+    /**
+     * @return the tankClientChooser
+     */
+    public JComboBox<TankClientChoice> getTankClientChooser() {
+        return tankClientChooser;
     }
 
     private void handleKeyEvent(KeyEvent event) {
@@ -455,9 +461,8 @@ public class AgentDebuggerFrame extends JFrame {
         boolean ret = false;
         try {
             TestStep unmarshalledStep = JaxbUtil.unmarshall(stepXML, TestStep.class);
-            scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(
-                    scriptEditorTA.getLineStartOffset(unmarshalledStep.getStepIndex()), modifiedIcon);
-            
+            scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(scriptEditorTA.getLineStartOffset(unmarshalledStep.getStepIndex()), modifiedIcon);
+
             DebugStep debugStep = steps.get(unmarshalledStep.getStepIndex());
             debugStep.setStepRun(unmarshalledStep);
             if (currentTestPlan != null) {
@@ -491,8 +496,7 @@ public class AgentDebuggerFrame extends JFrame {
         if (testStep instanceof RequestStep) {
             StringBuilder label = new StringBuilder();
             RequestStep step = (RequestStep) testStep;
-            label.append(step.getRequest().getProtocol()).append("://").append(step.getRequest().getHost())
-                    .append(step.getRequest().getPath());
+            label.append(step.getRequest().getProtocol()).append("://").append(step.getRequest().getHost()).append(step.getRequest().getPath());
 
             int qsCount = 0;
             if (step.getRequest().getQueryString() != null) {
@@ -538,8 +542,7 @@ public class AgentDebuggerFrame extends JFrame {
         setCurrentTestPlan(null);
         this.currentWorkload = currentWorkload;
         if (currentWorkload != null) {
-            DefaultComboBoxModel model = new DefaultComboBoxModel(currentWorkload.getPlans().toArray(
-                    new HDTestPlan[currentWorkload.getPlans().size()]));
+            DefaultComboBoxModel model = new DefaultComboBoxModel(currentWorkload.getPlans().toArray(new HDTestPlan[currentWorkload.getPlans().size()]));
             if (currentWorkload.getPlans().size() > 0) {
                 setCurrentTestPlan(currentWorkload.getPlans().get(0));
                 model.setSelectedItem(currentTestPlan);
@@ -633,8 +636,7 @@ public class AgentDebuggerFrame extends JFrame {
         scriptEditorTA.setText(sb.toString());
         for (IconContainer ic : icons) {
             try {
-                scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(
-                        scriptEditorTA.getLineStartOffset(ic.getLine()), ic.getIcon());
+                scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(scriptEditorTA.getLineStartOffset(ic.getLine()), ic.getIcon());
             } catch (BadLocationException e) {
                 e.printStackTrace();
             }
@@ -805,6 +807,8 @@ public class AgentDebuggerFrame extends JFrame {
         APITestHarness.destroyCurrentInstance();
         harness = APITestHarness.getInstance();
         harness.setFlowControllerTemplate(flowController);
+        TankClientChoice choice = (TankClientChoice) tankClientChooser.getSelectedItem();
+        harness.setTankHttpClientClass(choice.getClientClass());
         harness.getAgentRunData().setActiveProfile(LoggingProfile.VERBOSE);
         harness.getAgentRunData().setInstanceId("DebuggerInstance");
         harness.getAgentRunData().setMachineName("debugger");
@@ -843,8 +847,7 @@ public class AgentDebuggerFrame extends JFrame {
             fos = new FileOutputStream(dataFile);
             IOUtils.copy(is, fos);
             IOUtils.closeQuietly(fos);
-            if (isDefault
-                    && !dataFileDescriptor.getName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
+            if (isDefault && !dataFileDescriptor.getName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
                 File defaultFile = new File(workingDir, TankConstants.DEFAULT_CSV_FILE_NAME);
                 FileUtils.copyFile(dataFile, defaultFile);
             }
@@ -904,10 +907,10 @@ public class AgentDebuggerFrame extends JFrame {
                     }
                     try {
                         if (context.getResponse() != null && (context.getResponse().getHttpCode() >= 400 || context.getResponse().getHttpCode() == -1)) {
-                            //highlight the line
+                            // highlight the line
                             int lineStartOffset = scriptEditorTA.getLineStartOffset(currentRunningStep);
                             int lineEndOffset = scriptEditorTA.getLineEndOffset(currentRunningStep);
-                            
+
                             scriptEditorTA.getHighlighter().addHighlight(lineStartOffset, lineEndOffset, new SquiggleUnderlineHighlightPainter(Color.RED));
                         }
                     } catch (BadLocationException e1) {
@@ -916,8 +919,7 @@ public class AgentDebuggerFrame extends JFrame {
                     if (!context.getErrors().isEmpty()) {
                         try {
                             debugStep.setErrors(context.getErrors());
-                            scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(
-                                    scriptEditorTA.getLineStartOffset(currentRunningStep), errorIcon);
+                            scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(scriptEditorTA.getLineStartOffset(currentRunningStep), errorIcon);
                         } catch (BadLocationException e) {
                             e.printStackTrace();
                         }
@@ -1025,8 +1027,7 @@ public class AgentDebuggerFrame extends JFrame {
                     scriptEditorScrollPane.getGutter().removeTrackingIcon(info);
                 }
             }
-            scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(
-                    scriptEditorTA.getLineStartOffset(currentRunningStep + 1), skippedIcon);
+            scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(scriptEditorTA.getLineStartOffset(currentRunningStep + 1), skippedIcon);
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
@@ -1069,8 +1070,7 @@ public class AgentDebuggerFrame extends JFrame {
                 }
             }
             if (!found) {
-                scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(
-                        scriptEditorTA.getLineStartOffset(line), skippedIcon);
+                scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(scriptEditorTA.getLineStartOffset(line), skippedIcon);
             }
             if (flowController != null) {
                 if (flowController.getSkipList().contains(line)) {

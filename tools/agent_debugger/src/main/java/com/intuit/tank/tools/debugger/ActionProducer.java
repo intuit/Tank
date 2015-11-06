@@ -48,6 +48,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
+import com.intuit.tank.AgentServiceClient;
+import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinition;
+import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptor;
 import com.intuit.tank.api.model.v1.project.ProjectTO;
 import com.intuit.tank.api.model.v1.script.ScriptDescription;
@@ -86,6 +89,7 @@ public class ActionProducer {
     private static final String SAVE_OUTPUT_DEFAULT_FILE = "debuggerOutput.txt";
     private static final String SAVE_LOG_DEFAULT_FILE = "debuggerLog.txt";
     private static final String ACTION_CLEAR_LOG = "Clear Log Output";
+    private static final String ACTION_SELECT_CLIENT = "Select Client...";
 
     private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ActionProducer.class);
 
@@ -94,6 +98,7 @@ public class ActionProducer {
     private int menuActionMods = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     private JFileChooser jFileChooser = null;
     private ScriptServiceClient scriptServiceClient;
+    private AgentServiceClient agentServiceClient;
     private ProjectServiceClientV1 projectServiceClient;
     private DataFileClient dataFileClient;
 
@@ -107,6 +112,7 @@ public class ActionProducer {
         this.debuggerFrame = debuggerFrame;
         this.scriptServiceClient = new ScriptServiceClient(serviceUrl);
         this.projectServiceClient = new ProjectServiceClientV1(serviceUrl);
+        this.agentServiceClient = new AgentServiceClient(serviceUrl);
         this.dataFileClient = new DataFileClient(serviceUrl);
 
         jFileChooser = new JFileChooser();
@@ -153,7 +159,9 @@ public class ActionProducer {
         this.scriptServiceClient = new ScriptServiceClient(serviceUrl);
         this.projectServiceClient = new ProjectServiceClientV1(serviceUrl);
         this.dataFileClient = new DataFileClient(serviceUrl);
+        this.agentServiceClient = new AgentServiceClient(serviceUrl);
         PanelBuilder.updateServiceUrl(serviceUrl);
+        setChoiceComboBoxOptions(debuggerFrame.getTankClientChooser());
     }
 
     /**
@@ -409,6 +417,26 @@ public class ActionProducer {
             actionMap.put(ACTION_SELECT_TANK, ret);
         }
         return ret;
+    }
+   
+    
+    public void setChoiceComboBoxOptions(JComboBox<TankClientChoice> cb) {
+        cb.removeAllItems();
+        try {
+            TankHttpClientDefinitionContainer clientDefinitions = agentServiceClient.getClientDefinitions();
+            for(TankHttpClientDefinition def : clientDefinitions.getDefinitions()) {
+                TankClientChoice c = new TankClientChoice(def.getName(), def.getClassName());
+                cb.addItem(c);
+                if (def.getClassName().equals(clientDefinitions.getDefaultDefinition())) {
+                    cb.setSelectedItem(c);
+                }
+            }
+        } catch (Exception e) {
+//            set to default
+            cb.addItem(new TankClientChoice("Apache HttpClient 3.1", "com.intuit.tank.httpclient3.TankHttpClient3"));
+            cb.addItem(new TankClientChoice("Apache HttpClient 4.5", "com.intuit.tank.httpclient4.TankHttpClient4"));
+            cb.setSelectedIndex(1);
+        }
     }
 
     private static JComboBox getComboBox() {

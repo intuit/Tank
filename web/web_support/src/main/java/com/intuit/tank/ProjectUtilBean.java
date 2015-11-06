@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.enterprise.context.SessionScoped;
 import javax.faces.model.SelectItem;
@@ -52,6 +53,7 @@ public class ProjectUtilBean implements Serializable {
     private SelectItem[] loggingProfiles;
     private SelectItem[] stopBehaviors;
     private SelectItem[] vmInstanceTypes;
+    private SelectItem[] tankClientTypes;
 
     /**
      * 
@@ -96,7 +98,29 @@ public class ProjectUtilBean implements Serializable {
             VmInstanceType type = instanceTypes.get(i);
             vmInstanceTypes[i] = new SelectItem(type.getName(), type.getName(), type.getDisplay());
         }
+
+        Map<String, String> tankClientMap = new TankConfig().getAgentConfig().getTankClientMap();
+        tankClientTypes = new SelectItem[tankClientMap.size()];
+        List<String> tcl = new ArrayList<String>(tankClientMap.keySet());
+        Collections.sort(tcl);
+        for (int i = 0; i < tcl.size(); i++) {
+            String key = tcl.get(i);
+            String className = tankClientMap.get(key);
+            tankClientTypes[i] = new SelectItem(className, key, key);
+        }
+        
     }
+    
+    
+
+    /**
+     * @return the tankClientTypes
+     */
+    public SelectItem[] getTankClientTypes() {
+        return tankClientTypes;
+    }
+
+
 
     public SelectItem[] getLoggingProfiles() {
         return loggingProfiles;

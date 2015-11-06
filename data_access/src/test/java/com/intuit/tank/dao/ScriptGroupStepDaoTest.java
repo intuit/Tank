@@ -19,6 +19,8 @@ package com.intuit.tank.dao;
 import java.util.List;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,6 +41,7 @@ public class ScriptGroupStepDaoTest {
     @BeforeClass
     public void configure() {
         BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.INFO);
         dao = new ScriptGroupStepDao();
     }
 

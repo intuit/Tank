@@ -22,6 +22,8 @@ import java.util.List;
 import javax.validation.ConstraintViolationException;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.dialect.MySQL5Dialect;
 import org.junit.Assert;
@@ -82,6 +84,7 @@ public class ProjectDaoTest {
     @BeforeClass
     public void configure() {
         BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.INFO);
         dao = new ProjectDao();
     }
 
