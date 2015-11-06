@@ -1,5 +1,6 @@
 .DS_Store
 .classpath
+.metadata
 .clover
 .project
 .settings
