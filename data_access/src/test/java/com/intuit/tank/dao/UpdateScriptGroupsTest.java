@@ -53,7 +53,7 @@ public class UpdateScriptGroupsTest {
 
     @BeforeClass
     public void configure() {
-        BasicConfigurator.configure();
+        //BasicConfigurator.configure();
         dao = new ScriptGroupDao();
         workloadDao = new WorkloadDao();
     }

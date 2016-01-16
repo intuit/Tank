@@ -81,7 +81,7 @@ public class ProjectDaoTest {
 
     @BeforeClass
     public void configure() {
-        BasicConfigurator.configure();
+        //BasicConfigurator.configure();
         dao = new ProjectDao();
     }
 

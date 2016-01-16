@@ -44,7 +44,7 @@ public class JobInstanceDaoTest {
 
     @BeforeClass
     public void setUp() {
-        BasicConfigurator.configure();
+        //BasicConfigurator.configure();
         dao = new JobInstanceDao();
         insertData();
     }

@@ -66,7 +66,7 @@ public class ScriptDaoTest {
 
     @BeforeClass
     public void configure() {
-        BasicConfigurator.configure();
+        //BasicConfigurator.configure();
         dao = new ScriptDao();
     }
 

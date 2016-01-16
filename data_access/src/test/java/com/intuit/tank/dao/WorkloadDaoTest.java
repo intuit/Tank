@@ -56,7 +56,7 @@ public class WorkloadDaoTest {
 
     @BeforeClass
     public void configure() {
-        BasicConfigurator.configure();
+        //BasicConfigurator.configure();
         dao = new WorkloadDao();
     }
 

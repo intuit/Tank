@@ -38,7 +38,7 @@ public class ScriptGroupStepDaoTest {
 
     @BeforeClass
     public void configure() {
-        BasicConfigurator.configure();
+        //BasicConfigurator.configure();
         dao = new ScriptGroupStepDao();
     }
 
