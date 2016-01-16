@@ -13,6 +13,10 @@ package com.intuit.tank.harness.test.data;
  * #L%
  */
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
@@ -34,7 +38,7 @@ public class VariablesTest {
     @DataProvider(name = "validations")
     private Object[][] matching() {
         return new Object[][] {
-                { "Hello #{name}, I want you to meet #{other}. ${string.concat('She ', 'is ', adjective, '.')}",
+                { "Hello #{name}, I want you to meet #{other}. #{string.concat('She ', 'is ', adjective, '.')}", //${string.
                         "Hello Denis Angleton, I want you to meet Sue King. She is cool." },
                 { "No Replacements", "No Replacements" },
                 { "#{bogus_name}", "" },
@@ -82,5 +86,34 @@ public class VariablesTest {
 
     public static String concat(String... s) {
         return StringUtils.join(s);
+    }
+    
+    
+    @Test(groups = TestGroups.FUNCTIONAL)
+    public void testSetJson() throws IOException{
+    	
+    	String json = readFile("src/test/resources/json-response.json");
+    	
+    	Variables variables = new Variables();
+    	variables.addVariable("RESPONSE_BODY", json);
+    }
+    
+    
+    private String readFile( String file ) throws IOException {
+        BufferedReader reader = new BufferedReader( new FileReader (file));
+        String         line = null;
+        StringBuilder  stringBuilder = new StringBuilder();
+        String         ls = System.getProperty("line.separator");
+
+        try {
+            while( ( line = reader.readLine() ) != null ) {
+                stringBuilder.append( line );
+                stringBuilder.append( ls );
+            }
+
+            return stringBuilder.toString();
+        } finally {
+            reader.close();
+        }
     }
 }
