@@ -28,16 +28,16 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
     <version.okhttp>2.5.0</version.okhttp>
 
-    <version.hibernate>3.5.6-Final</version.hibernate>
+    <version.hibernate>4.1.0.Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
     <version-aws-sdk>1.10.20</version-aws-sdk>
     <tto.jar.version>1.2.0</tto.jar.version>
     <spring.version>2.5.6</spring.version>
 
-    <weld-version>1.1.1.Final</weld-version>
+    <weld-version>1.1.32.Final</weld-version>
     <cdi-version>1.0-SP4</cdi-version>
     <version.seam>3.0.0.Final</version.seam>
-    <slf.version>1.5.10</slf.version>
+    <slf.version>1.7.2</slf.version>
 
     <version.enunciate>1.30</version.enunciate>
 
@@ -591,12 +591,6 @@
 
       <dependency>
         <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-annotations</artifactId>
-        <version>${version.hibernate}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.hibernate</groupId>
         <artifactId>hibernate-c3p0</artifactId>
         <version>${version.hibernate}</version>
       </dependency>
@@ -852,6 +846,7 @@
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
         <version>2.4.0</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -919,22 +914,6 @@
         <groupId>javax.activation</groupId>
         <artifactId>activation</artifactId>
         <version>1.1</version>
-      </dependency>
-      <!-- Oracle jars -->
-      <dependency>
-        <groupId>oracle-jdbc</groupId>
-        <artifactId>ojdbc</artifactId>
-        <version>14</version>
-      </dependency>
-      <dependency>
-        <groupId>oracle-jdbc</groupId>
-        <artifactId>ons</artifactId>
-        <version>1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql-connector-java</artifactId>
-        <version>5.1.16</version>
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>

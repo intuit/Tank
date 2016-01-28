@@ -35,7 +35,7 @@ import javax.validation.ConstraintViolationException;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.LockOptions;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 
