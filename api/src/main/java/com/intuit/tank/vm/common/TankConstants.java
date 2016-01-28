@@ -106,7 +106,7 @@ public class TankConstants {
     public static final String DATE_FORMAT = "MM/dd/yy HH:mm";
     public static final String DATE_FORMAT_WITH_TIMEZONE = DATE_FORMAT + " z";
 
-    public static final String EXPRESSION_REGEX = "[\\#\\$]\\{([^\\}]*)\\}";
+    public static final String EXPRESSION_REGEX = "[\\#]\\{([^\\}]*)\\}";
     public static final String CSV_EXPRESSION_REGEX = "[\\#\\$]\\{ioFunctions.getCSVData\\(([^\\)]*)\\).*";
     public static final String DEFAULT_CSV_FILE_NAME = "csv-data.txt";
 

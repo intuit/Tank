@@ -15,6 +15,10 @@ package com.intuit.tank.http.json;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -212,5 +216,50 @@ public class JsonResponseTest {
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.json.JsonResponse
+    }
+    
+    @Test
+    public void testJsonResponseBody() throws Exception{
+    	
+    	JsonResponse fixture = new JsonResponse();
+    	fixture.setResponseBody(readFile("src/test/resources/json-response.json"));
+    	
+    	String[] keys = {"/data/data/returns/IRS1040/Return/ReturnData/PPPerson/SpouseFilerInfoPP/FieldAttributes/UUID",
+    			"/data/data/returns/IRS1040/Return/ReturnData/PPPerson/TaxpayerFilerInfoPP/UUID",
+    			"/data/data/returns/IRS1040/Return/ReturnData/IRS1040/DependentWorksheetPP[1]/UUID",
+    			"/data/data/returns/IRS1040/Return/ReturnData/PPReturnInformation/ForeignAddressPP/UUID",
+    			"/data/data/returns/IRS1040/Return/ReturnHeader/Filer/SpouseFullNamePP/UUID",
+    			"/data/data/returns/IRS1040/UUID",
+    			"/data/data/returns/IRS1040/Return/ReturnData/UUID",
+    			"/data/data/returns/IRS1040/Return/ReturnData/PPPerson/SpouseFilerInfoPP/PersonFullNamePP/UUID",
+    			"/data/data/returns/IRS1040/Return/ReturnData/PPPerson/TaxpayerFilerInfoPP/PersonFullNamePP/UUID",
+    			"/data/data/returns/IRS1040/Return/UUID",
+    			"/data/data/returns/IRS1040/Return/ReturnData/PPPerson/TaxpayerFilerInfoPP/FieldAttributes/UUID",
+    			"/data/data/returns/IRS1040/Return/ReturnData/PPPerson/SpouseFilerInfoPP/UUID",
+    			"/data/data/returns/IRS1040/Return/ReturnData/PPReturnInformation/USAddressPP/UUID",
+    			"/data/data/returns/IRS1040/Return/ReturnHeader/Filer/PrimaryFullNamePP/UUID"};
+    	
+    	for (String key : keys){
+    		System.out.println(key + ": " + fixture.getValue(key));
+    	}
+    }
+    
+    
+    private String readFile( String file ) throws IOException {
+        BufferedReader reader = new BufferedReader( new FileReader (file));
+        String         line = null;
+        StringBuilder  stringBuilder = new StringBuilder();
+        String         ls = System.getProperty("line.separator");
+
+        try {
+            while( ( line = reader.readLine() ) != null ) {
+                stringBuilder.append( line );
+                stringBuilder.append( ls );
+            }
+
+            return stringBuilder.toString();
+        } finally {
+            reader.close();
+        }
     }
 }
