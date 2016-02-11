@@ -35,7 +35,7 @@
     <spring.version>2.5.6</spring.version>
 
     <weld-version>1.1.32.Final</weld-version>
-    <cdi-version>1.0-SP4</cdi-version>
+    <cdi-version>1.2</cdi-version>
     <version.seam>3.0.0.Final</version.seam>
     <slf.version>1.7.2</slf.version>
 

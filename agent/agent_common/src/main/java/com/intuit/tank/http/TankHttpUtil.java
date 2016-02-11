@@ -34,9 +34,9 @@ public class TankHttpUtil {
         try {
             // no default port specified for http
             if (protocol.equalsIgnoreCase("http") && port == -1) {
-                port = 80;
+            	return new URL(protocol, host, path + getQueryString(urlVariables));
             } else if (protocol.equalsIgnoreCase("https") && port == -1) {
-                port = 443;
+            	return new URL(protocol, host, path + getQueryString(urlVariables));
             }
             // ensure that port 80 and 8080 requests use http and not https
             if (port == 80 || port == 8080) {
