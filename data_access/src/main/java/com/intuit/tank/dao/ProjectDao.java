@@ -20,11 +20,21 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Root;
 
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
+import org.hibernate.transform.Transformers;
 
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.Project;
+import com.intuit.tank.project.ProjectDTO;
 import com.intuit.tank.project.Workload;
 
 /**
@@ -101,6 +111,55 @@ public class ProjectDao extends OwnableDao<Project> {
     public Project saveOrUpdate(Project entity) throws HibernateException {
         entity.setModified(new Date());
         return super.saveOrUpdate(entity);
+    }
+    
+    /**
+     * Finds all Objects of type T_ENTITY
+     * 
+     * @return the nonnull list of entities
+     * @throws HibernateException
+     *             if there is an error in persistence
+     */
+    @Nonnull
+    @Override
+    public List<Project> findAll() throws HibernateException {
+        List<Project> results = null;
+        EntityManager em = getEntityManager();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Project> query = cb.createQuery(Project.class);
+        Root<Project> o = query.from(Project.class);
+        o.fetch("workloads", JoinType.LEFT).fetch("jobConfiguration", JoinType.LEFT);
+        query.select(o);
+   
+        results = em.createQuery(query).getResultList();
+        return results;
+    }
+    /**
+     * Finds all Objects of type T_ENTITY
+     * 
+     * @return the nonnull list of entities
+     * @throws HibernateException
+     *             if there is an error in persistence
+     */
+    @Nonnull
+    public List<ProjectDTO> findAllProjectNames() throws HibernateException {
+    	List<ProjectDTO> results = null;
+    	EntityManager em = getEntityManager();
+    	Session session = em.unwrap(Session.class);
+    	Criteria cr = session.createCriteria(Project.class)
+    			.setProjection(Projections.projectionList()
+    					.add( Projections.property("id"), "id")
+    					.add( Projections.property("created"), "created")
+    					.add( Projections.property("modified"), "modified")
+    					.add( Projections.property("creator"), "creator")
+    					.add( Projections.property("name"), "name")
+    					.add( Projections.property("scriptDriver"), "scriptDriver")
+    					.add( Projections.property("productName"), "productName")
+    					.add( Projections.property("comments"), "comments"))
+    			.setResultTransformer(Transformers.aliasToBean(ProjectDTO.class));
+
+        results = cr.list();
+        return results;
     }
 
 }

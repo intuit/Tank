@@ -342,7 +342,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     public List<T_ENTITY> findFiltered(ViewFilterType viewFilter) {
         String prefix = "x";
         List<T_ENTITY> ret = null;
-        if (viewFilter != viewFilter.ALL) {
+        if (!viewFilter.equals(ViewFilterType.ALL)) {
             NamedParameter parameter = new NamedParameter(BaseEntity.PROPERTY_CREATE, "createDate",
                     ViewFilterType.getViewFilterDate(viewFilter));
             StringBuilder sb = new StringBuilder();

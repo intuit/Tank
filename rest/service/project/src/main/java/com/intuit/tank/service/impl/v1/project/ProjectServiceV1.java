@@ -64,6 +64,7 @@ import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.Project;
+import com.intuit.tank.project.ProjectDTO;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.service.impl.v1.cloud.JobController;
 import com.intuit.tank.service.util.ResponseUtil;
@@ -232,9 +233,9 @@ public class ProjectServiceV1 implements ProjectService {
     @Override
     public Response getProjectNames() {
         ResponseBuilder responseBuilder = Response.ok();
-        List<Project> all = new ProjectDao().findAll();
+        List<ProjectDTO> all = new ProjectDao().findAllProjectNames();
         List<ProjectTO> to = new ArrayList<ProjectTO>();
-        for (Project p : all) {
+        for (ProjectDTO p : all) {
             to.add(ProjectServiceUtil.projectToTransferObject(p));
         }
         ProjectContainer container = new ProjectContainer(to);
