@@ -112,28 +112,7 @@ public class ProjectDao extends OwnableDao<Project> {
         entity.setModified(new Date());
         return super.saveOrUpdate(entity);
     }
-    
-    /**
-     * Finds all Objects of type T_ENTITY
-     * 
-     * @return the nonnull list of entities
-     * @throws HibernateException
-     *             if there is an error in persistence
-     */
-    @Nonnull
-    @Override
-    public List<Project> findAll() throws HibernateException {
-        List<Project> results = null;
-        EntityManager em = getEntityManager();
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Project> query = cb.createQuery(Project.class);
-        Root<Project> o = query.from(Project.class);
-        o.fetch("workloads", JoinType.LEFT).fetch("jobConfiguration", JoinType.LEFT);
-        query.select(o);
-   
-        results = em.createQuery(query).getResultList();
-        return results;
-    }
+
     /**
      * Finds all Objects of type T_ENTITY
      * 
