@@ -48,7 +48,7 @@ public class ProjectServiceUtil {
 
     }
 
-    public static ProjectTO projectToTransferObject(ProjectDTO p) {
+    public static ProjectTO projectToTransferObject(Project p) {
         ProjectTO ret = new ProjectTO();
         ret.setComments(p.getComments());
         ret.setCreated(p.getCreated());
@@ -57,13 +57,13 @@ public class ProjectServiceUtil {
         ret.setId(p.getId());
         ret.setName(p.getName());
         ret.setProductName(p.getProductName());
-        //JobConfiguration config = p.getWorkloads().get(0).getJobConfiguration();
-        //for (Entry<String, String> entry : config.getVariables().entrySet()) {
-        //    ret.getVariables().add(new KeyPair(entry.getKey(), entry.getValue()));
-        //}
-        //for (Integer dataFileId : config.getDataFileIds()) {
-        //    ret.getDataFileIds().add(dataFileId);
-        //}
+        JobConfiguration config = p.getWorkloads().get(0).getJobConfiguration();
+        for (Entry<String, String> entry : config.getVariables().entrySet()) {
+            ret.getVariables().add(new KeyPair(entry.getKey(), entry.getValue()));
+        }
+        for (Integer dataFileId : config.getDataFileIds()) {
+            ret.getDataFileIds().add(dataFileId);
+        }
         return ret;
     }
 

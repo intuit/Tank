@@ -233,9 +233,9 @@ public class ProjectServiceV1 implements ProjectService {
     @Override
     public Response getProjectNames() {
         ResponseBuilder responseBuilder = Response.ok();
-        List<ProjectDTO> all = new ProjectDao().findAllProjectNames();
+        List<Project> all = new ProjectDao().findAll();
         List<ProjectTO> to = new ArrayList<ProjectTO>();
-        for (ProjectDTO p : all) {
+        for (Project p : all) {
             to.add(ProjectServiceUtil.projectToTransferObject(p));
         }
         ProjectContainer container = new ProjectContainer(to);

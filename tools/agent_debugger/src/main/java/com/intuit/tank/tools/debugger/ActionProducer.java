@@ -379,7 +379,7 @@ public class ActionProducer {
         if (ret == null) {
             ret = new AbstractAction(ACTION_SELECT_TANK) {
                 private static final long serialVersionUID = 1L;
-                final JComboBox cb = getComboBox();
+                final JComboBox<String> cb = getComboBox();
 
                 @Override
                 public void actionPerformed(ActionEvent event) {
@@ -439,8 +439,8 @@ public class ActionProducer {
         }
     }
 
-    private static JComboBox getComboBox() {
-        JComboBox cb = new JComboBox();
+    private static JComboBox<String> getComboBox() {
+        JComboBox<String> cb = new JComboBox<String>();
         cb.setEditable(true);
         Properties props = new Properties();
         File f = new File(DEBUGGER_PROPERTIES);

@@ -79,6 +79,7 @@ import com.intuit.tank.harness.data.HDScriptGroup;
 import com.intuit.tank.harness.data.HDScriptUseCase;
 import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.data.HDTestVariables;
+import com.intuit.tank.harness.data.HDVariable;
 import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.harness.data.Header;
 import com.intuit.tank.harness.data.RequestStep;
@@ -110,7 +111,7 @@ public class AgentDebuggerFrame extends JFrame {
     private ActionProducer debuggerActions;
     private HDWorkload currentWorkload;
     private HDTestPlan currentTestPlan;
-    private JComboBox testPlanChooser;
+    private JComboBox<HDTestPlan> testPlanChooser;
     private JComboBox<TankClientChoice> tankClientChooser;
     private List<StepListener> stepChangedListeners = new ArrayList<StepListener>();
     private List<ScriptChangedListener> scriptChangedListeners = new ArrayList<ScriptChangedListener>();
@@ -541,8 +542,20 @@ public class AgentDebuggerFrame extends JFrame {
     public void setCurrentWorkload(HDWorkload currentWorkload) {
         setCurrentTestPlan(null);
         this.currentWorkload = currentWorkload;
+        if( currentWorkload != null ) {
+		    List<HDVariable> l = currentWorkload.getVariables().getVariables();
+		    Map<String, String> ret = new HashMap<String, String>();
+		    for (HDVariable hdv : l) {
+		    	String key =  hdv.getKey();
+		    	String value =  hdv.getValue();
+		    	if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
+		        	ret.put(key, value);
+		    	}
+		    }
+		    setProjectVariables(ret);
+        }
         if (currentWorkload != null) {
-            DefaultComboBoxModel model = new DefaultComboBoxModel(currentWorkload.getPlans().toArray(new HDTestPlan[currentWorkload.getPlans().size()]));
+            DefaultComboBoxModel<HDTestPlan> model = new DefaultComboBoxModel<HDTestPlan>(currentWorkload.getPlans().toArray(new HDTestPlan[currentWorkload.getPlans().size()]));
             if (currentWorkload.getPlans().size() > 0) {
                 setCurrentTestPlan(currentWorkload.getPlans().get(0));
                 model.setSelectedItem(currentTestPlan);
@@ -550,7 +563,7 @@ public class AgentDebuggerFrame extends JFrame {
             testPlanChooser.setModel(model);
         } else {
             setCurrentTestPlan(null);
-            testPlanChooser.setModel(new DefaultComboBoxModel());
+            testPlanChooser.setModel(new DefaultComboBoxModel<HDTestPlan>());
         }
     }
 
