@@ -61,7 +61,7 @@ public class Workload extends BaseEntity {
     @Length(max = 255)
     private String name;// name
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "workload_id", referencedColumnName = "id")
     @OrderColumn(name = "position")
     @AuditMappedBy(mappedBy = "workload", positionMappedBy = "position")

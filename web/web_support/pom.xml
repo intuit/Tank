@@ -214,11 +214,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.seam.persistence</groupId>
-      <artifactId>seam-persistence</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.jboss.seam.config</groupId>
       <artifactId>seam-config-xml</artifactId>
     </dependency>

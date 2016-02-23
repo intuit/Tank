@@ -20,10 +20,11 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.Root;
 
 import org.hibernate.Criteria;
@@ -112,7 +113,47 @@ public class ProjectDao extends OwnableDao<Project> {
         entity.setModified(new Date());
         return super.saveOrUpdate(entity);
     }
+    
+    /**
+     * Gets an entity by the id or null if no entity exists with the specified id.
+     * 
+     * @param id
+     *            the primary key
+     * @return the entity or null
+     */
+    @Nullable
+    public Project findById(@Nonnull Integer id) {
+    	Project project = null;
+    	try {
+    		project = getEntityManager().find(Project.class, id);
+    		if( project != null) {
+    			project.getWorkloads().get(0).getTestPlans();	//Stupid addition to get EAGER loading going.
+    		}
+    	} finally {
+    		cleanup();
+    	}
+    	return project;
+    }
 
+    /**
+     * Finds all Objects of type T_ENTITY
+     * 
+     * @return the nonnull list of entities
+     * @throws HibernateException
+     *             if there is an error in persistence
+     */
+    @Nonnull
+    public List<Project> findAll() throws HibernateException {
+        EntityManager em = getEntityManager();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Project> query = cb.createQuery(Project.class);
+        Root<Project> root = query.from(Project.class);
+        Fetch<Project, Workload> wl = root.fetch("workloads");
+        wl.fetch("jobConfiguration");
+        query.select(root);
+        return em.createQuery(query).getResultList();
+    }
+    
     /**
      * Finds all Objects of type T_ENTITY
      * 

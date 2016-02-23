@@ -18,8 +18,12 @@ package com.intuit.tank.dao;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.apache.log4j.Logger;
 
+import com.intuit.tank.project.Project;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
@@ -42,6 +46,28 @@ public class WorkloadDao extends BaseDao<Workload> {
     public WorkloadDao() {
         super();
         setReloadEntities(true);
+    }
+    
+    
+    /**
+     * Gets an entity by the id or null if no entity exists with the specified id.
+     * 
+     * @param id
+     *            the primary key
+     * @return the entity or null
+     */
+    @Nullable
+    public Workload findById(@Nonnull Integer id) {
+    	Workload workload = null;
+    	try {
+    		workload = getEntityManager().find(Workload.class, id);
+    		if(workload != null) {
+    			workload.getTestPlans();	//Stupid addition to get EAGER loading going.
+    		}
+		} finally {
+			cleanup();
+		}
+		return workload;
     }
 
     public Workload loadScriptsForWorkload(Workload workload) {
