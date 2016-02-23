@@ -50,19 +50,21 @@ public class WorkloadDao extends BaseDao<Workload> {
     
     
     /**
-     * Gets an entity by the id or null if no entity exists with the specified id.
+     * This is an override of the BaseEntity to initiate eager loading when needed.
      * 
      * @param id
      *            the primary key
      * @return the entity or null
      */
     @Nullable
+    @Override
     public Workload findById(@Nonnull Integer id) {
     	Workload workload = null;
     	try {
     		workload = getEntityManager().find(Workload.class, id);
     		if(workload != null) {
-    			workload.getTestPlans();	//Stupid addition to get EAGER loading going.
+    			workload.getJobConfiguration();
+    			workload.getTestPlans();
     		}
 		} finally {
 			cleanup();

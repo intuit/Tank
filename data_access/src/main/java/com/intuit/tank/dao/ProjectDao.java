@@ -33,10 +33,12 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.transform.Transformers;
 
+import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.ProjectDTO;
 import com.intuit.tank.project.Workload;
+import com.intuit.tank.view.filter.ViewFilterType;
 
 /**
  * ProductDao
@@ -115,19 +117,21 @@ public class ProjectDao extends OwnableDao<Project> {
     }
     
     /**
-     * Gets an entity by the id or null if no entity exists with the specified id.
+     * This is an override of the BaseEntity to initiate eager loading when needed.
      * 
      * @param id
      *            the primary key
      * @return the entity or null
      */
     @Nullable
+    @Override
     public Project findById(@Nonnull Integer id) {
     	Project project = null;
     	try {
     		project = getEntityManager().find(Project.class, id);
     		if( project != null) {
-    			project.getWorkloads().get(0).getTestPlans();	//Stupid addition to get EAGER loading going.
+    			project.getWorkloads().get(0).getJobConfiguration();
+    			project.getWorkloads().get(0).getTestPlans();
     		}
     	} finally {
     		cleanup();
@@ -148,10 +152,39 @@ public class ProjectDao extends OwnableDao<Project> {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Project> query = cb.createQuery(Project.class);
         Root<Project> root = query.from(Project.class);
-        Fetch<Project, Workload> wl = root.fetch("workloads");
-        wl.fetch("jobConfiguration");
-        query.select(root);
+        root.fetch(Project.PROPERTY_WORKLOADS);
+         query.select(root);
         return em.createQuery(query).getResultList();
+    }
+
+    /**
+     * Find all objects of type T_ENTITY that satisfy the ViewFilterType
+     * 
+     * @param viewFilter
+     * @return the list of entities that satisfy the filter
+     */
+    public List<Project> findFiltered(ViewFilterType viewFilter) {
+        String prefix = "x";
+        List<Project> ret = null;
+        if (!viewFilter.equals(ViewFilterType.ALL)) {
+            NamedParameter parameter = new NamedParameter(BaseEntity.PROPERTY_CREATE, "createDate",
+                    ViewFilterType.getViewFilterDate(viewFilter));
+            StringBuilder sb = new StringBuilder();
+            sb.append(buildQlSelect(prefix)).append(startWhere())
+                    .append(buildWhereClause(Operation.GREATER_THAN, prefix, parameter));
+            sb.append(buildSortOrderClause(SortDirection.DESC, prefix, BaseEntity.PROPERTY_CREATE));
+            ret = listWithJQL(sb.toString(), parameter);
+        } else {
+            EntityManager em = getEntityManager();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Project> query = cb.createQuery(Project.class);
+            Root<Project> root = query.from(Project.class);
+            root.fetch(Project.PROPERTY_WORKLOADS);
+            query.select(root);
+            query.orderBy(cb.desc(root.get(BaseEntity.PROPERTY_CREATE)));
+            ret =  em.createQuery(query).getResultList();
+        }
+        return ret;
     }
     
     /**

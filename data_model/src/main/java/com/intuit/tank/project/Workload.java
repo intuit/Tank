@@ -67,7 +67,7 @@ public class Workload extends BaseEntity {
     @AuditMappedBy(mappedBy = "workload", positionMappedBy = "position")
     private List<TestPlan> testPlans = new ArrayList<TestPlan>();
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "job_configuration_id")
     private JobConfiguration jobConfiguration = new JobConfiguration();
 
