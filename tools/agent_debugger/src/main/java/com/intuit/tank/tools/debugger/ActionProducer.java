@@ -529,7 +529,7 @@ public class ActionProducer {
                             }).start();
                         }
                     } catch (Exception e1) {
-                        showError("Error downloading script: " + e1);
+                        showError("Error downloading scripts: " + e1);
                     }
                 }
             };
@@ -645,7 +645,7 @@ public class ActionProducer {
                                     } catch (Exception e1) {
                                         e1.printStackTrace();
                                         debuggerFrame.stopWaiting();
-                                        showError("Error opening projects: " + e1);
+                                        showError("Error downloading project: " + e1);
                                     } finally {
                                         debuggerFrame.stopWaiting();
                                     }
@@ -653,7 +653,7 @@ public class ActionProducer {
                             }).start();
                         }
                     } catch (Exception e1) {
-                        showError("Error opening projects: " + e1);
+                        showError("Error downloading projects: " + e1);
                     }
                 }
 

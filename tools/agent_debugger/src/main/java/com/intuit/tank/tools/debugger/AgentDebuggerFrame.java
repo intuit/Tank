@@ -542,18 +542,6 @@ public class AgentDebuggerFrame extends JFrame {
     public void setCurrentWorkload(HDWorkload currentWorkload) {
         setCurrentTestPlan(null);
         this.currentWorkload = currentWorkload;
-        if( currentWorkload != null ) {
-		    List<HDVariable> l = currentWorkload.getVariables().getVariables();
-		    Map<String, String> ret = new HashMap<String, String>();
-		    for (HDVariable hdv : l) {
-		    	String key =  hdv.getKey();
-		    	String value =  hdv.getValue();
-		    	if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
-		        	ret.put(key, value);
-		    	}
-		    }
-		    setProjectVariables(ret);
-        }
         if (currentWorkload != null) {
             DefaultComboBoxModel<HDTestPlan> model = new DefaultComboBoxModel<HDTestPlan>(currentWorkload.getPlans().toArray(new HDTestPlan[currentWorkload.getPlans().size()]));
             if (currentWorkload.getPlans().size() > 0) {

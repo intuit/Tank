@@ -183,9 +183,9 @@ public class ProjectServiceV1 implements ProjectService {
         if (p == null) {
             throw new RuntimeException("Cannot find Project with id of " + projectId);
         }
-        Workload workload = p.getWorkloads().get(0);
-        workload = new WorkloadDao().loadScriptsForWorkload(workload);
-        final String scriptString = WorkloadScriptUtil.getScriptForWorkload(workload, workload.getJobConfiguration());
+        p.getWorkloads().get(0).getJobConfiguration().getTankClientClass();			//Necessary to keep the hibernate from loosing datarefernece.
+        Workload workload = new WorkloadDao().loadScriptsForWorkload(p.getWorkloads().get(0));
+        final String scriptString = WorkloadScriptUtil.getScriptForWorkload(workload, p.getWorkloads().get(0).getJobConfiguration());
         return new StreamingOutput() {
             public void write(OutputStream outputStream) {
                 // Get the object of DataInputStream
