@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.Root;
 
 import org.hibernate.Criteria;
@@ -37,6 +36,8 @@ import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.ProjectDTO;
+import com.intuit.tank.project.ScriptGroup;
+import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.view.filter.ViewFilterType;
 
@@ -128,11 +129,23 @@ public class ProjectDao extends OwnableDao<Project> {
     public Project findById(@Nonnull Integer id) {
     	Project project = null;
     	try {
+    		begin();
     		project = getEntityManager().find(Project.class, id);
     		if( project != null) {
-    			project.getWorkloads().get(0).getJobConfiguration();
-    			project.getWorkloads().get(0).getTestPlans();
+    			project.getWorkloads().get(0).getJobConfiguration().getJobRegions();
+    			project.getWorkloads().get(0).getJobConfiguration().getVariables();
+    			project.getWorkloads().get(0).getJobConfiguration().getDataFileIds();
+    			project.getWorkloads().get(0).getJobConfiguration().getNotifications();
+    			for ( TestPlan tp : project.getWorkloads().get(0).getTestPlans() ) {
+    				for (ScriptGroup sg : tp.getScriptGroups() ) {
+    					sg.getScriptGroupSteps();
+    				}
+    			}
     		}
+    		commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
     	} finally {
     		cleanup();
     	}
@@ -148,13 +161,28 @@ public class ProjectDao extends OwnableDao<Project> {
      */
     @Nonnull
     public List<Project> findAll() throws HibernateException {
-        EntityManager em = getEntityManager();
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Project> query = cb.createQuery(Project.class);
-        Root<Project> root = query.from(Project.class);
-        root.fetch(Project.PROPERTY_WORKLOADS);
-         query.select(root);
-        return em.createQuery(query).getResultList();
+    	List<Project> results = null;
+    	EntityManager em = getEntityManager();
+    	try {
+    		begin();
+	        CriteriaBuilder cb = em.getCriteriaBuilder();
+	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
+	        Root<Project> root = query.from(Project.class);
+	        root.fetch(Project.PROPERTY_WORKLOADS);
+	        query.select(root);
+	        results = em.createQuery(query).getResultList();
+	        for (Project project : results) {
+	        	project.getWorkloads().get(0).getJobConfiguration().getVariables();
+	        	project.getWorkloads().get(0).getJobConfiguration().getDataFileIds();	        	
+	        }
+	        commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+    	} finally {
+    		cleanup();
+    	}
+    	return results;
     }
 
     /**
@@ -165,26 +193,35 @@ public class ProjectDao extends OwnableDao<Project> {
      */
     public List<Project> findFiltered(ViewFilterType viewFilter) {
         String prefix = "x";
-        List<Project> ret = null;
-        if (!viewFilter.equals(ViewFilterType.ALL)) {
-            NamedParameter parameter = new NamedParameter(BaseEntity.PROPERTY_CREATE, "createDate",
-                    ViewFilterType.getViewFilterDate(viewFilter));
-            StringBuilder sb = new StringBuilder();
-            sb.append(buildQlSelect(prefix)).append(startWhere())
-                    .append(buildWhereClause(Operation.GREATER_THAN, prefix, parameter));
-            sb.append(buildSortOrderClause(SortDirection.DESC, prefix, BaseEntity.PROPERTY_CREATE));
-            ret = listWithJQL(sb.toString(), parameter);
-        } else {
-            EntityManager em = getEntityManager();
-            CriteriaBuilder cb = em.getCriteriaBuilder();
-            CriteriaQuery<Project> query = cb.createQuery(Project.class);
-            Root<Project> root = query.from(Project.class);
-            root.fetch(Project.PROPERTY_WORKLOADS);
-            query.select(root);
-            query.orderBy(cb.desc(root.get(BaseEntity.PROPERTY_CREATE)));
-            ret =  em.createQuery(query).getResultList();
+        List<Project> results = null;
+        EntityManager em = getEntityManager();
+        try {
+        	begin();
+	        if (!viewFilter.equals(ViewFilterType.ALL)) {
+	            NamedParameter parameter = new NamedParameter(BaseEntity.PROPERTY_CREATE, "createDate",
+	                    ViewFilterType.getViewFilterDate(viewFilter));
+	            StringBuilder sb = new StringBuilder();
+	            sb.append(buildQlSelect(prefix)).append(startWhere())
+	                    .append(buildWhereClause(Operation.GREATER_THAN, prefix, parameter));
+	            sb.append(buildSortOrderClause(SortDirection.DESC, prefix, BaseEntity.PROPERTY_CREATE));
+	            results = listWithJQL(sb.toString(), parameter);
+	        } else {
+	            CriteriaBuilder cb = em.getCriteriaBuilder();
+	            CriteriaQuery<Project> query = cb.createQuery(Project.class);
+	            Root<Project> root = query.from(Project.class);
+	            root.fetch(Project.PROPERTY_WORKLOADS);
+	            query.select(root);
+	            query.orderBy(cb.desc(root.get(BaseEntity.PROPERTY_CREATE)));
+	            results =  em.createQuery(query).getResultList();
+	        }
+	        commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+        	cleanup();
         }
-        return ret;
+        return results;
     }
     
     /**
@@ -198,20 +235,29 @@ public class ProjectDao extends OwnableDao<Project> {
     public List<ProjectDTO> findAllProjectNames() throws HibernateException {
     	List<ProjectDTO> results = null;
     	EntityManager em = getEntityManager();
-    	Session session = em.unwrap(Session.class);
-    	Criteria cr = session.createCriteria(Project.class)
-    			.setProjection(Projections.projectionList()
-    					.add( Projections.property("id"), "id")
-    					.add( Projections.property("created"), "created")
-    					.add( Projections.property("modified"), "modified")
-    					.add( Projections.property("creator"), "creator")
-    					.add( Projections.property("name"), "name")
-    					.add( Projections.property("scriptDriver"), "scriptDriver")
-    					.add( Projections.property("productName"), "productName")
-    					.add( Projections.property("comments"), "comments"))
-    			.setResultTransformer(Transformers.aliasToBean(ProjectDTO.class));
-
-        results = cr.list();
+    	try {
+    		begin();
+	    	Session session = em.unwrap(Session.class);
+	    	Criteria cr = session.createCriteria(Project.class)
+	    			.setProjection(Projections.projectionList()
+	    					.add( Projections.property("id"), "id")
+	    					.add( Projections.property("created"), "created")
+	    					.add( Projections.property("modified"), "modified")
+	    					.add( Projections.property("creator"), "creator")
+	    					.add( Projections.property("name"), "name")
+	    					.add( Projections.property("scriptDriver"), "scriptDriver")
+	    					.add( Projections.property("productName"), "productName")
+	    					.add( Projections.property("comments"), "comments"))
+	    			.setResultTransformer(Transformers.aliasToBean(ProjectDTO.class));
+	
+	        results = cr.list();
+	        commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+    	} finally {
+    		cleanup();
+    	}
         return results;
     }
 

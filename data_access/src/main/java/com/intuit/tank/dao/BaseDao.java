@@ -368,17 +368,18 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     @Nullable
     public T_ENTITY findOneWithJQL(String qlString, NamedParameter... params) {
         T_ENTITY result = null;
+        TypedQuery<T_ENTITY> query = null;
         try {
             EntityManager em = getEntityManager();
             begin();
-            TypedQuery<T_ENTITY> query = em.createQuery(qlString, entityClass);
+            query = em.createQuery(qlString, entityClass);
             for (NamedParameter param : params) {
                 query.setParameter(param.getName(), param.getValue());
             }
             result = query.getSingleResult();
             commit();
         } catch (Exception e) {
-            LOG.info("no entity matching query");
+            LOG.info("no entity matching query "+query.toString());
         } finally {
             cleanup();
         }

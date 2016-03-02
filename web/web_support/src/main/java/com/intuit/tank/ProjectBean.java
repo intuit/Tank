@@ -18,14 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ConversationScoped;
+import javax.enterprise.context.Conversation;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.jboss.seam.faces.context.conversation.Begin;
-import org.jboss.seam.faces.context.conversation.End;
 import org.jboss.seam.international.status.Messages;
 import org.jboss.seam.security.Identity;
 
@@ -60,6 +59,10 @@ public class ProjectBean implements Serializable {
 
     @Inject
     private Identity identity;
+    
+    @Inject
+    private Conversation conversation;
+    
     @Inject
     private Security security;
 
@@ -106,15 +109,15 @@ public class ProjectBean implements Serializable {
     }
 
     /**
-     * @return the saveAsName
+     * @return the Name
      */
     public String getName() {
         return getProject().getName();
     }
 
     /**
-     * @param saveAsName
-     *            the saveAsName to set
+     * @param Name
+     *            the Name to set
      */
     public void setName(String name) {
         getProject().setName(name);
@@ -125,8 +128,9 @@ public class ProjectBean implements Serializable {
      * 
      * @param project
      */
-    @Begin()
     public void openProject(Project prj) {
+    	conversation.setTimeout(300000);
+    	conversation.begin();
         doOpenProject(prj);
     }
 
@@ -148,8 +152,8 @@ public class ProjectBean implements Serializable {
         }
     }
 
-    @End
     public String cancel() {
+    	conversation.end();
         return "success";
     }
 
