@@ -244,10 +244,7 @@ public class ProjectDao extends OwnableDao<Project> {
 	    					.add( Projections.property("created"), "created")
 	    					.add( Projections.property("modified"), "modified")
 	    					.add( Projections.property("creator"), "creator")
-	    					.add( Projections.property("name"), "name")
-	    					.add( Projections.property("scriptDriver"), "scriptDriver")
-	    					.add( Projections.property("productName"), "productName")
-	    					.add( Projections.property("comments"), "comments"))
+	    					.add( Projections.property("name"), "name"))
 	    			.setResultTransformer(Transformers.aliasToBean(ProjectDTO.class));
 	
 	        results = cr.list();

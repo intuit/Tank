@@ -33,9 +33,11 @@ import com.intuit.tank.harness.data.HDResponse;
 import com.intuit.tank.harness.data.HDScript;
 import com.intuit.tank.harness.data.HDScriptGroup;
 import com.intuit.tank.harness.data.HDScriptUseCase;
+import com.intuit.tank.harness.data.HDTestDataFileIds;
 import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.data.HDTestVariables;
 import com.intuit.tank.harness.data.HDWorkload;
+import com.intuit.tank.harness.data.HDWorkloadV2;
 import com.intuit.tank.harness.data.Header;
 import com.intuit.tank.harness.data.LogicStep;
 import com.intuit.tank.harness.data.RequestStep;
@@ -118,13 +120,56 @@ public class ConverterUtil {
         return hdWorkload;
 
     }
+    
+    public static HDWorkloadV2 convertWorkloadV2(Workload workload, BaseJob job) {
+
+        String name = "TestPlan for " + workload.getProject() != null ? " project " + workload.getProject().getName()
+                : " workload " + workload.getName();
+        int id = workload.getProject() != null ? workload.getProject().getId() : workload.getId();
+        name += " (id" + id + ")";
+
+        HDWorkloadV2 hdWorkload = new HDWorkloadV2();
+        hdWorkload.setTankHttpClientClass(job.getTankClientClass() != null ? job.getTankClientClass() : new TankConfig().getAgentConfig().getTankClientClassDefault());
+
+        hdWorkload.setDescription(name);
+        hdWorkload.setName(name);
+        hdWorkload.setVariables(new HDTestVariables(job.isAllowOverride(), job.getVariables()));
+        hdWorkload.setDataFileIds(new HDTestDataFileIds(job.isAllowOverride(), job.getDataFileIds()));
+        for (TestPlan plan : workload.getTestPlans()) {
+            HDTestPlan tp = new HDTestPlan();
+            tp.setTestPlanName(plan.getName());
+            tp.setUserPercentage(plan.getUserPercentage());
+            tp.getGroup().addAll(convertScriptGroups(plan.getScriptGroups(), new StepCounter()));
+            hdWorkload.getPlans().add(tp);
+        }
+        return hdWorkload;
+
+    }
 
     public static String getWorkloadXML(HDWorkload hdWorkload) {
         StringWriter sw;
         try {
             JAXBContext context = JAXBContext.newInstance(HDWorkload.class.getPackage().getName());
             Marshaller createMarshaller = context.createMarshaller();
-            createMarshaller.setProperty("jaxb.formatted.output", Boolean.TRUE);
+            createMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            sw = new StringWriter();
+            createMarshaller.marshal(hdWorkload, sw);
+            sw.flush();
+            sw.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return sw.toString();
+
+    }
+    
+    public static String getWorkloadXMLV2(HDWorkloadV2 hdWorkload) {
+        StringWriter sw;
+        try {
+            JAXBContext context = JAXBContext.newInstance(com.intuit.tank.harness.data.HDWorkloadV2.class);
+            Marshaller createMarshaller = context.createMarshaller();
+            createMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             sw = new StringWriter();
             createMarshaller.marshal(hdWorkload, sw);
             sw.flush();

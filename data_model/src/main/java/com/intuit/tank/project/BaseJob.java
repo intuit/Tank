@@ -15,6 +15,7 @@ package com.intuit.tank.project;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.EnumType;
@@ -142,6 +143,8 @@ public abstract class BaseJob extends BaseEntity {
     }
 
     public abstract Map<String, String> getVariables();
+    
+    public abstract Set<Integer> getDataFileIds();
 
     /**
      * @return the tankClientClass

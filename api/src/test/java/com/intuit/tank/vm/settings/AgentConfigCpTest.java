@@ -522,7 +522,7 @@ public class AgentConfigCpTest {
     public void testGetAgentDataFileStorageDir_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         String result = fixture.getAgentDataFileStorageDir();
 
@@ -540,7 +540,7 @@ public class AgentConfigCpTest {
     public void testGetAgentPort_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         int result = fixture.getAgentPort();
 
@@ -558,7 +558,7 @@ public class AgentConfigCpTest {
     public void testGetConnectionTimeout_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         Long result = fixture.getConnectionTimeout();
 
@@ -583,7 +583,7 @@ public class AgentConfigCpTest {
     public void testGetDefaultResultProvider_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         String result = fixture.getDefaultResultProvider();
 
@@ -601,7 +601,7 @@ public class AgentConfigCpTest {
     public void testGetLogPostRequest_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         boolean result = fixture.getLogPostRequest();
 
@@ -619,7 +619,7 @@ public class AgentConfigCpTest {
     public void testGetLogPostRequest_2()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         boolean result = fixture.getLogPostRequest();
 
@@ -637,7 +637,7 @@ public class AgentConfigCpTest {
     public void testGetLogPostResponse_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         boolean result = fixture.getLogPostResponse();
 
@@ -655,7 +655,7 @@ public class AgentConfigCpTest {
     public void testGetLogPostResponse_2()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         boolean result = fixture.getLogPostResponse();
 
@@ -673,7 +673,7 @@ public class AgentConfigCpTest {
     public void testGetLogVariables_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         boolean result = fixture.getLogVariables();
 
@@ -691,7 +691,7 @@ public class AgentConfigCpTest {
     public void testGetLogVariables_2()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         boolean result = fixture.getLogVariables();
 
@@ -709,7 +709,7 @@ public class AgentConfigCpTest {
     public void testGetMaxAgentResponseTime_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         long result = fixture.getMaxAgentResponseTime();
 
@@ -727,7 +727,7 @@ public class AgentConfigCpTest {
     public void testGetMaxAgentWaitTime_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         long result = fixture.getMaxAgentWaitTime();
 
@@ -745,7 +745,7 @@ public class AgentConfigCpTest {
     public void testGetMaxBodyReportSize_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         int result = fixture.getMaxBodyReportSize();
 
@@ -763,7 +763,7 @@ public class AgentConfigCpTest {
     public void testGetOverSimulationMaxTime_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         long result = fixture.getOverSimulationMaxTime();
 
@@ -781,7 +781,7 @@ public class AgentConfigCpTest {
     public void testGetRange_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
         String type = "";
 
         Range result = fixture.getRange(type);
@@ -802,7 +802,7 @@ public class AgentConfigCpTest {
     public void testGetResultsProviderClass_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
         String providerKey = "";
 
         String result = fixture.getResultsProviderClass(providerKey);
@@ -821,7 +821,7 @@ public class AgentConfigCpTest {
     public void testGetResultsTypeMap_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         Map<String, String> result = fixture.getResultsTypeMap();
 
@@ -840,7 +840,7 @@ public class AgentConfigCpTest {
     public void testGetSSLTimeout_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         long result = fixture.getSSLTimeout();
 
@@ -858,7 +858,7 @@ public class AgentConfigCpTest {
     public void testGetStatusReportIntervalMilis_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
         long pollTime = 1L;
 
         long result = fixture.getStatusReportIntervalMilis(pollTime);
@@ -877,7 +877,7 @@ public class AgentConfigCpTest {
     public void testGetTPSPeriod_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         int result = fixture.getTPSPeriod();
 
@@ -895,7 +895,7 @@ public class AgentConfigCpTest {
     public void testGetTextMimeTypeRegex_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
+        fixture.setResultsTypeMap(new HashMap<String,String>());
 
         Collection<String> result = fixture.getTextMimeTypeRegex();
 
@@ -914,8 +914,8 @@ public class AgentConfigCpTest {
     public void testSetResultsTypeMap_1()
             throws Exception {
         AgentConfig fixture = new AgentConfig(new HierarchicalConfiguration());
-        fixture.setResultsTypeMap(new HashMap());
-        Map<String, String> resultsTypeMap = new HashMap();
+        fixture.setResultsTypeMap(new HashMap<String,String>());
+        Map<String, String> resultsTypeMap = new HashMap<String,String>();
 
         fixture.setResultsTypeMap(resultsTypeMap);
 

@@ -616,13 +616,7 @@ public class ActionProducer {
                 public void actionPerformed(ActionEvent e) {
                     try {
                         List<ProjectTO> projects = projectServiceClient.getProjects();
-                        Collections.sort(projects, new Comparator<ProjectTO>() {
-
-                            @Override
-                            public int compare(ProjectTO o1, ProjectTO o2) {
-                                return o2.getCreated().compareTo(o1.getCreated());
-                            }
-                        });
+                        Collections.reverse(projects);
                         SelectDialog<ProjectTO> selectDialog = new SelectDialog<ProjectTO>(debuggerFrame,
                                 projects, "project");
                         selectDialog.setVisible(true);

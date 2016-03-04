@@ -33,12 +33,6 @@ public class ProjectDTO implements Serializable {
     
     private String name;
 
-    private ScriptDriver scriptDriver = ScriptDriver.Tank;
-
-    private String productName;
-
-    private String comments;
-    
     public ProjectDTO() {
     }
 
@@ -48,9 +42,6 @@ public class ProjectDTO implements Serializable {
     	this.modified = modified;
     	this.creator = creator;
     	this.name = name;
-    	this.scriptDriver = scriptDriver;
-    	this.productName = productName;
-    	this.comments = comments;
     }
     
     public void setId(int id) {
@@ -93,30 +84,6 @@ public class ProjectDTO implements Serializable {
 
     public String getName() {
         return this.name;
-    }
-
-    public void setScriptDriver(ScriptDriver driver) {
-        this.scriptDriver = driver;
-    }
-
-    public ScriptDriver getScriptDriver() {
-        return this.scriptDriver;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
-
-    public String getComments() {
-        return comments;
-    }
-
-    public void setComments(String comments) {
-        this.comments = comments;
     }
 
     /**

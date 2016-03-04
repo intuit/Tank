@@ -55,7 +55,7 @@ public class DataFileDescriptorContainerTest {
     @Test
     public void testDataFileDescriptorContainer_2()
         throws Exception {
-        List<DataFileDescriptor> list = new LinkedList();
+        List<DataFileDescriptor> list = new LinkedList<DataFileDescriptor>();
 
         DataFileDescriptorContainer result = new DataFileDescriptorContainer(list);
 
@@ -72,7 +72,7 @@ public class DataFileDescriptorContainerTest {
     @Test
     public void testGetDataFiles_1()
         throws Exception {
-        DataFileDescriptorContainer fixture = new DataFileDescriptorContainer(new LinkedList());
+        DataFileDescriptorContainer fixture = new DataFileDescriptorContainer(new LinkedList<DataFileDescriptor>());
 
         List<DataFileDescriptor> result = fixture.getDataFiles();
 
@@ -90,8 +90,8 @@ public class DataFileDescriptorContainerTest {
     @Test
     public void testSetDataFiles_1()
         throws Exception {
-        DataFileDescriptorContainer fixture = new DataFileDescriptorContainer(new LinkedList());
-        List<DataFileDescriptor> dataFiles = new LinkedList();
+        DataFileDescriptorContainer fixture = new DataFileDescriptorContainer(new LinkedList<DataFileDescriptor>());
+        List<DataFileDescriptor> dataFiles = new LinkedList<DataFileDescriptor>();
 
         fixture.setDataFiles(dataFiles);
 

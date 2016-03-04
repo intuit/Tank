@@ -47,7 +47,7 @@
     <version.primefaces-ext>3.0.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.12</version.surefire>
-    <version.jersey>1.4</version.jersey>
+    <version.jersey>1.17.1</version.jersey>
     <version.arquillian>1.1.5.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0.CR7</version.arquillian.tomcat>
     <version.httpclient>4.5</version.httpclient>
@@ -733,7 +733,7 @@
         <artifactId>simple</artifactId>
         <version>4.1.21</version>
       </dependency>
-
+      
       <dependency>
         <groupId>com.sun.jersey.contribs</groupId>
         <artifactId>jersey-multipart</artifactId>
@@ -751,10 +751,10 @@
         <artifactId>jersey-server</artifactId>
         <version>${version.jersey}</version>
       </dependency>
-
+      
       <dependency>
-        <groupId>com.sun.jersey</groupId>
-        <artifactId>jersey-core</artifactId>
+		<groupId>com.sun.jersey</groupId>
+		<artifactId>jersey-servlet</artifactId>
         <version>${version.jersey}</version>
       </dependency>
 

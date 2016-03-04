@@ -61,13 +61,13 @@ public class WorkloadDao extends BaseDao<Workload> {
     public Workload findById(@Nonnull Integer id) {
     	Workload workload = null;
     	try {
-    		begin();
+//   		begin();
     		workload = getEntityManager().find(Workload.class, id);
     		if(workload != null) {
     			workload.getJobConfiguration();
     			workload.getTestPlans();
     		}
-    		commit();
+//    		commit();
 		} finally {
 			cleanup();
 		}

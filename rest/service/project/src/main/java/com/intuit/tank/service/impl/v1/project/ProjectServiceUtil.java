@@ -97,6 +97,7 @@ public class ProjectServiceUtil {
     public static String getScriptString(JobInstance job) {
         WorkloadDao dao = new WorkloadDao();
         Workload workload = dao.findById(job.getWorkloadId());
+        workload.getTestPlans();
         dao.loadScriptsForWorkload(workload);
         return WorkloadScriptUtil.getScriptForWorkload(workload, job);
     }
