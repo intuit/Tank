@@ -77,7 +77,7 @@ public class Project extends OwnableEntity {
     @Length(max = 1024)
     private String comments;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "project_id", referencedColumnName = "id")
     @OrderColumn(name = "position")
     @AuditMappedBy(mappedBy = "project", positionMappedBy = "position")

@@ -15,6 +15,7 @@ package com.intuit.tank;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.enterprise.context.ConversationScoped;
@@ -218,14 +219,17 @@ public class ProjectBean implements Serializable {
                 save();
             } else {
                 Project copied = copyProject();
+                copied.getWorkloads().get(0).getJobConfiguration().setVariables(new HashMap<String,String>());
                 copied = new ProjectDao().saveOrUpdateProject(copied);
                 save(); // FIXME Hack for original project losing data. Do not know why this works
+                projectVariableEditor.copyTo(copied.getWorkloads().get(0));
                 new WorkloadDao().saveOrUpdate(copied.getWorkloads().get(0));
                 doOpenProject(copied);
                 projectEvent.fire(new ModifiedProjectMessage(project, this));
                 messages.info("Project " + originalName + " has been saved as " + project.getName() + ".");
             }
         } catch (Exception e) {
+        	LOG.error(e.getMessage());
             messages.error(e.getMessage());
         }
     }
@@ -246,7 +250,7 @@ public class ProjectBean implements Serializable {
         ret.setName(saveAsName);
         ret.setProductName(project.getProductName());
         ret.setScriptDriver(project.getScriptDriver());
-        projectVariableEditor.copyTo(workload);
+
         usersAndTimes.copyTo(workload);
         workloadScripts.copyTo(workload);
 

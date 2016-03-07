@@ -167,7 +167,7 @@ public class ConverterUtil {
     public static String getWorkloadXMLV2(HDWorkloadV2 hdWorkload) {
         StringWriter sw;
         try {
-            JAXBContext context = JAXBContext.newInstance(com.intuit.tank.harness.data.HDWorkloadV2.class);
+            JAXBContext context = JAXBContext.newInstance(HDWorkloadV2.class.getPackage().getName());
             Marshaller createMarshaller = context.createMarshaller();
             createMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             sw = new StringWriter();

@@ -28,7 +28,7 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
     <version.okhttp>2.5.0</version.okhttp>
 
-    <version.hibernate>4.1.0.Final</version.hibernate>
+    <version.hibernate>4.1.12.Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
     <version-aws-sdk>1.10.20</version-aws-sdk>
     <tto.jar.version>1.2.0</tto.jar.version>
@@ -39,7 +39,7 @@
     <version.seam>3.0.0.Final</version.seam>
     <slf.version>1.7.2</slf.version>
 
-    <version.enunciate>1.30</version.enunciate>
+    <version.enunciate>1.31</version.enunciate>
 
     <version.mojarra>2.0.6</version.mojarra>
     <version.jsf-api>2.0.6</version.jsf-api>

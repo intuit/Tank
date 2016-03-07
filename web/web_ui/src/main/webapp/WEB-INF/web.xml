@@ -154,6 +154,11 @@
     <servlet-name>Intuit Tank REST API</servlet-name>
     <url-pattern>/rest/*</url-pattern>
   </servlet-mapping>
+  
+  <error-page>
+    <exception-type>org.jboss.weld.context.NonexistentConversationException</exception-type>
+    <location>/index.xhtml</location>
+  </error-page>
 
   <session-config>
     <session-timeout>120</session-timeout>
