@@ -24,6 +24,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
+
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved
  */
@@ -34,6 +36,8 @@ import javax.ws.rs.core.StreamingOutput;
  * @author dangleton
  * 
  */
+@Path(ProjectService.SERVICE_RELATIVE_PATH)
+@ExternallyManagedLifecycle
 public interface ProjectService {
 
     public static final String REST_SERVICE_CONTEXT = "/rest";
@@ -55,7 +59,7 @@ public interface ProjectService {
      * 
      * @return non-null String value.
      */
-    @Path(METHOD_PING)
+    @Path(ProjectService.METHOD_PING)
     @Produces({ MediaType.TEXT_PLAIN })
     @GET
     @Nonnull
@@ -69,7 +73,7 @@ public interface ProjectService {
      * @return Response containing a status code 204 (no content) if successful and 400 (bad request) if id cannot be
      *         found.
      */
-    @Path(METHOD_DELETE + "/{projectId}")
+    @Path(ProjectService.METHOD_DELETE + "/{projectId}")
     @Produces({ MediaType.TEXT_PLAIN })
     @DELETE
     @Nonnull
@@ -82,7 +86,7 @@ public interface ProjectService {
      *            the id of the project to delete.
      * @return Response containing a ProjectContainer with the list of ProjectTo.
      */
-    @Path(METHOD_PROJECTS)
+    @Path(ProjectService.METHOD_PROJECTS)
     @Produces({ MediaType.APPLICATION_XML })
     @GET
     @Nonnull
@@ -97,7 +101,7 @@ public interface ProjectService {
      *         found.
      * @deprecated Added for flex hack. May be removed when we aren't using flex
      */
-    @Path(METHOD_DELETE + "/{projectId}")
+    @Path(ProjectService.METHOD_DELETE + "/{projectId}")
     @Produces({ MediaType.TEXT_PLAIN })
     @POST
     @Nonnull

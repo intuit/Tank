@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 
 import org.apache.log4j.Logger;
 
-import com.intuit.tank.project.Project;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;

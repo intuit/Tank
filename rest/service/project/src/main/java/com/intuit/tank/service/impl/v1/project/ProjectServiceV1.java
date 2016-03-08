@@ -178,14 +178,11 @@ public class ProjectServiceV1 implements ProjectService {
      */
     @Override
     public StreamingOutput getTestScriptForProject(Integer projectId) {
-        ProjectDao dao = new ProjectDao();
-        Project p = dao.findById(projectId);
+        Project p = new ProjectDao().loadScripts(projectId);
         if (p == null) {
             throw new RuntimeException("Cannot find Project with id of " + projectId);
         }
-        p.getWorkloads().get(0).getJobConfiguration().getTankClientClass();			//Necessary to keep the hibernate from loosing datarefernece.
-        Workload workload = new WorkloadDao().loadScriptsForWorkload(p.getWorkloads().get(0));
-        final String scriptString = WorkloadScriptUtil.getScriptForWorkload(workload, p.getWorkloads().get(0).getJobConfiguration());
+        final String scriptString = WorkloadScriptUtil.getScriptForWorkload(p.getWorkloads().get(0), p.getWorkloads().get(0).getJobConfiguration());
         return new StreamingOutput() {
             public void write(OutputStream outputStream) {
                 // Get the object of DataInputStream

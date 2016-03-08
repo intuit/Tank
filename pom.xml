@@ -26,7 +26,7 @@
     <cert.store.password>tanktank</cert.store.password>
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
-    <version.okhttp>2.5.0</version.okhttp>
+    <version.okhttp>2.7.5</version.okhttp>
 
     <version.hibernate>4.1.12.Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
@@ -50,7 +50,7 @@
     <version.jersey>1.17.1</version.jersey>
     <version.arquillian>1.1.5.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0.CR7</version.arquillian.tomcat>
-    <version.httpclient>4.5</version.httpclient>
+    <version.httpclient>4.5.2</version.httpclient>
   </properties>
 
 
@@ -590,7 +590,7 @@
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>4.1.0.Final</version>
+        <version>4.3.2.Final</version>
       </dependency>
 
       <dependency>

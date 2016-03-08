@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.Root;
 
 import org.hibernate.Criteria;
@@ -32,14 +33,13 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.transform.Transformers;
 
-import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.ProjectDTO;
 import com.intuit.tank.project.ScriptGroup;
+import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
-import com.intuit.tank.view.filter.ViewFilterType;
 
 /**
  * ProductDao
@@ -132,6 +132,7 @@ public class ProjectDao extends OwnableDao<Project> {
     		begin();
     		project = getEntityManager().find(Project.class, id);
     		if( project != null) {
+    			project.getWorkloads().get(0).getJobConfiguration().readConfig();
     			project.getWorkloads().get(0).getJobConfiguration().getJobRegions();
     			project.getWorkloads().get(0).getJobConfiguration().getVariables();
     			project.getWorkloads().get(0).getJobConfiguration().getDataFileIds();
@@ -168,7 +169,8 @@ public class ProjectDao extends OwnableDao<Project> {
 	        CriteriaBuilder cb = em.getCriteriaBuilder();
 	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
 	        Root<Project> root = query.from(Project.class);
-	        root.fetch(Project.PROPERTY_WORKLOADS);
+	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
+	        wl.fetch("jobConfiguration");
 	        query.select(root);
 	        results = em.createQuery(query).getResultList();
 	        for (Project project : results) {
@@ -184,44 +186,19 @@ public class ProjectDao extends OwnableDao<Project> {
     	}
     	return results;
     }
-
-    /**
-     * Find all objects of type T_ENTITY that satisfy the ViewFilterType
-     * 
-     * @param viewFilter
-     * @return the list of entities that satisfy the filter
-     */
-    public List<Project> findFiltered(ViewFilterType viewFilter) {
-        String prefix = "x";
-        List<Project> results = null;
-        EntityManager em = getEntityManager();
-        try {
-        	begin();
-	        if (!viewFilter.equals(ViewFilterType.ALL)) {
-	            NamedParameter parameter = new NamedParameter(BaseEntity.PROPERTY_CREATE, "createDate",
-	                    ViewFilterType.getViewFilterDate(viewFilter));
-	            StringBuilder sb = new StringBuilder();
-	            sb.append(buildQlSelect(prefix)).append(startWhere())
-	                    .append(buildWhereClause(Operation.GREATER_THAN, prefix, parameter));
-	            sb.append(buildSortOrderClause(SortDirection.DESC, prefix, BaseEntity.PROPERTY_CREATE));
-	            results = listWithJQL(sb.toString(), parameter);
-	        } else {
-	            CriteriaBuilder cb = em.getCriteriaBuilder();
-	            CriteriaQuery<Project> query = cb.createQuery(Project.class);
-	            Root<Project> root = query.from(Project.class);
-	            root.fetch(Project.PROPERTY_WORKLOADS);
-	            query.select(root);
-	            query.orderBy(cb.desc(root.get(BaseEntity.PROPERTY_CREATE)));
-	            results =  em.createQuery(query).getResultList();
-	        }
-	        commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-        	cleanup();
+    
+    @Nullable
+    public Project loadScripts(Integer ProjectId) {
+    	Project project = findById(ProjectId);
+        ScriptDao sd = new ScriptDao();
+        for (TestPlan testPlan : project.getWorkloads().get(0).getTestPlans()) {
+            for (ScriptGroup scriptGroup : testPlan.getScriptGroups()) {
+                for (ScriptGroupStep scriptGroupStep : scriptGroup.getScriptGroupSteps()) {
+                    sd.loadScriptSteps(scriptGroupStep.getScript());
+                }
+            }
         }
-        return results;
+        return project;
     }
     
     /**

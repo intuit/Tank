@@ -19,6 +19,7 @@ package com.intuit.tank.dao;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -29,6 +30,7 @@ import javax.persistence.PersistenceException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
@@ -40,6 +42,7 @@ import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 
 import com.intuit.tank.project.BaseEntity;
+import com.intuit.tank.project.Project;
 import com.intuit.tank.view.filter.ViewFilterType;
 
 /**
@@ -340,23 +343,34 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
      * @return the list of entities that satisfy the filter
      */
     public List<T_ENTITY> findFiltered(ViewFilterType viewFilter) {
-        String prefix = "x";
-        List<T_ENTITY> ret = null;
-        if (!viewFilter.equals(ViewFilterType.ALL)) {
-            NamedParameter parameter = new NamedParameter(BaseEntity.PROPERTY_CREATE, "createDate",
-                    ViewFilterType.getViewFilterDate(viewFilter));
-            StringBuilder sb = new StringBuilder();
-            sb.append(buildQlSelect(prefix)).append(startWhere())
-                    .append(buildWhereClause(Operation.GREATER_THAN, prefix, parameter));
-            sb.append(buildSortOrderClause(SortDirection.DESC, prefix, BaseEntity.PROPERTY_CREATE));
-            ret = listWithJQL(sb.toString(), parameter);
-        } else {
-            StringBuilder sb = new StringBuilder();
-            sb.append(buildQlSelect(prefix)).append(
-                    buildSortOrderClause(SortDirection.DESC, prefix, BaseEntity.PROPERTY_CREATE));
-            ret = listWithJQL(sb.toString());
+        List<T_ENTITY> results = null;
+        EntityManager em = getEntityManager();
+        try {
+        	begin();
+	        if (!viewFilter.equals(ViewFilterType.ALL)) {
+	            CriteriaBuilder cb = em.getCriteriaBuilder();
+	            CriteriaQuery<T_ENTITY> query = cb.createQuery(entityClass);
+	            Root<T_ENTITY> root = query.from(entityClass);
+	            query.select(root);
+	            query.where(cb.greaterThan(root.<Date>get(BaseEntity.PROPERTY_CREATE), ViewFilterType.getViewFilterDate(viewFilter)));
+	            query.orderBy(cb.desc(root.get(BaseEntity.PROPERTY_CREATE)));
+	            results =  em.createQuery(query).getResultList();
+	        } else {
+	            CriteriaBuilder cb = em.getCriteriaBuilder();
+	            CriteriaQuery<T_ENTITY> query = cb.createQuery(entityClass);
+	            Root<T_ENTITY> root = query.from(entityClass);
+	            query.select(root);
+	            query.orderBy(cb.desc(root.get(BaseEntity.PROPERTY_CREATE)));
+	            results =  em.createQuery(query).getResultList();
+	        }
+	        commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+        	cleanup();
         }
-        return ret;
+        return results;
     }
 
     /**
