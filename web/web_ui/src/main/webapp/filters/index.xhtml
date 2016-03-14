@@ -14,12 +14,12 @@
             reRender=":filterAndFilterGroupForm:messages, :filterAndFilterGroupForm:filterGroupTableId, :filterAndFilterGroupForm:filterTableId"
             selectionTracker="#{filterGroupBean}">
             <f:facet name="actions">
-              <p:commandLink id="newFilterGroupLinkId" title="New Filter Group"
-                action="#{filterGroupCreationBean.newFilterGroup()}" ajax="true"
-                rendered="#{filterGroupCreationBean.canCreateFilterGroup()}">
-                <h:graphicImage id="newFilterGroupImageId" value="/resources/gfx/32/application_add.png" width="32"
-                  height="32" style="padding: 4px 15px 4px 15px;" />
-              </p:commandLink>
+            <div class="toolbar-ui">
+              <p:commandButton id="newFilterGroupLinkId" value="New Filter Group"
+                action="#{filterGroupCreationBean.newFilterGroup()}" ajax="true" icon="ui-icon-plus"
+                rendered="#{filterGroupCreationBean.canCreateFilterGroup()}" style="margin: 0 10px 0 20px; border-radius:5px">
+              </p:commandButton>
+            </div>
             </f:facet>
           </ts:toolbar>
 
@@ -72,13 +72,13 @@
                 <p:commandLink title="Delete #{filterGroupEnvelope.entity.name}"
                   oncomplete="PF('confirmFilterGroup').show();" ajax="true"
                   action="#{filterGroupBean.setSelectedFilter(filterGroupEnvelope)}" update=":confirmFilterGroupId">
-                  <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+                  <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
                 </p:commandLink>
 
                 <p:commandLink id="editGroupLinkId"
                   action="#{filterGroupCreationBean.editFilterGroup(filterGroupEnvelope.entity)}" styleClass="pointer"
                   title="Edit #{filterGroupEnvelope.entity.name}" ajax="true">
-                  <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+                  <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                     style="padding: 2px;" title="Edit #{filterGroupEnvelope.entity.name}" />
                 </p:commandLink>
               </h:panelGroup>
@@ -95,11 +95,11 @@
             selectionTracker="#{filterBean}">
             <f:facet name="actions">
               <h:panelGroup>
-                <p:commandLink title="New Filter" action="#{scriptFilterCreationBean.newFilter()}" ajax="true"
-                  rendered="#{scriptFilterCreationBean.canCreateFilter()}">
-                  <h:graphicImage value="/resources/gfx/32/application_add.png" width="32" height="32"
-                    style="padding: 4px 15px 4px 15px;" />
-                </p:commandLink>
+              <div class="toolbar-ui">
+                <p:commandButton value="New Filter" action="#{scriptFilterCreationBean.newFilter()}" ajax="true" icon="ui-icon-plus"
+                  rendered="#{scriptFilterCreationBean.canCreateFilter()}" style="margin: 0 10px 0 20px; border-radius:5px">
+                </p:commandButton>
+              </div>
               </h:panelGroup>
             </f:facet>
           </ts:toolbar>
@@ -148,12 +148,12 @@
 
                 <p:commandLink title="Delete #{filterEnvelope.entity.name}" oncomplete="PF('confirmDelete').show();" ajax="true"
                   action="#{filterBean.setSelectedFilter(filterEnvelope)}" update=":confirmDeleteFilterDialog, ">
-                  <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+                  <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
                 </p:commandLink>
 
                 <p:commandLink action="#{scriptFilterCreationBean.editFilter(filterEnvelope.entity)}"
                   styleClass="pointer" title="Edit #{filterEnvelope.entity.name}" ajax="true">
-                  <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+                  <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                     style="padding: 2px;" title="Edit #{filterEnvelope.entity.name}" />
                 </p:commandLink>
               </h:panelGroup>

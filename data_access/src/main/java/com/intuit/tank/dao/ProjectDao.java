@@ -33,6 +33,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.transform.Transformers;
 
+import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.ProjectDTO;
@@ -40,6 +41,7 @@ import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
+import com.intuit.tank.view.filter.ViewFilterType;
 
 /**
  * ProductDao
@@ -71,13 +73,39 @@ public class ProjectDao extends OwnableDao<Project> {
      * @param name
      * @return
      */
-    public Project findByName(String name) {
-        String prefix = "x";
-        NamedParameter parameter = new NamedParameter(Project.PROPERTY_NAME, "n", name);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere())
-                .append(buildWhereClause(Operation.EQUALS, prefix, parameter));
-        return super.findOneWithJQL(sb.toString(), parameter);
+    public Project findByName(@Nonnull String name) {
+    	Project project = null;
+    	EntityManager em = getEntityManager();
+    	try {
+    		begin();
+    		CriteriaBuilder cb = em.getCriteriaBuilder();
+	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
+	        Root<Project> root = query.from(Project.class);
+	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
+	        wl.fetch("jobConfiguration");
+	        query.select(root);
+	        query.where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
+	        project = em.createQuery(query).getSingleResult();   		
+    		if( project != null) {
+    			project.getWorkloads().get(0).getJobConfiguration().readConfig();
+    			project.getWorkloads().get(0).getJobConfiguration().getJobRegions();
+    			project.getWorkloads().get(0).getJobConfiguration().getVariables();
+    			project.getWorkloads().get(0).getJobConfiguration().getDataFileIds();
+    			project.getWorkloads().get(0).getJobConfiguration().getNotifications();
+    			for ( TestPlan tp : project.getWorkloads().get(0).getTestPlans() ) {
+    				for (ScriptGroup sg : tp.getScriptGroups() ) {
+    					sg.getScriptGroupSteps();
+    				}
+    			}
+    		}
+    		commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+    	} finally {
+    		cleanup();
+    	}
+    	return project;
     }
 
     /**

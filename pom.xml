@@ -30,7 +30,7 @@
 
     <version.hibernate>4.1.12.Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
-    <version-aws-sdk>1.10.20</version-aws-sdk>
+    <version-aws-sdk>1.10.60</version-aws-sdk>
     <tto.jar.version>1.2.0</tto.jar.version>
     <spring.version>2.5.6</spring.version>
 
@@ -50,7 +50,7 @@
     <version.jersey>1.17.1</version.jersey>
     <version.arquillian>1.1.5.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0.CR7</version.arquillian.tomcat>
-    <version.httpclient>4.5.2</version.httpclient>
+    <version.httpclient>4.5</version.httpclient>
   </properties>
 
 
@@ -841,11 +841,34 @@
       </dependency>
       <dependency>
         <groupId>com.amazonaws</groupId>
-        <artifactId>aws-java-sdk</artifactId>
-        <!-- <version>1.1.9</version> -->
+        <artifactId>aws-java-sdk-ec2</artifactId>
         <version>${version-aws-sdk}</version>
       </dependency>
-      <!-- <dependency> <groupId>wsdl4j</groupId> <artifactId>wsdl4j</artifactId> <version>1.6.2-fixed</version> </dependency> -->
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-s3</artifactId>
+        <version>${version-aws-sdk}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-cloudwatch</artifactId>
+        <version>${version-aws-sdk}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-sns</artifactId>
+        <version>${version-aws-sdk}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-dynamodb</artifactId>
+        <version>${version-aws-sdk}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-simpledb</artifactId>
+        <version>${version-aws-sdk}</version>
+      </dependency>
       <dependency>
         <groupId>commons-discovery</groupId>
         <artifactId>commons-discovery</artifactId>

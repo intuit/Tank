@@ -10,11 +10,11 @@
         <ts:toolbar title="Projects" objectName="Projects" reRender=":mainForm:projectTableId"
           selectionTracker="#{projectDescriptionBean}" showRightComponents="true" id="mainTB">
           <f:facet name="actions">
-            <p:commandLink title="New Project" action="/projects/createProject.xhtml" immediate="true" ajax="true"
-              rendered="#{createProjectBean.canCreateProject()}">
-              <h:graphicImage value="/resources/gfx/32/application_add.png" width="32" height="32"
-                style="padding: 4px 15px 4px 15px;" />
-            </p:commandLink>
+          <div class="toolbar-ui">
+            <p:commandButton value="New Project" action="/projects/createProject.xhtml" immediate="true" ajax="true"
+              icon="ui-icon-plus" rendered="#{createProjectBean.canCreateProject()}" style="margin: 0 10px 0 20px; border-radius:5px">
+            </p:commandButton>
+          </div>
           </f:facet>
           <f:facet name="additional-group">
             <p:selectCheckboxMenu value="#{projectDescriptionBean.tablePrefs.visibleColumns}"
@@ -135,12 +135,12 @@
 
               <p:commandLink title="Delete #{pe.entity.name}" oncomplete="PF('confirmDelete').show()" ajax="true"
                 action="#{projectDescriptionBean.setSelectedProject(pe)}" update=":confirmDeleteDialog">
-                <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+                <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
               </p:commandLink>
 
               <p:commandLink id="btnOpen" action="#{projectBean.openProject(pe.entity)}" title="Edit #{pe.entity.name}"
                 ajax="true">
-                <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+                <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                   style="padding: 2px;" />
               </p:commandLink>
             </h:panelGroup>

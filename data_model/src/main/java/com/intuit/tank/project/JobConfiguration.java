@@ -87,7 +87,6 @@ public class JobConfiguration extends BaseJob {
 	        	setNumUsersPerAgent(type.getUsers());
 	        }
 	    }
-	    setTankClientClass(new TankConfig().getAgentConfig().getTankClientClassDefault());
     }
     
     /**
