@@ -259,8 +259,10 @@ public class AmazonInstance implements IEnvironmentInstance {
                 List<String> randomizedIps = new ArrayList<String>(availableEips);
                 Collections.shuffle(randomizedIps);
                 RunInstancesRequest runInstancesRequest = new RunInstancesRequest(image, number, number);
-                runInstancesRequest.withInstanceType(size.toString()).withKeyName(keyPair).withMonitoring(true).withUserData(userData);
-                runInstancesRequest.withMonitoring(true);
+                runInstancesRequest.withInstanceType(size.toString())
+                					.withKeyName(keyPair)
+                					.withMonitoring(true)
+                					.withUserData(userData);
 
                 // add subnet if defined
                 if (!StringUtils.isEmpty(instanceDescription.getSubnetId())) {

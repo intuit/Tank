@@ -17,8 +17,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
@@ -94,7 +95,7 @@ public abstract class AbstractReplacement {
      */
     protected List<ReplaceEntity> getReplacementInValue(String searchQuery, String replaceString, String value,
             String type, String key) {
-        if ((searchQuery.isEmpty()) || (value).isEmpty()) {
+        if (StringUtils.isEmpty(searchQuery) || StringUtils.isEmpty(value)) {
             return Collections.emptyList();
         }
         if (!this.type.equals(type)) {
@@ -115,7 +116,7 @@ public abstract class AbstractReplacement {
 
     protected List<ReplaceEntity> getReplacementInKey(String searchQuery, String replaceString, String value,
             String type, String key) {
-        if ((searchQuery).isEmpty() || (value).isEmpty()) {
+        if (StringUtils.isEmpty(searchQuery) || StringUtils.isEmpty(value)) {
             return Collections.emptyList();
         }
         if (!this.type.equals(type)) {
