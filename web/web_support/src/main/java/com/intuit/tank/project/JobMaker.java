@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.enterprise.context.ConversationScoped;
-import javax.enterprise.context.Conversation;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -66,9 +65,6 @@ public class JobMaker implements Serializable {
 
     @Inject
     private ProjectBean projectBean;
-
-    @Inject
-    private Conversation conversation;
     
     private String name;
 
@@ -102,7 +98,6 @@ public class JobMaker implements Serializable {
     }
 
     public void init() {
-    	conversation.setTimeout(300000);
     }
 
     /**
