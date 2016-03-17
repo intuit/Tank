@@ -6,12 +6,12 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>tank-parent-doc</artifactId>
-    <version>2.1.6</version>
+    <version>2.2.0</version>
   </parent>
 
   <artifactId>tank-common-jdocbook-style</artifactId>
 
-  <packaging>jdocbook-style</packaging>
+  <packaging>pom</packaging>
   <name>Intuit Tank JDocBook Style</name>
   <description>CSS and images to style XHTML Intuit Tank Documentation.</description>
   <url>http://tank.intuit.com</url>

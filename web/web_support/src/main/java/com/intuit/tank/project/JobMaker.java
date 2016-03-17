@@ -65,7 +65,7 @@ public class JobMaker implements Serializable {
 
     @Inject
     private ProjectBean projectBean;
-
+    
     private String name;
 
     private String submitInfo;

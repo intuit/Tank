@@ -45,8 +45,9 @@ public class ScriptUtil {
 
     public static long getRunTime(List<ScriptStep> steps, Map<String, String> variables) {
         long runTime = 0;
+        TankConfig tankConfig = new TankConfig();
         for (ScriptStep step : steps) {
-            runTime += calculateStepDuration(step, variables);
+            runTime += calculateStepDuration(step, variables, tankConfig);
         }
         return runTime;
     }
@@ -393,10 +394,9 @@ public class ScriptUtil {
         return ret;
     }
 
-    public static long calculateStepDuration(ScriptStep step, Map<String, String> variables) {
+    public static long calculateStepDuration(ScriptStep step, Map<String, String> variables, TankConfig config) {
         long result = 0;
         try {
-            TankConfig config = new TankConfig();
             if (step.getType().equalsIgnoreCase("request")) {
                 result = config.getAgentConfig().getRange(step.getMethod()).getRandomValueWithin();
             } else if (step.getType().equalsIgnoreCase("variable")) {

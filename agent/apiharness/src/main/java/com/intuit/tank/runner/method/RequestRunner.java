@@ -123,7 +123,7 @@ public class RequestRunner implements Runner {
         protocol = processProtocol(request.getProtocol());
         port = processPort(request.getPort());
         if (port == null) {
-            port = protocol.equalsIgnoreCase("https") ? "443" : "80";
+            port = "-1";
         }
 
         respFormat = StringUtils.isEmpty(response.getRespFormat()) ? "json" : response.getRespFormat();

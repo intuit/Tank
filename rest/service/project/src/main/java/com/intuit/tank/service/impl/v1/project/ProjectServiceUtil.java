@@ -31,6 +31,7 @@ import com.intuit.tank.perfManager.workLoads.util.WorkloadScriptUtil;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Project;
+import com.intuit.tank.project.ProjectDTO;
 import com.intuit.tank.project.Workload;
 
 /**
@@ -96,6 +97,7 @@ public class ProjectServiceUtil {
     public static String getScriptString(JobInstance job) {
         WorkloadDao dao = new WorkloadDao();
         Workload workload = dao.findById(job.getWorkloadId());
+        workload.getTestPlans();
         dao.loadScriptsForWorkload(workload);
         return WorkloadScriptUtil.getScriptForWorkload(workload, job);
     }

@@ -118,16 +118,16 @@
             <p:commandLink title="Delete #{selectableDataFile.entity.path}" oncomplete="PF('confirmDelete').show();"
               ajax="true" immediate="true" action="#{dataFileBrowser.setSelectedFile(selectableDataFile)}"
               update=":confirmDeleteDialog">
-              <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+              <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
             </p:commandLink>
             <p:commandLink styleClass="no-decor" render="viewGrid, viewPaneHeader" immediate="true" update=":viewPaneID"
               oncomplete="PF('viewPane').show();" action="#{dataFileBrowser.setViewDatafile(selectableDataFile.entity)}">
-              <h:graphicImage value="/resources/gfx/16/magnifier.png" width="16px" height="16px" style="padding: 2px;"
+              <h:graphicImage library="gfx" name="16/magnifier.png" width="16px" height="16px" style="padding: 2px;"
                 title="View sample of #{selectableDataFile.entity.path}" />
             </p:commandLink>
             <h:outputLink title="Download CSV Data"
               value="#{dataFileBrowser.getDataFileDownloadLink(selectableDataFile.entity)}">
-              <h:graphicImage value="/resources/gfx/16/download.png" width="16px" height="16px" style="padding: 2px" />
+              <h:graphicImage library="gfx" name="16/download.png" width="16px" height="16px" style="padding: 2px" />
             </h:outputLink>
           </h:panelGroup>
         </p:column>

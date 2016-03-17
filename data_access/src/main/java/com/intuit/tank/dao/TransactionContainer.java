@@ -34,13 +34,8 @@ public class TransactionContainer {
     private static final Logger LOG = Logger.getLogger(TransactionContainer.class);
 
     private static EntityManagerFactory entityManagerFactory;
-    static {
-        try {
-            entityManagerFactory = Persistence.createEntityManagerFactory("wats");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    private static volatile boolean initialized = false;  
+    private static Boolean lock = new Boolean(true);
 
     private EntityManager em;
     private EntityTransaction transaction;
@@ -51,7 +46,21 @@ public class TransactionContainer {
      * @param initiatingObject
      */
     public TransactionContainer() {
-
+    	synchronized(lock){  
+            
+  	      if(initialized){  
+  	        return;  
+  	      }  
+  	        
+  	      initialized = true;  
+  	        
+  	      try{  
+  	    	  entityManagerFactory = Persistence.createEntityManagerFactory("wats"); 
+  	          
+  	      } catch(Throwable t){  
+  	        LOG.error("Failed to setup persistence unit!", t);  
+  	      }  
+  	}  
     }
 
     /**

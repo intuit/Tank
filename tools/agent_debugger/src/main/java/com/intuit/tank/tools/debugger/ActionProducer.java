@@ -379,7 +379,7 @@ public class ActionProducer {
         if (ret == null) {
             ret = new AbstractAction(ACTION_SELECT_TANK) {
                 private static final long serialVersionUID = 1L;
-                final JComboBox cb = getComboBox();
+                final JComboBox<String> cb = getComboBox();
 
                 @Override
                 public void actionPerformed(ActionEvent event) {
@@ -439,8 +439,8 @@ public class ActionProducer {
         }
     }
 
-    private static JComboBox getComboBox() {
-        JComboBox cb = new JComboBox();
+    private static JComboBox<String> getComboBox() {
+        JComboBox<String> cb = new JComboBox<String>();
         cb.setEditable(true);
         Properties props = new Properties();
         File f = new File(DEBUGGER_PROPERTIES);
@@ -529,7 +529,7 @@ public class ActionProducer {
                             }).start();
                         }
                     } catch (Exception e1) {
-                        showError("Error downloading script: " + e1);
+                        showError("Error downloading scripts: " + e1);
                     }
                 }
             };
@@ -616,13 +616,7 @@ public class ActionProducer {
                 public void actionPerformed(ActionEvent e) {
                     try {
                         List<ProjectTO> projects = projectServiceClient.getProjects();
-                        Collections.sort(projects, new Comparator<ProjectTO>() {
-
-                            @Override
-                            public int compare(ProjectTO o1, ProjectTO o2) {
-                                return o2.getCreated().compareTo(o1.getCreated());
-                            }
-                        });
+                        Collections.reverse(projects);
                         SelectDialog<ProjectTO> selectDialog = new SelectDialog<ProjectTO>(debuggerFrame,
                                 projects, "project");
                         selectDialog.setVisible(true);
@@ -645,7 +639,7 @@ public class ActionProducer {
                                     } catch (Exception e1) {
                                         e1.printStackTrace();
                                         debuggerFrame.stopWaiting();
-                                        showError("Error opening projects: " + e1);
+                                        showError("Error downloading project: " + e1);
                                     } finally {
                                         debuggerFrame.stopWaiting();
                                     }
@@ -653,7 +647,7 @@ public class ActionProducer {
                             }).start();
                         }
                     } catch (Exception e1) {
-                        showError("Error opening projects: " + e1);
+                        showError("Error downloading projects: " + e1);
                     }
                 }
 

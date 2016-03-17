@@ -16,7 +16,6 @@ import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.google.common.io.Files;
 import com.intuit.tank.test.TestGroups;
 
 import junit.framework.Assert;
@@ -34,7 +33,7 @@ public class FileStorageFactoryTest {
         String s = "This is a test";
         File f = new File("target/storage");
         if (f.exists() && f.isDirectory()) {
-            Files.deleteDirectoryContents(f);
+        	FileUtils.deleteDirectory(f);
         }
         ByteArrayInputStream bis = new ByteArrayInputStream(s.getBytes());
         FileStorage storage = FileStorageFactory.getFileStorage(f.getAbsolutePath(), false);
@@ -59,7 +58,7 @@ public class FileStorageFactoryTest {
         String s = "This is a test";
         File f = new File("target/storage");
         if (f.exists() && f.isDirectory()) {
-            Files.deleteDirectoryContents(f);
+        	FileUtils.deleteDirectory(f);
         }
         FileStorage storage = FileStorageFactory.getFileStorage(f.getAbsolutePath(), true);
         ByteArrayInputStream bis = new ByteArrayInputStream(s.getBytes());
@@ -179,7 +178,7 @@ public class FileStorageFactoryTest {
     public void testFileList() throws Exception {
         String s = "This is a test";
         File f = new File("target/storage");
-        Files.deleteDirectoryContents(f);
+    	FileUtils.deleteDirectory(f);
         FileStorage storage = FileStorageFactory.getFileStorage(f.getAbsolutePath(), true);
         
         FileData fd = new FileData("", "test1.txt");

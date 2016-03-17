@@ -185,6 +185,17 @@ public class JobInstance extends BaseJob {
     public void setVariables(Map<String, String> variables) {
         this.variables = variables;
     }
+    
+    /**
+     * @return the dataFileIds
+     */
+    public Set<Integer> getDataFileIds() {
+        Set<Integer> ret = new HashSet<Integer>();
+        for (EntityVersion ev : dataFileVersions) {
+        	ret.add(ev.getObjectId());
+        }
+        return ret;
+    }
 
     /**
      * @return the startTime

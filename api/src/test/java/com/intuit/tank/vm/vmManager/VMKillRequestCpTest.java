@@ -77,7 +77,7 @@ public class VMKillRequestCpTest {
     public void testVMKillRequest_3()
             throws Exception {
         VMProvider provider = VMProvider.Amazon;
-        List<String> instanceIds = new LinkedList();
+        List<String> instanceIds = new LinkedList<String>();
 
         VMKillRequest result = new VMKillRequest(provider, instanceIds);
 
@@ -95,7 +95,7 @@ public class VMKillRequestCpTest {
     public void testGetInstances_1()
             throws Exception {
         VMKillRequest fixture = new VMKillRequest();
-        fixture.items = new HashMap();
+        fixture.items = new HashMap<String,Object>();
 
         List<String> result = fixture.getInstances();
 
@@ -113,8 +113,8 @@ public class VMKillRequestCpTest {
     public void testSetInstances_1()
             throws Exception {
         VMKillRequest fixture = new VMKillRequest();
-        fixture.items = new HashMap();
-        List<String> data = new LinkedList();
+        fixture.items = new HashMap<String,Object>();
+        List<String> data = new LinkedList<String>();
 
         fixture.setInstances(data);
 

@@ -15,6 +15,7 @@
       <ts:toolbar title="Project: #{projectBean.project.name}" toolbarId="actionsTB">
         <f:facet name="actions">
           <h:panelGroup styleClass="toolbar-ui" id="projectActions">
+          <div class="toolbar-ui">
             <p:commandButton id="tbSaveBtn" value="Save" action="#{projectBean.save()}" 
                 
               title="Save Changes to Project #{projectBean.project.name}" ajax="true" 
@@ -39,7 +40,7 @@
 				    background-position: 3px 5px;
 				    border-radius:5px;"
               styleClass="icon-button h-space" />
-
+			</div>
           </h:panelGroup>
         </f:facet>
       </ts:toolbar>

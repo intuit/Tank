@@ -22,13 +22,20 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Fetch;
+import javax.persistence.criteria.Root;
 
 import org.apache.log4j.Logger;
 import org.hibernate.LockOptions;
 
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobQueue;
+import com.intuit.tank.project.Project;
+import com.intuit.tank.project.Workload;
 
 /**
  * ProductDao
@@ -90,16 +97,26 @@ public class JobQueueDao extends BaseDao<JobQueue> {
     }
 
     public List<JobQueue> findRecent() {
-        String prefix = "x";
         Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_YEAR, -5);
-        NamedParameter parameter = new NamedParameter(JobQueue.PROPERTY_MODIFIED, "m", c.getTime());
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere())
-                .append(buildWhereClause(Operation.GREATER_THAN, prefix, parameter));
-        List<JobQueue> resultList = super.listWithJQL(sb.toString(), parameter);
-//        LOG.info("Retrieved " + resultList.size() + " from query " + sb.toString());
-        return resultList;
+    	List<JobQueue> results = null;
+    	EntityManager em = getEntityManager();
+    	try {
+    		begin();
+	        CriteriaBuilder cb = em.getCriteriaBuilder();
+	        CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
+	        Root<JobQueue> root = query.from(JobQueue.class);
+	        query.select(root);
+	        query.where(cb.greaterThan(root.<Date>get(JobQueue.PROPERTY_MODIFIED), c.getTime()));
+	        results = em.createQuery(query).getResultList();
+	        commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+    	} finally {
+    		cleanup();
+    	}
+    	return results;
     }
 
     public JobQueue findForJobId(Integer jobId) {

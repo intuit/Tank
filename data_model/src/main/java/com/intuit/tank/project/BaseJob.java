@@ -13,8 +13,8 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.EnumType;
@@ -29,7 +29,6 @@ import com.intuit.tank.vm.api.enumerated.Location;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
-import com.intuit.tank.vm.settings.VmInstanceType;
 
 @MappedSuperclass
 public abstract class BaseJob extends BaseEntity {
@@ -107,14 +106,6 @@ public abstract class BaseJob extends BaseEntity {
      */
     public BaseJob() {
         super();
-        List<VmInstanceType> types = new TankConfig().getVmManagerConfig().getInstanceTypes();
-        for (VmInstanceType type : types) {
-            if (type.isDefault()) {
-                this.vmInstanceType = type.getName();
-                this.numUsersPerAgent = type.getUsers();
-            }
-        }
-        tankClientClass = new TankConfig().getAgentConfig().getTankClientClassDefault();
     }
 
     /**
@@ -142,6 +133,8 @@ public abstract class BaseJob extends BaseEntity {
     }
 
     public abstract Map<String, String> getVariables();
+    
+    public abstract Set<Integer> getDataFileIds();
 
     /**
      * @return the tankClientClass

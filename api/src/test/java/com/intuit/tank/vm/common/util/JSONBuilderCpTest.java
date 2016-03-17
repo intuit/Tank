@@ -53,7 +53,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -73,7 +73,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -93,7 +93,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -113,7 +113,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -133,7 +133,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -153,7 +153,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -173,7 +173,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -193,7 +193,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -213,7 +213,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -233,7 +233,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -253,7 +253,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -273,7 +273,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -293,7 +293,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -313,7 +313,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -333,7 +333,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -353,7 +353,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String keySequence = "";
         String value = "";
 
@@ -373,7 +373,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
 
         JSONObject result = fixture.getJson();
 
@@ -395,7 +395,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         String key = "";
 
         String result = fixture.getValue(key);
@@ -431,7 +431,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
 
         String result = fixture.toJsonString();
 
@@ -450,7 +450,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         int indent = 1;
 
         String result = fixture.toJsonString(indent);
@@ -470,7 +470,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
         int indent = 1;
 
         String result = fixture.toJsonString(indent);
@@ -490,7 +490,7 @@ public class JSONBuilderCpTest {
             throws Exception {
         JSONBuilder fixture = new JSONBuilder();
         fixture.json = new JSONObject();
-        fixture.valueMap = new HashMap();
+        fixture.valueMap = new HashMap<String,String>();
 
         String result = fixture.toString();
 

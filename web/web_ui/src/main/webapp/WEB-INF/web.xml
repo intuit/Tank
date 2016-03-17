@@ -121,7 +121,7 @@
     </init-param>
     <init-param>
       <param-name>com.sun.jersey.config.property.packages</param-name>
-      <param-value>com.intuit.tank.service.impl.v1;</param-value>
+      <param-value>com.intuit.tank.service.impl.v1;com.intuit.tank.service.impl.v2</param-value>
     </init-param>
     <init-param>
       <param-name>com.sun.jersey.config.feature.Formatted</param-name>
@@ -154,9 +154,14 @@
     <servlet-name>Intuit Tank REST API</servlet-name>
     <url-pattern>/rest/*</url-pattern>
   </servlet-mapping>
+  
+  <error-page>
+    <exception-type>org.jboss.weld.context.NonexistentConversationException</exception-type>
+    <location>/index.xhtml</location>
+  </error-page>
 
   <session-config>
-    <session-timeout>60</session-timeout>
+    <session-timeout>120</session-timeout>
   </session-config>
 
   <!-- This section is optional. We are allowing index.jsf to handle the 

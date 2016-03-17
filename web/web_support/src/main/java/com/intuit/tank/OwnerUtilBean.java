@@ -23,7 +23,6 @@ import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.hibernate.tool.hbm2x.StringUtils;
 import org.jboss.seam.security.Identity;
 
 import com.intuit.tank.admin.UserAdmin;
@@ -63,7 +62,7 @@ public class OwnerUtilBean implements Serializable {
         boolean retVal = true;
         if (isOwnable(obj)) {
             OwnableEntity entity = (OwnableEntity) obj;
-            if (StringUtils.isEmpty(entity.getCreator())) {
+            if ((entity.getCreator()).isEmpty()) {
                 entity.setCreator(identity.getUser().getId());
             }
             if (security.isOwner((OwnableEntity) entity) || security.isAdmin()) {
