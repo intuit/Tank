@@ -35,7 +35,7 @@
   	</licenses>
 
 	<properties>
-		<version.tank-proxy>2.2.0</version.tank-proxy>
+		<version.tank-proxy>2.1.6</version.tank-proxy>
 	</properties>
 
 	<build>
