@@ -18,6 +18,9 @@ package com.intuit.tank.dao;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.project.Script;
@@ -42,6 +45,32 @@ public class WorkloadDao extends BaseDao<Workload> {
     public WorkloadDao() {
         super();
         setReloadEntities(true);
+    }
+    
+    
+    /**
+     * This is an override of the BaseEntity to initiate eager loading when needed.
+     * 
+     * @param id
+     *            the primary key
+     * @return the entity or null
+     */
+    @Nullable
+    @Override
+    public Workload findById(@Nonnull Integer id) {
+    	Workload workload = null;
+    	try {
+//   		begin();
+    		workload = getEntityManager().find(Workload.class, id);
+    		if(workload != null) {
+    			workload.getJobConfiguration();
+    			workload.getTestPlans();
+    		}
+//    		commit();
+		} finally {
+			cleanup();
+		}
+		return workload;
     }
 
     public Workload loadScriptsForWorkload(Workload workload) {

@@ -20,15 +20,11 @@
         showRightComponents="true">
         <f:facet name="actions">
           <h:panelGroup styleClass="toolbar-ui" layout="block">
-            <p:commandLink title="New Script"
-              action="#{scriptCreationBean.createNewScript()}"
-              ajax="true"
-              rendered="#{scriptCreationBean.canCreateScript()}">
-              <h:graphicImage
-                value="/resources/gfx/32/application_add.png" width="32"
-                height="32" style="padding: 4px 15px 4px 15px;" />
-            </p:commandLink>
-
+           <div class="toolbar-ui">
+            <p:commandButton value="New Script"
+              action="#{scriptCreationBean.createNewScript()}" ajax="true" icon="ui-icon-plus"
+              rendered="#{scriptCreationBean.canCreateScript()}" style="margin: 0 10px 0 20px; border-radius:5px">
+            </p:commandButton>
             <p:commandButton value="Import Intuit Tank XML"
               oncomplete="PF('xmlUploadDialog').show();"
               immediate="true"
@@ -41,6 +37,7 @@
               styleClass="icon-button h-space"
               rendered="#{scriptCreationBean.canCreateScript()}">
             </p:commandButton>
+          </div>
           </h:panelGroup>
         </f:facet>
         <f:facet name="additional-group">
@@ -211,7 +208,7 @@
             oncomplete="PF('confirmDelete').show();" ajax="true"
             action="#{scriptBean.setSelectedScript(selectable)}"
             update=":confirmDeleteDialogId">
-            <h:graphicImage value="/resources/gfx/16/delete.png"
+            <h:graphicImage library="gfx" name="16/delete.png"
               width="16px" height="16px" style="padding: 2px;" />
           </p:commandLink>
 
@@ -219,7 +216,7 @@
             action="#{scriptEditor.editScript(selectable.entity)}"
             styleClass="pointer" ajax="true">
             <h:graphicImage
-              value="/resources/gfx/16/document_editing.png"
+              library="gfx" name="16/document_editing.png"
               width="16px" height="16px" style="padding: 2px;"
               title="Edit #{selectable.entity.name}" />
           </p:commandLink>
@@ -228,21 +225,21 @@
             oncomplete="PF('saveAsConfirm').show();" ajax="true"
             action="#{scriptBean.setSelectedScript(selectable)}"
             update=":saveAsConfirmForm:saveAsConfirmId">
-            <h:graphicImage value="/resources/gfx/16/save_as.png"
+            <h:graphicImage library="gfx" name="16/save_as.png"
               width="16px" height="16px" style="padding: 2px;" />
           </p:commandLink>
 
           <p:commandLink id="downloadHarnessBT"
             title="Download Harness XML"
             onclick="location.href='#{request.contextPath}/rest/v1/script-service/download/harness/script/#{selectable.entity.id}'">
-            <h:graphicImage value="/resources/gfx/16/download.png"
+            <h:graphicImage library="gfx" name="16/download.png"
               width="16px" height="16px" style="padding: 2px;"
               title="Download Harness XML" />
           </p:commandLink>
           <p:commandLink id="downloadTSBT"
             title="Download Intuit Tank XML"
             onclick="location.href='#{request.contextPath}/rest/v1/script-service/download/script/#{selectable.entity.id}'">
-            <h:graphicImage value="/resources/gfx/16/download.png"
+            <h:graphicImage library="gfx" name="16/download.png"
               width="16px" height="16px" style="padding: 2px;"
               title="Download Tank XML" />
           </p:commandLink>

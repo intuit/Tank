@@ -64,6 +64,7 @@ import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.Project;
+import com.intuit.tank.project.ProjectDTO;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.service.impl.v1.cloud.JobController;
 import com.intuit.tank.service.util.ResponseUtil;
@@ -143,8 +144,7 @@ public class ProjectServiceV1 implements ProjectService {
         File f = ProjectDaoUtil.getScriptFile(jobId);
         if (!f.exists()) {
             if (NumberUtils.isNumber(jobId)) {
-                JobInstanceDao dao = new JobInstanceDao();
-                JobInstance job = dao.findById(Integer.parseInt(jobId));
+                JobInstance job = new JobInstanceDao().findById(Integer.parseInt(jobId));
                 if (job == null) {
                     throw new RuntimeException("Cannot find Job with id of " + jobId);
                 }
@@ -178,14 +178,11 @@ public class ProjectServiceV1 implements ProjectService {
      */
     @Override
     public StreamingOutput getTestScriptForProject(Integer projectId) {
-        ProjectDao dao = new ProjectDao();
-        Project p = dao.findById(projectId);
+        Project p = new ProjectDao().loadScripts(projectId);
         if (p == null) {
             throw new RuntimeException("Cannot find Project with id of " + projectId);
         }
-        Workload workload = p.getWorkloads().get(0);
-        workload = new WorkloadDao().loadScriptsForWorkload(workload);
-        final String scriptString = WorkloadScriptUtil.getScriptForWorkload(workload, workload.getJobConfiguration());
+        final String scriptString = WorkloadScriptUtil.getScriptForWorkload(p.getWorkloads().get(0), p.getWorkloads().get(0).getJobConfiguration());
         return new StreamingOutput() {
             public void write(OutputStream outputStream) {
                 // Get the object of DataInputStream

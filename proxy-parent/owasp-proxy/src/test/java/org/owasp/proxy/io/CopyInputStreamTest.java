@@ -55,6 +55,7 @@ public class CopyInputStreamTest {
             assertEquals(sample, new String(copies[0].toByteArray()));
             assertEquals(new String(copies[0].toByteArray()), new String(
                     copies[1].toByteArray()));
+            cis.close();
         } catch (IOException ioe) {
             fail("IOException not expected!" + ioe);
             ioe.printStackTrace();
@@ -71,6 +72,7 @@ public class CopyInputStreamTest {
             assertEquals(sample, new String(copies[0].toByteArray()));
             assertEquals(new String(copies[0].toByteArray()), new String(
                     copies[1].toByteArray()));
+            cis.close();
         } catch (IOException ioe) {
             fail("IOException not expected!" + ioe);
             ioe.printStackTrace();
@@ -87,6 +89,7 @@ public class CopyInputStreamTest {
             assertEquals(sample, new String(copies[0].toByteArray()));
             assertEquals(new String(copies[0].toByteArray()), new String(
                     copies[1].toByteArray()));
+            cis.close();
         } catch (IOException ioe) {
             fail("IOException not expected!" + ioe);
             ioe.printStackTrace();

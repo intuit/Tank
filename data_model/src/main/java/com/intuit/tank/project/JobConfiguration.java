@@ -15,6 +15,7 @@ package com.intuit.tank.project;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,6 +37,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.envers.Audited;
 
+import com.intuit.tank.vm.settings.TankConfig;
+import com.intuit.tank.vm.settings.VmInstanceType;
 import com.intuit.tank.vm.vmManager.JobUtil;
 
 @Entity
@@ -76,6 +79,16 @@ public class JobConfiguration extends BaseJob {
         super();
     }
 
+    public void readConfig() {
+	    List<VmInstanceType> types = new TankConfig().getVmManagerConfig().getInstanceTypes();
+	    for (VmInstanceType type : types) {
+	        if (type.isDefault()) {
+	        	setVmInstanceType( type.getName());
+	        	setNumUsersPerAgent(type.getUsers());
+	        }
+	    }
+    }
+    
     /**
      * @return the workload
      */

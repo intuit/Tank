@@ -27,6 +27,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
+import java.util.UUID;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.jexl2.JexlContext;
@@ -556,4 +557,18 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
         }
         return toDecode;
     }
+    
+    /**
+     * UUID random generator
+     * 
+     * @return the new UUID string
+     */
+    public String getUUID(){
+        //generate random UUIDs
+        return UUID.randomUUID().toString();
+      }
+     
+      private static void log(Object aObject){
+        System.out.println( String.valueOf(aObject) );
+      }
 }

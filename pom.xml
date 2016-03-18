@@ -4,7 +4,7 @@
 
   <groupId>com.intuit.tank</groupId>
   <artifactId>tank-parent</artifactId>
-  <version>2.1.6</version>
+  <version>2.2.0</version>
 
   <packaging>pom</packaging>
   <name>Tank Parent</name>
@@ -26,20 +26,20 @@
     <cert.store.password>tanktank</cert.store.password>
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
-    <version.okhttp>2.5.0</version.okhttp>
+    <version.okhttp>2.7.5</version.okhttp>
 
-    <version.hibernate>3.5.6-Final</version.hibernate>
+    <version.hibernate>4.1.12.Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
-    <version-aws-sdk>1.10.20</version-aws-sdk>
+    <version-aws-sdk>1.10.60</version-aws-sdk>
     <tto.jar.version>1.2.0</tto.jar.version>
     <spring.version>2.5.6</spring.version>
 
-    <weld-version>1.1.1.Final</weld-version>
-    <cdi-version>1.0-SP4</cdi-version>
+    <weld-version>1.1.32.Final</weld-version>
+    <cdi-version>1.2</cdi-version>
     <version.seam>3.0.0.Final</version.seam>
-    <slf.version>1.5.10</slf.version>
+    <slf.version>1.7.2</slf.version>
 
-    <version.enunciate>1.30</version.enunciate>
+    <version.enunciate>1.31</version.enunciate>
 
     <version.mojarra>2.0.6</version.mojarra>
     <version.jsf-api>2.0.6</version.jsf-api>
@@ -47,7 +47,7 @@
     <version.primefaces-ext>3.0.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.12</version.surefire>
-    <version.jersey>1.4</version.jersey>
+    <version.jersey>1.17.1</version.jersey>
     <version.arquillian>1.1.5.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0.CR7</version.arquillian.tomcat>
     <version.httpclient>4.5</version.httpclient>
@@ -167,6 +167,14 @@
     <contributor>
       <name>Justin Hermes</name>
       <email>justin_hermes@intuit.com</email>
+      <organization>Intuit, Inc.</organization>
+      <organizationUrl>http://www.intuit.com</organizationUrl>
+      <timezone>America/Los_Angeles</timezone>
+    </contributor>
+
+    <contributor>
+      <name>Kevin McGoldrick</name>
+      <email>kevin_mcgoldrick@intuit.com</email>
       <organization>Intuit, Inc.</organization>
       <organizationUrl>http://www.intuit.com</organizationUrl>
       <timezone>America/Los_Angeles</timezone>
@@ -323,14 +331,12 @@
       <artifactId>easymockclassextension</artifactId>
       <scope>test</scope>
     </dependency>
-
+    
     <dependency>
-      <groupId>org.jboss.spec</groupId>
-      <artifactId>jboss-javaee-6.0</artifactId>
-      <version>1.0.0.Final</version>
-      <type>pom</type>
-      <scope>provided</scope>
-    </dependency>
+	  <groupId>javax.ejb</groupId>
+	  <artifactId>ejb-api</artifactId>
+	  <version>3.0</version>
+	</dependency>
 
     <dependency>
       <groupId>org.jboss.arquillian.testng</groupId>
@@ -572,12 +578,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.seam.persistence</groupId>
-        <artifactId>seam-persistence</artifactId>
-        <version>${version.seam}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.jboss.seam.config</groupId>
         <artifactId>seam-config-xml</artifactId>
         <version>${version.seam}</version>
@@ -590,18 +590,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-annotations</artifactId>
-        <version>${version.hibernate}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-c3p0</artifactId>
-        <version>${version.hibernate}</version>
-      </dependency>
-
-      <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
         <version>1.3.148</version>
@@ -610,7 +598,7 @@
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>4.1.0.Final</version>
+        <version>4.3.2.Final</version>
       </dependency>
 
       <dependency>
@@ -753,7 +741,7 @@
         <artifactId>simple</artifactId>
         <version>4.1.21</version>
       </dependency>
-
+      
       <dependency>
         <groupId>com.sun.jersey.contribs</groupId>
         <artifactId>jersey-multipart</artifactId>
@@ -771,10 +759,10 @@
         <artifactId>jersey-server</artifactId>
         <version>${version.jersey}</version>
       </dependency>
-
+      
       <dependency>
-        <groupId>com.sun.jersey</groupId>
-        <artifactId>jersey-core</artifactId>
+		<groupId>com.sun.jersey</groupId>
+		<artifactId>jersey-servlet</artifactId>
         <version>${version.jersey}</version>
       </dependency>
 
@@ -852,6 +840,7 @@
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
         <version>2.4.0</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -860,11 +849,34 @@
       </dependency>
       <dependency>
         <groupId>com.amazonaws</groupId>
-        <artifactId>aws-java-sdk</artifactId>
-        <!-- <version>1.1.9</version> -->
+        <artifactId>aws-java-sdk-ec2</artifactId>
         <version>${version-aws-sdk}</version>
       </dependency>
-      <!-- <dependency> <groupId>wsdl4j</groupId> <artifactId>wsdl4j</artifactId> <version>1.6.2-fixed</version> </dependency> -->
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-s3</artifactId>
+        <version>${version-aws-sdk}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-cloudwatch</artifactId>
+        <version>${version-aws-sdk}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-sns</artifactId>
+        <version>${version-aws-sdk}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-dynamodb</artifactId>
+        <version>${version-aws-sdk}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-simpledb</artifactId>
+        <version>${version-aws-sdk}</version>
+      </dependency>
       <dependency>
         <groupId>commons-discovery</groupId>
         <artifactId>commons-discovery</artifactId>
@@ -919,22 +931,6 @@
         <groupId>javax.activation</groupId>
         <artifactId>activation</artifactId>
         <version>1.1</version>
-      </dependency>
-      <!-- Oracle jars -->
-      <dependency>
-        <groupId>oracle-jdbc</groupId>
-        <artifactId>ojdbc</artifactId>
-        <version>14</version>
-      </dependency>
-      <dependency>
-        <groupId>oracle-jdbc</groupId>
-        <artifactId>ons</artifactId>
-        <version>1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql-connector-java</artifactId>
-        <version>5.1.16</version>
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
@@ -1176,7 +1172,7 @@
         <plugin>
           <groupId>org.jboss.maven.plugins</groupId>
           <artifactId>maven-jdocbook-plugin</artifactId>
-          <version>2.3.7</version>
+          <version>2.3.9</version>
         </plugin>
 
         <plugin>
@@ -1513,12 +1509,18 @@
   </repositories>
   <pluginRepositories>
 
-    <pluginRepository>
+<!--    <pluginRepository>
       <id>jboss-public-repository</id>
       <name>JBoss Public Maven Repository</name>
       <url>https://repository.jboss.org/nexus/content/groups/public</url>
       <layout>default</layout>
-    </pluginRepository>
+    </pluginRepository>-->
+    <pluginRepository>
+     <id>JBoss Repo</id>
+     <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
+     <name>JBoss Repo</name>
+     <layout>default</layout>
+   </pluginRepository>  
     <pluginRepository>
       <id>Maven Central 2 plugins</id>
       <name>Central</name>

@@ -56,22 +56,6 @@
       <!-- JDBC connection pool (use the built-in) -->
       <property name="hibernate.connection.pool_size" value="10" />
 
-      <!-- configuration pool via c3p0 -->
-      <!-- <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
-      <property name="hibernate.connection.provider_class" value="org.hibernate.connection.C3P0ConnectionProvider" />
-      <property name="hibernate.c3p0.min_size" value="1" />
-      <property name="hibernate.c3p0.max_size" value="40" />
-      <property name="hibernate.c3p0.timeout" value="120" />
-      <property name="hibernate.c3p0.idle_test_period" value="60" />
-      <property name="hibernate.c3p0.max_statements" value="10" />
-      <property name="hibernate.c3p0.preferredTestQuery" value="select 1" />
-
-      <property name="hibernate.connection.autoReconnect" value="true"/>
-      <property name="hibernate.connection.autoReconnectForPools" value="true"/> -->
-
-
-
-
       <!-- Enable Hibernate's automatic session context management -->
       <property name="hibernate.current_session_context_class" value="thread" />
       <property name="hibernate.hibernate.cache.use_query_cache" value="true" />
@@ -87,17 +71,6 @@
 
       <!-- Echo all executed SQL to stdout -->
       <property name="hibernate.show_sql" value="false" />
-
-      <!-- Envers Listeners -->
-      <property name="hibernate.ejb.event.post-insert"
-        value="org.hibernate.ejb.event.EJB3PostInsertEventListener,org.hibernate.envers.event.AuditEventListener" />
-      <property name="hibernate.ejb.event.post-update"
-        value="org.hibernate.ejb.event.EJB3PostUpdateEventListener,org.hibernate.envers.event.AuditEventListener" />
-      <property name="hibernate.ejb.event.post-delete"
-        value="org.hibernate.ejb.event.EJB3PostDeleteEventListener,org.hibernate.envers.event.AuditEventListener" />
-      <property name="hibernate.ejb.event.pre-collection-update" value="org.hibernate.envers.event.AuditEventListener" />
-      <property name="hibernate.ejb.event.pre-collection-remove" value="org.hibernate.envers.event.AuditEventListener" />
-      <property name="hibernate.ejb.event.post-collection-recreate" value="org.hibernate.envers.event.AuditEventListener" />
 
       <property name="org.hibernate.envers.auditTableSuffix" value="_version" />
       <property name="org.hibernate.envers.revisionFieldName" value="rev" />

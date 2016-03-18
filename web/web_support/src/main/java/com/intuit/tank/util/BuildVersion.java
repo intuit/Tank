@@ -35,10 +35,10 @@ public class BuildVersion {
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(BuildVersion.class);
 
     private String version = TankConstants.TANK_BUILD_VERSION;
-    private static final String BASE_DATE = "20130115-0000";
+    private static final String BASE_DATE = "2013-01-15T00:00:00Z";
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmm");
-
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+    
     @Inject
     private ServletContext servletContext;
 

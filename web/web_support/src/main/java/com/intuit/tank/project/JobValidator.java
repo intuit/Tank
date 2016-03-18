@@ -35,6 +35,7 @@ import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.common.util.MethodTimer;
+import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.settings.TimeUtil;
 
 public class JobValidator {
@@ -159,6 +160,7 @@ public class JobValidator {
     private void processScripts(Map<String, String> globalVariables) {
         MethodTimer mt = new MethodTimer(LOG, this.getClass(), "processScripts");
         mt.start();
+        TankConfig tankConfig = new TankConfig();
         boolean hasLoggingKeys = false;
         for (ScriptWrapper wrapper : scripts) {
             long milis = 0;
@@ -193,7 +195,7 @@ public class JobValidator {
                                         + step.getStepIndex());
                     }
                 }
-                milis += ScriptUtil.calculateStepDuration(step, globalVariables);
+                milis += ScriptUtil.calculateStepDuration(step, globalVariables, tankConfig);
                 for (Entry<String, String> entry : ScriptUtil.getDeclaredVariables(step).entrySet()) {
                     putVariable(this.declaredVariables, entry.getKey(), entry.getValue(), wrapper.location);
                 }

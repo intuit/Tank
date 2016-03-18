@@ -17,10 +17,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.hibernate.tool.hbm2x.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
