@@ -322,17 +322,20 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     @Nonnull
     public List<T_ENTITY> findAll() throws HibernateException {
         List<T_ENTITY> results = null;
-        // try {
-        EntityManager em = getEntityManager();
-        // begin();
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<T_ENTITY> query = cb.createQuery(entityClass);
-        query.from(entityClass);
-        results = em.createQuery(query).getResultList();
-        // commit();
-        // } finally {
-        // cleanup();
-        // }
+        try {
+        	EntityManager em = getEntityManager();
+        	begin();
+        	CriteriaBuilder cb = em.getCriteriaBuilder();
+        	CriteriaQuery<T_ENTITY> query = cb.createQuery(entityClass);
+        	query.from(entityClass);
+        	results = em.createQuery(query).getResultList();
+        	commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+        	cleanup();
+        }
         return results;
     }
 
