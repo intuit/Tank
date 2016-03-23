@@ -27,6 +27,11 @@
       <artifactId>tank-common</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
+    <dependency>
+       <groupId>commons-fileupload</groupId>
+       <artifactId>commons-fileupload</artifactId>
+     </dependency>
 
     <dependency>
       <groupId>com.googlecode.json-simple</groupId>

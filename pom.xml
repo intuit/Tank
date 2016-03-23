@@ -33,7 +33,8 @@
     <version-aws-sdk>1.10.60</version-aws-sdk>
     <tto.jar.version>1.2.0</tto.jar.version>
     <spring.version>2.5.6</spring.version>
-
+ 	<tomcat.version>7.0.68</tomcat.version>
+ 	
     <weld-version>1.1.32.Final</weld-version>
     <cdi-version>1.2</cdi-version>
     <version.seam>3.0.0.Final</version.seam>
@@ -48,9 +49,9 @@
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.12</version.surefire>
     <version.jersey>1.17.1</version.jersey>
-    <version.arquillian>1.1.5.Final</version.arquillian>
+    <version.arquillian>1.1.11.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0.CR7</version.arquillian.tomcat>
-    <version.httpclient>4.5</version.httpclient>
+    <version.httpclient>4.5.2</version.httpclient>
   </properties>
 
 
@@ -352,23 +353,23 @@
 
     <dependency>
       <groupId>org.jboss.arquillian.container</groupId>
-      <artifactId>arquillian-tomcat-embedded-6</artifactId>
+      <artifactId>arquillian-tomcat-embedded-7</artifactId>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.tomcat</groupId>
-      <artifactId>catalina</artifactId>
+      <artifactId>tomcat-catalina</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.tomcat</groupId>
-      <artifactId>coyote</artifactId>
+      <artifactId>tomcat-coyote</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.tomcat</groupId>
-      <artifactId>jasper</artifactId>
+      <artifactId>tomcat-jasper</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- Weld servlet, EL and JSP required for testing CDI injections -->
@@ -428,27 +429,33 @@
 
       <dependency>
         <groupId>org.jboss.arquillian.container</groupId>
-        <artifactId>arquillian-tomcat-embedded-6</artifactId>
+        <artifactId>arquillian-tomcat-embedded-7</artifactId>
         <version>${version.arquillian.tomcat}</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <groupId>org.apache.tomcat</groupId>
-        <artifactId>catalina</artifactId>
-        <version>6.0.29</version>
+        <artifactId>tomcat-catalina</artifactId>
+        <version>${tomcat.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.tomcat</groupId>
-        <artifactId>coyote</artifactId>
-        <version>6.0.29</version>
+        <artifactId>tomcat-coyote</artifactId>
+        <version>${tomcat.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.tomcat</groupId>
-        <artifactId>jasper</artifactId>
-        <version>6.0.29</version>
+        <artifactId>tomcat-jasper</artifactId>
+        <version>${tomcat.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-servlet-api</artifactId>
+        <version>${tomcat.version}</version>
         <scope>provided</scope>
       </dependency>
       <!-- Weld servlet, EL and JSP required for testing CDI injections -->
@@ -622,7 +629,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.3</version>
+        <version>1.10</version>
       </dependency>
 
       <dependency>
@@ -801,15 +808,9 @@
         <version>1.0</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.tomcat</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>6.0.14</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>commons-fileupload</groupId>
         <artifactId>commons-fileupload</artifactId>
-        <version>1.3</version>
+        <version>1.3.1</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
@@ -888,7 +889,7 @@
         <version>3.0.1</version>
       </dependency>
       <dependency>
-        <groupId>com.squareup.okhttp</groupId>
+        <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp</artifactId>
         <version>${version.okhttp}</version>
       </dependency>
@@ -1255,10 +1256,10 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>2.3.2</version>
+          <version>3.5.1</version>
           <configuration>
-            <source>1.6</source>
-            <target>1.6</target>
+            <source>1.7</source>
+            <target>1.7</target>
           </configuration>
         </plugin>
         <plugin>

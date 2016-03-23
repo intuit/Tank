@@ -13,9 +13,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.tomcat.util.http.fileupload.MultipartStream;
 
 import com.intuit.tank.http.binary.BinaryResponse;
 import com.intuit.tank.http.json.JsonResponse;
@@ -114,7 +114,8 @@ public class TankHttpUtil {
         List<PartHolder> parameters = new ArrayList<PartHolder>();
         request.setBody(s);
         try {
-            MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(s.getBytes()), boundary.getBytes());
+            @SuppressWarnings("deprecation")
+			MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(s.getBytes()), boundary.getBytes());
             boolean nextPart = multipartStream.skipPreamble();
             while (nextPart) {
                 String header = multipartStream.readHeaders();
