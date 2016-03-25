@@ -44,10 +44,10 @@
 
     <version.mojarra>2.0.6</version.mojarra>
     <version.jsf-api>2.0.6</version.jsf-api>
-    <version.primefaces>5.1</version.primefaces>
-    <version.primefaces-ext>3.0.0</version.primefaces-ext>
+    <version.primefaces>5.3</version.primefaces>
+    <version.primefaces-ext>4.0.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
-    <version.surefire>2.12</version.surefire>
+    <version.surefire>2.19.1</version.surefire>
     <version.jersey>1.17.1</version.jersey>
     <version.arquillian>1.1.11.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0.CR7</version.arquillian.tomcat>
