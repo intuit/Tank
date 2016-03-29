@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="
       http://java.sun.com/xml/ns/javaee
-      http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
 
   <!-- This is an optional parameter, but it makes troubleshooting errors 
     much easier You should remove this context parameter before deploying to 
-    production! -->
+    production! 
   <Context>
     <ResourceLink global='jdbc/watsDS' name='jdbc/watsDS'
       type="javax.sql.Datasource" />
   </Context>
-  <distributable />
+  <distributable />-->
 
   <resource-ref>
     <description>DB Connection</description>
@@ -51,33 +51,8 @@
   </listener>
 
   <listener>
-    <listener-class>org.jboss.seam.servlet.event.ServletEventBridgeListener</listener-class>
-  </listener>
-
-  <listener>
     <listener-class>org.jboss.seam.solder.resourceLoader.servlet.ResourceListener</listener-class>
   </listener>
-
-  <filter>
-    <filter-name>Servlet Event Bridge Filter</filter-name>
-    <filter-class>org.jboss.seam.servlet.event.ServletEventBridgeFilter</filter-class>
-  </filter>
-
-  <filter-mapping>
-    <filter-name>Servlet Event Bridge Filter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-
-  <filter>
-    <filter-name>Catch Exception Filter</filter-name>
-    <filter-class>org.jboss.seam.servlet.exception.CatchExceptionFilter</filter-class>
-  </filter>
-
-
-  <filter-mapping>
-    <filter-name>Catch Exception Filter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
 
   <filter>
     <filter-name>PrimeFaces FileUpload Filter</filter-name>

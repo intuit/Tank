@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.enterprise.context.Conversation;
 import javax.enterprise.context.ConversationScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
-
-import org.jboss.seam.faces.context.conversation.Begin;
 
 import com.intuit.tank.PropertyComparer;
 import com.intuit.tank.config.Admin;
@@ -45,13 +45,15 @@ public class GroupAdmin implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private List<SelectableWrapper<Group>> groups;
+    
+    @Inject
+    private Conversation conversation;
 
     @SuppressWarnings("unused")
     private Group current;
 
-    @Begin
     public void begin() {
-
+    	conversation.begin();
     }
 
     /**

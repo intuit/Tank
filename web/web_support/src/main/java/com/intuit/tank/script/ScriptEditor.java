@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.Conversation;
 import javax.enterprise.context.ConversationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -32,8 +33,6 @@ import org.apache.commons.lang.StringUtils;
 import org.dom4j.DocumentHelper;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
-import org.jboss.seam.faces.context.conversation.Begin;
-import org.jboss.seam.faces.context.conversation.End;
 import org.jboss.seam.international.status.Messages;
 import org.jboss.seam.security.Identity;
 
@@ -108,6 +107,9 @@ public class ScriptEditor implements Serializable {
     private Identity identity;
     @Inject
     private Security security;
+    
+    @Inject
+    private Conversation conversation;
 
     @Inject
     @Modified
@@ -257,8 +259,8 @@ public class ScriptEditor implements Serializable {
      * 
      * @param script
      */
-    @Begin
     public String editScript(Script s) {
+    	conversation.begin();
         this.script = new ScriptDao().findById(s.getId());
         ScriptUtil.setScriptStepLabels(script);
         steps = script.getScriptSteps();
@@ -269,8 +271,8 @@ public class ScriptEditor implements Serializable {
         return "success";
     }
 
-    @End
     public String cancel() {
+    	conversation.end();
         this.script = null;
         return "success";
     }

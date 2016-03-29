@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.enterprise.context.Conversation;
 import javax.enterprise.context.ConversationScoped;
 import javax.enterprise.event.Event;
 import javax.faces.model.SelectItem;
@@ -29,8 +30,6 @@ import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.jboss.seam.faces.context.conversation.Begin;
-import org.jboss.seam.faces.context.conversation.End;
 import org.jboss.seam.international.status.Messages;
 import org.primefaces.model.DualListModel;
 
@@ -67,6 +66,9 @@ public class UserEdit implements Serializable {
 
     @Inject
     private Messages messages;
+    
+    @Inject
+    private Conversation conversation;
 
     @Inject
     private TsConversationManager tsConversationManager;
@@ -153,8 +155,8 @@ public class UserEdit implements Serializable {
      * @param user
      * @return
      */
-    @Begin
     public String edit(User user) {
+    	conversation.begin();
         clear();
         this.user = user;
         initSelectionModel();
@@ -165,8 +167,8 @@ public class UserEdit implements Serializable {
      * 
      * @return
      */
-    @Begin
     public String newUser() {
+    	conversation.begin();
         clear();
         this.user = new User();
         initSelectionModel();
@@ -230,8 +232,8 @@ public class UserEdit implements Serializable {
         selectionModel = null;
     }
 
-    @End
     public String cancel() {
+    	conversation.end();
         clear();
         return "success";
     }

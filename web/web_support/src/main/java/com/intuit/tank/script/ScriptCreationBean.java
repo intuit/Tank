@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.enterprise.context.Conversation;
 import javax.enterprise.context.ConversationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -26,8 +27,6 @@ import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.jboss.seam.faces.context.conversation.Begin;
-import org.jboss.seam.faces.context.conversation.End;
 import org.jboss.seam.international.status.Messages;
 import org.jboss.seam.security.Identity;
 import org.primefaces.model.UploadedFile;
@@ -81,6 +80,9 @@ public class ScriptCreationBean implements Serializable {
 
     @Inject
     private Messages messages;
+    
+    @Inject
+    private Conversation conversation;
 
     @Inject
     @Modified
@@ -144,9 +146,8 @@ public class ScriptCreationBean implements Serializable {
         return groupWrappers;
     }
 
-    @End
     public void cancel() {
-
+    	conversation.end();
     }
 
     /**
@@ -195,8 +196,8 @@ public class ScriptCreationBean implements Serializable {
      * 
      * @return
      */
-    @Begin
     public String createNewScript() {
+    	conversation.begin();
         return "success";
     }
 

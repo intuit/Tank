@@ -18,13 +18,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import javax.enterprise.context.Conversation;
 import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
-import org.jboss.seam.faces.context.conversation.Begin;
-import org.jboss.seam.faces.context.conversation.End;
 import org.jboss.seam.international.status.Messages;
 import org.jboss.seam.security.Identity;
 
@@ -50,6 +49,9 @@ public class FilterGroupCreationBean extends SelectableBean<ScriptFilter> implem
 
     @Inject
     private Messages messages;
+    
+    @Inject
+    private Conversation conversation;
 
     @Inject
     private Identity identity;
@@ -97,8 +99,8 @@ public class FilterGroupCreationBean extends SelectableBean<ScriptFilter> implem
         this.saveAsName = saveAsName;
     }
 
-    @Begin
     public void editFilterGroup(ScriptFilterGroup filterGroup) {
+    	conversation.begin();
         editing = true;
         this.sfg = new ScriptFilterGroupDao().findById(filterGroup.getId());
         this.saveAsName = sfg.getName();
@@ -115,16 +117,15 @@ public class FilterGroupCreationBean extends SelectableBean<ScriptFilter> implem
         }
     }
 
-    @Begin
     public void newFilterGroup() {
+    	conversation.begin();
         editing = false;
         this.sfg = new ScriptFilterGroup();
         sfg.setCreator(identity.getUser().getId());
     }
 
-    @End
     public void cancel() {
-
+    	conversation.end();
     }
 
     public ScriptFilterGroup getSfg() {

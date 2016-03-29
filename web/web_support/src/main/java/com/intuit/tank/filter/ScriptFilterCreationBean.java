@@ -17,13 +17,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.enterprise.context.Conversation;
 import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
-import org.jboss.seam.faces.context.conversation.Begin;
-import org.jboss.seam.faces.context.conversation.End;
 import org.jboss.seam.international.status.Messages;
 import org.jboss.seam.security.Identity;
 
@@ -63,6 +62,9 @@ public class ScriptFilterCreationBean implements Serializable {
 
     @Inject
     private Messages messages;
+    
+    @Inject
+    private Conversation conversation;
 
     @Inject
     private TsConversationManager tsConversationManager;
@@ -114,8 +116,8 @@ public class ScriptFilterCreationBean implements Serializable {
         this.filter = filter;
     }
 
-    @Begin
     public void editFilter(ScriptFilter filter) {
+    	conversation.begin();
         this.editing = true;
         this.filter = filter;
         this.setName(filter.getName());
@@ -127,8 +129,8 @@ public class ScriptFilterCreationBean implements Serializable {
         }
     }
 
-    @Begin
     public void newFilter() {
+    	conversation.begin();
         this.editing = false;
         this.filter = new ScriptFilter();
         filter.setCreator(identity.getUser().getId());
@@ -221,9 +223,8 @@ public class ScriptFilterCreationBean implements Serializable {
         }
     }
 
-    @End
     public void cancel() {
-
+    	conversation.end();
     }
 
     private void validate() {

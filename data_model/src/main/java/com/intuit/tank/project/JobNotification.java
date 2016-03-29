@@ -31,6 +31,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -67,7 +68,9 @@ public class JobNotification extends BaseEntity implements Notification {
     private String recipientList;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "job_notification_to_event", joinColumns = @JoinColumn(name = "job_notification_id"))
+    @CollectionTable(name = "job_notification_to_event", 
+    	joinColumns = @JoinColumn(name = "job_notification_id"),
+    	uniqueConstraints = @UniqueConstraint(columnNames = { "job_notification_id", "lifecycle_events" }))
     @Enumerated(EnumType.STRING)
     @Column(name = "lifecycle_events")
     private List<JobLifecycleEvent> lifecycleEvents = new ArrayList<JobLifecycleEvent>();
