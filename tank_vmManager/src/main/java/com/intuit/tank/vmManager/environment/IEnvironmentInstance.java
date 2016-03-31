@@ -16,6 +16,7 @@ package com.intuit.tank.vmManager.environment;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import com.amazonaws.services.ec2.model.Address;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.vmManager.VMInformation;
@@ -73,7 +74,7 @@ public interface IEnvironmentInstance {
      * @param ip
      *            the ip to associate
      */
-    public void associateAddress(String instanceId, String ip, CountDownLatch latch);
+    public void associateAddress(String instanceId, Address address, CountDownLatch latch);
 
     /**
      * Reboot the specified vms.

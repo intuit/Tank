@@ -16,6 +16,8 @@ package com.intuit.tank.vm.settings;
  * #L%
  */
 
+import java.util.List;
+
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
 /**
@@ -57,8 +59,8 @@ public class InstanceDescriptionDefaults {
     /**
      * @return the securityGroup
      */
-    public String getSecurityGroupIds() {
-        return get("security-group-ids");
+    public List<String> getSecurityGroupIds() {
+        return getList("security-group-ids");
     }
     
     /**
@@ -81,9 +83,21 @@ public class InstanceDescriptionDefaults {
     public String getKeypair() {
         return get("keypair");
     }
+    
+    /**
+     * @return the VPC
+     */
+    public Boolean isVPC() {
+        return Boolean.valueOf(get("vpc"));
+    }
 
     String get(String key) {
         return config.getString(key, defaultInstance != null ? defaultInstance.getString(key) : null);
+    }
+    
+    @SuppressWarnings("unchecked")
+	List<String> getList(String key) {
+        return config.getList(key, defaultInstance != null ? defaultInstance.getList(key) : null);
     }
 
 }
