@@ -60,13 +60,24 @@ public class JobQueueDao extends BaseDao<JobQueue> {
      * @return
      */
     public synchronized JobQueue findOrCreateForProjectId(@Nonnull int projectId) {
-        String prefix = "x";
         JobQueue result = null;
-        NamedParameter parameter = new NamedParameter(JobQueue.PROPERTY_PROJECT_ID, "pId", projectId);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere())
-                .append(buildWhereClause(Operation.EQUALS, prefix, parameter));
-        List<JobQueue> resultList = super.listWithJQL(sb.toString(), parameter);
+        List<JobQueue> resultList = null;
+        EntityManager em = getEntityManager();
+    	try {
+    		begin();
+    		CriteriaBuilder cb = em.getCriteriaBuilder();
+	        CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
+	        Root<JobQueue> root = query.from(JobQueue.class);
+	        query.select(root);
+	        query.where(cb.equal(root.<String>get(JobQueue.PROPERTY_PROJECT_ID), projectId));
+	        resultList = em.createQuery(query).getResultList();  
+	        commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+    	} finally {
+    		cleanup();
+    	}
         if (resultList.size() > 0) {
             result = resultList.get(0);
         }
