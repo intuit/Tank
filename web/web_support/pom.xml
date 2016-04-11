@@ -216,6 +216,11 @@
       <groupId>org.jboss.seam.config</groupId>
       <artifactId>seam-config-xml</artifactId>
     </dependency>
+    
+    <dependency>
+   	  <groupId>org.glassfish</groupId>
+   	  <artifactId>javax.ejb</artifactId>
+	</dependency>
 
   </dependencies>
 

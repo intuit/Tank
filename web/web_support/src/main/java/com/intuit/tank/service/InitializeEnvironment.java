@@ -16,13 +16,12 @@ package com.intuit.tank.service;
  * #L%
  */
 
-import javax.enterprise.event.Observes;
+import javax.annotation.PostConstruct;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.apache.log4j.Logger;
-import org.jboss.seam.servlet.WebApplication;
-import org.jboss.seam.servlet.event.Initialized;
 
 import com.intuit.tank.dao.GroupDao;
 import com.intuit.tank.dao.UserDao;
@@ -38,33 +37,25 @@ import com.intuit.tank.vm.settings.TankConfig;
  * @author dangleton
  * 
  */
-@Named
+@Singleton
+@Startup
 public class InitializeEnvironment {
     private static final Logger LOG = Logger.getLogger(InitializeEnvironment.class);
 
     @Inject
     private TankConfig tankConfig;
 
-    // @Inject
-    // private HttpConversationContext conversationContext;
-
-    public String initialize(@Observes @Initialized WebApplication webapp) {
-        // conversationContext.setDefaultTimeout(60 * 60 * 1000);//one hour
-        return initData();
-    }
-
-    public String initData() {
-        StringBuilder sb = new StringBuilder();
-        createDefaultGroups(sb);
-        createDefaultUsers(sb);
-        return sb.toString();
+    @PostConstruct
+    public void initData() {
+        createDefaultGroups();
+        createDefaultUsers();
     }
 
     /**
      * @param sb
      * @return
      */
-    private void createDefaultUsers(StringBuilder sb) {
+    private void createDefaultUsers() {
         UserDao dao = new UserDao();
         GroupDao groupDao = new GroupDao();
         for (DefaultUser newUser : tankConfig.getSecurityConfig().getDefaultUsers()) {
@@ -84,7 +75,6 @@ public class InitializeEnvironment {
                     }
                     dao.saveOrUpdate(user);
                     LOG.info("Created user " + user.getName());
-                    sb.append("Created user " + user.getName() + "<br/>");
                 } catch (Exception e) {
                     LOG.info("Error creating user: " + e, e);
                 }
@@ -96,14 +86,13 @@ public class InitializeEnvironment {
      * @param sb
      * @return
      */
-    private void createDefaultGroups(StringBuilder sb) {
+    private void createDefaultGroups() {
         GroupDao groupDao = new GroupDao();
         for (String g : tankConfig.getSecurityConfig().getGroups()) {
             try {
                 Group group = groupDao.findByName(g);
                 if (group == null) {
                     groupDao.saveOrUpdate(new Group(g));
-                    sb.append("Created Group " + g + "<br/>");
                     LOG.info("Created Group " + g);
                 }
             } catch (Exception e) {

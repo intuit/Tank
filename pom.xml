@@ -594,6 +594,12 @@
         <artifactId>seam-config-xml</artifactId>
         <version>${version.seam}</version>
       </dependency>
+      
+      <dependency>
+   	  	<groupId>org.glassfish</groupId>
+   	  	<artifactId>javax.ejb</artifactId>
+   	  	<version>3.1</version>
+	  </dependency>
 
       <dependency>
         <groupId>org.hibernate</groupId>
