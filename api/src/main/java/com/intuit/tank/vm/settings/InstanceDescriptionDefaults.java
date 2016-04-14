@@ -16,6 +16,7 @@ package com.intuit.tank.vm.settings;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -95,9 +96,13 @@ public class InstanceDescriptionDefaults {
         return config.getString(key, defaultInstance != null ? defaultInstance.getString(key) : null);
     }
     
-    @SuppressWarnings("unchecked")
 	List<String> getList(String key) {
-        return config.getList(key, defaultInstance != null ? defaultInstance.getList(key) : null);
+		List<String> strings = new ArrayList<>();
+    	List<Object> list = config.getList(key, defaultInstance != null ? defaultInstance.getList(key) : null);
+    	for (Object object : list ) {
+    	    strings.add(object != null ? object.toString() : null);
+    	}
+        return strings;
     }
 
 }
