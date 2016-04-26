@@ -127,6 +127,8 @@ public class Project extends OwnableEntity {
     }
 
     public String getComments() {
+    	if(comments.isEmpty())
+    		return "Enter Comment";
         return comments;
     }
 
