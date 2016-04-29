@@ -44,7 +44,7 @@ import com.intuit.tank.reporting.api.Namespace;
         "error",
         "timeStamp"
 })
-public class TankResult implements Serializable {
+public class TankResult implements Serializable, Comparable {
 
     private static final long serialVersionUID = 1L;
 
@@ -183,5 +183,10 @@ public class TankResult implements Serializable {
             error = result.error;
         }
     }
+
+	@Override
+	public int compareTo(Object o) {
+		return this.requestName.compareTo(((TankResult)o).getRequestName());
+	}
 
 }

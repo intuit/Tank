@@ -183,7 +183,7 @@ public class TestPlanRunner implements Runnable {
             for (HDScript hdscript : scripts) {
                 MethodTimer mt1 = new MethodTimer(LOG, getClass(), "runScript(" + hdscript.getName() + ")");
                 logEvent.setScript(hdscript);
-                LOG.info(LogUtil.getLogMessage("Entering Script", LogEventType.Informational));
+                //LOG.info(LogUtil.getLogMessage("Entering Script", LogEventType.Informational));
                 hdscript.setParent(parent);
                 int scriptLoop = 0;
                 APITestHarness.getInstance().getUserTracker().add(hdscript.getName());

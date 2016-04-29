@@ -93,7 +93,7 @@ public class APITestHarness {
     private CountDownLatch doneSignal;
     private boolean loggedSimTime;
     private int currentUsers = 0;
-    private Vector<TankResult> results = new Vector<TankResult>();
+    private Vector<TankResult> results = new Vector<TankResult>(BATCH_SIZE);
     private ValidationStatus validationFailures;
     private TankConfig tankConfig;
     private UserTracker userTracker = new UserTracker();
