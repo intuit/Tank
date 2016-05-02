@@ -18,7 +18,6 @@ package com.intuit.tank.persistence.databases;
 
 import com.intuit.tank.reporting.databases.IDatabase;
 import com.intuit.tank.vm.settings.TankConfig;
-import com.intuit.tank.vm.settings.VmManagerConfig;
 
 /**
  * DataBaseFactory
@@ -27,9 +26,9 @@ import com.intuit.tank.vm.settings.VmManagerConfig;
  * 
  */
 public class DataBaseFactory {
-    
-    public static final VmManagerConfig config = new TankConfig().getVmManagerConfig();
-    
+	
+	public static final String resultsProvider = new TankConfig().getVmManagerConfig().getResultsProvider();
+
 //    private static IDatabase provider;
 //    private static String providerClass;
 
@@ -42,7 +41,6 @@ public class DataBaseFactory {
 
     private static IDatabase initProvider() {
         IDatabase provider = null;
-        String resultsProvider = new TankConfig().getVmManagerConfig().getResultsProvider();
         try {
             provider = (IDatabase) Class.forName(resultsProvider).newInstance();
         } catch (Exception e) {

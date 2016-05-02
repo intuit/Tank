@@ -5,10 +5,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -23,31 +20,25 @@ import com.intuit.tank.reporting.databases.TankDatabaseType;
 import com.intuit.tank.results.TankResult;
 import com.intuit.tank.vm.settings.TankConfig;
 
+/**
+ * GraphiteDatasource
+ * 
+ * @author Kevin McGoldrick
+ * 
+ */
 public class GraphiteDatasource implements IDatabase {
     private static final Logger LOG = Logger.getLogger(GraphiteDatasource.class);
 	
 	private String enviornemnt = "qa";
-	private String graphiteHost = "10.20.1.13";
+	private String graphiteHost = "doubleshot.internal.perf.a.intuit.com";
 	private int graphitePort = 2003;
+    private int interval = 15; // SECONDS
 	
-    private static TankConfig config = new TankConfig();
+	private static HierarchicalConfiguration resultsProviderConfig = new TankConfig().getVmManagerConfig().getResultsProviderConfig();
 
 	@Override
 	public void createTable(String tableName) {
-        HierarchicalConfiguration resultsProviderConfig = config.getVmManagerConfig().getResultsProviderConfig();
-        if (resultsProviderConfig != null) {
-            try {
-            	enviornemnt = resultsProviderConfig.getString("enviornemnt");
-            	graphiteHost = resultsProviderConfig.getString("graphiteHost");
-            	String s = resultsProviderConfig.getString("graphitePort");
-                if (NumberUtils.isDigits(s)) {
-                	graphitePort = Integer.parseInt(s);
-                }
-            } catch (Exception e) {
-                LOG.error(e.toString());
-            }
-        }
-
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -77,6 +68,18 @@ public class GraphiteDatasource implements IDatabase {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void addTimingResults(String tableName, List<TankResult> results, boolean asynch) {
+        if (resultsProviderConfig != null) {
+            try {
+            	enviornemnt = resultsProviderConfig.getString("enviornemnt");
+            	graphiteHost = resultsProviderConfig.getString("graphiteHost");
+            	String s = resultsProviderConfig.getString("graphitePort");
+                if (NumberUtils.isDigits(s)) {
+                	graphitePort = Integer.parseInt(s);
+                }
+            } catch (Exception e) {
+                LOG.error("Failed to get Graphite parameters " + e.toString());
+            }
+        }
 		Collections.sort(results);
 		try {
 			Socket socket = new Socket(graphiteHost, graphitePort);
@@ -94,8 +97,10 @@ public class GraphiteDatasource implements IDatabase {
 				} else if (count != 0) {
 					long average = sum / count;
 					l = metric.getTimeStamp().getTime() / 1000;
-					out.printf("tank.%s.%s.%s.ResponseTime.AVG %d %d%n", enviornemnt, jobId, requestName, average, l );	
-					out.printf("tank.%s.%s.%s.ResponseTime.MAX %d %d%n", enviornemnt, jobId, requestName, max, l );	
+					int tps = count / interval;
+					out.printf("tank.%s.%s.%s.ResponseTime.AVG %d %d%n", enviornemnt, jobId, requestName, average, l );
+					out.printf("tank.%s.%s.%s.ResponseTime.MAX %d %d%n", enviornemnt, jobId, requestName, max, l );
+					out.printf("tank.%s.%s.%s.TPS %d %d%n", enviornemnt, jobId, requestName, tps, l );
 					requestName = metric.getRequestName();
 					jobId = metric.getJobId();
 					sum = metric.getResponseTime();
@@ -108,8 +113,10 @@ public class GraphiteDatasource implements IDatabase {
 				}
 			}
 			long average = sum / count;
-			out.printf("tank.%s.%s.%s.ResponseTime.AVG %d %d%n", enviornemnt, jobId, requestName, average, l );	
-			out.printf("tank.%s.%s.%s.ResponseTime.MAX %d %d%n", enviornemnt, jobId, requestName, max, l );	
+			int tps = count / interval;
+			out.printf("tank.%s.%s.%s.ResponseTime.AVG %d %d%n", enviornemnt, jobId, requestName, average, l );
+			out.printf("tank.%s.%s.%s.ResponseTime.MAX %d %d%n", enviornemnt, jobId, requestName, max, l );
+			out.printf("tank.%s.%s.%s.TPS %d %d%n", enviornemnt, jobId, requestName, tps, l );
 			out.close();
 			socket.close();
 		} catch (UnknownHostException e) {

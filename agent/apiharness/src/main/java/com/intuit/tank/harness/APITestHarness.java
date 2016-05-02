@@ -25,6 +25,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -93,7 +94,7 @@ public class APITestHarness {
     private CountDownLatch doneSignal;
     private boolean loggedSimTime;
     private int currentUsers = 0;
-    private Vector<TankResult> results = new Vector<TankResult>(BATCH_SIZE);
+    private Vector<TankResult> results = new Vector<TankResult>();
     private ValidationStatus validationFailures;
     private TankConfig tankConfig;
     private UserTracker userTracker = new UserTracker();
@@ -102,6 +103,10 @@ public class APITestHarness {
     private TPSMonitor tpsMonitor;
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
+    
+    private Calendar c = Calendar.getInstance();
+    private Date send = new Date();
+    private int interval = 15; // SECONDS
 
     static {
         try {
@@ -867,9 +872,15 @@ public class APITestHarness {
     public void queueTimingResult(TankResult result) {
         if (logTiming) {
             results.add(result);
-            if (results.size() >= BATCH_SIZE) {
+            //if (results.size() >= BATCH_SIZE) {
+            if (send.before(new Date())) {
                 sendBatchToDB(true);
+                
+        		c.setTime(new Date());
+        		c.add(Calendar.SECOND, interval);
+        		send = new Date(c.getTime().getTime());
             }
+
         }
     }
 
