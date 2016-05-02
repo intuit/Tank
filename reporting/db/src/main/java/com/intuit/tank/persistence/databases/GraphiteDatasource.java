@@ -29,9 +29,6 @@ public class GraphiteDatasource implements IDatabase {
 	private String enviornemnt = "qa";
 	private String graphiteHost = "10.20.1.13";
 	private int graphitePort = 2003;
-	Date send = new Date();
-	Calendar c = Calendar.getInstance();
-	List<TankResult> outgoing = new ArrayList<TankResult>();
 	
     private static TankConfig config = new TankConfig();
 
@@ -80,54 +77,48 @@ public class GraphiteDatasource implements IDatabase {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void addTimingResults(String tableName, List<TankResult> results, boolean asynch) {
-		outgoing.addAll(results);
-		if (send.after(results.get(0).getTimeStamp())) {
-			Collections.sort(outgoing);
-			try {
-				Socket socket = new Socket(graphiteHost, graphitePort);
-				OutputStream s = socket.getOutputStream();
-				PrintWriter out = new PrintWriter(s, true);
-				String requestName = "";
-				String jobId = "";
-				long sum = 0;
-				int count = 0;
-				for (TankResult metric: outgoing) {
-					if (metric.getRequestName().equalsIgnoreCase(requestName)) {
-						sum += metric.getResponseTime();
-						count++;
-					} else if (count != 0) {
-						long average = sum / count;
-						long l = send.getTime() / 1000;
-						out.printf("tank.%s.%s.%s.ResponseTime.AVG %d %d%n", enviornemnt, metric.getJobId(), requestName, average, l );	
-						requestName = metric.getRequestName();
-						jobId = metric.getJobId();
-						sum = metric.getResponseTime();
-						count = 1;
-					} else { // Handles the first time through //
-						requestName = metric.getRequestName();
-						jobId = metric.getJobId();
-						sum = metric.getResponseTime();
-						count = 1;
-					}
+		Collections.sort(results);
+		try {
+			Socket socket = new Socket(graphiteHost, graphitePort);
+			OutputStream s = socket.getOutputStream();
+			PrintWriter out = new PrintWriter(s, true);
+			String requestName = "";
+			String jobId = "";
+			long sum = 0, max = 0, l = 0;
+			int count = 0;
+			for (TankResult metric: results) {
+				if (metric.getRequestName().equalsIgnoreCase(requestName)) {
+					max = Math.max(max, metric.getResponseTime());
+					sum += metric.getResponseTime();
+					count++;
+				} else if (count != 0) {
+					long average = sum / count;
+					l = metric.getTimeStamp().getTime() / 1000;
+					out.printf("tank.%s.%s.%s.ResponseTime.AVG %d %d%n", enviornemnt, jobId, requestName, average, l );	
+					out.printf("tank.%s.%s.%s.ResponseTime.MAX %d %d%n", enviornemnt, jobId, requestName, max, l );	
+					requestName = metric.getRequestName();
+					jobId = metric.getJobId();
+					sum = metric.getResponseTime();
+					count = 1;
+				} else { // Handles the first time through //
+					requestName = metric.getRequestName();
+					jobId = metric.getJobId();
+					sum = metric.getResponseTime();
+					count = 1;
 				}
-				long average = sum / count;
-				long l = send.getTime() / 1000;
-				out.printf("tank.%s.%s.%s.ResponseTime.AVG %d %d%n", enviornemnt, jobId, requestName, average, l );	
-				out.close();
-				socket.close();
-			} catch (UnknownHostException e) {
-				LOG.error("Unknown host: " + graphiteHost);
-			} catch (IOException e) {
-				LOG.error("Error while writing data to graphite: " + e.getMessage(), e);
-			} catch (Exception e) {
-				LOG.error("Error: " + e.getMessage(), e);
 			}
-			c.setTime(send);
-			c.add(Calendar.SECOND, 15);
-			send = new Date(c.getTime().getTime());
-			outgoing.clear();
+			long average = sum / count;
+			out.printf("tank.%s.%s.%s.ResponseTime.AVG %d %d%n", enviornemnt, jobId, requestName, average, l );	
+			out.printf("tank.%s.%s.%s.ResponseTime.MAX %d %d%n", enviornemnt, jobId, requestName, max, l );	
+			out.close();
+			socket.close();
+		} catch (UnknownHostException e) {
+			LOG.error("Unknown host: " + graphiteHost);
+		} catch (IOException e) {
+			LOG.error("Error while writing data to graphite: " + e.getMessage(), e);
+		} catch (Exception e) {
+			LOG.error("Error: " + e.getMessage(), e);
 		}
-
 	}
 
 	@Override

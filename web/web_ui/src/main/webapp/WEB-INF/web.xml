@@ -96,7 +96,7 @@
     </init-param>
     <init-param>
       <param-name>com.sun.jersey.config.property.packages</param-name>
-      <param-value>com.intuit.tank.service.impl.v1;com.intuit.tank.service.impl.v2</param-value>
+      <param-value>com.intuit.tank.service.impl.v1</param-value>
     </init-param>
     <init-param>
       <param-name>com.sun.jersey.config.feature.Formatted</param-name>
