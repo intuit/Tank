@@ -228,6 +228,16 @@ public class CloudServiceV1 implements CloudService {
      * @{inheritDoc
      */
     @Override
+    public String stopAllJobs() {
+        JobController controller = new ServletInjector<JobController>().getManagedBean(
+                servletContext, JobController.class);
+        return controller.stopAllJobs();
+    }
+    
+    /**
+     * @{inheritDoc
+     */
+    @Override
     public void stopJob(String jobId) {
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);

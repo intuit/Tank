@@ -186,6 +186,15 @@ public interface CloudService {
      * 
      * @param jobId
      */
+    @Path(CloudService.METHOD_STOP_JOB)
+    @GET
+    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public String stopAllJobs();
+    
+    /**
+     * 
+     * @param jobId
+     */
     @Path(CloudService.METHOD_STOP_JOB + "/{jobId}")
     @POST
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
