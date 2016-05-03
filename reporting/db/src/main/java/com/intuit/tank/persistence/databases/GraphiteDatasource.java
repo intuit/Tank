@@ -33,8 +33,9 @@ public class GraphiteDatasource implements IDatabase {
 	private String graphiteHost = "doubleshot.internal.perf.a.intuit.com";
 	private int graphitePort = 2003;
     private int interval = 15; // SECONDS
-	
-	private static HierarchicalConfiguration resultsProviderConfig = new TankConfig().getVmManagerConfig().getResultsProviderConfig();
+    
+    private TankConfig config = new TankConfig();
+	private HierarchicalConfiguration resultsProviderConfig = config.getVmManagerConfig().getResultsProviderConfig();
 
 	@Override
 	public void createTable(String tableName) {
@@ -70,7 +71,7 @@ public class GraphiteDatasource implements IDatabase {
 	public void addTimingResults(String tableName, List<TankResult> results, boolean asynch) {
         if (resultsProviderConfig != null) {
             try {
-            	enviornemnt = resultsProviderConfig.getString("enviornemnt");
+            	enviornemnt = config.getInstanceName();
             	graphiteHost = resultsProviderConfig.getString("graphiteHost");
             	String s = resultsProviderConfig.getString("graphitePort");
                 if (NumberUtils.isDigits(s)) {
