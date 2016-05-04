@@ -22,7 +22,6 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import org.apache.commons.io.IOUtils;
@@ -34,7 +33,6 @@ import org.hibernate.cfg.RecoverableException;
 import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.Script;
-import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.project.SerializedScriptStep;
