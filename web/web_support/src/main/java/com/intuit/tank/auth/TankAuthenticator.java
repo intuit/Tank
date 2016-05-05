@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import javax.enterprise.event.Event;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
@@ -68,9 +69,6 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
     private String uri;
 
     @Inject
-    private HttpServletRequest req;
-
-    @Inject
     private TsConversationManager tsConversationManager;
 
     public void authenticate() {
@@ -104,6 +102,7 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
 
     public void initUri() {
         if (uri == null) {
+        	HttpServletRequest req = (HttpServletRequest)FacesContext.getCurrentInstance().getExternalContext().getRequest();
             uri = req.getRequestURI();
             uri = uri.replace(req.getContextPath(), "");
             int indexOf = uri.lastIndexOf('/');

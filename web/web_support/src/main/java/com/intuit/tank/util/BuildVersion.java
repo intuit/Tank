@@ -23,7 +23,7 @@ import java.util.jar.Manifest;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import javax.faces.context.FacesContext;
 import javax.inject.Named;
 import javax.servlet.ServletContext;
 
@@ -39,9 +39,6 @@ public class BuildVersion {
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
     
-    @Inject
-    private ServletContext servletContext;
-
     private Date buildDate;
 
     @PostConstruct
@@ -60,6 +57,7 @@ public class BuildVersion {
     private void readManifest() {
         Manifest manifest = null;
         try {
+        	ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
             InputStream inputStream = servletContext.getResourceAsStream("/META-INF/MANIFEST.MF");
             manifest = new Manifest(inputStream);
         } catch (Exception e) {

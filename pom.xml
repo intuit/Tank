@@ -628,12 +628,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.seam.servlet</groupId>
-        <artifactId>seam-servlet</artifactId>
-        <version>${version.seam}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.jboss.seam.config</groupId>
         <artifactId>seam-config-xml</artifactId>
         <version>${version.seam}</version>
