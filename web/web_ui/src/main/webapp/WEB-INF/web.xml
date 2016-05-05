@@ -34,7 +34,7 @@
 
   <context-param>
     <param-name>javax.faces.PROJECT_STAGE</param-name>
-    <param-value>Development</param-value>
+    <param-value>Production</param-value>
   </context-param>
   <context-param>
     <param-name>javax.faces.FACELETS_SKIP_COMMENTS</param-name>
@@ -74,6 +74,41 @@
     <filter-name>RestSecurity Filter</filter-name>
     <filter-class>com.intuit.tank.util.RestSecurityFilter</filter-class>
   </filter>
+  <!-- Login filter -->
+  <filter>
+      <filter-name>LoginFilter</filter-name>
+      <filter-class>com.intuit.tank.config.LoginFilter</filter-class>
+  </filter>
+  <!-- Set the login filter to secure all the pages in the /secured/* path of the application  -->
+  <filter-mapping>
+      <filter-name>LoginFilter</filter-name>
+      <url-pattern>/admin/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+      <filter-name>LoginFilter</filter-name>
+      <url-pattern>/projects/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+      <filter-name>LoginFilter</filter-name>
+      <url-pattern>/scripts/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+      <filter-name>LoginFilter</filter-name>
+      <url-pattern>/filters/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+      <filter-name>LoginFilter</filter-name>
+      <url-pattern>/agents/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+      <filter-name>LoginFilter</filter-name>
+      <url-pattern>/datafiles/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+      <filter-name>LoginFilter</filter-name>
+      <url-pattern>/tools/*</url-pattern>
+  </filter-mapping>
+- See more at: http://www.itcuties.com/j2ee/jsf-2-login-filter-example/#sthash.CDydFgqw.dpuf
   <!-- <listener> <listener-class>org.jboss.seam.faces.beanManager.BeanManagerServletContextListener</listener-class> 
     </listener> -->
   <!-- Weld Jetty/Tomcat specific configuration parameters *** The <listener> 
