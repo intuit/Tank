@@ -616,12 +616,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.seam.catch</groupId>
-        <artifactId>seam-catch</artifactId>
-        <version>${version.seam}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.jboss.seam.solder</groupId>
         <artifactId>seam-solder</artifactId>
         <version>${version.seam}</version>
