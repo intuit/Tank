@@ -43,7 +43,6 @@ import com.intuit.tank.project.ScriptFilterGroup;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.script.processor.ScriptProcessor;
-import com.intuit.tank.util.TsConversationManager;
 import com.intuit.tank.util.UploadedFileIterator;
 import com.intuit.tank.vm.common.util.MethodTimer;
 import com.intuit.tank.vm.exception.WatsParseException;
@@ -87,9 +86,6 @@ public class ScriptCreationBean implements Serializable {
     @Inject
     @Modified
     private Event<ModifiedScriptMessage> scriptEvent;
-
-    @Inject
-    private TsConversationManager conversationManager;
 
     /**
      * @return the productName
@@ -238,7 +234,7 @@ public class ScriptCreationBean implements Serializable {
                 new ScriptDao().saveOrUpdate(script);
                 scriptEvent.fire(new ModifiedScriptMessage(script, null));
                 retVal = "success";
-                conversationManager.end();
+                conversation.end();
             } catch (Exception e) {
                 messages.error(e.getMessage());
             }
