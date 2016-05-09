@@ -36,7 +36,6 @@ import org.picketlink.idm.impl.api.PasswordCredential;
 
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.Group;
-import com.intuit.tank.util.TsConversationManager;
 import com.intuit.tank.vm.common.TankConstants;
 
 /**
@@ -68,11 +67,7 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
 
     private String uri;
 
-    @Inject
-    private TsConversationManager tsConversationManager;
-
     public void authenticate() {
-        tsConversationManager.end();
         LOG.info("Logging in " + credentials.getUsername());
         if ((credentials.getUsername() == null) || (credentials.getCredential() == null)) {
             messages.error("Invalid username or password");

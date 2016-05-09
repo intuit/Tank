@@ -21,10 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.faces.event.AjaxBehaviorEvent;
-
-import org.primefaces.component.datatable.DataTable;
-
 import com.intuit.tank.prefs.TablePreferences;
 import com.intuit.tank.prefs.TableViewState;
 import com.intuit.tank.util.Multiselectable;
@@ -124,10 +120,12 @@ public abstract class SelectableBean<T> implements Multiselectable<T> {
 
     public List<SelectableWrapper<T>> getFilteredData() {
         if (filteredData == null) {
+        	if (selectionList == null ) {
+        		return getSelectionList();
+        	}
             return selectionList;
-        } else {
-            return filteredData;
         }
+        return filteredData;
     }
 
     /**
@@ -168,7 +166,7 @@ public abstract class SelectableBean<T> implements Multiselectable<T> {
         this.viewFilterType = viewFilterType;
     }
 
-    public void onFilter(AjaxBehaviorEvent event) {
+/*    public void onFilter(AjaxBehaviorEvent event) {
         DataTable dataTable = (DataTable) event.getSource();
         @SuppressWarnings("unchecked") ArrayList<SelectableWrapper<T>> tempList = (ArrayList<SelectableWrapper<T>>) dataTable
                 .getFilteredValue();
@@ -180,7 +178,7 @@ public abstract class SelectableBean<T> implements Multiselectable<T> {
         }
 
     }
-
+*/
     public abstract List<T> getEntityList(ViewFilterType viewFilter);
 
     public abstract void delete(T entity);

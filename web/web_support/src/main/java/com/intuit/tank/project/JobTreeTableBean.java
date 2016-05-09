@@ -426,10 +426,6 @@ public abstract class JobTreeTableBean implements Serializable {
         this.getRootNode();
     }
 
-    public void observe(@Observes(notifyObserver = Reception.IF_EXISTS) @Modified JobQueue queueEvent) {
-        rootNode = null;
-    }
-
     /**
      * @return the rootNode
      */

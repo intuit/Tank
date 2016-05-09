@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:s="http://jboss.org/seam/faces"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
   xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
   xmlns:p="http://primefaces.org/ui" xmlns:pe="http://primefaces.org/ui/extensions"
   template="/WEB-INF/templates/tank.xhtml">
@@ -356,7 +356,7 @@
           <p:column headerText="Group Name" id="groupColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('groupColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('groupColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('scriptGroupName')}" sortBy="#{step.scriptGroupName}"
+            sortBy="#{step.scriptGroupName}"
             filterBy="#{step.scriptGroupName}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.scriptGroupName}" style="width:75px;" />
           </p:column>
@@ -364,7 +364,7 @@
           <p:column headerText="Request Name" id="nameColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('nameColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('nameColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('name')}" sortBy="#{step.name}" filterBy="#{step.name}"
+            filterBy="#{step.name}"
             filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.name}" style="width:75px;" />
           </p:column>
@@ -372,7 +372,7 @@
           <p:column headerText="Method" id="methodColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('methodColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('methodColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('method')}" sortBy="#{step.method}"
+            sortBy="#{step.method}"
             filterBy="#{step.method}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.method}" style="width:75px;" />
           </p:column>
@@ -380,7 +380,7 @@
           <p:column headerText="Protocol" id="protocolColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('protocolColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('protocolColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('protocol')}" sortBy="#{step.protocol}"
+            sortBy="#{step.protocol}"
             filterBy="#{step.protocol}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.protocol}" style="width:75px;" />
           </p:column>
@@ -388,7 +388,7 @@
           <p:column headerText="Host" id="hostColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('hostColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('hostColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('hostname')}" sortBy="#{step.hostname}"
+            sortBy="#{step.hostname}"
             filterBy="#{step.hostname}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.hostname}" style="width:75px;" />
           </p:column>
@@ -396,7 +396,7 @@
           <p:column headerText="Path" id="pathColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('pathColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('pathColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('simplePath')}" sortBy="#{step.simplePath}"
+            sortBy="#{step.simplePath}"
             filterBy="#{step.simplePath}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.simplePath}" style="width:75px;" />
           </p:column>
@@ -404,7 +404,7 @@
           <p:column headerText="Data" id="dataColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('dataColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('dataColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('label')}" sortBy="#{step.label}"
+            sortBy="#{step.label}"
             filterBy="#{step.label}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <p:commandLink id="linkVariable" update=":variableForm:variablePanelGroup" title="Edit Variable"
               rendered="#{scriptEditor.isVariable(step)}" action="#{scriptEditor.editVariable(step)}"
@@ -451,7 +451,7 @@
           <p:column headerText="MIME Type" id="mimeColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('mimeColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('mimeColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('mimetype')}" sortBy="#{step.mimetype}"
+            sortBy="#{step.mimetype}"
             filterBy="#{step.mimetype}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.mimetype}" style="width:75px;" />
           </p:column>
@@ -459,7 +459,7 @@
           <p:column headerText="Logging Key" id="loggingColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('loggingColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('loggingColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('loggingKey')}" sortBy="#{step.loggingKey}"
+            ortBy="#{step.loggingKey}"
             filterBy="#{step.loggingKey}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.loggingKey}" style="width:75px;" />
           </p:column>
@@ -467,7 +467,7 @@
           <p:column headerText="On Failure" id="failureColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('failureColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('failureColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('onFail')}" sortBy="#{step.onFail}"
+            sortBy="#{step.onFail}"
             filterBy="#{step.onFail}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.onFail}" style="width:75px;" />
           </p:column>
@@ -475,7 +475,7 @@
           <p:column headerText="Comments" id="commentsColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('commentsColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('commentsColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('comments')}" sortBy="#{step.comments}"
+            sortBy="#{step.comments}"
             filterBy="#{step.comments}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.comments}" style="width:75px;" />
           </p:column>
@@ -483,7 +483,7 @@
           <p:column headerText="Has Validation" id="validationColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('validationColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('validationColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('hasValidation')}" sortBy="#{step.hasValidation}"
+            sortBy="#{step.hasValidation}"
             filterBy="#{step.hasValidation}" filterFunction="#{filterUtil.contains}" filterStyle="width:40px;">
             <h:outputText value="#{step.hasValidation}" title="#{step.hasValidation}" />
           </p:column>
@@ -491,7 +491,7 @@
           <p:column headerText="Has Assignments" id="assignmentColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('assignmentColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('assignmentColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('hasAssignments')}" sortBy="#{step.hasAssignments}"
+            sortBy="#{step.hasAssignments}"
             filterBy="#{step.hasAssignments}" filterFunction="#{filterUtil.contains}" filterStyle="width:40px;">
             <h:outputText value="#{step.hasAssignments}" title="#{step.hasAssignments}" />
           </p:column>
@@ -587,7 +587,7 @@
           <p:column headerText="Group Name" id="groupColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('groupColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('groupColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('scriptGroupName')}" sortBy="#{step.scriptGroupName}"
+            sortBy="#{step.scriptGroupName}"
             filterBy="#{step.scriptGroupName}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.scriptGroupName}" title="#{step.scriptGroupName}" />
           </p:column>
@@ -595,7 +595,7 @@
           <p:column headerText="Request Name" id="nameColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('nameColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('nameColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('name')}" sortBy="#{step.name}" filterBy="#{step.name}"
+            filterBy="#{step.name}"
             filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.name}" title="#{step.name}" />
           </p:column>
@@ -603,7 +603,7 @@
           <p:column headerText="Method" id="methodColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('methodColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('methodColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('method')}" sortBy="#{step.method}"
+            sortBy="#{step.method}"
             filterBy="#{step.method}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.method}" title="#{step.method}" />
           </p:column>
@@ -611,7 +611,7 @@
           <p:column headerText="Protocol" id="protocolColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('protocolColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('protocolColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('protocol')}" sortBy="#{step.protocol}"
+            sortBy="#{step.protocol}"
             filterBy="#{step.protocol}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.protocol}" title="#{step.protocol}" />
           </p:column>
@@ -619,7 +619,7 @@
           <p:column headerText="Host" id="hostColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('hostColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('hostColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('hostname')}" sortBy="#{step.hostname}"
+            sortBy="#{step.hostname}"
             filterBy="#{step.hostname}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.hostname}" title="#{step.hostname}" />
           </p:column>
@@ -627,7 +627,7 @@
           <p:column headerText="Path" id="pathColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('pathColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('pathColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('simplePath')}" sortBy="#{step.simplePath}"
+            sortBy="#{step.simplePath}"
             filterBy="#{step.simplePath}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.simplePath}" title="#{step.simplePath}" />
           </p:column>
@@ -635,7 +635,7 @@
           <p:column headerText="Data" id="dataColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('dataColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('dataColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('label')}" sortBy="#{step.label}"
+            sortBy="#{step.label}"
             filterBy="#{step.label}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <p:commandLink id="linkVariable" update=":variableForm:variablePanelGroup" title="Edit Variable"
               rendered="#{scriptEditor.isVariable(step)}" action="#{scriptEditor.editVariable(step)}"
@@ -682,7 +682,7 @@
           <p:column headerText="MIME Type" id="mimeColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('mimeColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('mimeColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('mimetype')}" sortBy="#{step.mimetype}"
+            sortBy="#{step.mimetype}"
             filterBy="#{step.mimetype}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.mimetype}" title="#{step.mimetype}" />
           </p:column>
@@ -690,7 +690,7 @@
           <p:column headerText="Logging Key" id="loggingColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('loggingColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('loggingColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('loggingKey')}" sortBy="#{step.loggingKey}"
+            sortBy="#{step.loggingKey}"
             filterBy="#{step.loggingKey}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.loggingKey}" title="#{step.loggingKey}" />
           </p:column>
@@ -698,7 +698,7 @@
           <p:column headerText="On Failure" id="failureColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('failureColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('failureColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('onFail')}" sortBy="#{step.onFail}"
+            sortBy="#{step.onFail}"
             filterBy="#{step.onFail}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.onFail}" title="#{step.onFail}" />
           </p:column>
@@ -706,7 +706,7 @@
           <p:column headerText="Comments" id="commentsColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('commentsColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('commentsColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('comments')}" sortBy="#{step.comments}"
+            sortBy="#{step.comments}"
             filterBy="#{step.comments}" filterFunction="#{filterUtil.contains}" filterStyle="width:75px;">
             <h:outputText value="#{step.comments}" title="#{step.comments}" />
           </p:column>
@@ -714,14 +714,14 @@
           <p:column headerText="Has Validation" id="validationColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('validationColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('validationColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('hasValidation')}" sortBy="#{step.hasValidation}"
+            sortBy="#{step.hasValidation}"
             filterBy="#{step.hasValidation}" filterFunction="#{filterUtil.contains}" filterStyle="width:40px;">
             <h:outputText value="#{step.hasValidation}" title="#{step.hasValidation}" />
           </p:column>
           <p:column headerText="Has Assignments" id="assignmentColumn" styleClass="ellipsis min-column-size"
             width="#{scriptBean.stepTablePrefs.getSize('assignmentColumn')}"
             rendered="#{scriptBean.stepTablePrefs.isVisible('assignmentColumn')}"
-            filterValue="#{scriptBean.tableState.getFilterValue('hasAssignments')}" sortBy="#{step.hasAssignments}"
+            sortBy="#{step.hasAssignments}"
             filterBy="#{step.hasAssignments}" filterFunction="#{filterUtil.contains}" filterStyle="width:40px;">
             <h:outputText value="#{step.hasAssignments}" title="#{step.hasAssignments}" />
           </p:column>

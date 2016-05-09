@@ -50,9 +50,6 @@ public class FilterBean extends SelectableBean<ScriptFilter> implements Serializ
     private ExceptionHandler exceptionHandler;
 
     @Inject
-    private FilterGroupBean filterGroupBean;
-
-    @Inject
     private Security security;
 
     @Inject
@@ -129,13 +126,6 @@ public class FilterBean extends SelectableBean<ScriptFilter> implements Serializ
             if (wrapper != null) {
                 wrapper.setSelected(selected);
             }
-        }
-    }
-
-    public void processAllSelection() {
-        List<SelectableWrapper<ScriptFilterGroup>> wrappers = filterGroupBean.getSelectionList();
-        for (SelectableWrapper<ScriptFilterGroup> wrapper : wrappers) {
-            processSelection(wrapper);
         }
     }
 

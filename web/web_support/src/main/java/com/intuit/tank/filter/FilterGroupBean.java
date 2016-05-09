@@ -110,7 +110,7 @@ public class FilterGroupBean extends SelectableBean<ScriptFilterGroup> implement
     @Override
     public void selectAll() {
         super.selectAll();
-        filterBean.processAllSelection();
+        processAllSelection();
     }
 
     /**
@@ -120,7 +120,14 @@ public class FilterGroupBean extends SelectableBean<ScriptFilterGroup> implement
     @Override
     public void unselectAll() {
         super.unselectAll();
-        filterBean.processAllSelection();
+        processAllSelection();
+    }
+
+    public void processAllSelection() {
+        List<SelectableWrapper<ScriptFilterGroup>> wrappers = getSelectionList();
+        for (SelectableWrapper<ScriptFilterGroup> wrapper : wrappers) {
+            filterBean.processSelection(wrapper);
+        }
     }
 
 }

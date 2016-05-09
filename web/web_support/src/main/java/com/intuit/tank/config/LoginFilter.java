@@ -14,6 +14,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jboss.seam.security.Identity;
 
+/**
+ * LoginFilter
+ * 
+ * @author Kevin McGoldrick
+ * 
+ */
 public class LoginFilter implements Filter {
 	
     @Inject

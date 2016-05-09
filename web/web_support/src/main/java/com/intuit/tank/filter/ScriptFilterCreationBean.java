@@ -66,9 +66,6 @@ public class ScriptFilterCreationBean implements Serializable {
     @Inject
     private Conversation conversation;
 
-    @Inject
-    private TsConversationManager tsConversationManager;
-
     private boolean conditionProcessed = false;
     private boolean allConditionsPass;
     private String saveAsName;
@@ -156,7 +153,7 @@ public class ScriptFilterCreationBean implements Serializable {
                     filter.setName(name);
                     filter.setFilterType(creationMode);
                     sfDao.saveOrUpdate(filter);
-                    tsConversationManager.end();
+                    conversation.end();
                     return "success";
                 } catch (Exception e) {
                     exceptionHandler.handle(e);
@@ -170,7 +167,7 @@ public class ScriptFilterCreationBean implements Serializable {
                     filter.setExternalScriptId(selectedExternalScript);
                     filter.setFilterType(creationMode);
                     sfDao.saveOrUpdate(filter);
-                    tsConversationManager.end();
+                    conversation.end();
                     return "success";
                 } catch (Exception e) {
                     exceptionHandler.handle(e);

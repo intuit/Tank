@@ -45,8 +45,6 @@ public class Security implements Serializable {
 
     @Inject
     private Identity identity;
-    
-    private SecurityConfig config = new TankConfig().getSecurityConfig();
 
     /**
      * 
@@ -80,7 +78,7 @@ public class Security implements Serializable {
         if (isAdmin()) {
             return true;
         }
-
+        SecurityConfig config = new TankConfig().getSecurityConfig();
         List<String> associatedGroups = config.getRestrictionMap().get(right.name());
         // Set<Role> userRoles = identity.getRoles();
         Set<Group> userGroups = identity.getGroups();

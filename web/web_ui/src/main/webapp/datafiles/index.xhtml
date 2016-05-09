@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:s="http://jboss.org/seam/faces"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui" xmlns:pe="http://primefaces.org/ui/extensions" 
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag"
+  xmlns:p="http://primefaces.org/ui"
+  xmlns:pe="http://primefaces.org/ui/extensions" 
   template="/WEB-INF/templates/tank.xhtml">
 
   <ui:define name="content">
@@ -69,7 +73,7 @@
         <p:column id="idColumn" headerText="ID" styleClass="ellipsis min-column-size"
           width="#{dataFileBrowser.tablePrefs.getSize('idColumn')}"
           rendered="#{dataFileBrowser.tablePrefs.isVisible('idColumn')}"
-          filterValue="#{dataFileBrowser.tableState.getFilterValue('entity.id')}" filterStyle="width:40px;"
+          filterStyle="width:40px;"
           sortBy="#{selectableDataFile.entity.id}" filterBy="#{selectableDataFile.entity.id}" filterFunction="#{filterUtil.contains}">
           <h:outputText value="#{selectableDataFile.entity.id}" />
         </p:column>
@@ -78,7 +82,7 @@
         <p:column id="nameColumn" headerText="Name" styleClass="ellipsis min-column-size"
           width="#{dataFileBrowser.tablePrefs.getSize('nameColumn')}"
           rendered="#{dataFileBrowser.tablePrefs.isVisible('nameColumn')}"
-          filterValue="#{dataFileBrowser.tableState.getFilterValue('entity.name')}" filterStyle="width:75px;"
+          filterStyle="width:75px;"
           sortBy="#{selectableDataFile.entity.path}" filterBy="#{selectableDataFile.entity.path}"
           filterFunction="#{filterUtil.contains}">
           <h:outputText value="#{selectableDataFile.entity.path}" title="#{selectableDataFile.entity.path}" />
@@ -88,7 +92,6 @@
             width="#{dataFileBrowser.tablePrefs.getSize('createColumn')}"
             rendered="#{dataFileBrowser.tablePrefs.isVisible('createColumn')}" sortBy="#{selectableDataFile.entity.created}"
             filterBy="#{preferencesBean.formatDate(selectableDataFile.entity.created)}"
-            filterValue="#{dataFileBrowser.tableState.getFilterValue('formatDate(selectableDataFile.entity.created)')}"
             filterStyle="width:75px;" filterFunction="#{filterUtil.contains}">
             <h:outputText value="#{selectableDataFile.entity.created}" converter="#{dateConverter}" />
           </p:column>
@@ -97,7 +100,6 @@
             width="#{dataFileBrowser.tablePrefs.getSize('modifiedColumn')}"
             rendered="#{dataFileBrowser.tablePrefs.isVisible('modifiedColumn')}" sortBy="#{selectableDataFile.entity.modified}"
             filterBy="#{preferencesBean.formatDate(selectableDataFile.entity.modified)}"
-            filterValue="#{dataFileBrowser.tableState.getFilterValue('formatDate(selectableDataFile.entity.modified)')}"
             filterStyle="width:75px;" filterFunction="#{filterUtil.contains}">
             <h:outputText value="#{selectableDataFile.entity.modified}" converter="#{dateConverter}" />
           </p:column>
@@ -105,7 +107,6 @@
           <p:column id="ownerColumn" headerText="Owner" styleClass="ellipsis min-column-size"
             width="#{dataFileBrowser.tablePrefs.getSize('ownerColumn')}"
             rendered="#{dataFileBrowser.tablePrefs.isVisible('ownerColumn')}"
-            filterValue="#{dataFileBrowser.tableState.getFilterValue('entity.creator)')}"
             sortBy="#{selectableDataFile.entity.creator}" filterBy="#{selectableDataFile.entity.creator}" filterMatchMode="exact"
             filterOptions="#{dataFileBrowser.creatorList}">
             <h:outputText value="#{selectableDataFile.entity.creator}" />

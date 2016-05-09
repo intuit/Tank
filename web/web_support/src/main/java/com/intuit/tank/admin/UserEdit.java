@@ -70,9 +70,6 @@ public class UserEdit implements Serializable {
     @Inject
     private Conversation conversation;
 
-    @Inject
-    private TsConversationManager tsConversationManager;
-
     private User user;
 
     private DualListModel<String> selectionModel;
@@ -217,7 +214,7 @@ public class UserEdit implements Serializable {
         user = userDao.saveOrUpdate(user);
         userEvent.fire(new ModifiedUserMessage(user, this));
         messages.info("User " + user.getName() + " has been " + (isNew ? "created" : "modified") + ".");
-        tsConversationManager.end();
+        conversation.end();
         clear();
         return "success";
     }

@@ -23,7 +23,6 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.enterprise.context.ApplicationScoped;
 import javax.faces.context.FacesContext;
-import javax.inject.Inject;
 import javax.inject.Named;
 
 /**
@@ -39,9 +38,6 @@ public class Navigation implements Serializable {
     private static final long serialVersionUID = 1L;
     private Map<String, String> pageTitleMap = new HashMap<String, String>();
     private Map<String, SiteSection> pageSectionMap = new HashMap<String, SiteSection>();
-
-    @Inject
-    private FacesContext facesContext;
 
     /**
      * Gets the page Title for the given View ID
@@ -81,7 +77,7 @@ public class Navigation implements Serializable {
      */
     @Nonnull
     public String getSection() {
-        return getSiteSection(facesContext.getViewRoot().getViewId()).name();
+        return getSiteSection(FacesContext.getCurrentInstance().getViewRoot().getViewId()).name();
     }
 
     /**
