@@ -60,9 +60,9 @@
         update="scriptTableId" />
 
 
-      <p:dataTable value="#{scriptBean.selectionList}" var="selectable"
-        widgetVar="scriptTable" id="scriptTableId" liveResize=" false"
-        scrollable="true" filteredValue="#{scriptBean.filteredData}"
+      <p:dataTable id="scriptTableId" var="selectable" widgetVar="scriptTable"
+        value="#{scriptBean.selectionList}" liveResize="false" scrollable="true"
+        filteredValue="#{scriptBean.filteredData}"
         style="width:#{scriptBean.tablePrefs.getMaxTotalSize(preferencesBean.screenWidth)}px;"
         scrollHeight="450" sortBy="#{selectable.entity.created}"
         sortOrder="descending" paginator="true" rows="25"
@@ -70,15 +70,13 @@
         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
         rowsPerPageTemplate="25,50,75,100">
 
+          <f:facet name="header">
+            <p:outputPanel style="text-align: right; width:100%" layout="block">
+              <h:outputText value="Search all fields: " />
+              <p:inputText id="globalFilter" onkeyup="PF('projectTable').filter()" placeholder="Enter keyword" style="width:150px" />
+            </p:outputPanel>
+          </f:facet>
 
-        <f:facet name="header">
-          <p:outputPanel style="text-align: right; width:100%"
-            layout="block">
-            <h:outputText value="Search all fields: " />
-            <p:inputText id="globalFilter"
-              onkeyup="PF('scriptTable').filter()" style="width:150px" />
-          </p:outputPanel>
-        </f:facet>
 
         <p:ajax event="colResize" update="scriptTableId"
           listener="#{scriptBean.tablePrefs.onResize}" global="true"
@@ -105,19 +103,18 @@
           styleClass="ellipsis min-column-size"
           width="#{scriptBean.tablePrefs.getSize('idColumn')}"
           rendered="#{scriptBean.tablePrefs.isVisible('idColumn')}"
-          filterStyle="width:40px;" sortBy="#{selectable.entity.id}"
-          filterBy="#{selectable.entity.id}" filterFunction="#{filterUtil.contains}">
+          filterStyle="width:40px;"
+          filterBy="#{selectable.entity.id}" filterMatchMode="contains">
           <h:outputText value="#{selectable.entity.id}" />
         </p:column>
 
 
         <p:column id="nameColumn" headerText="Name"
-          sortBy="#{selectable.entity.name}"
           styleClass="ellipsis min-column-size"
           width="#{scriptBean.tablePrefs.getSize('nameColumn')}"
           rendered="#{scriptBean.tablePrefs.isVisible('nameColumn')}"
           filterStyle="width:75px;" filterBy="#{selectable.entity.name}"
-          filterFunction="#{filterUtil.contains}">
+          filterMatchMode="contains">
           <p:commandLink
             action="#{scriptEditor.editScript(selectable.entity)}"
             title="#{selectable.entity.name} (id=#{selectable.entity.id})"
@@ -131,7 +128,6 @@
           width="#{scriptBean.tablePrefs.getSize('productColumn')}"
           rendered="#{scriptBean.tablePrefs.isVisible('productColumn')}"
           filterStyle="width:75px;"
-          sortBy="#{selectable.entity.productName}"
           filterBy="#{selectable.entity.productName}"
           filterOptions="#{projectUtilBean.productNames}"
           filterMatchMode="exact">
@@ -143,9 +139,8 @@
           width="#{scriptBean.tablePrefs.getSize('commentsColumn')}"
           rendered="#{scriptBean.tablePrefs.isVisible('commentsColumn')}"
           filterStyle="width:75px;"
-          sortBy="#{selectable.entity.comments}"
           filterBy="#{selectable.entity.comments}"
-          filterFunction="#{filterUtil.contains}">
+          filterMatchMode="contains">
           <h:outputText value="#{selectable.entity.comments}"
             title="#{selectable.entity.comments}" />
         </p:column>
@@ -155,9 +150,8 @@
           width="#{scriptBean.tablePrefs.getSize('createColumn')}"
           rendered="#{scriptBean.tablePrefs.isVisible('createColumn')}"
           filterStyle="width:75px;"
-          sortBy="#{selectable.entity.created}"
           filterBy="#{preferencesBean.formatDate(selectable.entity.created)}"
-          filterFunction="#{filterUtil.contains}">
+          filterMatchMode="contains">
           <h:outputText value="#{selectable.entity.created}"
             converter="#{dateConverter}" />
         </p:column>
@@ -167,9 +161,8 @@
           width="#{scriptBean.tablePrefs.getSize('modifiedColumn')}"
           rendered="#{scriptBean.tablePrefs.isVisible('modifiedColumn')}"
           filterStyle="width:75px;"
-          sortBy="#{selectable.entity.modified}"
           filterBy="#{preferencesBean.formatDate(selectable.entity.modified)}"
-          filterFunction="#{filterUtil.contains}">
+          filterMatchMode="contains">
           <h:outputText value="#{selectable.entity.modified}"
             converter="#{dateConverter}" />
         </p:column>
@@ -178,7 +171,6 @@
           styleClass="ellipsis min-column-size"
           width="#{scriptBean.tablePrefs.getSize('ownerColumn')}"
           rendered="#{scriptBean.tablePrefs.isVisible('ownerColumn')}"
-          sortBy="#{selectable.entity.creator}"
           filterBy="#{selectable.entity.creator}"
           filterMatchMode="exact"
           filterOptions="#{scriptBean.creatorList}">

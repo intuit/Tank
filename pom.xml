@@ -42,8 +42,8 @@
 
     <version.enunciate>1.31</version.enunciate>
 
-    <version.mojarra>2.1.29-05</version.mojarra> <!-- Upgrading to JSF 2.2, will require deltaspike replacing seam -->
-    <version.jsf-api>2.1.29-05</version.jsf-api>
+    <version.mojarra>2.2.13</version.mojarra>
+    <version.jsf-api>2.2.13</version.jsf-api>
     <version.primefaces>5.3</version.primefaces>
     <version.primefaces-ext>4.0.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>

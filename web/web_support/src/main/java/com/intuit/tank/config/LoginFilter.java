@@ -34,6 +34,7 @@ public class LoginFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		if (!identity.isLoggedIn()) {
+			((HttpServletRequest)request).getSession().invalidate();
 			String contextPath = ((HttpServletRequest)request).getContextPath();
 			((HttpServletResponse)response).sendRedirect(contextPath + "/denied.xhtml");
 		}

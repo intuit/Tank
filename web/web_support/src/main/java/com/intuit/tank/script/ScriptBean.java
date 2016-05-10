@@ -53,9 +53,6 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
 
     private static final Logger LOG = Logger.getLogger(ScriptBean.class);
 
-    private String nameFilter;
-    private String productFilter;
-
     @Inject
     private ScriptLoader scriptLoader;
 
@@ -75,9 +72,9 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
     @Modified
     private Event<ModifiedScriptMessage> scriptEvent;
 
-    private int version;
-
     private SelectableWrapper<Script> selectedScript;
+    
+    private int version;
 
     @Inject
     private PreferencesBean userPrefs;
@@ -138,36 +135,6 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
     public void setSelectedScript(SelectableWrapper<Script> selectedScript) {
         this.selectedScript = selectedScript;
         this.saveAsName = selectedScript.getEntity().getName();
-    }
-
-    /**
-     * @return the proudctFilter
-     */
-    public String getProductFilter() {
-        return productFilter;
-    }
-
-    /**
-     * @param productFilter
-     *            the proudctFilter to set
-     */
-    public void setProductFilter(String productFilter) {
-        this.productFilter = productFilter;
-    }
-
-    /**
-     * @return the nameFilter
-     */
-    public String getNameFilter() {
-        return nameFilter;
-    }
-
-    /**
-     * @param nameFilter
-     *            the nameFilter to set
-     */
-    public void setNameFilter(String nameFilter) {
-        this.nameFilter = nameFilter;
     }
 
     /**
