@@ -53,6 +53,11 @@
       <groupId>org.jboss.weld</groupId>
       <artifactId>weld-core</artifactId>
     </dependency>
+    
+    <dependency>
+	  <groupId>javax.inject</groupId>
+	  <artifactId>javax.inject</artifactId>
+	</dependency>
 
   </dependencies>
 

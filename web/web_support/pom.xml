@@ -104,12 +104,6 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>jsr250-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>com.sun.faces</groupId>
       <artifactId>jsf-api</artifactId>
     </dependency>
@@ -185,11 +179,6 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.seam.solder</groupId>
-      <artifactId>seam-solder</artifactId>
     </dependency>
 
     <dependency>

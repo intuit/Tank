@@ -609,12 +609,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.seam.solder</groupId>
-        <artifactId>seam-solder</artifactId>
-        <version>${version.seam}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.jboss.seam.security</groupId>
         <artifactId>seam-security</artifactId>
         <version>${version.seam}</version>
