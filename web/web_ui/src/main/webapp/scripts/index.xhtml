@@ -8,6 +8,7 @@
   xmlns:pe="http://primefaces.org/ui/extensions"
   template="/WEB-INF/templates/tank.xhtml">
   <ui:define name="content">
+  <f:viewAction action="#{conversation.end}" />
     <h:form id="mainForm">
 
       <ts:toolbar title="Scripts" objectName="Scripts"

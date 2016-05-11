@@ -17,8 +17,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Event;
-import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -46,7 +46,7 @@ import com.intuit.tank.wrapper.VersionContainer;
 import org.jboss.seam.security.Identity;
 
 @Named
-@ViewScoped
+@SessionScoped
 public class ScriptBean extends SelectableBean<Script> implements Serializable, Multiselectable<Script> {
 
     private static final long serialVersionUID = 1L;

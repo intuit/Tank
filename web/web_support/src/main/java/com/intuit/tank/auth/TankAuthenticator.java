@@ -121,5 +121,11 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
         }
         return uri;
     }
+    
+    public String logout() {
+    	identity.logout();
+        FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+        return "/login.xhtml?faces-redirect=true";
+    }
 
 }
