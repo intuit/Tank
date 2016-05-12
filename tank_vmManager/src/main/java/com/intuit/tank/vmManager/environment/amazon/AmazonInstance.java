@@ -48,6 +48,7 @@ import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesRequest;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.Tag;
+import com.amazonaws.services.ec2.model.Tenancy;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.intuit.tank.dao.JobInstanceDao;
@@ -259,8 +260,10 @@ public class AmazonInstance implements IEnvironmentInstance {
                 List<Address> randomizedIps = new ArrayList<Address>(availableEips);
                 Collections.shuffle(randomizedIps);
                 RunInstancesRequest runInstancesRequest = new RunInstancesRequest(image, number, number);
+                Tenancy tenancy = instanceDescription.isVPC() ? Tenancy.Dedicated : Tenancy.Default;
                 runInstancesRequest.withInstanceType(size.toString())
                 					.withKeyName(keyPair)
+                					.withPlacement(new Placement().withTenancy(tenancy))
                 					.withMonitoring(true)
                 					.withUserData(userData);
 
