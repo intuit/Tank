@@ -18,8 +18,8 @@ package com.intuit.tank.auth;
 
 import java.io.Serializable;
 
+import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Event;
-import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -45,7 +45,7 @@ import com.intuit.tank.vm.common.TankConstants;
  * 
  */
 @Named("tsAuthenticator")
-@ViewScoped
+@SessionScoped
 public class TankAuthenticator extends BaseAuthenticator implements Serializable {
 
     private static final long serialVersionUID = 1L;
