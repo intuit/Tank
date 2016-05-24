@@ -203,6 +203,17 @@ public class CloudServiceV1 implements CloudService {
                 servletContext, JobController.class);
         controller.killJob(jobId);
     }
+    
+
+    /**
+     * @{inheritDoc
+     */
+    @Override
+    public String killAllJobs() {
+        JobController controller = new ServletInjector<JobController>().getManagedBean(
+                servletContext, JobController.class);
+        return controller.killAllJobs();
+    }
 
     /**
      * @{inheritDoc

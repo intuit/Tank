@@ -115,6 +115,21 @@ public class JobController {
     public void killJob(String jobId) {
         killJob(jobId, true);
     }
+    
+    /**
+     * @{inheritDoc
+     */
+    public String killAllJobs() {
+    	String ret = "";
+    	Set<CloudVmStatusContainer> jobs = vmTracker.getAllJobs();
+    	Iterator iter = jobs.iterator();
+    	while (iter.hasNext()) {
+    		String jobId = ((CloudVmStatusContainer)iter.next()).getJobId();
+    		killJob(jobId, true);
+	        ret.concat("Stopping JobId =" + jobId + "\n");
+    	}
+    	return ret;
+    }
 
     /**
      * @{inheritDoc

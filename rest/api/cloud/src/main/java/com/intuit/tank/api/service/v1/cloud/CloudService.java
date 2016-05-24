@@ -164,6 +164,14 @@ public interface CloudService {
     public void killJob(@Nonnull @PathParam("jobId") String jobId);
 
     /**
+     * 
+     * @return String value.
+     */
+    @Path(CloudService.METHOD_KILL_JOB)
+    @GET
+    public String killAllJobs();
+    
+    /**
      * Starts a job
      * 
      * @param jobId
@@ -184,11 +192,10 @@ public interface CloudService {
 
     /**
      * 
-     * @param jobId
+     * @return String value.
      */
     @Path(CloudService.METHOD_STOP_JOB)
     @GET
-    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public String stopAllJobs();
     
     /**
