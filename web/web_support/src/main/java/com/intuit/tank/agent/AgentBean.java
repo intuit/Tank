@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.faces.bean.ViewScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
 
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -31,7 +31,7 @@ import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.vmManager.VMTrackerImpl;
 
 @Named
-@ViewScoped
+@RequestScoped
 public class AgentBean implements Serializable {
 
     private static final long serialVersionUID = 1L;

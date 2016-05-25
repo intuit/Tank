@@ -17,8 +17,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
-import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -39,7 +39,7 @@ import com.intuit.tank.vm.api.enumerated.ScriptDriver;
 import com.intuit.tank.vm.settings.AccessRight;
 
 @Named
-@ViewScoped
+@RequestScoped
 public class CreateProjectBean implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -17,7 +17,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-import javax.faces.bean.ViewScoped;
+import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -33,7 +33,7 @@ import com.intuit.tank.wrapper.SelectableBean;
 import com.intuit.tank.wrapper.SelectableWrapper;
 
 @Named
-@ViewScoped
+@SessionScoped
 public class FilterGroupBean extends SelectableBean<ScriptFilterGroup> implements Serializable,
         Multiselectable<ScriptFilterGroup> {
 
