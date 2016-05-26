@@ -100,6 +100,7 @@ public class ProjectDao extends OwnableDao<Project> {
     		}
     		commit();
         } catch (Exception e) {
+        	rollback();
             e.printStackTrace();
             throw new RuntimeException(e);
     	} finally {
@@ -173,6 +174,7 @@ public class ProjectDao extends OwnableDao<Project> {
     		}
     		commit();
         } catch (Exception e) {
+        	rollback();
             e.printStackTrace();
             throw new RuntimeException(e);
     	} finally {
@@ -207,6 +209,7 @@ public class ProjectDao extends OwnableDao<Project> {
 	        }
 	        commit();
         } catch (Exception e) {
+        	rollback();
             e.printStackTrace();
             throw new RuntimeException(e);
     	} finally {

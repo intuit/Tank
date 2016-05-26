@@ -97,6 +97,16 @@ public class TransactionContainer {
                     + this.initiatingObject);
         }
     }
+    
+    public void rollbackTransaction(Object initiatingObject) {
+        if (transaction != null && this.initiatingObject == initiatingObject) {
+            LOG.debug("Rollback transaciton with initiating Object " + initiatingObject);
+            transaction.rollback();
+        } else {
+            LOG.debug("Rollback ignored from initiating Object " + initiatingObject + " need initiating object "
+                    + this.initiatingObject);
+        }
+    }
 
     public void cleanup(Object initiatingObject) {
         if (this.initiatingObject == initiatingObject) {

@@ -81,8 +81,8 @@ public class ScriptDao extends BaseDao<Script> {
     @Override
     public void delete(Integer id) throws HibernateException {
         EntityManager em = getEntityManager();
-        begin();
         try {
+        	begin();
             Script entity = em.find(Script.class, id);
             if (entity != null) {
                 // check if it is used in scriptGroups
@@ -110,6 +110,11 @@ public class ScriptDao extends BaseDao<Script> {
                 em.remove(entity);
                 commit();
             }
+            commit();
+        } catch (Exception e) {
+        	rollback();
+            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
             cleanup();
         }
@@ -167,9 +172,9 @@ public class ScriptDao extends BaseDao<Script> {
         // try {
         LOG.info("persisting script " + script.getName() + " with id " + script.getId()
                 + " into database");
+        EntityManager em = getEntityManager();
         try {
-            EntityManager em = getEntityManager();
-            getEmProvider().get().startTrasaction(this);
+            begin();
             SerializedScriptStep serializedScriptStep = serialize(script.getScriptSteps());
             serializedScriptStep.setSerialzedData(
                     Hibernate.getLobCreator(getHibernateSession()).createBlob(serializedScriptStep.getBytes()));
@@ -181,9 +186,13 @@ public class ScriptDao extends BaseDao<Script> {
                 script = em.merge(script);
             }
             LOG.debug("Saved Script Steps with id " + serializedSteps.getId() + " for script " + script.getId());
-            getEmProvider().get().commitTransaction(this);
+            commit();
+        } catch (Exception e) {
+        	rollback();
+            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
-            getEmProvider().get().cleanup(this);
+            cleanup();
         }
         mt.markAndLog("Store script with " + size + " steps to database.");
         mt.endAndLog();
