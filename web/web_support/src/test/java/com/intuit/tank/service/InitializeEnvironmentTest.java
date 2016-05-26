@@ -13,15 +13,6 @@ package com.intuit.tank.service;
  * #L%
  */
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.net.URL;
-
-import javax.servlet.ServletContext;
-
-import org.apache.jasper.servlet.JspCServletContext;
-import org.jboss.seam.servlet.WebApplication;
 import org.junit.*;
 
 import com.intuit.tank.service.InitializeEnvironment;

@@ -212,7 +212,7 @@ public class CloudServiceV1 implements CloudService {
     public String killAllJobs() {
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
-        return controller.killAllJobs();
+        return "SUCCESS\n" + controller.killAllJobs();
     }
 
     /**
@@ -242,7 +242,7 @@ public class CloudServiceV1 implements CloudService {
     public String stopAllJobs() {
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
-        return controller.stopAllJobs();
+        return "SUCCESS\n" + controller.stopAllJobs();
     }
     
     /**
