@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Stack;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
@@ -209,10 +210,10 @@ public class CloudServiceV1 implements CloudService {
      * @{inheritDoc
      */
     @Override
-    public String killAllJobs() {
+    public Set<CloudVmStatusContainer> killAllJobs() {
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
-        return "SUCCESS\n" + controller.killAllJobs();
+        return controller.killAllJobs();
     }
 
     /**
@@ -239,10 +240,10 @@ public class CloudServiceV1 implements CloudService {
      * @{inheritDoc
      */
     @Override
-    public String stopAllJobs() {
+    public Set<CloudVmStatusContainer> stopAllJobs() {
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
-        return "SUCCESS\n" + controller.stopAllJobs();
+        return controller.stopAllJobs();
     }
     
     /**

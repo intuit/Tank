@@ -119,16 +119,14 @@ public class JobController {
     /**
      * @{inheritDoc
      */
-    public String killAllJobs() {
-    	String ret = "";
+    public Set<CloudVmStatusContainer> killAllJobs() {
     	Set<CloudVmStatusContainer> jobs = vmTracker.getAllJobs();
     	Iterator iter = jobs.iterator();
     	while (iter.hasNext()) {
     		String jobId = ((CloudVmStatusContainer)iter.next()).getJobId();
     		killJob(jobId, true);
-	        ret.concat("Stopping JobId =" + jobId + "\n");
     	}
-    	return ret;
+    	return jobs;
     }
 
     /**
@@ -166,8 +164,7 @@ public class JobController {
     /**
      * @{inheritDoc
      */
-    public String stopAllJobs() {
-    	String ret = "";
+    public Set<CloudVmStatusContainer> stopAllJobs() {
     	Set<CloudVmStatusContainer> jobs = vmTracker.getAllJobs();
     	Iterator iter = jobs.iterator();
     	while (iter.hasNext()) {
@@ -176,9 +173,8 @@ public class JobController {
 	        vmTracker.stopJob(jobId);
 	        stopAgents(instanceIds);
 	        jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_STOPPED));
-	        ret.concat("Stopping JobId =" + jobId + "\n");
     	}
-    	return ret;
+    	return jobs;
     }
     
     /**
