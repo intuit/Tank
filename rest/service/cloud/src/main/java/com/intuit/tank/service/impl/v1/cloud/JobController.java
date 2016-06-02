@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.Iterator;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -113,6 +115,19 @@ public class JobController {
     public void killJob(String jobId) {
         killJob(jobId, true);
     }
+    
+    /**
+     * @{inheritDoc
+     */
+    public Set<CloudVmStatusContainer> killAllJobs() {
+    	Set<CloudVmStatusContainer> jobs = vmTracker.getAllJobs();
+    	Iterator iter = jobs.iterator();
+    	while (iter.hasNext()) {
+    		String jobId = ((CloudVmStatusContainer)iter.next()).getJobId();
+    		killJob(jobId, true);
+    	}
+    	return jobs;
+    }
 
     /**
      * @{inheritDoc
@@ -146,6 +161,22 @@ public class JobController {
         }
     }
 
+    /**
+     * @{inheritDoc
+     */
+    public Set<CloudVmStatusContainer> stopAllJobs() {
+    	Set<CloudVmStatusContainer> jobs = vmTracker.getAllJobs();
+    	Iterator iter = jobs.iterator();
+    	while (iter.hasNext()) {
+    		String jobId = ((CloudVmStatusContainer)iter.next()).getJobId();
+	        List<String> instanceIds = getInstancesForJob(jobId);
+	        vmTracker.stopJob(jobId);
+	        stopAgents(instanceIds);
+	        jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_STOPPED));
+    	}
+    	return jobs;
+    }
+    
     /**
      * @{inheritDoc
      */

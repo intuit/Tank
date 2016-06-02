@@ -63,7 +63,9 @@ public class ScriptLoader extends EntityVersionLoader<Script, ModifiedScriptMess
         List<Script> scripts = new ScriptDao().findFiltered(ViewFilterType.ALL);
         Set<String> set = new HashSet<String>();
         for (Script p : scripts) {
-            set.add(p.getCreator());
+           	if( !p.getCreator().isEmpty() ) {
+           		set.add(p.getCreator());
+           	}
         }
         List<String> list = new ArrayList<String>(set);
         Collections.sort(list);

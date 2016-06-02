@@ -22,7 +22,6 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.faces.validation.InputField;
 import org.jboss.seam.international.status.Messages;
 
 import com.intuit.tank.dao.GroupDao;
@@ -43,8 +42,6 @@ public class UserRequest {
 
     private User user = new User();
 
-    @Inject
-    @InputField("passwordConfirm")
     private String passwordConfirm;
 
     @Inject

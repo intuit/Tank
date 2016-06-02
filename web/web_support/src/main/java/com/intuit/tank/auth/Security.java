@@ -26,8 +26,6 @@ import javax.inject.Named;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.seam.security.Identity;
 import org.picketlink.idm.api.Group;
-import org.picketlink.idm.api.Role;
-
 import com.intuit.tank.project.OwnableEntity;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.AccessRight;
@@ -80,7 +78,6 @@ public class Security implements Serializable {
         if (isAdmin()) {
             return true;
         }
-
         SecurityConfig config = new TankConfig().getSecurityConfig();
         List<String> associatedGroups = config.getRestrictionMap().get(right.name());
         // Set<Role> userRoles = identity.getRoles();

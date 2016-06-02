@@ -13,11 +13,15 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import javax.faces.bean.ViewScoped;
+import javax.enterprise.context.SessionScoped;
+import javax.enterprise.event.Observes;
+import javax.enterprise.event.Reception;
 import javax.inject.Named;
 
+import com.intuit.tank.qualifier.Modified;
+
 @Named
-@ViewScoped
+@SessionScoped
 public class JobQueueManager extends JobTreeTableBean {
 
     /**
@@ -31,6 +35,10 @@ public class JobQueueManager extends JobTreeTableBean {
     @Override
     protected Integer getRootJobId() {
         return null;
+    }
+    
+    public void observe(@Observes(notifyObserver = Reception.IF_EXISTS) @Modified JobQueue queueEvent) {
+        rootNode = null;
     }
 
 }

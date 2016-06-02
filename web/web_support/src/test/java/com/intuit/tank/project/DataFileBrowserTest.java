@@ -475,33 +475,6 @@ public class DataFileBrowserTest {
     }
 
     /**
-     * Run the void observerUpload(ModifiedDatafileMessage) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testObserverUpload_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-        ModifiedDatafileMessage msg = new ModifiedDatafileMessage(new DataFile(), new Object());
-
-        fixture.observerUpload(msg);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-    }
-
-    /**
      * Run the void prevSetOfEntries() method test.
      *
      * @throws Exception

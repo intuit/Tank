@@ -48,6 +48,7 @@ import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesRequest;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.Tag;
+import com.amazonaws.services.ec2.model.Tenancy;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.intuit.tank.dao.JobInstanceDao;
@@ -71,7 +72,7 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 2;// 2
                                                                             // minutes
-    private static Logger logger = Logger.getLogger(AmazonInstance.class);
+    private static Logger LOG = Logger.getLogger(AmazonInstance.class);
 
     private AmazonEC2AsyncClient asynchEc2Client;
     // private TypicaInterface ec2Interface;
@@ -111,7 +112,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                         clientConfig.setProxyPort(Integer.valueOf(creds.getProxyPort()));
                     }
                 } catch (NumberFormatException e) {
-                    logger.error("invalid proxy setup.");
+                    LOG.error("invalid proxy setup.");
                 }
 
             }
@@ -125,7 +126,7 @@ public class AmazonInstance implements IEnvironmentInstance {
             asynchEc2Client.setEndpoint(vmRegion.getEndpoint());
 
         } catch (Exception ex) {
-            logger.error("Error initializing amazonclient: " + ex, ex);
+            LOG.error("Error initializing amazonclient: " + ex, ex);
             throw new RuntimeException(ex);
         }
     }
@@ -158,7 +159,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 // result.addAll(TypicaDataConverter.processReservationDescription(reservationDescription));
             }
         } catch (Exception e) {
-            logger.error("Failed to retrieve instance from Amazon: " + e.getMessage());
+            LOG.error("Failed to retrieve instance from Amazon: " + e.getMessage());
             throw new RuntimeException(e);
         }
 
@@ -184,9 +185,9 @@ public class AmazonInstance implements IEnvironmentInstance {
             String image = instanceDescription.getAmi();
             if (instanceRequest.getReuseStoppedInstance()) {
                 List<VMInformation> instances = findAllInstancesOfType(this.vmRegion, instanceRequest.getImage());
-                logger.info("looking for stopped instance with ami-id of " + instanceRequest.getImage());
+                LOG.info("looking for stopped instance with ami-id of " + instanceRequest.getImage());
                 for (VMInformation vmInfo : instances) {
-                    logger.info("found instance with id " + vmInfo.getInstanceId() + " with state of " + vmInfo.getState());
+                    LOG.info("found instance with id " + vmInfo.getInstanceId() + " with state of " + vmInfo.getState());
                     if ("stopped".equalsIgnoreCase(vmInfo.getState())) {
                         StartInstancesRequest startInstancesRequest = new StartInstancesRequest();
                         startInstancesRequest.withInstanceIds(vmInfo.getInstanceId());
@@ -205,10 +206,10 @@ public class AmazonInstance implements IEnvironmentInstance {
                     instanceRequest.addUserData(TankConstants.KEY_JOB_ID, instanceRequest.getJobId());
                 }
                 if (instanceRequest.getReportingMode() != null) {
-                    logger.info("Setting reporting mode to " + instanceRequest.getReportingMode());
+                    LOG.info("Setting reporting mode to " + instanceRequest.getReportingMode());
                     instanceRequest.addUserData(TankConstants.KEY_REPORTING_MODE, instanceRequest.getReportingMode());
                 } else {
-                    logger.warn("Reporting mode not set.");
+                    LOG.warn("Reporting mode not set.");
                 }
                 if (vmType.getJvmArgs() != null) {
                     instanceRequest.addUserData(TankConstants.KEY_JVM_ARGS, vmType.getJvmArgs());
@@ -226,41 +227,43 @@ public class AmazonInstance implements IEnvironmentInstance {
                     instanceRequest.addUserData(TankConstants.KEY_USING_BIND_EIP, Boolean.TRUE.toString());
                 }
                 if (instanceRequest.getLoggingProfile() != null) {
-                    logger.info("Setting loggingProfile to " + instanceRequest.getLoggingProfile());
+                    LOG.info("Setting loggingProfile to " + instanceRequest.getLoggingProfile());
                     instanceRequest.addUserData(TankConstants.KEY_LOGGING_PROFILE, instanceRequest.getLoggingProfile());
                 } else {
-                    logger.warn("Logging  profile not set.");
+                    LOG.warn("Logging  profile not set.");
                 }
                 if (instanceRequest.getStopBehavior() != null) {
-                    logger.info("Setting stopBehavior to " + instanceRequest.getStopBehavior());
+                    LOG.info("Setting stopBehavior to " + instanceRequest.getStopBehavior());
                     instanceRequest.addUserData(TankConstants.KEY_STOP_BEHAVIOR, instanceRequest.getStopBehavior());
                 } else {
-                    logger.warn("stop Behavior not set.");
+                    LOG.warn("stop Behavior not set.");
                 }
 
                 String userData = buildUserData(instanceRequest.getUserData());
-                Set<String> availableEips = new HashSet<String>();
+                Set<Address> availableEips = new HashSet<Address>();
                 if (instanceRequest.isUseEips()) {
                     synchronized (instanceRequest.getRegion()) {
                         DescribeAddressesResult describeAddresses = asynchEc2Client.describeAddresses(new DescribeAddressesRequest());
                         Set<String> reserved = config.getVmManagerConfig().getReservedElasticIps();
                         for (Address address : describeAddresses.getAddresses()) {
-
-                            if ("standard".equalsIgnoreCase(address.getDomain()) && StringUtils.isBlank(address.getInstanceId())) {
+                        	String elasticIPType = instanceDescription.isVPC() ? "vpc" : "standard";
+                            if (elasticIPType.equalsIgnoreCase(address.getDomain()) && StringUtils.isBlank(address.getInstanceId())) {
                                 String ip = address.getPublicIp();
                                 if (!reserved.contains(ip)) {
-                                    availableEips.add(ip);
+                                    availableEips.add(address);
                                 }
                             }
                         }
 
                     }
                 }
-                List<String> randomizedIps = new ArrayList<String>(availableEips);
+                List<Address> randomizedIps = new ArrayList<Address>(availableEips);
                 Collections.shuffle(randomizedIps);
                 RunInstancesRequest runInstancesRequest = new RunInstancesRequest(image, number, number);
+                Tenancy tenancy = instanceDescription.isVPC() ? Tenancy.Dedicated : Tenancy.Default;
                 runInstancesRequest.withInstanceType(size.toString())
                 					.withKeyName(keyPair)
+                					.withPlacement(new Placement().withTenancy(tenancy))
                 					.withMonitoring(true)
                 					.withUserData(userData);
 
@@ -268,8 +271,9 @@ public class AmazonInstance implements IEnvironmentInstance {
                 if (!StringUtils.isEmpty(instanceDescription.getSubnetId())) {
                     runInstancesRequest.withSubnetId(instanceDescription.getSubnetId());
                 }
-                Collection<String> c = getStringCollection(instanceDescription.getSecurityGroupIds());
+                Collection<String> c = instanceDescription.getSecurityGroupIds();
                 if (!c.isEmpty()) {
+                	LOG.info("Security Group IDs " + c.toString());
                     runInstancesRequest.withSecurityGroupIds(c);
                 } else {
                     runInstancesRequest.withSecurityGroups(instanceDescription.getSecurityGroup());
@@ -286,18 +290,17 @@ public class AmazonInstance implements IEnvironmentInstance {
                 result = new AmazonDataConverter().processReservation(results.getReservation(), vmRegion);
                 if (instanceRequest.isUseEips()) {
                     synchronized (instanceRequest.getRegion()) {
-                        Iterator<String> iter = randomizedIps.iterator();
+                        Iterator<Address> iter = randomizedIps.iterator();
                         List<AssociateContainer> bindIps = new ArrayList<AssociateContainer>();
                         for (VMInformation info : result) {
                             if (!iter.hasNext()) {
                                 break;
                             }
-                            String availableIp = iter.next();
-                            bindIps.add(new AssociateContainer(info.getInstanceId(), availableIp));
+                            bindIps.add(new AssociateContainer(info.getInstanceId(), iter.next()));
                         }
                         CountDownLatch latch = new CountDownLatch(bindIps.size());
                         for (AssociateContainer container : bindIps) {
-                            associateAddress(container.instanceId, container.publicIp, latch);
+                            associateAddress(container.instanceId, container.address, latch);
                         }
                         latch.await();
                     }
@@ -307,7 +310,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 // bind to the public ip
                 String instanceId = result.get(0).getInstanceId();
                 // wait for instance to be in running state
-                associateAddress(instanceId, instanceDescription.getPublicIp(), null);
+                associateAddress(instanceId, new Address().withPublicIp(instanceDescription.getPublicIp()), null);
                 // reboot(result);
             }
             if (result.size() > 0) {
@@ -315,26 +318,15 @@ public class AmazonInstance implements IEnvironmentInstance {
                 for (VMInformation inst : result) {
                     ids.add(inst.getInstanceId());
                 }
-                logger.info("Setting tags for instances " + ids);
+                LOG.info("Setting tags for instances " + ids);
                 tagInstance(ids, buildTags(instanceRequest));
             }
 
         } catch (Exception ex) {
-            logger.error("Error starting instancs: " + ex.getMessage(), ex);
+            LOG.error("Error starting instancs: " + ex.getMessage(), ex);
             throw new RuntimeException(ex);
         }
         return result;
-    }
-
-    private Collection<String> getStringCollection(String s) {
-        Set<String> ret = new HashSet<String>();
-        if (StringUtils.isNotBlank(s)) {
-            String[] strings = StringUtils.split(s, ",");
-            for (String str : strings) {
-                ret.add(str.trim());
-            }
-        }
-        return ret;
     }
 
     /**
@@ -371,7 +363,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                             }
                         }
                     } catch (Exception e) {
-                        logger.error("Error tagging instances: " + e, e);
+                        LOG.error("Error tagging instances: " + e, e);
                     }
                 };
             }).start();
@@ -427,7 +419,7 @@ public class AmazonInstance implements IEnvironmentInstance {
             TerminateInstancesResult terminateInstances = asynchEc2Client.terminateInstances(terminateInstancesRequest);
             result = new AmazonDataConverter().processStateChange(terminateInstances.getTerminatingInstances());
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            LOG.error(ex.getMessage());
             throw new RuntimeException(ex);
         }
         return result;
@@ -450,7 +442,7 @@ public class AmazonInstance implements IEnvironmentInstance {
             }
             asynchEc2Client.setEndpoint(vmRegion.getEndpoint());
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            LOG.error(ex.getMessage());
             throw new RuntimeException(ex);
         }
         return result;
@@ -471,7 +463,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 result = new AmazonDataConverter().processStateChange(terminateInstances.getTerminatingInstances());
             }
         } catch (Exception ex) {
-            logger.error(ex.getMessage(), ex);
+            LOG.error(ex.getMessage(), ex);
             throw new RuntimeException(ex);
         }
         return result;
@@ -493,7 +485,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 result = new AmazonDataConverter().processStateChange(stoppingInstances);
             }
         } catch (Exception ex) {
-            logger.error(ex.getMessage(), ex);
+            LOG.error(ex.getMessage(), ex);
             throw new RuntimeException(ex);
         }
         return result;
@@ -519,7 +511,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 }
             }
         } catch (Exception e) {
-            logger.error("Error getting instances: " + e.toString(), e);
+            LOG.error("Error getting instances: " + e.toString(), e);
             throw new RuntimeException(e);
         }
         return ret;
@@ -552,7 +544,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     // }
     // }
     // } catch (Exception e) {
-    // logger.error("Error getting instances: " + e.toString(), e);
+    // LOG.error("Error getting instances: " + e.toString(), e);
     // throw new RuntimeException(e);
     // }
     // return ret;
@@ -576,7 +568,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 }
             }
         } catch (Exception e) {
-            logger.error("Error getting instances: " + e.toString(), e);
+            LOG.error("Error getting instances: " + e.toString(), e);
             throw new RuntimeException(e);
         }
         return ret;
@@ -594,53 +586,62 @@ public class AmazonInstance implements IEnvironmentInstance {
         try {
             output = InstanceType.fromValue(size);
         } catch (Exception e) {
-            logger.warn("Error parsing vminstanceType " + size, e);
+            LOG.warn("Error parsing vminstanceType " + size, e);
         }
         return output;
     }
 
     @Override
-    public void associateAddress(final String instanceId, final String publicIp, final CountDownLatch latch) {
+    public void associateAddress(final String instanceId, final Address address, final CountDownLatch latch) {
 
         new Thread(new Runnable() {
 
             @Override
             public void run() {
                 boolean associated = false;
+                
                 try {
                     long start = System.currentTimeMillis();
                     int count = 0;
-                    logger.info("Setting ip for instance " + instanceId + " to " + publicIp);
+                    LOG.info("Setting ip for instance " + instanceId + " to " + address.getPublicIp());
                     while ((System.currentTimeMillis() - start) < ASSOCIATE_IP_MAX_WAIT_MILIS && !associated) {
                         count++;
                         try {
                             long sleep = (new Random().nextInt(10) + 10) * 100L;
                             Thread.sleep(sleep);
-                            asynchEc2Client.associateAddressAsync(new AssociateAddressRequest(instanceId, publicIp));
+                            if (address.getAllocationId() == null) {
+                                asynchEc2Client.associateAddressAsync(new AssociateAddressRequest()
+																	.withInstanceId(instanceId)
+																	.withPublicIp(address.getPublicIp()));                           	
+                            } else {
+                            	asynchEc2Client.associateAddressAsync(new AssociateAddressRequest()
+                            										.withInstanceId(instanceId)
+                            										.withAllocationId(address.getAllocationId()));
+                            }
                             Thread.sleep(sleep);
                             Future<DescribeInstancesResult> describeInstances = asynchEc2Client.describeInstancesAsync(new DescribeInstancesRequest().withInstanceIds(instanceId));
                             for (Reservation r : describeInstances.get().getReservations()) {
                                 for (Instance i : r.getInstances()) {
-                                    if (publicIp.equals(i.getPublicIpAddress())) {
+                                    if (address.getPublicIp().equals(i.getPublicIpAddress())) {
                                         associated = true;
                                     }
                                 }
                             }
                             if (associated) {
-                                logger.info(instanceId + " associated with " + publicIp);
+                                LOG.info(instanceId + " associated with " + address.getPublicIp());
                             } else if (count % 5 == 0) {
-                                logger.info(instanceId + " not associated yet" + publicIp + ". Retrying... count = " + count);
+                                LOG.info(instanceId + " not associated yet " + address.getPublicIp() + ". Retrying... count = " + count);
                             }
                         } catch (Exception e) {
                             if (count < 5) {
-                                logger.warn("Error associating ip address: " + e + " Will retry.");
+                                LOG.warn("Error associating ip address: " + e + " Will retry.");
                             }
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("Error setting elastic ip: " + e, e);
+                    LOG.error("Error setting elastic ip: " + e, e);
                 } finally {
-                    logger.info("exiting associated = " + associated);
+                    LOG.info("exiting associated = " + associated);
                     if (latch != null) {
                         latch.countDown();
                     }
@@ -671,7 +672,7 @@ public class AmazonInstance implements IEnvironmentInstance {
             }
             asynchEc2Client.setEndpoint(vmRegion.getEndpoint());
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            LOG.error(ex.getMessage());
             throw new RuntimeException(ex);
         }
         return result;
@@ -695,12 +696,12 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     private static class AssociateContainer {
         private String instanceId;
-        private String publicIp;
+        private Address address;
 
-        private AssociateContainer(String instanceId, String publicIp) {
+        private AssociateContainer(String instanceId, Address address) {
             super();
             this.instanceId = instanceId;
-            this.publicIp = publicIp;
+            this.address = address;
         }
 
     }
@@ -716,7 +717,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 ret = publicDnsName;
             }
         } catch (Exception e) {
-            logger.error("Error getting public dns: " + e, e);
+            LOG.error("Error getting public dns: " + e, e);
         }
         return ret;
     }

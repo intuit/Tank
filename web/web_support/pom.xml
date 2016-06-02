@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>web-parent</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.1</version>
   </parent>
 
   <artifactId>web-support</artifactId>
@@ -104,12 +104,6 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>jsr250-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>com.sun.faces</groupId>
       <artifactId>jsf-api</artifactId>
     </dependency>
@@ -188,34 +182,19 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.seam.faces</groupId>
-      <artifactId>seam-faces</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.seam.catch</groupId>
-      <artifactId>seam-catch</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.seam.solder</groupId>
-      <artifactId>seam-solder</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.jboss.seam.security</groupId>
       <artifactId>seam-security</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.seam.servlet</groupId>
-      <artifactId>seam-servlet</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.seam.config</groupId>
       <artifactId>seam-config-xml</artifactId>
     </dependency>
+    
+    <dependency>
+   	  <groupId>org.glassfish</groupId>
+   	  <artifactId>javax.ejb</artifactId>
+	</dependency>
 
   </dependencies>
 

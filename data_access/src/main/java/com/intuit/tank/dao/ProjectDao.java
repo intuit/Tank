@@ -100,6 +100,7 @@ public class ProjectDao extends OwnableDao<Project> {
     		}
     		commit();
         } catch (Exception e) {
+        	rollback();
             e.printStackTrace();
             throw new RuntimeException(e);
     	} finally {
@@ -173,6 +174,7 @@ public class ProjectDao extends OwnableDao<Project> {
     		}
     		commit();
         } catch (Exception e) {
+        	rollback();
             e.printStackTrace();
             throw new RuntimeException(e);
     	} finally {
@@ -207,6 +209,7 @@ public class ProjectDao extends OwnableDao<Project> {
 	        }
 	        commit();
         } catch (Exception e) {
+        	rollback();
             e.printStackTrace();
             throw new RuntimeException(e);
     	} finally {
@@ -228,39 +231,4 @@ public class ProjectDao extends OwnableDao<Project> {
         }
         return project;
     }
-    
-    /**
-     * Finds all Objects of type T_ENTITY
-     * 
-     * @return the nonnull list of entities
-     * @throws HibernateException
-     *             if there is an error in persistence
-     */
-    @Nonnull
-    public List<ProjectDTO> findAllProjectNames() throws HibernateException {
-    	List<ProjectDTO> results = null;
-    	EntityManager em = getEntityManager();
-    	try {
-    		begin();
-	    	Session session = em.unwrap(Session.class);
-	    	Criteria cr = session.createCriteria(Project.class)
-	    			.setProjection(Projections.projectionList()
-	    					.add( Projections.property("id"), "id")
-	    					.add( Projections.property("created"), "created")
-	    					.add( Projections.property("modified"), "modified")
-	    					.add( Projections.property("creator"), "creator")
-	    					.add( Projections.property("name"), "name"))
-	    			.setResultTransformer(Transformers.aliasToBean(ProjectDTO.class));
-	
-	        results = cr.list();
-	        commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-    	} finally {
-    		cleanup();
-    	}
-        return results;
-    }
-
 }

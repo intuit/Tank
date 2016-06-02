@@ -53,7 +53,7 @@
 
     <h:form rendered="#{identity.loggedIn}">
       <p>You are logged in as #{identity.user.id}.</p>
-      <h:commandLink action="#{identity.logout}" value="Logout" />
+      <h:commandLink action="#{tsAuthenticator.logout}" value="Logout" />
     </h:form>
     
   </ui:define>

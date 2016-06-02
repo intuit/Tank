@@ -26,9 +26,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.faces.model.SelectItem;
 
-import com.intuit.tank.ModifiedProjectMessage;
-import com.intuit.tank.dao.ProjectDao;
-import com.intuit.tank.project.Project;
+import com.intuit.tank.ModifiedDatafileMessage;
+import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.view.filter.ViewFilterType;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
 import com.intuit.tank.wrapper.EntityVersionLoader;
@@ -36,11 +35,11 @@ import com.intuit.tank.wrapper.EntityVersionLoader;
 /**
  * ProjectModifiedObserver
  * 
- * @author dangleton
+ * @author Kevin McGoldrick
  * 
  */
 @ApplicationScoped
-public class ProjectLoader extends EntityVersionLoader<Project, ModifiedProjectMessage> {
+public class DataFileLoader extends EntityVersionLoader<DataFile, ModifiedDatafileMessage> {
 
     private static final long serialVersionUID = 1L;
 
@@ -68,7 +67,7 @@ public class ProjectLoader extends EntityVersionLoader<Project, ModifiedProjectM
      * @param p
      */
     public void observeEvents(@Observes ModifiedEntityMessage entityMsg) {
-        if (entityMsg.getEntityClass() == Project.class) {
+        if (entityMsg.getEntityClass() == DataFile.class) {
             invalidate();
         }
     }
@@ -77,12 +76,12 @@ public class ProjectLoader extends EntityVersionLoader<Project, ModifiedProjectM
      * @{inheritDoc
      */
     @Override
-    protected List<Project> getEntities() {
-        List<Project> projects = new ProjectDao().findFiltered(ViewFilterType.ALL);
+    protected List<DataFile> getEntities() {
+    	List<DataFile> files = new DataFileDao().findFiltered(ViewFilterType.ALL);
         Set<String> set = new HashSet<String>();
-        for (Project p : projects) {
-        	if( !p.getCreator().isEmpty() ) {
-        		set.add(p.getCreator());
+        for (DataFile f : files) {
+        	if( !f.getCreator().isEmpty() ) {
+        		set.add(f.getCreator());
         	}
         }
         List<String> list = new ArrayList<String>(set);
@@ -92,7 +91,7 @@ public class ProjectLoader extends EntityVersionLoader<Project, ModifiedProjectM
         for (int i = 0; i < list.size(); i++) {
             creatorList[i + 1] = new SelectItem(list.get(i));
         }
-        return projects;
+        return files;
     }
 
     /**

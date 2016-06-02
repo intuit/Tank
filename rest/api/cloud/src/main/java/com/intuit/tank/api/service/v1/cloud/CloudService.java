@@ -14,6 +14,7 @@ package com.intuit.tank.api.service.v1.cloud;
  */
 
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.ws.rs.Consumes;
@@ -31,6 +32,7 @@ import javax.ws.rs.core.Response;
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved
@@ -164,6 +166,16 @@ public interface CloudService {
     public void killJob(@Nonnull @PathParam("jobId") String jobId);
 
     /**
+     * Kill All Jobs currently running
+     * 
+     * @return String value.
+     */
+    @Path(CloudService.METHOD_KILL_JOB)
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    public Set<CloudVmStatusContainer> killAllJobs();
+    
+    /**
      * Starts a job
      * 
      * @param jobId
@@ -182,6 +194,16 @@ public interface CloudService {
     @POST
     public void killInstances(List<String> instanceIds);
 
+    /**
+     * Stop All Jobs currently running
+     * 
+     * @return String value.
+     */
+    @Path(CloudService.METHOD_STOP_JOB)
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    public Set<CloudVmStatusContainer> stopAllJobs();
+    
     /**
      * 
      * @param jobId

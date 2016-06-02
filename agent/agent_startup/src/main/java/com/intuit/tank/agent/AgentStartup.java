@@ -34,7 +34,7 @@ public class AgentStartup implements Runnable {
     public static final String METHOD_SETTINGS = "/settings";
     private static String API_HARNESS_COMMAND = "./start_wats.sh";
     public static final String METHOD_SUPPORT = "/supportFiles";
-    private static final long WAIT_FOR_RESTART_TIME = 60000 * 3; // three minute
+    private static final long WAIT_FOR_RESTART_TIME = 60000; // one minute
 
     private String controllerBase;
 

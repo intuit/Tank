@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Stack;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
@@ -203,6 +204,17 @@ public class CloudServiceV1 implements CloudService {
                 servletContext, JobController.class);
         controller.killJob(jobId);
     }
+    
+
+    /**
+     * @{inheritDoc
+     */
+    @Override
+    public Set<CloudVmStatusContainer> killAllJobs() {
+        JobController controller = new ServletInjector<JobController>().getManagedBean(
+                servletContext, JobController.class);
+        return controller.killAllJobs();
+    }
 
     /**
      * @{inheritDoc
@@ -224,6 +236,16 @@ public class CloudServiceV1 implements CloudService {
         controller.killInstances(instanceIds);
     }
 
+    /**
+     * @{inheritDoc
+     */
+    @Override
+    public Set<CloudVmStatusContainer> stopAllJobs() {
+        JobController controller = new ServletInjector<JobController>().getManagedBean(
+                servletContext, JobController.class);
+        return controller.stopAllJobs();
+    }
+    
     /**
      * @{inheritDoc
      */

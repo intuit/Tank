@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.faces.bean.ViewScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
@@ -55,7 +55,7 @@ import com.intuit.tank.wrapper.SelectableWrapper;
  * 
  */
 @Named
-@ViewScoped
+@RequestScoped
 public class JobReport extends SelectableBean<JobReportData> implements Serializable, Multiselectable<JobReportData> {
 
     private static final long serialVersionUID = 1L;

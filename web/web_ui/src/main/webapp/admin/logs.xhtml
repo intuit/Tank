@@ -3,13 +3,12 @@
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:s="http://jboss.org/seam/faces"
   xmlns:ts="http://java.sun.com/jsf/composite/tag"
   xmlns:p="http://primefaces.org/ui"
   xmlns:pe="http://primefaces.org/ui/extensions"
   template="/WEB-INF/templates/tank.xhtml">
   <ui:define name="content">
-    <s:viewAction action="#{tsConversationManager.end}" />
+    <f:viewAction action="#{conversation.end}" />
     <h:form id="mainForm">
       <ts:toolbar title="Log Viewer" />
       <div class="vertical-spacer" />

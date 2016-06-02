@@ -21,9 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.faces.event.AjaxBehaviorEvent;
-
-import org.primefaces.component.datatable.DataTable;
+import org.apache.log4j.Logger;
+import org.primefaces.event.data.FilterEvent;
 
 import com.intuit.tank.prefs.TablePreferences;
 import com.intuit.tank.prefs.TableViewState;
@@ -38,6 +37,8 @@ import com.intuit.tank.view.filter.ViewFilterType;
  * 
  */
 public abstract class SelectableBean<T> implements Multiselectable<T> {
+	
+	private static final Logger LOG = Logger.getLogger(SelectableBean.class);
 
     private List<SelectableWrapper<T>> selectionList;
     private List<SelectableWrapper<T>> filteredData;
@@ -123,11 +124,13 @@ public abstract class SelectableBean<T> implements Multiselectable<T> {
     }
 
     public List<SelectableWrapper<T>> getFilteredData() {
-        if (filteredData == null) {
+    	if (filteredData == null) {
+        	if (selectionList == null ) {
+        		return getSelectionList();
+        	}
             return selectionList;
-        } else {
-            return filteredData;
         }
+        return filteredData;
     }
 
     /**
@@ -167,8 +170,13 @@ public abstract class SelectableBean<T> implements Multiselectable<T> {
     public void setViewFilterType(ViewFilterType viewFilterType) {
         this.viewFilterType = viewFilterType;
     }
+    
+	@SuppressWarnings({ "unchecked", "deprecation" })
+	public void onFilter(FilterEvent event) {
+    	filteredData = (List<SelectableWrapper<T>>) event.getData();
+    }
 
-    public void onFilter(AjaxBehaviorEvent event) {
+/*    public void onFilter(AjaxBehaviorEvent event) {
         DataTable dataTable = (DataTable) event.getSource();
         @SuppressWarnings("unchecked") ArrayList<SelectableWrapper<T>> tempList = (ArrayList<SelectableWrapper<T>>) dataTable
                 .getFilteredValue();
@@ -180,7 +188,7 @@ public abstract class SelectableBean<T> implements Multiselectable<T> {
         }
 
     }
-
+*/
     public abstract List<T> getEntityList(ViewFilterType viewFilter);
 
     public abstract void delete(T entity);

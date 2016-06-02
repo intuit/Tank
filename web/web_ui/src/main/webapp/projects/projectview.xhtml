@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:s="http://jboss.org/seam/faces"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
   xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui"
   template="/WEB-INF/templates/tank.xhtml">
 
@@ -60,6 +60,18 @@
               <p:inplace label="#{projectBean.project.name}" editor="true">
                 <h:inputText id="projectNameTF" styleClass="formInput inputWidthMedium"
                   value="#{projectBean.project.name}" required="true" requiredMessage="Name cannot be empty." />
+              </p:inplace>
+            </div>
+          </div>
+          
+          <div class="formRow">
+            <div class="formLabelDiv">
+              <h:outputLabel for="projectCommentTF" value="Comment" styleClass="formLabel" />
+            </div>
+            <div class="formInputDiv" title="#{projectBean.project.comments} (id=#{projectBean.project.id})">
+              <p:inplace label="#{projectBean.project.comments}" editor="true">
+                <h:inputText id="projectCommentTF" styleClass="formInput inputWidthMedium"
+                  value="#{projectBean.project.comments}" required="false"/>
               </p:inplace>
             </div>
           </div>

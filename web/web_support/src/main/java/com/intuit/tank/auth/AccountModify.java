@@ -19,8 +19,8 @@ package com.intuit.tank.auth;
 import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
-import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -43,7 +43,7 @@ import com.intuit.tank.vm.common.PasswordEncoder;
  * 
  */
 @Named
-@ViewScoped
+@RequestScoped
 public class AccountModify implements Serializable {
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(AccountModify.class);

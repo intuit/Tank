@@ -13,14 +13,17 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import javax.faces.bean.ViewScoped;
+import javax.enterprise.context.SessionScoped;
+import javax.enterprise.event.Observes;
+import javax.enterprise.event.Reception;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.intuit.tank.ProjectBean;
+import com.intuit.tank.qualifier.Modified;
 
 @Named
-@ViewScoped
+@SessionScoped
 public class ProjectJobQueueManager extends JobTreeTableBean {
 
     private static final long serialVersionUID = 1L;
@@ -34,5 +37,9 @@ public class ProjectJobQueueManager extends JobTreeTableBean {
     @Override
     protected Integer getRootJobId() {
         return projectBean.getProject().getId();
+    }
+    
+    public void observe(@Observes(notifyObserver = Reception.IF_EXISTS) @Modified JobQueue queueEvent) {
+        rootNode = null;
     }
 }

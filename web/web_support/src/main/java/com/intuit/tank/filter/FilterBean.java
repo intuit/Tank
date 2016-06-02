@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.bean.ViewScoped;
+import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -39,7 +39,7 @@ import com.intuit.tank.wrapper.SelectableBean;
 import com.intuit.tank.wrapper.SelectableWrapper;
 
 @Named
-@ViewScoped
+@SessionScoped
 public class FilterBean extends SelectableBean<ScriptFilter> implements Serializable, Multiselectable<ScriptFilter> {
 
     private static final long serialVersionUID = 1L;
@@ -48,9 +48,6 @@ public class FilterBean extends SelectableBean<ScriptFilter> implements Serializ
 
     @Inject
     private ExceptionHandler exceptionHandler;
-
-    @Inject
-    private FilterGroupBean filterGroupBean;
 
     @Inject
     private Security security;
@@ -129,13 +126,6 @@ public class FilterBean extends SelectableBean<ScriptFilter> implements Serializ
             if (wrapper != null) {
                 wrapper.setSelected(selected);
             }
-        }
-    }
-
-    public void processAllSelection() {
-        List<SelectableWrapper<ScriptFilterGroup>> wrappers = filterGroupBean.getSelectionList();
-        for (SelectableWrapper<ScriptFilterGroup> wrapper : wrappers) {
-            processSelection(wrapper);
         }
     }
 

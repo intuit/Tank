@@ -199,7 +199,9 @@ public class LogEvent implements Serializable {
         StringBuilder sb = new StringBuilder();
         if (variables != null) {
             for (Entry<String, String> entry : variables.getVaribleValues().entrySet()) {
-                appendField(sb, entry.getKey(), entry.getValue(), "=");
+            	if (!entry.getKey().toUpperCase().startsWith("UUID_")) {		// Exclude UUID variables, there are just too many.
+            		appendField(sb, entry.getKey(), entry.getValue(), "=");
+            	}
             }
         }
         return sb.toString();

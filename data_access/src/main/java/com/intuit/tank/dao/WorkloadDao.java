@@ -60,13 +60,20 @@ public class WorkloadDao extends BaseDao<Workload> {
     public Workload findById(@Nonnull Integer id) {
     	Workload workload = null;
     	try {
-//   		begin();
+   		begin();
     		workload = getEntityManager().find(Workload.class, id);
     		if(workload != null) {
     			workload.getJobConfiguration();
-    			workload.getTestPlans();
+    			for ( TestPlan tp : workload.getTestPlans() ) {
+    				for (ScriptGroup sg : tp.getScriptGroups() ) {
+    					sg.getScriptGroupSteps();
+    				}
+    			}
     		}
-//    		commit();
+    		commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
 		} finally {
 			cleanup();
 		}

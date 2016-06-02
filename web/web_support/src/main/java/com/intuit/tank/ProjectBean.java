@@ -123,6 +123,21 @@ public class ProjectBean implements Serializable {
     public void setName(String name) {
         getProject().setName(name);
     }
+    
+    /**
+     * @return the Comment
+     */
+    public String getComments() {
+        return getProject().getComments();
+    }
+    
+    /**
+     * @param Comment
+     *            the Comment to set
+     */
+    public void setComments(String comment) {
+        getProject().setComments(comment);
+    }
 
     /**
      * Initializes all the data variables of the class.

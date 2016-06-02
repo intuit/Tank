@@ -42,7 +42,6 @@ import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 
 import com.intuit.tank.project.BaseEntity;
-import com.intuit.tank.project.Project;
 import com.intuit.tank.view.filter.ViewFilterType;
 
 /**
@@ -102,6 +101,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
             }
             commit();
         } catch (NoResultException e) {
+        	rollback();
             LOG.warn("No result for revision with id of " + id);
         } finally {
             cleanup();
@@ -127,6 +127,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
             result = reader.find(entityClass, id, revisionNumber);
             commit();
         } catch (NoResultException e) {
+        	rollback();
             LOG.warn("No result for revision " + revisionNumber + " with id of " + id);
         } finally {
             cleanup();
@@ -146,8 +147,8 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
      */
     @Nonnull
     public T_ENTITY saveOrUpdate(@Nonnull T_ENTITY entity) throws HibernateException {
+        EntityManager em = getEntityManager();
         try {
-            EntityManager em = getEntityManager();
             begin();
             if (entity.getId() == 0) {
                 em.persist(entity);
@@ -176,6 +177,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
             }
             throw e;
         } catch (Exception e) {
+        	rollback();
             e.printStackTrace();
             throw new RuntimeException(e);
         } finally {
@@ -190,8 +192,8 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
      */
     public List<T_ENTITY> persistCollection(Collection<T_ENTITY> entities) {
         List<T_ENTITY> ret = new ArrayList<T_ENTITY>();
+        EntityManager em = getEntityManager();
         try {
-            EntityManager em = getEntityManager();
             begin();
             int count = 0;
             for (T_ENTITY entity : entities) {
@@ -228,6 +230,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
             }
             throw e;
         } catch (Exception e) {
+        	rollback();
             LOG.error("Error storing object to persistent storage: " + e.toString(), e);
             throw new RuntimeException(e);
         } finally {
@@ -255,6 +258,10 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
                 em.remove(entity);
             }
             commit();
+        } catch (Exception e) {
+        	rollback();
+            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
             cleanup();
         }
@@ -291,6 +298,10 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
                 getHibernateSession().refresh(result, LockOptions.READ);
             }
             commit();
+        } catch (Exception e) {
+        	rollback();
+            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
             cleanup();
         }
@@ -322,17 +333,21 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     @Nonnull
     public List<T_ENTITY> findAll() throws HibernateException {
         List<T_ENTITY> results = null;
-        // try {
-        EntityManager em = getEntityManager();
-        // begin();
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<T_ENTITY> query = cb.createQuery(entityClass);
-        query.from(entityClass);
-        results = em.createQuery(query).getResultList();
-        // commit();
-        // } finally {
-        // cleanup();
-        // }
+    	EntityManager em = getEntityManager();
+    	try {
+        	begin();
+        	CriteriaBuilder cb = em.getCriteriaBuilder();
+        	CriteriaQuery<T_ENTITY> query = cb.createQuery(entityClass);
+        	query.from(entityClass);
+        	results = em.createQuery(query).getResultList();
+        	commit();
+        } catch (Exception e) {
+        	rollback();
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+        	cleanup();
+        }
         return results;
     }
 
@@ -365,6 +380,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
 	        }
 	        commit();
         } catch (Exception e) {
+        	rollback();
             e.printStackTrace();
             throw new RuntimeException(e);
         } finally {
@@ -383,8 +399,8 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     public T_ENTITY findOneWithJQL(String qlString, NamedParameter... params) {
         T_ENTITY result = null;
         TypedQuery<T_ENTITY> query = null;
+        EntityManager em = getEntityManager();
         try {
-            EntityManager em = getEntityManager();
             begin();
             query = em.createQuery(qlString, entityClass);
             for (NamedParameter param : params) {
@@ -393,6 +409,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
             result = query.getSingleResult();
             commit();
         } catch (Exception e) {
+        	rollback();
             LOG.info("no entity matching query "+query.toString());
         } finally {
             cleanup();
@@ -415,8 +432,8 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     @Nonnull
     public List<T_ENTITY> listWithJQL(String qlString, NamedParameter... params) {
         List<T_ENTITY> result = null;
+        EntityManager em = getEntityManager();
         try {
-            EntityManager em = getEntityManager();
             begin();
             TypedQuery<T_ENTITY> query = em.createQuery(qlString, entityClass);
             for (NamedParameter param : params) {
@@ -424,6 +441,10 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
             }
             result = query.getResultList();
             commit();
+        } catch (Exception e) {
+        	rollback();
+            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
             cleanup();
         }
@@ -503,6 +524,10 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
         emProvider.get().commitTransaction(this);
     }
 
+    protected void rollback() {
+        emProvider.get().rollbackTransaction(this);
+    }
+    
     protected void cleanup() {
         emProvider.get().cleanup(this);
     }

@@ -83,7 +83,7 @@ public abstract class JobTreeTableBean implements Serializable {
     private static final int MIN_REFRESH = 10;
     private static final int INITIAL_SIZE = 10;
 
-    private TreeNode rootNode;
+    protected TreeNode rootNode;
 
     @Inject
     private VMTracker tracker;
@@ -424,10 +424,6 @@ public abstract class JobTreeTableBean implements Serializable {
     public void refreshData() {
         rootNode = null;
         this.getRootNode();
-    }
-
-    public void observe(@Observes(notifyObserver = Reception.IF_EXISTS) @Modified JobQueue queueEvent) {
-        rootNode = null;
     }
 
     /**

@@ -17,7 +17,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-import javax.faces.bean.ViewScoped;
+import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -33,7 +33,7 @@ import com.intuit.tank.wrapper.SelectableBean;
 import com.intuit.tank.wrapper.SelectableWrapper;
 
 @Named
-@ViewScoped
+@SessionScoped
 public class FilterGroupBean extends SelectableBean<ScriptFilterGroup> implements Serializable,
         Multiselectable<ScriptFilterGroup> {
 
@@ -110,7 +110,7 @@ public class FilterGroupBean extends SelectableBean<ScriptFilterGroup> implement
     @Override
     public void selectAll() {
         super.selectAll();
-        filterBean.processAllSelection();
+        processAllSelection();
     }
 
     /**
@@ -120,7 +120,14 @@ public class FilterGroupBean extends SelectableBean<ScriptFilterGroup> implement
     @Override
     public void unselectAll() {
         super.unselectAll();
-        filterBean.processAllSelection();
+        processAllSelection();
+    }
+
+    public void processAllSelection() {
+        List<SelectableWrapper<ScriptFilterGroup>> wrappers = getSelectionList();
+        for (SelectableWrapper<ScriptFilterGroup> wrapper : wrappers) {
+            filterBean.processSelection(wrapper);
+        }
     }
 
 }

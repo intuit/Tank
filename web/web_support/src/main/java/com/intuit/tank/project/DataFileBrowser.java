@@ -16,16 +16,12 @@ package com.intuit.tank.project;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
-import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
@@ -53,14 +49,16 @@ import com.intuit.tank.vm.settings.AccessRight;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.wrapper.SelectableBean;
 import com.intuit.tank.wrapper.SelectableWrapper;
+import com.intuit.tank.wrapper.VersionContainer;
 
 @Named
-@ViewScoped
+@SessionScoped
 public class DataFileBrowser extends SelectableBean<DataFile> implements Serializable, Multiselectable<DataFile> {
-
+	private static final Logger LOG = Logger.getLogger(DataFileBrowser.class);
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = Logger.getLogger(DataFileBrowser.class);
+    @Inject
+    private DataFileLoader dataFileLoader;
 
     private SelectableWrapper<DataFile> selectedFile;
 
@@ -80,11 +78,9 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
     private int inputPage = 1;
     private int numEntriesToShow = 50;
 
-    private SelectItem[] creatorList;
-
     private List<String> currentEntries;
 
-    private boolean current = true;
+    private int lastVersion;
 
     @Inject
     private PreferencesBean userPrefs;
@@ -117,7 +113,7 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
      * @return the creatorList
      */
     public SelectItem[] getCreatorList() {
-        return creatorList;
+        return dataFileLoader.getCreatorList();
     }
 
     /**
@@ -214,7 +210,6 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
     /**
      * @return
      */
-    @SuppressWarnings("unchecked")
     private List<String> getCurrentEntries() {
         if (currentEntries == null) {
             currentEntries = new ArrayList<String>();
@@ -298,22 +293,9 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
      */
     @Override
     public List<DataFile> getEntityList(ViewFilterType viewFilter) {
-        List<DataFile> files = new DataFileDao().findFiltered(viewFilter);
-        // Collections.sort(files);
-        Set<String> set = new HashSet<String>();
-        for (DataFile f : files) {
-            set.add(f.getCreator());
-        }
-        List<String> list = new ArrayList<String>(set);
-        Collections.sort(list);
-        creatorList = new SelectItem[list.size() + 1];
-        creatorList[0] = new SelectItem("", "All");
-        for (int i = 0; i < list.size(); i++) {
-            creatorList[i + 1] = new SelectItem(list.get(i));
-        }
-
-        current = true;
-        return files;
+        VersionContainer<DataFile> container = dataFileLoader.getVersionContainer(viewFilter);
+        this.lastVersion = container.getVersion();
+        return container.getEntities();
     }
 
     /**
@@ -321,11 +303,7 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
      */
     @Override
     public boolean isCurrent() {
-        return current;
-    }
-
-    public void observerUpload(@Observes ModifiedDatafileMessage msg) {
-        current = false;
+    	return dataFileLoader.isCurrent(lastVersion);
     }
 
     public boolean canCreateDatafile() {

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="
       http://java.sun.com/xml/ns/javaee
-      http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
 
   <!-- This is an optional parameter, but it makes troubleshooting errors 
     much easier You should remove this context parameter before deploying to 
-    production! -->
+    production! 
   <Context>
     <ResourceLink global='jdbc/watsDS' name='jdbc/watsDS'
       type="javax.sql.Datasource" />
   </Context>
-  <distributable />
+  <distributable />-->
 
   <resource-ref>
     <description>DB Connection</description>
@@ -51,33 +51,8 @@
   </listener>
 
   <listener>
-    <listener-class>org.jboss.seam.servlet.event.ServletEventBridgeListener</listener-class>
-  </listener>
-
-  <listener>
     <listener-class>org.jboss.seam.solder.resourceLoader.servlet.ResourceListener</listener-class>
   </listener>
-
-  <filter>
-    <filter-name>Servlet Event Bridge Filter</filter-name>
-    <filter-class>org.jboss.seam.servlet.event.ServletEventBridgeFilter</filter-class>
-  </filter>
-
-  <filter-mapping>
-    <filter-name>Servlet Event Bridge Filter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-
-  <filter>
-    <filter-name>Catch Exception Filter</filter-name>
-    <filter-class>org.jboss.seam.servlet.exception.CatchExceptionFilter</filter-class>
-  </filter>
-
-
-  <filter-mapping>
-    <filter-name>Catch Exception Filter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
 
   <filter>
     <filter-name>PrimeFaces FileUpload Filter</filter-name>
@@ -99,6 +74,41 @@
     <filter-name>RestSecurity Filter</filter-name>
     <filter-class>com.intuit.tank.util.RestSecurityFilter</filter-class>
   </filter>
+  <!-- Login filter -->
+  <filter>
+      <filter-name>LoginFilter</filter-name>
+      <filter-class>com.intuit.tank.config.LoginFilter</filter-class>
+  </filter>
+  <!-- Set the login filter to secure all the pages in the /secured/* path of the application  -->
+  <filter-mapping>
+      <filter-name>LoginFilter</filter-name>
+      <url-pattern>/admin/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+      <filter-name>LoginFilter</filter-name>
+      <url-pattern>/projects/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+      <filter-name>LoginFilter</filter-name>
+      <url-pattern>/scripts/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+      <filter-name>LoginFilter</filter-name>
+      <url-pattern>/filters/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+      <filter-name>LoginFilter</filter-name>
+      <url-pattern>/agents/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+      <filter-name>LoginFilter</filter-name>
+      <url-pattern>/datafiles/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+      <filter-name>LoginFilter</filter-name>
+      <url-pattern>/tools/*</url-pattern>
+  </filter-mapping>
+- See more at: http://www.itcuties.com/j2ee/jsf-2-login-filter-example/#sthash.CDydFgqw.dpuf
   <!-- <listener> <listener-class>org.jboss.seam.faces.beanManager.BeanManagerServletContextListener</listener-class> 
     </listener> -->
   <!-- Weld Jetty/Tomcat specific configuration parameters *** The <listener> 
@@ -121,7 +131,7 @@
     </init-param>
     <init-param>
       <param-name>com.sun.jersey.config.property.packages</param-name>
-      <param-value>com.intuit.tank.service.impl.v1;com.intuit.tank.service.impl.v2</param-value>
+      <param-value>com.intuit.tank.service.impl.v1</param-value>
     </init-param>
     <init-param>
       <param-name>com.sun.jersey.config.feature.Formatted</param-name>

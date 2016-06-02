@@ -29,6 +29,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -127,6 +128,9 @@ public class Project extends OwnableEntity {
     }
 
     public String getComments() {
+    	if(StringUtils.isEmpty(comments)) {
+    		return "...";
+    	}
         return comments;
     }
 

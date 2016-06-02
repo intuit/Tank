@@ -4,7 +4,7 @@
 
   <groupId>com.intuit.tank</groupId>
   <artifactId>tank-parent</artifactId>
-  <version>2.2.0</version>
+  <version>2.2.1</version>
 
   <packaging>pom</packaging>
   <name>Tank Parent</name>
@@ -30,27 +30,33 @@
 
     <version.hibernate>4.1.12.Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
-    <version-aws-sdk>1.10.60</version-aws-sdk>
+    <version-aws-sdk>1.10.75</version-aws-sdk>
     <tto.jar.version>1.2.0</tto.jar.version>
     <spring.version>2.5.6</spring.version>
-
-    <weld-version>1.1.32.Final</weld-version>
+ 	<tomcat.version>7.0.68</tomcat.version>
+ 	
+    <weld-version>1.1.33.Final</weld-version>
     <cdi-version>1.2</cdi-version>
     <version.seam>3.0.0.Final</version.seam>
     <slf.version>1.7.2</slf.version>
 
     <version.enunciate>1.31</version.enunciate>
 
-    <version.mojarra>2.0.6</version.mojarra>
-    <version.jsf-api>2.0.6</version.jsf-api>
-    <version.primefaces>5.1</version.primefaces>
-    <version.primefaces-ext>3.0.0</version.primefaces-ext>
+    <version.mojarra>2.2.13</version.mojarra>
+    <version.jsf-api>2.2.13</version.jsf-api>
+    <version.primefaces>5.3</version.primefaces>
+    <version.primefaces-ext>4.0.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.12</version.surefire>
     <version.jersey>1.17.1</version.jersey>
-    <version.arquillian>1.1.5.Final</version.arquillian>
+    <version.arquillian>1.1.11.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0.CR7</version.arquillian.tomcat>
-    <version.httpclient>4.5</version.httpclient>
+    <version.httpclient>4.5.2</version.httpclient>
+    
+    <!-- maven-compiler-plugin -->
+    <version.compiler.plugin>3.5.1</version.compiler.plugin>
+    <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.source>1.7</maven.compiler.source>
   </properties>
 
 
@@ -273,6 +279,56 @@
       </modules>
 
     </profile>
+    
+    <profile>
+      <id>wildfly</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <modules>
+        <module>doc</module>
+        <module>agent</module>
+        <module>tools</module>
+        <module>rest</module>
+        <module>proxy-parent</module>
+        <module>script_processor</module>
+        <module>tank_common</module>
+        <module>mail</module>
+        <module>harness_data</module>
+        <module>search</module>
+        <module>reporting</module>
+        <module>test_support</module>
+        <module>api</module>
+        <module>data_model</module>
+        <module>data_access</module>
+        <module>tank_vmManager</module>
+        <module>web</module>
+      </modules>
+      
+      <dependencyManagement>
+    	<dependencies>
+    		<dependency>
+        		<groupId>xalan</groupId>
+        		<artifactId>xalan</artifactId>
+        		<version>2.7.1</version>
+        		<scope>provided</scope>
+      		</dependency>
+	        <dependency>
+	        	<groupId>org.hibernate</groupId>
+	        	<artifactId>hibernate-entitymanager</artifactId>
+	        	<version>${version.hibernate}</version>
+	        	<scope>provided</scope>
+	        </dependency>
+	        <dependency>
+		        <groupId>org.hibernate</groupId>
+		        <artifactId>hibernate-envers</artifactId>
+		        <version>${version.hibernate}</version>
+		        <scope>provided</scope>
+	        </dependency>
+    	</dependencies>
+    </dependencyManagement>
+
+    </profile>
 
   </profiles>
 
@@ -352,23 +408,23 @@
 
     <dependency>
       <groupId>org.jboss.arquillian.container</groupId>
-      <artifactId>arquillian-tomcat-embedded-6</artifactId>
+      <artifactId>arquillian-tomcat-embedded-7</artifactId>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.tomcat</groupId>
-      <artifactId>catalina</artifactId>
+      <artifactId>tomcat-catalina</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.tomcat</groupId>
-      <artifactId>coyote</artifactId>
+      <artifactId>tomcat-coyote</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.tomcat</groupId>
-      <artifactId>jasper</artifactId>
+      <artifactId>tomcat-jasper</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- Weld servlet, EL and JSP required for testing CDI injections -->
@@ -428,27 +484,33 @@
 
       <dependency>
         <groupId>org.jboss.arquillian.container</groupId>
-        <artifactId>arquillian-tomcat-embedded-6</artifactId>
+        <artifactId>arquillian-tomcat-embedded-7</artifactId>
         <version>${version.arquillian.tomcat}</version>
         <scope>test</scope>
       </dependency>
 
       <dependency>
         <groupId>org.apache.tomcat</groupId>
-        <artifactId>catalina</artifactId>
-        <version>6.0.29</version>
+        <artifactId>tomcat-catalina</artifactId>
+        <version>${tomcat.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.tomcat</groupId>
-        <artifactId>coyote</artifactId>
-        <version>6.0.29</version>
+        <artifactId>tomcat-coyote</artifactId>
+        <version>${tomcat.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.tomcat</groupId>
-        <artifactId>jasper</artifactId>
-        <version>6.0.29</version>
+        <artifactId>tomcat-jasper</artifactId>
+        <version>${tomcat.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-servlet-api</artifactId>
+        <version>${tomcat.version}</version>
         <scope>provided</scope>
       </dependency>
       <!-- Weld servlet, EL and JSP required for testing CDI injections -->
@@ -547,33 +609,8 @@
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.seam.faces</groupId>
-        <artifactId>seam-faces</artifactId>
-        <!-- <version>${version.seam}</version> -->
-        <version>3.0.2.Final</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.seam.catch</groupId>
-        <artifactId>seam-catch</artifactId>
-        <version>${version.seam}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.seam.solder</groupId>
-        <artifactId>seam-solder</artifactId>
-        <version>${version.seam}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.jboss.seam.security</groupId>
         <artifactId>seam-security</artifactId>
-        <version>${version.seam}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.seam.servlet</groupId>
-        <artifactId>seam-servlet</artifactId>
         <version>${version.seam}</version>
       </dependency>
 
@@ -582,12 +619,12 @@
         <artifactId>seam-config-xml</artifactId>
         <version>${version.seam}</version>
       </dependency>
-
+      
       <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-core</artifactId>
-        <version>${version.hibernate}</version>
-      </dependency>
+   	  	<groupId>org.glassfish</groupId>
+   	  	<artifactId>javax.ejb</artifactId>
+   	  	<version>3.1</version>
+	  </dependency>
 
       <dependency>
         <groupId>com.h2database</groupId>
@@ -616,13 +653,13 @@
       <dependency>
         <groupId>commons-configuration</groupId>
         <artifactId>commons-configuration</artifactId>
-        <version>1.6</version>
+        <version>1.10</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.3</version>
+        <version>1.10</version>
       </dependency>
 
       <dependency>
@@ -634,7 +671,7 @@
       <dependency>
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
-        <version>3.1</version>
+        <version>3.2.1</version>
       </dependency>
 
       <dependency>
@@ -697,7 +734,7 @@
       <dependency>
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
-        <version>1.0.4</version>
+        <version>1.2</version>
       </dependency>
 
       <dependency>
@@ -801,20 +838,14 @@
         <version>1.0</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.tomcat</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>6.0.14</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>commons-fileupload</groupId>
         <artifactId>commons-fileupload</artifactId>
-        <version>1.3</version>
+        <version>1.3.1</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>1.3.2</version>
+        <version>2.4</version>
       </dependency>
       <dependency>
         <groupId>commons-lang</groupId>
@@ -895,12 +926,12 @@
       <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
-        <version>20090211</version>
+        <version>20160212</version>
       </dependency>
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.5</version>
+        <version>1.10</version>
       </dependency>
       <dependency>
         <groupId>xalan</groupId>
@@ -941,16 +972,12 @@
         <groupId>jaxen</groupId>
         <artifactId>jaxen</artifactId>
         <version>1.1.1</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>jdom</groupId>
         <artifactId>jdom</artifactId>
         <version>1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss</groupId>
-        <artifactId>jaxb-api</artifactId>
-        <version>2.1</version>
       </dependency>
       <dependency>
         <groupId>org.jboss</groupId>
@@ -1076,7 +1103,7 @@
       <dependency>
         <groupId>org.testng</groupId>
         <artifactId>testng</artifactId>
-        <version>6.3.1</version>
+        <version>6.9.10</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -1127,7 +1154,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>2.0.2</version>
+          <version>2.6</version>
         </plugin>
 
         <plugin>
@@ -1255,10 +1282,10 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>2.3.2</version>
+          <version>${version.compiler.plugin}</version>
           <configuration>
-            <source>1.6</source>
-            <target>1.6</target>
+            <source>${maven.compiler.source}</source>
+            <target>${maven.compiler.target}</target>
           </configuration>
         </plugin>
         <plugin>

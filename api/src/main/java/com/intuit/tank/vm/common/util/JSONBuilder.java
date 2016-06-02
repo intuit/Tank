@@ -135,7 +135,7 @@ public class JSONBuilder {
                 }
             }
         } catch (NumberFormatException e) {
-            LOG.warn("Error rying to parse a number  value: " + e);
+            LOG.warn("Error trying to parse a number value: " + e);
         }
         // strip leading and trainling quotes
         value = StringUtils.stripEnd(value, "\"");

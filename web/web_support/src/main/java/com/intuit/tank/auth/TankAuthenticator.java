@@ -18,8 +18,9 @@ package com.intuit.tank.auth;
 
 import java.io.Serializable;
 
+import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Event;
-import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +36,6 @@ import org.picketlink.idm.impl.api.PasswordCredential;
 
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.Group;
-import com.intuit.tank.util.TsConversationManager;
 import com.intuit.tank.vm.common.TankConstants;
 
 /**
@@ -45,7 +45,7 @@ import com.intuit.tank.vm.common.TankConstants;
  * 
  */
 @Named("tsAuthenticator")
-@ViewScoped
+@SessionScoped
 public class TankAuthenticator extends BaseAuthenticator implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -67,14 +67,7 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
 
     private String uri;
 
-    @Inject
-    private HttpServletRequest req;
-
-    @Inject
-    private TsConversationManager tsConversationManager;
-
     public void authenticate() {
-        tsConversationManager.end();
         LOG.info("Logging in " + credentials.getUsername());
         if ((credentials.getUsername() == null) || (credentials.getCredential() == null)) {
             messages.error("Invalid username or password");
@@ -104,6 +97,7 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
 
     public void initUri() {
         if (uri == null) {
+        	HttpServletRequest req = (HttpServletRequest)FacesContext.getCurrentInstance().getExternalContext().getRequest();
             uri = req.getRequestURI();
             uri = uri.replace(req.getContextPath(), "");
             int indexOf = uri.lastIndexOf('/');
@@ -126,6 +120,12 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
             }
         }
         return uri;
+    }
+    
+    public String logout() {
+    	identity.logout();
+        FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+        return "/login.xhtml?faces-redirect=true";
     }
 
 }

@@ -15,7 +15,7 @@
   version="2.0">
   <persistence-unit name="wats" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
-    <non-jta-data-source>java:comp/env/jdbc/watsDS</non-jta-data-source>
+    <non-jta-data-source>java:/comp/env/jdbc/watsDS</non-jta-data-source>
 
     <class>com.intuit.tank.project.DataFile</class>
     <class>com.intuit.tank.project.ScriptFilter</class>

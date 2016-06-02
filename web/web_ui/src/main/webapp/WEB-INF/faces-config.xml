@@ -81,24 +81,36 @@
   </navigation-rule>
 
   <navigation-rule>
-    <from-view-id>/login.xhtml</from-view-id>
-    <navigation-case>
-      <from-action>#{identity.login}</from-action>
-      <from-outcome>failed</from-outcome>
-      <to-view-id>/login.xhtml</to-view-id>
-    </navigation-case>
-  </navigation-rule>
-  <navigation-rule>
     <from-view-id>*</from-view-id>
+    <navigation-case>
+        <from-action>#{identity.logout}</from-action>
+        <if>#{true}</if>
+        <to-view-id>/login.xhtml</to-view-id>
+    </navigation-case>
     <navigation-case>
       <from-action>#{scriptFilterCreationBean.newFilter()}</from-action>
       <if>#{true}</if>
       <to-view-id>/filters/addFilter.xhtml</to-view-id>
       <redirect />
     </navigation-case>
-  </navigation-rule>
-  <navigation-rule>
-    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-action>#{filterGroupCreationBean.editFilterGroup(filterGroupEnvelope.entity)}</from-action>
+      <if>#{true}</if>
+      <to-view-id>/filters/createNewFilterGroup.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+    <navigation-case>
+      <from-action>#{scriptFilterCreationBean.editFilter(filterEnvelope.entity)}</from-action>
+      <if>#{true}</if>
+      <to-view-id>/filters/addFilter.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+    <navigation-case>
+      <from-action>#{projectBean.openProject(pe.entity)}</from-action>
+      <if>#{true}</if>
+      <to-view-id>/projects/projectview.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
     <navigation-case>
       <from-action>#{filterGroupCreationBean.newFilterGroup()}</from-action>
       <if>#{true}</if>
@@ -149,38 +161,11 @@
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>*</from-view-id>
-    <navigation-case>
-      <from-action>#{filterGroupCreationBean.editFilterGroup(filterGroupEnvelope.entity)}</from-action>
-      <if>#{true}</if>
-      <to-view-id>/filters/createNewFilterGroup.xhtml</to-view-id>
-      <redirect />
-    </navigation-case>
-  </navigation-rule>
-  <navigation-rule>
-    <from-view-id>*</from-view-id>
-    <navigation-case>
-      <from-action>#{scriptFilterCreationBean.editFilter(filterEnvelope.entity)}</from-action>
-      <if>#{true}</if>
-      <to-view-id>/filters/addFilter.xhtml</to-view-id>
-      <redirect />
-    </navigation-case>
-  </navigation-rule>
-  <navigation-rule>
     <from-view-id>/filters/addFilter.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{scriptFilterCreationBean.save()}</from-action>
       <if>#{true}</if>
       <to-view-id>/filters/index.xhtml</to-view-id>
-      <redirect />
-    </navigation-case>
-  </navigation-rule>
-  <navigation-rule>
-    <from-view-id>*</from-view-id>
-    <navigation-case>
-      <from-action>#{projectBean.openProject(pe.entity)}</from-action>
-      <if>#{true}</if>
-      <to-view-id>/projects/projectview.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
@@ -271,6 +256,17 @@
     </navigation-case>
   </navigation-rule>
 
+  <!-- Security -->
+  
+  <navigation-rule>
+    <from-view-id>/login.xhtml</from-view-id>
+    <navigation-case>
+      <from-action>#{identity.login}</from-action>
+      <from-outcome>failed</from-outcome>
+      <to-view-id>/login.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
+  
   <!-- cases for turboreport ui -->
   <navigation-rule>
     <from-view-id>/turboreport/index.xhtml</from-view-id>

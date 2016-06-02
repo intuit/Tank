@@ -47,8 +47,6 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
     @Inject
     private ProjectLoader projectLoader;
 
-    private int lastVersion;
-
     @Inject
     private Security security;
 
@@ -60,6 +58,8 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
     private Event<ModifiedProjectMessage> projectEvent;
 
     private SelectableWrapper<Project> selectedProject;
+    
+    private int version;
 
     @Inject
     private PreferencesBean userPrefs;
@@ -97,7 +97,7 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
     @Override
     public List<Project> getEntityList(ViewFilterType viewFilter) {
         VersionContainer<Project> container = projectLoader.getVersionContainer(viewFilter);
-        this.lastVersion = container.getVersion();
+        this.version = container.getVersion();
         return container.getEntities();
     }
 
@@ -113,7 +113,7 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
      */
     @Override
     public boolean isCurrent() {
-        return projectLoader.isCurrent(lastVersion);
+        return projectLoader.isCurrent(version);
     }
 
     /**

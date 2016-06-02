@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:s="http://jboss.org/seam/faces"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui" xmlns:pe="http://primefaces.org/ui/extensions" 
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag"
+  xmlns:p="http://primefaces.org/ui"
+  xmlns:pe="http://primefaces.org/ui/extensions"
   template="/WEB-INF/templates/tank.xhtml">
   <ui:define name="content">
-    <s:viewAction action="#{tsConversationManager.end}" />
-    <div id="bv">
+    <f:viewAction action="#{conversation.end}" />
       <h:form id="mainForm">
         <ts:toolbar title="Projects" objectName="Projects" reRender=":mainForm:projectTableId"
           selectionTracker="#{projectDescriptionBean}" showRightComponents="true" id="mainTB">
@@ -36,26 +39,27 @@
         <p:dataTable id="projectTableId" var="pe" rowIndexVar="rowIndex" widgetVar="projectTable"
           value="#{projectDescriptionBean.selectionList}" rowStyleClass="pointer" liveResize="false" scrollable="true"
           filteredValue="#{projectDescriptionBean.filteredData}" 
-          style="width:#{projectDescriptionBean.tablePrefs.getMaxTotalSize(preferencesBean.screenWidth)}px;" scrollHeight="450" sortBy="#{pe.entity.created}"
+          style="width:#{projectDescriptionBean.tablePrefs.getMaxTotalSize(preferencesBean.screenWidth)}px;"
+          scrollHeight="450" sortBy="#{pe.entity.created}"
           sortOrder="descending" paginator="true" rows="25" resizableColumns="true"
           paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
           rowsPerPageTemplate="25,50,75,100">
 
-
           <f:facet name="header">
             <p:outputPanel style="text-align: right; width:100%" layout="block">
               <h:outputText value="Search all fields: " />
-              <p:inputText id="globalFilter" onkeyup="PF('projectTable').filter()" style="width:150px" />
+              <p:inputText id="globalFilter" onkeyup="PF('projectTable').filter()" placeholder="Enter keyword" style="width:150px" />
             </p:outputPanel>
           </f:facet>
 
-          <p:ajax event="colResize" update="projectTableId" listener="#{projectDescriptionBean.tablePrefs.onResize}"
+          <p:ajax event="colResize" update="projectTableId"
+          	listener="#{projectDescriptionBean.tablePrefs.onResize}"
             global="true" onstart="saveScrollPos()" oncomplete="getScrollPos()" immediate="true" />
 
           <p:ajax event="filter" listener="#{projectDescriptionBean.tableState.onFilter}" global="false"
             immediate="true" />
 
-          <p:column id="selectColumn" styleClass=" ellipsis"
+          <p:column id="selectColumn" styleClass="ellipsis"
             width="#{projectDescriptionBean.tablePrefs.getSize('selectColumn')}"
             rendered="#{projectDescriptionBean.tablePrefs.isVisible('selectColumn')}" resizable="false">
             <p:selectBooleanCheckbox value="#{pe.selected}" id="selectBox">
@@ -66,8 +70,8 @@
           <p:column id="idColumn" headerText="ID" styleClass="ellipsis min-column-size"
             width="#{projectDescriptionBean.tablePrefs.getSize('idColumn')}"
             rendered="#{projectDescriptionBean.tablePrefs.isVisible('idColumn')}"
-            filterValue="#{projectDescriptionBean.tableState.getFilterValue('entity.id')}" filterStyle="width:40px;"
-            sortBy="#{pe.entity.id}" filterBy="#{pe.entity.id}" filterFunction="#{filterUtil.contains}">
+            filterStyle="width:40px;"
+            filterBy="#{pe.entity.id}" filterMatchMode="contains">
             <h:outputText value="#{pe.entity.id}" />
           </p:column>
 
@@ -75,8 +79,8 @@
           <p:column id="nameColumn" headerText="Name" styleClass="ellipsis min-column-size"
             width="#{projectDescriptionBean.tablePrefs.getSize('nameColumn')}"
             rendered="#{projectDescriptionBean.tablePrefs.isVisible('nameColumn')}"
-            filterValue="#{projectDescriptionBean.tableState.getFilterValue('entity.name')}" filterStyle="width:75px;"
-            sortBy="#{pe.entity.name}" filterBy="#{pe.entity.name}" filterFunction="#{filterUtil.contains}">
+            filterStyle="width:75px;"
+            filterBy="#{pe.entity.name}" filterMatchMode="contains">
             <p:commandLink id="nameOpen" action="#{projectBean.openProject(pe.entity)}" ajax="true">
               <h:outputText value="#{pe.entity.name}" title="#{pe.entity.name} (id=#{pe.entity.id})" />
             </p:commandLink>
@@ -86,8 +90,7 @@
           <p:column id="productColumn" headerText="Product" styleClass="ellipsis min-column-size"
             width="#{projectDescriptionBean.tablePrefs.getSize('productColumn')}"
             rendered="#{projectDescriptionBean.tablePrefs.isVisible('productColumn')}"
-            filterValue="#{projectDescriptionBean.tableState.getFilterValue('entity.productName')}"
-            filterStyle="width:75px;" sortBy="#{pe.entity.productName}" filterBy="#{pe.entity.productName}"
+            filterStyle="width:75px;" filterBy="#{pe.entity.productName}"
             filterOptions="#{projectUtilBean.productNames}" filterMatchMode="exact">
             <h:outputText value="#{pe.entity.productName}" title="#{pe.entity.productName}" />
           </p:column>
@@ -95,35 +98,31 @@
           <p:column id="commentsColumn" headerText="Comments" styleClass="ellipsis min-column-size"
             width="#{projectDescriptionBean.tablePrefs.getSize('commentsColumn')}"
             rendered="#{projectDescriptionBean.tablePrefs.isVisible('commentsColumn')}"
-            filterValue="#{projectDescriptionBean.tableState.getFilterValue('entity.comments')}"
-            filterStyle="width:75px;" sortBy="#{pe.entity.comments}" filterBy="#{pe.entity.comments}"
-            filterFunction="#{filterUtil.contains}">
+            filterStyle="width:75px;" filterBy="#{pe.entity.comments}"
+            filterMatchMode="contains">
             <h:outputText value="#{pe.entity.comments}" title="#{pe.entity.comments}" />
           </p:column>
 
           <p:column id="createColumn" headerText="Create Date" styleClass="ellipsis min-column-size"
             width="#{projectDescriptionBean.tablePrefs.getSize('createColumn')}"
-            rendered="#{projectDescriptionBean.tablePrefs.isVisible('createColumn')}" sortBy="#{pe.entity.created}"
+            rendered="#{projectDescriptionBean.tablePrefs.isVisible('createColumn')}"
             filterBy="#{preferencesBean.formatDate(pe.entity.created)}"
-            filterValue="#{projectDescriptionBean.tableState.getFilterValue('formatDate(pe.entity.created)')}"
-            filterStyle="width:75px;" filterFunction="#{filterUtil.contains}">
+            filterStyle="width:75px;" filterMatchMode="contains">
             <h:outputText value="#{pe.entity.created}" converter="#{dateConverter}" />
           </p:column>
 
           <p:column id="modifiedColumn" headerText="Modified Date" styleClass="ellipsis min-column-size"
             width="#{projectDescriptionBean.tablePrefs.getSize('modifiedColumn')}"
-            rendered="#{projectDescriptionBean.tablePrefs.isVisible('modifiedColumn')}" sortBy="#{pe.entity.modified}"
+            rendered="#{projectDescriptionBean.tablePrefs.isVisible('modifiedColumn')}"
             filterBy="#{preferencesBean.formatDate(pe.entity.modified)}"
-            filterValue="#{projectDescriptionBean.tableState.getFilterValue('formatDate(pe.entity.modified)')}"
-            filterStyle="width:75px;" filterFunction="#{filterUtil.contains}">
+            filterStyle="width:75px;" filterMatchMode="contains">
             <h:outputText value="#{pe.entity.modified}" converter="#{dateConverter}" />
           </p:column>
 
           <p:column id="ownerColumn" headerText="Owner" styleClass="ellipsis min-column-size"
             width="#{projectDescriptionBean.tablePrefs.getSize('ownerColumn')}"
             rendered="#{projectDescriptionBean.tablePrefs.isVisible('ownerColumn')}"
-            filterValue="#{projectDescriptionBean.tableState.getFilterValue('entity.creator)')}"
-            sortBy="#{pe.entity.creator}" filterBy="#{pe.entity.creator}" filterMatchMode="exact"
+            filterBy="#{pe.entity.creator}" filterMatchMode="exact"
             filterOptions="#{projectDescriptionBean.creatorList}">
             <h:outputText value="#{pe.entity.creator}" />
           </p:column>
@@ -150,7 +149,6 @@
           </p:column>
         </p:dataTable>
       </h:form>
-    </div>
 
     <p:confirmDialog id="confirmDeleteDialog" appendTo="@(body)" widgetVar="confirmDelete" header="Confirm Delete"
       message="Are you sure you want to delete Project #{projectDescriptionBean.selectedProject.entity.name}?">
