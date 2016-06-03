@@ -63,7 +63,7 @@
       <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider" />
       <property name="hibernate.transaction.flush_before_completion" value="true" />
       <property name="hibernate.connection.autocommit" value="false" />
-      <property name="hibernate.connection.release_mode" value="after_transaction" />
+      <property name="hibernate.connection.release_mode" value="on_close" />
 
       <property name="hibernate.transaction.auto_close_session" value="false" />
 
