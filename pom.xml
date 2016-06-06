@@ -38,7 +38,7 @@
     <weld-version>2.3.4.Final</weld-version>
     <cdi-version>1.2</cdi-version>
     <version.seam>3.0.0.Final</version.seam>
-    <version.picketlink.javaee.bom>2.6.1.Final</version.picketlink.javaee.bom>
+    <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
     <slf.version>1.7.2</slf.version>
 
     <version.enunciate>1.31</version.enunciate>
