@@ -27,7 +27,7 @@ import javax.inject.Named;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.security.Identity;
+import org.picketlink.Identity;
 
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.ProjectDao;
@@ -261,7 +261,7 @@ public class ProjectBean implements Serializable {
         workloads.add(workload);
         ret.setWorkloads(workloads);
         ret.setComments(project.getComments());
-        ret.setCreator(identity.getUser().getId());
+        ret.setCreator(identity.getAccount().getId());
         ret.setName(saveAsName);
         ret.setProductName(project.getProductName());
         ret.setScriptDriver(project.getScriptDriver());

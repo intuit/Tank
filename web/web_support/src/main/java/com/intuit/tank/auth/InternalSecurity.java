@@ -16,9 +16,14 @@ package com.intuit.tank.auth;
  * #L%
  */
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang.StringUtils;
-import org.jboss.seam.security.Identity;
-import org.jboss.seam.security.annotations.Secures;
+import org.apache.deltaspike.security.api.authorization.Secures;
+import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.model.basic.Role;
 
 import com.intuit.tank.config.Admin;
 import com.intuit.tank.config.DepricatedView;
@@ -28,6 +33,8 @@ import com.intuit.tank.project.OwnableEntity;
 import com.intuit.tank.qualifier.Current;
 import com.intuit.tank.vm.common.TankConstants;
 
+import static org.picketlink.idm.model.basic.BasicModel.*;
+
 /**
  * AdminChecker
  * 
@@ -35,12 +42,18 @@ import com.intuit.tank.vm.common.TankConstants;
  * 
  */
 public class InternalSecurity {
+	
+    @Inject 
+    private IdentityManager identityManager;
+    
+
+    @Inject
+    private RelationshipManager relationshipManager;
 
     @Secures
     @Admin
     public boolean adminChecker(Identity identity) {
-        return identity.hasRole(TankConstants.TANK_GROUP_ADMIN, TankConstants.TANK_GROUP_ADMIN,
-                TankConstants.TANK_GROUP_TYPE);
+    	return hasRole(relationshipManager, identity.getAccount(), getRole(identityManager, TankConstants.TANK_GROUP_ADMIN));
     }
 
     @Secures
@@ -53,7 +66,7 @@ public class InternalSecurity {
     @Owner
     public boolean ownerChecker(Identity identity, @Current OwnableEntity item) {
         return identity.isLoggedIn()
-                && (StringUtils.isEmpty(item.getCreator()) || identity.getUser().getId().equals(item.getCreator()));
+                && (StringUtils.isEmpty(item.getCreator()) || identity.getAccount().getId().equals(item.getCreator()));
     }
     
     @Secures

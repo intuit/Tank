@@ -16,7 +16,7 @@ package com.intuit.tank;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.picketlink.idm.api.User;
+import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.auth.Authenticated;
 

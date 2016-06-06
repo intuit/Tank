@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.security.Identity;
+import org.picketlink.Identity;
 
 import com.intuit.tank.ModifiedProjectMessage;
 import com.intuit.tank.ProjectBean;
@@ -46,6 +46,7 @@ public class CreateProjectBean implements Serializable {
 
     @Inject
     private Identity identity;
+    
     @Inject
     private Security security;
 
@@ -147,7 +148,7 @@ public class CreateProjectBean implements Serializable {
         project.setScriptDriver(ScriptDriver.valueOf(scriptDriver));
         project.setComments(getComments());
         project.setProductName(getProductName());
-        project.setCreator(identity.getUser().getId());
+        project.setCreator(identity.getAccount().getId());
         try {
             project = new ProjectDao().saveOrUpdateProject(project);
             projectEvent.fire(new ModifiedProjectMessage(project, this));

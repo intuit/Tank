@@ -18,19 +18,22 @@ package com.intuit.tank.auth;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
-import org.jboss.seam.security.Identity;
-import org.picketlink.idm.api.Group;
+import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.RelationshipManager;
 import com.intuit.tank.project.OwnableEntity;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.AccessRight;
 import com.intuit.tank.vm.settings.SecurityConfig;
 import com.intuit.tank.vm.settings.TankConfig;
+
+import static org.picketlink.idm.model.basic.BasicModel.*;
+
 
 /**
  * Security
@@ -45,6 +48,12 @@ public class Security implements Serializable {
 
     @Inject
     private Identity identity;
+    
+    @Inject
+    private IdentityManager identityManager;
+
+    @Inject
+    private RelationshipManager relationshipManager;
 
     /**
      * 
@@ -52,7 +61,7 @@ public class Security implements Serializable {
      * @return
      */
     public boolean isOwner(OwnableEntity entity) {
-        return StringUtils.isEmpty(entity.getCreator()) || identity.getUser().getId().equals(entity.getCreator());
+    	return StringUtils.isEmpty(entity.getCreator()) || identity.getAccount().getId().equals(entity.getCreator());
     }
 
     /**
@@ -61,8 +70,10 @@ public class Security implements Serializable {
      * @return
      */
     public boolean isAdmin() {
-        return identity.hasRole(TankConstants.TANK_GROUP_ADMIN, TankConstants.TANK_GROUP_ADMIN,
-                TankConstants.TANK_GROUP_TYPE);
+    	if (identity.getAccount() != null ) { 
+    		return org.picketlink.idm.model.basic.BasicModel.hasRole(relationshipManager, identity.getAccount(), getRole(identityManager, TankConstants.TANK_GROUP_ADMIN));
+    	}
+    	return false;
     }
 
     /**
@@ -71,7 +82,7 @@ public class Security implements Serializable {
      * @return
      */
     public boolean hasRole(String role) {
-        return identity.hasRole(role, role, TankConstants.TANK_GROUP_TYPE);
+    	return org.picketlink.idm.model.basic.BasicModel.hasRole(relationshipManager, identity.getAccount(), getRole(identityManager, role));
     }
 
     public boolean hasRight(AccessRight right) {
@@ -81,17 +92,15 @@ public class Security implements Serializable {
         SecurityConfig config = new TankConfig().getSecurityConfig();
         List<String> associatedGroups = config.getRestrictionMap().get(right.name());
         // Set<Role> userRoles = identity.getRoles();
-        Set<Group> userGroups = identity.getGroups();
+        //Set<Group> userGroups = identity.getGroups();
         if (associatedGroups != null) {
-            for (Group group : userGroups) {
-                if (associatedGroups.contains(group.getName())) {
+            for (String group : associatedGroups) {
+                if (hasRole(group)) {
                     return true;
                 }
             }
         }
-
         return false;
-
     }
 
 }

@@ -46,8 +46,9 @@ import com.intuit.tank.vm.common.util.ReportUtil;
  * @author dangleton
  * 
  */
-@SessionScoped
+
 @Named
+@SessionScoped
 public class PreferencesBean implements Serializable, PreferencesChangedListener {
 
     private static final long serialVersionUID = 1L;

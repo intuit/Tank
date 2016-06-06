@@ -16,12 +16,18 @@ package com.intuit.tank.service;
  * #L%
  */
 
+import java.util.Collection;
+
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.picketlink.event.PartitionManagerCreateEvent;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 
 import com.intuit.tank.dao.GroupDao;
 import com.intuit.tank.dao.UserDao;
@@ -42,13 +48,22 @@ import com.intuit.tank.vm.settings.TankConfig;
 public class InitializeEnvironment {
     private static final Logger LOG = Logger.getLogger(InitializeEnvironment.class);
 
-    @Inject
     private TankConfig tankConfig;
+    
+    @Inject
+    private PartitionManager partitionManager;
+    
+    private IdentityManager identityManager;
+    
+    boolean initialize = false;
 
     @PostConstruct
-    public void initData() {
+    public void init() {
+    	identityManager = this.partitionManager.createIdentityManager();
+    	tankConfig = new TankConfig();
         createDefaultGroups();
         createDefaultUsers();
+        initialize = true;
     }
 
     /**
@@ -94,6 +109,10 @@ public class InitializeEnvironment {
                 if (group == null) {
                     groupDao.saveOrUpdate(new Group(g));
                     LOG.info("Created Group " + g);
+                } else {
+                    identityManager.add(new org.picketlink.idm.model.basic.Role(g));
+//                    identityManager.add(new org.picketlink.idm.model.basic.Group(g));
+                    LOG.info("Initialized Role " + g);
                 }
             } catch (Exception e) {
                 LOG.error("Error creating default Group: " + e, e);

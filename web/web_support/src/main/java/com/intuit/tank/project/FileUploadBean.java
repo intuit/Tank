@@ -27,7 +27,7 @@ import javax.inject.Named;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.security.Identity;
+import org.picketlink.Identity;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 
@@ -98,7 +98,7 @@ public class FileUploadBean implements Serializable {
     private void createDataFile(String fileName, InputStream is) {
         DataFile df = new DataFile();
         df.setPath(fileName);
-        df.setCreator(identity.getUser().getId());
+        df.setCreator(identity.getAccount().getId());
         df.setModified(new Date());
         df.setCreated(new Date());
         df = new DataFileDao().storeDataFile(df, is);

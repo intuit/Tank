@@ -182,8 +182,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.seam.security</groupId>
-      <artifactId>seam-security</artifactId>
+      <groupId>org.jboss.seam.international</groupId>
+      <artifactId>seam-international</artifactId>
     </dependency>
     
     <dependency>

@@ -23,7 +23,7 @@ import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.security.Identity;
+import org.picketlink.Identity;
 
 import com.intuit.tank.admin.UserAdmin;
 import com.intuit.tank.auth.Security;
@@ -45,8 +45,10 @@ public class OwnerUtilBean implements Serializable {
 
     @Inject
     UserAdmin userAdmin;
+    
     @Inject
     Security security;
+    
     @Inject
     Identity identity;
 
@@ -63,7 +65,7 @@ public class OwnerUtilBean implements Serializable {
         if (isOwnable(obj)) {
             OwnableEntity entity = (OwnableEntity) obj;
             if ((entity.getCreator()).isEmpty()) {
-                entity.setCreator(identity.getUser().getId());
+                entity.setCreator(identity.getAccount().getId());
             }
             if (security.isOwner((OwnableEntity) entity) || security.isAdmin()) {
                 retVal = true;

@@ -17,11 +17,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.picketlink.idm.api.User;
-
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Named;
+
+import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.auth.Authenticated;
 import com.intuit.tank.project.ScriptStep;

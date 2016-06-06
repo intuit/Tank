@@ -39,8 +39,8 @@
     </dependency>
     
     <dependency>
-      <groupId>org.jboss.seam.security</groupId>
-      <artifactId>seam-security</artifactId>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink</artifactId>
     </dependency>
 
   </dependencies>

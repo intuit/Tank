@@ -26,6 +26,7 @@ import javax.inject.Named;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
+import org.picketlink.Identity;
 
 import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.PreferencesBean;
@@ -42,8 +43,6 @@ import com.intuit.tank.vm.settings.AccessRight;
 import com.intuit.tank.wrapper.SelectableBean;
 import com.intuit.tank.wrapper.SelectableWrapper;
 import com.intuit.tank.wrapper.VersionContainer;
-
-import org.jboss.seam.security.Identity;
 
 @Named
 @SessionScoped
@@ -191,7 +190,7 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
                 messages.error("You did not change the script name.");
                 return;
             } else {
-                Script copyScript = ScriptUtil.copyScript(identity.getUser()
+                Script copyScript = ScriptUtil.copyScript(identity.getAccount()
                         .getId(), saveAsName, script);
                 copyScript = new ScriptDao().saveOrUpdate(copyScript);
                 scriptEvent.fire(new ModifiedScriptMessage(copyScript, this));

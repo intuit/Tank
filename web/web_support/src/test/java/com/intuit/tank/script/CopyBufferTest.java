@@ -16,10 +16,9 @@ package com.intuit.tank.script;
 import java.util.List;
 
 import org.junit.*;
+import org.picketlink.idm.model.basic.User;
 
 import static org.junit.Assert.*;
-
-import org.picketlink.idm.api.User;
 
 import com.intuit.tank.auth.TankUser;
 import com.intuit.tank.project.ScriptStep;

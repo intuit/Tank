@@ -23,7 +23,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.jboss.seam.security.Identity;
+import org.picketlink.Identity;
 
 import com.intuit.tank.vm.common.ThreadLocalUsernameProvider;
 
@@ -41,8 +41,8 @@ public class UserNameFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
-        if (identity != null && identity.getUser() != null) {
-            ThreadLocalUsernameProvider.getUsernameProvider().setUserName(identity.getUser().getId());
+        if (identity != null && identity.getAccount() != null) {
+            ThreadLocalUsernameProvider.getUsernameProvider().setUserName(identity.getAccount().getId());
         } else {
             ThreadLocalUsernameProvider.getUsernameProvider().setUserName(null);
         }

@@ -27,7 +27,7 @@ import javax.xml.bind.JAXBContext;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.security.Identity;
+import org.picketlink.Identity;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 
@@ -123,7 +123,7 @@ public class TankXmlUploadBean implements Serializable {
                     return;
                 }
             } else {
-                script.setCreator(identity.getUser().getId());
+                script.setCreator(identity.getAccount().getId());
             }
             script = dao.saveOrUpdate(script);
             messages.info("Script " + script.getName() + " from file " + fileName + " has been added.");

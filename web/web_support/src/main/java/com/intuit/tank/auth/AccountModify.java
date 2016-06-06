@@ -27,7 +27,7 @@ import javax.inject.Named;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.security.Identity;
+import org.picketlink.Identity;
 
 import com.intuit.tank.admin.Deleted;
 import com.intuit.tank.dao.PreferencesDao;
@@ -70,7 +70,7 @@ public class AccountModify implements Serializable {
         try {
             if (identity.isLoggedIn()) {
                 UserDao userDao = new UserDao();
-                user = userDao.findById(Integer.parseInt(identity.getUser().getKey()));
+                user = userDao.findById(Integer.parseInt(identity.getAccount().getId()));
             }
         } catch (Exception e) {
             LOG.error("Error getting user: " + e, e);

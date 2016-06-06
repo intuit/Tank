@@ -18,7 +18,7 @@
           <h:outputLabel for="username" value="Login Name" styleClass="formLabel required" />
         </div>
         <div class="formInputDiv">
-          <h:inputText id="username" value="#{credentials.username}" styleClass="formInput" />
+          <h:inputText id="username" value="#{loginCredentials.userId}" styleClass="formInput" />
         </div>
       </div>
       <div class="formRow">
@@ -26,7 +26,7 @@
           <h:outputLabel for="password" value="Password" styleClass="formLabel required" />
         </div>
         <div class="formInputDiv">
-          <h:inputSecret id="password" value="#{credentials.password}" styleClass="formInput" />
+          <h:inputSecret id="password" value="#{loginCredentials.password}" styleClass="formInput" />
         </div>
       </div>
       <div class="vertical-spacer" />

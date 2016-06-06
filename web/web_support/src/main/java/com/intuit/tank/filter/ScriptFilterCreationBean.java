@@ -24,7 +24,7 @@ import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
 import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.security.Identity;
+import org.picketlink.Identity;
 
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.config.TsLoggedIn;
@@ -57,6 +57,7 @@ public class ScriptFilterCreationBean implements Serializable {
 
     @Inject
     private Identity identity;
+    
     @Inject
     private Security security;
 
@@ -130,7 +131,7 @@ public class ScriptFilterCreationBean implements Serializable {
     	conversation.begin();
         this.editing = false;
         this.filter = new ScriptFilter();
-        filter.setCreator(identity.getUser().getId());
+        filter.setCreator(identity.getAccount().getId());
     }
 
     public void removeCondition(ScriptFilterCondition condition) {
@@ -189,7 +190,7 @@ public class ScriptFilterCreationBean implements Serializable {
                 save();
             } else {
                 ScriptFilter copied = new ScriptFilter();
-                copied.setCreator(identity.getUser().getId());
+                copied.setCreator(identity.getAccount().getId());
                 copied.setName(saveAsName);
                 copied.setProductName(productName);
                 copied.setAllConditionsMustPass(allConditionsPass);

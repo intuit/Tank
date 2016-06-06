@@ -28,7 +28,7 @@ import javax.inject.Named;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.security.Identity;
+import org.picketlink.Identity;
 import org.primefaces.model.UploadedFile;
 
 import com.intuit.tank.ModifiedScriptMessage;
@@ -208,7 +208,7 @@ public class ScriptCreationBean implements Serializable {
             try {
                 Script script = new Script();
                 script.setName(getName());
-                script.setCreator(identity.getUser().getId());
+                script.setCreator(identity.getAccount().getId());
                 script.setProductName(productName);
                 if (getCreationMode().equals("Upload Script")) {
                     UploadedFileIterator uploadedFileIterator = new UploadedFileIterator(item, "xml");
@@ -229,7 +229,7 @@ public class ScriptCreationBean implements Serializable {
                         setScriptSteps(script, steps);
                     }
                 }
-                script.setCreator(identity.getUser().getId());
+                script.setCreator(identity.getAccount().getId());
                 script.setProductName(productName);
                 new ScriptDao().saveOrUpdate(script);
                 scriptEvent.fire(new ModifiedScriptMessage(script, null));

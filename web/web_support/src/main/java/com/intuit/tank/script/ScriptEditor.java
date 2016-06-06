@@ -34,7 +34,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.security.Identity;
+import org.picketlink.Identity;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -105,6 +105,7 @@ public class ScriptEditor implements Serializable {
 
     @Inject
     private Identity identity;
+    
     @Inject
     private Security security;
     
@@ -502,7 +503,7 @@ public class ScriptEditor implements Serializable {
             if (originalName.equals(saveAsName)) {
                 save();
             } else {
-                Script copyScript = ScriptUtil.copyScript(identity.getUser()
+                Script copyScript = ScriptUtil.copyScript(identity.getAccount()
                         .getId(), saveAsName, script);
                 copyScript = new ScriptDao().saveOrUpdate(copyScript);
                 scriptEvent.fire(new ModifiedScriptMessage(copyScript, this));
