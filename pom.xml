@@ -30,12 +30,12 @@
 
     <version.hibernate>4.1.12.Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
-    <version-aws-sdk>1.10.75</version-aws-sdk>
+    <version-aws-sdk>1.11.6</version-aws-sdk>
     <tto.jar.version>1.2.0</tto.jar.version>
     <spring.version>2.5.6</spring.version>
  	<tomcat.version>7.0.68</tomcat.version>
  	
-    <weld-version>1.1.33.Final</weld-version>
+    <weld-version>2.3.4.Final</weld-version>
     <cdi-version>1.2</cdi-version>
     <version.seam>3.0.0.Final</version.seam>
     <version.picketlink.javaee.bom>2.6.1.Final</version.picketlink.javaee.bom>
@@ -439,13 +439,14 @@
       <groupId>org.jboss.weld</groupId>
       <artifactId>weld-core</artifactId>
       <!-- <scope>test</scope> -->
+      <exclusions>
+      	<exclusion>
+      		<artifactId>jboss-el-api_3.0_spec</artifactId>
+      		<groupId>org.jboss.spec.javax.el</groupId>
+      	</exclusion>
+      </exclusions>
     </dependency>
 
-    <dependency>
-      <groupId>org.glassfish.web</groupId>
-      <artifactId>el-impl</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>javax.servlet.jsp</groupId>
       <artifactId>jsp-api</artifactId>
@@ -516,12 +517,6 @@
       </dependency>
       <!-- Weld servlet, EL and JSP required for testing CDI injections -->
 
-      <dependency>
-        <groupId>org.glassfish.web</groupId>
-        <artifactId>el-impl</artifactId>
-        <version>2.2</version>
-        <scope>test</scope>
-      </dependency>
       <dependency>
         <groupId>javax.servlet.jsp</groupId>
         <artifactId>jsp-api</artifactId>
