@@ -15,7 +15,6 @@ package com.intuit.tank.project;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -59,6 +58,14 @@ public class ProjectVariableEditor implements Serializable {
      * @return the variables
      */
     public List<VariableEntry> getVariables() {
+    	if ( variables == null ) {
+    		variables = new ArrayList<VariableEntry>();
+    		Map<String, String> map = projectBean.getWorkload().getJobConfiguration().getVariables();
+    		for (Map.Entry<String, String> entry : map.entrySet()) {
+    			variables.add(new VariableEntry(entry.getKey(), entry.getValue()));
+    		}
+                
+    	}
         return variables;
     }
 
@@ -128,7 +135,6 @@ public class ProjectVariableEditor implements Serializable {
         for (Entry<String, String> entry : projectBean.getJobConfiguration().getVariables().entrySet()) {
             variables.add(new VariableEntry(entry.getKey(), entry.getValue()));
         }
-        Collections.sort(variables);
     }
 
     /**

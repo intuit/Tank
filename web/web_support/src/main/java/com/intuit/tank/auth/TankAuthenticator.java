@@ -87,19 +87,18 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
         }
         com.intuit.tank.project.User user = new UserDao().authenticate(credentials.getUserId(), credentials.getPassword());
         if (user != null) {
-        	User idmuser = getUser(identityManager,credentials.getUserId());
+        	User idmuser = getUser(identityManager,user.getName());
         	if (idmuser == null ) {
         		idmuser = new User(user.getName());
 	        	idmuser.setCreatedDate(user.getCreated());
 	        	idmuser.setEmail(user.getEmail());
 	        	identityManager.add(idmuser);
 	            for (com.intuit.tank.project.Group g : user.getGroups()) {
-	//            	grantGroupRole(relationshipManager, idmuser, getRole(identityManager, g.getName()), getGroup(identityManager, g.getName()));
 	            	Role role = getRole(identityManager, g.getName());
 	            	if (role == null) {
 	            		role = new Role(g.getName());
+	            		identityManager.add(role);
 	            	}
-	            	identityManager.add(role);
 	            	grantRole(relationshipManager, idmuser, role);
 	            }
         	}
