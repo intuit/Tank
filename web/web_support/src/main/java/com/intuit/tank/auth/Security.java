@@ -70,7 +70,9 @@ public class Security implements Serializable {
      * @return
      */
     public boolean isAdmin() {
-    	if (identity.getAccount() != null ) { 
+    	if ( identity.isLoggedIn() && 
+    			identity.getAccount() != null && 
+    			getRole(identityManager, TankConstants.TANK_GROUP_ADMIN) != null ) { 
     		return org.picketlink.idm.model.basic.BasicModel.hasRole(relationshipManager, identity.getAccount(), getRole(identityManager, TankConstants.TANK_GROUP_ADMIN));
     	}
     	return false;
@@ -82,7 +84,12 @@ public class Security implements Serializable {
      * @return
      */
     public boolean hasRole(String role) {
+    	if ( identity.isLoggedIn() && 
+    			identity.getAccount() != null && 
+    			StringUtils.isEmpty(role) ) { 
     	return org.picketlink.idm.model.basic.BasicModel.hasRole(relationshipManager, identity.getAccount(), getRole(identityManager, role));
+    	}
+    	return false;
     }
 
     public boolean hasRight(AccessRight right) {

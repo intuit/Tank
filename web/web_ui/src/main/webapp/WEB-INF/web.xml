@@ -34,7 +34,7 @@
 
   <context-param>
     <param-name>javax.faces.PROJECT_STAGE</param-name>
-    <param-value>Development</param-value>
+    <param-value>Production</param-value>
   </context-param>
   <context-param>
     <param-name>javax.faces.FACELETS_SKIP_COMMENTS</param-name>
@@ -45,10 +45,6 @@
     <param-name>com.sun.faces.expressionFactory</param-name>
     <param-value>org.jboss.el.ExpressionFactoryImpl</param-value>
   </context-param>
-
-  <listener>
-    <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
-  </listener>
 
   <filter>
     <filter-name>PrimeFaces FileUpload Filter</filter-name>
