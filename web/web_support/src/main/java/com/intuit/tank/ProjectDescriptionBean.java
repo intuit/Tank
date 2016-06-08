@@ -17,9 +17,9 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Event;
 import javax.faces.model.SelectItem;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -39,7 +39,7 @@ import com.intuit.tank.wrapper.SelectableWrapper;
 import com.intuit.tank.wrapper.VersionContainer;
 
 @Named
-@SessionScoped
+@ViewScoped
 public class ProjectDescriptionBean extends SelectableBean<Project> implements Serializable, Multiselectable<Project> {
 
     private static final long serialVersionUID = 1L;

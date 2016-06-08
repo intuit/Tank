@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.enterprise.context.SessionScoped;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -39,7 +39,7 @@ import com.intuit.tank.wrapper.SelectableBean;
 import com.intuit.tank.wrapper.SelectableWrapper;
 
 @Named
-@SessionScoped
+@ViewScoped
 public class FilterBean extends SelectableBean<ScriptFilter> implements Serializable, Multiselectable<ScriptFilter> {
 
     private static final long serialVersionUID = 1L;

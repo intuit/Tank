@@ -13,15 +13,15 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.event.Reception;
+import javax.faces.view.ViewScoped;
 import javax.inject.Named;
 
 import com.intuit.tank.qualifier.Modified;
 
 @Named
-@SessionScoped
+@ViewScoped
 public class JobQueueManager extends JobTreeTableBean {
 
     /**

@@ -31,7 +31,7 @@
         </h:panelGroup>
 
         <h:panelGroup styleClass="h-space">
-          <p:commandButton id="projectTotalBt" value="User Details" 
+          <p:commandButton id="projectTotalBt" value="User Details" disabled="true"
             action="#{projectJobQueueManager.setCurrentJobInstanceForUser(projectJobQueueManager.rootNode.data)}" oncomplete="PF('userDetailsPopup').show();"
             update=":userDetailsForm:userDetailsContent, :tpsForm:tpsDetailsContent"
             style=" background-image: url(#{request.contextPath}/resources/gfx/16/chart_curve.png);
@@ -40,7 +40,7 @@
                                   border-radius:5px;"
             styleClass="icon-button h-space" />
 
-          <p:commandButton id="projectTotalTPSBt" value="TPS Details" 
+          <p:commandButton id="projectTotalTPSBt" value="TPS Details" disabled="true"
             action="#{projectJobQueueManager.setCurrentJobInstanceForTPS(projectJobQueueManager.rootNode.data)}" oncomplete="PF('tpsDetailsPopup').show();"
             update=":userDetailsForm:userDetailsContent, :tpsForm:tpsDetailsContent"
             style=" background-image: url(#{request.contextPath}/resources/gfx/16/chart_curve.png);

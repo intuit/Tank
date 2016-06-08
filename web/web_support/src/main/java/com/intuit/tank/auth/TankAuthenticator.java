@@ -18,7 +18,7 @@ package com.intuit.tank.auth;
 
 import java.io.Serializable;
 
-import javax.enterprise.context.SessionScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -39,7 +39,6 @@ import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.dao.UserDao;
-import com.intuit.tank.service.InitializeEnvironment;
 
 import static org.picketlink.idm.model.basic.BasicModel.*;
 
@@ -50,7 +49,7 @@ import static org.picketlink.idm.model.basic.BasicModel.*;
  * 
  */
 @Named("tsAuthenticator")
-@SessionScoped
+@RequestScoped
 @PicketLink
 public class TankAuthenticator extends BaseAuthenticator implements Serializable {
 
@@ -88,16 +87,22 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
         }
         com.intuit.tank.project.User user = new UserDao().authenticate(credentials.getUserId(), credentials.getPassword());
         if (user != null) {
-        	User idmuser = new User(user.getName());
-        	idmuser.setCreatedDate(user.getCreated());
-        	idmuser.setEmail(user.getEmail());
-        	identityManager.add(idmuser);
-            for (com.intuit.tank.project.Group g : user.getGroups()) {
-//            	grantGroupRole(relationshipManager, idmuser, getRole(identityManager, g.getName()), getGroup(identityManager, g.getName()));
-            	Role role = new Role(g.getName());
-            	identityManager.add(role);
-            	grantRole(relationshipManager, idmuser, role);
-            }
+        	User idmuser = getUser(identityManager,credentials.getUserId());
+        	if (idmuser == null ) {
+        		idmuser = new User(user.getName());
+	        	idmuser.setCreatedDate(user.getCreated());
+	        	idmuser.setEmail(user.getEmail());
+	        	identityManager.add(idmuser);
+	            for (com.intuit.tank.project.Group g : user.getGroups()) {
+	//            	grantGroupRole(relationshipManager, idmuser, getRole(identityManager, g.getName()), getGroup(identityManager, g.getName()));
+	            	Role role = getRole(identityManager, g.getName());
+	            	if (role == null) {
+	            		role = new Role(g.getName());
+	            	}
+	            	identityManager.add(role);
+	            	grantRole(relationshipManager, idmuser, role);
+	            }
+        	}
             loginEventSrc.fire(idmuser);
             messages.info("You're signed in as " + user.getName());
             setStatus(AuthenticationStatus.SUCCESS);
@@ -105,10 +110,8 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
             // messages.clear();
             return;
         }
-
         messages.error("Invalid username or password");
         setStatus(AuthenticationStatus.FAILURE);
-
     }
 
     public void initUri() {
