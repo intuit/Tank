@@ -32,7 +32,7 @@
                     vertical-align: top;
                     border-radius:5px;"
               styleClass="icon-button h-space"
-              rendered="#{scriptCreationBean.canCreateScript()}">
+              disabled="#{not scriptCreationBean.canCreateScript()}">
             </p:commandButton>
           </div>
           </h:panelGroup>

@@ -61,7 +61,10 @@ public class Security implements Serializable {
      * @return
      */
     public boolean isOwner(OwnableEntity entity) {
-    	return StringUtils.isEmpty(entity.getCreator()) || identity.getAccount().getId().equals(entity.getCreator());
+    	if ( StringUtils.isNotEmpty(entity.getCreator()) && getUser(identityManager,entity.getCreator()) != null && identity.getAccount() != null ) {
+    			return getUser(identityManager,entity.getCreator()).getId().equals(identity.getAccount().getId());
+    	}
+    	return false;
     }
 
     /**
@@ -86,8 +89,8 @@ public class Security implements Serializable {
     public boolean hasRole(String role) {
     	if ( identity.isLoggedIn() && 
     			identity.getAccount() != null && 
-    			StringUtils.isEmpty(role) ) { 
-    	return org.picketlink.idm.model.basic.BasicModel.hasRole(relationshipManager, identity.getAccount(), getRole(identityManager, role));
+    			StringUtils.isNotEmpty(role) ) {
+    		return org.picketlink.idm.model.basic.BasicModel.hasRole(relationshipManager, identity.getAccount(), getRole(identityManager, role));
     	}
     	return false;
     }
@@ -101,8 +104,8 @@ public class Security implements Serializable {
         // Set<Role> userRoles = identity.getRoles();
         //Set<Group> userGroups = identity.getGroups();
         if (associatedGroups != null) {
-            for (String group : associatedGroups) {
-                if (hasRole(group)) {
+            for (String role : associatedGroups) {
+                if ( hasRole(role) ) {
                     return true;
                 }
             }

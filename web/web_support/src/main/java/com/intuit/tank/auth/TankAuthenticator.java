@@ -90,6 +90,7 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
         	User idmuser = getUser(identityManager,user.getName());
         	if (idmuser == null ) {
         		idmuser = new User(user.getName());
+        		idmuser.setId(Integer.toString(user.getId()));
 	        	idmuser.setCreatedDate(user.getCreated());
 	        	idmuser.setEmail(user.getEmail());
 	        	identityManager.add(idmuser);
