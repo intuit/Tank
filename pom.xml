@@ -28,7 +28,7 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
     <version.okhttp>2.7.5</version.okhttp>
 
-    <version.hibernate>4.1.12.Final</version.hibernate>
+    <version.hibernate>4.2.21.Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
     <version-aws-sdk>1.11.6</version-aws-sdk>
     <tto.jar.version>1.2.0</tto.jar.version>
