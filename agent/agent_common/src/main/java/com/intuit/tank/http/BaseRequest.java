@@ -272,6 +272,7 @@ public abstract class BaseRequest {
             StringBuilder sb = new StringBuilder();
 
             sb.append("REQUEST URL: " + method + " " + url).append(NEWLINE);
+            sb.append("CONTENT TYPE: " + contentType).append(NEWLINE);
             // Header Information
             for (Map.Entry mapEntry : headerInformation.entrySet()) {
                 sb.append("REQUEST HEADER: " + (String) mapEntry.getKey() + " = " + (String) mapEntry.getValue()).append(NEWLINE);
