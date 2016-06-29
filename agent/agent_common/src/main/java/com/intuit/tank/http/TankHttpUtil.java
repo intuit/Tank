@@ -109,25 +109,27 @@ public class TankHttpUtil {
     }
     
     public static List<PartHolder> getPartsFromBody(BaseRequest request) {
+    	List<PartHolder> parameters = new ArrayList<PartHolder>();
         String s = new String(Base64.decodeBase64(request.getBody()));
-        String boundary = StringUtils.substringBefore(s, "\r\n").substring(2);
-        List<PartHolder> parameters = new ArrayList<PartHolder>();
-        request.setBody(s);
-        try {
-            @SuppressWarnings("deprecation")
-			MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(s.getBytes()), boundary.getBytes());
-            boolean nextPart = multipartStream.skipPreamble();
-            while (nextPart) {
-                String header = multipartStream.readHeaders();
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                multipartStream.readBodyData(bos);
-                PartHolder p = new PartHolder(bos.toByteArray(), header);
-                parameters.add(p);
-                nextPart = multipartStream.readBoundary();
-            }
-        } catch (Exception e) {
-            LOG.error(e.toString(), e);
-            // a read or write error occurred
+        if (StringUtils.isNotBlank(s)) {
+	        String boundary = StringUtils.substringBefore(s, "\r\n").substring(2);
+	        request.setBody(s);
+	        try {
+	            @SuppressWarnings("deprecation")
+				MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(s.getBytes()), boundary.getBytes());
+	            boolean nextPart = multipartStream.skipPreamble();
+	            while (nextPart) {
+	                String header = multipartStream.readHeaders();
+	                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	                multipartStream.readBodyData(bos);
+	                PartHolder p = new PartHolder(bos.toByteArray(), header);
+	                parameters.add(p);
+	                nextPart = multipartStream.readBoundary();
+	            }
+	        } catch (Exception e) {
+	            LOG.error(e.toString(), e);
+	            // a read or write error occurred
+	        }
         }
         return parameters;
     }
