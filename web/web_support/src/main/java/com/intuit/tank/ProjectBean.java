@@ -28,6 +28,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.ProjectDao;
@@ -60,6 +62,9 @@ public class ProjectBean implements Serializable {
 
     @Inject
     private Identity identity;
+    
+    @Inject
+    private IdentityManager identityManager;
     
     @Inject
     private Conversation conversation;
@@ -261,7 +266,7 @@ public class ProjectBean implements Serializable {
         workloads.add(workload);
         ret.setWorkloads(workloads);
         ret.setComments(project.getComments());
-        ret.setCreator(identity.getAccount().getId());
+        ret.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
         ret.setName(saveAsName);
         ret.setProductName(project.getProductName());
         ret.setScriptDriver(project.getScriptDriver());

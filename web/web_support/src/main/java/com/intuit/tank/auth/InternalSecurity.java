@@ -23,7 +23,7 @@ import org.apache.deltaspike.security.api.authorization.Secures;
 import org.picketlink.Identity;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
-import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.config.Admin;
 import com.intuit.tank.config.DepricatedView;
@@ -66,7 +66,7 @@ public class InternalSecurity {
     @Owner
     public boolean ownerChecker(Identity identity, @Current OwnableEntity item) {
         return identity.isLoggedIn()
-                && (StringUtils.isEmpty(item.getCreator()) || identity.getAccount().getId().equals(item.getCreator()));
+                && (StringUtils.isEmpty(item.getCreator()) || identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName().equals(item.getCreator()));
     }
     
     @Secures

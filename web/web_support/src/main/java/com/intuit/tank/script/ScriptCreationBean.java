@@ -29,6 +29,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.basic.User;
 import org.primefaces.model.UploadedFile;
 
 import com.intuit.tank.ModifiedScriptMessage;
@@ -69,6 +71,10 @@ public class ScriptCreationBean implements Serializable {
 
     @Inject
     private Identity identity;
+    
+    @Inject
+    private IdentityManager identityManager;
+    
     @Inject
     private Security security;
 
@@ -208,7 +214,7 @@ public class ScriptCreationBean implements Serializable {
             try {
                 Script script = new Script();
                 script.setName(getName());
-                script.setCreator(identity.getAccount().getId());
+                script.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
                 script.setProductName(productName);
                 if (getCreationMode().equals("Upload Script")) {
                     UploadedFileIterator uploadedFileIterator = new UploadedFileIterator(item, "xml");
@@ -229,13 +235,12 @@ public class ScriptCreationBean implements Serializable {
                         setScriptSteps(script, steps);
                     }
                 }
-                script.setCreator(identity.getAccount().getId());
-                script.setProductName(productName);
                 new ScriptDao().saveOrUpdate(script);
                 scriptEvent.fire(new ModifiedScriptMessage(script, null));
                 retVal = "success";
                 conversation.end();
             } catch (Exception e) {
+            	LOG.error("Failed to create Script " + e, e);
                 messages.error(e.getMessage());
             }
         }

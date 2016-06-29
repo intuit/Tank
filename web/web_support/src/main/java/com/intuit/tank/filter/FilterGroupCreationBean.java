@@ -26,6 +26,8 @@ import javax.inject.Named;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.seam.international.status.Messages;
 import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.config.TsLoggedIn;
@@ -55,6 +57,10 @@ public class FilterGroupCreationBean extends SelectableBean<ScriptFilter> implem
 
     @Inject
     private Identity identity;
+	
+    @Inject 
+    private IdentityManager identityManager;
+    
     @Inject
     private Security security;
 
@@ -121,7 +127,7 @@ public class FilterGroupCreationBean extends SelectableBean<ScriptFilter> implem
     	conversation.begin();
         editing = false;
         this.sfg = new ScriptFilterGroup();
-        sfg.setCreator(identity.getAccount().getId());
+        sfg.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
     }
 
     public void cancel() {
@@ -164,7 +170,7 @@ public class FilterGroupCreationBean extends SelectableBean<ScriptFilter> implem
                 save();
             } else {
                 ScriptFilterGroup copied = new ScriptFilterGroup();
-                copied.setCreator(identity.getAccount().getId());
+                copied.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
                 copied.setName(saveAsName);
                 copied.setProductName(sfg.getProductName());
                 copied = new ScriptFilterGroupDao().saveOrUpdate(copied);

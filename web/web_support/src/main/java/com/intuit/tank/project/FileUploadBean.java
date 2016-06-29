@@ -28,6 +28,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.basic.User;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 
@@ -53,6 +55,9 @@ public class FileUploadBean implements Serializable {
 
     @Inject
     private Identity identity;
+	
+    @Inject 
+    private IdentityManager identityManager;
 
     @Inject
     private Messages messages;
@@ -98,7 +103,7 @@ public class FileUploadBean implements Serializable {
     private void createDataFile(String fileName, InputStream is) {
         DataFile df = new DataFile();
         df.setPath(fileName);
-        df.setCreator(identity.getAccount().getId());
+        df.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
         df.setModified(new Date());
         df.setCreated(new Date());
         df = new DataFileDao().storeDataFile(df, is);

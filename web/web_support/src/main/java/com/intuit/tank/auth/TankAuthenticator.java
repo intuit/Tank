@@ -35,6 +35,7 @@ import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 
@@ -93,6 +94,7 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
         		idmuser.setId(Integer.toString(user.getId()));
 	        	idmuser.setCreatedDate(user.getCreated());
 	        	idmuser.setEmail(user.getEmail());
+	        	idmuser.setAttribute(new Attribute<String>("name", user.getName()));
 	        	identityManager.add(idmuser);
 	            for (com.intuit.tank.project.Group g : user.getGroups()) {
 	            	Role role = getRole(identityManager, g.getName());
@@ -104,7 +106,7 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
 	            }
         	}
             loginEventSrc.fire(idmuser);
-            messages.info("You're signed in as " + user.getName());
+            messages.info("You're signed in as " + idmuser.getLoginName());
             setStatus(AuthenticationStatus.SUCCESS);
             setAccount(idmuser);
             // messages.clear();

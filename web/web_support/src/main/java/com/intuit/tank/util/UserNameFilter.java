@@ -24,6 +24,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.vm.common.ThreadLocalUsernameProvider;
 
@@ -31,18 +33,21 @@ public class UserNameFilter implements Filter {
 
     @Inject
     private Identity identity;
+    
+    @Inject
+    private IdentityManager identityManager;
+
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
         if (identity != null && identity.getAccount() != null) {
-            ThreadLocalUsernameProvider.getUsernameProvider().setUserName(identity.getAccount().getId());
+            ThreadLocalUsernameProvider.getUsernameProvider().setUserName(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
         } else {
             ThreadLocalUsernameProvider.getUsernameProvider().setUserName(null);
         }
@@ -52,7 +57,6 @@ public class UserNameFilter implements Filter {
     @Override
     public void destroy() {
         // TODO Auto-generated method stub
-
     }
 
 }
