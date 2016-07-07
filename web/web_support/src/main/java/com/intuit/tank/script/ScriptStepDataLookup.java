@@ -15,7 +15,7 @@ package com.intuit.tank.script;
 
 import java.util.Set;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;

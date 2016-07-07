@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
-import org.apache.commons.lang.time.FastDateFormat;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 import com.intuit.tank.api.service.v1.report.ReportService;
 import com.intuit.tank.reporting.api.TPSInfoContainer;

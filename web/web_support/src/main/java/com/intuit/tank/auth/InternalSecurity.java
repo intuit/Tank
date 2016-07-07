@@ -18,7 +18,7 @@ package com.intuit.tank.auth;
 
 import javax.inject.Inject;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.deltaspike.security.api.authorization.Secures;
 import org.picketlink.Identity;
 import org.picketlink.idm.IdentityManager;

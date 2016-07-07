@@ -13,7 +13,7 @@ package com.intuit.tank;
  * #L%
  */
 
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 
 import com.intuit.tank.project.Project;
 

@@ -22,7 +22,7 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.seam.international.status.Messages;
 import org.picketlink.Identity;
 import org.picketlink.idm.IdentityManager;

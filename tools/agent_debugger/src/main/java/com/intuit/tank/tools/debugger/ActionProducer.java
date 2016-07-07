@@ -46,7 +46,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.intuit.tank.AgentServiceClient;
 import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinition;

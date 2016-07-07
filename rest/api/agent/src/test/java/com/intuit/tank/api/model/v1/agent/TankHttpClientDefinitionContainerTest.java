@@ -3,7 +3,7 @@ package com.intuit.tank.api.model.v1.agent;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Assert;
 import org.testng.annotations.Test;
 

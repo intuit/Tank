@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.intuit.tank.util.TestParameterContainer.Builder;
 import com.intuit.tank.vm.settings.TimeUtil;

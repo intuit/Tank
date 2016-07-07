@@ -17,7 +17,7 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.HashMap;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.intuit.tank.vm.api.enumerated.VMProvider;
 import com.intuit.tank.vm.api.enumerated.VMRegion;

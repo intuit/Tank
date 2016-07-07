@@ -22,7 +22,7 @@ import java.util.Set;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import com.intuit.tank.harness.data.AssignmentData;
 import com.intuit.tank.harness.data.AuthenticationStep;

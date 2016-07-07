@@ -16,7 +16,7 @@ package com.intuit.tank.vm.common.util;
  * #L%
  */
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * ValidationUtil

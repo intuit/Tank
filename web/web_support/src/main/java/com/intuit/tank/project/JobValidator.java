@@ -23,7 +23,7 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.intuit.tank.common.ScriptAssignment;
 import com.intuit.tank.common.ScriptUtil;

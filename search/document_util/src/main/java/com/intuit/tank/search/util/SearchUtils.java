@@ -17,7 +17,7 @@ import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Date;
 
-import org.apache.commons.lang.time.FastDateFormat;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;

@@ -27,8 +27,8 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.event.Reception;
 import javax.inject.Named;
 
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang.time.FastDateFormat;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 import com.intuit.tank.admin.Deleted;
 import com.intuit.tank.dao.PreferencesDao;

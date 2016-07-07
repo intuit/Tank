@@ -13,7 +13,7 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.*;
 
 import static org.junit.Assert.*;

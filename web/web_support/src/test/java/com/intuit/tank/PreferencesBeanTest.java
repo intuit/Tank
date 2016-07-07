@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 
-import org.apache.commons.lang.time.FastDateFormat;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.junit.*;
 
 import static org.junit.Assert.*;

@@ -16,7 +16,7 @@ package com.intuit.tank.project;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import com.intuit.tank.vm.api.enumerated.ScriptDriver;
 
 public class ProjectDTO implements Serializable {

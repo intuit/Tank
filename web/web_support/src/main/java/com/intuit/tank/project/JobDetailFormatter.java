@@ -23,7 +23,7 @@ import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.dao.JobNotificationDao;

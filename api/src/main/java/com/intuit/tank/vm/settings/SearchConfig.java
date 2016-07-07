@@ -18,7 +18,7 @@ import java.io.File;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class SearchConfig {
 

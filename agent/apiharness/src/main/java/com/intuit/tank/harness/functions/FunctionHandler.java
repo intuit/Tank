@@ -15,8 +15,8 @@ package com.intuit.tank.harness.functions;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.harness.logging.LogUtil;

@@ -17,7 +17,7 @@ package com.intuit.tank.vm.settings;
  */
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 
