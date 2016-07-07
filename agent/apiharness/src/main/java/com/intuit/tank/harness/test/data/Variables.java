@@ -97,24 +97,25 @@ public class Variables {
     }
 
     public String evaluate(String s) {
-        String ret = s;
-        if (s != null) {
-            Matcher m = p.matcher(s);
-            while (m.find()) { // find next match
-                String match = m.group();
-                String group = m.group(1);
-                Expression expression = jexl.createExpression(group);
-                String result = (String) expression.evaluate(context);
-                if (result == null && (group.contains("getCSVData") || group.contains("getFile"))) {
-                    APITestHarness.getInstance().addKill();
-                    LOG.error(LogUtil.getLogMessage("CSV file (" + group + ") has no more data.",
-                            LogEventType.Validation, LoggingProfile.USER_VARIABLE));
-                    throw new KillScriptException("CSV file (" + group + ") has no more data.");
-                }
-                ret = ret.replace(match, result != null ? result : "");
-            }
-        }
-        return ret;
+    	if (StringUtils.isNotEmpty(s)) {
+	        if (s.contains("#")) {  // Performance Shortcut
+	            Matcher m = p.matcher(s);
+	            while (m.find()) { // find next match, very costly
+	                String match = m.group();
+	                String group = m.group(1);
+	                Expression expression = jexl.createExpression(group);
+	                String result = (String) expression.evaluate(context);
+	                if (result == null && (group.contains("getCSVData") || group.contains("getFile"))) {
+	                    APITestHarness.getInstance().addKill();
+	                    LOG.error(LogUtil.getLogMessage("CSV file (" + group + ") has no more data.",
+	                            LogEventType.Validation, LoggingProfile.USER_VARIABLE));
+	                    throw new KillScriptException("CSV file (" + group + ") has no more data.");
+	                }
+	                s = StringUtils.replace(s, match, result != null ? result : "");
+	            }
+	        }
+    	}
+    	return s;
     }
 
     public Map<String, String> getVaribleValues() {

@@ -84,8 +84,8 @@ public class JsonResponse extends BaseResponse {
 
     private String cleanString(String input) {
         try {
-            String output = input.trim().replace("@", "");
-            return output.replaceAll("(\r\n)+", "");
+            String output = StringUtils.remove(input.trim(), "@");
+            return StringUtils.remove(output,"(\r\n)+");
         } catch (Exception ex) {
             return input;
         }
