@@ -13,9 +13,9 @@ package com.intuit.tank.auth;
  * #L%
  */
 
-import org.jboss.seam.security.Identity;
-import org.jboss.seam.security.IdentityImpl;
 import org.junit.*;
+import org.picketlink.Identity;
+import org.picketlink.internal.DefaultIdentity;
 
 import static org.junit.Assert.*;
 
@@ -41,7 +41,7 @@ public class InternalSecurityTest {
     public void testLoginChecker_1()
         throws Exception {
         InternalSecurity fixture = new InternalSecurity();
-        Identity identity = new IdentityImpl();
+        Identity identity = new DefaultIdentity();
 
         boolean result = fixture.loginChecker(identity);
 
@@ -62,7 +62,7 @@ public class InternalSecurityTest {
     public void testLoginChecker_2()
         throws Exception {
         InternalSecurity fixture = new InternalSecurity();
-        Identity identity = new IdentityImpl();
+        Identity identity = new DefaultIdentity();
 
         boolean result = fixture.loginChecker(identity);
 
@@ -83,7 +83,7 @@ public class InternalSecurityTest {
     public void testOwnerChecker_1()
         throws Exception {
         InternalSecurity fixture = new InternalSecurity();
-        Identity identity = new IdentityImpl();
+        Identity identity = new DefaultIdentity();
         OwnableEntity item = new ColumnPreferences();
 
         boolean result = fixture.ownerChecker(identity, item);
@@ -105,7 +105,7 @@ public class InternalSecurityTest {
     public void testOwnerChecker_2()
         throws Exception {
         InternalSecurity fixture = new InternalSecurity();
-        Identity identity = new IdentityImpl();
+        Identity identity = new DefaultIdentity();
         OwnableEntity item = new ColumnPreferences();
 
         boolean result = fixture.ownerChecker(identity, item);
@@ -127,7 +127,7 @@ public class InternalSecurityTest {
     public void testOwnerChecker_3()
         throws Exception {
         InternalSecurity fixture = new InternalSecurity();
-        Identity identity = new IdentityImpl();
+        Identity identity = new DefaultIdentity();
         OwnableEntity item = new ColumnPreferences();
 
         boolean result = fixture.ownerChecker(identity, item);
@@ -149,7 +149,7 @@ public class InternalSecurityTest {
     public void testOwnerChecker_4()
         throws Exception {
         InternalSecurity fixture = new InternalSecurity();
-        Identity identity = new IdentityImpl();
+        Identity identity = new DefaultIdentity();
         OwnableEntity item = new ColumnPreferences();
 
         boolean result = fixture.ownerChecker(identity, item);
