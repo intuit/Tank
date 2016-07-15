@@ -46,7 +46,7 @@ import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
 @SuppressWarnings("deprecation")
 public class BouncyCastleCertificateUtils {
 
-    private static final String SIGALG = "SHA1withRSA";
+    private static final String SIGALG = "SHA256WithRSAEncryption";
 
     public static X509Certificate sign(X500Principal subject, PublicKey pubKey,
             X500Principal issuer, PublicKey caPubKey, PrivateKey caKey,

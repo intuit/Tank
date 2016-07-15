@@ -35,7 +35,6 @@ package com.intuit.tank.proxy;
  */
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ProxySelector;
@@ -71,7 +70,7 @@ import com.intuit.tank.proxy.config.ProxyConfiguration;
 import com.intuit.tank.proxy.table.TransactionRecordedListener;
 import com.intuit.tank.selector.TankProxySelector;
 
-@SuppressWarnings("restriction")
+
 public class EmbeddedProxy implements TransactionRecordedListener {
 
 	private static Logger logger = Logger.getLogger("org.owasp.proxy");
@@ -85,7 +84,7 @@ public class EmbeddedProxy implements TransactionRecordedListener {
 	private Application application;
 
 	static {
-		System.setProperty("https.protocols", "TLSv1");
+		System.setProperty("https.protocols", "TLSv1.1");
 	}
 
 	/**

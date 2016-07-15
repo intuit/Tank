@@ -35,6 +35,7 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -42,7 +43,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -146,7 +146,7 @@ public class AutoGeneratingContextSelector implements SSLContextSelector {
     private void create(X500Principal caName) throws GeneralSecurityException,
             IOException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(1024);
+        keyGen.initialize(2048, new SecureRandom());
         KeyPair caPair = keyGen.generateKeyPair();
         caKey = caPair.getPrivate();
         PublicKey caPubKey = caPair.getPublic();
@@ -250,7 +250,7 @@ public class AutoGeneratingContextSelector implements SSLContextSelector {
             keyPair = new KeyPair(caCerts[0].getPublicKey(), caKey);
         } else {
             KeyPairGenerator keygen = KeyPairGenerator.getInstance("RSA");
-            keygen.initialize(1024);
+            keygen.initialize(2048, new SecureRandom());
             keyPair = keygen.generateKeyPair();
         }
 
