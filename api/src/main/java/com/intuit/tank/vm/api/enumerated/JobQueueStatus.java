@@ -3,6 +3,8 @@
  */
 package com.intuit.tank.vm.api.enumerated;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /*
  * #%L
  * Intuit Tank Api
@@ -22,6 +24,8 @@ package com.intuit.tank.vm.api.enumerated;
  * @author dangleton
  * 
  */
+
+@XmlRootElement
 public enum JobQueueStatus {
 
     Created,

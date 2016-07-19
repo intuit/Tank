@@ -45,6 +45,7 @@ import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.automation.AutomationJobRegion;
 import com.intuit.tank.api.model.v1.automation.AutomationRequest;
+import com.intuit.tank.api.model.v1.automation.AutomationRequestV2;
 import com.intuit.tank.api.service.v1.automation.AutomationService;
 import com.intuit.tank.dao.BaseDao;
 import com.intuit.tank.dao.DataFileDao;
@@ -209,6 +210,52 @@ public class AutomationServiceV1 implements AutomationService {
         return responseBuilder.build();
 
     }
+    
+
+    /**
+     * @{inheritDoc
+     */
+    @Override
+    public Response createJob(AutomationRequestV2 request) {
+        if (request != null) {
+        	if (StringUtils.isNotEmpty(request.getName())) {
+		    	Project project = new ProjectDao().findByName(request.getName());
+		    	if (project != null) {
+		            JobInstance job = addJobToQueue(project, request);
+		            String jobId = Integer.toString(job.getId());
+		            return Response.ok().entity(jobId).build();
+		    	}
+        	}
+        }
+        return Response.status(Status.BAD_REQUEST)
+        		.entity("Requests to run automation jobs must contain an AutomationRequest")
+        		.build();
+    }
+    
+    /**
+     * @{inheritDoc
+     */
+    @Override
+    public Response runJob(String jobId) {
+        JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
+                JobController.class);
+        controller.startJob(jobId);
+        return Response.ok().entity(jobId).build();
+    }  	
+
+    /**
+     * @{inheritDoc
+     */
+    @Override
+    public Response getStatus(String jobId) {
+    	if (StringUtils.isNotEmpty(jobId)) {
+			JobInstance job = new JobInstanceDao().findById(Integer.parseInt(jobId));
+			if ( job != null ) {
+				return Response.ok().entity(job.getStatus()).build();
+			}
+    	}
+    	return Response.status(Status.BAD_REQUEST).build();
+    }
 
     /**
      * @param request
@@ -337,6 +384,65 @@ public class AutomationServiceV1 implements AutomationService {
         return jobInstance;
     }
 
+    public JobInstance addJobToQueue(Project p, AutomationRequestV2 request) {
+
+        JobQueueDao jobQueueDao = new JobQueueDao();
+        DataFileDao dataFileDao = new DataFileDao();
+        JobNotificationDao jobNotificationDao = new JobNotificationDao();
+        JobInstanceDao jobInstanceDao = new JobInstanceDao();
+
+        Workload workload = p.getWorkloads().get(0);
+        JobConfiguration jc = workload.getJobConfiguration();
+        JobQueue queue = jobQueueDao.findOrCreateForProjectId(p.getId());
+        String name = request.getName() + "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"
+                + ReportUtil.getTimestamp(new Date());
+        JobInstance jobInstance = new JobInstance(workload, name);
+        jobInstance.setScheduledTime(new Date());
+        jobInstance.setLocation(jc.getLocation());
+        jobInstance.setLoggingProfile(jc.getLoggingProfile());
+        jobInstance.setStopBehavior(jc.getStopBehavior());
+        jobInstance.setReportingMode(jc.getReportingMode());
+        jobInstance.getVariables().putAll(jc.getVariables());
+        // set version info
+        if (request.getDataFileIds() != null && !request.getDataFileIds().isEmpty()) {
+            jobInstance.getDataFileVersions()
+                    .addAll(getVersions(dataFileDao, request.getDataFileIds(), DataFile.class));
+        } else {
+            jobInstance.getDataFileVersions().addAll(
+                    getVersions(dataFileDao, workload.getJobConfiguration().getDataFileIds(), DataFile.class));
+        }
+        jobInstance.getNotificationVersions().addAll(
+                getVersions(jobNotificationDao, workload.getJobConfiguration().getNotifications()));
+        JobValidator validator = new JobValidator(workload.getTestPlans(), jobInstance.getVariables(),
+                false);
+        long maxDuration = 0;
+        for (TestPlan plan : workload.getTestPlans()) {
+            maxDuration = Math.max(validator.getDurationMs(plan.getName()), maxDuration);
+        }
+        TestParameterContainer times = TestParamUtil.evaluateTestTimes(maxDuration, jc.getRampTimeExpression(),
+                jc.getSimulationTimeExpression());
+        jobInstance.setExecutionTime(maxDuration);
+        jobInstance.setRampTime(times.getRampTime());
+        jobInstance.setSimulationTime(times.getSimulationTime());
+        int totalVirtualUsers = 0;
+        for (JobRegion region : jc.getJobRegions()) {
+            totalVirtualUsers += TestParamUtil.evaluateExpression(region.getUsers(), maxDuration,
+                    times.getSimulationTime(), times.getRampTime());
+            jobInstance.getJobRegionVersions().add(new EntityVersion(region.getId(), 0, JobRegion.class));
+        }
+        jobInstance.setTotalVirtualUsers(totalVirtualUsers);
+        queue.addJob(jobInstance);
+        workload = new WorkloadDao().saveOrUpdate(workload);
+        String jobDetails = JobDetailFormatter.createJobDetails(
+                new JobValidator(workload.getTestPlans(), jobInstance.getVariables(), false), workload, jobInstance);
+        jobInstance.setJobDetails(jobDetails);
+        jobInstance = jobInstanceDao.saveOrUpdate(jobInstance);
+        jobQueueDao.saveOrUpdate(queue);
+
+        storeScript(Integer.toString(jobInstance.getId()), workload, jobInstance);
+        return jobInstance;
+    }
+    
     /**
      * @param dao
      * @param dataFileIds
