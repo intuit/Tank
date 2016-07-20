@@ -16,15 +16,10 @@ package com.intuit.tank.job;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
-import com.intuit.tank.harness.APITestHarness;
-import com.intuit.tank.persistence.databases.DataBaseFactory;
 import com.intuit.tank.project.JobInstance;
-import com.intuit.tank.vm.common.TankConstants;
-import com.intuit.tank.vm.settings.TankConfig;
 
 public class ActJobNodeBean extends JobNodeBean {
 

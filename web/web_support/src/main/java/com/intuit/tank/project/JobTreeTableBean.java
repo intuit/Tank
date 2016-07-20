@@ -87,6 +87,7 @@ public abstract class JobTreeTableBean implements Serializable {
 
     @Inject
     private Messages messages;
+    
     @Inject
     private Security security;
     

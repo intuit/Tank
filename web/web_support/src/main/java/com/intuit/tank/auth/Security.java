@@ -26,6 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.picketlink.Identity;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.model.basic.Role;
+
 import com.intuit.tank.project.OwnableEntity;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.AccessRight;
@@ -73,10 +75,11 @@ public class Security implements Serializable {
      * @return
      */
     public boolean isAdmin() {
+    	Role adminRole;
     	if ( identity.isLoggedIn() && 
     			identity.getAccount() != null && 
-    			getRole(identityManager, TankConstants.TANK_GROUP_ADMIN) != null ) { 
-    		return org.picketlink.idm.model.basic.BasicModel.hasRole(relationshipManager, identity.getAccount(), getRole(identityManager, TankConstants.TANK_GROUP_ADMIN));
+    			(adminRole = getRole(identityManager, TankConstants.TANK_GROUP_ADMIN)) != null ) {
+    			return org.picketlink.idm.model.basic.BasicModel.hasRole(relationshipManager, identity.getAccount(), adminRole );
     	}
     	return false;
     }
@@ -86,11 +89,14 @@ public class Security implements Serializable {
      * @param entity
      * @return
      */
-    public boolean hasRole(String role) {
-    	if ( identity.isLoggedIn() && 
-    			identity.getAccount() != null && 
-    			StringUtils.isNotEmpty(role) ) {
-    		return org.picketlink.idm.model.basic.BasicModel.hasRole(relationshipManager, identity.getAccount(), getRole(identityManager, role));
+    public boolean hasRole(String roleString) {
+    	Role role;
+    	if (StringUtils.isNotEmpty(roleString)) {
+    		if ( identity.isLoggedIn() && 
+    				identity.getAccount() != null && 
+    				(role = getRole(identityManager, roleString)) != null ) {
+    			return org.picketlink.idm.model.basic.BasicModel.hasRole(relationshipManager, identity.getAccount(), role);
+    		}
     	}
     	return false;
     }
@@ -101,8 +107,6 @@ public class Security implements Serializable {
         }
         SecurityConfig config = new TankConfig().getSecurityConfig();
         List<String> associatedGroups = config.getRestrictionMap().get(right.name());
-        // Set<Role> userRoles = identity.getRoles();
-        //Set<Group> userGroups = identity.getGroups();
         if (associatedGroups != null) {
             for (String role : associatedGroups) {
                 if ( hasRole(role) ) {
