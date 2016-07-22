@@ -27,6 +27,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.PreferencesBean;
@@ -57,6 +59,9 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
 
     @Inject
     private Identity identity;
+    
+    @Inject
+    private IdentityManager identityManager;
 
     @Inject
     private Security security;
@@ -190,8 +195,9 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
                 messages.error("You did not change the script name.");
                 return;
             } else {
-                Script copyScript = ScriptUtil.copyScript(identity.getAccount()
-                        .getId(), saveAsName, script);
+                Script copyScript = ScriptUtil.copyScript(
+                		identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName(),
+                		saveAsName, script);
                 copyScript = new ScriptDao().saveOrUpdate(copyScript);
                 scriptEvent.fire(new ModifiedScriptMessage(copyScript, this));
                 messages.info("Script " + originalName + " has been saved as "
