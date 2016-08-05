@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-  xmlns:p="http://primefaces.org/ui" xmlns:pe="http://primefaces.org/ui/extensions"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag"
+  xmlns:p="http://primefaces.org/ui"
   template="/WEB-INF/templates/tank.xhtml">
   <ui:define name="content">
 
@@ -319,7 +321,7 @@
           </f:facet>
         </ts:toolbar>
 
-        <pe:remoteCommand id="resizeListener" name="resizeFinished" update="scriptStepTableId, searchScriptStepTableId" />
+        <p:remoteCommand id="resizeListener" name="resizeFinished" update="scriptStepTableId, searchScriptStepTableId" />
         <p:dataTable id="scriptStepTableId" var="step" rowKey="#{step.uuid}" value="#{scriptEditor.steps}"
           rowIndexVar="rowIndex" headerSectionClass="rf-tb" bodyRowClass="pointer"
           style="width:#{scriptEditor.tablePrefs.getMaxTotalSize(preferencesBean.screenWidth)}px;"
