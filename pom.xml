@@ -45,8 +45,8 @@
 
     <version.mojarra>2.2.13</version.mojarra>
     <version.jsf-api>2.2.13</version.jsf-api>
-    <version.primefaces>6.0</version.primefaces>
-    <version.primefaces-ext>6.0.0</version.primefaces-ext>
+    <version.primefaces>5.3</version.primefaces>
+    <version.primefaces-ext>4.0.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.12</version.surefire>
     <version.jersey>1.17.1</version.jersey>
