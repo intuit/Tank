@@ -24,6 +24,7 @@ import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.harness.APITestHarness;
@@ -46,7 +47,7 @@ public class Variables {
 
     public static final String RETRY_KEY = "_retry_enabled_";
 
-    static Logger LOG = Logger.getLogger(Variables.class);
+    static Logger LOG = LogManager.getLogger(Variables.class);
 
     private HashMap<String, VariableValue> variables = null;
     private boolean doLog = false;

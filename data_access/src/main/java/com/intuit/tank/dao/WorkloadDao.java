@@ -21,6 +21,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.project.Script;
@@ -37,7 +38,7 @@ import com.intuit.tank.project.Workload;
  */
 public class WorkloadDao extends BaseDao<Workload> {
     @SuppressWarnings("unused")
-    private static final Logger LOG = Logger.getLogger(WorkloadDao.class);
+    private static final Logger LOG = LogManager.getLogger(WorkloadDao.class);
 
     /**
      * @param entityClass

@@ -32,6 +32,7 @@ import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.PropertyComparer;
@@ -60,7 +61,7 @@ public class JobReport extends SelectableBean<JobReportData> implements Serializ
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = Logger.getLogger(JobReport.class);
+    private static final Logger LOG = LogManager.getLogger(JobReport.class);
 
     private JobReportOptions jobReportOptions = new JobReportOptions();
     private List<JobReportData> results = new ArrayList<JobReportData>();

@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.testng.annotations.Test;
 
@@ -36,7 +37,7 @@ import com.intuit.tank.persistence.databases.MetricsCalculator;
  * 
  */
 public class MetricsCalculatorTest {
-    private static final Logger LOG = Logger.getLogger(MetricsCalculatorTest.class);
+    private static final Logger LOG = LogManager.getLogger(MetricsCalculatorTest.class);
 
     /**
      * Run the MetricsCalculator() constructor test.

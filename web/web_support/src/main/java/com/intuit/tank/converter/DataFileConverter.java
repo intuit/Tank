@@ -21,6 +21,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.dao.DataFileDao;
@@ -34,7 +35,7 @@ import com.intuit.tank.project.DataFile;
  */
 @FacesConverter(value = "tsDataFileConverter")
 public class DataFileConverter implements Converter {
-    private static final Logger LOG = Logger.getLogger(DataFileConverter.class);
+    private static final Logger LOG = LogManager.getLogger(DataFileConverter.class);
 
     /**
      * @{inheritDoc

@@ -26,6 +26,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.project.DataFile;
@@ -43,7 +44,7 @@ import com.intuit.tank.vm.settings.TankConfig;
  */
 public class DataFileDao extends BaseDao<DataFile> {
 
-    private static final Logger LOG = Logger.getLogger(DataFileDao.class);
+    private static final Logger LOG = LogManager.getLogger(DataFileDao.class);
 
     /**
      * @param entityClass

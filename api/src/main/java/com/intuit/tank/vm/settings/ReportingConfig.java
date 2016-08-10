@@ -17,15 +17,13 @@ package com.intuit.tank.vm.settings;
  */
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import javax.annotation.Nonnull;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 /**
  * ReportingConfig
@@ -36,7 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 public class ReportingConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ReportingConfig.class);
+    private static final Logger LOG = LogManager.getLogger(ReportingConfig.class);
 
     private static final String KEY_READER = "provider/reader";
     private static final String KEY_REPORTER = "provider/reporter";

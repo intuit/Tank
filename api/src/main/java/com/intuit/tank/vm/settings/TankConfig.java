@@ -18,6 +18,7 @@ import java.io.File;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -45,7 +46,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
     private static final String KEY_STANDALONE = "standalone";
     private static final String KEY_ENCRYPT_S3 = "s3-encrypt";
 
-    private static final Logger LOG = Logger.getLogger(TankConfig.class);
+    private static final Logger LOG = LogManager.getLogger(TankConfig.class);
 
     private static final String CONFIG_NAME = "settings.xml";
     private static final String KEY_PRODUCTS_NODE = "products";

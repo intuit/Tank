@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 
@@ -14,7 +15,7 @@ public abstract class BaseRequest {
 
     public static final String CONTENT_TYPE_MULTIPART = "multipart/form-data";
     private static final char NEWLINE = '\n';
-    static Logger logger = Logger.getLogger(BaseRequest.class);
+    static Logger logger = LogManager.getLogger(BaseRequest.class);
 
     protected BaseResponse response = null;
     private TankHttpLogger logUtil;

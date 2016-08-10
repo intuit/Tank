@@ -30,6 +30,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
@@ -66,7 +68,7 @@ import com.intuit.tank.vm.settings.AccessRight;
 public class ScriptEditor implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ScriptEditor.class);
+    private static Logger LOG = LogManager.getLogger(ScriptEditor.class);
 
     private Script script;
 

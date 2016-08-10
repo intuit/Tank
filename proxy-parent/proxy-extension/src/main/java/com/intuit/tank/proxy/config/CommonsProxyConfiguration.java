@@ -29,6 +29,7 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 import org.apache.commons.configuration.tree.ConfigurationNode;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -39,7 +40,7 @@ import org.apache.log4j.Logger;
  */
 public class CommonsProxyConfiguration implements ProxyConfiguration {
 
-    private static final Logger LOG = Logger.getLogger(CommonsProxyConfiguration.class);
+    private static final Logger LOG = LogManager.getLogger(CommonsProxyConfiguration.class);
 
     public static final String DEFAULT_CONFIG = "recording-proxy-config-default.xml";
     public static final String SUGGESTED_CONFIG_NAME = "recording-proxy-config.xml";

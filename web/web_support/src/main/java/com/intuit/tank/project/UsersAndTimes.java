@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 
@@ -52,7 +53,7 @@ public class UsersAndTimes implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("unused")
-    private static final Logger LOG = Logger.getLogger(UsersAndTimes.class);
+    private static final Logger LOG = LogManager.getLogger(UsersAndTimes.class);
 
     @Inject
     private ProjectBean projectBean;

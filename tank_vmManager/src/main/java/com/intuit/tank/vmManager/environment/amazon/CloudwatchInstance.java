@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.amazonaws.ClientConfiguration;
@@ -53,7 +54,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 public class CloudwatchInstance {
 
     protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 10;// ten minutes
-    private static Logger logger = Logger.getLogger(CloudwatchInstance.class);
+    private static Logger logger = LogManager.getLogger(CloudwatchInstance.class);
 
     private AmazonCloudWatchAsyncClient asynchCloudWatchClient;
 

@@ -13,6 +13,7 @@ package com.intuit.tank.vm.common.util;
  * #L%
  */
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.junit.*;
 

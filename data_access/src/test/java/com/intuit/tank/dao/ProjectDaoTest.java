@@ -23,6 +23,7 @@ import javax.validation.ConstraintViolationException;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.dialect.MySQL5Dialect;

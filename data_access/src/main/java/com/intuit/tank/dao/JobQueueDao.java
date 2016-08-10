@@ -29,6 +29,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.Root;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.LockOptions;
 
@@ -44,7 +45,7 @@ import com.intuit.tank.project.Workload;
  * 
  */
 public class JobQueueDao extends BaseDao<JobQueue> {
-    private static final Logger LOG = Logger.getLogger(JobQueueDao.class);
+    private static final Logger LOG = LogManager.getLogger(JobQueueDao.class);
 
     /**
      * @param entityClass

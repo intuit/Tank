@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 import org.picketlink.Identity;
@@ -45,7 +46,7 @@ import com.intuit.tank.wrapper.FileInputStreamWrapper;
 public class FileUploadBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(FileUploadBean.class);
+    private static final Logger LOG = LogManager.getLogger(FileUploadBean.class);
 
     private boolean useFlash = true;
 

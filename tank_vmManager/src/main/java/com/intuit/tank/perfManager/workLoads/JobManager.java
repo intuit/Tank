@@ -32,6 +32,8 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
@@ -69,8 +71,7 @@ public class JobManager implements Serializable {
 
     private ExecutorService executor = Executors.newCachedThreadPool();
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger
-            .getLogger(JobManager.class);
+    private static final Logger LOG = LogManager.getLogger(JobManager.class);
 
     private static final int MAX_RETRIES = 60;
     private static final long RETRY_SLEEP = 1000;

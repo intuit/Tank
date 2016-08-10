@@ -16,6 +16,7 @@ package com.intuit.tank.runner.method;
  * #L%
  */
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.harness.APITestHarness;
@@ -31,7 +32,7 @@ import com.intuit.tank.tools.script.OutputLogger;
  * 
  */
 public class AgentLoggingOutputLogger implements OutputLogger {
-    private static final Logger LOG = Logger.getLogger(AgentLoggingOutputLogger.class);
+    private static final Logger LOG = LogManager.getLogger(AgentLoggingOutputLogger.class);
 
     /**
      * @{inheritDoc

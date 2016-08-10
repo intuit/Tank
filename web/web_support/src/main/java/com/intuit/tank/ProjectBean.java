@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 import org.picketlink.Identity;
@@ -52,7 +53,7 @@ import com.intuit.tank.vm.settings.AccessRight;
 @ConversationScoped
 public class ProjectBean implements Serializable {
 
-    private static final Logger LOG = Logger.getLogger(ProjectBean.class);
+    private static final Logger LOG = LogManager.getLogger(ProjectBean.class);
 
     private static final long serialVersionUID = 1L;
     private Project project;

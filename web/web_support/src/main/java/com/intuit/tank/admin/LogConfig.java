@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 @Named
 public class LogConfig {
 
-    private static final Logger LOG = Logger.getLogger(LogConfig.class);
+    private static final Logger LOG = LogManager.getLogger(LogConfig.class);
 
     public void setLogLevel(String level) {
         Level l = Level.toLevel(level);

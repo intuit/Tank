@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.amazonaws.AmazonServiceException;
@@ -43,7 +44,7 @@ import com.intuit.tank.vm.settings.CloudProvider;
 import com.intuit.tank.vm.settings.TankConfig;
 
 public class AmazonSimpleDatabase implements IDatabase {
-    private static final Logger logger = Logger.getLogger(AmazonSimpleDatabase.class);
+    private static final Logger logger = LogManager.getLogger(AmazonSimpleDatabase.class);
     private static final int MAX_NUMBER_OF_RETRIES = 5;
     private AmazonSimpleDB db;
 

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -36,7 +37,7 @@ public class ScriptSearchService {
 
     private static final String separator = " ";
 
-    private static final Logger LOG = Logger.getLogger(ScriptSearchService.class);
+    private static final Logger LOG = LogManager.getLogger(ScriptSearchService.class);
     private LuceneService ls;
 
     public ScriptSearchService() {

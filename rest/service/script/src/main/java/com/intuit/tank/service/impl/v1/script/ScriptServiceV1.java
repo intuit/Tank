@@ -45,6 +45,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.script.ExternalScriptContainer;
@@ -90,7 +91,7 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 @Path("/v1/script-service")
 public class ScriptServiceV1 implements ScriptService {
 
-    private static final Logger LOG = Logger.getLogger(ScriptServiceV1.class);
+    private static final Logger LOG = LogManager.getLogger(ScriptServiceV1.class);
 
     @Context
     private ServletContext servletContext;

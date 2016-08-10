@@ -38,6 +38,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.mail.MailService;
@@ -54,7 +55,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 public class TankMailer implements MailService, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(TankMailer.class);
+    private static final Logger LOG = LogManager.getLogger(TankMailer.class);
 
     /**
      * @{inheritDoc

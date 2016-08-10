@@ -16,10 +16,11 @@ package com.intuit.tank.vm.settings;
 import java.io.*;
 import java.util.HashMap;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 public class Settings extends PropertiesFile {
-    static Logger logger = Logger.getLogger(Settings.class);
+    static Logger logger = LogManager.getLogger(Settings.class);
 
     private static Settings instance = null;
 

@@ -24,6 +24,7 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 
@@ -47,7 +48,7 @@ import com.intuit.tank.vm.common.util.MethodTimer;
 @ConversationScoped
 public class ScriptSearchBean implements Serializable {
 
-    private static final Logger LOG = Logger.getLogger(ScriptSearchBean.class);
+    private static final Logger LOG = LogManager.getLogger(ScriptSearchBean.class);
     private static final long serialVersionUID = 1L;
 
     private SearchCriteria criteria = new SearchCriteria();

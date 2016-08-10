@@ -1,6 +1,8 @@
 package com.intuit.tank.reporting.factory;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import com.intuit.tank.reporting.api.DummyResultsReporter;
 import com.intuit.tank.reporting.api.ResultsReader;
@@ -10,7 +12,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 
 public final class ReportingFactory {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ReportingFactory.class);
+    private static final Logger LOG = LogManager.getLogger(ReportingFactory.class);
 
     private ReportingFactory() {
 

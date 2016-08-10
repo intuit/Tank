@@ -21,6 +21,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -31,7 +32,7 @@ import org.apache.log4j.Logger;
  */
 @FacesConverter(value = "tsScriptStepHolderConverter")
 public class ScriptStepHolderConverter implements Converter {
-    private static final Logger LOG = Logger.getLogger(ScriptStepHolderConverter.class);
+    private static final Logger LOG = LogManager.getLogger(ScriptStepHolderConverter.class);
 
     /**
      * @{inheritDoc

@@ -18,6 +18,7 @@ package com.intuit.tank.harness.functions;
  */
 
 import org.apache.commons.jexl2.JexlContext;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.vm.common.util.ExpressionContextVisitor;
@@ -32,7 +33,7 @@ import com.intuit.tank.vm.common.util.ExpressionContextVisitor;
 public class JexlMonetaryFunctions implements ExpressionContextVisitor {
 
     @SuppressWarnings("unused")
-    private static Logger LOG = Logger.getLogger(JexlIOFunctions.class);
+    private static Logger LOG = LogManager.getLogger(JexlIOFunctions.class);
 
     private static JexlNumericFunctions numericFunctions = new JexlNumericFunctions();
 

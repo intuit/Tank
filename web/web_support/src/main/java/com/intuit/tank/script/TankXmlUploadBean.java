@@ -25,6 +25,7 @@ import javax.inject.Named;
 import javax.xml.bind.JAXBContext;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 import org.picketlink.Identity;
@@ -49,7 +50,7 @@ public class TankXmlUploadBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = Logger.getLogger(TankXmlUploadBean.class);
+    private static final Logger LOG = LogManager.getLogger(TankXmlUploadBean.class);
 
     private boolean useFlash = true;
 

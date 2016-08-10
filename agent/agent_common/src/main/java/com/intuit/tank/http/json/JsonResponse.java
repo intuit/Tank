@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.json.simple.parser.ContainerFactory;
@@ -32,7 +33,7 @@ import com.intuit.tank.http.BaseResponse;
 
 public class JsonResponse extends BaseResponse {
 
-    static protected Logger logger = Logger.getLogger(JsonResponse.class);
+    static protected Logger logger = LogManager.getLogger(JsonResponse.class);
     @SuppressWarnings("rawtypes")
     private Map jsonMap = null;
 

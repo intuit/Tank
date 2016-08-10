@@ -26,6 +26,7 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 import org.picketlink.Identity;
@@ -56,7 +57,7 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = Logger.getLogger(TankAuthenticator.class);
+    private static final Logger LOG = LogManager.getLogger(TankAuthenticator.class);
 
     @Inject
     private Identity identity;

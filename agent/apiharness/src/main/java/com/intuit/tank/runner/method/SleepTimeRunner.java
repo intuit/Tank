@@ -13,6 +13,7 @@ package com.intuit.tank.runner.method;
  * #L%
  */
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.harness.APITestHarness;
@@ -26,7 +27,7 @@ import com.intuit.tank.vm.common.util.ValidationUtil;
 
 class SleepTimeRunner implements Runner {
 
-    static Logger LOG = Logger.getLogger(SleepTimeRunner.class);
+    static Logger LOG = LogManager.getLogger(SleepTimeRunner.class);
 
     @SuppressWarnings("unused")
     private TestStepContext tsc;

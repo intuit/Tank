@@ -25,6 +25,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 
 import com.intuit.tank.PreferencesBean;
@@ -61,7 +63,7 @@ import com.intuit.tank.vm.settings.VmInstanceType;
 public class JobMaker implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(JobMaker.class);
+    private static final Logger LOG = LogManager.getLogger(JobMaker.class);
 
     @Inject
     private ProjectBean projectBean;

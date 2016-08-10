@@ -36,7 +36,7 @@ import com.intuit.tank.test.TestGroups;
 import com.intuit.tank.vm.common.util.ReportUtil;
 
 public class TPSTest {
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(TPSTest.class);
+    private static final Logger LOG = LogManager.getLogger(TPSTest.class);
 
     private AmazonDynamoDBClient dbclient;
 

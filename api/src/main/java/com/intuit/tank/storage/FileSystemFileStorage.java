@@ -13,6 +13,7 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -24,7 +25,7 @@ import org.apache.log4j.Logger;
 public class FileSystemFileStorage implements FileStorage, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(FileSystemFileStorage.class);
+    private static final Logger LOG = LogManager.getLogger(FileSystemFileStorage.class);
 
     private String basePath;
     private boolean compress = true;

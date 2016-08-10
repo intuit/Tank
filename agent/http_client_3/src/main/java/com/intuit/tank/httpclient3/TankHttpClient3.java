@@ -53,6 +53,7 @@ import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.http.AuthCredentials;
@@ -67,7 +68,7 @@ import com.intuit.tank.vm.settings.AgentConfig;
 
 public class TankHttpClient3 implements TankHttpClient {
 
-    static Logger logger = Logger.getLogger(TankHttpClient3.class);
+    static Logger logger = LogManager.getLogger(TankHttpClient3.class);
 
     private HttpClient httpclient;
 

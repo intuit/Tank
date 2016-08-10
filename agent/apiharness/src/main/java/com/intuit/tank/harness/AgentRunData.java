@@ -13,12 +13,15 @@ package com.intuit.tank.harness;
  * #L%
  */
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.common.TankConstants;
 
 public class AgentRunData {
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(AgentRunData.class);
+    private static final Logger LOG = LogManager.getLogger(AgentRunData.class);
 
     private int numUsers = 1;
     private long rampTime = 0;

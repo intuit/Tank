@@ -21,6 +21,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.dao.ScriptDao;
@@ -34,7 +35,7 @@ import com.intuit.tank.project.Script;
  */
 @FacesConverter(value = "tsScriptConverter")
 public class ScriptConverter implements Converter {
-    private static final Logger LOG = Logger.getLogger(ScriptConverter.class);
+    private static final Logger LOG = LogManager.getLogger(ScriptConverter.class);
 
     /**
      * @{inheritDoc

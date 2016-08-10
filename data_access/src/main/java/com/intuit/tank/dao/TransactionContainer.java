@@ -21,6 +21,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -31,7 +32,7 @@ import org.apache.log4j.Logger;
  */
 public class TransactionContainer {
 
-    private static final Logger LOG = Logger.getLogger(TransactionContainer.class);
+    private static final Logger LOG = LogManager.getLogger(TransactionContainer.class);
 
     private static EntityManagerFactory entityManagerFactory;
     private static volatile boolean initialized = false;  

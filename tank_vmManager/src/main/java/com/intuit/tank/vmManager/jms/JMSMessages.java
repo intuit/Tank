@@ -15,13 +15,14 @@ package com.intuit.tank.vmManager.jms;
 
 import java.util.List;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.vm.vmManager.VMInformation;
 
 public class JMSMessages {
 
-    static Logger logger = Logger.getLogger(JMSMessages.class);
+    static Logger logger = LogManager.getLogger(JMSMessages.class);
 
     /**
      * Post a virtual machine to the queue

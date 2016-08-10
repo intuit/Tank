@@ -42,7 +42,7 @@ public class ThreadLocalLogEventTest {
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.ExceptionInInitializerError
-        // at org.apache.log4j.Logger.getLogger(Logger.java:117)
+        // at org.apache.log4j.LogManager.getLogger(Logger.java:117)
         // at com.intuit.tank.harness.APITestHarness.<clinit>(APITestHarness.java:57)
         // at com.intuit.tank.harness.logging.ThreadLocalLogEvent.initialValue(ThreadLocalLogEvent.java:14)
         assertNotNull(result);

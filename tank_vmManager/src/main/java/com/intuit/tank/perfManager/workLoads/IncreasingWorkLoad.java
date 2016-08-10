@@ -16,6 +16,7 @@ package com.intuit.tank.perfManager.workLoads;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.harness.AmazonUtil;
@@ -34,7 +35,7 @@ import com.intuit.tank.vm.vmManager.VMInstanceRequest;
 
 public class IncreasingWorkLoad implements Runnable {
 
-    private static Logger LOG = Logger.getLogger(IncreasingWorkLoad.class);
+    private static Logger LOG = LogManager.getLogger(IncreasingWorkLoad.class);
     private JobRequest job;
     private VMChannel channel;
     private AgentDispatcher agentDispatcher;

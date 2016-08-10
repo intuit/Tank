@@ -26,6 +26,7 @@ import java.util.Iterator;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.cloud.VMTracker;
@@ -52,7 +53,7 @@ import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 public class JobController {
 
     @SuppressWarnings("unused")
-    private static final Logger LOG = Logger.getLogger(JobController.class);
+    private static final Logger LOG = LogManager.getLogger(JobController.class);
 
     @Inject
     private VMTracker vmTracker;

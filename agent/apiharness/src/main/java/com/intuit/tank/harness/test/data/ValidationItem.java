@@ -13,11 +13,12 @@ package com.intuit.tank.harness.test.data;
  * #L%
  */
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 public class ValidationItem extends DataItem {
 
-    static Logger logger = Logger.getLogger(ValidationItem.class);
+    static Logger logger = LogManager.getLogger(ValidationItem.class);
 
     private String condition = null;
 

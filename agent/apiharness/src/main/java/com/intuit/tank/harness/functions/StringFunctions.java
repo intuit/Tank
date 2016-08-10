@@ -21,6 +21,7 @@ import java.util.Random;
 import java.util.Stack;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.harness.APITestHarness;
@@ -58,7 +59,7 @@ import com.intuit.tank.vm.common.util.ValidationUtil;
  */
 class StringFunctions {
 
-    private static final Logger LOG = Logger.getLogger(StringFunctions.class);
+    private static final Logger LOG = LogManager.getLogger(StringFunctions.class);
 
     /**
      * Preset values

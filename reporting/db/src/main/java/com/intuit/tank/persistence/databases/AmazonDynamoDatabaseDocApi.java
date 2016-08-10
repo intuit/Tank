@@ -32,6 +32,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpStatus;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.amazonaws.AmazonServiceException;
@@ -95,7 +96,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     protected static final int BATCH_SIZE = 25;
     private static final long MAX_WRITE_UNITS = 1500L;
 
-    private static Logger logger = Logger.getLogger(AmazonDynamoDatabaseDocApi.class);
+    private static Logger logger = LogManager.getLogger(AmazonDynamoDatabaseDocApi.class);
 
     /**
      * 

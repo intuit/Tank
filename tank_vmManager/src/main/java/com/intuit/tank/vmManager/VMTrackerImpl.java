@@ -34,6 +34,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.cloud.VMTracker;
@@ -62,7 +63,7 @@ import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
  */
 @ApplicationScoped
 public class VMTrackerImpl implements VMTracker {
-    private static final Logger LOG = Logger.getLogger(VMTrackerImpl.class);
+    private static final Logger LOG = LogManager.getLogger(VMTrackerImpl.class);
 
     private ConcurrentMap<String, String> locks = new ConcurrentHashMap<String, String>();
     private boolean devMode = false;

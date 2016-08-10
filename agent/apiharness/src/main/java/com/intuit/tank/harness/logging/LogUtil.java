@@ -18,6 +18,9 @@ package com.intuit.tank.harness.logging;
 
 import java.util.Collection;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
@@ -30,7 +33,7 @@ import com.intuit.tank.logging.LoggingProfile;
  */
 public final class LogUtil {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LogUtil.class);
+    private static final Logger LOG = LogManager.getLogger(LogUtil.class);
 
     private static ThreadLocalLogEvent logEventProvider = new ThreadLocalLogEvent();
 

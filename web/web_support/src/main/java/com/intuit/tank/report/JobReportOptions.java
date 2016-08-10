@@ -26,6 +26,7 @@ import java.util.Date;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -38,7 +39,7 @@ import org.apache.log4j.Logger;
 public class JobReportOptions implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(JobReportOptions.class);
+    private static final Logger LOG = LogManager.getLogger(JobReportOptions.class);
 
     private Date startDate;
     private Date endDate;

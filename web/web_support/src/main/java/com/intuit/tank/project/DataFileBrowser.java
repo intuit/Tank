@@ -29,6 +29,7 @@ import javax.inject.Named;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 
@@ -54,7 +55,7 @@ import com.intuit.tank.wrapper.VersionContainer;
 @Named
 @SessionScoped
 public class DataFileBrowser extends SelectableBean<DataFile> implements Serializable, Multiselectable<DataFile> {
-	private static final Logger LOG = Logger.getLogger(DataFileBrowser.class);
+	private static final Logger LOG = LogManager.getLogger(DataFileBrowser.class);
     private static final long serialVersionUID = 1L;
 
     @Inject

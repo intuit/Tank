@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.project.DataFile;
@@ -23,7 +24,7 @@ import com.intuit.tank.vm.settings.TankConfig;
  */
 public final class DataFileUtil {
 
-    private static final Logger LOG = Logger.getLogger(DataFileUtil.class);
+    private static final Logger LOG = LogManager.getLogger(DataFileUtil.class);
 
     protected static final long MAX_AGE = 1000 * 60 * 60 * 24; // one day
 

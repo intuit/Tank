@@ -18,6 +18,9 @@ import java.util.Map;
 
 import javax.script.ScriptEngineManager;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import com.intuit.tank.harness.data.LogicStep;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
@@ -30,7 +33,7 @@ import com.intuit.tank.vm.common.LogicScriptUtil;
 import com.intuit.tank.vm.common.TankConstants;
 
 class LogicRunner implements Runner {
-    private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LogicRunner.class);
+    private static Logger LOG = LogManager.getLogger(LogicRunner.class);
 
     private TestStepContext tsc;
     private LogicStep step;

@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import com.intuit.tank.persistence.databases.DataBaseFactory;
 import com.intuit.tank.persistence.databases.DatabaseKeys;
@@ -34,7 +36,7 @@ import com.intuit.tank.vm.settings.TankConfig;
  */
 public class DatabaseResultsReporter implements ResultsReporter {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(DatabaseResultsReporter.class);
+    private static final Logger LOG = LogManager.getLogger(DatabaseResultsReporter.class);
 
     private static final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(10, 50, 60, TimeUnit.SECONDS,
             new ArrayBlockingQueue<Runnable>(50), Executors.defaultThreadFactory(),

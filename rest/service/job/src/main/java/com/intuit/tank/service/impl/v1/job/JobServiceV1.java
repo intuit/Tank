@@ -46,7 +46,7 @@ import com.intuit.tank.util.CreateDateComparator.SortOrder;
 @Path(JobService.SERVICE_RELATIVE_PATH)
 public class JobServiceV1 implements JobService {
 
-    // private static final Logger LOG = Logger.getLogger(FilterServiceV1.class);
+    // private static final Logger LOG = LogManager.getLogger(FilterServiceV1.class);
 
     // @Context
     // private ServletContext servletContext;

@@ -15,6 +15,7 @@ package com.intuit.tank.vmManager.environment;
 
 import java.util.List;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.cloud.VMTracker;
@@ -30,7 +31,7 @@ import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 
 public class CreateInstance implements Runnable {
 
-    static Logger logger = Logger.getLogger(CreateInstance.class);
+    static Logger logger = LogManager.getLogger(CreateInstance.class);
 
     private VMInstanceRequest request = null;
 

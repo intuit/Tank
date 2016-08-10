@@ -38,6 +38,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.AgentServiceClient;
@@ -67,7 +68,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 
 public class APITestHarness {
 
-    private static Logger LOG = Logger.getLogger(APITestHarness.class);
+    private static Logger LOG = LogManager.getLogger(APITestHarness.class);
     public static final int POLL_INTERVAL = 15000;
     private static final int RETRY_SLEEP = 2000;
     private static final int MAX_RETRIES = 10;

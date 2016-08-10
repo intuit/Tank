@@ -19,11 +19,14 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 public class HostInfo implements Serializable {
 
     public static final String UNKNOWN = "N/A";
     private static final long serialVersionUID = 1L;
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(HostInfo.class);
+    private static final Logger LOG = LogManager.getLogger(HostInfo.class);
 
     public String publicIp;
     public String publicHostname;

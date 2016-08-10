@@ -16,6 +16,7 @@ package com.intuit.tank.rest;
  * #L%
  */
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -28,7 +29,7 @@ import com.sun.jersey.api.client.ClientResponse;
  */
 public class RestExceptionHandler {
 
-    private static final Logger LOG = Logger.getLogger(RestExceptionHandler.class);
+    private static final Logger LOG = LogManager.getLogger(RestExceptionHandler.class);
 
     public void checkStatusCode(ClientResponse response) throws RestServiceException {
         if (response.getStatus() >= 400) { //

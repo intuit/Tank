@@ -16,6 +16,7 @@ package com.intuit.tank.tools.script;
  * #L%
  */
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -25,7 +26,7 @@ import org.apache.log4j.Logger;
  * 
  */
 public class LoggingOutputLogger implements OutputLogger {
-    private static final Logger LOG = Logger.getLogger(LoggingOutputLogger.class);
+    private static final Logger LOG = LogManager.getLogger(LoggingOutputLogger.class);
 
     /**
      * @{inheritDoc

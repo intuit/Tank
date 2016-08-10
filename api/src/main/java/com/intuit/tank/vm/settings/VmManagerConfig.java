@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -45,7 +46,7 @@ public class VmManagerConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = Logger.getLogger(VmManagerConfig.class);
+    private static final Logger LOG = LogManager.getLogger(VmManagerConfig.class);
 
     private HierarchicalConfiguration config;
     private Set<String> reservedElasticIps = new HashSet<String>();

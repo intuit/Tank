@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.http.binary.BinaryResponse;
@@ -27,7 +28,7 @@ import com.intuit.tank.http.xml.XMLResponse;
  */
 public class TankHttpUtil {
 
-    private static Logger LOG = Logger.getLogger(TankHttpUtil.class);
+    private static Logger LOG = LogManager.getLogger(TankHttpUtil.class);
 
     public static URL buildUrl(String protocol, String host, int port, String path, Map<String, String> urlVariables) {
 

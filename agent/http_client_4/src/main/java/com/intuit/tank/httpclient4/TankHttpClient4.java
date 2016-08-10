@@ -60,6 +60,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.http.AuthCredentials;
@@ -75,7 +76,7 @@ import com.intuit.tank.vm.settings.AgentConfig;
 
 public class TankHttpClient4 implements TankHttpClient {
 
-    static Logger LOG = Logger.getLogger(TankHttpClient4.class);
+    static Logger LOG = LogManager.getLogger(TankHttpClient4.class);
 
     private CloseableHttpClient httpclient;
     private HttpClientContext context;

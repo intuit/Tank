@@ -17,13 +17,14 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.harness.functions.FunctionHandler;
 import com.intuit.tank.harness.test.data.Variables;
 
 public class TestInformation {
-    static Logger logger = Logger.getLogger(TestInformation.class);
+    static Logger logger = LogManager.getLogger(TestInformation.class);
 
     private HashMap<String, String> members = new HashMap<String, String>();
     private HashMap<String, String> testPlanVariables = new HashMap<String, String>();

@@ -23,6 +23,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import com.intuit.tank.harness.data.AssignmentData;
 import com.intuit.tank.harness.data.AuthenticationStep;
@@ -62,7 +64,7 @@ import com.intuit.tank.vm.api.enumerated.ValidationType;
 import com.intuit.tank.vm.settings.TankConfig;
 
 public class ConverterUtil {
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ConverterUtil.class);
+    private static final Logger LOG = LogManager.getLogger(ConverterUtil.class);
 
     public static HDWorkload convertScriptToHdWorkload(Script script) {
 

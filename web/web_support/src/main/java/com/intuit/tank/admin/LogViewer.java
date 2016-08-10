@@ -31,6 +31,8 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.service.v1.report.ReportService;
 
@@ -45,7 +47,7 @@ import com.intuit.tank.api.service.v1.report.ReportService;
 public class LogViewer implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LogViewer.class);
+    private static final Logger LOG = LogManager.getLogger(LogViewer.class);
 
     private String currentLogFile;
     private int numLines = 20;

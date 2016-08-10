@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.cloud.VMTracker;
@@ -46,7 +47,7 @@ import com.intuit.tank.vm.vmManager.Recipient;
  * 
  */
 public class NotificationRunner implements Runnable {
-    private static final Logger LOG = Logger.getLogger(NotificationRunner.class);
+    private static final Logger LOG = LogManager.getLogger(NotificationRunner.class);
 
     private JobEvent jobEvent;
     private MailService mailService;

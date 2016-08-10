@@ -23,6 +23,10 @@ import javax.annotation.Nonnull;
 
 import com.intuit.tank.project.OwnableEntity;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
+
 /**
  * OwnableDao
  * 
@@ -31,7 +35,7 @@ import com.intuit.tank.project.OwnableEntity;
  */
 public abstract class OwnableDao<T_ENTITY extends OwnableEntity> extends BaseDao<T_ENTITY> {
 
-    private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(OwnableDao.class);
+    private static Logger LOG = LogManager.getLogger(OwnableDao.class);
 
     /**
      * @param entityClass

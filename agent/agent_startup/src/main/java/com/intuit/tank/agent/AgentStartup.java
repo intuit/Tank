@@ -22,6 +22,7 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.harness.AmazonUtil;
@@ -29,7 +30,7 @@ import com.intuit.tank.vm.common.TankConstants;
 
 public class AgentStartup implements Runnable {
 
-    private static Logger logger = Logger.getLogger(AgentStartup.class);
+    private static Logger logger = LogManager.getLogger(AgentStartup.class);
     public static final String SERVICE_RELATIVE_PATH = "/rest/v1/agent-service";
     public static final String METHOD_SETTINGS = "/settings";
     private static String API_HARNESS_COMMAND = "./start_wats.sh";

@@ -19,6 +19,7 @@ package com.intuit.tank.dao;
 import javax.annotation.Nullable;
 import javax.persistence.NoResultException;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.envers.AuditReader;
@@ -34,7 +35,7 @@ import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
  * 
  */
 public class JobNotificationDao extends BaseDao<JobNotification> {
-    private static final Logger LOG = Logger.getLogger(JobNotificationDao.class);
+    private static final Logger LOG = LogManager.getLogger(JobNotificationDao.class);
 
     /**
      * @param entityClass

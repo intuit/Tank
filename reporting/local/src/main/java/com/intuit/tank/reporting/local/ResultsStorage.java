@@ -10,13 +10,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnull;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import com.intuit.tank.reporting.api.TPSInfo;
 import com.intuit.tank.reporting.api.TPSInfoContainer;
 import com.intuit.tank.results.TankResult;
 
 public final class ResultsStorage {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ResultsStorage.class);
+    private static final Logger LOG = LogManager.getLogger(ResultsStorage.class);
     private static ResultsStorage instance = new ResultsStorage();
 
     private Map<String, Map<String, List<TankResult>>> timingResultMap = new ConcurrentHashMap<String, Map<String, List<TankResult>>>();

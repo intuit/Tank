@@ -25,6 +25,8 @@ import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import com.intuit.tank.dao.ScriptFilterActionDao;
 import com.intuit.tank.dao.ScriptFilterDao;
@@ -42,7 +44,7 @@ public class UpgradeFilters implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(UpgradeFilters.class);
+    private static final Logger LOG = LogManager.getLogger(UpgradeFilters.class);
 
     private boolean filtersUpgraded;
 

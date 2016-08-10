@@ -21,6 +21,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.util.TimeFormatUtil;
@@ -34,7 +35,7 @@ import com.intuit.tank.vm.settings.TimeUtil;
  */
 @FacesConverter(value = "tsTimeDurationConverter")
 public class TimeDurationConverter implements Converter {
-    private static final Logger LOG = Logger.getLogger(TimeDurationConverter.class);
+    private static final Logger LOG = LogManager.getLogger(TimeDurationConverter.class);
 
     /**
      * @{inheritDoc

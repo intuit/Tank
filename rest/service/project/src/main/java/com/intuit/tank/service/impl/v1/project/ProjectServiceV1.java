@@ -41,6 +41,7 @@ import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.project.ProjectContainer;
@@ -80,7 +81,7 @@ import com.intuit.tank.vm.common.util.ReportUtil;
 @Path(ProjectService.SERVICE_RELATIVE_PATH)
 public class ProjectServiceV1 implements ProjectService {
 
-    private static final Logger LOG = Logger.getLogger(ProjectServiceV1.class);
+    private static final Logger LOG = LogManager.getLogger(ProjectServiceV1.class);
 
     @Context
     private ServletContext servletContext;

@@ -25,6 +25,7 @@ import javax.enterprise.context.ApplicationScoped;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -42,7 +43,7 @@ import org.apache.log4j.Logger;
 public class MailMessageConfig extends BaseCommonsXmlConfig {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(MailMessageConfig.class);
+    private static final Logger LOG = LogManager.getLogger(MailMessageConfig.class);
     private static final String KEY_MESSAGE_NODE = "message";
     private static final String KEY_EVENT = "@event";
     private static final String KEY_SUBJECT = "subject";

@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
@@ -34,7 +35,7 @@ import com.intuit.tank.vm.perfManager.AgentChannel;
 
 public class AgentChannelImpl implements AgentChannel {
 
-    private static final Logger LOG = Logger.getLogger(AgentChannelImpl.class);
+    private static final Logger LOG = LogManager.getLogger(AgentChannelImpl.class);
 
     @Inject
     private JobManager jobManager;

@@ -60,7 +60,7 @@ public class StringFunctionsTest {
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class org.apache.log4j.LogManager
-        // at org.apache.log4j.Logger.getLogger(Logger.java:117)
+        // at org.apache.log4j.LogManager.getLogger(Logger.java:117)
         // at com.intuit.tank.harness.test.data.Variables.<clinit>(Variables.java:36)
         assertNotNull(result);
     }

@@ -15,6 +15,7 @@ package com.intuit.tank.scheduleManager.jms;
 
 import javax.inject.Inject;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.dao.VMImageDao;
@@ -31,7 +32,7 @@ import com.intuit.tank.vm.vmManager.VmMessageProcessor;
 
 public class AgentDispatcherImpl implements AgentDispatcher {
 
-    static Logger logger = Logger.getLogger(AgentDispatcherImpl.class);
+    static Logger logger = LogManager.getLogger(AgentDispatcherImpl.class);
 
     @Inject
     private VmMessageProcessor vmProcessor;

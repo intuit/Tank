@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.reporting.databases.IDatabase;
@@ -27,7 +28,7 @@ import com.intuit.tank.vm.settings.TankConfig;
  * 
  */
 public class GraphiteDatasource implements IDatabase {
-    private static final Logger LOG = Logger.getLogger(GraphiteDatasource.class);
+    private static final Logger LOG = LogManager.getLogger(GraphiteDatasource.class);
 	
 	private String enviornemnt = "qa";
 	private String graphiteHost = "doubleshot.internal.perf.a.intuit.com";

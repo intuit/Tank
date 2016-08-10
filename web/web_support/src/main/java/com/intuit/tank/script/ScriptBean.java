@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 import org.picketlink.Identity;
@@ -52,7 +53,7 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = Logger.getLogger(ScriptBean.class);
+    private static final Logger LOG = LogManager.getLogger(ScriptBean.class);
 
     @Inject
     private ScriptLoader scriptLoader;

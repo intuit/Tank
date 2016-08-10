@@ -25,6 +25,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.jboss.seam.international.status.Messages;
 import org.picketlink.Identity;
@@ -46,7 +48,7 @@ import com.intuit.tank.vm.common.PasswordEncoder;
 @RequestScoped
 public class AccountModify implements Serializable {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(AccountModify.class);
+    private static final Logger LOG = LogManager.getLogger(AccountModify.class);
     private static final long serialVersionUID = 1L;
 
     @Inject

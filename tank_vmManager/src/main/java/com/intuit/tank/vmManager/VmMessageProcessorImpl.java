@@ -16,6 +16,7 @@ package com.intuit.tank.vmManager;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.cloud.VMTracker;
@@ -39,7 +40,7 @@ import com.intuit.tank.vmManager.environment.KillInstance;
 @ApplicationScoped
 public class VmMessageProcessorImpl implements VmMessageProcessor {
 
-    static Logger logger = Logger.getLogger(VmMessageProcessorImpl.class);
+    static Logger logger = LogManager.getLogger(VmMessageProcessorImpl.class);
 
     @Inject
     private VMQueue vmQueue;

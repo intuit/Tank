@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.project.KeyPair;
@@ -42,7 +43,7 @@ import com.intuit.tank.project.Workload;
  */
 public class ProjectServiceUtil {
 
-    private static final Logger LOG = Logger.getLogger(ProjectServiceUtil.class);
+    private static final Logger LOG = LogManager.getLogger(ProjectServiceUtil.class);
 
     private ProjectServiceUtil() {
 

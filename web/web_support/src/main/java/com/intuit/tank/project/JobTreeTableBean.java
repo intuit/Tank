@@ -31,6 +31,7 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 import org.primefaces.event.NodeCollapseEvent;
@@ -75,7 +76,7 @@ public abstract class JobTreeTableBean implements Serializable {
 
     private static final String TOTAL_TPS_SERIES_KEY = "Total TPS";
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(JobTreeTableBean.class);
+    private static final Logger LOG = LogManager.getLogger(JobTreeTableBean.class);
 
     private static final int MIN_REFRESH = 10;
     private static final int INITIAL_SIZE = 10;

@@ -181,7 +181,7 @@ public class LogEventTest {
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.ExceptionInInitializerError
-        // at org.apache.log4j.Logger.getLogger(Logger.java:117)
+        // at org.apache.log4j.LogManager.getLogger(Logger.java:117)
         // at com.intuit.tank.harness.test.data.Variables.<clinit>(Variables.java:36)
         assertNotNull(result);
     }

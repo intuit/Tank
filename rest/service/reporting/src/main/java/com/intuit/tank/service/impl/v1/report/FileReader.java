@@ -30,6 +30,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 /**
  * FileServiceV1
@@ -43,7 +45,7 @@ public final class FileReader {
         // empty private constructor
     }
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(FileReader.class);
+    private static final Logger LOG = LogManager.getLogger(FileReader.class);
 
     /**
      * Gets a StreamingOutput from the passedin file from start to end or from beginning to end if start is greater than

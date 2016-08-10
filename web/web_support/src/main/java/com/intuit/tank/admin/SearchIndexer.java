@@ -23,6 +23,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 
@@ -43,7 +44,7 @@ public class SearchIndexer implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = Logger.getLogger(SearchIndexer.class);
+    private static final Logger LOG = LogManager.getLogger(SearchIndexer.class);
 
     @Inject
     private Messages messages;

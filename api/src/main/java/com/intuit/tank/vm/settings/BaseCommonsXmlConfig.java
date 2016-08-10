@@ -26,6 +26,7 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.reloading.FileChangedReloadingStrategy;
 import org.apache.commons.configuration.tree.ExpressionEngine;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -37,7 +38,7 @@ public abstract class BaseCommonsXmlConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = Logger.getLogger(BaseCommonsXmlConfig.class);
+    private static final Logger LOG = LogManager.getLogger(BaseCommonsXmlConfig.class);
 
     protected XMLConfiguration config;
     protected File configFile;

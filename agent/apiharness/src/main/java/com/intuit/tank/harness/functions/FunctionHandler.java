@@ -17,6 +17,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.harness.logging.LogUtil;
@@ -49,7 +50,7 @@ public class FunctionHandler {
      */
     private static final String ESCAPE_DELIM = "-dot-";
     static final String delimeters = "[.]";
-    static private Logger logger = Logger.getLogger(FunctionHandler.class);
+    static private Logger logger = LogManager.getLogger(FunctionHandler.class);
 
     /**
      * Is the string a valid function

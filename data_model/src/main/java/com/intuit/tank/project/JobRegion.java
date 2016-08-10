@@ -25,6 +25,7 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -44,7 +45,7 @@ import com.intuit.tank.vm.vmManager.RegionRequest;
 public class JobRegion extends BaseEntity implements RegionRequest, Comparable<JobRegion> {
 
     @SuppressWarnings("unused")
-    private static final Logger LOG = Logger.getLogger(JobRegion.class);
+    private static final Logger LOG = LogManager.getLogger(JobRegion.class);
     private static final long serialVersionUID = 1L;
 
     @Column(name = "region")

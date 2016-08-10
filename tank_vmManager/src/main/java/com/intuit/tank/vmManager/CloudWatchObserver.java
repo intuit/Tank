@@ -24,6 +24,9 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.event.Reception;
 import javax.inject.Inject;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
@@ -42,7 +45,7 @@ import com.intuit.tank.vmManager.environment.amazon.CloudwatchInstance;
 @ApplicationScoped
 public class CloudWatchObserver {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(CloudWatchObserver.class);
+    private static final Logger LOG = LogManager.getLogger(CloudWatchObserver.class);
 
     @Inject
     private JobInstanceDao dao;

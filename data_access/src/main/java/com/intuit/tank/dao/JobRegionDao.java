@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.project.JobRegion;
@@ -34,7 +35,7 @@ import com.intuit.tank.vm.api.enumerated.VMRegion;
  * 
  */
 public class JobRegionDao extends BaseDao<JobRegion> {
-    private static final Logger LOG = Logger.getLogger(JobRegionDao.class);
+    private static final Logger LOG = LogManager.getLogger(JobRegionDao.class);
 
     /**
      * @param entityClass

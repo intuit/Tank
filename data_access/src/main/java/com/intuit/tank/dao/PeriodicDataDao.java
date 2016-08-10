@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.project.PeriodicData;
@@ -31,7 +32,7 @@ import com.intuit.tank.project.PeriodicData;
  * 
  */
 public class PeriodicDataDao extends BaseDao<PeriodicData> {
-    private static final Logger LOG = Logger.getLogger(PeriodicDataDao.class);
+    private static final Logger LOG = LogManager.getLogger(PeriodicDataDao.class);
 
     /**
      * @param entityClass

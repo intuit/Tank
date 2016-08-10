@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.conversation.Cookie;
@@ -32,7 +33,7 @@ import com.intuit.tank.conversation.Response;
  */
 public class HeaderParser {
 
-    private static final Logger LOG = Logger.getLogger(HeaderParser.class);
+    private static final Logger LOG = LogManager.getLogger(HeaderParser.class);
     // HTTP/1.0 200 OK
     private static final int RESPONSE_STATUS_CODE_INDEX = 1;
     private static final int RESPONSE_STATUS_MSG_INDEX = 2;

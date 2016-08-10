@@ -25,6 +25,7 @@ import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -45,7 +46,7 @@ import com.intuit.tank.vm.common.util.MethodTimer;
  * 
  */
 public class ScriptDao extends BaseDao<Script> {
-    private static final Logger LOG = Logger.getLogger(ScriptDao.class);
+    private static final Logger LOG = LogManager.getLogger(ScriptDao.class);
 
     /**
      * @param entityClass

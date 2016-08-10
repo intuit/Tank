@@ -26,6 +26,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -37,7 +38,7 @@ import org.apache.log4j.Logger;
 public class ScriptRunner {
 
     @SuppressWarnings("unused")
-    private static final Logger LOG = Logger.getLogger(ScriptRunner.class);
+    private static final Logger LOG = LogManager.getLogger(ScriptRunner.class);
 
     /**
      * 

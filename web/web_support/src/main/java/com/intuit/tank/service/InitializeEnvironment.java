@@ -24,6 +24,7 @@ import javax.ejb.Startup;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.picketlink.event.PartitionManagerCreateEvent;
 import org.picketlink.idm.IdentityManager;
@@ -46,7 +47,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 @Singleton
 @Startup
 public class InitializeEnvironment {
-    private static final Logger LOG = Logger.getLogger(InitializeEnvironment.class);
+    private static final Logger LOG = LogManager.getLogger(InitializeEnvironment.class);
 
     private TankConfig tankConfig;
     

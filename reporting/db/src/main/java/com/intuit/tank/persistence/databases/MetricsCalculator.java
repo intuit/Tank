@@ -32,6 +32,7 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.reporting.api.PagedTimingResults;
@@ -56,7 +57,7 @@ import au.com.bytecode.opencsv.CSVWriter;
  */
 public class MetricsCalculator {
 
-    private static final Logger LOG = Logger.getLogger(MetricsCalculator.class);
+    private static final Logger LOG = LogManager.getLogger(MetricsCalculator.class);
 
     private Map<String, DescriptiveStatistics> summaryResults = new HashMap<String, DescriptiveStatistics>();
     private Map<String, Map<Date, BucketDataItem>> bucketItems = new HashMap<String, Map<Date, BucketDataItem>>();

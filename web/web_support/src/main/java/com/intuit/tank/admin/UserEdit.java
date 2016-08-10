@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jboss.seam.international.status.Messages;
 import org.primefaces.model.DualListModel;
@@ -54,7 +55,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 public class UserEdit implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(UserEdit.class);
+    private static final Logger LOG = LogManager.getLogger(UserEdit.class);
 
     private String password;
 

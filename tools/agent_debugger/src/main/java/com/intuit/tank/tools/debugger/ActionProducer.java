@@ -47,6 +47,8 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import com.intuit.tank.AgentServiceClient;
 import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinition;
@@ -91,7 +93,7 @@ public class ActionProducer {
     private static final String ACTION_CLEAR_LOG = "Clear Log Output";
     private static final String ACTION_SELECT_CLIENT = "Select Client...";
 
-    private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ActionProducer.class);
+    private static Logger LOG = LogManager.getLogger(ActionProducer.class);
 
     private AgentDebuggerFrame debuggerFrame;
     private Map<String, Action> actionMap = new HashMap<String, Action>();

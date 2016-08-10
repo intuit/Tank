@@ -23,6 +23,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -33,7 +34,7 @@ import org.apache.log4j.Logger;
  */
 @FacesConverter(value = "tsTimeZoneConverter")
 public class TimeZoneConverter implements Converter {
-    private static final Logger LOG = Logger.getLogger(TimeZoneConverter.class);
+    private static final Logger LOG = LogManager.getLogger(TimeZoneConverter.class);
 
     /**
      * @{inheritDoc

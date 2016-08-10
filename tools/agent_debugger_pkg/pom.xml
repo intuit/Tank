@@ -46,10 +46,6 @@
           <artifactId>picketlink-idm-api</artifactId>
           <groupId>org.picketlink.idm</groupId>
         </exclusion>
-        <exclusion>
-          <artifactId>seam-security</artifactId>
-          <groupId>org.jboss.seam.security</groupId>
-        </exclusion>
 
         <exclusion>
           <artifactId>picketlink-idm-core</artifactId>
@@ -71,14 +67,6 @@
         <exclusion>
           <artifactId>mysql-connector-java</artifactId>
           <groupId>mysql</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hibernate-c3p0</artifactId>
-          <groupId>org.hibernate</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>c3p0</artifactId>
-          <groupId>c3p0</groupId>
         </exclusion>
         <exclusion>
           <artifactId>hibernate-envers</artifactId>

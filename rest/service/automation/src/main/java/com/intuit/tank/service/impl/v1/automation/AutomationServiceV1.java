@@ -41,6 +41,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.automation.AutomationJobRegion;
@@ -103,7 +104,7 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 @Path("/v1/automation-service")
 public class AutomationServiceV1 implements AutomationService {
 
-    private static final Logger LOG = Logger.getLogger(AutomationServiceV1.class);
+    private static final Logger LOG = LogManager.getLogger(AutomationServiceV1.class);
 
 
     @Context

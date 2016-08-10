@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.testng.annotations.Test;
 
@@ -49,7 +50,7 @@ public class JsonResponseTest {
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.ExceptionInInitializerError
-        // at org.apache.log4j.Logger.getLogger(Logger.java:117)
+        // at org.apache.log4j.LogManager.getLogger(Logger.java:117)
         // at com.intuit.tank.http.BaseResponse.<clinit>(BaseResponse.java:18)
         assertNotNull(result);
     }

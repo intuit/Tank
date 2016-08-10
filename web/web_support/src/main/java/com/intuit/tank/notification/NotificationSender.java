@@ -23,6 +23,7 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.cloud.VMTracker;
@@ -40,7 +41,7 @@ public class NotificationSender implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = Logger.getLogger(NotificationSender.class);
+    private static final Logger LOG = LogManager.getLogger(NotificationSender.class);
 
     @Inject
     private Instance<MailService> mailServiceFactory;

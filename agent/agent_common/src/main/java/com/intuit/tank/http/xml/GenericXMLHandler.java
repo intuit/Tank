@@ -23,6 +23,7 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Document;
@@ -37,7 +38,7 @@ import org.jdom.xpath.XPath;
  * Generic class to provide xml file reading and writing capabilities
  */
 public class GenericXMLHandler implements Cloneable {
-    static Logger logger = Logger.getLogger(GenericXMLHandler.class);
+    static Logger logger = LogManager.getLogger(GenericXMLHandler.class);
 
     protected Document xmlDocument = null;
     protected File xmlFile = null;
