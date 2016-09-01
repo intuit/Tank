@@ -87,7 +87,7 @@ public class AutomationJobRegion implements Serializable, RegionRequest {
      */
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("regeon", region).append("users", users)
+        return new ToStringBuilder(this).append("region", region).append("users", users)
                 .toString();
     }
 

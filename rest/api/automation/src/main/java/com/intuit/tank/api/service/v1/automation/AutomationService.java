@@ -23,7 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.intuit.tank.api.model.v1.automation.AutomationRequestV2;
+import com.intuit.tank.api.model.v1.automation.CreateJobRequest;
 
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 
@@ -80,9 +80,9 @@ public interface AutomationService {
     @POST
     @Path("/createJob")
     @Consumes({ MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.TEXT_PLAIN })
     @Nonnull
-    public Response createJob(@Nonnull AutomationRequestV2 request);
+    public Response createJob(@Nonnull CreateJobRequest request);
     
     /**
      * Runs Job based on the provided jobid
@@ -92,7 +92,7 @@ public interface AutomationService {
      */
     @GET
     @Path("/run"+ "/{jobId}")
-    @Produces({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.TEXT_PLAIN })
     public Response runJob(@PathParam("jobId") String jobId);
     
     /**
@@ -103,6 +103,6 @@ public interface AutomationService {
      */
     @GET
     @Path("/status"+ "/{jobId}")
-    @Produces({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.TEXT_PLAIN })
     public Response getStatus(@PathParam("jobId") String jobId);
 }

@@ -46,7 +46,8 @@ import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.automation.AutomationJobRegion;
 import com.intuit.tank.api.model.v1.automation.AutomationRequest;
-import com.intuit.tank.api.model.v1.automation.AutomationRequestV2;
+import com.intuit.tank.api.model.v1.automation.CreateJobRequest;
+import com.intuit.tank.api.model.v1.automation.CreateJobRegion;
 import com.intuit.tank.api.service.v1.automation.AutomationService;
 import com.intuit.tank.dao.BaseDao;
 import com.intuit.tank.dao.DataFileDao;
@@ -86,6 +87,7 @@ import com.intuit.tank.service.util.ResponseUtil;
 import com.intuit.tank.service.util.ServletInjector;
 import com.intuit.tank.util.TestParamUtil;
 import com.intuit.tank.util.TestParameterContainer;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.ScriptDriver;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.common.TankConstants;
@@ -94,6 +96,8 @@ import com.intuit.tank.vm.settings.ModificationType;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
+
+
 
 /**
  * AutomationServiceV1
@@ -217,11 +221,43 @@ public class AutomationServiceV1 implements AutomationService {
      * @{inheritDoc
      */
     @Override
-    public Response createJob(AutomationRequestV2 request) {
+    public Response createJob(CreateJobRequest request) {
         if (request != null) {
+        	LOG.info(request.toString());
+        	ProjectDao projectDao = new ProjectDao();
         	if (StringUtils.isNotEmpty(request.getName())) {
-		    	Project project = new ProjectDao().findByName(request.getName());
+		    	Project project = projectDao.findByName(request.getName());
 		    	if (project != null) {
+		            JobConfiguration jobConfiguration = project.getWorkloads().get(0).getJobConfiguration();
+		            // jobConfiguration.setRampTime(TimeUtil.parseTimeString(request.getRampTime()));
+		            if (StringUtils.isNotEmpty(request.getRampTime())) {
+		            	jobConfiguration.setRampTimeExpression(request.getRampTime());
+		            }
+		            if (StringUtils.isNotEmpty(request.getSimulationTime())) {
+		            	jobConfiguration.setSimulationTimeExpression(request.getSimulationTime());
+		            }
+		            jobConfiguration.setUserIntervalIncrement(request.getUserIntervalIncrement());
+		            jobConfiguration.setStopBehavior(StringUtils.isEmpty(request.getStopBehavior()) ? request.getStopBehavior()
+		                    : StopBehavior.END_OF_SCRIPT_GROUP.getDisplay());
+		            boolean hasSimTime = jobConfiguration.getSimulationTime() > 0
+		                    || (StringUtils.isNotBlank(request.getSimulationTime()) && !"0".equals(request.getSimulationTime()));
+		            jobConfiguration.setTerminationPolicy(hasSimTime ? TerminationPolicy.time
+		                    : TerminationPolicy.script);
+		            if (request.getJobRegions() != null) {
+			            jobConfiguration.getJobRegions().clear();
+			            JobRegionDao jrd = new JobRegionDao();
+			            for (CreateJobRegion r : request.getJobRegions()) {
+			            	if (StringUtils.isNotEmpty(r.getRegion())) {
+				                JobRegion jr = jrd.saveOrUpdate(new JobRegion(VMRegion.getRegionFromZone(r.getRegion()), r.getUsers()));
+				                jobConfiguration.getJobRegions().add(jr);
+			            	}
+			            }
+		            }
+//		            Map<String, String> varMap = jobConfiguration.getVariables();
+//		            varMap.putAll(request.getVariables());
+
+		            project = projectDao.saveOrUpdateProject(project);
+		            
 		            JobInstance job = addJobToQueue(project, request);
 		            String jobId = Integer.toString(job.getId());
 		            return Response.ok().entity(jobId).build();
@@ -229,7 +265,7 @@ public class AutomationServiceV1 implements AutomationService {
         	}
         }
         return Response.status(Status.BAD_REQUEST)
-        		.entity("Requests to run automation jobs must contain an AutomationRequest")
+        		.entity("Requests to run automation jobs must contain an AutomationRequest\n")
         		.build();
     }
     
@@ -385,7 +421,7 @@ public class AutomationServiceV1 implements AutomationService {
         return jobInstance;
     }
 
-    public JobInstance addJobToQueue(Project p, AutomationRequestV2 request) {
+    public JobInstance addJobToQueue(Project p, CreateJobRequest request) {
 
         JobQueueDao jobQueueDao = new JobQueueDao();
         DataFileDao dataFileDao = new DataFileDao();
@@ -405,14 +441,14 @@ public class AutomationServiceV1 implements AutomationService {
         jobInstance.setReportingMode(jc.getReportingMode());
         jobInstance.getVariables().putAll(jc.getVariables());
         // set version info
-        if (request.getDataFileIds() != null && !request.getDataFileIds().isEmpty()) {
+/*        if (request.getDataFileIds() != null && !request.getDataFileIds().isEmpty()) {
             jobInstance.getDataFileVersions()
                     .addAll(getVersions(dataFileDao, request.getDataFileIds(), DataFile.class));
         } else {
             jobInstance.getDataFileVersions().addAll(
                     getVersions(dataFileDao, workload.getJobConfiguration().getDataFileIds(), DataFile.class));
         }
-        jobInstance.getNotificationVersions().addAll(
+*/        jobInstance.getNotificationVersions().addAll(
                 getVersions(jobNotificationDao, workload.getJobConfiguration().getNotifications()));
         JobValidator validator = new JobValidator(workload.getTestPlans(), jobInstance.getVariables(),
                 false);
