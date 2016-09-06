@@ -26,79 +26,44 @@
           <groupId>javax.servlet</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>seam-solder</artifactId>
-          <groupId>org.jboss.seam.solder</groupId>
+	      <groupId>org.picketlink</groupId>
+	      <artifactId>picketlink</artifactId>
         </exclusion>
         <exclusion>
-          <artifactId>picketlink-idm-spi</artifactId>
-          <groupId>org.picketlink.idm</groupId>
-        </exclusion>
+	       <groupId>com.amazonaws</groupId>
+	       <artifactId>aws-java-sdk-dynamodb</artifactId>
+		</exclusion>
         <exclusion>
-          <artifactId>picketlink-idm-common</artifactId>
-          <groupId>org.picketlink.idm</groupId>
-        </exclusion>
+	       <groupId>com.amazonaws</groupId>
+	       <artifactId>aws-java-sdk-simpledb</artifactId>
+		</exclusion>
+        <exclusion>
+            <groupId>com.amazonaws</groupId>
+      		<artifactId>aws-java-sdk-ec2</artifactId>
+		</exclusion>
+        <exclusion>
+	      <groupId>com.amazonaws</groupId>
+	      <artifactId>aws-java-sdk-s3</artifactId>
+		</exclusion>
+        <exclusion>
+		  <groupId>org.hibernate</groupId>
+	      <artifactId>hibernate-validator</artifactId>
+		</exclusion>
+        <exclusion>
+	      <groupId>org.hibernate</groupId>
+	      <artifactId>hibernate-envers</artifactId>
+		</exclusion>
         <exclusion>
           <artifactId>serializer</artifactId>
           <groupId>xalan</groupId>
-        </exclusion>
-
-        <exclusion>
-          <artifactId>picketlink-idm-api</artifactId>
-          <groupId>org.picketlink.idm</groupId>
-        </exclusion>
-
-        <exclusion>
-          <artifactId>picketlink-idm-core</artifactId>
-          <groupId>org.picketlink.idm</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>seam-persistence</artifactId>
-          <groupId>org.jboss.seam.persistence</groupId>
         </exclusion>
         <exclusion>
           <artifactId>seam-international</artifactId>
           <groupId>org.jboss.seam.international</groupId>
         </exclusion>
-
         <exclusion>
           <artifactId>validation-api</artifactId>
           <groupId>javax.validation</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>mysql-connector-java</artifactId>
-          <groupId>mysql</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hibernate-envers</artifactId>
-          <groupId>org.hibernate</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hibernate-validator</artifactId>
-          <groupId>org.hibernate</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>javassist</artifactId>
-          <groupId>javassist</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hibernate-annotations</artifactId>
-          <groupId>org.hibernate</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hibernate-jpa-2.0-api</artifactId>
-          <groupId>org.hibernate.javax.persistence</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hibernate-core</artifactId>
-          <groupId>org.hibernate</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hibernate-entitymanager</artifactId>
-          <groupId>org.hibernate</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hibernate-commons-annotations</artifactId>
-          <groupId>org.hibernate</groupId>
         </exclusion>
         <exclusion>
           <artifactId>javassist</artifactId>
@@ -110,10 +75,6 @@
         </exclusion>
         <exclusion>
           <artifactId>weld-api</artifactId>
-          <groupId>org.jboss.weld</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>weld-core</artifactId>
           <groupId>org.jboss.weld</groupId>
         </exclusion>
         <exclusion>

@@ -30,7 +30,7 @@
 
     <version.hibernate>4.2.21.Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
-    <version-aws-sdk>1.11.6</version-aws-sdk>
+    <version-aws-sdk>1.11.31</version-aws-sdk>
     <tto.jar.version>1.2.0</tto.jar.version>
     <spring.version>2.5.6</spring.version>
  	<tomcat.version>7.0.68</tomcat.version>
@@ -724,18 +724,6 @@
         <groupId>commons-jxpath</groupId>
         <artifactId>commons-jxpath</artifactId>
         <version>1.3</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-core-asl</artifactId>
-        <version>1.8.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-mapper-asl</artifactId>
-        <version>1.8.0</version>
       </dependency>
 
       <dependency>
