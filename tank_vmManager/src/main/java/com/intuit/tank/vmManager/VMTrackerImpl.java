@@ -119,7 +119,6 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void setStatus(@Nonnull CloudVmStatus status) {
-        LOG.info("setting status: " + status);
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
             CloudVmStatus curentStatus = getStatus(status.getInstanceId());

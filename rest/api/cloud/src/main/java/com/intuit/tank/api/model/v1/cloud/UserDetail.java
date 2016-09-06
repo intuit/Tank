@@ -22,6 +22,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 @XmlRootElement(name = "UserDetail", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "UserDetail", namespace = Namespace.NAMESPACE_V1)
@@ -76,6 +78,14 @@ public class UserDetail implements Serializable, Comparable<UserDetail> {
     @Override
     public int compareTo(UserDetail o) {
         return script.compareTo(o.script);
+    }
+    
+    /**
+     * @{inheritDoc
+     */
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 
 }

@@ -80,7 +80,7 @@ public interface AutomationService {
     @POST
     @Path("/createJob")
     @Consumes({ MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.TEXT_PLAIN })
+    @Produces({ MediaType.APPLICATION_JSON })
     @Nonnull
     public Response createJob(@Nonnull CreateJobRequest request);
     
@@ -92,7 +92,7 @@ public interface AutomationService {
      */
     @GET
     @Path("/run"+ "/{jobId}")
-    @Produces({ MediaType.TEXT_PLAIN })
+    @Produces({ MediaType.APPLICATION_JSON })
     public Response runJob(@PathParam("jobId") String jobId);
     
     /**
@@ -103,6 +103,6 @@ public interface AutomationService {
      */
     @GET
     @Path("/status"+ "/{jobId}")
-    @Produces({ MediaType.TEXT_PLAIN })
+    @Produces({ MediaType.APPLICATION_JSON })
     public Response getStatus(@PathParam("jobId") String jobId);
 }
