@@ -49,7 +49,7 @@
     <version.primefaces-ext>4.0.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.12</version.surefire>
-    <version.jersey>1.17.1</version.jersey>
+    <version.jersey>1.19.2</version.jersey>
     <version.arquillian>1.1.11.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0.CR7</version.arquillian.tomcat>
     <version.httpclient>4.5.2</version.httpclient>
