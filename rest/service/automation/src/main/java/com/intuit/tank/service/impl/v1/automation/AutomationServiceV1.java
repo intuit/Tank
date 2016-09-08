@@ -441,14 +441,10 @@ public class AutomationServiceV1 implements AutomationService {
         jobInstance.setReportingMode(jc.getReportingMode());
         jobInstance.getVariables().putAll(jc.getVariables());
         // set version info
-/*        if (request.getDataFileIds() != null && !request.getDataFileIds().isEmpty()) {
-            jobInstance.getDataFileVersions()
-                    .addAll(getVersions(dataFileDao, request.getDataFileIds(), DataFile.class));
-        } else {
-            jobInstance.getDataFileVersions().addAll(
-                    getVersions(dataFileDao, workload.getJobConfiguration().getDataFileIds(), DataFile.class));
-        }
-*/        jobInstance.getNotificationVersions().addAll(
+        jobInstance.getDataFileVersions().addAll(
+                getVersions(dataFileDao, workload.getJobConfiguration().getDataFileIds(), DataFile.class));
+
+        jobInstance.getNotificationVersions().addAll(
                 getVersions(jobNotificationDao, workload.getJobConfiguration().getNotifications()));
         JobValidator validator = new JobValidator(workload.getTestPlans(), jobInstance.getVariables(),
                 false);
