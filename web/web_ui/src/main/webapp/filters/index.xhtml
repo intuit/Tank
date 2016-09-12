@@ -54,7 +54,7 @@
               </f:facet>
               <p:commandLink action="#{filterGroupCreationBean.editFilterGroup(filterGroupEnvelope.entity)}"
                 styleClass="pointer" title="Edit #{filterGroupEnvelope.entity.name}" ajax="true">
-                <h:outputText value="#{filterGroupEnvelope.entity.name}" title="#{filterGroupEnvelope.entity.name}" />
+                <h:outputText value="#{filterGroupEnvelope.entity.name}" title="#{filterGroupEnvelope.entity.name} (id=#{filterGroupEnvelope.entity.id})" />
               </p:commandLink>
             </p:column>
 
@@ -131,7 +131,7 @@
               </f:facet>
               <p:commandLink action="#{scriptFilterCreationBean.editFilter(filterEnvelope.entity)}" styleClass="pointer"
                 title="Edit #{filterEnvelope.entity.name}" ajax="true">
-                <h:outputText value="#{filterEnvelope.entity.name}" title="#{filterEnvelope.entity.name}" />
+                <h:outputText value="#{filterEnvelope.entity.name}" title="#{filterEnvelope.entity.name} (id=#{filterEnvelope.entity.id})" />
               </p:commandLink>
             </p:column>
 
