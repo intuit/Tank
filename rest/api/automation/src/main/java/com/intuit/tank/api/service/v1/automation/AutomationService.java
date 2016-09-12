@@ -72,6 +72,22 @@ public interface AutomationService {
     public Response runAutomationJob(@Nonnull FormDataMultiPart formData);
 
     /**
+     * Uploads a script to an existing script 
+     * 
+     * @param ScriptId
+     * @param formData
+     *            Multi-part form data should contain a AutomationRequest with the formKey of automationRequest and the
+     *            file data with formKey of file
+     * @return Response status code 201 (created) if successful or an error code
+     */
+    @POST
+    @Path("/uploadScript")
+    @Consumes({ MediaType.MULTIPART_FORM_DATA })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Nonnull
+    public Response uploadScript(@Nonnull FormDataMultiPart formData);
+    
+    /**
      * Creates a job and returns the jobid
      * 
      * @param AutomationRequest
@@ -91,7 +107,7 @@ public interface AutomationService {
      * @return SUCCESS if started
      */
     @GET
-    @Path("/run"+ "/{jobId}")
+    @Path("/run" + "/{jobId}")
     @Produces({ MediaType.APPLICATION_JSON })
     public Response runJob(@PathParam("jobId") String jobId);
     
@@ -102,7 +118,7 @@ public interface AutomationService {
      * @return Status of Job
      */
     @GET
-    @Path("/status"+ "/{jobId}")
+    @Path("/status" + "/{jobId}")
     @Produces({ MediaType.APPLICATION_JSON })
     public Response getStatus(@PathParam("jobId") String jobId);
 }

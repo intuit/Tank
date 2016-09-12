@@ -94,6 +94,8 @@ import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.common.util.ReportUtil;
 import com.intuit.tank.vm.settings.ModificationType;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
+
+import com.sun.jersey.core.header.ContentDisposition;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 
@@ -214,6 +216,50 @@ public class AutomationServiceV1 implements AutomationService {
         responseBuilder.cacheControl(ResponseUtil.getNoStoreCacheControl());
         return responseBuilder.build();
 
+    }
+    
+    /**
+     * @{inheritDoc
+     */
+    @Override
+    public Response uploadScript(FormDataMultiPart formData) {
+    	ResponseBuilder responseBuilder = Response.ok();
+    	FormDataBodyPart scriptId = formData.getField("scriptId");
+    	FormDataBodyPart scriptName = formData.getField("scriptName");
+    	FormDataBodyPart filePart = formData.getField("file");
+    	ContentDisposition headerOfFilePart =  filePart.getContentDisposition();
+    	InputStream is = filePart.getValueAs(InputStream.class);
+    	Script script = null;
+    	try {
+             ScriptProcessor scriptProcessor = new ServletInjector<ScriptProcessor>().getManagedBean(
+                     servletContext, ScriptProcessor.class);
+             script = new ScriptDao().findById(Integer.parseInt(scriptId.getValue()));
+             scriptProcessor.setScript(script);
+             if (StringUtils.isNotEmpty(scriptName.getValue())) {
+            	 script.setName(scriptName.getValue());
+             }
+             List<ScriptStep> scriptSteps = scriptProcessor.getScriptSteps(new BufferedReader(
+                     new InputStreamReader(is)),
+                     new ArrayList<ScriptFilter>());
+             List<ScriptStep> newSteps = new ArrayList<ScriptStep>();
+             for (ScriptStep step : scriptSteps) {
+                 newSteps.add(step);
+             }
+             // script.setScriptSteps(newSteps);
+             //
+             // script.setScriptSteps(newSteps);
+             script = new ScriptDao().saveOrUpdate(script);
+             sendMsg(script, ModificationType.UPDATE);
+
+         } catch (Exception e) {
+             LOG.error("Error starting script: " + e, e);
+             responseBuilder = Response.status(Status.INTERNAL_SERVER_ERROR);
+             responseBuilder.entity("An External Script failed with Exception: " + e.toString());
+         } finally {
+             IOUtils.closeQuietly(is);
+         }
+
+		return responseBuilder.build();
     }
     
 
