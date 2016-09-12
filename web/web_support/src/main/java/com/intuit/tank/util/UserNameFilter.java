@@ -29,6 +29,11 @@ import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.vm.common.ThreadLocalUsernameProvider;
 
+/**
+ * 
+ * @author Kevin McGoldrick
+ * 
+ */
 public class UserNameFilter implements Filter {
 
     @Inject
@@ -46,7 +51,7 @@ public class UserNameFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
-        if (identity != null && identity.getAccount() != null) {
+        if (identity != null && identity.getAccount() != null && identityManager.lookupById(User.class, identity.getAccount().getId()) != null) {
             ThreadLocalUsernameProvider.getUsernameProvider().setUserName(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
         } else {
             ThreadLocalUsernameProvider.getUsernameProvider().setUserName(null);
