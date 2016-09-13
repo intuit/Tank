@@ -24,6 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.intuit.tank.api.model.v1.automation.CreateJobRequest;
+import com.intuit.tank.api.model.v1.automation.ApplyFiltersRequest;
 
 import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
 
@@ -74,9 +75,8 @@ public interface AutomationService {
     /**
      * Uploads a script to an existing script 
      * 
-     * @param ScriptId
      * @param formData
-     *            Multi-part form data should contain a AutomationRequest with the formKey of automationRequest and the
+     *            Multi-part form data should contain a scriptId with the formKey of scriptId and the
      *            file data with formKey of file
      * @return Response status code 201 (created) if successful or an error code
      */
@@ -86,6 +86,19 @@ public interface AutomationService {
     @Produces({ MediaType.APPLICATION_JSON })
     @Nonnull
     public Response uploadScript(@Nonnull FormDataMultiPart formData);
+    
+    /**
+     * Creates a job and returns the jobid
+     * 
+     * @param AutomationRequest
+     * @return Return JobId
+     */
+    @POST
+    @Path("/applyFilters")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Nonnull
+    public Response applyFilters(@Nonnull ApplyFiltersRequest request);
     
     /**
      * Creates a job and returns the jobid

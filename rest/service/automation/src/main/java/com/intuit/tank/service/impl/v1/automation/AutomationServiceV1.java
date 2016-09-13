@@ -46,6 +46,7 @@ import org.apache.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.automation.AutomationJobRegion;
 import com.intuit.tank.api.model.v1.automation.AutomationRequest;
+import com.intuit.tank.api.model.v1.automation.ApplyFiltersRequest;
 import com.intuit.tank.api.model.v1.automation.CreateJobRequest;
 import com.intuit.tank.api.model.v1.automation.CreateJobRegion;
 import com.intuit.tank.api.service.v1.automation.AutomationService;
@@ -82,6 +83,7 @@ import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.script.processor.ScriptProcessor;
+import com.intuit.tank.script.util.ScriptFilterUtil;
 import com.intuit.tank.service.impl.v1.cloud.JobController;
 import com.intuit.tank.service.util.ResponseUtil;
 import com.intuit.tank.service.util.ServletInjector;
@@ -263,6 +265,33 @@ public class AutomationServiceV1 implements AutomationService {
     }
     
 
+    /**
+     * @{inheritDoc
+     */
+    @Override
+    public Response applyFilters(ApplyFiltersRequest request) {
+        if (request != null) {
+        	LOG.info(request.toString());
+        	Script script = new ScriptDao().findById(Integer.parseInt(request.getScriptId()));
+            List<Integer> filterIds = new ArrayList<Integer>();
+            filterIds.addAll(request.getFilterIds());
+            FilterGroupDao dao = new FilterGroupDao();
+            for (Integer id : request.getFilterGroupIds()) {
+                ScriptFilterGroup group = dao.findById(id);
+                if (group != null) {
+                    for (ScriptFilter filter : group.getFilters()) {
+                    	filterIds.add(filter.getId());
+                    }
+                }
+            }
+        	ScriptFilterUtil.applyFilters(filterIds, script);
+        	script = new ScriptDao().saveOrUpdate(script);
+        	return Response.ok().entity("SUCCESS").build();
+        }
+        return Response.status(Status.BAD_REQUEST)
+        		.entity("Failed to recieve the json object\n")
+        		.build();
+    }
     /**
      * @{inheritDoc
      */
