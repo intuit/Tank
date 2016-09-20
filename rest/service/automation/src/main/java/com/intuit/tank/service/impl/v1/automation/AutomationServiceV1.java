@@ -270,12 +270,12 @@ public class AutomationServiceV1 implements AutomationService {
      */
     @Override
     public Response applyFilters(ApplyFiltersRequest request) {
-        if (request != null) {
+        if (request != null  && StringUtils.isNotEmpty(request.getScriptId())) {
         	LOG.info(request.toString());
         	Script script = new ScriptDao().findById(Integer.parseInt(request.getScriptId()));
             List<Integer> filterIds = new ArrayList<Integer>();
-            filterIds.addAll(request.getFilterIds());
-            FilterGroupDao dao = new FilterGroupDao();
+        	filterIds.addAll(request.getFilterIds());
+        	FilterGroupDao dao = new FilterGroupDao();
             for (Integer id : request.getFilterGroupIds()) {
                 ScriptFilterGroup group = dao.findById(id);
                 if (group != null) {
@@ -284,9 +284,12 @@ public class AutomationServiceV1 implements AutomationService {
                     }
                 }
             }
-        	ScriptFilterUtil.applyFilters(filterIds, script);
-        	script = new ScriptDao().saveOrUpdate(script);
-        	return Response.ok().entity("SUCCESS").build();
+            if ( !filterIds.isEmpty() ) {
+            	ScriptFilterUtil.applyFilters(filterIds, script);
+            	script = new ScriptDao().saveOrUpdate(script);
+            	return Response.ok().entity("SUCCESS").build();
+            }
+            return Response.ok().entity("You failed to include any filterIds in your request").build();
         }
         return Response.status(Status.BAD_REQUEST)
         		.entity("Failed to recieve the json object\n")
