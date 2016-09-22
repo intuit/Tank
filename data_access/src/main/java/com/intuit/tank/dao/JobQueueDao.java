@@ -18,25 +18,21 @@ package com.intuit.tank.dao;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.Root;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.LockOptions;
 
-import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobQueue;
-import com.intuit.tank.project.Project;
-import com.intuit.tank.project.Workload;
 
 /**
  * ProductDao
@@ -109,7 +105,11 @@ public class JobQueueDao extends BaseDao<JobQueue> {
         List<JobQueue> resultList = super.listWithJQL(sb.toString(), parameter);
         return resultList;
     }
-
+    
+    /**
+     * 
+     * @return List of JobQueue
+     */
     public List<JobQueue> findRecent() {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_YEAR, -5);
@@ -135,16 +135,24 @@ public class JobQueueDao extends BaseDao<JobQueue> {
     	return results;
     }
 
+    /**
+     * 
+     * @param jobId
+     * @return JobQueue
+     */
     public JobQueue findForJobId(Integer jobId) {
         JobQueue ret = null;
         try {
             String string = "select x.test_id from test_instance_jobs x where x.job_id = ?";
             Query q = getEntityManager().createNativeQuery(string);
             q.setParameter(1, jobId);
-            Integer result = (Integer) q.getSingleResult();
-            if (result != null) {
-                ret = findById(result);
+            Integer result = null;
+            try {
+            	result = (Integer) q.getSingleResult();
+            } catch (NoResultException nre) {
+            	return null;
             }
+            ret = findById(result);
         } catch (Exception e) {
             LOG.error("Error finding for Job ID: " + e, e);
         }
