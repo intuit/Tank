@@ -78,6 +78,7 @@ public interface AutomationService {
      * @param formData
      *            Multi-part form data should contain a scriptId with the formKey of scriptId and the
      *            file data with formKey of file
+     *            Example: curl -X POST -F "scriptId=x" -F "scriptName=xx" -F "file=@tank-script.xml" http://xxx/rest/v1/automation-service/uploadScript
      * @return Response status code 201 (created) if successful or an error code
      */
     @POST
@@ -88,10 +89,11 @@ public interface AutomationService {
     public Response uploadScript(@Nonnull FormDataMultiPart formData);
     
     /**
-     * Creates a job and returns the jobid
+     * Applies Filters to an existing Script
      * 
-     * @param AutomationRequest
-     * @return Return JobId
+     * @param request
+     * 				Example: curl -X POST -H "Content-Type: application/json" -d '{"scriptId":"x","filterIds":[xx],"filterGroupIds":[x,x,x]}' http://xxx/rest/v1/automation-service/applyFilters
+     * @return Response status code 201 (created) if successful or an error code
      */
     @POST
     @Path("/applyFilters")
@@ -103,8 +105,11 @@ public interface AutomationService {
     /**
      * Creates a job and returns the jobid
      * 
-     * @param AutomationRequest
-     * @return Return JobId
+     * @param request
+     * 				Example: curl -X POST -H "Content-Type: application/json" -d '{"name":"xx",
+     * 				"rampTime":"12m","simulationTime":"0","jobRegions":[{"region":"us-west-1","users":"100"},
+     * 				{"region":"us-east-1","users":"300"}]}' http://xxx/rest/v1/automation-service/createJob
+     * @return Respones with JobId
      */
     @POST
     @Path("/createJob")
@@ -116,8 +121,8 @@ public interface AutomationService {
     /**
      * Runs Job based on the provided jobid
      * 
-     * @param JobId
-     * @return SUCCESS if started
+     * @param jobId
+     * @return Response with SUCCESS if started
      */
     @GET
     @Path("/run" + "/{jobId}")
@@ -127,7 +132,7 @@ public interface AutomationService {
     /**
      * Checks status of provided jobid
      * 
-     * @param JobId
+     * @param jobId
      * @return Status of Job
      */
     @GET
