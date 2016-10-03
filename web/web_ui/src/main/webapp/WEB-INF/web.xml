@@ -154,7 +154,7 @@
   
   <error-page>
     <exception-type>org.jboss.weld.context.NonexistentConversationException</exception-type>
-    <location>/index.xhtml</location>
+    <location>/expired.xhtml</location>
   </error-page>
 
   <session-config>
