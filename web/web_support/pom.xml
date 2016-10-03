@@ -166,11 +166,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-validator</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.jboss.seam.international</groupId>
       <artifactId>seam-international</artifactId>
     </dependency>
