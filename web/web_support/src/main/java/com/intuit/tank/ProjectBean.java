@@ -151,7 +151,6 @@ public class ProjectBean implements Serializable {
      * @param project
      */
     public void openProject(Project prj) {
-    	conversation.setTimeout(300000);
     	conversation.begin();
         doOpenProject(prj);
     }
@@ -164,7 +163,7 @@ public class ProjectBean implements Serializable {
         LOG.info("Opening Project " + prj + " workloads " + project.getWorkloads());
         usersAndTimes.init();
         notificationsEditor.init();
-        jobMaker.init();
+        jobMaker.init(this);
         dataFileBean.init();
         workloadScripts.init();
         projectVariableEditor.init();

@@ -65,7 +65,6 @@ public class JobMaker implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LogManager.getLogger(JobMaker.class);
 
-    @Inject
     private ProjectBean projectBean;
     
     private String name;
@@ -96,10 +95,10 @@ public class JobMaker implements Serializable {
      * 
      */
     public JobMaker() {
-
     }
 
-    public void init() {
+    public void init(ProjectBean projectBean) {
+    	this.projectBean = projectBean;
     }
 
     /**
@@ -203,7 +202,7 @@ public class JobMaker implements Serializable {
      * @return
      */
     public void setVmInstanceType(String type) {
-        if (type != null) {
+        if (StringUtils.isNotEmpty(type)) {
             if (!type.equals(getVmInstanceType())) {
                 setNumUsersPerAgent(getDefaultNumUsers(type));
             }
