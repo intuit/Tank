@@ -161,9 +161,10 @@ public class TestPlanRunner implements Runnable {
                         LOG.info("finished or Stop set to test or less, exiting at test...");
                         return;
                     }
+                    i = 0;
                     loopCount++;
                     LOG.info(LogUtil.getLogMessage("Test for test plan " + testPlan.getTestPlanName()
-                            + " has finished and is now looping on last script for the "
+                            + " has finished and is now starting over for the  "
                             + loopCount + " time"));
                 }
             }
