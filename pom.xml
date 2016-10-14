@@ -37,7 +37,6 @@
  	
     <weld-version>2.3.4.Final</weld-version>
     <cdi-version>1.2</cdi-version>
-    <version.seam>3.0.0.Final</version.seam>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
     <slf.version>1.7.21</slf.version>
 
@@ -611,12 +610,6 @@
         <version>${version.picketlink.javaee.bom}</version>
         <scope>import</scope>
         <type>pom</type>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.seam.international</groupId>
-        <artifactId>seam-international</artifactId>
-        <version>${version.seam}</version>
       </dependency>
       
       <dependency>

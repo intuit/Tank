@@ -25,7 +25,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.math.NumberUtils;
-import org.jboss.seam.international.status.Messages;
+import com.intuit.tank.util.Messages;
 
 import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.project.RequestData;

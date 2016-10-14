@@ -21,7 +21,7 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.Messages;
+import com.intuit.tank.util.Messages;
 
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.ScriptFilterGroupDao;

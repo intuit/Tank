@@ -95,12 +95,6 @@
       <filter-name>LoginFilter</filter-name>
       <url-pattern>/tools/*</url-pattern>
   </filter-mapping>
-- See more at: http://www.itcuties.com/j2ee/jsf-2-login-filter-example/#sthash.CDydFgqw.dpuf
-  <!-- <listener> <listener-class>org.jboss.seam.faces.beanManager.BeanManagerServletContextListener</listener-class> 
-    </listener> -->
-  <!-- Weld Jetty/Tomcat specific configuration parameters *** The <listener> 
-    and <resource-env-ref> elements can be deleted when running in a Java EE 
-    6 container *** -->
 
   <!-- Activate the JSF 2.0 servlet -->
   <servlet>

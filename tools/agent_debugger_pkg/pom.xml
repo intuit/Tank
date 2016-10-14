@@ -58,10 +58,6 @@
 					<groupId>xalan</groupId>
 				</exclusion>
 				<exclusion>
-					<artifactId>seam-international</artifactId>
-					<groupId>org.jboss.seam.international</groupId>
-				</exclusion>
-				<exclusion>
 					<artifactId>validation-api</artifactId>
 					<groupId>javax.validation</groupId>
 				</exclusion>

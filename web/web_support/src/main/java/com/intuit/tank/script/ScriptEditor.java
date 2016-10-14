@@ -35,7 +35,7 @@ import org.apache.logging.log4j.Logger;
 import org.dom4j.DocumentHelper;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
-import org.jboss.seam.international.status.Messages;
+import com.intuit.tank.util.Messages;
 import org.picketlink.Identity;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.basic.User;

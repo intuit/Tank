@@ -26,7 +26,7 @@ import javax.inject.Named;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.jboss.seam.international.status.Messages;
+import com.intuit.tank.util.Messages;
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.event.TabChangeEvent;
 import org.primefaces.model.DualListModel;
