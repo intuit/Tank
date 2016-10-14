@@ -15,8 +15,8 @@ package com.intuit.tank.harness;
 
 import java.util.Date;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.CloudServiceClient;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;

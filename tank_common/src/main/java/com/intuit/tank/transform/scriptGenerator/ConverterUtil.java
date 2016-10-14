@@ -23,8 +23,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.data.AssignmentData;
 import com.intuit.tank.harness.data.AuthenticationStep;

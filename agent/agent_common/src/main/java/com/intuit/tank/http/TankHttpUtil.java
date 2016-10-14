@@ -15,8 +15,8 @@ import java.util.Map.Entry;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.http.binary.BinaryResponse;
 import com.intuit.tank.http.json.JsonResponse;

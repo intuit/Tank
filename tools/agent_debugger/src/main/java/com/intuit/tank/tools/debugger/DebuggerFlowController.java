@@ -19,8 +19,8 @@ package com.intuit.tank.tools.debugger;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.FlowController;
 import com.intuit.tank.harness.data.SleepTimeStep;

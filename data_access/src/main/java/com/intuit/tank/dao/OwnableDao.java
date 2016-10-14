@@ -23,8 +23,8 @@ import javax.annotation.Nonnull;
 
 import com.intuit.tank.project.OwnableEntity;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 /**

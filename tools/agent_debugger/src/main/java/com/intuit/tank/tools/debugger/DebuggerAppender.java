@@ -13,57 +13,80 @@ package com.intuit.tank.tools.debugger;
  * #L%
  */
 
+import java.io.Serializable;
+import java.util.ArrayList;
+
 import javax.swing.JTextArea;
-import javax.swing.text.BadLocationException;
+import javax.swing.SwingUtilities;
 
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Layout;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
+import org.apache.logging.log4j.core.config.plugins.PluginElement;
+import org.apache.logging.log4j.core.config.plugins.PluginFactory;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
-public class DebuggerAppender extends AppenderSkeleton {
-    private JTextArea textArea;
+@Plugin(name="DebuggerAppender", category="Core", elementType="appender", printObject=true)
+public class DebuggerAppender extends AbstractAppender {
 
-    public DebuggerAppender(JTextArea textArea) {
-        super();
-        this.textArea = textArea;
-        setLayout(new PatternLayout(PatternLayout.TTCC_CONVERSION_PATTERN));
+    private static volatile ArrayList<JTextArea> jTextAreaList = new ArrayList<JTextArea>();
+
+    protected DebuggerAppender(String name, Layout<? extends Serializable> layout, Filter filter, boolean ignoreExceptions) {
+        super(name, filter, layout, ignoreExceptions);
+    }
+
+    @PluginFactory
+    public static DebuggerAppender createAppender(@PluginAttribute("name") String name,
+                                              @PluginElement("Layout") Layout<?> layout,
+                                              @PluginElement("Filters") Filter filter,
+                                              @PluginAttribute("ignoreExceptions") boolean ignoreExceptions) {
+
+        if (name == null) {
+            LOGGER.error("No name provided for JTextAreaAppender");
+            return null;
+        }
+
+        if (layout == null) {
+            layout = PatternLayout.createDefaultLayout();
+        }
+        return new DebuggerAppender(name, layout, filter, ignoreExceptions);
+    }
+
+    // Add the target JTextArea to be populated and updated by the logging information.
+    public static void addTextArea(final JTextArea textArea) {
+    	DebuggerAppender.jTextAreaList.add(textArea);
     }
 
     @Override
-    protected void append(LoggingEvent event) {
-        textArea.append(this.layout.format(event));
+    public void append(LogEvent event) {
+        final String message = new String(this.getLayout().toByteArray(event));
 
-        if (layout.ignoresThrowable()) {
-            String[] s = event.getThrowableStrRep();
-            if (s != null) {
-                int len = s.length;
-                for (int i = 0; i < len; i++) {
-                    textArea.append(s[i]);
-                    textArea.append(Layout.LINE_SEP);
-                }
-            }
-        }
+        // Append formatted message to text area using the Thread.
         try {
-            int lineStartOffset = 0;
-            if (textArea.getLineCount() > 0) {
-                lineStartOffset = textArea.getLineStartOffset(textArea.getLineCount() - 1);
-            }
-            textArea.setCaretPosition(lineStartOffset);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    for (JTextArea jTA : jTextAreaList){
+                        try {
+                            if (jTA != null) {
+                                if (jTA.getText().length() == 0) {
+                                    jTA.setText(message);
+                                } else {
+                                    jTA.append(message);
+                                }
+                            }
+                        } catch (final Throwable t) {
+                            System.out.println("Unable to append log to text area: "
+                                    + t.getMessage());
+                        }
+                    }
+                }
+            });
+        } catch (final IllegalStateException e) {
+            // ignore case when the platform hasn't yet been iniitialized
         }
     }
-
-    @Override
-    public void close() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public boolean requiresLayout() {
-        return true;
-    }
-
 }

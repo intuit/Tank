@@ -45,8 +45,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.script.ExternalScriptContainer;
 import com.intuit.tank.api.model.v1.script.ExternalScriptTO;

@@ -18,8 +18,8 @@ import java.io.File;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * CnrComConfig configurator for the beans config file.

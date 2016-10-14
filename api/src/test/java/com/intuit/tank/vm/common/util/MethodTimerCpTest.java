@@ -13,8 +13,8 @@ package com.intuit.tank.vm.common.util;
  * #L%
  */
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.*;
 
 import com.intuit.tank.vm.common.util.MethodTimer;

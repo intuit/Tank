@@ -39,7 +39,7 @@
     <cdi-version>1.2</cdi-version>
     <version.seam>3.0.0.Final</version.seam>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
-    <slf.version>1.7.2</slf.version>
+    <slf.version>1.7.21</slf.version>
 
     <version.enunciate>1.31</version.enunciate>
 
@@ -341,8 +341,8 @@
     </dependency>
 
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
+	    <groupId>org.apache.logging.log4j</groupId>
+	    <artifactId>log4j-core</artifactId>
     </dependency>
 
     <dependency>
@@ -710,9 +710,9 @@
       </dependency>
 
       <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>1.2.14</version>
+	    <groupId>org.apache.logging.log4j</groupId>
+	    <artifactId>log4j-core</artifactId>
+	    <version>2.6.2</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>

@@ -16,8 +16,8 @@ package com.intuit.tank.scheduleManager;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.vm.agent.messages.AgentMngrAPIRequest;
 import com.intuit.tank.vm.agent.messages.AgentMngrAPIResponse;

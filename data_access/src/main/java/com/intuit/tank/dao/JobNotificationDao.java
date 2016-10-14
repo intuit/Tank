@@ -19,8 +19,8 @@ package com.intuit.tank.dao;
 import javax.annotation.Nullable;
 import javax.persistence.NoResultException;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;

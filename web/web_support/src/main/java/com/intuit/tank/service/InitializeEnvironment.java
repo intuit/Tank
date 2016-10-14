@@ -24,8 +24,8 @@ import javax.ejb.Startup;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.picketlink.event.PartitionManagerCreateEvent;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
