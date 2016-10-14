@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>>
     <Appenders>
-        <RollingFile name="tank" filename="tank.log" filePattern="tank-%i.log">
+        <RollingFile name="tank" filename="logs/tank.log" filePattern="logs/tank-%i.log">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
             <Policies>
 				<SizeBasedTriggeringPolicy size="100 MB" />
