@@ -69,7 +69,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
                 configName = System.getProperty("WATS_PROPERTIES") + "/" + CONFIG_NAME;
             }
         }
-        LOG.info("Tank Configuratino location = " + configName);
+        LOG.info("Tank Configuration location = " + configName);
     }
 
     private String configPath = configName;
