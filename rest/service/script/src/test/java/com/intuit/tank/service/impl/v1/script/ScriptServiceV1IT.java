@@ -20,7 +20,7 @@ import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

@@ -22,7 +22,7 @@ import com.intuit.tank.reporting.api.TPSInfoContainer;
  * #L%
  */
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 /**
  * The class <code>TPSMonitorTest</code> contains tests for the class <code>{@link TPSMonitor}</code>.

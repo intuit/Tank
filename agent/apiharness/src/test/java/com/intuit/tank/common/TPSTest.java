@@ -19,8 +19,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
@@ -38,7 +38,7 @@ import com.intuit.tank.test.TestGroups;
 import com.intuit.tank.vm.common.util.ReportUtil;
 
 public class TPSTest {
-    private static final Logger LOG = LogManager.getLogger(TPSTest.class);
+	private static final Logger LOG = LogManager.getLogger(TPSTest.class);
 
     private AmazonDynamoDBClient dbclient;
 

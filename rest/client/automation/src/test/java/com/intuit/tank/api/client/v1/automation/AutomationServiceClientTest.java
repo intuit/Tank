@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;

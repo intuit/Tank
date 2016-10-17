@@ -16,12 +16,11 @@ package com.intuit.tank.vm.settings;
  * #L%
  */
 
-import junit.framework.Assert;
-
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
+import org.junit.Assert;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -39,8 +38,10 @@ public class MailMessageConfigTest {
 
     @BeforeClass
     public void init() {
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.INFO);
+    	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+    	Configuration config = ctx.getConfiguration();
+    	config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
+    	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
         System.getProperties().setProperty("WATS_PROPERTIES", "src/test/resources");
     }
 

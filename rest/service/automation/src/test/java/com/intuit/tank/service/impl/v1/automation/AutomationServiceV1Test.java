@@ -19,7 +19,7 @@ package com.intuit.tank.service.impl.v1.automation;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

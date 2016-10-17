@@ -16,9 +16,7 @@ package com.intuit.tank.util;
  * #L%
  */
 
-import junit.framework.Assert;
-
-import org.junit.*;
+import org.junit.Assert;
 
 import static org.junit.Assert.*;
 
@@ -35,7 +33,6 @@ import com.intuit.tank.util.TimeFormatUtil;
  */
 public class TimeFormatUtilTest {
 
-    @SuppressWarnings("unused")
     @DataProvider(name = "data")
     private Object[][] testData() {
         return new Object[][] {

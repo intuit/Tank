@@ -16,7 +16,7 @@ package com.intuit.tank.vm.common.util;
  * #L%
  */
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

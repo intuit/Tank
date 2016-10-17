@@ -29,7 +29,7 @@ import java.security.SecureRandom;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.After;
 import org.junit.Before;

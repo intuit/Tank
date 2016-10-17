@@ -19,10 +19,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.testng.annotations.Test;
 
 import com.intuit.tank.http.json.JsonResponse;
@@ -30,9 +30,10 @@ import com.intuit.tank.http.json.JsonResponse;
 public class JsonResponseTest {
 
     static {
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.INFO);
-
+    	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+    	Configuration config = ctx.getConfiguration();
+    	config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
+    	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
     }
 
     /**

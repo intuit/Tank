@@ -21,32 +21,17 @@ import java.util.List;
 
 import javax.validation.ConstraintViolationException;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.hibernate.cfg.AnnotationConfiguration;
-import org.hibernate.dialect.MySQL5Dialect;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.junit.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.intuit.tank.dao.ProjectDao;
-import com.intuit.tank.project.DataFile;
-import com.intuit.tank.project.JobConfiguration;
-import com.intuit.tank.project.JobVMInstance;
 import com.intuit.tank.project.Project;
-import com.intuit.tank.project.RequestData;
-import com.intuit.tank.project.Script;
-import com.intuit.tank.project.ScriptFilter;
-import com.intuit.tank.project.ScriptFilterAction;
-import com.intuit.tank.project.ScriptFilterCondition;
-import com.intuit.tank.project.ScriptFilterGroup;
-import com.intuit.tank.project.ScriptGroup;
-import com.intuit.tank.project.ScriptGroupStep;
-import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.project.VMInstance;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.test.TestGroups;
 
@@ -60,7 +45,6 @@ public class ProjectDaoTest {
 
     private ProjectDao dao;
 
-    @SuppressWarnings("unused")
     @DataProvider(name = "validations")
     private Object[][] violationData() {
         return new Object[][] {
@@ -84,8 +68,10 @@ public class ProjectDaoTest {
 
     @BeforeClass
     public void configure() {
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.INFO);
+    	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+    	Configuration config = ctx.getConfiguration();
+    	config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
+    	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
         dao = new ProjectDao();
     }
 

@@ -20,7 +20,7 @@ import java.util.Collection;
 
 import org.apache.lucene.search.Filter;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.lucene.search.Query;
 import org.junit.*;

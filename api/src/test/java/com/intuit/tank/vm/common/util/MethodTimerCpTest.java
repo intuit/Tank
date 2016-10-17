@@ -37,7 +37,7 @@ public class MethodTimerCpTest {
     @Test
     public void testMethodTimer_1()
             throws Exception {
-        Logger log = Logger.getRootLogger();
+        Logger log = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
         Class clazz = Object.class;
         String methodName = "";
 
@@ -58,7 +58,7 @@ public class MethodTimerCpTest {
     @Test
     public void testMethodTimer_2()
             throws Exception {
-        Logger log = Logger.getRootLogger();
+        Logger log = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
         Class clazz = Object.class;
         String methodName = null;
 
@@ -79,7 +79,7 @@ public class MethodTimerCpTest {
     @Test
     public void testEnd_1()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
 
         MethodTimer result = fixture.end();
@@ -99,7 +99,7 @@ public class MethodTimerCpTest {
     @Test
     public void testEndAndLog_1()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
 
         MethodTimer result = fixture.endAndLog();
@@ -119,7 +119,7 @@ public class MethodTimerCpTest {
     @Test
     public void testGetMarkTimeMessage_1()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
         String message = "";
 
@@ -138,7 +138,7 @@ public class MethodTimerCpTest {
     @Test
     public void testGetMarkTimeMessage_2()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
         String message = null;
 
@@ -157,7 +157,7 @@ public class MethodTimerCpTest {
     @Test
     public void testGetNaturalTimeMessage_1()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
 
         String result = fixture.getNaturalTimeMessage();
@@ -175,7 +175,7 @@ public class MethodTimerCpTest {
     @Test
     public void testGetNaturalTimeMessage_2()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
 
         String result = fixture.getNaturalTimeMessage();
@@ -193,7 +193,7 @@ public class MethodTimerCpTest {
     @Test
     public void testGetTimeMessage_1()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
 
         String result = fixture.getTimeMessage();
@@ -211,7 +211,7 @@ public class MethodTimerCpTest {
     @Test
     public void testGetTimeMessage_2()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
 
         String result = fixture.getTimeMessage();
@@ -250,7 +250,7 @@ public class MethodTimerCpTest {
     @Test
     public void testLogMark_2()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
         String message = "";
 
@@ -291,7 +291,7 @@ public class MethodTimerCpTest {
     @Test
     public void testLogTime_2()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
 
         MethodTimer result = fixture.logTime();
@@ -311,7 +311,7 @@ public class MethodTimerCpTest {
     @Test
     public void testMark_1()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
 
         MethodTimer result = fixture.mark();
@@ -331,7 +331,7 @@ public class MethodTimerCpTest {
     @Test
     public void testMark_2()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
 
         MethodTimer result = fixture.mark();
@@ -351,7 +351,7 @@ public class MethodTimerCpTest {
     @Test
     public void testMarkAndLog_1()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
 
         MethodTimer result = fixture.markAndLog();
@@ -371,7 +371,7 @@ public class MethodTimerCpTest {
     @Test
     public void testMarkAndLog_2()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
         String message = "";
 
@@ -392,7 +392,7 @@ public class MethodTimerCpTest {
     @Test
     public void testStart_1()
             throws Exception {
-        MethodTimer fixture = new MethodTimer(Logger.getRootLogger(), Object.class, "");
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
         fixture.mark();
 
         MethodTimer result = fixture.start();
