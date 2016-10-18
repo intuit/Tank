@@ -26,8 +26,6 @@ import javax.ws.rs.core.Response;
 import com.intuit.tank.api.model.v1.automation.CreateJobRequest;
 import com.intuit.tank.api.model.v1.automation.ApplyFiltersRequest;
 
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
-
 import com.sun.jersey.multipart.FormDataMultiPart;
 
 /**
@@ -41,7 +39,6 @@ import com.sun.jersey.multipart.FormDataMultiPart;
  * 
  */
 @Path("/v1/automation-service")
-@ExternallyManagedLifecycle
 public interface AutomationService {
 
     public static final String VAR_NAME = "";

@@ -40,7 +40,7 @@
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
     <slf.version>1.7.21</slf.version>
 
-    <version.enunciate>1.31</version.enunciate>
+    <version.enunciate>2.6.0</version.enunciate>
 
     <version.mojarra>2.2.13</version.mojarra>
     <version.jsf-api>2.2.13</version.jsf-api>
@@ -345,8 +345,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.codehaus.enunciate</groupId>
-      <artifactId>enunciate-rt</artifactId>
+	  <groupId>com.webcohesion.enunciate</groupId>
+	  <artifactId>enunciate-core</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -526,8 +526,8 @@
 
 
       <dependency>
-        <groupId>org.codehaus.enunciate</groupId>
-        <artifactId>enunciate-rt</artifactId>
+	    <groupId>com.webcohesion.enunciate</groupId>
+	    <artifactId>enunciate-core</artifactId>
         <version>${version.enunciate}</version>
       </dependency>
 
@@ -1078,8 +1078,8 @@
         </plugin>
 
         <plugin>
-          <groupId>org.codehaus.enunciate</groupId>
-          <artifactId>maven-enunciate-plugin</artifactId>
+		  <groupId>com.webcohesion.enunciate</groupId>
+		  <artifactId>enunciate-maven-plugin</artifactId>
           <version>${version.enunciate}</version>
         </plugin>
 

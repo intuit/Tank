@@ -22,14 +22,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.codehaus.enunciate.jaxrs.TypeHint;
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
-
 import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.Headers;
+import com.webcohesion.enunciate.metadata.rs.TypeHint;
 
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved
@@ -42,7 +40,6 @@ import com.intuit.tank.vm.agent.messages.Headers;
  * 
  */
 @Path(AgentService.SERVICE_RELATIVE_PATH)
-@ExternallyManagedLifecycle
 public interface AgentService {
     public static final String SERVICE_RELATIVE_PATH = "/v1/agent-service";
 

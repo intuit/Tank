@@ -29,8 +29,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
-
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 
@@ -45,7 +43,6 @@ import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
  * 
  */
 @Path(CloudService.SERVICE_RELATIVE_PATH)
-@ExternallyManagedLifecycle
 public interface CloudService {
     public static final String SERVICE_RELATIVE_PATH = "/v1/cloud-service";
 

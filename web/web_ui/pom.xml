@@ -101,8 +101,8 @@
           </plugin>
 
           <plugin>
-            <groupId>org.codehaus.enunciate</groupId>
-            <artifactId>maven-enunciate-plugin</artifactId>
+		    <groupId>com.webcohesion.enunciate</groupId>
+		    <artifactId>enunciate-maven-plugin</artifactId>
             <configuration>
               <configFile>enunciate.xml</configFile>
             </configuration>
@@ -252,8 +252,8 @@
 
     <!-- enunciate dependencies -->
     <dependency>
-      <groupId>org.codehaus.enunciate</groupId>
-      <artifactId>enunciate-rt</artifactId>
+	  <groupId>com.webcohesion.enunciate</groupId>
+	  <artifactId>enunciate-core</artifactId>
       <scope>provided</scope>
     </dependency>
 

@@ -24,8 +24,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
-
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved
  */
@@ -37,7 +35,6 @@ import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
  * 
  */
 @Path(ProjectService.SERVICE_RELATIVE_PATH)
-@ExternallyManagedLifecycle
 public interface ProjectService {
 
     public static final String REST_SERVICE_CONTEXT = "/rest";

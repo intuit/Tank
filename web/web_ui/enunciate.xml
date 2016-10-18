@@ -1,24 +1,23 @@
-<enunciate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://enunciate.webcohesion.com/schemas/enunciate-1.31.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<enunciate
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://enunciate.webcohesion.com/schemas/enunciate-2.6.0.xsd">
 
-  <api-import pattern="com.intuit.tank.api.model.**" />
-  <api-import pattern="com.intuit.tank.api.service.**" />
-  
-  <deployment context="/tank"/>
-  
-  <services>
-    <rest defaultRestSubcontext="/rest">
-      <content-types>
-        <content-type type="text/plain" id="txt" />
-      </content-types>
-    </rest>
-  </services>
+  <title>Intuit Tank  API</title>
+
+  <api-classes>
+    <include pattern="com.intuit.tank.api.model.**" />
+    <include pattern="com.intuit.tank.api.service.**" />
+  </api-classes>
+
   <modules>
+    <jackson disabled="true"/>
     <c disabled="true" />
     <obj-c disabled="true" />
     <csharp disabled="true" />
     <jaxws-client disabled="true" />
     <java-client disabled="false" generateJsonJar="true" />
     
-    <docs title="Intuit Tank  API" css="src/main/resources/custom.css"  docsDir="/restdocs"  />
+    <docs css="src/main/resources/custom.css" docsSubdir="."  />
   </modules>
 </enunciate> 
