@@ -19,9 +19,10 @@ package com.intuit.tank.vmManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
@@ -48,7 +49,7 @@ import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
  */
 public class AgentWatchdog implements Runnable {
 
-    private static final Logger LOG = Logger.getLogger(AgentWatchdog.class);
+    private static final Logger LOG = LogManager.getLogger(AgentWatchdog.class);
 
     private long sleepTime;
     private long maxWaitForStart;

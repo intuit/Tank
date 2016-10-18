@@ -58,11 +58,10 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SquiggleUnderlineHighlightPainter;
 import org.fife.ui.rtextarea.GutterIconInfo;
@@ -103,7 +102,7 @@ import com.intuit.tank.vm.common.TankConstants;
 public class AgentDebuggerFrame extends JFrame {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(AgentDebuggerFrame.class);
+    private static final Logger LOG = LogManager.getLogger(AgentDebuggerFrame.class);
 
     private RSyntaxTextArea scriptEditorTA;
     private RTextScrollPane scriptEditorScrollPane;
@@ -1004,7 +1003,7 @@ public class AgentDebuggerFrame extends JFrame {
         if (args.length > 0) {
             url = args[0];
         }
-        Properties props = new Properties();
+/*        Properties props = new Properties();
         try {
             InputStream configStream = AgentDebuggerFrame.class.getResourceAsStream("/log4j.properties");
             props.load(configStream);
@@ -1015,7 +1014,7 @@ public class AgentDebuggerFrame extends JFrame {
         props.setProperty("log4j.appender.agent.File", "debugger.log");
         LogManager.resetConfiguration();
         PropertyConfigurator.configure(props);
-
+*/
         new AgentDebuggerFrame(true, url).setVisible(true);
     }
 

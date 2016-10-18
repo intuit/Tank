@@ -17,15 +17,18 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Event;
 import javax.faces.model.SelectItem;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.jboss.seam.international.status.Messages;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.PreferencesBean;
@@ -36,6 +39,7 @@ import com.intuit.tank.prefs.TablePreferences;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.util.ExceptionHandler;
+import com.intuit.tank.util.Messages;
 import com.intuit.tank.util.Multiselectable;
 import com.intuit.tank.view.filter.ViewFilterType;
 import com.intuit.tank.vm.settings.AccessRight;
@@ -43,21 +47,22 @@ import com.intuit.tank.wrapper.SelectableBean;
 import com.intuit.tank.wrapper.SelectableWrapper;
 import com.intuit.tank.wrapper.VersionContainer;
 
-import org.jboss.seam.security.Identity;
-
 @Named
-@SessionScoped
+@ViewScoped
 public class ScriptBean extends SelectableBean<Script> implements Serializable, Multiselectable<Script> {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = Logger.getLogger(ScriptBean.class);
+    private static final Logger LOG = LogManager.getLogger(ScriptBean.class);
 
     @Inject
     private ScriptLoader scriptLoader;
 
     @Inject
     private Identity identity;
+    
+    @Inject
+    private IdentityManager identityManager;
 
     @Inject
     private Security security;
@@ -191,8 +196,9 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
                 messages.error("You did not change the script name.");
                 return;
             } else {
-                Script copyScript = ScriptUtil.copyScript(identity.getUser()
-                        .getId(), saveAsName, script);
+                Script copyScript = ScriptUtil.copyScript(
+                		identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName(),
+                		saveAsName, script);
                 copyScript = new ScriptDao().saveOrUpdate(copyScript);
                 scriptEvent.fire(new ModifiedScriptMessage(copyScript, this));
                 messages.info("Script " + originalName + " has been saved as "

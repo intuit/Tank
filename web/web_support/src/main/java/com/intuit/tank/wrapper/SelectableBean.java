@@ -21,7 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.primefaces.event.data.FilterEvent;
 
 import com.intuit.tank.prefs.TablePreferences;
@@ -38,7 +39,7 @@ import com.intuit.tank.view.filter.ViewFilterType;
  */
 public abstract class SelectableBean<T> implements Multiselectable<T> {
 	
-	private static final Logger LOG = Logger.getLogger(SelectableBean.class);
+	private static final Logger LOG = LogManager.getLogger(SelectableBean.class);
 
     private List<SelectableWrapper<T>> selectionList;
     private List<SelectableWrapper<T>> filteredData;

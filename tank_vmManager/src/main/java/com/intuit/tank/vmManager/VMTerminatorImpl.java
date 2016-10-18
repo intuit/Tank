@@ -22,7 +22,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.vm.vmManager.VMChannel;
@@ -36,7 +37,7 @@ import com.intuit.tank.vm.vmManager.VMTerminator;
  */
 public class VMTerminatorImpl implements VMTerminator {
 
-    private static final Logger LOG = Logger.getLogger(VMTerminatorImpl.class);
+    private static final Logger LOG = LogManager.getLogger(VMTerminatorImpl.class);
     private static final long WAIT_TIME = 30000;// 30 seconds
 
     @Inject

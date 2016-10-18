@@ -18,7 +18,9 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.util.TestParameterContainer.Builder;
 import com.intuit.tank.vm.settings.TimeUtil;
@@ -34,7 +36,7 @@ import de.congrace.exp4j.ExpressionBuilder;
  * 
  */
 public final class TestParamUtil {
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(TestParamUtil.class);
+    private static final Logger LOG = LogManager.getLogger(TestParamUtil.class);
 
     private static final String REGEX = "(\\(*[\\.,\\d]+\\)*)(\\(*[e,r,s]t\\)*)";
     private static final String ALT_REGEX = "(\\(*[e,r,s]t\\)*)(\\(*[\\.,\\d]+\\)*)";

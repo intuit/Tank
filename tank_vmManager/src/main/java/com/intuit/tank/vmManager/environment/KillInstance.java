@@ -15,7 +15,8 @@ package com.intuit.tank.vmManager.environment;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.vm.vmManager.VMInformation;
 import com.intuit.tank.vm.vmManager.VMKillRequest;
@@ -23,7 +24,7 @@ import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 
 public class KillInstance implements Runnable {
 
-    static Logger logger = Logger.getLogger(KillInstance.class);
+    static Logger logger = LogManager.getLogger(KillInstance.class);
 
     private VMKillRequest request = null;
 

@@ -42,9 +42,10 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.FastDateFormat;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.api.service.v1.report.ReportService;
 import com.intuit.tank.dao.PeriodicDataDao;
@@ -75,7 +76,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 @Path(ReportService.SERVICE_RELATIVE_PATH)
 public class ReportServiceV1 implements ReportService {
 
-    private static final Logger LOG = Logger.getLogger(ReportServiceV1.class);
+    private static final Logger LOG = LogManager.getLogger(ReportServiceV1.class);
 
     @Context
     private ServletContext servletContext;

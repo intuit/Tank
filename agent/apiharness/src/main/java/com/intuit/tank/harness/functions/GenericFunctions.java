@@ -18,9 +18,10 @@ import java.util.Random;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.vm.common.TankConstants;
@@ -28,7 +29,7 @@ import com.intuit.tank.vm.common.TankConstants;
 class GenericFunctions {
 
     static Random rnd = new Random();
-    static Logger logger = Logger.getLogger(GenericFunctions.class);
+    static Logger logger = LogManager.getLogger(GenericFunctions.class);
 
     private static Map<Long, String[]> csvLineMap = new ConcurrentHashMap<Long, String[]>();
     private static Map<String, String[]> fileLineMap = new ConcurrentHashMap<String, String[]>();

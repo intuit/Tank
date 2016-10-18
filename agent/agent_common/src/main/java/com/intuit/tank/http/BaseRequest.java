@@ -7,14 +7,15 @@ import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public abstract class BaseRequest {
 
     public static final String CONTENT_TYPE_MULTIPART = "multipart/form-data";
     private static final char NEWLINE = '\n';
-    static Logger logger = Logger.getLogger(BaseRequest.class);
+    static Logger logger = LogManager.getLogger(BaseRequest.class);
 
     protected BaseResponse response = null;
     private TankHttpLogger logUtil;
@@ -272,6 +273,7 @@ public abstract class BaseRequest {
             StringBuilder sb = new StringBuilder();
 
             sb.append("REQUEST URL: " + method + " " + url).append(NEWLINE);
+            sb.append("CONTENT TYPE: " + contentType).append(NEWLINE);
             // Header Information
             for (Map.Entry mapEntry : headerInformation.entrySet()) {
                 sb.append("REQUEST HEADER: " + (String) mapEntry.getKey() + " = " + (String) mapEntry.getValue()).append(NEWLINE);

@@ -27,8 +27,8 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang.StringUtils;
-import org.jboss.seam.international.status.Messages;
+import org.apache.commons.lang3.StringUtils;
+import com.intuit.tank.util.Messages;
 
 import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.http.AuthScheme;

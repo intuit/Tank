@@ -5,13 +5,15 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.reporting.databases.IDatabase;
 import com.intuit.tank.reporting.databases.Item;
@@ -27,10 +29,10 @@ import com.intuit.tank.vm.settings.TankConfig;
  * 
  */
 public class GraphiteDatasource implements IDatabase {
-    private static final Logger LOG = Logger.getLogger(GraphiteDatasource.class);
+    private static final Logger LOG = LogManager.getLogger(GraphiteDatasource.class);
 	
 	private String enviornemnt = "qa";
-	private String graphiteHost = "doubleshot.internal.perf.a.intuit.com";
+	private String graphiteHost = "doubleshot.perf.a.intuit.com";
 	private int graphitePort = 2003;
     private int interval = 15; // SECONDS
     
@@ -86,37 +88,57 @@ public class GraphiteDatasource implements IDatabase {
 			Socket socket = new Socket(graphiteHost, graphitePort);
 			OutputStream s = socket.getOutputStream();
 			PrintWriter out = new PrintWriter(s, true);
+			List<Long> groupResults = new ArrayList<Long>();
 			String requestName = "";
 			String jobId = "";
-			long sum = 0, max = 0, l = 0;
-			int count = 0;
+			long sum = 0, l = 0;
+			//int count = 0;
 			for (TankResult metric: results) {
 				if (metric.getRequestName().equalsIgnoreCase(requestName)) {
-					max = Math.max(max, metric.getResponseTime());
+					groupResults.add(Long.valueOf(metric.getResponseTime()));
 					sum += metric.getResponseTime();
-					count++;
-				} else if (count != 0) {
-					long average = sum / count;
-					l = metric.getTimeStamp().getTime() / 1000;
-					int tps = count / interval;
+				} else if (!groupResults.isEmpty()) { // Handles the last time through of the group//
+					int size = groupResults.size();
+					Collections.sort(groupResults);
+					Long[] sortedList = groupResults.toArray(new Long[size]);
+					long average = sum / size;
+					long tps = size / interval;
+					int fiftieth = (size/2);
+					if (fiftieth >= 1) fiftieth--;
+					int ninetieth =(size*(9/10));
+					if (ninetieth >= 1) ninetieth--;
+					out.printf("tank.%s.%s.%s.ResponseTime.MIN %d %d%n", enviornemnt, jobId, requestName, sortedList[0].longValue(), l );
 					out.printf("tank.%s.%s.%s.ResponseTime.AVG %d %d%n", enviornemnt, jobId, requestName, average, l );
-					out.printf("tank.%s.%s.%s.ResponseTime.MAX %d %d%n", enviornemnt, jobId, requestName, max, l );
+					out.printf("tank.%s.%s.%s.ResponseTime.MAX %d %d%n", enviornemnt, jobId, requestName, sortedList[size-1].longValue(), l );
+					out.printf("tank.%s.%s.%s.ResponseTime.50th %d %d%n", enviornemnt, jobId, requestName, sortedList[fiftieth].longValue(), l );
+					out.printf("tank.%s.%s.%s.ResponseTime.90th %d %d%n", enviornemnt, jobId, requestName, sortedList[ninetieth].longValue(), l );
 					out.printf("tank.%s.%s.%s.TPS %d %d%n", enviornemnt, jobId, requestName, tps, l );
 					requestName = metric.getRequestName();
-					jobId = metric.getJobId();
-					sum = metric.getResponseTime();
-					count = 1;
+					groupResults.clear();
+					groupResults.add(Long.valueOf(metric.getResponseTime()));
+					sum = 0;
 				} else { // Handles the first time through //
 					requestName = metric.getRequestName();
+					l = metric.getTimeStamp().getTime() / 1000;
+					groupResults.add(Long.valueOf(metric.getResponseTime()));
 					jobId = metric.getJobId();
 					sum = metric.getResponseTime();
-					count = 1;
 				}
-			}
-			long average = sum / count;
-			int tps = count / interval;
+			} // Get that last one //
+			int size = groupResults.size();
+			Collections.sort(groupResults);
+			Long[] sortedList = groupResults.toArray(new Long[size]);
+			long average = sum / size;
+			long tps = size / interval;
+			int fiftieth = (size/2);
+			if (fiftieth >= 1) fiftieth--;
+			int ninetieth =(size*(9/10));
+			if (ninetieth >= 1) ninetieth--;
+			out.printf("tank.%s.%s.%s.ResponseTime.MIN %d %d%n", enviornemnt, jobId, requestName, sortedList[0].longValue(), l );
 			out.printf("tank.%s.%s.%s.ResponseTime.AVG %d %d%n", enviornemnt, jobId, requestName, average, l );
-			out.printf("tank.%s.%s.%s.ResponseTime.MAX %d %d%n", enviornemnt, jobId, requestName, max, l );
+			out.printf("tank.%s.%s.%s.ResponseTime.MAX %d %d%n", enviornemnt, jobId, requestName, sortedList[size-1].longValue(), l );
+			out.printf("tank.%s.%s.%s.ResponseTime.50th %d %d%n", enviornemnt, jobId, requestName, sortedList[fiftieth].longValue(), l );
+			out.printf("tank.%s.%s.%s.ResponseTime.90th %d %d%n", enviornemnt, jobId, requestName, sortedList[ninetieth].longValue(), l );
 			out.printf("tank.%s.%s.%s.TPS %d %d%n", enviornemnt, jobId, requestName, tps, l );
 			out.close();
 			socket.close();

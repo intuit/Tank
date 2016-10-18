@@ -16,7 +16,7 @@ package com.intuit.tank.util;
  * #L%
  */
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * ComponentUtil

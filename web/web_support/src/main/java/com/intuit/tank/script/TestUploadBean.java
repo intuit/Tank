@@ -23,15 +23,16 @@ import javax.inject.Named;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
-import org.jboss.seam.international.status.Messages;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import com.intuit.tank.util.Messages;
 import org.primefaces.model.UploadedFile;
 
 @Named
 @ApplicationScoped
 public class TestUploadBean implements Serializable {
 
-    private static final Logger LOG = Logger.getLogger(TestUploadBean.class);
+    private static final Logger LOG = LogManager.getLogger(TestUploadBean.class);
 
     private static final long serialVersionUID = 1L;
     private UploadedFile file;

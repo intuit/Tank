@@ -21,7 +21,7 @@ import java.util.Set;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
 
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 
 import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;

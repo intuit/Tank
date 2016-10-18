@@ -27,13 +27,14 @@ import java.io.StringReader;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.data.HDWorkload;
 
 public class WorkloadParser {
 
-    static Logger logger = Logger.getLogger(WorkloadParser.class);
+    static Logger logger = LogManager.getLogger(WorkloadParser.class);
     // private Variables parsedVariables = new Variables();
 
     // private Document xmlDocument = null;

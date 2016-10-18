@@ -1,7 +1,8 @@
 package com.intuit.tank.http.json;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.TankHttpClient;
@@ -10,7 +11,7 @@ import com.intuit.tank.vm.common.util.JSONBuilder;
 
 public class JsonRequest extends BaseRequest {
 
-    private static Logger logger = Logger.getLogger(JsonRequest.class);
+    private static Logger logger = LogManager.getLogger(JsonRequest.class);
     private static final String CONTENT_TYPE = "application/json";
 
     private JSONBuilder builder;

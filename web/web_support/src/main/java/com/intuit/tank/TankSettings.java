@@ -21,6 +21,9 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.settings.TankConfig;
 
@@ -31,11 +34,11 @@ import com.intuit.tank.vm.settings.TankConfig;
  * @author dangleton
  * 
  */
-@ApplicationScoped
 @Named
+@ApplicationScoped
 public class TankSettings implements Serializable {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(TankSettings.class);
+    private static final Logger LOG = LogManager.getLogger(TankSettings.class);
     private static final long serialVersionUID = 1L;
     private TankConfig config = new TankConfig();
     private List<VMRegion> regions;

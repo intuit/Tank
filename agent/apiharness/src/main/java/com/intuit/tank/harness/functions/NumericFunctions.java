@@ -15,7 +15,7 @@ package com.intuit.tank.harness.functions;
 
 import java.util.Random;
 
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import com.intuit.tank.harness.test.data.Variables;
 

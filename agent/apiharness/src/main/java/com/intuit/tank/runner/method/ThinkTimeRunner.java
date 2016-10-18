@@ -15,7 +15,8 @@ package com.intuit.tank.runner.method;
 
 import java.util.Random;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.data.ThinkTimeStep;
@@ -28,7 +29,7 @@ import com.intuit.tank.vm.common.util.ValidationUtil;
 
 class ThinkTimeRunner implements Runner {
 
-    static Logger LOG = Logger.getLogger(ThinkTimeRunner.class);
+    static Logger LOG = LogManager.getLogger(ThinkTimeRunner.class);
 
     private TestStepContext tsc;
     private ThinkTimeStep testStep;

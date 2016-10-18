@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO" packages="com.intuit.tank.tools.debugger">
+    <Appenders>
+        <DebuggerAppender name="debbuggerAppender">
+            <PatternLayout>
+                <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss} %msg%n</pattern>
+            </PatternLayout>
+        </DebuggerAppender>
+        <RollingFile name="agent" filename="debugger.log" filePattern="debugger-%i.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd  HH:mm:ss,SSS z} %5p %c{1}:%L - %m%n" />
+            <Policies>
+				<SizeBasedTriggeringPolicy size="100 MB" />
+			</Policies>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+		<Logger name="com" level="info" additivity="true">
+			<appender-ref ref="debbuggerAppender" level="info"/>
+		</Logger>
+		<Logger name="org" level="info" additivity="true">
+			<appender-ref ref="debbuggerAppender" level="info"/>
+		</Logger>
+        <Root level="error">
+            <AppenderRef ref="debbuggerAppender"/>
+            <AppenderRef ref="agent"/>
+        </Root>
+    </Loggers>
+</Configuration>

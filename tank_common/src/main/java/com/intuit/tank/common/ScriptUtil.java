@@ -24,8 +24,11 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
@@ -37,7 +40,7 @@ import com.intuit.tank.vm.settings.TimeUtil;
 import com.intuit.tank.vm.settings.TankConfig;
 
 public class ScriptUtil {
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ScriptUtil.class);
+    private static final Logger LOG = LogManager.getLogger(ScriptUtil.class);
     public static final String TOTAL_TIME_KEY = "_totalTime";
     public static final String START_TIME_KEY = "_startTime";
     private static final Pattern p = Pattern.compile(TankConstants.EXPRESSION_REGEX);

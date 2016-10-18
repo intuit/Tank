@@ -22,8 +22,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.TankHttpClient;
@@ -36,7 +37,7 @@ import com.intuit.tank.http.TankHttpLogger;
 public class KeyValueRequest extends BaseRequest {
 
     protected HashMap<String, String> postData = null;
-    static protected Logger logger = Logger.getLogger(KeyValueRequest.class);
+    static protected Logger logger = LogManager.getLogger(KeyValueRequest.class);
 
     public KeyValueRequest(TankHttpClient client, TankHttpLogger logUtil) {
         super(client, logUtil);

@@ -24,11 +24,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
-import org.jboss.seam.security.Identity;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.picketlink.Identity;
 
 import com.intuit.tank.auth.TankUser;
 import com.intuit.tank.dao.UserDao;
@@ -37,7 +37,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 
 public class RestSecurityFilter implements Filter {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(RestSecurityFilter.class);
+    private static final Logger LOG = LogManager.getLogger(RestSecurityFilter.class);
 
     private TankConfig config;
 
@@ -68,7 +68,7 @@ public class RestSecurityFilter implements Filter {
         User user = null;
         // firsttry the session
         if (identity != null) {
-            org.picketlink.idm.api.User picketLinkUser = identity.getUser();
+        	org.picketlink.idm.model.basic.User picketLinkUser = (org.picketlink.idm.model.basic.User) identity.getAccount();
             if (picketLinkUser != null && picketLinkUser instanceof TankUser) {
                 user = ((TankUser)picketLinkUser).getUserEntity();
             }

@@ -22,6 +22,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.reporting.api.TPSInfo;
 import com.intuit.tank.reporting.api.TPSInfoContainer;
@@ -30,7 +33,7 @@ import com.intuit.tank.vm.settings.TimeUtil;
 public class TPSMonitor {
 
     @SuppressWarnings("unused")
-    private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(TPSMonitor.class);
+    private static Logger LOG = LogManager.getLogger(TPSMonitor.class);
 
     private int period;
 

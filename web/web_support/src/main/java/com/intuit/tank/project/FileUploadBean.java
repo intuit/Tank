@@ -25,9 +25,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.security.Identity;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import com.intuit.tank.util.Messages;
+import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.basic.User;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 
@@ -43,7 +46,7 @@ import com.intuit.tank.wrapper.FileInputStreamWrapper;
 public class FileUploadBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(FileUploadBean.class);
+    private static final Logger LOG = LogManager.getLogger(FileUploadBean.class);
 
     private boolean useFlash = true;
 
@@ -53,6 +56,9 @@ public class FileUploadBean implements Serializable {
 
     @Inject
     private Identity identity;
+	
+    @Inject 
+    private IdentityManager identityManager;
 
     @Inject
     private Messages messages;
@@ -98,7 +104,7 @@ public class FileUploadBean implements Serializable {
     private void createDataFile(String fileName, InputStream is) {
         DataFile df = new DataFile();
         df.setPath(fileName);
-        df.setCreator(identity.getUser().getId());
+        df.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
         df.setModified(new Date());
         df.setCreated(new Date());
         df = new DataFileDao().storeDataFile(df, is);

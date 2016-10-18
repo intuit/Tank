@@ -25,7 +25,8 @@ import java.util.Map.Entry;
 import javax.enterprise.event.Event;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.api.service.v1.report.ReportService;
 import com.intuit.tank.dao.JobInstanceDao;
@@ -51,8 +52,7 @@ import com.intuit.tank.vm.event.JobEvent;
  * 
  */
 public class SummaryReportRunner implements Runnable {
-    private static final Logger LOG = Logger
-            .getLogger(SummaryReportRunner.class);
+    private static final Logger LOG = LogManager.getLogger(SummaryReportRunner.class);
     private static final char NEWLINE = '\n';
 
     private JobEvent jobEvent;

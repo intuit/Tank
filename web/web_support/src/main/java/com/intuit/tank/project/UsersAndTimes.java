@@ -25,9 +25,10 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Logger;
-import org.jboss.seam.international.status.Messages;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import com.intuit.tank.util.Messages;
 
 import com.intuit.tank.ProjectBean;
 import com.intuit.tank.dao.JobConfigurationDao;
@@ -52,7 +53,7 @@ public class UsersAndTimes implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("unused")
-    private static final Logger LOG = Logger.getLogger(UsersAndTimes.class);
+    private static final Logger LOG = LogManager.getLogger(UsersAndTimes.class);
 
     @Inject
     private ProjectBean projectBean;

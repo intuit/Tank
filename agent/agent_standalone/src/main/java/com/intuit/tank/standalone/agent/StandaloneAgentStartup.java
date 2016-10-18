@@ -22,9 +22,10 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.AgentServiceClient;
 import com.intuit.tank.harness.HostInfo;
@@ -34,7 +35,7 @@ import com.intuit.tank.vm.agent.messages.StandaloneAgentRequest;
 
 public class StandaloneAgentStartup implements Runnable {
 
-    private static Logger LOG = Logger.getLogger(StandaloneAgentStartup.class);
+    private static Logger LOG = LogManager.getLogger(StandaloneAgentStartup.class);
     public static final String SERVICE_RELATIVE_PATH = "/rest/v1/agent-service";
     private static String API_HARNESS_COMMAND = "./start_wats.sh";
     public static final String METHOD_SETTINGS = "/settings";

@@ -89,7 +89,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-@SuppressWarnings("restriction")
 public class Main implements TransactionRecordedListener {
 
     private static Logger logger = Logger.getLogger("org.owasp.proxy");
@@ -101,7 +100,7 @@ public class Main implements TransactionRecordedListener {
     private int apiPort;
     private String dumpFileName;
     static {
-        System.setProperty("https.protocols", "TLSv1");
+        System.setProperty("https.protocols", "TLSv1.1");
     }
 
     /**
@@ -209,7 +208,8 @@ public class Main implements TransactionRecordedListener {
         System.exit(0);
     }
 
-    public void startHttpServer() throws IOException {
+    @SuppressWarnings("restriction")
+	public void startHttpServer() throws IOException {
         InetSocketAddress addr = new InetSocketAddress(apiPort);
         HttpServer server = HttpServer.create(addr, 0);
 

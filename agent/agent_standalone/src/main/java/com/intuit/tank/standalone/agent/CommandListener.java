@@ -22,6 +22,8 @@ import java.net.SocketAddress;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;
@@ -33,7 +35,7 @@ import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
 
 public class CommandListener implements Container {
 
-    private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(CommandListener.class);
+    private static Logger LOG = LogManager.getLogger(CommandListener.class);
 
     public static final int PORT = 1090;
     private static boolean started = false;

@@ -18,7 +18,8 @@ package com.intuit.tank.vm.vmManager;
 
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * JobUtil
@@ -28,7 +29,7 @@ import org.apache.log4j.Logger;
  */
 public final class JobUtil {
 
-    private static final Logger LOG = Logger.getLogger(JobUtil.class);
+    private static final Logger LOG = LogManager.getLogger(JobUtil.class);
 
     /**
      * private constructor to implement util

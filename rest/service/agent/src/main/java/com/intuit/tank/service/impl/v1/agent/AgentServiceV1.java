@@ -40,7 +40,8 @@ import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinition;
 import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinitionContainer;
@@ -71,7 +72,7 @@ public class AgentServiceV1 implements AgentService {
 
     private static final String HARNESS_JAR = "apiharness-1.0-all.jar";
 
-    private static final Logger LOG = Logger.getLogger(AgentServiceV1.class);
+    private static final Logger LOG = LogManager.getLogger(AgentServiceV1.class);
 
     @Context
     private ServletContext servletContext;

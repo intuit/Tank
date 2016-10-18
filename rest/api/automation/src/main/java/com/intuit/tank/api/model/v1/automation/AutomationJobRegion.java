@@ -24,9 +24,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.vmManager.RegionRequest;
@@ -87,7 +87,7 @@ public class AutomationJobRegion implements Serializable, RegionRequest {
      */
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("regeon", region).append("users", users)
+        return new ToStringBuilder(this).append("region", region).append("users", users)
                 .toString();
     }
 

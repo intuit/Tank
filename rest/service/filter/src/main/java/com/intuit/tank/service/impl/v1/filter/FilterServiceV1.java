@@ -38,7 +38,7 @@ import com.intuit.tank.project.ScriptFilterGroup;
 @Path(FilterService.SERVICE_RELATIVE_PATH)
 public class FilterServiceV1 implements FilterService {
 
-    // private static final Logger LOG = Logger.getLogger(FilterServiceV1.class);
+    // private static final Logger LOG = LogManager.getLogger(FilterServiceV1.class);
 
     // @Context
     // private ServletContext servletContext;

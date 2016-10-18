@@ -29,7 +29,7 @@ import javax.inject.Named;
 import javax.script.ScriptEngineManager;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.seam.international.status.Messages;
+import com.intuit.tank.util.Messages;
 
 import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.harness.test.data.Variables;

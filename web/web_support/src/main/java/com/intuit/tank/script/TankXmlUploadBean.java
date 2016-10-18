@@ -25,9 +25,12 @@ import javax.inject.Named;
 import javax.xml.bind.JAXBContext;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.security.Identity;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import com.intuit.tank.util.Messages;
+import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.basic.User;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 
@@ -47,7 +50,7 @@ public class TankXmlUploadBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = Logger.getLogger(TankXmlUploadBean.class);
+    private static final Logger LOG = LogManager.getLogger(TankXmlUploadBean.class);
 
     private boolean useFlash = true;
 
@@ -57,6 +60,10 @@ public class TankXmlUploadBean implements Serializable {
 
     @Inject
     private Identity identity;
+    
+    @Inject
+    private IdentityManager identityManager;
+
 
     @Inject
     private Messages messages;
@@ -123,7 +130,7 @@ public class TankXmlUploadBean implements Serializable {
                     return;
                 }
             } else {
-                script.setCreator(identity.getUser().getId());
+                script.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
             }
             script = dao.saveOrUpdate(script);
             messages.info("Script " + script.getName() + " from file " + fileName + " has been added.");

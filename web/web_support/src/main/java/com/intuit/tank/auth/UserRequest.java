@@ -22,7 +22,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.Messages;
+import com.intuit.tank.util.Messages;
 
 import com.intuit.tank.dao.GroupDao;
 import com.intuit.tank.dao.UserDao;
@@ -75,7 +75,7 @@ public class UserRequest {
 
     public void request() {
         if (!user.getPassword().equals(passwordConfirm)) {
-            messages.error("Passwords do not match.").targets("password");
+            messages.error("Passwords do not match.");
         } else {
             UserDao userDao = new UserDao();
             GroupDao groupDao = new GroupDao();

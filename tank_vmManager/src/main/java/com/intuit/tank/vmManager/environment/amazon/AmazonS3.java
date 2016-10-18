@@ -21,7 +21,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -36,7 +38,7 @@ import com.intuit.tank.vm.settings.CloudProvider;
 import com.intuit.tank.vm.settings.TankConfig;
 
 public class AmazonS3 {
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(AmazonS3.class);
+    private static final Logger LOG = LogManager.getLogger(AmazonS3.class);
 
     private AmazonS3Client s3Client;
 

@@ -8,14 +8,14 @@
   xmlns:pe="http://primefaces.org/ui/extensions"
   template="/WEB-INF/templates/tank.xhtml">
   <ui:define name="content">
-    <f:viewAction action="#{conversation.end}" />
+    <f:viewAction action="#{tsConversationManager.end}" />
       <h:form id="mainForm">
         <ts:toolbar title="Projects" objectName="Projects" reRender=":mainForm:projectTableId"
           selectionTracker="#{projectDescriptionBean}" showRightComponents="true" id="mainTB">
           <f:facet name="actions">
           <div class="toolbar-ui">
             <p:commandButton value="New Project" action="/projects/createProject.xhtml" immediate="true" ajax="true"
-              icon="ui-icon-plus" rendered="#{createProjectBean.canCreateProject()}" style="margin: 0 10px 0 20px; border-radius:5px">
+              icon="ui-icon-plus" disabled="#{not createProjectBean.canCreateProject()}" style="margin: 0 10px 0 20px; border-radius:5px">
             </p:commandButton>
           </div>
           </f:facet>

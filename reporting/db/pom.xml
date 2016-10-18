@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>reporting-parent</artifactId>
-    <version>2.2.1</version>
+    <version>2.2.2</version>
   </parent>
 
   <artifactId>reporting-db</artifactId>
@@ -37,16 +37,6 @@
        <groupId>com.amazonaws</groupId>
        <artifactId>aws-java-sdk-simpledb</artifactId>
      </dependency>
-         
-    <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-core-asl</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-mapper-asl</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>net.sf.opencsv</groupId>

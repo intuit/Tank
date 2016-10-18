@@ -18,7 +18,7 @@ import com.intuit.tank.test.TestGroups;
  * #L%
  */
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 public class JsonRequestTest {
 
@@ -37,7 +37,6 @@ public class JsonRequestTest {
         Assert.assertEquals("{\"address\":{\"employeeId\":123,\"home\":\"123 street\"}}", body);
     }
 
-    @SuppressWarnings("unused")
     @DataProvider(name = "jsonRaw")
     private Object[][] jsonData() {
         return new Object[][] { {
@@ -81,7 +80,6 @@ public class JsonRequestTest {
         };
     }
 
-    @SuppressWarnings("unused")
     @DataProvider(name = "jsonRaw")
     private Object[][] jsonNumbers() {
         return new Object[][] { {

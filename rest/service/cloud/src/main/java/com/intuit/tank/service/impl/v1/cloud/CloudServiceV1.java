@@ -35,7 +35,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
@@ -60,7 +61,7 @@ import com.intuit.tank.service.util.ServletInjector;
 @Path(CloudService.SERVICE_RELATIVE_PATH)
 public class CloudServiceV1 implements CloudService {
 
-    private static final Logger LOG = Logger.getLogger(CloudServiceV1.class);
+    private static final Logger LOG = LogManager.getLogger(CloudServiceV1.class);
 
     @Context
     private ServletContext servletContext;

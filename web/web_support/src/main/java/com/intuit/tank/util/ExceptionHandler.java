@@ -22,10 +22,9 @@ import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
-import org.jboss.seam.international.status.Messages;
+import com.intuit.tank.util.Messages;
 
 /**
  * RestExceptionHandler
@@ -36,8 +35,6 @@ import org.jboss.seam.international.status.Messages;
 public class ExceptionHandler implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    private static final Logger LOG = Logger.getLogger(ExceptionHandler.class);
 
     @Inject
     private Messages messages;

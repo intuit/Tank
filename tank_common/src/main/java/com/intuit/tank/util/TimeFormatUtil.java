@@ -22,7 +22,7 @@ import java.util.TimeZone;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.lang.time.FastDateFormat;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
  * TimeUtil

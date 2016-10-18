@@ -23,8 +23,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.PersistenceUnit;
 
-import org.jboss.seam.solder.core.ExtensionManaged;
-
 /**
  * EntityManagerProducer
  * 
@@ -35,7 +33,6 @@ public class EntityManagerProducer {
     private EntityManagerFactory emf = Persistence.createEntityManagerFactory("wats");
 
     @Produces
-    @ExtensionManaged
     @ConversationScoped
     @PersistenceUnit
     @Default

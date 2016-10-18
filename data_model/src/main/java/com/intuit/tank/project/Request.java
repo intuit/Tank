@@ -21,7 +21,7 @@ import java.util.UUID;
 
 import com.intuit.tank.script.RequestDataType;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class Request implements Serializable {
 

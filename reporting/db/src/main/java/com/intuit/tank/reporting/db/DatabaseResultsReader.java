@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.persistence.databases.DataBaseFactory;
 import com.intuit.tank.persistence.databases.DatabaseKeys;
@@ -35,7 +37,7 @@ import com.intuit.tank.vm.settings.TankConfig;
  */
 public class DatabaseResultsReader implements ResultsReader {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(DatabaseResultsReader.class);
+    private static final Logger LOG = LogManager.getLogger(DatabaseResultsReader.class);
 
     private IDatabase db;
 

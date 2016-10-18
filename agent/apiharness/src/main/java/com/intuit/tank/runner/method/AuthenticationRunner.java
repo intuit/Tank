@@ -13,8 +13,6 @@ package com.intuit.tank.runner.method;
  * #L%
  */
 
-import org.apache.log4j.Logger;
-
 import com.intuit.tank.harness.data.AuthenticationStep;
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.http.AuthCredentials;
@@ -22,9 +20,6 @@ import com.intuit.tank.runner.TestStepContext;
 import com.intuit.tank.vm.common.TankConstants;
 
 class AuthenticationRunner implements Runner {
-
-    @SuppressWarnings("unused")
-    private static final Logger LOG = Logger.getLogger(AuthenticationRunner.class);
 
     private TestStepContext tsc;
     private AuthenticationStep testStep;

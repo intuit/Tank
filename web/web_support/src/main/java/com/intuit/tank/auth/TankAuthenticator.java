@@ -18,25 +18,31 @@ package com.intuit.tank.auth;
 
 import java.io.Serializable;
 
-import javax.enterprise.context.SessionScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.security.BaseAuthenticator;
-import org.jboss.seam.security.Credentials;
-import org.jboss.seam.security.Identity;
-import org.picketlink.idm.api.User;
-import org.picketlink.idm.impl.api.PasswordCredential;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import com.intuit.tank.util.Messages;
+import org.picketlink.Identity;
+import org.picketlink.Identity.AuthenticationResult;
+import org.picketlink.annotations.PicketLink;
+import org.picketlink.authentication.BaseAuthenticator;
+import org.picketlink.credential.DefaultLoginCredentials;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.dao.UserDao;
-import com.intuit.tank.project.Group;
-import com.intuit.tank.vm.common.TankConstants;
+
+import static org.picketlink.idm.model.basic.BasicModel.*;
 
 /**
  * TankAuthenticator
@@ -45,19 +51,26 @@ import com.intuit.tank.vm.common.TankConstants;
  * 
  */
 @Named("tsAuthenticator")
-@SessionScoped
+@RequestScoped
+@PicketLink
 public class TankAuthenticator extends BaseAuthenticator implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = Logger.getLogger(TankAuthenticator.class);
+    private static final Logger LOG = LogManager.getLogger(TankAuthenticator.class);
 
     @Inject
     private Identity identity;
+    
+    @Inject
+    IdentityManager identityManager;
+    
+    @Inject
+    RelationshipManager relationshipManager;
 
     @Inject
-    private Credentials credentials;
-
+    private DefaultLoginCredentials credentials;
+    
     @Inject
     private Messages messages;
 
@@ -68,31 +81,40 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
     private String uri;
 
     public void authenticate() {
-        LOG.info("Logging in " + credentials.getUsername());
-        if ((credentials.getUsername() == null) || (credentials.getCredential() == null)) {
+        
+        LOG.info("Logging in " + credentials.getUserId());
+        if ((credentials.getUserId() == null) || (credentials.getPassword() == null)) {
             messages.error("Invalid username or password");
             setStatus(AuthenticationStatus.FAILURE);
         }
-        if (credentials.getCredential() instanceof PasswordCredential) {
-            com.intuit.tank.project.User user = new UserDao().authenticate(credentials.getUsername(),
-                    ((PasswordCredential) credentials.getCredential()).getValue());
-            if (user != null) {
-                setUser(new TankUser(user));
-                for (Group g : user.getGroups()) {
-                    identity.addGroup(g.getName(), TankConstants.TANK_GROUP_TYPE);
-                    identity.addRole(g.getName(), g.getName(), TankConstants.TANK_GROUP_TYPE);
-                }
-                loginEventSrc.fire(getUser());
-                // messages.info("You're signed in as " + user.getName());
-                setStatus(AuthenticationStatus.SUCCESS);
-                // messages.clear();
-                return;
-            }
+        com.intuit.tank.project.User user = new UserDao().authenticate(credentials.getUserId(), credentials.getPassword());
+        if (user != null) {
+        	User idmuser = getUser(identityManager,user.getName());
+        	if (idmuser == null ) {
+        		idmuser = new User(user.getName());
+        		idmuser.setId(Integer.toString(user.getId()));
+	        	idmuser.setCreatedDate(user.getCreated());
+	        	idmuser.setEmail(user.getEmail());
+	        	idmuser.setAttribute(new Attribute<String>("name", user.getName()));
+	        	identityManager.add(idmuser);
+	            for (com.intuit.tank.project.Group g : user.getGroups()) {
+	            	Role role = getRole(identityManager, g.getName());
+	            	if (role == null) {
+	            		role = new Role(g.getName());
+	            		identityManager.add(role);
+	            	}
+	            	grantRole(relationshipManager, idmuser, role);
+	            }
+        	}
+            loginEventSrc.fire(idmuser);
+            messages.info("You're signed in as " + idmuser.getLoginName());
+            setStatus(AuthenticationStatus.SUCCESS);
+            setAccount(idmuser);
+            // messages.clear();
+            return;
         }
-
         messages.error("Invalid username or password");
         setStatus(AuthenticationStatus.FAILURE);
-
     }
 
     public void initUri() {
@@ -113,8 +135,8 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
     }
 
     public String login() {
-        String login = identity.login();
-        if (login == "success") {
+        AuthenticationResult result = identity.login();
+        if (AuthenticationResult.SUCCESS.equals(result)) {
             if (uri == null || StringUtils.countMatches(uri, "/") <= 1) {
                 return "/projects/index.xhtml";
             }

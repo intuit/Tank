@@ -15,7 +15,8 @@ package com.intuit.tank.runner.method;
 
 import javax.annotation.Nonnull;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.logging.LogUtil;
@@ -24,7 +25,7 @@ import com.intuit.tank.runner.TestStepContext;
 
 public class TestStepRunner {
 
-    static Logger LOG = Logger.getLogger(TestStepRunner.class);
+    static Logger LOG = LogManager.getLogger(TestStepRunner.class);
 
     private TestStepContext tsc;
     long lastSslHandshake = 0;

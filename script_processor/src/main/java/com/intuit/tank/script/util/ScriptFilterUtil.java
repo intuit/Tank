@@ -26,8 +26,9 @@ import java.util.TreeMap;
 
 import javax.script.ScriptException;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.script.ScriptStepTO;
 import com.intuit.tank.api.model.v1.script.ScriptTO;
@@ -53,7 +54,7 @@ import com.intuit.tank.vm.script.util.ReplaceActionScope;
 
 public class ScriptFilterUtil {
 
-    private static Logger logger = Logger.getLogger(ScriptFilterUtil.class);
+    private static Logger logger = LogManager.getLogger(ScriptFilterUtil.class);
 
     /**
      * Applys the filters specified by filterIds

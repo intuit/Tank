@@ -15,6 +15,9 @@ package com.intuit.tank.harness;
 
 import java.util.Stack;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
@@ -22,7 +25,7 @@ import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
 
 public class TestPlanStarter implements Runnable {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(TestPlanStarter.class);
+    private static final Logger LOG = LogManager.getLogger(TestPlanStarter.class);
 
     private HDTestPlan plan;
     private int numThreads;

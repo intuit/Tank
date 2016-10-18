@@ -23,7 +23,8 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * TsConversationManager
@@ -36,7 +37,7 @@ import org.apache.log4j.Logger;
 public class TsConversationManager implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(TsConversationManager.class);
+    private static final Logger LOG = LogManager.getLogger(TsConversationManager.class);
 
     @Inject
     private Conversation conversation;

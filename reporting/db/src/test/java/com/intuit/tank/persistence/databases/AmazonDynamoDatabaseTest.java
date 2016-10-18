@@ -5,9 +5,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -24,7 +25,7 @@ import com.intuit.tank.results.TankResultBuilder;
 import com.intuit.tank.test.TestGroups;
 import com.intuit.tank.vm.common.util.ReportUtil;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 public class AmazonDynamoDatabaseTest {
 
@@ -36,8 +37,10 @@ public class AmazonDynamoDatabaseTest {
     
     @BeforeSuite
     public void init() {
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.INFO);
+    	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+    	Configuration config = ctx.getConfiguration();
+    	config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
+    	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
     }
 
     @BeforeClass

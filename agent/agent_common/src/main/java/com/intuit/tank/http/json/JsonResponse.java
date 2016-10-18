@@ -21,9 +21,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.jxpath.JXPathContext;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
@@ -32,7 +33,7 @@ import com.intuit.tank.http.BaseResponse;
 
 public class JsonResponse extends BaseResponse {
 
-    static protected Logger logger = Logger.getLogger(JsonResponse.class);
+    static protected Logger logger = LogManager.getLogger(JsonResponse.class);
     @SuppressWarnings("rawtypes")
     private Map jsonMap = null;
 
@@ -84,8 +85,8 @@ public class JsonResponse extends BaseResponse {
 
     private String cleanString(String input) {
         try {
-            String output = input.trim().replace("@", "");
-            return output.replaceAll("(\r\n)+", "");
+            String output = StringUtils.remove(input.trim(), "@");
+            return StringUtils.remove(output,"(\r\n)+");
         } catch (Exception ex) {
             return input;
         }

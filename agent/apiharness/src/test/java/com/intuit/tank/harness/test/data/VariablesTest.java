@@ -19,10 +19,11 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -34,7 +35,6 @@ import com.intuit.tank.test.TestGroups;
 
 public class VariablesTest {
 
-    @SuppressWarnings("unused")
     @DataProvider(name = "validations")
     private Object[][] matching() {
         return new Object[][] {
@@ -52,8 +52,10 @@ public class VariablesTest {
 
     @BeforeClass
     public void configure() {
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.INFO);
+    	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+    	Configuration config = ctx.getConfiguration();
+    	config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
+    	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
     }
 
     @Test(groups = TestGroups.FUNCTIONAL)

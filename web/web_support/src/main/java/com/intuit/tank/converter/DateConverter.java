@@ -25,8 +25,9 @@ import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang.time.FastDateFormat;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.vm.common.TankConstants;
@@ -40,7 +41,7 @@ import com.intuit.tank.vm.common.TankConstants;
 @FacesConverter(value = "tsDateConverter")
 @Named
 public class DateConverter implements Converter {
-    private static final Logger LOG = Logger.getLogger(DateConverter.class);
+    private static final Logger LOG = LogManager.getLogger(DateConverter.class);
 
     private static final String PATTERN = TankConstants.DATE_FORMAT;
     private static FastDateFormat DF = FastDateFormat.getInstance(DateConverter.PATTERN);

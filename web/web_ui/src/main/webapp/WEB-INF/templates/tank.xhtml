@@ -85,7 +85,7 @@
               <h:panelGroup
                 styleClass="ts-header-menu-itm #{navigation.section eq 'admin' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
                 <h:outputLink value="#{request.contextPath}/admin"
-                  rendered="#{identity.inGroup('admin', 'tankUser')}">Admin</h:outputLink>
+                  rendered="#{security.isAdmin()}">Admin</h:outputLink>
               </h:panelGroup>
 
 

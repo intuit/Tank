@@ -20,11 +20,12 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class PropertiesFile {
 
-    static Logger logger = Logger.getLogger(PropertiesFile.class);
+    static Logger logger = LogManager.getLogger(PropertiesFile.class);
 
     protected Properties properties = null;
     protected long loadUntilTime;

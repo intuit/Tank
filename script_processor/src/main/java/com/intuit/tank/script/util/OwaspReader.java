@@ -32,8 +32,9 @@ import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,7 +56,7 @@ import com.intuit.tank.vm.exception.WatsParseException;
  * @author dangleton patterns: Util
  */
 public class OwaspReader implements RecordedScriptReader {
-    private static final Logger LOG = Logger.getLogger(OwaspReader.class);
+    private static final Logger LOG = LogManager.getLogger(OwaspReader.class);
 
     /**
      * private constructor to implement the Util Pattern

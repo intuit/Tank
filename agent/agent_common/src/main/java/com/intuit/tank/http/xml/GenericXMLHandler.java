@@ -23,7 +23,10 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -32,12 +35,13 @@ import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
+import org.xml.sax.InputSource;
 
 /**
  * Generic class to provide xml file reading and writing capabilities
  */
 public class GenericXMLHandler implements Cloneable {
-    static Logger logger = Logger.getLogger(GenericXMLHandler.class);
+    static Logger LOG = LogManager.getLogger(GenericXMLHandler.class);
 
     protected Document xmlDocument = null;
     protected File xmlFile = null;
@@ -53,7 +57,7 @@ public class GenericXMLHandler implements Cloneable {
             this.xmlDocument = new Document();
             this.namespaces = new HashMap<String, String>();
         } catch (Exception ex) {
-            logger.error("Error initializing handler: " + ex.getMessage(), ex);
+            LOG.error("Error initializing handler: " + ex.getMessage(), ex);
         }
     }
 
@@ -73,7 +77,7 @@ public class GenericXMLHandler implements Cloneable {
             this.namespaces = new HashMap<String, String>();
         } catch (Exception ex) {
             this.xmlDocument = null;
-            logger.error("Error initializing handler: " + ex.getMessage(), ex);
+            LOG.error("Error initializing handler: " + ex.getMessage(), ex);
         }
     }
 
@@ -84,23 +88,23 @@ public class GenericXMLHandler implements Cloneable {
      *            The string representation of the xml data
      */
     public GenericXMLHandler(String xmlFile) {
-
-        if (!xmlFile.equals("")) {
+        if (StringUtils.isNotEmpty(xmlFile)) {
             this.xml = xmlFile;
             try {
                 this.xmlFile = null;
                 this.xmlDocument = new org.jdom.Document();
                 SAXBuilder builder = new SAXBuilder();
                 builder.setValidation(false);
-                // logger.debug("XML string to load: "+xmlFile);
+                // LOG.debug("XML string to load: "+xmlFile);
                 xmlFile = xmlFile.substring(xmlFile.indexOf("<"));
                 this.xmlDocument = builder.build(new StringReader(xmlFile));
                 this.namespaces = new HashMap<String, String>();
+                InputSource is = new InputSource(new StringReader(xml));
                 this.dDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                        .parse(xml);
+                        .parse(is);
             } catch (Exception ex) {
                 this.xmlDocument = null;
-                logger.error("Error parsing xml File: " + xmlFile + ": " + ex.getMessage());
+                LOG.error("Error parsing xml Response: " + xmlFile + ": " + ex.getMessage());
             }
         }
     }
@@ -120,7 +124,7 @@ public class GenericXMLHandler implements Cloneable {
             node = SetElementText(xPathExpression, 0);
             node.setText(value);
         } catch (Exception ex) {
-            logger.error("Error in handler: " + ex.getMessage(), ex);
+            LOG.error("Error in handler: " + ex.getMessage(), ex);
         }
 
     }
@@ -132,7 +136,7 @@ public class GenericXMLHandler implements Cloneable {
             node = SetElementText(xPathExpression, 0);
             node.setAttribute(attribute, value);
         } catch (Exception ex) {
-            logger.error("Error in handler: " + ex.getMessage(), ex);
+            LOG.error("Error in handler: " + ex.getMessage(), ex);
         }
     }
 
@@ -203,12 +207,12 @@ public class GenericXMLHandler implements Cloneable {
     public String GetElementText(String xPathExpression) {
         try {
             String result = XPathFactory.newInstance().newXPath().evaluate(xPathExpression, dDoc);
-            if (null != result) {
+            if (StringUtils.isNotEmpty(result)) {
                 return result;
             }
             return "";
         } catch (Exception ex) {
-            logger.error("Error in handler: " + ex.getMessage(), ex);
+            LOG.error("Error in handler: " + ex.getMessage(), ex);
             return "";
         }
     }
@@ -225,7 +229,7 @@ public class GenericXMLHandler implements Cloneable {
             org.jdom.Attribute node = (Attribute) XPath.selectSingleNode(this.xmlDocument, xPathExpression);
             return node.getValue();
         } catch (Exception ex) {
-            logger.error("Error in handler: " + ex.getMessage(), ex);
+            LOG.error("Error in handler: " + ex.getMessage(), ex);
             return "";
         }
     }
@@ -239,16 +243,16 @@ public class GenericXMLHandler implements Cloneable {
     public ArrayList<String> GetElementList(String xPathExpression) {
         try {
             ArrayList<String> values = new ArrayList<String>();
-            List nodeList = XPath.selectNodes(this.xmlDocument, xPathExpression);
+            List<?> nodeList = XPath.selectNodes(this.xmlDocument, xPathExpression);
 
-            Iterator iter = nodeList.iterator();
+            Iterator<?> iter = nodeList.iterator();
             while (iter.hasNext()) {
                 org.jdom.Element element = (org.jdom.Element) iter.next();
                 values.add(element.getText());
             }
             return values;
         } catch (Exception ex) {
-            logger.error("Error in handler: " + ex.getMessage(), ex);
+            LOG.error("Error in handler: " + ex.getMessage(), ex);
             return null;
         }
     }
@@ -297,7 +301,7 @@ public class GenericXMLHandler implements Cloneable {
             writer.flush();
             writer.close();
         } catch (Exception ex) {
-            logger.error("Error in handler: " + ex.getMessage(), ex);
+            LOG.error("Error in handler: " + ex.getMessage(), ex);
         }
     }
 

@@ -28,7 +28,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.fife.ui.rtextarea.RTextArea;
 
 import com.intuit.tank.harness.data.HDTestPlan;

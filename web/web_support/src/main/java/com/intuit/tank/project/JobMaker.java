@@ -24,8 +24,10 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang.StringUtils;
-import org.jboss.seam.international.status.Messages;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import com.intuit.tank.util.Messages;
 
 import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.ProjectBean;
@@ -61,9 +63,8 @@ import com.intuit.tank.vm.settings.VmInstanceType;
 public class JobMaker implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(JobMaker.class);
+    private static final Logger LOG = LogManager.getLogger(JobMaker.class);
 
-    @Inject
     private ProjectBean projectBean;
     
     private String name;
@@ -94,10 +95,10 @@ public class JobMaker implements Serializable {
      * 
      */
     public JobMaker() {
-
     }
 
-    public void init() {
+    public void init(ProjectBean projectBean) {
+    	this.projectBean = projectBean;
     }
 
     /**
@@ -201,7 +202,7 @@ public class JobMaker implements Serializable {
      * @return
      */
     public void setVmInstanceType(String type) {
-        if (type != null) {
+        if (StringUtils.isNotEmpty(type)) {
             if (!type.equals(getVmInstanceType())) {
                 setNumUsersPerAgent(getDefaultNumUsers(type));
             }

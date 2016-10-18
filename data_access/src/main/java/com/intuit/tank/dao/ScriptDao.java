@@ -25,7 +25,8 @@ import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.cfg.RecoverableException;
@@ -45,7 +46,7 @@ import com.intuit.tank.vm.common.util.MethodTimer;
  * 
  */
 public class ScriptDao extends BaseDao<Script> {
-    private static final Logger LOG = Logger.getLogger(ScriptDao.class);
+    private static final Logger LOG = LogManager.getLogger(ScriptDao.class);
 
     /**
      * @param entityClass

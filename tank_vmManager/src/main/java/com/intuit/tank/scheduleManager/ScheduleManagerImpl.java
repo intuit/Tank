@@ -16,7 +16,8 @@ package com.intuit.tank.scheduleManager;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.vm.agent.messages.AgentMngrAPIRequest;
 import com.intuit.tank.vm.agent.messages.AgentMngrAPIResponse;
@@ -25,7 +26,7 @@ import com.intuit.tank.vm.scheduleManager.ScheduleManager;
 
 public class ScheduleManagerImpl implements ScheduleManager {
 
-    private static Logger logger = Logger.getLogger(ScheduleManagerImpl.class);
+    private static Logger logger = LogManager.getLogger(ScheduleManagerImpl.class);
 
     private static Map<String, JobRequestData> elements = new ConcurrentHashMap<String, JobRequestData>();
 

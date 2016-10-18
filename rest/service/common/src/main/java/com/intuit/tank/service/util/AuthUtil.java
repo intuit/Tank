@@ -16,16 +16,21 @@ package com.intuit.tank.service.util;
  * #L%
  */
 
+import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang.StringUtils;
-import org.jboss.seam.security.Identity;
+import org.apache.commons.lang3.StringUtils;
+import org.picketlink.Identity;
 
 import com.intuit.tank.project.OwnableEntity;
 import com.intuit.tank.vm.common.TankConstants;
+
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.RelationshipManager;
+import static org.picketlink.idm.model.basic.BasicModel.*;
 
 /**
  * AuthUtil
@@ -35,12 +40,13 @@ import com.intuit.tank.vm.common.TankConstants;
  */
 public class AuthUtil {
 
+
     private AuthUtil() {
         // private constructor to implement util pattern
     }
 
     /**
-     * Checks to see if the user is currently logged in to the system by checking the Seam Identity object.
+     * Checks to see if the user is currently logged in to the system by checking the Identity object.
      * 
      * @param servletContext
      *            the servletContext
@@ -49,16 +55,17 @@ public class AuthUtil {
      */
     public static void checkAdmin(ServletContext servletContext) throws WebApplicationException {
         Identity identity = new ServletInjector<Identity>().getManagedBean(servletContext, Identity.class);
+        IdentityManager identityManager = new ServletInjector<IdentityManager>().getManagedBean(servletContext, IdentityManager.class);
+        RelationshipManager relationshipManager = new ServletInjector<RelationshipManager>().getManagedBean(servletContext, RelationshipManager.class);
+        
         if (identity == null
-                || !identity.hasRole(TankConstants.TANK_GROUP_ADMIN,
-                        TankConstants.TANK_GROUP_ADMIN,
-                        TankConstants.TANK_GROUP_TYPE)) {
+                || !hasRole(relationshipManager, identity.getAccount(), getRole(identityManager, TankConstants.TANK_GROUP_ADMIN))) {
             throw new WebApplicationException(buildForbiddenResponse("Insuficient Rights"));
         }
     }
 
     /**
-     * Checks to see if the user is currently logged in to the system by checking the Seam Identity object.
+     * Checks to see if the user is currently logged in to the system by checking the Identity object.
      * 
      * @param servletContext
      *            the servletContext
@@ -73,7 +80,7 @@ public class AuthUtil {
     }
 
     /**
-     * Checks to see if the user is currently logged in to the system by checking the Seam Identity object.
+     * Checks to see if the user is currently logged in to the system by checking the Identity object.
      * 
      * @param servletContext
      *            the servletContext
@@ -85,11 +92,13 @@ public class AuthUtil {
     public static void checkOwner(ServletContext servletContext, OwnableEntity ownable) throws WebApplicationException {
         checkLoggedIn(servletContext);
         Identity identity = new ServletInjector<Identity>().getManagedBean(servletContext, Identity.class);
-        if (identity.hasRole(TankConstants.TANK_GROUP_ADMIN, TankConstants.TANK_GROUP_ADMIN,
-                TankConstants.TANK_GROUP_TYPE)) {
+        IdentityManager identityManager = new ServletInjector<IdentityManager>().getManagedBean(servletContext, IdentityManager.class);
+        RelationshipManager relationshipManager = new ServletInjector<RelationshipManager>().getManagedBean(servletContext, RelationshipManager.class);
+        
+        if (hasRole(relationshipManager, identity.getAccount(), getRole(identityManager, TankConstants.TANK_GROUP_ADMIN))) {
             return;
         }
-        if (StringUtils.isEmpty(ownable.getCreator()) || identity.getUser().getId().equals(ownable.getCreator())) {
+        if (StringUtils.isEmpty(ownable.getCreator()) || identity.getAccount().getId().equals(ownable.getCreator())) {
             return;
         }
         throw new WebApplicationException(buildForbiddenResponse("Insufficient Rights"));

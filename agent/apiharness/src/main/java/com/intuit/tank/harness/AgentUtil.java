@@ -15,10 +15,13 @@ package com.intuit.tank.harness;
 
 import java.io.File;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.intuit.tank.harness.logging.LogUtil;
 
 public class AgentUtil {
-    private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(AgentUtil.class);
+    private static Logger LOG = LogManager.getLogger(AgentUtil.class);
 
    
     /**

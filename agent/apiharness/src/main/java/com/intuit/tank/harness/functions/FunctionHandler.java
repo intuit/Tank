@@ -15,9 +15,10 @@ package com.intuit.tank.harness.functions;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.harness.test.data.Variables;
@@ -49,7 +50,7 @@ public class FunctionHandler {
      */
     private static final String ESCAPE_DELIM = "-dot-";
     static final String delimeters = "[.]";
-    static private Logger logger = Logger.getLogger(FunctionHandler.class);
+    static private Logger logger = LogManager.getLogger(FunctionHandler.class);
 
     /**
      * Is the string a valid function

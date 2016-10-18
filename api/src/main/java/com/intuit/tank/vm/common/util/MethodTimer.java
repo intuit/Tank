@@ -16,7 +16,7 @@ package com.intuit.tank.vm.common.util;
  * #L%
  */
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.vm.settings.TimeUtil;
 

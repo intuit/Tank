@@ -17,7 +17,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.vm.agent.messages.AgentMngrAPIRequest;
 import com.intuit.tank.vm.agent.messages.AgentMngrAPIResponse;
@@ -26,7 +27,7 @@ public class JobRequestData implements Serializable {
 
     private static final long serialVersionUID = 6161373334420827343L;
 
-    static Logger logger = Logger.getLogger(JobRequestData.class);
+    static Logger logger = LogManager.getLogger(JobRequestData.class);
 
     private AgentMngrAPIRequest request = null;
     private List<AgentMngrAPIResponse> data = null;

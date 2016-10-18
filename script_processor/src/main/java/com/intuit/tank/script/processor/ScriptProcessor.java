@@ -23,7 +23,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.project.Script;
@@ -48,7 +49,7 @@ public class ScriptProcessor implements Runnable, Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = Logger.getLogger(ScriptProcessor.class);
+    private static final Logger LOG = LogManager.getLogger(ScriptProcessor.class);
 
     @Inject
     private PercentCompleteMonitor monitor;

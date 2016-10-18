@@ -20,11 +20,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.net.MalformedURLException;
 import java.net.URL;
-
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -36,9 +32,9 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -48,7 +44,7 @@ import com.intuit.tank.vm.agent.messages.Header;
 import com.intuit.tank.vm.agent.messages.Headers;
 
 public class PanelBuilder {
-    private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(PanelBuilder.class);
+    private static Logger LOG = LogManager.getLogger(PanelBuilder.class);
 
     private static File workingDir;
 
@@ -251,9 +247,8 @@ public class PanelBuilder {
 
         panel.add(sp, BorderLayout.CENTER);
 
-        Logger root = Logger.getRootLogger();
-        root.addAppender(new DebuggerAppender(loggerTA));
-        root.setLevel(Level.INFO);
+        DebuggerAppender.addTextArea(loggerTA);
+
         return panel;
     }
 }

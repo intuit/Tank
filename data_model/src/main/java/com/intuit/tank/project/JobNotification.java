@@ -33,10 +33,11 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.envers.Audited;
 
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
@@ -56,7 +57,7 @@ import com.intuit.tank.vm.vmManager.Recipient;
 public class JobNotification extends BaseEntity implements Notification {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(JobNotification.class);
+    private static final Logger LOG = LogManager.getLogger(JobNotification.class);
 
     @Column(name = "subject")
     private String subject;

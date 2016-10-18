@@ -33,8 +33,9 @@ import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
@@ -62,7 +63,7 @@ import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
  */
 @ApplicationScoped
 public class VMTrackerImpl implements VMTracker {
-    private static final Logger LOG = Logger.getLogger(VMTrackerImpl.class);
+    private static final Logger LOG = LogManager.getLogger(VMTrackerImpl.class);
 
     private ConcurrentMap<String, String> locks = new ConcurrentHashMap<String, String>();
     private boolean devMode = false;
@@ -118,7 +119,6 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void setStatus(@Nonnull CloudVmStatus status) {
-        LOG.info("setting status: " + status);
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
             CloudVmStatus curentStatus = getStatus(status.getInstanceId());

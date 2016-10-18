@@ -19,6 +19,9 @@ package com.intuit.tank.tools.debugger;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.intuit.tank.harness.FlowController;
 import com.intuit.tank.harness.data.SleepTimeStep;
 import com.intuit.tank.harness.data.TestStep;
@@ -33,7 +36,7 @@ import com.intuit.tank.runner.TestStepContext;
  */
 public class DebuggerFlowController implements FlowController {
 
-    private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(DebuggerFlowController.class);
+    private static Logger LOG = LogManager.getLogger(DebuggerFlowController.class);
     private AgentDebuggerFrame debuggerFrame;
     private boolean doNext;
     private int skipToIndex = -1;

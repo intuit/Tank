@@ -25,8 +25,9 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
@@ -42,12 +43,12 @@ import com.intuit.tank.vm.common.TankConstants;
  */
 public class AmazonUtil {
 
-    private static final Logger LOG = Logger.getLogger(AmazonUtil.class);
+    private static final Logger LOG = LogManager.getLogger(AmazonUtil.class);
     private static final String BASE = "http://169.254.169.254/latest";
     private static final String USER_DATA = "/user-data";
     private static final String META_DATA = "/meta-data";
 
-    // private static Logger logger = Logger.getLogger(AmazonUtil.class);
+    // private static Logger logger = LogManager.getLogger(AmazonUtil.class);
 
     public static VMRegion getVMRegion() throws IOException {
         String zone = getMetaData(CloudMetaDataType.zone);

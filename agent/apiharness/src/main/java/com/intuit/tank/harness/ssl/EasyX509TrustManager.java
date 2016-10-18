@@ -19,7 +19,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
@@ -47,7 +48,7 @@ import com.sun.net.ssl.X509TrustManager;
 
 @SuppressWarnings({ "deprecation", "restriction" })
 public class EasyX509TrustManager implements X509TrustManager {
-    private static final Logger LOG = Logger.getLogger(EasyX509TrustManager.class);
+    private static final Logger LOG = LogManager.getLogger(EasyX509TrustManager.class);
     private X509TrustManager standardTrustManager = null;
 
     /**

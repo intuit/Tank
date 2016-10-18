@@ -19,10 +19,13 @@ package com.intuit.tank.vm.common.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * JSONBuilder
@@ -32,7 +35,7 @@ import org.json.JSONObject;
  */
 public class JSONBuilder {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(JSONBuilder.class);
+    private static final Logger LOG = LogManager.getLogger(JSONBuilder.class);
 
     JSONObject json = new JSONObject();
     Map<String, String> valueMap = new HashMap<String, String>();

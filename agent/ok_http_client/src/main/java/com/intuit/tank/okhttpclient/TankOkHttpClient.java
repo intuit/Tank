@@ -29,8 +29,9 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.http.AuthCredentials;
 import com.intuit.tank.http.AuthScheme;
@@ -74,7 +75,7 @@ import com.squareup.okhttp.Response;
  */
 public class TankOkHttpClient implements TankHttpClient {
 
-    static Logger LOG = Logger.getLogger(TankOkHttpClient.class);
+    static Logger LOG = LogManager.getLogger(TankOkHttpClient.class);
 
     private OkHttpClient okHttpClient = new OkHttpClient();
     private CookieManager cookieManager = new CookieManager();

@@ -16,13 +16,16 @@ package com.intuit.tank.admin;
  * #L%
  */
 
-import java.util.Enumeration;
+import java.util.Collection;
 
 import javax.inject.Named;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 
 /**
  * LogConfig
@@ -33,17 +36,15 @@ import org.apache.log4j.Logger;
 @Named
 public class LogConfig {
 
-    private static final Logger LOG = Logger.getLogger(LogConfig.class);
+    private static final Logger LOG = LogManager.getLogger(LogConfig.class);
 
     public void setLogLevel(String level) {
         Level l = Level.toLevel(level);
-        @SuppressWarnings("unchecked") Enumeration<Logger> currentLoggers = LogManager.getCurrentLoggers();
-        LogManager.getRootLogger().setLevel(l);
-        while (currentLoggers.hasMoreElements()) {
-            Logger nextElement = currentLoggers.nextElement();
-            // Level originalLevel = nextElement.getLevel();
-            nextElement.setLevel(l);
-            // LOG.debug("setting level on logger " + nextElement.getName() + " from " + originalLevel + " to " + l);
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        Configuration config = ctx.getConfiguration();
+        Collection<LoggerConfig> loggerConfigs = config.getLoggers().values();
+        for ( LoggerConfig loggerConfig : loggerConfigs ) {
+        	loggerConfig.setLevel(l);
         }
         LOG.debug("Log level changed to " + l);
         LOG.info("Log level changed to " + l);

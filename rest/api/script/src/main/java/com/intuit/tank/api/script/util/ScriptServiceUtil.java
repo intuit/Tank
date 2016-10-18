@@ -24,7 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
 import com.intuit.tank.api.model.v1.script.ScriptDescription;
@@ -44,7 +45,7 @@ import com.intuit.tank.script.RequestDataPhase;
  * 
  */
 public class ScriptServiceUtil {
-    private static final Logger LOG = Logger.getLogger(ScriptServiceUtil.class);
+    private static final Logger LOG = LogManager.getLogger(ScriptServiceUtil.class);
 
     private ScriptServiceUtil() {
     }

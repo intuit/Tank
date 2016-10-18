@@ -13,7 +13,7 @@ package com.intuit.tank.runner.method;
  * #L%
  */
 
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.data.TimerStep;

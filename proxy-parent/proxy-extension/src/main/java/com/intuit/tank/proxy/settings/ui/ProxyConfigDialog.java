@@ -30,7 +30,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.intuit.tank.proxy.config.CommonsProxyConfiguration;
 import com.intuit.tank.proxy.config.ConfigInclusionExclusionRule;

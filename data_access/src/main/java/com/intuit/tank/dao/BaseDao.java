@@ -34,7 +34,8 @@ import javax.persistence.criteria.Root;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
@@ -52,7 +53,7 @@ import com.intuit.tank.view.filter.ViewFilterType;
  */
 public abstract class BaseDao<T_ENTITY extends BaseEntity> {
 
-    private static final Logger LOG = Logger.getLogger(BaseDao.class);
+    private static final Logger LOG = LogManager.getLogger(BaseDao.class);
 
     private static final ThreadLocalEntityManagerProvider emProvider = new ThreadLocalEntityManagerProvider();
 

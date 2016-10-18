@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:p="http://primefaces.org/ui" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag" template="/WEB-INF/templates/tank.xhtml">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+  	xmlns:f="http://java.sun.com/jsf/core"
+  	xmlns:h="http://java.sun.com/jsf/html"
+  	xmlns:p="http://primefaces.org/ui"
+  	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+  	xmlns:ts="http://java.sun.com/jsf/composite/tag"
+  	template="/WEB-INF/templates/tank.xhtml">
   <ui:define name="content">
-    <f:viewAction action="#{conversation.end}" />
+    <f:viewAction action="#{tsConversationManager.end}" />
     <h:form id="filterAndFilterGroupForm">
       <div class="vertical-spacer" />
       <div>
@@ -50,7 +54,7 @@
               </f:facet>
               <p:commandLink action="#{filterGroupCreationBean.editFilterGroup(filterGroupEnvelope.entity)}"
                 styleClass="pointer" title="Edit #{filterGroupEnvelope.entity.name}" ajax="true">
-                <h:outputText value="#{filterGroupEnvelope.entity.name}" title="#{filterGroupEnvelope.entity.name}" />
+                <h:outputText value="#{filterGroupEnvelope.entity.name}" title="#{filterGroupEnvelope.entity.name} (id=#{filterGroupEnvelope.entity.id})" />
               </p:commandLink>
             </p:column>
 
@@ -127,7 +131,7 @@
               </f:facet>
               <p:commandLink action="#{scriptFilterCreationBean.editFilter(filterEnvelope.entity)}" styleClass="pointer"
                 title="Edit #{filterEnvelope.entity.name}" ajax="true">
-                <h:outputText value="#{filterEnvelope.entity.name}" title="#{filterEnvelope.entity.name}" />
+                <h:outputText value="#{filterEnvelope.entity.name}" title="#{filterEnvelope.entity.name} (id=#{filterEnvelope.entity.id})" />
               </p:commandLink>
             </p:column>
 
@@ -183,7 +187,7 @@
 
 
     <p:confirmDialog id="confirmFilterGroupId" appendTo="@(body)" widgetVar="confirmFilterGroup" header="Confirm Delete"
-      message="Are you sure you want to delete filter #{filterGroupBean.selectedFilter.entity.name}?">
+      message="Are you sure you want to delete filter Group #{filterGroupBean.selectedFilter.entity.name}?">
       <h:form id="confirmDeleteFilterGroupForm">
         <p:commandButton value="OK" id="confirmDeleteOkBtn" action="#{filterGroupBean.deleteSelectedFilterGroup()}"
           onsuccess="PF('confirmFilterGroup').hide()"

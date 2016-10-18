@@ -23,7 +23,9 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.common.ScriptAssignment;
 import com.intuit.tank.common.ScriptUtil;
@@ -39,7 +41,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.settings.TimeUtil;
 
 public class JobValidator {
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(JobValidator.class);
+    private static final Logger LOG = LogManager.getLogger(JobValidator.class);
 
     private Map<String, Set<String>> declaredVariables = new HashMap<String, Set<String>>();
     private Map<String, Set<String>> assignments = new HashMap<String, Set<String>>();

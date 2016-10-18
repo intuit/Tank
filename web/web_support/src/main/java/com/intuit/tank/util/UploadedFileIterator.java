@@ -23,7 +23,8 @@ import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.primefaces.model.UploadedFile;
 
 import com.intuit.tank.wrapper.FileInputStreamWrapper;
@@ -34,7 +35,7 @@ import com.intuit.tank.wrapper.FileInputStreamWrapper;
  * 
  */
 public class UploadedFileIterator {
-    private static final Logger LOG = Logger.getLogger(UploadedFileIterator.class);
+    private static final Logger LOG = LogManager.getLogger(UploadedFileIterator.class);
 
     private String[] extension;
     private FileInputStreamWrapper next;

@@ -35,10 +35,14 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import com.intuit.tank.AgentServiceClient;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
@@ -67,7 +71,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 
 public class APITestHarness {
 
-    private static Logger LOG = Logger.getLogger(APITestHarness.class);
+    private static Logger LOG = LogManager.getLogger(APITestHarness.class);
     public static final int POLL_INTERVAL = 15000;
     private static final int RETRY_SLEEP = 2000;
     private static final int MAX_RETRIES = 10;
@@ -192,8 +196,13 @@ public class APITestHarness {
                 tankHttpClientClass = StringUtils.trim(values[1]);
                 continue;
             } else if (values[0].equalsIgnoreCase("-d")) {
-                Logger.getLogger("com.intuit.tank.http").setLevel(Level.DEBUG);
-                Logger.getLogger("com.intuit.tank").setLevel(Level.DEBUG);
+                LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+                Configuration config = ctx.getConfiguration();
+                LoggerConfig loggerConfig = new LoggerConfig();
+                loggerConfig.setLevel(Level.DEBUG);
+                config.addLogger("com.intuit.tank.http", loggerConfig);
+                config.addLogger("com.intuit.tank", loggerConfig);
+                ctx.updateLoggers(config);
                 DEBUG = true;
                 agentRunData.setActiveProfile(LoggingProfile.VERBOSE);
                 setFlowControllerTemplate(new DebugFlowController());

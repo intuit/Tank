@@ -16,8 +16,9 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -45,7 +46,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 public class S3FileStorage implements FileStorage, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(S3FileStorage.class);
+    private static final Logger LOG = LogManager.getLogger(S3FileStorage.class);
 
     private String bucketName;
     private String extraPath;

@@ -13,7 +13,7 @@ package com.intuit.tank.script;
  * #L%
  */
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.script.RequestDataPhase;

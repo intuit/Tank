@@ -18,9 +18,10 @@ import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
@@ -72,7 +73,7 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 2;// 2
                                                                             // minutes
-    private static Logger LOG = Logger.getLogger(AmazonInstance.class);
+    private static Logger LOG = LogManager.getLogger(AmazonInstance.class);
 
     private AmazonEC2AsyncClient asynchEc2Client;
     // private TypicaInterface ec2Interface;

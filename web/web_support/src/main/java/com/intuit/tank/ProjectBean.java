@@ -24,10 +24,13 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.security.Identity;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import com.intuit.tank.util.Messages;
+import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.ProjectDao;
@@ -50,7 +53,7 @@ import com.intuit.tank.vm.settings.AccessRight;
 @ConversationScoped
 public class ProjectBean implements Serializable {
 
-    private static final Logger LOG = Logger.getLogger(ProjectBean.class);
+    private static final Logger LOG = LogManager.getLogger(ProjectBean.class);
 
     private static final long serialVersionUID = 1L;
     private Project project;
@@ -60,6 +63,9 @@ public class ProjectBean implements Serializable {
 
     @Inject
     private Identity identity;
+    
+    @Inject
+    private IdentityManager identityManager;
     
     @Inject
     private Conversation conversation;
@@ -145,7 +151,6 @@ public class ProjectBean implements Serializable {
      * @param project
      */
     public void openProject(Project prj) {
-    	conversation.setTimeout(300000);
     	conversation.begin();
         doOpenProject(prj);
     }
@@ -158,7 +163,7 @@ public class ProjectBean implements Serializable {
         LOG.info("Opening Project " + prj + " workloads " + project.getWorkloads());
         usersAndTimes.init();
         notificationsEditor.init();
-        jobMaker.init();
+        jobMaker.init(this);
         dataFileBean.init();
         workloadScripts.init();
         projectVariableEditor.init();
@@ -261,7 +266,7 @@ public class ProjectBean implements Serializable {
         workloads.add(workload);
         ret.setWorkloads(workloads);
         ret.setComments(project.getComments());
-        ret.setCreator(identity.getUser().getId());
+        ret.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
         ret.setName(saveAsName);
         ret.setProductName(project.getProductName());
         ret.setScriptDriver(project.getScriptDriver());

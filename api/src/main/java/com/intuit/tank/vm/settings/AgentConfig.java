@@ -28,6 +28,8 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * VmManagerConfig
@@ -38,7 +40,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 public class AgentConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(AgentConfig.class);
+    private static final Logger LOG = LogManager.getLogger(AgentConfig.class);
 
     private static final String KEY_AGENT_DATA_FILE_STORAGE = "agent-data-file-storage";
     private static final String KEY_TANK_CLIENT_DEFUALT = "default-tank-client";

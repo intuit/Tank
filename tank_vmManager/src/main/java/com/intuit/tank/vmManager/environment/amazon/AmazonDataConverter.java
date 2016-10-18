@@ -19,7 +19,8 @@ package com.intuit.tank.vmManager.environment.amazon;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.InstanceStateChange;
@@ -36,7 +37,7 @@ import com.intuit.tank.vm.vmManager.VMInformation;
  * 
  */
 public class AmazonDataConverter {
-    private static final Logger LOG = Logger.getLogger(AmazonDataConverter.class);
+    private static final Logger LOG = LogManager.getLogger(AmazonDataConverter.class);
 
     public List<VMInformation> processStateChange(List<InstanceStateChange> changes) {
         List<VMInformation> output = new ArrayList<VMInformation>();

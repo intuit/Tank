@@ -29,9 +29,12 @@ import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.client.urlconnection.HttpURLConnectionFactory;
 import com.sun.jersey.client.urlconnection.URLConnectionClientHandler;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public abstract class BaseRestClient {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(BaseRestClient.class);
+    private static final Logger LOG = LogManager.getLogger(BaseRestClient.class);
     private static final String METHOD_PING = "/ping";
 
     protected String baseUrl;

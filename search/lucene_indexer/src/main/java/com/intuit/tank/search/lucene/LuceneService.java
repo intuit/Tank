@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -35,7 +36,7 @@ import com.intuit.tank.search.util.SearchConstants;
 
 public class LuceneService {
 
-    private static final Logger LOG = Logger.getLogger(LuceneService.class);
+    private static final Logger LOG = LogManager.getLogger(LuceneService.class);
 
     private Directory directory;
 

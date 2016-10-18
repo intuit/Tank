@@ -11,6 +11,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.client.v1.report.ReportServiceClientV1;
 import com.intuit.tank.reporting.api.ResultsReporter;
@@ -26,7 +28,7 @@ import com.intuit.tank.vm.settings.TankConfig;
  */
 public class RestResultsReporter implements ResultsReporter {
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(RestResultsReporter.class);
+    private static final Logger LOG = LogManager.getLogger(RestResultsReporter.class);
 
     private static final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(10, 50, 60, TimeUnit.SECONDS,
             new ArrayBlockingQueue<Runnable>(50), Executors.defaultThreadFactory(),

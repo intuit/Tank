@@ -16,9 +16,10 @@ package com.intuit.tank.vm.common.util;
  * #L%
  */
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * TimingPageName
@@ -27,7 +28,7 @@ import org.apache.log4j.Logger;
  * 
  */
 public class TimingPageName {
-    private static final Logger LOG = Logger.getLogger(TimingPageName.class);
+    private static final Logger LOG = LogManager.getLogger(TimingPageName.class);
 
     private Integer index;
     private String name;

@@ -39,7 +39,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptor;
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptorContainer;
@@ -65,7 +66,7 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 @Path(DataFileService.SERVICE_RELATIVE_PATH)
 public class DataFileServiceV1 implements DataFileService {
 
-    private static final Logger LOG = Logger.getLogger(DataFileServiceV1.class);
+    private static final Logger LOG = LogManager.getLogger(DataFileServiceV1.class);
 
     /**
      * @{inheritDoc

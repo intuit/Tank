@@ -70,7 +70,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.owasp.proxy.daemon.LoopAvoidingTargetedConnectionHandler;
 import org.owasp.proxy.daemon.Proxy;

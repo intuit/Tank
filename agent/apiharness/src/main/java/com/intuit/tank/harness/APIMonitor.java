@@ -15,7 +15,8 @@ package com.intuit.tank.harness;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.CloudServiceClient;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
@@ -32,7 +33,7 @@ public class APIMonitor implements Runnable {
      * 
      */
     private static final int MIN_REPORT_TIME = 15000;
-    private static Logger LOG = Logger.getLogger(APIMonitor.class);
+    private static Logger LOG = LogManager.getLogger(APIMonitor.class);
     private static boolean doMonitor = true;
     private static CloudServiceClient client;
     private static CloudVmStatus status;

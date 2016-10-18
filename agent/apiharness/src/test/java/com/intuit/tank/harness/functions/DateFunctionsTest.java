@@ -1,5 +1,7 @@
 package com.intuit.tank.harness.functions;
 
+import org.apache.logging.log4j.Level;
+
 /*
  * #%L
  * Intuit Tank Agent (apiharness)
@@ -13,9 +15,9 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,8 +31,10 @@ public class DateFunctionsTest {
 
     @Before
     public void setUp() {
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.INFO);
+    	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+    	Configuration config = ctx.getConfiguration();
+    	config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
+    	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
         variables = new Variables();
     }
 

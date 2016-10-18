@@ -27,14 +27,13 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.event.Observes;
-import javax.enterprise.event.Reception;
 import javax.inject.Inject;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Logger;
-import org.jboss.seam.international.status.Messages;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import com.intuit.tank.util.Messages;
 import org.primefaces.event.NodeCollapseEvent;
 import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.model.DefaultTreeNode;
@@ -61,7 +60,6 @@ import com.intuit.tank.job.ProjectNodeBean;
 import com.intuit.tank.job.VMNodeBean;
 import com.intuit.tank.prefs.TablePreferences;
 import com.intuit.tank.prefs.TableViewState;
-import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.reporting.api.ResultsReader;
 import com.intuit.tank.reporting.api.TPSInfo;
 import com.intuit.tank.reporting.factory.ReportingFactory;
@@ -78,7 +76,7 @@ public abstract class JobTreeTableBean implements Serializable {
 
     private static final String TOTAL_TPS_SERIES_KEY = "Total TPS";
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(JobTreeTableBean.class);
+    private static final Logger LOG = LogManager.getLogger(JobTreeTableBean.class);
 
     private static final int MIN_REFRESH = 10;
     private static final int INITIAL_SIZE = 10;
@@ -90,6 +88,7 @@ public abstract class JobTreeTableBean implements Serializable {
 
     @Inject
     private Messages messages;
+    
     @Inject
     private Security security;
     
@@ -474,7 +473,6 @@ public abstract class JobTreeTableBean implements Serializable {
         if (rootJob == null || rootJob == 0) {
             List<JobQueue> queuedJobs = jqd.findRecent();
             mt.markAndLog("find all active jobs");
-            Collections.sort(queuedJobs, new PropertyComparer<JobQueue>(JobQueue.PROPERTY_PROJECT_ID));
             rootNode = new DefaultTreeNode("root", null);
             for (JobQueue jobQueue : queuedJobs) {
                 TreeNode projectNode = createJobNode(trackerJobs, jobQueue);

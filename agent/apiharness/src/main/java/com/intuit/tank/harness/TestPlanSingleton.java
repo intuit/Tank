@@ -17,7 +17,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.harness.logging.LogUtil;
@@ -25,7 +26,7 @@ import com.intuit.tank.harness.parsers.WorkloadParser;
 import com.intuit.tank.logging.LogEventType;
 
 public class TestPlanSingleton {
-    private static final Logger LOG = Logger.getLogger(TestPlanSingleton.class);
+    private static final Logger LOG = LogManager.getLogger(TestPlanSingleton.class);
 
     static private TestPlanSingleton instance = null;
     private List<HDWorkload> workloads;

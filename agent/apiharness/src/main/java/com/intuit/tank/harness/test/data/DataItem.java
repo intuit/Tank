@@ -13,11 +13,12 @@ package com.intuit.tank.harness.test.data;
  * #L%
  */
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class DataItem {
 
-    static Logger logger = Logger.getLogger(DataItem.class);
+    static Logger logger = LogManager.getLogger(DataItem.class);
 
     private String name = null;
     private String value = null;
