@@ -18,6 +18,6 @@
     <jaxws-client disabled="true" />
     <java-client disabled="false" generateJsonJar="true" />
     
-    <docs css="src/main/resources/custom.css" docsSubdir="."  />
+    <docs css="src/main/resources/custom.css" docsSubdir="." />
   </modules>
 </enunciate> 

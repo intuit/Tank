@@ -43,13 +43,16 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.api.model.v1.automation.AutomationJobRegion;
 import com.intuit.tank.api.model.v1.automation.AutomationRequest;
+import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.api.model.v1.automation.ApplyFiltersRequest;
 import com.intuit.tank.api.model.v1.automation.CreateJobRequest;
 import com.intuit.tank.api.model.v1.automation.CreateJobRegion;
 import com.intuit.tank.api.service.v1.automation.AutomationService;
+import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.dao.BaseDao;
 import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.dao.FilterDao;
@@ -215,6 +218,29 @@ public class AutomationServiceV1 implements AutomationService {
 
 	}
 
+	/**
+	 * @{inheritDoc
+	 */
+	@Override
+	public Response saveAs(String scriptId, String saveAsName) {
+		String newScriptId = "FAILED";
+		if (StringUtils.isEmpty(scriptId)) {
+			return Response.status(Status.BAD_REQUEST).entity("Failed to recieve a valid scriptId ->" + scriptId + "<-").build();
+		}
+		if (StringUtils.isEmpty(saveAsName)) {
+			return Response.status(Status.BAD_REQUEST).entity("Failed to recieve a valid script name ->" + saveAsName + "<-").build();
+		}
+		try {
+			Script script = new ScriptDao().findById(Integer.parseInt(scriptId));
+            Script copyScript = ScriptUtil.copyScript("System", saveAsName, script);
+            copyScript = new ScriptDao().saveOrUpdate(copyScript);
+            newScriptId = copyScript.getId() + "";
+		} catch (NumberFormatException nfe) {
+			return Response.status(Status.BAD_REQUEST).entity("Failed to parse a valid scriptId ->" + scriptId + "<-").build();
+		}
+		return Response.ok().entity(newScriptId).build();
+	}
+		
 	/**
 	 * @{inheritDoc
 	 */

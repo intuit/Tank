@@ -70,6 +70,19 @@ public interface AutomationService {
     public Response runAutomationJob(@Nonnull FormDataMultiPart formData);
 
     /**
+     * SaveAs an exiting script to a new name and scriptId
+     * 
+     * @param scriptId
+     * @param name
+     * @return Status of Job
+     */
+    @GET
+    @Path("/saveAs"+ "/{scriptId}"+ "/{name}")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Nonnull
+    public Response saveAs(@PathParam("scriptId") String scriptId, @PathParam("name") String name);
+    
+    /**
      * Uploads a script to an existing script 
      * 
      * @param formData
