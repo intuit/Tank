@@ -48,7 +48,7 @@
     <version.primefaces-ext>4.0.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.12</version.surefire>
-    <version.jersey>1.19.2</version.jersey>
+    <version.jersey>2.23.2</version.jersey>
     <version.arquillian>1.1.11.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0.CR7</version.arquillian.tomcat>
     <version.httpclient>4.5.2</version.httpclient>
@@ -523,8 +523,6 @@
         <scope>test</scope>
       </dependency>
 
-
-
       <dependency>
 	    <groupId>com.webcohesion.enunciate</groupId>
 	    <artifactId>enunciate-core</artifactId>
@@ -742,54 +740,30 @@
         <artifactId>simple</artifactId>
         <version>4.1.21</version>
       </dependency>
-      
-      <dependency>
-        <groupId>com.sun.jersey.contribs</groupId>
-        <artifactId>jersey-multipart</artifactId>
-        <version>${version.jersey}</version>
-      </dependency>
 
       <dependency>
-        <groupId>com.sun.jersey</groupId>
+        <groupId>org.glassfish.jersey.core</groupId>
         <artifactId>jersey-client</artifactId>
         <version>${version.jersey}</version>
       </dependency>
 
       <dependency>
-        <groupId>com.sun.jersey</groupId>
+        <groupId>org.glassfish.jersey.core</groupId>
         <artifactId>jersey-server</artifactId>
         <version>${version.jersey}</version>
       </dependency>
       
       <dependency>
-		<groupId>com.sun.jersey</groupId>
-		<artifactId>jersey-servlet</artifactId>
+    	<groupId>org.glassfish.jersey.media</groupId>
+    	<artifactId>jersey-media-multipart</artifactId>
         <version>${version.jersey}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.sun.jersey</groupId>
-        <artifactId>jersey-json</artifactId>
+	  </dependency>
+	  
+	  <dependency>
+    	<groupId>org.glassfish.jersey.containers</groupId>
+    	<artifactId>jersey-container-servlet-core</artifactId>
         <version>${version.jersey}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.sun.jersey</groupId>
-        <artifactId>jersey-fastinfoset</artifactId>
-        <version>${version.jersey}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.sun.jersey.contribs</groupId>
-        <artifactId>jersey-atom-abdera</artifactId>
-        <version>${version.jersey}</version>
-        <exclusions>
-          <exclusion>
-            <artifactId>mail</artifactId>
-            <groupId>javax.mail</groupId>
-          </exclusion>
-        </exclusions>
-      </dependency>
+	  </dependency>
 
       <dependency>
         <groupId>saxpath</groupId>

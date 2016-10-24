@@ -17,15 +17,16 @@ package com.intuit.tank.service.impl.v1.automation;
  */
 
 import javax.ws.rs.Path;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
+import org.glassfish.jersey.client.ClientProperties;
 import org.junit.Assert;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * DataFileServiceV1Test
@@ -45,15 +46,14 @@ public class AutomationServiceV1Test {
 
     @BeforeClass
     public void setup() {
-        client = Client.create();
-        client.setFollowRedirects(true);
-
+        client = ClientBuilder.newClient();
     }
 
     @Test(groups = { "manual" })
     public void testPing() {
-        WebResource webResource = client.resource(SERVICE_BASE_URL + "/ping");
-        String response = webResource.accept(MediaType.TEXT_PLAIN_TYPE).get(String.class);
+    	WebTarget webTarget = client.target(SERVICE_BASE_URL + "/ping");
+    	webTarget.property(ClientProperties.FOLLOW_REDIRECTS, true);
+        String response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(String.class);
         Assert.assertEquals("PONG", response);
     }
 

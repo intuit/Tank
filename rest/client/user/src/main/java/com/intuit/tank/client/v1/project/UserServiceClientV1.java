@@ -18,8 +18,11 @@ package com.intuit.tank.client.v1.project;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+
+import org.glassfish.jersey.client.ClientResponse;
 
 import com.intuit.tank.api.model.v1.user.User;
 import com.intuit.tank.api.model.v1.user.UserContainer;
@@ -27,8 +30,6 @@ import com.intuit.tank.api.model.v1.user.UserCredentials;
 import com.intuit.tank.api.service.v1.project.UserService;
 import com.intuit.tank.rest.BaseRestClient;
 import com.intuit.tank.rest.util.ServiceConsants;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * ProjectClientV1
@@ -69,10 +70,10 @@ public class UserServiceClientV1 extends BaseRestClient {
      * @{inheritDoc
      */
     public List<User> getAllUsers() {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(UserService.METHOD_USERS));
-        ClientResponse response = webResource.get(ClientResponse.class);
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(UserService.METHOD_USERS));
+        ClientResponse response = webTarget.request().get(ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
-        UserContainer container = response.getEntity(UserContainer.class);
+        UserContainer container = response.readEntity(UserContainer.class);
         return container.getUsers();
     }
 
@@ -80,21 +81,19 @@ public class UserServiceClientV1 extends BaseRestClient {
      * @{inheritDoc
      */
     public User getUser(String name) {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(UserService.METHOD_USER, name));
-        ClientResponse response = webResource.get(ClientResponse.class);
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(UserService.METHOD_USER, name));
+        ClientResponse response = webTarget.request().get(ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
-        User user = response.getEntity(User.class);
-        return user;
+        return response.readEntity(User.class);
     }
 
     /**
      * @{inheritDoc
      */
     public User authenticate(UserCredentials credentials) {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(UserService.METHOD_AUTHENTICATE));
-        ClientResponse response = webResource.post(ClientResponse.class, credentials);
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(UserService.METHOD_AUTHENTICATE));
+        ClientResponse response = webTarget.request().post(Entity.entity(credentials, MediaType.APPLICATION_XML), ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
-        User user = response.getEntity(User.class);
-        return user;
+        return response.readEntity(User.class);
     }
 }

@@ -17,8 +17,11 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nullable;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
+
+import org.glassfish.jersey.client.ClientResponse;
 
 import com.intuit.tank.api.model.v1.job.JobContainer;
 import com.intuit.tank.api.model.v1.job.JobTO;
@@ -26,9 +29,6 @@ import com.intuit.tank.api.service.v1.job.JobService;
 import com.intuit.tank.rest.BaseRestClient;
 import com.intuit.tank.rest.RestServiceException;
 import com.intuit.tank.rest.util.ServiceConsants;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * JobClient
@@ -69,28 +69,28 @@ public class JobServiceClient extends BaseRestClient {
      * @{inheritDoc
      */
     @Nullable
-    public JobTO getJob(int jobId) throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(JobService.METHOD_JOB, jobId));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+    public JobTO getJob(int jobId) throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(JobService.METHOD_JOB, jobId));
+        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
         if (response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
             return null;
         }
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(JobTO.class);
+        return response.readEntity(JobTO.class);
     }
 
     /**
      * @{inheritDoc
      */
     @Nullable
-    public List<JobTO> getJobsForProject(int projectId) throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(JobService.METHOD_JOBS, projectId));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+    public List<JobTO> getJobsForProject(int projectId) throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(JobService.METHOD_JOBS, projectId));
+        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
         if (response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
             return Collections.emptyList();
         }
         exceptionHandler.checkStatusCode(response);
-        JobContainer jobContainer = response.getEntity(JobContainer.class);
+        JobContainer jobContainer = response.readEntity(JobContainer.class);
         return jobContainer.getJobs();
     }
 }

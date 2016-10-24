@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 import com.intuit.tank.api.model.v1.automation.CreateJobRequest;
 import com.intuit.tank.api.model.v1.automation.ApplyFiltersRequest;
 
-import com.sun.jersey.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved

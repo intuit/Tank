@@ -19,15 +19,16 @@ package com.intuit.tank.client.v1.datafile;
 import java.io.InputStream;
 import java.util.List;
 
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+
+import org.glassfish.jersey.client.ClientResponse;
 
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptor;
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptorContainer;
 import com.intuit.tank.rest.BaseRestClient;
 import com.intuit.tank.rest.util.ServiceConsants;
 import com.intuit.tank.service.api.v1.DataFileService;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * DataFileClient
@@ -68,11 +69,11 @@ public class DataFileClient extends BaseRestClient {
      * @{inheritDoc
      */
     public List<DataFileDescriptor> getDataFiles() {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(
                 DataFileService.METHOD_GET_DATA_FILES));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(DataFileDescriptorContainer.class).getDataFiles();
+        return response.readEntity(DataFileDescriptorContainer.class).getDataFiles();
 
     }
 
@@ -80,59 +81,59 @@ public class DataFileClient extends BaseRestClient {
      * @{inheritDoc
      */
     public DataFileDescriptor getDataFile(Integer id) {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(
                 DataFileService.METHOD_GET_DATA_FILES, id));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(DataFileDescriptor.class);
+        return response.readEntity(DataFileDescriptor.class);
     }
 
     /**
      * @{inheritDoc
      */
     public String getDataFileDataOffset(Integer id, int offset, int numLines) {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(
                 DataFileService.METHOD_GET_DATA_FILES, id, "data/offset" + offset));
-        webResource.queryParam("offset", Integer.toString(offset));
-        webResource.queryParam("num-lines", Integer.toString(numLines));
-        ClientResponse response = webResource.accept(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
+    	webTarget.queryParam("offset", Integer.toString(offset));
+    	webTarget.queryParam("num-lines", Integer.toString(numLines));
+        ClientResponse response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(String.class);
+        return response.readEntity(String.class);
     }
 
     /**
      * @{inheritDoc "/datafile/{id}/data"
      */
     public String getDataFileData(Integer id) {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(
                 DataFileService.METHOD_GET_DATA_FILES, id, "data"));
-        ClientResponse response = webResource.accept(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
+        ClientResponse response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(String.class);
+        return response.readEntity(String.class);
     }
 
     /**
      * @{inheritDoc
      */
     public InputStream getDataFileDataStream(Integer id) {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(
                 DataFileService.METHOD_GET_DATA_FILES, id, "data"));
-        ClientResponse response = webResource.accept(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
+        ClientResponse response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
-        return response.getEntityInputStream();
+        return response.getEntityStream();
     }
 
     /**
      * @{inheritDoc
      */
     public InputStream getDataFileDataOffsetStream(Integer id, int offset, int numLines) {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(
                 DataFileService.METHOD_GET_DATA_FILES, id, "data/offset" + offset));
-        webResource.queryParam("offset", Integer.toString(offset));
-        webResource.queryParam("num-lines", Integer.toString(numLines));
-        ClientResponse response = webResource.accept(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
+    	webTarget.queryParam("offset", Integer.toString(offset));
+    	webTarget.queryParam("num-lines", Integer.toString(numLines));
+        ClientResponse response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
-        return response.getEntityInputStream();
+        return response.getEntityStream();
     }
 
 }

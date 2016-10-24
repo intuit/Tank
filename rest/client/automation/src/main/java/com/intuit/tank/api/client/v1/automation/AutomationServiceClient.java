@@ -19,18 +19,19 @@ package com.intuit.tank.api.client.v1.automation;
 import java.io.File;
 import java.io.InputStream;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+
+import org.glassfish.jersey.client.ClientResponse;
+import org.glassfish.jersey.media.multipart.BodyPart;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.MultiPart;
+import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 
 import com.intuit.tank.api.model.v1.automation.AutomationRequest;
 import com.intuit.tank.rest.BaseRestClient;
 import com.intuit.tank.rest.RestServiceException;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.multipart.BodyPart;
-import com.sun.jersey.multipart.FormDataBodyPart;
-import com.sun.jersey.multipart.MultiPart;
-import com.sun.jersey.multipart.file.FileDataBodyPart;
 
 /**
  * AutomationServiceClient
@@ -72,8 +73,8 @@ public class AutomationServiceClient extends BaseRestClient {
      * @{inheritDoc
      */
     public String runAutomationJob(AutomationRequest request, File xmlFile)
-            throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(baseUrl + METHOD_RUN_JOB);
+            throws RestServiceException {
+    	WebTarget webTarget = client.target(baseUrl + METHOD_RUN_JOB);
         MultiPart multiPart = new MultiPart();
         if (xmlFile != null) {
             BodyPart bp = new FileDataBodyPart("file", xmlFile);
@@ -82,11 +83,9 @@ public class AutomationServiceClient extends BaseRestClient {
 
         multiPart.bodyPart(new FormDataBodyPart("automationRequest", request,
                 MediaType.APPLICATION_XML_TYPE));
-        ClientResponse response = webResource.type(
-                MediaType.MULTIPART_FORM_DATA_TYPE).post(ClientResponse.class,
-                multiPart);
+        ClientResponse response = webTarget.request().post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE), ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(String.class);
+        return response.readEntity(String.class);
     }
 
     /**
@@ -94,7 +93,7 @@ public class AutomationServiceClient extends BaseRestClient {
      */
     public String runAutomationJob(AutomationRequest request,
             InputStream xmlFileStream) {
-        WebResource webResource = client.resource(baseUrl + METHOD_RUN_JOB);
+    	WebTarget webTarget = client.target(baseUrl + METHOD_RUN_JOB);
         MultiPart multiPart = new MultiPart();
         if (xmlFileStream != null) {
             BodyPart bp = new FormDataBodyPart("file", xmlFileStream,
@@ -103,11 +102,9 @@ public class AutomationServiceClient extends BaseRestClient {
         }
         multiPart.bodyPart(new FormDataBodyPart("automationRequest", request,
                 MediaType.APPLICATION_XML_TYPE));
-        ClientResponse response = webResource.type(
-                MediaType.MULTIPART_FORM_DATA_TYPE).post(ClientResponse.class,
-                multiPart);
+        ClientResponse response = webTarget.request().post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE), ClientResponse.class);
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(String.class);
+        return response.readEntity(String.class);
     }
 
 }

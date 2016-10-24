@@ -18,8 +18,7 @@ package com.intuit.tank.rest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.sun.jersey.api.client.ClientResponse;
+import org.glassfish.jersey.client.ClientResponse;
 
 /**
  * RestExceptionHandler
@@ -35,7 +34,7 @@ public class RestExceptionHandler {
         if (response.getStatus() >= 400) { //
             LOG.error("Got rest response status code " + response.getStatus() + " from location "
                     + response.getLocation());
-            String msg = response.getEntity(String.class);
+            String msg = response.readEntity(String.class);
             if (msg == null) {
                 msg = getMessageForCode(response.getStatus());
             }

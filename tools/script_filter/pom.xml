@@ -40,7 +40,7 @@
 
         <exclusion>
           <artifactId>jersey-fastinfoset</artifactId>
-          <groupId>com.sun.jersey</groupId>
+          <groupId>org.glassfish.jersey.core</groupId>
         </exclusion>
 
         <exclusion>

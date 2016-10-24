@@ -43,11 +43,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.picketlink.idm.model.basic.User;
-
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import com.intuit.tank.api.model.v1.automation.AutomationJobRegion;
 import com.intuit.tank.api.model.v1.automation.AutomationRequest;
-import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.api.model.v1.automation.ApplyFiltersRequest;
 import com.intuit.tank.api.model.v1.automation.CreateJobRequest;
 import com.intuit.tank.api.model.v1.automation.CreateJobRegion;
@@ -99,10 +98,6 @@ import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.common.util.ReportUtil;
 import com.intuit.tank.vm.settings.ModificationType;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
-
-import com.sun.jersey.core.header.ContentDisposition;
-import com.sun.jersey.multipart.FormDataBodyPart;
-import com.sun.jersey.multipart.FormDataMultiPart;
 
 /**
  * AutomationServiceV1
@@ -250,7 +245,6 @@ public class AutomationServiceV1 implements AutomationService {
 		FormDataBodyPart scriptId = formData.getField("scriptId");
 		FormDataBodyPart scriptName = formData.getField("scriptName");
 		FormDataBodyPart filePart = formData.getField("file");
-		ContentDisposition headerOfFilePart = filePart.getContentDisposition();
 		InputStream is = filePart.getValueAs(InputStream.class);
 		Script script = null;
 		try {
