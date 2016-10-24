@@ -30,6 +30,7 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import com.intuit.tank.util.Messages;
 import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
 
 import com.intuit.tank.admin.Deleted;
 import com.intuit.tank.dao.PreferencesDao;
@@ -53,6 +54,9 @@ public class AccountModify implements Serializable {
 
     @Inject
     private Identity identity;
+    
+    @Inject 
+    private IdentityManager identityManager;
 
     private String passwordConfirm;
 
@@ -71,8 +75,8 @@ public class AccountModify implements Serializable {
     public void init() {
         try {
             if (identity.isLoggedIn()) {
-                UserDao userDao = new UserDao();
-                user = userDao.findById(Integer.parseInt(identity.getAccount().getId()));
+            	String loginName = identityManager.lookupById(org.picketlink.idm.model.basic.User.class, identity.getAccount().getId()).getLoginName();
+            	user = new UserDao().findByUserName(loginName);
             }
         } catch (Exception e) {
             LOG.error("Error getting user: " + e, e);
@@ -166,8 +170,7 @@ public class AccountModify implements Serializable {
                 }
             }
             try {
-                UserDao userDao = new UserDao();
-                userDao.saveOrUpdate(user);
+                new UserDao().saveOrUpdate(user);
                 succeeded = true;
                 messages.info("Your account has been updated.");
             } catch (HibernateException e) {
