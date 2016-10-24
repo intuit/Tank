@@ -232,6 +232,8 @@ public class AutomationServiceV1 implements AutomationService {
             newScriptId = copyScript.getId() + "";
 		} catch (NumberFormatException nfe) {
 			return Response.status(Status.BAD_REQUEST).entity("Failed to parse a valid scriptId ->" + scriptId + "<-").build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity("Failed to find a valid script for scriptId ->" + scriptId + "<-").build();
 		}
 		return Response.ok().entity(newScriptId).build();
 	}
@@ -268,12 +270,9 @@ public class AutomationServiceV1 implements AutomationService {
 			for (ScriptStep step : scriptSteps) {
 				newSteps.add(step);
 			}
-			// script.setScriptSteps(newSteps);
-			//
-			// script.setScriptSteps(newSteps);
 			script = new ScriptDao().saveOrUpdate(script);
 			sendMsg(script, ModificationType.UPDATE);
-			responseBuilder.entity(script.getId());
+			responseBuilder.entity(Integer.toString(script.getId()));
 		} catch (Exception e) {
 			LOG.error("Error starting script: " + e, e);
 			responseBuilder = Response.status(Status.INTERNAL_SERVER_ERROR);
@@ -359,8 +358,7 @@ public class AutomationServiceV1 implements AutomationService {
 					project = projectDao.saveOrUpdateProject(project);
 
 					JobInstance job = addJobToQueue(project, request);
-					String jobId = Integer.toString(job.getId());
-					return Response.ok().entity(jobId).build();
+					return Response.ok().entity(Integer.toString(job.getId())).build();
 				}
 			}
 		}
