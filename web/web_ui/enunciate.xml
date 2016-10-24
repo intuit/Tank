@@ -11,12 +11,15 @@
   </api-classes>
 
   <modules>
+  	<jaxrs>
+  		<application path="/rest"/>
+  	</jaxrs>
     <c disabled="true" />
     <obj-c disabled="true" />
     <csharp disabled="true" />
     <jaxws-client disabled="true" />
     <java-client disabled="false" generateJsonJar="true" />
     
-    <docs css="src/main/resources/custom.css" docsSubdir="." />
+    <docs css="src/main/resources/custom.css" docsSubdir="." includeApplicationPath="true" />
   </modules>
 </enunciate> 
