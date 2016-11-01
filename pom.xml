@@ -31,7 +31,6 @@
     <version.hibernate>4.2.21.Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
     <version-aws-sdk>1.11.36</version-aws-sdk>
-    <tto.jar.version>1.2.0</tto.jar.version>
     <spring.version>2.5.6</spring.version>
  	<tomcat.version>7.0.68</tomcat.version>
  	
@@ -55,8 +54,8 @@
     
     <!-- maven-compiler-plugin -->
     <version.compiler.plugin>3.5.1</version.compiler.plugin>
-    <maven.compiler.target>1.7</maven.compiler.target>
-    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
   </properties>
 
 
@@ -556,13 +555,13 @@
       <dependency>
         <groupId>org.apache.poi</groupId>
         <artifactId>poi</artifactId>
-        <version>3.7</version>
+        <version>3.15</version>
       </dependency>
 
       <dependency>
-        <groupId>com.lowagie</groupId>
-        <artifactId>itext</artifactId>
-        <version>2.1.7</version>
+	    <groupId>com.itextpdf</groupId>
+	    <artifactId>itextpdf</artifactId>
+	    <version>5.5.10</version>
       </dependency>
 
       <dependency>
@@ -592,7 +591,7 @@
       <dependency>
         <groupId>com.ocpsoft</groupId>
         <artifactId>prettyfaces-jsf2</artifactId>
-        <version>3.2.0</version>
+        <version>3.3.3</version>
       </dependency>
 
       <dependency>
@@ -613,13 +612,13 @@
       <dependency>
    	  	<groupId>org.glassfish</groupId>
    	  	<artifactId>javax.ejb</artifactId>
-   	  	<version>3.1</version>
+   	  	<version>3.1.1</version>
 	  </dependency>
 
       <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
-        <version>1.3.148</version>
+        <version>1.4.192</version>
       </dependency>
 
       <dependency>
@@ -641,9 +640,9 @@
       </dependency>
 
       <dependency>
-        <groupId>commons-configuration</groupId>
-        <artifactId>commons-configuration</artifactId>
-        <version>1.10</version>
+	   	<groupId>commons-configuration</groupId>
+	    <artifactId>commons-configuration</artifactId>
+	    <version>1.10</version>
       </dependency>
 
       <dependency>
@@ -655,19 +654,19 @@
       <dependency>
         <groupId>commons-cli</groupId>
         <artifactId>commons-cli</artifactId>
-        <version>1.2</version>
+        <version>1.3.1</version>
       </dependency>
 
-      <dependency>
-        <groupId>commons-collections</groupId>
-        <artifactId>commons-collections</artifactId>
-        <version>3.2.1</version>
-      </dependency>
+	  <dependency>
+	    <groupId>commons-collections</groupId>
+	    <artifactId>commons-collections</artifactId>
+	    <version>3.2.2</version>
+	  </dependency>
 
       <dependency>
         <groupId>de.javakaffee.msm</groupId>
         <artifactId>msm-kryo-serializer</artifactId>
-        <version>1.8.0</version>
+        <version>2.0.0</version>
       </dependency>
 
       <dependency>
@@ -679,7 +678,7 @@
       <dependency>
         <groupId>org.codehaus.groovy</groupId>
         <artifactId>groovy-all</artifactId>
-        <version>1.8.0</version>
+        <version>2.4.7</version>
       </dependency>
 
       <dependency>
