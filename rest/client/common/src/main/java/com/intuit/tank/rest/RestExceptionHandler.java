@@ -3,6 +3,8 @@
  */
 package com.intuit.tank.rest;
 
+import javax.ws.rs.core.Response;
+
 /*
  * #%L
  * Rest Client Common
@@ -18,7 +20,6 @@ package com.intuit.tank.rest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.glassfish.jersey.client.ClientResponse;
 
 /**
  * RestExceptionHandler
@@ -30,8 +31,8 @@ public class RestExceptionHandler {
 
     private static final Logger LOG = LogManager.getLogger(RestExceptionHandler.class);
 
-    public void checkStatusCode(ClientResponse response) throws RestServiceException {
-        if (response.getStatus() >= 400) { //
+    public void checkStatusCode(Response response) throws RestServiceException {
+        if (response.getStatus() >= 400) {
             LOG.error("Got rest response status code " + response.getStatus() + " from location "
                     + response.getLocation());
             String msg = response.readEntity(String.class);

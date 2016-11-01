@@ -23,12 +23,13 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.ClientResponse;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.client.spi.ConnectorProvider;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,7 +49,7 @@ public abstract class BaseRestClient {
      */
     public BaseRestClient(String serviceUrl, final String proxyServer, final Integer proxyPort) {
         setBaseUrl(serviceUrl);
-        if (proxyServer != null) {
+        if (StringUtils.isNotEmpty(proxyServer)) {
         	ConnectorProvider connectorprovider = new HttpUrlConnectorProvider() {
                 private Proxy proxy;
 
@@ -100,7 +101,7 @@ public abstract class BaseRestClient {
         WebTarget webTarget = client.target(baseUrl + METHOD_PING);
     	webTarget.property(ClientProperties.FOLLOW_REDIRECTS, true);
     	webTarget.property(ClientProperties.CONNECT_TIMEOUT, 5000);
-        ClientResponse response =  webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(String.class);
     }

@@ -22,8 +22,7 @@ import java.util.List;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-
-import org.glassfish.jersey.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
@@ -73,7 +72,7 @@ public class CloudServiceClient extends BaseRestClient {
     public String getSummaryStatus(String jobId) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_REPORTING_SUMMARY_STATUS,
                 jobId));
-        ClientResponse response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(String.class);
     }
@@ -88,7 +87,7 @@ public class CloudServiceClient extends BaseRestClient {
     public String userIdFromRange(String jobId, int minValue, int maxValue) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_USER_ID_FROM_RANGE, jobId,
                 Integer.toString(minValue), Integer.toString(maxValue)));
-        ClientResponse response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.getEntity().toString();
     }
@@ -98,7 +97,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public CloudVmStatus getVmStatus(String instanceId) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_INSTANCE_STATUS, instanceId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(CloudVmStatus.class);
     }
@@ -108,7 +107,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public CloudVmStatusContainer getVmStatusForJob(String jobId) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_JOB_STATUS, jobId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(CloudVmStatusContainer.class);
     }
@@ -118,7 +117,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void setVmStatus(String instanceId, CloudVmStatus status) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_INSTANCE_STATUS, instanceId));
-        ClientResponse response = webTarget.request().post(Entity.entity(status, MediaType.APPLICATION_XML_TYPE), ClientResponse.class);
+        Response response = webTarget.request().put(Entity.entity(status, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
 
     }
@@ -128,7 +127,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void stopInstance(String instanceId) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_STOP_INSTANCE, instanceId));
-        ClientResponse response = webTarget.request().get(ClientResponse.class);
+        Response response = webTarget.request().get();
         exceptionHandler.checkStatusCode(response);
 
     }
@@ -138,7 +137,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void stopInstances(ArrayList<String> instanceIds) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_STOP_INSTANCE));
-        ClientResponse response = webTarget.request().post(Entity.entity(instanceIds, MediaType.APPLICATION_XML), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(instanceIds, MediaType.APPLICATION_XML));
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -147,7 +146,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public CloudVmStatus startReportingProxy(String location) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_REPORTING_START, location));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(CloudVmStatus.class);
     }
@@ -157,7 +156,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void stopReportingProxy(String location) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_REPORTING_STOP, location));
-        ClientResponse response = webTarget.request().get(ClientResponse.class);
+        Response response = webTarget.request().get();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -166,7 +165,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public CloudVmStatus getReportingProxyStatus(String location) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_REPORTING_STATUS, location));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(CloudVmStatus.class);
     }
@@ -176,7 +175,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void killInstance(String instanceId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_KILL_INSTANCE, instanceId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
 
     }
@@ -186,7 +185,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void killJob(String jobId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_KILL_JOB, jobId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -195,7 +194,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void killInstances(List<String> instanceIds) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_KILL_INSTANCE));
-        ClientResponse response = webTarget.request().post(Entity.entity(instanceIds, MediaType.APPLICATION_XML), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(instanceIds, MediaType.APPLICATION_XML));
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -204,7 +203,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void stopJob(String jobId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_STOP_JOB, jobId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
 
     }
@@ -214,7 +213,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void stopAgent(String instanceId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_STOP_INSTANCE, instanceId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -223,7 +222,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void stopAgents(List<String> instanceIds) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_STOP_INSTANCE));
-        ClientResponse response = webTarget.request().post(Entity.entity(instanceIds, MediaType.APPLICATION_XML), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(instanceIds, MediaType.APPLICATION_XML));
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -232,7 +231,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void pauseJob(String jobId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_PAUSE_JOB, jobId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -241,7 +240,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void pauseAgent(String instanceId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_PAUSE_INSTANCE, instanceId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -250,7 +249,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void pauseAgents(List<String> instanceIds) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_RESTART_INSTANCE));
-        ClientResponse response = webTarget.request().post(Entity.entity(instanceIds, MediaType.APPLICATION_XML), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(instanceIds, MediaType.APPLICATION_XML));
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -259,7 +258,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void restartJob(String jobId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_RESTART_JOB, jobId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -268,7 +267,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void restartAgent(String instanceId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_RESTART_INSTANCE, instanceId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -277,7 +276,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void restartAgents(List<String> instanceIds) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_RESTART_INSTANCE));
-        ClientResponse response = webTarget.request().post(Entity.entity(instanceIds, MediaType.APPLICATION_XML), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(instanceIds, MediaType.APPLICATION_XML));
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -286,7 +285,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void pauseRampJob(String jobId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_PAUSE_RAMP_JOB, jobId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -296,7 +295,7 @@ public class CloudServiceClient extends BaseRestClient {
     public void pauseRampAgent(String instanceId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_PAUSE_RAMP_INSTANCE,
                 instanceId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -305,7 +304,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void pauseRampAgents(List<String> instanceIds) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_PAUSE_RAMP_INSTANCE));
-        ClientResponse response = webTarget.request().post(Entity.entity(instanceIds, MediaType.APPLICATION_XML), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(instanceIds, MediaType.APPLICATION_XML));
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -314,7 +313,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void resumeRampJob(String jobId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_RESUME_RAMP_JOB, jobId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -324,7 +323,7 @@ public class CloudServiceClient extends BaseRestClient {
     public void resumeRampAgent(String instanceId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_RESUME_RAMP_INSTANCE,
                 instanceId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -333,7 +332,7 @@ public class CloudServiceClient extends BaseRestClient {
      */
     public void resumeRampAgents(List<String> instanceIds) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_RESUME_RAMP_INSTANCE));
-        ClientResponse response = webTarget.request().post(Entity.entity(instanceIds, MediaType.APPLICATION_XML), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(instanceIds, MediaType.APPLICATION_XML));
         exceptionHandler.checkStatusCode(response);
     }
 

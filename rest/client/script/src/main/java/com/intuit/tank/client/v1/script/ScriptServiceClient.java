@@ -27,9 +27,9 @@ import javax.annotation.Nullable;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.IOUtils;
-import org.glassfish.jersey.client.ClientResponse;
 import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
@@ -91,12 +91,12 @@ public class ScriptServiceClient extends BaseRestClient {
         BodyPart bp = new FormDataBodyPart("file", in, MediaType.APPLICATION_OCTET_STREAM_TYPE);
         multiPart.bodyPart(bp);
         multiPart.bodyPart(new FormDataBodyPart("scriptUploadRequest", request, MediaType.APPLICATION_XML_TYPE));
-        ClientResponse response = webTarget.request().post(Entity.entity(multiPart,MediaType.MULTIPART_FORM_DATA_TYPE), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(multiPart,MediaType.MULTIPART_FORM_DATA_TYPE));
         exceptionHandler.checkStatusCode(response);
 
-        String loc = response.getHeaders().getFirst("location");
+        String loc = response.getHeaders().getFirst("location").toString();
         webTarget = client.target(loc);
-        response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(ScriptTO.class);
     }
@@ -106,7 +106,7 @@ public class ScriptServiceClient extends BaseRestClient {
      */
     public ScriptDescriptionContainer getScriptDescriptions() throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_DESCRIPTION));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(ScriptDescriptionContainer.class);
     }
@@ -118,7 +118,7 @@ public class ScriptServiceClient extends BaseRestClient {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_STEPS));
     	webTarget.queryParam("start", Integer.toString(start));
     	webTarget.queryParam("numSteps", Integer.toString(numSteps));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(ScriptStepContainer.class);
     }
@@ -128,7 +128,7 @@ public class ScriptServiceClient extends BaseRestClient {
      */
     public ScriptDescription getScriptDescription(Integer id) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_DESCRIPTION, id));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(ScriptDescription.class);
     }
@@ -138,7 +138,7 @@ public class ScriptServiceClient extends BaseRestClient {
      */
     public ScriptTO getScript(Integer id) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT, id));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(ScriptTO.class);
     }
@@ -148,7 +148,7 @@ public class ScriptServiceClient extends BaseRestClient {
      */
     public void deleteScript(Integer id) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT, id));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).delete(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).delete();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -157,7 +157,7 @@ public class ScriptServiceClient extends BaseRestClient {
      */
     public void deleteScriptFilter(Integer id) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_FILTER, id));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).delete(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).delete();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -166,13 +166,13 @@ public class ScriptServiceClient extends BaseRestClient {
      */
     public void updateScript(Integer id, ScriptTO script) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT, id));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).put(Entity.entity(script, MediaType.APPLICATION_XML_TYPE), ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).put(Entity.entity(script, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
     }
 
     public String downloadHarnessXml(Integer id) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_HARNESS_DOWNLOAD, id));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(String.class);
     }
@@ -200,7 +200,7 @@ public class ScriptServiceClient extends BaseRestClient {
         MultiPart multiPart = new MultiPart();
         BodyPart bp = new FormDataBodyPart("file", in, MediaType.APPLICATION_OCTET_STREAM_TYPE);
         multiPart.bodyPart(bp);
-        ClientResponse response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE), ClientResponse.class);
+        Response response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(String.class);
     }
@@ -210,11 +210,11 @@ public class ScriptServiceClient extends BaseRestClient {
      */
     public ScriptTO newScript(ScriptTO script) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).post(Entity.entity(script, MediaType.APPLICATION_XML_TYPE), ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).post(Entity.entity(script, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
-        String loc = response.getHeaders().getFirst("location");
+        String loc = response.getHeaders().getFirst("location").toString();
         client.target(loc);
-        response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(ScriptTO.class);
     }
@@ -224,11 +224,11 @@ public class ScriptServiceClient extends BaseRestClient {
      */
     public ScriptTO scriptFilterRequest(ScriptFilterRequest filterRequest) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_FILTER));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).post(Entity.entity(filterRequest, MediaType.APPLICATION_XML_TYPE), ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).post(Entity.entity(filterRequest, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
-        String loc = response.getHeaders().getFirst("location");
+        String loc = response.getHeaders().getFirst("location").toString();
         client.target(loc);
-        response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(ScriptTO.class);
     }
@@ -241,7 +241,7 @@ public class ScriptServiceClient extends BaseRestClient {
     @Nullable
     public ExternalScriptTO getExternalScript(int id) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_EXTERNAL_SCRIPT, id));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(ExternalScriptTO.class);
     }
@@ -254,7 +254,7 @@ public class ScriptServiceClient extends BaseRestClient {
     @Nonnull
     public List<ExternalScriptTO> getExternalScripts() throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_EXTERNAL_SCRIPTS));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(ExternalScriptContainer.class).getScripts();
     }
@@ -269,11 +269,11 @@ public class ScriptServiceClient extends BaseRestClient {
     @Nonnull
     public ExternalScriptTO saveOrUpdateExternalScript(@Nonnull ExternalScriptTO script) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_EXTERNAL_SCRIPT));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE, MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(script, MediaType.APPLICATION_XML_TYPE), ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE, MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(script, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
-        String loc = response.getHeaders().getFirst("location");
+        String loc = response.getHeaders().getFirst("location").toString();
         webTarget = client.target(loc);
-        response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(ExternalScriptTO.class);
     }

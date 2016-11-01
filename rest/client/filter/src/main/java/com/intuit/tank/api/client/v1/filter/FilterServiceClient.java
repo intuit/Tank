@@ -20,8 +20,7 @@ import java.util.List;
 
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-
-import org.glassfish.jersey.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.intuit.tank.api.model.v1.filter.FilterGroupContainer;
 import com.intuit.tank.api.model.v1.filter.FilterGroupTO;
@@ -70,7 +69,7 @@ public class FilterServiceClient extends BaseRestClient {
      */
     public List<FilterGroupTO> getFilterGroups() throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(FilterService.METHOD_FILTER_GROUPS));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         FilterGroupContainer container = response.readEntity(FilterGroupContainer.class);
         return container.getFilterGroups();

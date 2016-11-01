@@ -21,8 +21,7 @@ import java.util.List;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-
-import org.glassfish.jersey.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.intuit.tank.api.model.v1.user.User;
 import com.intuit.tank.api.model.v1.user.UserContainer;
@@ -71,7 +70,7 @@ public class UserServiceClientV1 extends BaseRestClient {
      */
     public List<User> getAllUsers() {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(UserService.METHOD_USERS));
-        ClientResponse response = webTarget.request().get(ClientResponse.class);
+        Response response = webTarget.request().get();
         exceptionHandler.checkStatusCode(response);
         UserContainer container = response.readEntity(UserContainer.class);
         return container.getUsers();
@@ -82,7 +81,7 @@ public class UserServiceClientV1 extends BaseRestClient {
      */
     public User getUser(String name) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(UserService.METHOD_USER, name));
-        ClientResponse response = webTarget.request().get(ClientResponse.class);
+        Response response = webTarget.request().get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(User.class);
     }
@@ -92,7 +91,7 @@ public class UserServiceClientV1 extends BaseRestClient {
      */
     public User authenticate(UserCredentials credentials) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(UserService.METHOD_AUTHENTICATE));
-        ClientResponse response = webTarget.request().post(Entity.entity(credentials, MediaType.APPLICATION_XML), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(credentials, MediaType.APPLICATION_XML));
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(User.class);
     }

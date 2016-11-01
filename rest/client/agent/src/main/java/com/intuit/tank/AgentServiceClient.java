@@ -21,9 +21,8 @@ import java.io.InputStream;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-
-import org.glassfish.jersey.client.ClientResponse;
 
 import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.api.service.v1.agent.AgentService;
@@ -71,14 +70,14 @@ public class AgentServiceClient extends BaseRestClient {
     public String getSettings() {
         UriBuilder uriBuilder = UriBuilder.fromUri(urlBuilder.buildUrl(AgentService.METHOD_SETTINGS));
         WebTarget webTarget = client.target(uriBuilder.build());
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(String.class);
     }
     public TankHttpClientDefinitionContainer getClientDefinitions() {
         UriBuilder uriBuilder = UriBuilder.fromUri(urlBuilder.buildUrl(AgentService.METHOD_CLIENTS));
         WebTarget webTarget = client.target(uriBuilder.build());
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(TankHttpClientDefinitionContainer.class);
     }
@@ -86,9 +85,9 @@ public class AgentServiceClient extends BaseRestClient {
     public InputStream getSupportFiles() {
         UriBuilder uriBuilder = UriBuilder.fromUri(urlBuilder.buildUrl(AgentService.METHOD_SUPPORT));
         WebTarget webTarget = client.target(uriBuilder.build());
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntityStream();
+        return response.readEntity(InputStream.class);
     }
 
     /**
@@ -98,8 +97,7 @@ public class AgentServiceClient extends BaseRestClient {
      */
     public AgentTestStartData agentReady(AgentData data) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(AgentService.METHOD_AGENT_READY));
-        // webResource.entity(data);
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML).post(Entity.entity(data, MediaType.APPLICATION_XML_TYPE), ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).post(Entity.entity(data, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(AgentTestStartData.class);
     }
@@ -110,7 +108,7 @@ public class AgentServiceClient extends BaseRestClient {
      */
     public void standaloneAgentAvailable(AgentAvailability atailabiliity) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(AgentService.METHOD_AGENT_AVAILABILITY));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML).post(Entity.entity(atailabiliity, MediaType.APPLICATION_XML_TYPE), ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).post(Entity.entity(atailabiliity, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
     }
 

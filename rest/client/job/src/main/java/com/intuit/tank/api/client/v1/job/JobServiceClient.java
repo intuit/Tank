@@ -19,9 +19,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import org.glassfish.jersey.client.ClientResponse;
 
 import com.intuit.tank.api.model.v1.job.JobContainer;
 import com.intuit.tank.api.model.v1.job.JobTO;
@@ -71,7 +70,7 @@ public class JobServiceClient extends BaseRestClient {
     @Nullable
     public JobTO getJob(int jobId) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(JobService.METHOD_JOB, jobId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         if (response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
             return null;
         }
@@ -85,7 +84,7 @@ public class JobServiceClient extends BaseRestClient {
     @Nullable
     public List<JobTO> getJobsForProject(int projectId) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(JobService.METHOD_JOBS, projectId));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         if (response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
             return Collections.emptyList();
         }

@@ -21,8 +21,7 @@ import java.util.List;
 
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-
-import org.glassfish.jersey.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptor;
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptorContainer;
@@ -71,7 +70,7 @@ public class DataFileClient extends BaseRestClient {
     public List<DataFileDescriptor> getDataFiles() {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(
                 DataFileService.METHOD_GET_DATA_FILES));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(DataFileDescriptorContainer.class).getDataFiles();
 
@@ -83,7 +82,7 @@ public class DataFileClient extends BaseRestClient {
     public DataFileDescriptor getDataFile(Integer id) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(
                 DataFileService.METHOD_GET_DATA_FILES, id));
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(DataFileDescriptor.class);
     }
@@ -96,7 +95,7 @@ public class DataFileClient extends BaseRestClient {
                 DataFileService.METHOD_GET_DATA_FILES, id, "data/offset" + offset));
     	webTarget.queryParam("offset", Integer.toString(offset));
     	webTarget.queryParam("num-lines", Integer.toString(numLines));
-        ClientResponse response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(String.class);
     }
@@ -107,7 +106,7 @@ public class DataFileClient extends BaseRestClient {
     public String getDataFileData(Integer id) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(
                 DataFileService.METHOD_GET_DATA_FILES, id, "data"));
-        ClientResponse response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get();
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(String.class);
     }
@@ -118,9 +117,9 @@ public class DataFileClient extends BaseRestClient {
     public InputStream getDataFileDataStream(Integer id) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(
                 DataFileService.METHOD_GET_DATA_FILES, id, "data"));
-        ClientResponse response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntityStream();
+        return response.readEntity(InputStream.class);
     }
 
     /**
@@ -131,9 +130,9 @@ public class DataFileClient extends BaseRestClient {
                 DataFileService.METHOD_GET_DATA_FILES, id, "data/offset" + offset));
     	webTarget.queryParam("offset", Integer.toString(offset));
     	webTarget.queryParam("num-lines", Integer.toString(numLines));
-        ClientResponse response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntityStream();
+        return response.readEntity(InputStream.class);
     }
 
 }

@@ -25,10 +25,10 @@ import javax.annotation.Nullable;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.glassfish.jersey.client.ClientResponse;
 
 import com.intuit.tank.api.service.v1.report.ReportService;
 import com.intuit.tank.reporting.api.TPSInfoContainer;
@@ -87,7 +87,7 @@ public class ReportServiceClientV1 extends BaseRestClient {
             throws RestServiceException {
         TPSReportingPackage tpsPackage = new TPSReportingPackage(jobId, instanceId, container);
         WebTarget webTarget = client.target(urlBuilder.buildUrl(ReportService.METHOD_TPS_INFO));
-        ClientResponse response = webTarget.request().post(Entity.entity(tpsPackage, MediaType.APPLICATION_XML_TYPE), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(tpsPackage, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -103,7 +103,7 @@ public class ReportServiceClientV1 extends BaseRestClient {
             throws RestServiceException {
         TankResultPackage tankResultPackage = new TankResultPackage(jobId, instanceId, results);
         WebTarget webTarget = client.target(urlBuilder.buildUrl(ReportService.METHOD_TIMING_RESULTS));
-        ClientResponse response = webTarget.request().post(Entity.entity(tankResultPackage, MediaType.APPLICATION_XML_TYPE), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(tankResultPackage, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -136,9 +136,9 @@ public class ReportServiceClientV1 extends BaseRestClient {
             uriBuilder.queryParam("period", period.toString());
         }
         WebTarget webTarget = client.target(uriBuilder.build());
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntityStream();
+        return response.readEntity(InputStream.class);
     }
 
     /**
@@ -157,9 +157,9 @@ public class ReportServiceClientV1 extends BaseRestClient {
             uriBuilder.queryParam("from", start.toString());
         }
         WebTarget webTarget = client.target(uriBuilder.build());
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntityStream();
+        return response.readEntity(InputStream.class);
     }
 
     /**
@@ -172,7 +172,7 @@ public class ReportServiceClientV1 extends BaseRestClient {
                 .fromUri(urlBuilder.buildUrl(ReportService.METHOD_PROCESS_TIMING, jobId));
 
         WebTarget webTarget = client.target(uriBuilder.build());
-        ClientResponse response = webTarget.request(MediaType.TEXT_PLAIN).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.TEXT_PLAIN).get();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -187,9 +187,9 @@ public class ReportServiceClientV1 extends BaseRestClient {
         UriBuilder uriBuilder = UriBuilder
                 .fromUri(urlBuilder.buildUrl(ReportService.METHOD_TIMING_CSV, jobId));
         WebTarget webTarget = client.target(uriBuilder.build());
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntityStream();
+        return response.readEntity(InputStream.class);
     }
 
     /**
@@ -202,9 +202,9 @@ public class ReportServiceClientV1 extends BaseRestClient {
         UriBuilder uriBuilder = UriBuilder
                 .fromUri(urlBuilder.buildUrl(ReportService.METHOD_TIMING_SUMMARY_CSV, jobId));
         WebTarget webTarget = client.target(uriBuilder.build());
-        ClientResponse response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntityStream();
+        return response.readEntity(InputStream.class);
     }
 
     /**
@@ -217,7 +217,7 @@ public class ReportServiceClientV1 extends BaseRestClient {
         UriBuilder uriBuilder = UriBuilder
                 .fromUri(urlBuilder.buildUrl(ReportService.METHOD_TIMING, jobId));
         WebTarget webTarget = client.target(uriBuilder.build());
-        ClientResponse response = webTarget.request().delete(ClientResponse.class);
+        Response response = webTarget.request().delete();
         exceptionHandler.checkStatusCode(response);
     }
 

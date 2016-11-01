@@ -22,8 +22,8 @@ import java.io.InputStream;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import org.glassfish.jersey.client.ClientResponse;
 import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
@@ -83,7 +83,7 @@ public class AutomationServiceClient extends BaseRestClient {
 
         multiPart.bodyPart(new FormDataBodyPart("automationRequest", request,
                 MediaType.APPLICATION_XML_TYPE));
-        ClientResponse response = webTarget.request().post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(String.class);
     }
@@ -102,7 +102,7 @@ public class AutomationServiceClient extends BaseRestClient {
         }
         multiPart.bodyPart(new FormDataBodyPart("automationRequest", request,
                 MediaType.APPLICATION_XML_TYPE));
-        ClientResponse response = webTarget.request().post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
         exceptionHandler.checkStatusCode(response);
         return response.readEntity(String.class);
     }
