@@ -54,8 +54,8 @@ public class InstanceDescriptionDefaults {
     /**
      * @return the securityGroup
      */
-    public String getSubnetId() {
-        return get("vpc-subnet");
+    public List<String> getSubnetIds() {
+        return getList("vpc-subnet");
     }
     /**
      * @return the securityGroup

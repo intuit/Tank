@@ -49,7 +49,7 @@ public class InstanceDescriptionCpTest {
         assertEquals(null, result.getZone());
         assertEquals(null, result.getLocation());
         assertEquals(null, result.getSecurityGroup());
-        assertEquals(null, result.getSubnetId());
+        assertEquals(null, result.getSubnetIds().get(0));
         assertEquals(null, result.getKeypair());
     }
 

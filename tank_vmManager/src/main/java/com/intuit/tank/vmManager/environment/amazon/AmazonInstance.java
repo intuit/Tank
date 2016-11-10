@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.Nonnull;
 
@@ -270,8 +271,10 @@ public class AmazonInstance implements IEnvironmentInstance {
                 					.withUserData(userData);
 
                 // add subnet if defined
-                if (!StringUtils.isEmpty(instanceDescription.getSubnetId())) {
-                    runInstancesRequest.withSubnetId(instanceDescription.getSubnetId());
+                if (!instanceDescription.getSubnetIds().isEmpty()) {
+                	List<String> list = instanceDescription.getSubnetIds();
+                	int index = ThreadLocalRandom.current().nextInt(list.size());
+                    runInstancesRequest.withSubnetId(list.get(index));
                 }
                 Collection<String> c = instanceDescription.getSecurityGroupIds();
                 if (!c.isEmpty()) {
