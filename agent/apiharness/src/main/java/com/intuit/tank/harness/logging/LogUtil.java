@@ -17,6 +17,7 @@ package com.intuit.tank.harness.logging;
  */
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,7 +51,7 @@ public final class LogUtil {
      * @param msg
      * @return
      */
-    public static final String getLogMessage(String msg) {
+    public static final Map<String,String> getLogMessage(String msg) {
         return getLogMessage(msg, null);
     }
 
@@ -60,12 +61,11 @@ public final class LogUtil {
      * @param msg
      * @return
      */
-    public static final String getLogMessage(String msg, LogEventType type) {
+    public static final Map<String,String> getLogMessage(String msg, LogEventType type) {
         LogEvent logEvent = getLogEvent();
         logEvent.setMessage(msg);
         logEvent.setEventType(type != null ? type : LogEventType.System);
-        String ret = logEvent.buildMessage();
-        return ret;
+        return logEvent.buildMessage();
     }
 
     /**
@@ -74,15 +74,14 @@ public final class LogUtil {
      * @param msg
      * @return
      */
-    public static final String getLogMessage(String msg, LogEventType type, LoggingProfile profile) {
+    public static final Map<String,String> getLogMessage(String msg, LogEventType type, LoggingProfile profile) {
         LogEvent logEvent = getLogEvent();
         LoggingProfile resetProfile = logEvent.getActiveProfile();
         if (null != profile) {
             logEvent.setActiveProfile(profile);
         }
-        String ret = getLogMessage(msg, type);
         logEvent.setActiveProfile(resetProfile);
-        return ret;
+        return getLogMessage(msg, type);
     }
 
     /**
