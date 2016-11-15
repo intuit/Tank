@@ -80,8 +80,9 @@ public final class LogUtil {
         if (null != profile) {
             logEvent.setActiveProfile(profile);
         }
+        Map<String,String> map = getLogMessage(msg, type);
         logEvent.setActiveProfile(resetProfile);
-        return getLogMessage(msg, type);
+        return map;
     }
 
     /**
