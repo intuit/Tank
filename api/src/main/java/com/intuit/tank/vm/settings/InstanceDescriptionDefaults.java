@@ -91,6 +91,14 @@ public class InstanceDescriptionDefaults {
     public Boolean isVPC() {
         return Boolean.valueOf(get("vpc"));
     }
+    
+    /**
+     * @return the VPC
+     */
+    public String getTenancy() {
+        return get("Tenancy");
+    }
+
 
     String get(String key) {
         return config.getString(key, defaultInstance != null ? defaultInstance.getString(key) : null);
