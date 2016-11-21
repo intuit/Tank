@@ -245,7 +245,7 @@ public class AutomationServiceV1 implements AutomationService {
 	public Response uploadScript(FormDataMultiPart formData) {
 		ResponseBuilder responseBuilder = Response.ok();
 		FormDataBodyPart scriptId = formData.getField("scriptId");
-		FormDataBodyPart scriptName = formData.getField("scriptName");
+		FormDataBodyPart newScriptName = formData.getField("scriptName");
 		FormDataBodyPart filePart = formData.getField("file");
 		InputStream is = filePart.getValueAs(InputStream.class);
 		Script script = null;
@@ -261,8 +261,8 @@ public class AutomationServiceV1 implements AutomationService {
 					ScriptProcessor.class);
 
 			scriptProcessor.setScript(script);
-			if (StringUtils.isNotEmpty(scriptName.getValue())) {
-				script.setName(scriptName.getValue());
+			if (StringUtils.isNotEmpty(newScriptName.getValue())) {
+				script.setName(newScriptName.getValue());
 			}
 			List<ScriptStep> scriptSteps = scriptProcessor.getScriptSteps(new BufferedReader(new InputStreamReader(is)),
 					new ArrayList<ScriptFilter>());
