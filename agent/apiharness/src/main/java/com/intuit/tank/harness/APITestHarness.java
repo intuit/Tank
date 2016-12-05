@@ -110,7 +110,7 @@ public class APITestHarness {
     
     private Calendar c = Calendar.getInstance();
     private Date send = new Date();
-    private int interval = 15; // SECONDS
+    private int interval = 20; // SECONDS
 
     static {
         try {
@@ -907,7 +907,6 @@ public class APITestHarness {
         if (results.size() != 0 && logTiming) {
             final List<TankResult> l = new ArrayList<TankResult>();
             synchronized (results) {
-                // logger.info("sendBatchToDB(" + tableName + "); sending " + results.size() + " results.");
                 l.addAll(results);
                 results.clear();
             }

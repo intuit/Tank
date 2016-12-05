@@ -34,7 +34,7 @@ public class GraphiteDatasource implements IDatabase {
 	private String enviornemnt = "qa";
 	private String graphiteHost = "doubleshot.perf.a.intuit.com";
 	private int graphitePort = 2003;
-    private int interval = 15; // SECONDS
+    private int interval = 20; // SECONDS
     
     private TankConfig config = new TankConfig();
 	private HierarchicalConfiguration resultsProviderConfig = config.getVmManagerConfig().getResultsProviderConfig();
@@ -83,6 +83,8 @@ public class GraphiteDatasource implements IDatabase {
                 LOG.error("Failed to get Graphite parameters " + e.toString());
             }
         }
+		String jobId = results.get(0).getJobId();
+		long l = results.get(results.size()-1).getTimeStamp().getTime() / 1000;
 		Collections.sort(results);
 		try {
 			Socket socket = new Socket(graphiteHost, graphitePort);
@@ -90,8 +92,7 @@ public class GraphiteDatasource implements IDatabase {
 			PrintWriter out = new PrintWriter(s, true);
 			List<Long> groupResults = new ArrayList<Long>();
 			String requestName = "";
-			String jobId = "";
-			long sum = 0, l = 0;
+			long sum = 0;
 			//int count = 0;
 			for (TankResult metric: results) {
 				if (metric.getRequestName().equalsIgnoreCase(requestName)) {
@@ -113,15 +114,14 @@ public class GraphiteDatasource implements IDatabase {
 					out.printf("tank.%s.%s.%s.ResponseTime.50th %d %d%n", enviornemnt, jobId, requestName, sortedList[fiftieth].longValue(), l );
 					out.printf("tank.%s.%s.%s.ResponseTime.90th %d %d%n", enviornemnt, jobId, requestName, sortedList[ninetieth].longValue(), l );
 					out.printf("tank.%s.%s.%s.TPS %d %d%n", enviornemnt, jobId, requestName, tps, l );
+					out.printf("tank.%s.%s.%s.count %d %d%n", enviornemnt, jobId, requestName, size, l );
 					requestName = metric.getRequestName();
 					groupResults.clear();
 					groupResults.add(Long.valueOf(metric.getResponseTime()));
 					sum = 0;
 				} else { // Handles the first time through //
 					requestName = metric.getRequestName();
-					l = metric.getTimeStamp().getTime() / 1000;
 					groupResults.add(Long.valueOf(metric.getResponseTime()));
-					jobId = metric.getJobId();
 					sum = metric.getResponseTime();
 				}
 			} // Get that last one //
@@ -140,6 +140,7 @@ public class GraphiteDatasource implements IDatabase {
 			out.printf("tank.%s.%s.%s.ResponseTime.50th %d %d%n", enviornemnt, jobId, requestName, sortedList[fiftieth].longValue(), l );
 			out.printf("tank.%s.%s.%s.ResponseTime.90th %d %d%n", enviornemnt, jobId, requestName, sortedList[ninetieth].longValue(), l );
 			out.printf("tank.%s.%s.%s.TPS %d %d%n", enviornemnt, jobId, requestName, tps, l );
+			out.printf("tank.%s.%s.%s.count %d %d%n", enviornemnt, jobId, requestName, size, l );
 			out.close();
 			socket.close();
 		} catch (UnknownHostException e) {
