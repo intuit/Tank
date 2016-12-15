@@ -18,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -264,6 +265,8 @@ public class TankHttpClient3 implements TankHttpClient {
             waitTime = endTime - startTime;
         } catch (UnknownHostException uhex) {
             LOG.error(request.getLogUtil().getLogMessage("UnknownHostException to url: " + uri + " |  error: " + uhex.toString(), LogEventType.IO), uhex);
+        } catch (SocketException sex) {
+            LOG.error(request.getLogUtil().getLogMessage("SocketException to url: " + uri + " |  error: " + sex.toString(), LogEventType.IO), sex);
         } catch (Exception ex) {
             LOG.error(request.getLogUtil().getLogMessage("Could not do " + method.getName() + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO), ex);
             throw new RuntimeException(ex);
