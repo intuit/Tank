@@ -30,7 +30,7 @@
 
     <version.hibernate>4.2.21.Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
-    <version-aws-sdk>1.11.36</version-aws-sdk>
+    <version-aws-sdk>1.11.69</version-aws-sdk>
     <spring.version>2.5.6</spring.version>
  	<tomcat.version>7.0.68</tomcat.version>
  	
