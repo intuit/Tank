@@ -386,10 +386,12 @@ public class AmazonInstance implements IEnvironmentInstance {
     private KeyValuePair[] buildTags(VMInstanceRequest instanceRequest) {
         List<KeyValuePair> pairs = new ArrayList<KeyValuePair>();
         pairs.add(new KeyValuePair("Name", buildNameTag(instanceRequest)));
-
+        pairs.add(new KeyValuePair("Controller", config.getInstanceName()));
+        
         if (instanceRequest.getJobId() != null) {
             instanceRequest.addUserData(TankConstants.KEY_JOB_ID, instanceRequest.getJobId());
             instanceRequest.addUserData(TankConstants.KEY_CONTROLLER_URL, config.getControllerBase());
+            pairs.add(new KeyValuePair("JobId", instanceRequest.getJobId()));
 
             if (NumberUtils.isNumber(instanceRequest.getJobId())) {
                 JobInstance jobInstance = new JobInstanceDao().findById(Integer.valueOf(instanceRequest.getJobId()));
