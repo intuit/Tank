@@ -116,8 +116,7 @@ public class TankHttpUtil {
 	        String boundary = StringUtils.substringBefore(s, "\r\n").substring(2);
 	        request.setBody(s);
 	        try {
-	            @SuppressWarnings("deprecation")
-				MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(s.getBytes()), boundary.getBytes());
+				MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(s.getBytes()), boundary.getBytes(), 4096, null);
 	            boolean nextPart = multipartStream.skipPreamble();
 	            while (nextPart) {
 	                String header = multipartStream.readHeaders();
@@ -127,6 +126,9 @@ public class TankHttpUtil {
 	                parameters.add(p);
 	                nextPart = multipartStream.readBoundary();
 	            }
+	        } catch(MultipartStream.MalformedStreamException e) {
+	        	LOG.error("the multipart stream failed to follow required syntax");
+	        	LOG.error(e.toString(), e);
 	        } catch (Exception e) {
 	            LOG.error(e.toString(), e);
 	            // a read or write error occurred

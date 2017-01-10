@@ -28,10 +28,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.codehaus.enunciate.jaxrs.ResponseCode;
-import org.codehaus.enunciate.jaxrs.StatusCodes;
-import org.codehaus.enunciate.jaxrs.TypeHint;
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 import com.intuit.tank.api.model.v1.script.ExternalScriptContainer;
 import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
@@ -40,7 +37,9 @@ import com.intuit.tank.api.model.v1.script.ScriptDescriptionContainer;
 import com.intuit.tank.api.model.v1.script.ScriptFilterRequest;
 import com.intuit.tank.api.model.v1.script.ScriptStepContainer;
 import com.intuit.tank.api.model.v1.script.ScriptTO;
-import com.sun.jersey.multipart.FormDataMultiPart;
+import com.webcohesion.enunciate.metadata.rs.ResponseCode;
+import com.webcohesion.enunciate.metadata.rs.StatusCodes;
+import com.webcohesion.enunciate.metadata.rs.TypeHint;
 
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved
@@ -53,7 +52,6 @@ import com.sun.jersey.multipart.FormDataMultiPart;
  * 
  */
 @Path(ScriptService.SERVICE_RELATIVE_PATH)
-@ExternallyManagedLifecycle
 public interface ScriptService {
 
     public static final String SERVICE_RELATIVE_PATH = "/v1/script-service";

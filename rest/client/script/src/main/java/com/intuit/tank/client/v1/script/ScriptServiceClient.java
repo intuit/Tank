@@ -24,9 +24,15 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.IOUtils;
+import org.glassfish.jersey.media.multipart.BodyPart;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.MultiPart;
 
 import com.intuit.tank.api.model.v1.script.ExternalScriptContainer;
 import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
@@ -40,12 +46,6 @@ import com.intuit.tank.api.service.v1.script.ScriptService;
 import com.intuit.tank.rest.BaseRestClient;
 import com.intuit.tank.rest.RestServiceException;
 import com.intuit.tank.rest.util.ServiceConsants;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.multipart.BodyPart;
-import com.sun.jersey.multipart.FormDataBodyPart;
-import com.sun.jersey.multipart.MultiPart;
 
 /**
  * ScriptServiceClient
@@ -85,106 +85,102 @@ public class ScriptServiceClient extends BaseRestClient {
     /**
      * @{inheritDoc
      */
-    public ScriptTO convertScript(ScriptUploadRequest request, InputStream in) throws RestServiceException,
-            UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_CONVERT_SCRIPT));
+    public ScriptTO convertScript(ScriptUploadRequest request, InputStream in) throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_CONVERT_SCRIPT));
         MultiPart multiPart = new MultiPart();
         BodyPart bp = new FormDataBodyPart("file", in, MediaType.APPLICATION_OCTET_STREAM_TYPE);
         multiPart.bodyPart(bp);
         multiPart.bodyPart(new FormDataBodyPart("scriptUploadRequest", request, MediaType.APPLICATION_XML_TYPE));
-        ClientResponse response = webResource.type(MediaType.MULTIPART_FORM_DATA_TYPE)
-                .post(ClientResponse.class, multiPart);
+        Response response = webTarget.request().post(Entity.entity(multiPart,MediaType.MULTIPART_FORM_DATA_TYPE));
         exceptionHandler.checkStatusCode(response);
 
-        String loc = response.getHeaders().getFirst("location");
-        client.resource(loc);
-        response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        String loc = response.getHeaders().getFirst("location").toString();
+        webTarget = client.target(loc);
+        response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(ScriptTO.class);
+        return response.readEntity(ScriptTO.class);
     }
 
     /**
      * @{inheritDoc
      */
-    public ScriptDescriptionContainer getScriptDescriptions() throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_DESCRIPTION));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+    public ScriptDescriptionContainer getScriptDescriptions() throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_DESCRIPTION));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(ScriptDescriptionContainer.class);
+        return response.readEntity(ScriptDescriptionContainer.class);
     }
 
     /**
      * @{inheritDoc
      */
-    public ScriptStepContainer getScriptSteps(Integer id, int start, int numSteps) throws RestServiceException,
-            UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_STEPS));
-        webResource.queryParam("start", Integer.toString(start));
-        webResource.queryParam("numSteps", Integer.toString(numSteps));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+    public ScriptStepContainer getScriptSteps(Integer id, int start, int numSteps) throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_STEPS));
+    	webTarget.queryParam("start", Integer.toString(start));
+    	webTarget.queryParam("numSteps", Integer.toString(numSteps));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(ScriptStepContainer.class);
+        return response.readEntity(ScriptStepContainer.class);
     }
 
     /**
      * @{inheritDoc
      */
-    public ScriptDescription getScriptDescription(Integer id) throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_DESCRIPTION, id));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+    public ScriptDescription getScriptDescription(Integer id) throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_DESCRIPTION, id));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(ScriptDescription.class);
+        return response.readEntity(ScriptDescription.class);
     }
 
     /**
      * @{inheritDoc
      */
-    public ScriptTO getScript(Integer id) throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT, id));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+    public ScriptTO getScript(Integer id) throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT, id));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(ScriptTO.class);
+        return response.readEntity(ScriptTO.class);
     }
 
     /**
      * @{inheritDoc
      */
-    public void deleteScript(Integer id) throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT, id));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).delete(ClientResponse.class);
-        exceptionHandler.checkStatusCode(response);
-    }
-
-    /**
-     * @{inheritDoc
-     */
-    public void deleteScriptFilter(Integer id) throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_FILTER, id));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).delete(ClientResponse.class);
+    public void deleteScript(Integer id) throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT, id));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).delete();
         exceptionHandler.checkStatusCode(response);
     }
 
     /**
      * @{inheritDoc
      */
-    public void updateScript(Integer id, ScriptTO script) throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT, id));
-        webResource.entity(script);
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).put(ClientResponse.class);
+    public void deleteScriptFilter(Integer id) throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_FILTER, id));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).delete();
+        exceptionHandler.checkStatusCode(response);
+    }
+
+    /**
+     * @{inheritDoc
+     */
+    public void updateScript(Integer id, ScriptTO script) throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT, id));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).put(Entity.entity(script, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
     }
 
     public String downloadHarnessXml(Integer id) {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_HARNESS_DOWNLOAD, id));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_OCTET_STREAM).get(ClientResponse.class);
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_HARNESS_DOWNLOAD, id));
+        Response response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(String.class);
+        return response.readEntity(String.class);
     }
 
     /**
      * @{inheritDoc
      */
-    public String updateTankScript(File f) throws RestServiceException, UniformInterfaceException {
+    public String updateTankScript(File f) throws RestServiceException {
         InputStream in = null;
         try {
             in = new FileInputStream(f);
@@ -199,46 +195,42 @@ public class ScriptServiceClient extends BaseRestClient {
     /**
      * @{inheritDoc
      */
-    public String updateTankScript(InputStream in) throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_UPDATE));
+    public String updateTankScript(InputStream in) throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_UPDATE));
         MultiPart multiPart = new MultiPart();
         BodyPart bp = new FormDataBodyPart("file", in, MediaType.APPLICATION_OCTET_STREAM_TYPE);
         multiPart.bodyPart(bp);
-        ClientResponse response = webResource.accept(MediaType.TEXT_PLAIN_TYPE)
-                .type(MediaType.MULTIPART_FORM_DATA_TYPE)
-                .post(ClientResponse.class, multiPart);
+        Response response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(String.class);
+        return response.readEntity(String.class);
     }
 
     /**
      * @{inheritDoc
      */
-    public ScriptTO newScript(ScriptTO script) throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).post(ClientResponse.class, script);
+    public ScriptTO newScript(ScriptTO script) throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).post(Entity.entity(script, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
-        String loc = response.getHeaders().getFirst("location");
-        client.resource(loc);
-        response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        String loc = response.getHeaders().getFirst("location").toString();
+        client.target(loc);
+        response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(ScriptTO.class);
+        return response.readEntity(ScriptTO.class);
     }
 
     /**
      * @{inheritDoc
      */
-    public ScriptTO scriptFilterRequest(ScriptFilterRequest filterRequest) throws RestServiceException,
-            UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_FILTER));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).post(ClientResponse.class,
-                filterRequest);
+    public ScriptTO scriptFilterRequest(ScriptFilterRequest filterRequest) throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_FILTER));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).post(Entity.entity(filterRequest, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
-        String loc = response.getHeaders().getFirst("location");
-        client.resource(loc);
-        response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        String loc = response.getHeaders().getFirst("location").toString();
+        client.target(loc);
+        response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(ScriptTO.class);
+        return response.readEntity(ScriptTO.class);
     }
 
     /**
@@ -247,11 +239,11 @@ public class ScriptServiceClient extends BaseRestClient {
      * @return
      */
     @Nullable
-    public ExternalScriptTO getExternalScript(int id) throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_EXTERNAL_SCRIPT, id));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+    public ExternalScriptTO getExternalScript(int id) throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_EXTERNAL_SCRIPT, id));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(ExternalScriptTO.class);
+        return response.readEntity(ExternalScriptTO.class);
     }
 
     /**
@@ -260,11 +252,11 @@ public class ScriptServiceClient extends BaseRestClient {
      * @return the ExternalScriptTO
      */
     @Nonnull
-    public List<ExternalScriptTO> getExternalScripts() throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_EXTERNAL_SCRIPTS));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+    public List<ExternalScriptTO> getExternalScripts() throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_EXTERNAL_SCRIPTS));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(ExternalScriptContainer.class).getScripts();
+        return response.readEntity(ExternalScriptContainer.class).getScripts();
     }
 
     /**
@@ -275,16 +267,14 @@ public class ScriptServiceClient extends BaseRestClient {
      * @return created status code (201) with uri to script resource.
      */
     @Nonnull
-    public ExternalScriptTO saveOrUpdateExternalScript(@Nonnull ExternalScriptTO script) throws RestServiceException,
-            UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ScriptService.METHOD_EXTERNAL_SCRIPT));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE, MediaType.APPLICATION_JSON_TYPE)
-                .post(ClientResponse.class, script);
+    public ExternalScriptTO saveOrUpdateExternalScript(@Nonnull ExternalScriptTO script) throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_EXTERNAL_SCRIPT));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE, MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(script, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
-        String loc = response.getHeaders().getFirst("location");
-        webResource = client.resource(loc);
-        response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        String loc = response.getHeaders().getFirst("location").toString();
+        webTarget = client.target(loc);
+        response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(ExternalScriptTO.class);
+        return response.readEntity(ExternalScriptTO.class);
     }
 }

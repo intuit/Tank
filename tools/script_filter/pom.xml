@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>tools-parent</artifactId>
-    <version>2.2.2</version>
+    <version>2.2.3</version>
   </parent>
 
   <artifactId>script-filter</artifactId>
@@ -29,29 +29,25 @@
 
       <exclusions>
         <exclusion>
-          <artifactId>weld-core</artifactId>
-          <groupId>org.jboss.weld</groupId>
+	      <groupId>org.hibernate</groupId>
+	      <artifactId>hibernate-validator</artifactId>
         </exclusion>
-
         <exclusion>
-          <artifactId>jersey-atom-abdera</artifactId>
-          <groupId>com.sun.jersey.contribs</groupId>
+	      <groupId>org.hibernate</groupId>
+	      <artifactId>hibernate-envers</artifactId>
         </exclusion>
-
         <exclusion>
-          <artifactId>jersey-fastinfoset</artifactId>
-          <groupId>com.sun.jersey</groupId>
+	      <groupId>org.picketlink</groupId>
+	      <artifactId>picketlink</artifactId>
         </exclusion>
-
         <exclusion>
-          <artifactId>jaxb-impl</artifactId>
-          <groupId>com.sun.xml.bind</groupId>
+	      <groupId>com.amazonaws</groupId>
+	      <artifactId>aws-java-sdk-ec2</artifactId>
         </exclusion>
-
         <exclusion>
-          <artifactId>jaxb-api</artifactId>
-          <groupId>javax.xml.bind</groupId>
-        </exclusion>
+	      <groupId>com.amazonaws</groupId>
+	      <artifactId>aws-java-sdk-s3</artifactId>
+		</exclusion>
       </exclusions>
     </dependency>
 

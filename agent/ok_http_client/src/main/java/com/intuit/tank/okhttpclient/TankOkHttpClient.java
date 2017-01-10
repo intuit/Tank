@@ -261,7 +261,7 @@ public class TankOkHttpClient implements TankHttpClient {
 
             Response response = okHttpClient.newCall(okRequest).execute();
             long startTime = Long.parseLong(response.header("OkHttp-Sent-Millis"));
-            long endTime = Long.parseLong(response.header("OkHttp-Sent-Millis"));
+            long endTime = Long.parseLong(response.header("OkHttp-Received-Millis"));
 
             // read response body
             byte[] responseBody = new byte[0];
@@ -273,9 +273,9 @@ public class TankOkHttpClient implements TankHttpClient {
                     LOG.warn("could not get response body: " + e);
                 }
             }
-
-            processResponse(responseBody, startTime, endTime, request, response.message(), response.code(), response.headers());
             waitTime = endTime - startTime;
+            processResponse(responseBody, waitTime, request, response.message(), response.code(), response.headers());
+            
         } catch (Exception ex) {
             LOG.error(request.getLogUtil().getLogMessage("Could not do " + method + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO), ex);
             throw new RuntimeException(ex);
@@ -319,7 +319,7 @@ public class TankOkHttpClient implements TankHttpClient {
     /**
      * Process the response data
      */
-    private void processResponse(byte[] bResponse, long startTime, long endTime, BaseRequest request, String message, int httpCode, Headers headers) {
+    private void processResponse(byte[] bResponse, long waitTime, BaseRequest request, String message, int httpCode, Headers headers) {
         BaseResponse response = request.getResponse();
         try {
             if (response == null) {
@@ -349,7 +349,7 @@ public class TankOkHttpClient implements TankHttpClient {
                 }
             }
 
-            response.setResponseTime(endTime - startTime);
+            response.setResponseTime(waitTime);
             String contentType = response.getHttpHeader("Content-Type");
             String contentEncode = response.getHttpHeader("Content-Encoding");
             if (BaseResponse.isDataType(contentType) && contentEncode != null && contentEncode.toLowerCase().contains("gzip")) {

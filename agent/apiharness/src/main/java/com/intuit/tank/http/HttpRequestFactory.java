@@ -1,5 +1,7 @@
 package com.intuit.tank.http;
 
+import java.util.Map;
+
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.http.json.JsonRequest;
@@ -33,17 +35,17 @@ public class HttpRequestFactory {
     public static final class TankLogUtil implements TankHttpLogger {
 
         @Override
-        public String getLogMessage(String msg) {
+        public Map<String,String> getLogMessage(String msg) {
             return LogUtil.getLogMessage(msg);
         }
 
         @Override
-        public String getLogMessage(String msg, LogEventType type) {
+        public Map<String,String> getLogMessage(String msg, LogEventType type) {
             return LogUtil.getLogMessage(msg, type);
         }
 
         @Override
-        public String getLogMessage(String msg, LogEventType type, LoggingProfile profile) {
+        public Map<String,String> getLogMessage(String msg, LogEventType type, LoggingProfile profile) {
             return LogUtil.getLogMessage(msg, type, profile);
         }
 

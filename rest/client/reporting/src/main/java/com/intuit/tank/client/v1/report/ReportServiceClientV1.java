@@ -19,11 +19,13 @@ package com.intuit.tank.client.v1.report;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -36,9 +38,6 @@ import com.intuit.tank.rest.RestServiceException;
 import com.intuit.tank.rest.util.ServiceConsants;
 import com.intuit.tank.results.TankResult;
 import com.intuit.tank.results.TankResultPackage;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * ProjectClientV1
@@ -85,12 +84,10 @@ public class ReportServiceClientV1 extends BaseRestClient {
      * @throws UniformInterfaceException
      */
     public void postTpsResults(String jobId, String instanceId, TPSInfoContainer container)
-            throws RestServiceException,
-            UniformInterfaceException {
+            throws RestServiceException {
         TPSReportingPackage tpsPackage = new TPSReportingPackage(jobId, instanceId, container);
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ReportService.METHOD_TPS_INFO));
-        ClientResponse response = webResource.entity(tpsPackage, MediaType.APPLICATION_XML_TYPE).post(
-                ClientResponse.class);
+        WebTarget webTarget = client.target(urlBuilder.buildUrl(ReportService.METHOD_TPS_INFO));
+        Response response = webTarget.request().post(Entity.entity(tpsPackage, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -103,12 +100,10 @@ public class ReportServiceClientV1 extends BaseRestClient {
      * @throws UniformInterfaceException
      */
     public void postTimingResults(String jobId, String instanceId, List<TankResult> results)
-            throws RestServiceException,
-            UniformInterfaceException {
+            throws RestServiceException {
         TankResultPackage tankResultPackage = new TankResultPackage(jobId, instanceId, results);
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ReportService.METHOD_TIMING_RESULTS));
-        ClientResponse response = webResource.entity(tankResultPackage, MediaType.APPLICATION_XML_TYPE).post(
-                ClientResponse.class);
+        WebTarget webTarget = client.target(urlBuilder.buildUrl(ReportService.METHOD_TIMING_RESULTS));
+        Response response = webTarget.request().post(Entity.entity(tankResultPackage, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -140,10 +135,10 @@ public class ReportServiceClientV1 extends BaseRestClient {
         if (period != null && period != 15) {
             uriBuilder.queryParam("period", period.toString());
         }
-        WebResource webResource = client.resource(uriBuilder.build());
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_OCTET_STREAM).get(ClientResponse.class);
+        WebTarget webTarget = client.target(uriBuilder.build());
+        Response response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntityInputStream();
+        return response.readEntity(InputStream.class);
     }
 
     /**
@@ -161,10 +156,10 @@ public class ReportServiceClientV1 extends BaseRestClient {
         if (start != null) {
             uriBuilder.queryParam("from", start.toString());
         }
-        WebResource webResource = client.resource(uriBuilder.build());
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_OCTET_STREAM).get(ClientResponse.class);
+        WebTarget webTarget = client.target(uriBuilder.build());
+        Response response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntityInputStream();
+        return response.readEntity(InputStream.class);
     }
 
     /**
@@ -176,8 +171,8 @@ public class ReportServiceClientV1 extends BaseRestClient {
         UriBuilder uriBuilder = UriBuilder
                 .fromUri(urlBuilder.buildUrl(ReportService.METHOD_PROCESS_TIMING, jobId));
 
-        WebResource webResource = client.resource(uriBuilder.build());
-        ClientResponse response = webResource.accept(MediaType.TEXT_PLAIN).get(ClientResponse.class);
+        WebTarget webTarget = client.target(uriBuilder.build());
+        Response response = webTarget.request(MediaType.TEXT_PLAIN).get();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -191,10 +186,10 @@ public class ReportServiceClientV1 extends BaseRestClient {
     public InputStream getTimingCsv(String jobId) {
         UriBuilder uriBuilder = UriBuilder
                 .fromUri(urlBuilder.buildUrl(ReportService.METHOD_TIMING_CSV, jobId));
-        WebResource webResource = client.resource(uriBuilder.build());
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_OCTET_STREAM).get(ClientResponse.class);
+        WebTarget webTarget = client.target(uriBuilder.build());
+        Response response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntityInputStream();
+        return response.readEntity(InputStream.class);
     }
 
     /**
@@ -206,10 +201,10 @@ public class ReportServiceClientV1 extends BaseRestClient {
     public InputStream getSummaryTimingCsv(String jobId) {
         UriBuilder uriBuilder = UriBuilder
                 .fromUri(urlBuilder.buildUrl(ReportService.METHOD_TIMING_SUMMARY_CSV, jobId));
-        WebResource webResource = client.resource(uriBuilder.build());
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_OCTET_STREAM).get(ClientResponse.class);
+        WebTarget webTarget = client.target(uriBuilder.build());
+        Response response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntityInputStream();
+        return response.readEntity(InputStream.class);
     }
 
     /**
@@ -221,8 +216,8 @@ public class ReportServiceClientV1 extends BaseRestClient {
     public void deleteTiming(String jobId) {
         UriBuilder uriBuilder = UriBuilder
                 .fromUri(urlBuilder.buildUrl(ReportService.METHOD_TIMING, jobId));
-        WebResource webResource = client.resource(uriBuilder.build());
-        ClientResponse response = webResource.delete(ClientResponse.class);
+        WebTarget webTarget = client.target(uriBuilder.build());
+        Response response = webTarget.request().delete();
         exceptionHandler.checkStatusCode(response);
     }
 

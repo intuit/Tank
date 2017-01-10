@@ -18,7 +18,9 @@ package com.intuit.tank.api.client.v1.filter;
 
 import java.util.List;
 
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.intuit.tank.api.model.v1.filter.FilterGroupContainer;
 import com.intuit.tank.api.model.v1.filter.FilterGroupTO;
@@ -26,9 +28,6 @@ import com.intuit.tank.api.service.v1.filter.FilterService;
 import com.intuit.tank.rest.BaseRestClient;
 import com.intuit.tank.rest.RestServiceException;
 import com.intuit.tank.rest.util.ServiceConsants;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * AutomationServiceClient
@@ -68,11 +67,11 @@ public class FilterServiceClient extends BaseRestClient {
     /**
      * Get a list of filter groups.
      */
-    public List<FilterGroupTO> getFilterGroups() throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(FilterService.METHOD_FILTER_GROUPS));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML).get(ClientResponse.class);
+    public List<FilterGroupTO> getFilterGroups() throws RestServiceException {
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(FilterService.METHOD_FILTER_GROUPS));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        FilterGroupContainer container = response.getEntity(FilterGroupContainer.class);
+        FilterGroupContainer container = response.readEntity(FilterGroupContainer.class);
         return container.getFilterGroups();
     }
 

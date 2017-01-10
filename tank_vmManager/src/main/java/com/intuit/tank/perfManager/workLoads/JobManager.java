@@ -30,10 +30,16 @@ import java.util.concurrent.FutureTask;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.jersey.client.ClientResponse;
 
 import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
@@ -60,9 +66,6 @@ import com.intuit.tank.vm.vmManager.JobRequest;
 import com.intuit.tank.vm.vmManager.JobVmCalculator;
 import com.intuit.tank.vm.vmManager.RegionRequest;
 import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 @ApplicationScoped
 public class JobManager implements Serializable {
@@ -128,13 +131,13 @@ public class JobManager implements Serializable {
     }
 
     private void sendRequest(String instanceUrl, StandaloneAgentRequest standaloneAgentRequest) {
-        Client client = Client.create();
-        client.setConnectTimeout(5000);
-        client.setFollowRedirects(true);
-        WebResource webResource = client.resource(instanceUrl + WatsAgentCommand.request.getPath());
-        ClientResponse clientResponse = webResource.entity(standaloneAgentRequest).post(ClientResponse.class);
-        if (clientResponse.getStatus() != 200) {
-            throw new RuntimeException("failed to start agent: " + clientResponse.toString());
+        Client client = ClientBuilder.newClient();
+        //client.setConnectTimeout(5000);
+        //client.setFollowRedirects(true);
+        WebTarget webTarget = client.target(instanceUrl + WatsAgentCommand.request.getPath());
+        ClientResponse response = webTarget.request().post(Entity.entity(standaloneAgentRequest, MediaType.APPLICATION_XML), ClientResponse.class);
+        if (response.getStatus() != 200) {
+            throw new RuntimeException("failed to start agent: " + response.toString());
         }
 
     }

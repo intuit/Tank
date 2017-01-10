@@ -65,7 +65,7 @@
         value="#{scriptBean.selectionList}" liveResize="false" scrollable="true"
         filteredValue="#{scriptBean.filteredData}"
         style="width:#{scriptBean.tablePrefs.getMaxTotalSize(preferencesBean.screenWidth)}px;"
-        scrollHeight="450" sortBy="#{selectable.entity.created}"
+        scrollHeight="450" sortBy="#{selectable.entity.modified}"
         sortOrder="descending" paginator="true" rows="25"
         resizableColumns="true"
         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"

@@ -19,7 +19,7 @@ package com.intuit.tank;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 
-import org.apache.commons.beanutils.PropertyUtils;
+import com.ocpsoft.shade.org.apache.commons.beanutils.PropertyUtils;
 
 /**
  * PropertyComparer

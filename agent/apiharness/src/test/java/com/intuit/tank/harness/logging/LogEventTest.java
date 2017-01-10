@@ -3,6 +3,8 @@ package com.intuit.tank.harness.logging;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Map;
+
 import org.junit.Test;
 
 import com.intuit.tank.harness.MockRequest;
@@ -93,7 +95,7 @@ public class LogEventTest {
         fixture.setIteration("");
         fixture.setScript((HDScript) null);
 
-        String result = fixture.buildMessage();
+        Map<String,String> result = fixture.buildMessage();
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
@@ -134,7 +136,7 @@ public class LogEventTest {
         fixture.setIteration("");
         fixture.setScript(new HDScript());
 
-        String result = fixture.buildMessage();
+        Map<String,String> result = fixture.buildMessage();
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
@@ -177,7 +179,7 @@ public class LogEventTest {
         LogEventType type = LogEventType.Http;
         String message = "";
 
-        String result = fixture.buildMessage(type, message);
+        Map<String,String> result = fixture.buildMessage(type, message);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.ExceptionInInitializerError

@@ -50,7 +50,7 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
 
     @Column(name = "region")
     @Enumerated(EnumType.STRING)
-    private VMRegion region = VMRegion.US_WEST_1;
+    private VMRegion region = VMRegion.US_WEST_2;
 
     @NotEmpty
     @Column(name = "users", nullable = false)

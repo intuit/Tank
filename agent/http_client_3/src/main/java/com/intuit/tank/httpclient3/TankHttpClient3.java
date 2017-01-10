@@ -18,6 +18,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -68,7 +70,7 @@ import com.intuit.tank.vm.settings.AgentConfig;
 
 public class TankHttpClient3 implements TankHttpClient {
 
-    static Logger logger = LogManager.getLogger(TankHttpClient3.class);
+    static Logger LOG = LogManager.getLogger(TankHttpClient3.class);
 
     private HttpClient httpclient;
 
@@ -228,7 +230,7 @@ public class TankHttpClient3 implements TankHttpClient {
 
         try {
             uri = method.getURI().toString();
-            logger.debug(request.getLogUtil().getLogMessage("About to " + method.getName() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
+            LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getName() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
             List<String> cookies = new ArrayList<String>();
             if (httpclient != null && httpclient.getState() != null && httpclient.getState().getCookies() != null) {
                 for (Cookie cookie : httpclient.getState().getCookies()) {
@@ -255,23 +257,26 @@ public class TankHttpClient3 implements TankHttpClient {
                     }
                     responseBody = out.toByteArray();
                 } catch (Exception e) {
-                    logger.warn("could not get response body: " + e);
+                    LOG.warn("could not get response body: " + e);
                 }
             }
-            long endTime = System.currentTimeMillis();
-            processResponse(responseBody, startTime, endTime, request, method.getStatusText(), method.getStatusCode(), method.getResponseHeaders(), httpclient.getState());
-            waitTime = endTime - startTime;
+            waitTime = System.currentTimeMillis() - startTime;
+            processResponse(responseBody, waitTime, request, method.getStatusText(), method.getStatusCode(), method.getResponseHeaders(), httpclient.getState());
+        } catch (UnknownHostException uhex) {
+            LOG.error(request.getLogUtil().getLogMessage("UnknownHostException to url: " + uri + " |  error: " + uhex.toString(), LogEventType.IO), uhex);
+        } catch (SocketException sex) {
+            LOG.error(request.getLogUtil().getLogMessage("SocketException to url: " + uri + " |  error: " + sex.toString(), LogEventType.IO), sex);
         } catch (Exception ex) {
-            logger.error(request.getLogUtil().getLogMessage("Could not do " + method.getName() + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO), ex);
+            LOG.error(request.getLogUtil().getLogMessage("Could not do " + method.getName() + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO), ex);
             throw new RuntimeException(ex);
         } finally {
             try {
                 method.releaseConnection();
             } catch (Exception e) {
-                logger.warn("Could not release connection: " + e, e);
+                LOG.warn("Could not release connection: " + e, e);
             }
             if (method.getName().equalsIgnoreCase("post") && request.getLogUtil().getAgentConfig().getLogPostResponse()) {
-                logger.info(request.getLogUtil().getLogMessage(
+                LOG.info(request.getLogUtil().getLogMessage(
                         "Response from POST to " + request.getRequestUrl() + " got status code " + request.getResponse().getHttpCode() + " BODY { " + request.getResponse().getBody() + " }",
                         LogEventType.Informational));
             }
@@ -298,18 +303,18 @@ public class TankHttpClient3 implements TankHttpClient {
             long maxAgentResponseTime = config.getMaxAgentResponseTime();
             if (maxAgentResponseTime < responseTime) {
                 long waitTime = Math.min(config.getMaxAgentWaitTime(), responseTime);
-                logger.warn(request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
+                LOG.warn(request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
                 Thread.sleep(waitTime);
             }
         } catch (InterruptedException e) {
-            logger.warn("Interrupted", e);
+            LOG.warn("Interrupted", e);
         }
     }
 
     /**
      * Process the response data
      */
-    private void processResponse(byte[] bResponse, long startTime, long endTime, BaseRequest request, String message, int httpCode, Header[] headers, HttpState httpstate) {
+    private void processResponse(byte[] bResponse, long waitTime, BaseRequest request, String message, int httpCode, Header[] headers, HttpState httpstate) {
         BaseResponse response = request.getResponse();
         try {
             if (response == null) {
@@ -340,7 +345,7 @@ public class TankHttpClient3 implements TankHttpClient {
                     response.setCookie(cookie.getName(), cookie.getValue());
                 }
             }
-            response.setResponseTime(endTime - startTime);
+            response.setResponseTime(waitTime);
             String contentType = response.getHttpHeader("Content-Type");
             String contentEncode = response.getHttpHeader("Content-Encoding");
             if (BaseResponse.isDataType(contentType) && contentEncode != null && contentEncode.toLowerCase().contains("gzip")) {
@@ -351,13 +356,13 @@ public class TankHttpClient3 implements TankHttpClient {
                     IOUtils.copy(in, out);
                     bResponse = out.toByteArray();
                 } catch (Exception e) {
-                    logger.warn(request.getLogUtil().getLogMessage("cannot decode gzip stream: " + e, LogEventType.System));
+                    LOG.warn(request.getLogUtil().getLogMessage("cannot decode gzip stream: " + e, LogEventType.System));
                 }
             }
             response.setResponseBody(bResponse);
 
         } catch (Exception ex) {
-            logger.warn("Unable to get response: " + ex.getMessage());
+            LOG.warn("Unable to get response: " + ex.getMessage());
         } finally {
             response.logResponse();
         }
@@ -379,7 +384,7 @@ public class TankHttpClient3 implements TankHttpClient {
                 method.setRequestHeader((String) mapEntry.getKey(), (String) mapEntry.getValue());
             }
         } catch (Exception ex) {
-            logger.warn(request.getLogUtil().getLogMessage("Unable to set header: " + ex.getMessage(), LogEventType.System));
+            LOG.warn(request.getLogUtil().getLogMessage("Unable to set header: " + ex.getMessage(), LogEventType.System));
         }
     }
 

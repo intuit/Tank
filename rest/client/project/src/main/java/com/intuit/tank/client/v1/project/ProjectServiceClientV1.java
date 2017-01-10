@@ -18,7 +18,9 @@ package com.intuit.tank.client.v1.project;
 
 import java.util.List;
 
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.intuit.tank.api.model.v1.project.ProjectContainer;
 import com.intuit.tank.api.model.v1.project.ProjectTO;
@@ -26,8 +28,6 @@ import com.intuit.tank.api.service.v1.project.ProjectService;
 import com.intuit.tank.rest.BaseRestClient;
 import com.intuit.tank.rest.RestServiceException;
 import com.intuit.tank.rest.util.ServiceConsants;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * ProjectClientV1
@@ -68,9 +68,9 @@ public class ProjectServiceClientV1 extends BaseRestClient {
      * @{inheritDoc
      */
     public void deleteProject(int projectId) throws RestServiceException {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(
                 ProjectService.METHOD_DELETE, projectId));
-        ClientResponse response = webResource.delete(ClientResponse.class);
+        Response response = webTarget.request().delete();
         exceptionHandler.checkStatusCode(response);
     }
 
@@ -79,21 +79,20 @@ public class ProjectServiceClientV1 extends BaseRestClient {
      * @return
      */
     public List<ProjectTO> getProjects() {
-        WebResource webResource = client.resource(urlBuilder
+    	WebTarget webTarget = client.target(urlBuilder
                 .buildUrl(ProjectService.METHOD_PROJECTS));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML)
-                .get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        ProjectContainer container = response.getEntity(ProjectContainer.class);
+        ProjectContainer container = response.readEntity(ProjectContainer.class);
         return container.getProjects();
     }
 
     public String downloadTestScriptForProject(Integer projectId) {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(ProjectService.METHOD_PROJECT_SCRIPT_DOWNLOAD,
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(ProjectService.METHOD_PROJECT_SCRIPT_DOWNLOAD,
                 projectId));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_OCTET_STREAM).get(ClientResponse.class);
+        Response response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(String.class);
+        return response.readEntity(String.class);
     }
 
 }

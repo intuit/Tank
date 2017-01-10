@@ -18,6 +18,8 @@ import org.junit.*;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import com.intuit.tank.vm.api.enumerated.VMSize;
 import com.intuit.tank.vm.settings.InstanceDescriptionDefaults;
 
@@ -47,7 +49,7 @@ public class InstanceDescriptionDefaultsCpTest {
         assertEquals(null, result.getZone());
         assertEquals(null, result.getLocation());
         assertEquals(null, result.getSecurityGroup());
-        assertEquals(null, result.getSubnetId());
+        assertEquals(null, result.getSubnetIds().get(0));
         assertEquals(null, result.getKeypair());
     }
 
@@ -156,9 +158,9 @@ public class InstanceDescriptionDefaultsCpTest {
         InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
                 new HierarchicalConfiguration());
 
-        String result = fixture.getSubnetId();
+        List<String> result = fixture.getSubnetIds();
 
-        assertEquals(null, result);
+        assertEquals(null, result.get(0));
     }
 
     /**

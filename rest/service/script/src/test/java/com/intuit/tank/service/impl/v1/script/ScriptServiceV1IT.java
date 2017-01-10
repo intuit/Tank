@@ -18,19 +18,17 @@ package com.intuit.tank.service.impl.v1.script;
 
 import java.util.List;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
+import org.glassfish.jersey.client.ClientResponse;
 import org.junit.Assert;
 
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
 import com.intuit.tank.api.model.v1.script.ScriptDescription;
 import com.intuit.tank.api.model.v1.script.ScriptDescriptionContainer;
-import com.intuit.tank.test.TestGroups;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * DataFileServiceV1Test
@@ -53,21 +51,21 @@ public class ScriptServiceV1IT {
 
     // @Test(groups = {"manual"})
     public void testPing() {
-        WebResource webResource = client.resource(SERVICE_BASE_URL + "/ping");
-        String response = webResource.accept(MediaType.TEXT_PLAIN_TYPE).get(String.class);
+    	WebTarget webTarget = client.target(SERVICE_BASE_URL + "/ping");
+        String response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(String.class);
         Assert.assertEquals("PONG", response);
     }
 
     // @Test(groups = TestGroups.MANUAL)
     public void testPostDataFile() {
-        client = Client.create();
-        client.setFollowRedirects(true);
-        WebResource webResource = client.resource(SERVICE_BASE_URL + "/script/description");
+        client = ClientBuilder.newClient();
+        //client.setFollowRedirects(true);
+        WebTarget webTarget = client.target(SERVICE_BASE_URL + "/script/description");
 
-        webResource.accept(MediaType.APPLICATION_JSON_TYPE);
-        ClientResponse response = webResource.get(ClientResponse.class);
+        webTarget.request(MediaType.APPLICATION_JSON_TYPE);
+        ClientResponse response = webTarget.request().get(ClientResponse.class);
 
-        ScriptDescriptionContainer entity = response.getEntity(ScriptDescriptionContainer.class);
+        ScriptDescriptionContainer entity = response.readEntity(ScriptDescriptionContainer.class);
         Assert.assertNotNull(entity);
         Assert.assertNotNull(entity.getScripts());
 

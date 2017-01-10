@@ -26,9 +26,7 @@ import javax.ws.rs.core.Response;
 import com.intuit.tank.api.model.v1.automation.CreateJobRequest;
 import com.intuit.tank.api.model.v1.automation.ApplyFiltersRequest;
 
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
-
-import com.sun.jersey.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved
@@ -41,7 +39,6 @@ import com.sun.jersey.multipart.FormDataMultiPart;
  * 
  */
 @Path("/v1/automation-service")
-@ExternallyManagedLifecycle
 public interface AutomationService {
 
     public static final String VAR_NAME = "";
@@ -72,6 +69,19 @@ public interface AutomationService {
     @Nonnull
     public Response runAutomationJob(@Nonnull FormDataMultiPart formData);
 
+    /**
+     * SaveAs an exiting script to a new name and scriptId
+     * 
+     * @param scriptId
+     * @param name
+     * @return Status of Job
+     */
+    @GET
+    @Path("/saveAs"+ "/{scriptId}"+ "/{name}")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Nonnull
+    public Response saveAs(@PathParam("scriptId") String scriptId, @PathParam("name") String name);
+    
     /**
      * Uploads a script to an existing script 
      * 

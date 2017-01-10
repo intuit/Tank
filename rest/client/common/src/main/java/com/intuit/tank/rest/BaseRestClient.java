@@ -19,16 +19,17 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.jersey.client.urlconnection.HttpURLConnectionFactory;
-import com.sun.jersey.client.urlconnection.URLConnectionClientHandler;
-
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.HttpUrlConnectorProvider;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.client.spi.ConnectorProvider;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,8 +49,8 @@ public abstract class BaseRestClient {
      */
     public BaseRestClient(String serviceUrl, final String proxyServer, final Integer proxyPort) {
         setBaseUrl(serviceUrl);
-        if (proxyServer != null) {
-            URLConnectionClientHandler ch = new URLConnectionClientHandler(new HttpURLConnectionFactory() {
+        if (StringUtils.isNotEmpty(proxyServer)) {
+        	ConnectorProvider connectorprovider = new HttpUrlConnectorProvider() {
                 private Proxy proxy;
 
                 private void initializeProxy() {
@@ -61,19 +62,19 @@ public abstract class BaseRestClient {
                     initializeProxy();
                     return (HttpURLConnection) url.openConnection(proxy);
                 }
-            });
-            client = new Client(ch);
+            };
+            client = ClientBuilder.newBuilder().register(connectorprovider).build();
         } else {
-            client = Client.create();
+            client = ClientBuilder.newClient();
         }
-        client.setConnectTimeout(5000);
-        client.setFollowRedirects(true);
+//        client.setConnectTimeout(5000);
+//        client.setFollowRedirects(true);
         LOG.info("client for url " + baseUrl + ": proxy="
                 + (proxyServer != null ? proxyServer + ":" + proxyPort : "none"));
     }
     
     public void addAuth(String user, String token) {
-        client.addFilter(new HTTPBasicAuthFilter(user, token));
+        client.register(HttpAuthenticationFeature.basic(user, token));
     }
 
     /**
@@ -96,11 +97,12 @@ public abstract class BaseRestClient {
     /**
      * @{inheritDoc
      */
-    public String ping() throws RestServiceException, UniformInterfaceException {
-        WebResource webResource = client.resource(baseUrl + METHOD_PING);
-        ClientResponse response = webResource.accept(MediaType.TEXT_PLAIN_TYPE)
-                .get(ClientResponse.class);
+    public String ping() throws RestServiceException {
+        WebTarget webTarget = client.target(baseUrl + METHOD_PING);
+    	webTarget.property(ClientProperties.FOLLOW_REDIRECTS, true);
+    	webTarget.property(ClientProperties.CONNECT_TIMEOUT, 5000);
+        Response response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(String.class);
+        return response.readEntity(String.class);
     }
 }

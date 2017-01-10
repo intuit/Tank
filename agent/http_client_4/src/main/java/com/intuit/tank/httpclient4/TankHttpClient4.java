@@ -17,6 +17,8 @@ import java.io.ByteArrayInputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -285,9 +287,13 @@ public class TankHttpClient4 implements TankHttpClient {
                     LOG.warn("could not get response body: " + e);
                 }
             }
-            long endTime = System.currentTimeMillis();
-            processResponse(responseBody, startTime, endTime, request, response.getStatusLine().getReasonPhrase(), response.getStatusLine().getStatusCode(), response.getAllHeaders());
-            waitTime = endTime - startTime;
+            waitTime = System.currentTimeMillis() - startTime;
+            processResponse(responseBody, waitTime, request, response.getStatusLine().getReasonPhrase(), response.getStatusLine().getStatusCode(), response.getAllHeaders());
+            
+        } catch (UnknownHostException uhex) {
+            LOG.error(request.getLogUtil().getLogMessage("UnknownHostException to url: " + uri + " |  error: " + uhex.toString(), LogEventType.IO), uhex);
+        } catch (SocketException sex) {
+            LOG.error(request.getLogUtil().getLogMessage("SocketException to url: " + uri + " |  error: " + sex.toString(), LogEventType.IO), sex);
         } catch (Exception ex) {
             LOG.error(request.getLogUtil().getLogMessage("Could not do " + method.getMethod() + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO), ex);
             throw new RuntimeException(ex);
@@ -339,7 +345,7 @@ public class TankHttpClient4 implements TankHttpClient {
     /**
      * Process the response data
      */
-    private void processResponse(byte[] bResponse, long startTime, long endTime, BaseRequest request, String message, int httpCode, Header[] headers) {
+    private void processResponse(byte[] bResponse, long waitTime, BaseRequest request, String message, int httpCode, Header[] headers) {
         BaseResponse response = request.getResponse();
         try {
             if (response == null) {
@@ -369,7 +375,7 @@ public class TankHttpClient4 implements TankHttpClient {
                     response.setCookie(cookie.getName(), cookie.getValue());
                 }
             }
-            response.setResponseTime(endTime - startTime);
+            response.setResponseTime(waitTime);
             String contentType = response.getHttpHeader("Content-Type");
             String contentEncode = response.getHttpHeader("Content-Encoding");
             if (BaseResponse.isDataType(contentType) && contentEncode != null && contentEncode.toLowerCase().contains("gzip")) {

@@ -54,8 +54,8 @@ public class InstanceDescriptionDefaults {
     /**
      * @return the securityGroup
      */
-    public String getSubnetId() {
-        return get("vpc-subnet");
+    public List<String> getSubnetIds() {
+        return getList("vpc-subnet");
     }
     /**
      * @return the securityGroup
@@ -91,6 +91,14 @@ public class InstanceDescriptionDefaults {
     public Boolean isVPC() {
         return Boolean.valueOf(get("vpc"));
     }
+    
+    /**
+     * @return the VPC
+     */
+    public String getTenancy() {
+        return get("Tenancy");
+    }
+
 
     String get(String key) {
         return config.getString(key, defaultInstance != null ? defaultInstance.getString(key) : null);

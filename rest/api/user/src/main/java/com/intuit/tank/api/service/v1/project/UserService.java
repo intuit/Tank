@@ -24,8 +24,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
-
 import com.intuit.tank.api.model.v1.user.UserCredentials;
 
 /**
@@ -39,7 +37,6 @@ import com.intuit.tank.api.model.v1.user.UserCredentials;
  * 
  */
 @Path(UserService.SERVICE_RELATIVE_PATH)
-@ExternallyManagedLifecycle
 public interface UserService {
 
     public static final String SERVICE_RELATIVE_PATH = "/v1/user-service";

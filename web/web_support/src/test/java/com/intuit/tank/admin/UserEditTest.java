@@ -51,7 +51,7 @@ public class UserEditTest {
     public void testCancel_1()
             throws Exception {
         UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel());
+        fixture.setSelectionModel(new DualListModel<String>());
         fixture.edit(new User());
 
         String result = fixture.cancel();
@@ -73,7 +73,7 @@ public class UserEditTest {
     public void testEdit_1()
             throws Exception {
         UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel());
+        fixture.setSelectionModel(new DualListModel<String>());
         fixture.edit(new User());
         User user = new User();
 
@@ -96,7 +96,7 @@ public class UserEditTest {
     public void testGetPassword_1()
             throws Exception {
         UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel());
+        fixture.setSelectionModel(new DualListModel<String>());
         fixture.edit(new User());
 
         String result = fixture.getPassword();
@@ -113,7 +113,7 @@ public class UserEditTest {
     public void testGetPasswordConfirm_1()
             throws Exception {
         UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel());
+        fixture.setSelectionModel(new DualListModel<String>());
         fixture.edit(new User());
 
         String result = fixture.getPasswordConfirm();
@@ -130,7 +130,7 @@ public class UserEditTest {
     public void testGetSelectionModel_1()
             throws Exception {
         UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel());
+        fixture.setSelectionModel(new DualListModel<String>());
         fixture.edit(new User());
 
         DualListModel<String> result = fixture.getSelectionModel();
@@ -152,7 +152,7 @@ public class UserEditTest {
     public void testGetUser_1()
             throws Exception {
         UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel());
+        fixture.setSelectionModel(new DualListModel<String>());
         fixture.edit(new User());
 
         User result = fixture.getUser();
@@ -174,7 +174,7 @@ public class UserEditTest {
     public void testNewUser_1()
             throws Exception {
         UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel());
+        fixture.setSelectionModel(new DualListModel<String>());
         fixture.edit(new User());
 
         String result = fixture.newUser();
@@ -196,7 +196,7 @@ public class UserEditTest {
     public void testSetPassword_1()
             throws Exception {
         UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel());
+        fixture.setSelectionModel(new DualListModel<String>());
         fixture.edit(new User());
         String password = "";
 
@@ -218,7 +218,7 @@ public class UserEditTest {
     public void testSetPasswordConfirm_1()
             throws Exception {
         UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel());
+        fixture.setSelectionModel(new DualListModel<String>());
         fixture.edit(new User());
         String passwordConfirm = "";
 
@@ -240,9 +240,9 @@ public class UserEditTest {
     public void testSetSelectionModel_1()
             throws Exception {
         UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel());
+        fixture.setSelectionModel(new DualListModel<String>());
         fixture.edit(new User());
-        DualListModel<String> selectionModel = new DualListModel();
+        DualListModel<String> selectionModel = new DualListModel<String>();
 
         fixture.setSelectionModel(selectionModel);
 

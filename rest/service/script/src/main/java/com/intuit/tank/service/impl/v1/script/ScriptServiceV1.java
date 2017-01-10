@@ -47,6 +47,8 @@ import javax.xml.bind.Marshaller;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 import com.intuit.tank.api.model.v1.script.ExternalScriptContainer;
 import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
@@ -75,8 +77,6 @@ import com.intuit.tank.script.util.ScriptFilterUtil;
 import com.intuit.tank.service.util.ResponseUtil;
 import com.intuit.tank.service.util.ServletInjector;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
-import com.sun.jersey.multipart.FormDataBodyPart;
-import com.sun.jersey.multipart.FormDataMultiPart;
 
 /**
  * DataFileServiceV1

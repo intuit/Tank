@@ -56,7 +56,7 @@ import org.fife.ui.rsyntaxtextarea.templates.CodeTemplate;
 public class CodeTemplateManager {
 
     private int maxTemplateIDLength;
-    private List templates;
+    private List<CodeTemplate> templates;
 
     private KeyStroke insertTrigger;
     private String insertTriggerString;
@@ -79,7 +79,7 @@ public class CodeTemplateManager {
 
         s = new Segment();
         comparator = new TemplateComparator();
-        templates = new ArrayList();
+        templates = new ArrayList<CodeTemplate>();
 
     }
 
@@ -232,7 +232,7 @@ public class CodeTemplateManager {
         }
 
         // TODO: Do a binary search
-        for (Iterator i = templates.iterator(); i.hasNext();) {
+        for (Iterator<CodeTemplate> i = templates.iterator(); i.hasNext();) {
             CodeTemplate template = (CodeTemplate) i.next();
             if (id.equals(template.getID())) {
                 i.remove();
@@ -284,7 +284,7 @@ public class CodeTemplateManager {
 
         // Save all current templates as XML.
         boolean wasSuccessful = true;
-        for (Iterator i = templates.iterator(); i.hasNext();) {
+        for (Iterator<CodeTemplate> i = templates.iterator(); i.hasNext();) {
             CodeTemplate template = (CodeTemplate) i.next();
             File xmlFile = new File(directory, template.getID() + ".xml");
             try {
@@ -345,7 +345,7 @@ public class CodeTemplateManager {
             int newCount = files == null ? 0 : files.length;
             int oldCount = templates.size();
 
-            List temp = new ArrayList(oldCount + newCount);
+            List<CodeTemplate> temp = new ArrayList<CodeTemplate>(oldCount + newCount);
             temp.addAll(templates);
 
             for (int i = 0; i < newCount; i++) {
@@ -357,7 +357,7 @@ public class CodeTemplateManager {
                         throw new IOException("Not a CodeTemplate: " +
                                 files[i].getAbsolutePath());
                     }
-                    temp.add(obj);
+                    temp.add((CodeTemplate)obj);
                     d.close();
                 } catch (/* IO, NoSuchElement */Exception e) {
                     // NoSuchElementException can be thrown when reading
@@ -389,7 +389,7 @@ public class CodeTemplateManager {
         // Remove any null entries (should only happen because of
         // IOExceptions, etc. when loading from files), and sort
         // the remaining list.
-        for (Iterator i = templates.iterator(); i.hasNext();) {
+        for (Iterator<CodeTemplate> i = templates.iterator(); i.hasNext();) {
             CodeTemplate temp = (CodeTemplate) i.next();
             if (temp == null || temp.getID() == null) {
                 i.remove();

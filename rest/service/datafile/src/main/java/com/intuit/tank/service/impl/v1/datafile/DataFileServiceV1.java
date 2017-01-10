@@ -41,6 +41,8 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptor;
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptorContainer;
@@ -54,8 +56,6 @@ import com.intuit.tank.storage.FileStorage;
 import com.intuit.tank.storage.FileStorageFactory;
 import com.intuit.tank.util.DataFileUtil;
 import com.intuit.tank.vm.settings.TankConfig;
-import com.sun.jersey.multipart.FormDataBodyPart;
-import com.sun.jersey.multipart.FormDataMultiPart;
 
 /**
  * DataFileServiceV1

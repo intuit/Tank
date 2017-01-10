@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.Nonnull;
 
@@ -28,6 +29,7 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.ec2.AmazonEC2AsyncClient;
 import com.amazonaws.services.ec2.model.Address;
+import com.amazonaws.services.ec2.model.AmazonEC2Exception;
 import com.amazonaws.services.ec2.model.AssociateAddressRequest;
 import com.amazonaws.services.ec2.model.AttachVolumeRequest;
 import com.amazonaws.services.ec2.model.CreateTagsRequest;
@@ -261,7 +263,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 List<Address> randomizedIps = new ArrayList<Address>(availableEips);
                 Collections.shuffle(randomizedIps);
                 RunInstancesRequest runInstancesRequest = new RunInstancesRequest(image, number, number);
-                Tenancy tenancy = instanceDescription.isVPC() ? Tenancy.Dedicated : Tenancy.Default;
+                Tenancy tenancy = StringUtils.isEmpty(instanceDescription.getTenancy()) ? Tenancy.Default : Tenancy.fromValue(instanceDescription.getTenancy());
                 runInstancesRequest.withInstanceType(size.toString())
                 					.withKeyName(keyPair)
                 					.withPlacement(new Placement().withTenancy(tenancy))
@@ -269,8 +271,10 @@ public class AmazonInstance implements IEnvironmentInstance {
                 					.withUserData(userData);
 
                 // add subnet if defined
-                if (!StringUtils.isEmpty(instanceDescription.getSubnetId())) {
-                    runInstancesRequest.withSubnetId(instanceDescription.getSubnetId());
+                if (!instanceDescription.getSubnetIds().isEmpty()) {
+                	List<String> list = instanceDescription.getSubnetIds();
+                	int index = ThreadLocalRandom.current().nextInt(list.size());
+                    runInstancesRequest.withSubnetId(list.get(index));
                 }
                 Collection<String> c = instanceDescription.getSecurityGroupIds();
                 if (!c.isEmpty()) {
@@ -323,6 +327,9 @@ public class AmazonInstance implements IEnvironmentInstance {
                 tagInstance(ids, buildTags(instanceRequest));
             }
 
+        } catch (AmazonEC2Exception ae) {
+            LOG.error("Amazon issue starting instancs: " + ae.getMessage(), ae);
+            throw new RuntimeException(ae);       	
         } catch (Exception ex) {
             LOG.error("Error starting instancs: " + ex.getMessage(), ex);
             throw new RuntimeException(ex);
@@ -379,10 +386,12 @@ public class AmazonInstance implements IEnvironmentInstance {
     private KeyValuePair[] buildTags(VMInstanceRequest instanceRequest) {
         List<KeyValuePair> pairs = new ArrayList<KeyValuePair>();
         pairs.add(new KeyValuePair("Name", buildNameTag(instanceRequest)));
-
+        pairs.add(new KeyValuePair("Controller", config.getInstanceName()));
+        
         if (instanceRequest.getJobId() != null) {
             instanceRequest.addUserData(TankConstants.KEY_JOB_ID, instanceRequest.getJobId());
             instanceRequest.addUserData(TankConstants.KEY_CONTROLLER_URL, config.getControllerBase());
+            pairs.add(new KeyValuePair("JobId", instanceRequest.getJobId()));
 
             if (NumberUtils.isNumber(instanceRequest.getJobId())) {
                 JobInstance jobInstance = new JobInstanceDao().findById(Integer.valueOf(instanceRequest.getJobId()));
@@ -405,8 +414,11 @@ public class AmazonInstance implements IEnvironmentInstance {
      */
     private String buildNameTag(VMInstanceRequest instanceRequest) {
         StringBuilder sb = new StringBuilder(instanceRequest.getImage().getConfigName());
-        if (instanceRequest.getJobId() != null) {
+        if (StringUtils.isNoneEmpty(instanceRequest.getJobId())) {
             sb.append(" job(" + instanceRequest.getJobId() + ")");
+        }
+        if (StringUtils.isNoneEmpty(config.getInstanceName())) {
+            sb.insert(0, config.getInstanceName() + " ");
         }
         return sb.toString();
     }
@@ -583,7 +595,7 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @return The size assigned
      */
     private static InstanceType getInstanceType(String size) {
-        InstanceType output = InstanceType.C32xlarge;
+        InstanceType output = InstanceType.C42xlarge;
         try {
             output = InstanceType.fromValue(size);
         } catch (Exception e) {

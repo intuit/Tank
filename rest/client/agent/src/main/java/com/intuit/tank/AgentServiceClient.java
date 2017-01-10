@@ -18,7 +18,10 @@ package com.intuit.tank;
 
 import java.io.InputStream;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinitionContainer;
@@ -28,8 +31,6 @@ import com.intuit.tank.rest.util.ServiceConsants;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * CloudServiceClient
@@ -68,25 +69,25 @@ public class AgentServiceClient extends BaseRestClient {
 
     public String getSettings() {
         UriBuilder uriBuilder = UriBuilder.fromUri(urlBuilder.buildUrl(AgentService.METHOD_SETTINGS));
-        WebResource webResource = client.resource(uriBuilder.build());
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML).get(ClientResponse.class);
+        WebTarget webTarget = client.target(uriBuilder.build());
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(String.class);
+        return response.readEntity(String.class);
     }
     public TankHttpClientDefinitionContainer getClientDefinitions() {
         UriBuilder uriBuilder = UriBuilder.fromUri(urlBuilder.buildUrl(AgentService.METHOD_CLIENTS));
-        WebResource webResource = client.resource(uriBuilder.build());
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML).get(ClientResponse.class);
+        WebTarget webTarget = client.target(uriBuilder.build());
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(TankHttpClientDefinitionContainer.class);
+        return response.readEntity(TankHttpClientDefinitionContainer.class);
     }
 
     public InputStream getSupportFiles() {
         UriBuilder uriBuilder = UriBuilder.fromUri(urlBuilder.buildUrl(AgentService.METHOD_SUPPORT));
-        WebResource webResource = client.resource(uriBuilder.build());
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_OCTET_STREAM).get(ClientResponse.class);
+        WebTarget webTarget = client.target(uriBuilder.build());
+        Response response = webTarget.request(MediaType.APPLICATION_OCTET_STREAM_TYPE).get();
         exceptionHandler.checkStatusCode(response);
-        return response.getEntityInputStream();
+        return response.readEntity(InputStream.class);
     }
 
     /**
@@ -95,11 +96,10 @@ public class AgentServiceClient extends BaseRestClient {
      * @return
      */
     public AgentTestStartData agentReady(AgentData data) {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(AgentService.METHOD_AGENT_READY));
-        // webResource.entity(data);
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML).post(ClientResponse.class, data);
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(AgentService.METHOD_AGENT_READY));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).post(Entity.entity(data, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
-        return response.getEntity(AgentTestStartData.class);
+        return response.readEntity(AgentTestStartData.class);
     }
 
     /**
@@ -107,9 +107,8 @@ public class AgentServiceClient extends BaseRestClient {
      * @param atailabiliity
      */
     public void standaloneAgentAvailable(AgentAvailability atailabiliity) {
-        WebResource webResource = client.resource(urlBuilder.buildUrl(AgentService.METHOD_AGENT_AVAILABILITY));
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML).post(ClientResponse.class,
-                atailabiliity);
+    	WebTarget webTarget = client.target(urlBuilder.buildUrl(AgentService.METHOD_AGENT_AVAILABILITY));
+        Response response = webTarget.request(MediaType.APPLICATION_XML_TYPE).post(Entity.entity(atailabiliity, MediaType.APPLICATION_XML_TYPE));
         exceptionHandler.checkStatusCode(response);
     }
 

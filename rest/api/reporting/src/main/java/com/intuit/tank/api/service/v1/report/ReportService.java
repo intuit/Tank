@@ -26,12 +26,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.codehaus.enunciate.jaxrs.TypeHint;
-import org.codehaus.enunciate.modules.jersey.ExternallyManagedLifecycle;
-
 import com.intuit.tank.reporting.api.TPSReportingPackage;
 import com.intuit.tank.results.TankResultPackage;
 import com.intuit.tank.vm.common.util.ReportUtil;
+import com.webcohesion.enunciate.metadata.rs.TypeHint;
 
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved
@@ -44,7 +42,6 @@ import com.intuit.tank.vm.common.util.ReportUtil;
  * 
  */
 @Path(ReportService.SERVICE_RELATIVE_PATH)
-@ExternallyManagedLifecycle
 public interface ReportService {
 
     public static final String SERVICE_RELATIVE_PATH = "/v1/report-service";

@@ -110,13 +110,18 @@ public class APITestHarness {
     
     private Calendar c = Calendar.getInstance();
     private Date send = new Date();
-    private int interval = 15; // SECONDS
+    private int interval = 20; // SECONDS
 
     static {
         try {
-            java.security.Security.setProperty("networkaddress.cache.ttl", "0");
+            java.security.Security.setProperty("networkaddress.cache.ttl", "5");
         } catch (Throwable e1) {
             LOG.warn(LogUtil.getLogMessage("Error setting dns timeout: " + e1.toString(), LogEventType.System));
+        }
+        try {
+            java.security.Security.setProperty("networkaddress.cache.negative.ttl", "0");
+        } catch (Throwable e1) {
+            LOG.warn(LogUtil.getLogMessage("Error setting dns negative timeout: " + e1.toString(), LogEventType.System));
         }
         try {
             System.setProperty("jsse.enableSNIExtension", "false");
@@ -159,9 +164,14 @@ public class APITestHarness {
     public static void main(String[] args) {
         // set ttl on dns to small value
         try {
-            java.security.Security.setProperty("networkaddress.cache.ttl", "0");
+            java.security.Security.setProperty("networkaddress.cache.ttl", "5");
         } catch (Throwable e1) {
             LOG.warn(LogUtil.getLogMessage("Error setting dns timeout: " + e1.toString(), LogEventType.System));
+        }
+        try {
+            java.security.Security.setProperty("networkaddress.cache.negative.ttl", "0");
+        } catch (Throwable e1) {
+            LOG.warn(LogUtil.getLogMessage("Error setting dns negative timeout: " + e1.toString(), LogEventType.System));
         }
         try {
             System.setProperty("jsse.enableSNIExtension", "false");
@@ -897,7 +907,6 @@ public class APITestHarness {
         if (results.size() != 0 && logTiming) {
             final List<TankResult> l = new ArrayList<TankResult>();
             synchronized (results) {
-                // logger.info("sendBatchToDB(" + tableName + "); sending " + results.size() + " results.");
                 l.addAll(results);
                 results.clear();
             }

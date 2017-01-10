@@ -43,13 +43,15 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import com.intuit.tank.api.model.v1.automation.AutomationJobRegion;
 import com.intuit.tank.api.model.v1.automation.AutomationRequest;
 import com.intuit.tank.api.model.v1.automation.ApplyFiltersRequest;
 import com.intuit.tank.api.model.v1.automation.CreateJobRequest;
 import com.intuit.tank.api.model.v1.automation.CreateJobRegion;
 import com.intuit.tank.api.service.v1.automation.AutomationService;
+import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.dao.BaseDao;
 import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.dao.FilterDao;
@@ -96,10 +98,6 @@ import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.common.util.ReportUtil;
 import com.intuit.tank.vm.settings.ModificationType;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
-
-import com.sun.jersey.core.header.ContentDisposition;
-import com.sun.jersey.multipart.FormDataBodyPart;
-import com.sun.jersey.multipart.FormDataMultiPart;
 
 /**
  * AutomationServiceV1
@@ -219,12 +217,36 @@ public class AutomationServiceV1 implements AutomationService {
 	 * @{inheritDoc
 	 */
 	@Override
+	public Response saveAs(String scriptId, String saveAsName) {
+		String newScriptId = "FAILED";
+		if (StringUtils.isEmpty(scriptId)) {
+			return Response.status(Status.BAD_REQUEST).entity("Failed to recieve a valid scriptId ->" + scriptId + "<-").build();
+		}
+		if (StringUtils.isEmpty(saveAsName)) {
+			return Response.status(Status.BAD_REQUEST).entity("Failed to recieve a valid script name ->" + saveAsName + "<-").build();
+		}
+		try {
+			Script script = new ScriptDao().findById(Integer.parseInt(scriptId));
+            Script copyScript = ScriptUtil.copyScript("System", saveAsName, script);
+            copyScript = new ScriptDao().saveOrUpdate(copyScript);
+            newScriptId = copyScript.getId() + "";
+		} catch (NumberFormatException nfe) {
+			return Response.status(Status.BAD_REQUEST).entity("Failed to parse a valid scriptId ->" + scriptId + "<-").build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity("Failed to find a valid script for scriptId ->" + scriptId + "<-").build();
+		}
+		return Response.ok().entity(newScriptId).build();
+	}
+		
+	/**
+	 * @{inheritDoc
+	 */
+	@Override
 	public Response uploadScript(FormDataMultiPart formData) {
 		ResponseBuilder responseBuilder = Response.ok();
 		FormDataBodyPart scriptId = formData.getField("scriptId");
-		FormDataBodyPart scriptName = formData.getField("scriptName");
+		FormDataBodyPart newScriptName = formData.getField("scriptName");
 		FormDataBodyPart filePart = formData.getField("file");
-		ContentDisposition headerOfFilePart = filePart.getContentDisposition();
 		InputStream is = filePart.getValueAs(InputStream.class);
 		Script script = null;
 		try {
@@ -239,8 +261,8 @@ public class AutomationServiceV1 implements AutomationService {
 					ScriptProcessor.class);
 
 			scriptProcessor.setScript(script);
-			if (StringUtils.isNotEmpty(scriptName.getValue())) {
-				script.setName(scriptName.getValue());
+			if (StringUtils.isNotEmpty(newScriptName.getValue())) {
+				script.setName(newScriptName.getValue());
 			}
 			List<ScriptStep> scriptSteps = scriptProcessor.getScriptSteps(new BufferedReader(new InputStreamReader(is)),
 					new ArrayList<ScriptFilter>());
@@ -248,12 +270,9 @@ public class AutomationServiceV1 implements AutomationService {
 			for (ScriptStep step : scriptSteps) {
 				newSteps.add(step);
 			}
-			// script.setScriptSteps(newSteps);
-			//
-			// script.setScriptSteps(newSteps);
 			script = new ScriptDao().saveOrUpdate(script);
 			sendMsg(script, ModificationType.UPDATE);
-			responseBuilder.entity(script.getId());
+			responseBuilder.entity(Integer.toString(script.getId()));
 		} catch (Exception e) {
 			LOG.error("Error starting script: " + e, e);
 			responseBuilder = Response.status(Status.INTERNAL_SERVER_ERROR);
@@ -339,8 +358,7 @@ public class AutomationServiceV1 implements AutomationService {
 					project = projectDao.saveOrUpdateProject(project);
 
 					JobInstance job = addJobToQueue(project, request);
-					String jobId = Integer.toString(job.getId());
-					return Response.ok().entity(jobId).build();
+					return Response.ok().entity(Integer.toString(job.getId())).build();
 				}
 			}
 		}
