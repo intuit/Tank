@@ -17,8 +17,8 @@
   <dependencies>
 
     <dependency>
-      <groupId>com.sun.script.jruby</groupId>
-      <artifactId>jruby-engine</artifactId>
+      <groupId>org.jruby</groupId>
+      <artifactId>jruby</artifactId>
     </dependency>
 
     <dependency>

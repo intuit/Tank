@@ -30,7 +30,7 @@
 
     <version.hibernate>4.2.21.Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
-    <version-aws-sdk>1.11.69</version-aws-sdk>
+    <version-aws-sdk>1.11.79</version-aws-sdk>
     <spring.version>2.5.6</spring.version>
  	<tomcat.version>7.0.68</tomcat.version>
  	
@@ -670,9 +670,9 @@
       </dependency>
 
       <dependency>
-        <groupId>com.sun.script.jruby</groupId>
-        <artifactId>jruby-engine</artifactId>
-        <version>1.1.7</version>
+	    <groupId>org.jruby</groupId>
+	    <artifactId>jruby</artifactId>
+	    <version>9.1.7.0</version>
       </dependency>
 
       <dependency>
