@@ -180,6 +180,8 @@ public class RequestRunner implements Runner {
                 baseRequest.doPut(baseResponse);
             } else if (method.equalsIgnoreCase("DELETE")) {
                 baseRequest.doDelete(baseResponse);
+            } else if (method.equalsIgnoreCase("OPTIONS")) {
+                baseRequest.doOptions(baseResponse);
             }
         } catch (Throwable e) {
             LOG.error( new MapMessage(

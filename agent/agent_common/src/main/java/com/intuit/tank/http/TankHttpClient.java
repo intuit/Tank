@@ -27,6 +27,14 @@ public interface TankHttpClient {
     public void doDelete(BaseRequest request);
 
     /**
+     * Execute the options request.
+     * 
+     * @param response
+     *            The response object to populate
+     */
+    public void doOptions(BaseRequest request);
+    
+    /**
      * Execute the POST.
      */
     public void doPost(BaseRequest request);

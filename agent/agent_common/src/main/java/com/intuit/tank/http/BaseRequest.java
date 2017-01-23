@@ -153,6 +153,17 @@ public abstract class BaseRequest {
     }
 
     /**
+     * Execute the options request.
+     * 
+     * @param response
+     *            The response object to populate
+     */
+    public void doOptions(BaseResponse response) {
+        this.response = response;
+        requestUrl = TankHttpUtil.buildUrl(protocol, host, port, path, urlVariables).toString();
+        httpclient.doOptions(this);
+    }
+    /**
      * Execute the POST.
      */
     public void doPost(BaseResponse response) {

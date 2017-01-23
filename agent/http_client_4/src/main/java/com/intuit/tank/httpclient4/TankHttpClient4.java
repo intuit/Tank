@@ -46,6 +46,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -175,9 +176,28 @@ public class TankHttpClient4 implements TankHttpClient {
         String requestBody = request.getBody();
         String type = request.getHeaderInformation().get("Content-Type");
         if (StringUtils.isBlank(type)) {
-            request.getHeaderInformation().put("Content-Type", "application/x-www-form-urlencoded");
+            request.getHeaderInformation().put("Content-Type", "application/json");
         }
         sendRequest(request, httpdelete, requestBody);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.intuit.tank.httpclient3.TankHttpClient#doOptions(com.intuit.tank.http.
+     * BaseRequest)
+     */
+    @Override
+    public void doOptions(BaseRequest request) {
+    	HttpOptions httpoptions = new HttpOptions(request.getRequestUrl());
+        // Multiple calls can be expensive, so get it once
+        String requestBody = request.getBody();
+        String type = request.getHeaderInformation().get("Content-Type");
+        if (StringUtils.isBlank(type)) {
+            request.getHeaderInformation().put("Content-Type", "application/json");
+        }
+        sendRequest(request, httpoptions, requestBody);
     }
 
     /*
