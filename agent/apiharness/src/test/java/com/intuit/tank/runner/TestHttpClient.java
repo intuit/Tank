@@ -35,6 +35,14 @@ public class TestHttpClient implements TankHttpClient {
     public void doDelete(BaseRequest request) {
     }
 
+
+    /* (non-Javadoc)
+     * @see com.intuit.tank.http.TankHttpClient#doOptions(com.intuit.tank.http.BaseRequest)
+     */
+    @Override
+    public void doOptions(BaseRequest request) {
+    }
+    
     /* (non-Javadoc)
      * @see com.intuit.tank.http.TankHttpClient#doPost(com.intuit.tank.http.BaseRequest)
      */

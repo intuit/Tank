@@ -1,6 +1,7 @@
 package com.intuit.tank.httpclient3;
 
-import org.apache.tomcat.util.net.URL;
+import java.net.URL;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

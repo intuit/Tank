@@ -32,7 +32,7 @@
     <aspectj.version>1.5.4</aspectj.version>
     <version-aws-sdk>1.11.79</version-aws-sdk>
     <spring.version>2.5.6</spring.version>
- 	<tomcat.version>7.0.68</tomcat.version>
+ 	<tomcat.version>8.5.9</tomcat.version>
  	
     <weld-version>2.3.4.Final</weld-version>
     <cdi-version>1.2</cdi-version>
