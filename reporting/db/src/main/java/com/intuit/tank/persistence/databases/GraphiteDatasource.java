@@ -32,9 +32,9 @@ public class GraphiteDatasource implements IDatabase {
     private static final Logger LOG = LogManager.getLogger(GraphiteDatasource.class);
 	
 	private String enviornemnt = "qa";
-	private String graphiteHost = "doubleshot.perf.a.intuit.com";
-	private int graphitePort = 2003;
-    private int interval = 20; // SECONDS
+	private String host = "doubleshot.perf.a.intuit.com";
+	private int port = 2003;
+    private int interval = 15; // SECONDS
     
     private TankConfig config = new TankConfig();
 	private HierarchicalConfiguration resultsProviderConfig = config.getVmManagerConfig().getResultsProviderConfig();
@@ -74,10 +74,10 @@ public class GraphiteDatasource implements IDatabase {
         if (resultsProviderConfig != null) {
             try {
             	enviornemnt = config.getInstanceName();
-            	graphiteHost = resultsProviderConfig.getString("graphiteHost");
+            	host = resultsProviderConfig.getString("graphiteHost");
             	String s = resultsProviderConfig.getString("graphitePort");
                 if (NumberUtils.isDigits(s)) {
-                	graphitePort = Integer.parseInt(s);
+                	port = Integer.parseInt(s);
                 }
             } catch (Exception e) {
                 LOG.error("Failed to get Graphite parameters " + e.toString());
@@ -87,7 +87,7 @@ public class GraphiteDatasource implements IDatabase {
 		long l = results.get(results.size()-1).getTimeStamp().getTime() / 1000;
 		Collections.sort(results);
 		try {
-			Socket socket = new Socket(graphiteHost, graphitePort);
+			Socket socket = new Socket(host, port);
 			OutputStream s = socket.getOutputStream();
 			PrintWriter out = new PrintWriter(s, true);
 			List<Long> groupResults = new ArrayList<Long>();
@@ -144,7 +144,7 @@ public class GraphiteDatasource implements IDatabase {
 			out.close();
 			socket.close();
 		} catch (UnknownHostException e) {
-			LOG.error("Unknown host: " + graphiteHost);
+			LOG.error("Unknown host: " + host);
 		} catch (IOException e) {
 			LOG.error("Error while writing data to graphite: " + e.getMessage(), e);
 		} catch (Exception e) {
@@ -181,7 +181,7 @@ public class GraphiteDatasource implements IDatabase {
 	@Override
 	public String getDatabaseName(TankDatabaseType type, String jobId) {
 		// TODO Auto-generated method stub
-		return graphiteHost;
+		return host;
 	}
 
 }

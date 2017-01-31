@@ -110,7 +110,7 @@ public class APITestHarness {
     
     private Calendar c = Calendar.getInstance();
     private Date send = new Date();
-    private int interval = 20; // SECONDS
+    private int interval = 15; // SECONDS
 
     static {
         try {
