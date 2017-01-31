@@ -120,18 +120,24 @@ public class WavefrontDatasource implements IDatabase {
 				if (fiftieth >= 1) fiftieth--;
 				int ninetieth =(size*(9/10));
 				if (ninetieth >= 1) ninetieth--;
-				sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l + " source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + " bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId);
-				sb.append(System.getProperty("line.separator"));
-				sb.append(metricString + ".resp_time.avg " + average + " " + l + " source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + " bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId);
-				sb.append(System.getProperty("line.separator"));
-				sb.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + l + " source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + " bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId);
-				sb.append(System.getProperty("line.separator"));
-				sb.append(metricString + ".resp_time.50th " + sortedList[fiftieth].longValue() + " " + l + " source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + " bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId);
-				sb.append(System.getProperty("line.separator"));
-				sb.append(metricString + ".resp_time.90th " + sortedList[ninetieth].longValue() + " " + l + " source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + " bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId);
-				sb.append(System.getProperty("line.separator"));
-				sb.append(metricString + ".rpi " + size + " " + l + " source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + " bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId);
-				sb.append(System.getProperty("line.separator"));
+				sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l)
+				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+				.append(metricString + ".resp_time.avg " + average + " " + l)
+				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+				.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + l)
+				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+				.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + l)
+				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+				.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + l)
+				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+				.append(metricString + ".rpi " + size + " " + l)
+				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
 				requestName = metric.getRequestName();
 				groupResults.clear();
 				groupResults.add(Long.valueOf(metric.getResponseTime()));
@@ -150,18 +156,24 @@ public class WavefrontDatasource implements IDatabase {
 		if (fiftieth >= 1) fiftieth--;
 		int ninetieth =(size*(9/10));
 		if (ninetieth >= 1) ninetieth--;
-		sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l + " source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + " bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId);
-		sb.append(System.getProperty("line.separator"));
-		sb.append(metricString + ".resp_time.avg " + average + " " + l + " source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + " bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId);
-		sb.append(System.getProperty("line.separator"));
-		sb.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + l + " source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + " bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId);
-		sb.append(System.getProperty("line.separator"));
-		sb.append(metricString + ".resp_time.50th " + sortedList[fiftieth].longValue() + " " + l + " source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + " bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId);
-		sb.append(System.getProperty("line.separator"));
-		sb.append(metricString + ".resp_time.90th " + sortedList[ninetieth].longValue() + " " + l + " source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + " bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId);
-		sb.append(System.getProperty("line.separator"));
-		sb.append(metricString + ".rpi " + size + " " + l + " source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + " bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId);
-		sb.append(System.getProperty("line.separator"));
+		sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l)
+			.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+			.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+			.append(metricString + ".resp_time.avg " + average + " " + l)
+			.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+			.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+			.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + l)
+			.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+			.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+			.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + l)
+			.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+			.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+			.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + l)
+			.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+			.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+			.append(metricString + ".rpi " + size + " " + l)
+			.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+			.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
 		
 		try {
 			Socket socket = new Socket(host, port);

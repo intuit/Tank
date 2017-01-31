@@ -18,6 +18,7 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.intuit.tank.reporting.databases.IDatabase;
 import com.intuit.tank.reporting.databases.Item;
@@ -102,7 +103,8 @@ public class S3Datasource implements IDatabase {
 		Collections.sort(results);
 		
 		try {
-			AmazonS3 s3Client = new AmazonS3Client(new ProfileCredentialsProvider());       
+			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
+      
 			String Region = s3Client.getRegionName();
 			String account = s3Client.getS3AccountOwner().getId();
 			StringBuilder sb = new StringBuilder();
@@ -122,24 +124,24 @@ public class S3Datasource implements IDatabase {
 					if (fiftieth >= 1) fiftieth--;
 					int ninetieth =(size*(9/10));
 					if (ninetieth >= 1) ninetieth--;
-					sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l);
-					sb.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account);
-					sb.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
-					sb.append(metricString + ".resp_time.avg " + average + " " + l);
-					sb.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account);
-					sb.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
-					sb.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + l);
-					sb.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account);
-					sb.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
-					sb.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + l);
-					sb.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account);
-					sb.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
-					sb.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + l);
-					sb.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account);
-					sb.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
-					sb.append(metricString + ".rpi " + size + " " + l);
-					sb.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account);
-					sb.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
+					sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l)
+						.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account)
+						.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+						.append(metricString + ".resp_time.avg " + average + " " + l)
+						.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account)
+						.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+						.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + l)
+						.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account)
+						.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+						.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + l)
+						.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account)
+						.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+						.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + l)
+						.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account)
+						.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+						.append(metricString + ".rpi " + size + " " + l)
+						.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account)
+						.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
 					requestName = metric.getRequestName();
 					groupResults.clear();
 					groupResults.add(Long.valueOf(metric.getResponseTime()));
@@ -158,24 +160,24 @@ public class S3Datasource implements IDatabase {
 			if (fiftieth >= 1) fiftieth--;
 			int ninetieth =(size*(9/10));
 			if (ninetieth >= 1) ninetieth--;
-			sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l);
-			sb.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account);
-			sb.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
-			sb.append(metricString + ".resp_time.avg " + average + " " + l);
-			sb.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account);
-			sb.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
-			sb.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + l);
-			sb.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account);
-			sb.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
-			sb.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + l);
-			sb.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account);
-			sb.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
-			sb.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + l);
-			sb.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account);
-			sb.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
-			sb.append(metricString + ".rpi " + size + " " + l);
-			sb.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account);
-			sb.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
+			sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l)
+				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account)
+				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+				.append(metricString + ".resp_time.avg " + average + " " + l)
+				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account)
+				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+				.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + l)
+				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account)
+				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+				.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + l)
+				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account)
+				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+				.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + l)
+				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account)
+				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+				.append(metricString + ".rpi " + size + " " + l)
+				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName + "location=" + Region + "accountid=" + account)
+			.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
  
 			s3Client.putObject(new PutObjectRequest(bucketName, "TANK-AgentData-" + UUID.randomUUID(), new File(sb.toString())));
 		} catch (AmazonServiceException ase) {
