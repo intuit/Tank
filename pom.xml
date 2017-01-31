@@ -30,7 +30,7 @@
 
     <version.hibernate>4.2.21.Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
-    <version-aws-sdk>1.11.79</version-aws-sdk>
+    <version-aws-sdk>1.11.86</version-aws-sdk>
     <spring.version>2.5.6</spring.version>
  	<tomcat.version>8.5.9</tomcat.version>
  	
@@ -855,6 +855,11 @@
       <dependency>
         <groupId>com.amazonaws</groupId>
         <artifactId>aws-java-sdk-simpledb</artifactId>
+        <version>${version-aws-sdk}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-iam</artifactId>
         <version>${version-aws-sdk}</version>
       </dependency>
       <dependency>
