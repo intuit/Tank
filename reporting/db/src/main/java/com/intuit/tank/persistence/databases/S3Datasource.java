@@ -104,6 +104,9 @@ public class S3Datasource implements IDatabase {
 			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
 			
 			String Region = s3Client.getRegionName();
+			if (StringUtils.startsWith(bucketName, "intu")) {
+				StringUtils.appendIfMissing(bucketName, Region, "");
+			}
 			String Tags = " source=" + hostname + " instanceid=" + instance +  " location=" + Region + " bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator");
 			StringBuilder sb = new StringBuilder();
 			List<Long> groupResults = new ArrayList<Long>();
@@ -153,17 +156,17 @@ public class S3Datasource implements IDatabase {
 			int ninetieth =(size*(9/10));
 			if (ninetieth >= 1) ninetieth--;
 			sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l + " transaction=" + requestName)
-			.append(Tags)
-			.append(metricString + ".resp_time.avg " + average + " " + l + " transaction=" + requestName)
-			.append(Tags)
-			.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + l + " transaction=" + requestName)
-			.append(Tags)
-			.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + l + " transaction=" + requestName)
-			.append(Tags)
-			.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + l + " transaction=" + requestName)
-			.append(Tags)
-			.append(metricString + ".rpi " + size + " " + l + " transaction=" + requestName)
-			.append(Tags);
+				.append(Tags)
+				.append(metricString + ".resp_time.avg " + average + " " + l + " transaction=" + requestName)
+				.append(Tags)
+				.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + l + " transaction=" + requestName)
+				.append(Tags)
+				.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + l + " transaction=" + requestName)
+				.append(Tags)
+				.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + l + " transaction=" + requestName)
+				.append(Tags)
+				.append(metricString + ".rpi " + size + " " + l + " transaction=" + requestName)
+				.append(Tags);
 			InputStream is =  new ByteArrayInputStream(sb.toString().getBytes());
 			ObjectMetadata metaData = new ObjectMetadata();
 			metaData.setContentLength(sb.length());
@@ -172,13 +175,15 @@ public class S3Datasource implements IDatabase {
 			LOG.error("AmazonServiceException: which " +
             		"means your request made it " +
                     "to Amazon S3, but was rejected with an error response" +
-                    " for some reason." + ase.getMessage(), ase);
+                    " for some reason.  bucket=" + bucketName + 
+                    "," + ase.getMessage(), ase);
 		} catch (AmazonClientException ace) {
 			LOG.error("AmazonClientException: which " +
             		"means the client encountered " +
                     "an internal error while trying to " +
                     "communicate with S3, " +
-                    "such as not being able to access the network." + ace.getMessage(), ace);
+                    "such as not being able to access the network.  bucket=" + 
+                    bucketName + "," + ace.getMessage(), ace);
 		} catch (Exception e) {
 			LOG.error("Error: " + e.getMessage(), e);
 		}
