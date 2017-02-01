@@ -106,9 +106,14 @@ public class S3Datasource implements IDatabase {
 			
 			String Region = s3Client.getRegionName();
 			if (StringUtils.startsWith(bucketName, "intu")) {
-				StringUtils.appendIfMissing(bucketName, Region, "");
+				bucketName.concat(Region);
 			}
-			String Tags = " source=" + hostname + " instanceid=" + instance +  " location=" + Region + " bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator");
+			String Tags = " source=" + hostname + 
+					" instanceid=" + instance +  
+					" location=" + Region + 
+					" bu=ctg app=tnk pool=agent env=" + enviornemnt + 
+					" jobid=" + jobId + 
+					System.getProperty("line.separator");
 			StringBuilder sb = new StringBuilder();
 			List<Long> groupResults = new ArrayList<Long>();
 			String requestName = "";
