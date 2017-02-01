@@ -889,17 +889,14 @@ public class APITestHarness {
     }
 
     public void queueTimingResult(TankResult result) {
-        if (logTiming) {
-            results.add(result);
-            //if (results.size() >= BATCH_SIZE) {
-            if (send.before(new Date())) {
-                sendBatchToDB(true);
-                
-        		c.setTime(new Date());
-        		c.add(Calendar.SECOND, interval);
-        		send = new Date(c.getTime().getTime());
-            }
-
+        results.add(result);
+        //if (results.size() >= BATCH_SIZE) {
+        if (send.before(new Date())) {
+            sendBatchToDB(true);
+            
+    		c.setTime(new Date());
+    		c.add(Calendar.SECOND, interval);
+    		send = new Date(c.getTime().getTime());
         }
     }
 

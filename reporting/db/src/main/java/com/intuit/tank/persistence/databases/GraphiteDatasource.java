@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -95,10 +96,14 @@ public class GraphiteDatasource implements IDatabase {
 			long sum = 0;
 			//int count = 0;
 			for (TankResult metric: results) {
-				if (metric.getRequestName().equalsIgnoreCase(requestName)) {
+				if (StringUtils.equalsIgnoreCase(metric.getRequestName(), requestName)) { //Middle of the Group
 					groupResults.add(Long.valueOf(metric.getResponseTime()));
 					sum += metric.getResponseTime();
-				} else if (!groupResults.isEmpty()) { // Handles the last time through of the group//
+				} else if (StringUtils.isEmpty(requestName)) { // Handles the first time through //
+					requestName = metric.getRequestName();
+					sum = metric.getResponseTime();
+					groupResults.add(Long.valueOf(sum));
+				} else { // Handles the last time through of the group//
 					int size = groupResults.size();
 					Collections.sort(groupResults);
 					Long[] sortedList = groupResults.toArray(new Long[size]);
@@ -119,10 +124,6 @@ public class GraphiteDatasource implements IDatabase {
 					groupResults.clear();
 					groupResults.add(Long.valueOf(metric.getResponseTime()));
 					sum = 0;
-				} else { // Handles the first time through //
-					requestName = metric.getRequestName();
-					groupResults.add(Long.valueOf(metric.getResponseTime()));
-					sum = metric.getResponseTime();
 				}
 			} // Get that last one //
 			int size = groupResults.size();

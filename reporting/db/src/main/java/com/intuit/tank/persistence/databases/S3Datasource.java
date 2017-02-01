@@ -98,8 +98,7 @@ public class S3Datasource implements IDatabase {
         }
 		String jobId = results.get(0).getJobId();
 		String instance = results.get(0).getInstanceId();
-		long l = results.get(results.size()-1).getTimeStamp().getTime() / 1000;
-		Collections.sort(results);
+		long timestamp = results.get(results.size()-1).getTimeStamp().getTime() / 1000;
 		
 		try {
 			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
@@ -118,11 +117,16 @@ public class S3Datasource implements IDatabase {
 			List<Long> groupResults = new ArrayList<Long>();
 			String requestName = "";
 			long sum = 0;
+			Collections.sort(results);
 			for (TankResult metric: results) {
-				if (metric.getRequestName().equalsIgnoreCase(requestName)) {
+				if (StringUtils.equalsIgnoreCase(metric.getRequestName(), requestName)) { //Middle of the Group
 					groupResults.add(Long.valueOf(metric.getResponseTime()));
 					sum += metric.getResponseTime();
-				} else if (!groupResults.isEmpty()) { // Handles the last time through of the group//
+				} else if (StringUtils.isEmpty(requestName)) { // Handles the first time through //
+					requestName = metric.getRequestName();
+					sum = metric.getResponseTime();
+					groupResults.add(Long.valueOf(sum));
+				} else { // Handles the last time through of the group//
 					int size = groupResults.size();
 					Collections.sort(groupResults);
 					Long[] sortedList = groupResults.toArray(new Long[size]);
@@ -131,26 +135,22 @@ public class S3Datasource implements IDatabase {
 					if (fiftieth >= 1) fiftieth--;
 					int ninetieth =(size*(9/10));
 					if (ninetieth >= 1) ninetieth--;
-					sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l + " transaction=" + requestName)
+					sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + timestamp + " transaction=" + requestName)
 						.append(Tags)
-						.append(metricString + ".resp_time.avg " + average + " " + l + " transaction=" + requestName)
+						.append(metricString + ".resp_time.avg " + average + " " + timestamp + " transaction=" + requestName)
 						.append(Tags)
-						.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + l + " transaction=" + requestName)
+						.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + timestamp + " transaction=" + requestName)
 						.append(Tags)
-						.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + l + " transaction=" + requestName)
+						.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + timestamp + " transaction=" + requestName)
 						.append(Tags)
-						.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + l + " transaction=" + requestName)
+						.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + timestamp + " transaction=" + requestName)
 						.append(Tags)
-						.append(metricString + ".rpi " + size + " " + l + " transaction=" + requestName)
+						.append(metricString + ".rpi " + size + " " + timestamp + " transaction=" + requestName)
 						.append(Tags);
 					requestName = metric.getRequestName();
 					groupResults.clear();
-					groupResults.add(Long.valueOf(metric.getResponseTime()));
-					sum = 0;
-				} else { // Handles the first time through //
-					requestName = metric.getRequestName();
-					groupResults.add(Long.valueOf(metric.getResponseTime()));
 					sum = metric.getResponseTime();
+					groupResults.add(Long.valueOf(sum));
 				}
 			} // Get that last one //
 			int size = groupResults.size();
@@ -161,17 +161,17 @@ public class S3Datasource implements IDatabase {
 			if (fiftieth >= 1) fiftieth--;
 			int ninetieth =(size*(9/10));
 			if (ninetieth >= 1) ninetieth--;
-			sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l + " transaction=" + requestName)
+			sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + timestamp + " transaction=" + requestName)
 				.append(Tags)
-				.append(metricString + ".resp_time.avg " + average + " " + l + " transaction=" + requestName)
+				.append(metricString + ".resp_time.avg " + average + " " + timestamp + " transaction=" + requestName)
 				.append(Tags)
-				.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + l + " transaction=" + requestName)
+				.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + timestamp + " transaction=" + requestName)
 				.append(Tags)
-				.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + l + " transaction=" + requestName)
+				.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + timestamp + " transaction=" + requestName)
 				.append(Tags)
-				.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + l + " transaction=" + requestName)
+				.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + timestamp + " transaction=" + requestName)
 				.append(Tags)
-				.append(metricString + ".rpi " + size + " " + l + " transaction=" + requestName)
+				.append(metricString + ".rpi " + size + " " + timestamp + " transaction=" + requestName)
 				.append(Tags);
 			InputStream is =  new ByteArrayInputStream(sb.toString().getBytes());
 			ObjectMetadata metaData = new ObjectMetadata();

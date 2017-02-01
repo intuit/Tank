@@ -108,10 +108,14 @@ public class WavefrontDatasource implements IDatabase {
 		String requestName = "";
 		long sum = 0;
 		for (TankResult metric: results) {
-			if (metric.getRequestName().equalsIgnoreCase(requestName)) {
+			if (StringUtils.equalsIgnoreCase(metric.getRequestName(), requestName)) { //Middle of the Group
 				groupResults.add(Long.valueOf(metric.getResponseTime()));
 				sum += metric.getResponseTime();
-			} else if (!groupResults.isEmpty()) { // Handles the last time through of the group//
+			} else if (StringUtils.isEmpty(requestName)) { // Handles the first time through //
+				requestName = metric.getRequestName();
+				sum = metric.getResponseTime();
+				groupResults.add(Long.valueOf(sum));
+			} else { // Handles the last time through of the group//
 				int size = groupResults.size();
 				Collections.sort(groupResults);
 				Long[] sortedList = groupResults.toArray(new Long[size]);
@@ -142,10 +146,6 @@ public class WavefrontDatasource implements IDatabase {
 				groupResults.clear();
 				groupResults.add(Long.valueOf(metric.getResponseTime()));
 				sum = 0;
-			} else { // Handles the first time through //
-				requestName = metric.getRequestName();
-				groupResults.add(Long.valueOf(metric.getResponseTime()));
-				sum = metric.getResponseTime();
 			}
 		} // Get that last one //
 		int size = groupResults.size();
