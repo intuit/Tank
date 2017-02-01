@@ -18,6 +18,7 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.intuit.tank.reporting.databases.IDatabase;
@@ -170,7 +171,9 @@ public class S3Datasource implements IDatabase {
 			InputStream is =  new ByteArrayInputStream(sb.toString().getBytes());
 			ObjectMetadata metaData = new ObjectMetadata();
 			metaData.setContentLength(sb.length());
-			s3Client.putObject(new PutObjectRequest(bucketName, "TANK-AgentData-" + UUID.randomUUID() + ".log", is, metaData));
+			s3Client.putObject(
+					new PutObjectRequest(bucketName, "TANK-AgentData-" + UUID.randomUUID() + ".log", is, metaData)
+						.withCannedAcl(CannedAccessControlList.BucketOwnerFullControl));
 		} catch (AmazonServiceException ase) {
 			LOG.error("AmazonServiceException: which " +
             		"means your request made it " +
