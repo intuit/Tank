@@ -901,7 +901,7 @@ public class APITestHarness {
     }
 
     private void sendBatchToDB(boolean asynch) {
-        if (results.size() != 0 && logTiming) {
+        if (results.size() > 1 && logTiming) {
             final List<TankResult> l = new ArrayList<TankResult>();
             synchronized (results) {
                 l.addAll(results);
