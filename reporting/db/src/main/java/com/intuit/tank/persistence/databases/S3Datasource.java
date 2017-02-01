@@ -105,8 +105,8 @@ public class S3Datasource implements IDatabase {
 			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
 			
 			String Region = s3Client.getRegionName();
-			if (StringUtils.startsWith(bucketName, "intu")) {
-				bucketName.concat(Region);
+			if (StringUtils.endsWith(bucketName, "-")) {
+				bucketName = bucketName.concat(Region);
 			}
 			String Tags = " source=" + hostname + 
 					" instanceid=" + instance +  
