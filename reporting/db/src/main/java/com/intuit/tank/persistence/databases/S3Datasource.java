@@ -160,7 +160,8 @@ public class S3Datasource implements IDatabase {
 			long average = sum / size;
 			int fiftieth = (size/2);
 			if (fiftieth >= 1) fiftieth--;
-			int ninetieth =(size*(9/10));
+			float ninety = 9/10;
+			int ninetieth = Math.round(size * ninety);
 			if (ninetieth >= 1) ninetieth--;
 			sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + timestamp + " transaction=" + requestName)
 				.append(Tags)

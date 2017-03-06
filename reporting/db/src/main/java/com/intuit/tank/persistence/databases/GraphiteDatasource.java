@@ -111,7 +111,8 @@ public class GraphiteDatasource implements IDatabase {
 					long tps = size / interval;
 					int fiftieth = (size/2);
 					if (fiftieth >= 1) fiftieth--;
-					int ninetieth =(size*(9/10));
+					float ninety = 9/10;
+					int ninetieth = Math.round(size * ninety);
 					if (ninetieth >= 1) ninetieth--;
 					out.printf("tank.%s.%s.%s.ResponseTime.MIN %d %d%n", enviornemnt, jobId, requestName, sortedList[0].longValue(), l );
 					out.printf("tank.%s.%s.%s.ResponseTime.AVG %d %d%n", enviornemnt, jobId, requestName, average, l );
@@ -133,7 +134,8 @@ public class GraphiteDatasource implements IDatabase {
 			long tps = size / interval;
 			int fiftieth = (size/2);
 			if (fiftieth >= 1) fiftieth--;
-			int ninetieth =(size*(9/10));
+			float ninety = 9/10;
+			int ninetieth = Math.round(size * ninety);
 			if (ninetieth >= 1) ninetieth--;
 			out.printf("tank.%s.%s.%s.ResponseTime.MIN %d %d%n", enviornemnt, jobId, requestName, sortedList[0].longValue(), l );
 			out.printf("tank.%s.%s.%s.ResponseTime.AVG %d %d%n", enviornemnt, jobId, requestName, average, l );

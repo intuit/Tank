@@ -122,26 +122,27 @@ public class WavefrontDatasource implements IDatabase {
 				long average = sum / size;
 				int fiftieth = (size/2);
 				if (fiftieth >= 1) fiftieth--;
-				int ninetieth =(size*(9/10));
+				float ninety = 9/10;
+				int ninetieth = Math.round(size * ninety);
 				if (ninetieth >= 1) ninetieth--;
 				sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l)
-				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
-				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
-				.append(metricString + ".resp_time.avg " + average + " " + l)
-				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
-				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
-				.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + l)
-				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
-				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
-				.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + l)
-				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
-				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
-				.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + l)
-				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
-				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
-				.append(metricString + ".rpi " + size + " " + l)
-				.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
-				.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
+					.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+					.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+					.append(metricString + ".resp_time.avg " + average + " " + l)
+					.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+					.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+					.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + l)
+					.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+					.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+					.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + l)
+					.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+					.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+					.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + l)
+					.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+					.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+					.append(metricString + ".rpi " + size + " " + l)
+					.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+					.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"));
 				requestName = metric.getRequestName();
 				groupResults.clear();
 				groupResults.add(Long.valueOf(metric.getResponseTime()));
@@ -154,7 +155,8 @@ public class WavefrontDatasource implements IDatabase {
 		long average = sum / size;
 		int fiftieth = (size/2);
 		if (fiftieth >= 1) fiftieth--;
-		int ninetieth =(size*(9/10));
+		float ninety = 9/10;
+		int ninetieth = Math.round(size * ninety);
 		if (ninetieth >= 1) ninetieth--;
 		sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l)
 			.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
