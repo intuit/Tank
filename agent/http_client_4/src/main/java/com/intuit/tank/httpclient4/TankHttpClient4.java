@@ -86,6 +86,7 @@ public class TankHttpClient4 implements TankHttpClient {
     private HttpClientContext context;
     private RequestConfig requestConfig;
     private SSLConnectionSocketFactory sslsf;
+    private boolean proxyOn = false;
 
     /**
      * no-arg constructor for client
@@ -271,9 +272,10 @@ public class TankHttpClient4 implements TankHttpClient {
             HttpHost proxy = new HttpHost(proxyhost, proxyport);
             DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
             httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).setRoutePlanner(routePlanner).build();
-        } else {
-
+            proxyOn = true;
+        } else if (proxyOn){
             httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+            proxyOn = false;
         }
     }
 
