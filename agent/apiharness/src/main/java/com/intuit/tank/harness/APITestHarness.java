@@ -14,9 +14,7 @@ package com.intuit.tank.harness;
  */
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -31,7 +29,6 @@ import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.Level;
@@ -391,12 +388,10 @@ public class APITestHarness {
                     saveDataFile(dfRequest);
                 }
             }
-            LOG.info("Creating new StartChecker Thread");
-            Thread t = new Thread(new StartedChecker());
-            t.setName("StartedChecker");
-            t.setDaemon(false);
-            t.start();
-            LOG.info("Started StartChecker Thread");
+            Thread thread = new Thread(new StartedChecker());
+            thread.setName("StartedChecker");
+            thread.setDaemon(false);
+            thread.start();
         } catch (Exception e) {
             LOG.error("Error communicating with controller: " + e, e);
             System.exit(0);
@@ -454,8 +449,6 @@ public class APITestHarness {
             }
         }
         File dataFile = new File(dataFileDir, dataFileRequest.getFileName());
-        FileOutputStream fos = null;
-        InputStream is = null;
         int count = 0;
         while (count++ < MAX_RETRIES) {
             try {
@@ -463,10 +456,7 @@ public class APITestHarness {
                 LOG.info(LogUtil.getLogMessage(
                         "writing file " + dataFileRequest.getFileName() + " to " + dataFile.getAbsolutePath()
                                 + " from url " + url.toExternalForm(), LogEventType.System));
-                is = url.openStream();
-                fos = new FileOutputStream(dataFile);
-                IOUtils.copy(is, fos);
-                IOUtils.closeQuietly(fos);
+                FileUtils.copyURLToFile(url, dataFile);
                 if (dataFileRequest.isDefault()
                         && !dataFileRequest.getFileName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
                     File defaultFile = new File(dataFileDir, TankConstants.DEFAULT_CSV_FILE_NAME);
@@ -490,9 +480,6 @@ public class APITestHarness {
                     LOG.error(LogUtil.getLogMessage("Error downloading csv file: " + e, LogEventType.IO), e);
                     throw new RuntimeException(e);
                 }
-            } finally {
-                IOUtils.closeQuietly(is);
-                IOUtils.closeQuietly(fos);
             }
         }
 

@@ -19,7 +19,7 @@ import org.apache.logging.log4j.Logger;
 public class StartedChecker implements Runnable {
 
 	private static Logger LOG = LogManager.getLogger(StartedChecker.class);
-    private static final long SLEEP_TIME = 1000 * 60 * 5; // 5 minutes
+    private static final long SLEEP_TIME = 1000 * 60 * 10; // 10 minutes
 
     @Override
     public void run() {
@@ -29,7 +29,7 @@ public class StartedChecker implements Runnable {
             e.printStackTrace();
         }
         if (!APITestHarness.getInstance().isStarted()) {
-            LOG.info("Waited 5 minutes, didn't hear anything from the controller.  Exiting.");
+            LOG.info("Waited 10 minutes, didn't hear anything from the controller.  Exiting.");
             System.exit(1);
         }
 
