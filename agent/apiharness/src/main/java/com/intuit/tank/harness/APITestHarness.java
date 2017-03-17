@@ -13,13 +13,10 @@ package com.intuit.tank.harness;
  * #L%
  */
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -394,10 +391,12 @@ public class APITestHarness {
                     saveDataFile(dfRequest);
                 }
             }
+            LOG.info("Creating new StartChecker Thread");
             Thread t = new Thread(new StartedChecker());
             t.setName("StartedChecker");
             t.setDaemon(false);
             t.start();
+            LOG.info("Started StartChecker Thread");
         } catch (Exception e) {
             LOG.error("Error communicating with controller: " + e, e);
             System.exit(0);
@@ -409,27 +408,20 @@ public class APITestHarness {
      * 
      */
     public void writeXmlToFile(String scriptUrl) throws IOException {
-        File f = new File("script.xml");
-        LOG.info(LogUtil.getLogMessage("Writing xml to " + f.getAbsolutePath()));
-        Writer out = null;
-        InputStream is = null;
+        File file = new File("script.xml");
+        LOG.info(LogUtil.getLogMessage("Writing xml to " + file.getAbsolutePath()));
         int count = 0;
 
         while (count++ < MAX_RETRIES) {
             try {
-                if (f.exists()) {
-                    f.delete();
-                    f = new File("script.xml");
+                if (file.exists()) {
+                	file.delete();
+                    file = new File("script.xml");
                 }
                 URL url = new URL(scriptUrl);
-                LOG.info("Downloading file from url " + scriptUrl + " to file " + f.getAbsolutePath());
-                is = url.openStream();
-                out = new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream(f), "UTF8"));
-                IOUtils.copy(is, out);
-                IOUtils.closeQuietly(is);
-                IOUtils.closeQuietly(out);
-                String scriptXML = FileUtils.readFileToString(f, "UTF-8");
+                LOG.info("Downloading file from url " + scriptUrl + " to file " + file.getAbsolutePath());
+                FileUtils.copyURLToFile(url, file);
+                String scriptXML = FileUtils.readFileToString(file, "UTF-8");
                 List<String> tps = new ArrayList<String>();
                 tps.add(scriptXML);
                 setTestPlans(tps);
@@ -437,8 +429,6 @@ public class APITestHarness {
                 break;
             } catch (Exception e) {
                 if (count < MAX_RETRIES) {
-                    IOUtils.closeQuietly(is);
-                    IOUtils.closeQuietly(out);
                     LOG.warn(LogUtil.getLogMessage("Failed to download script file because of: " + e.toString()
                             + ". Will try "
                             + (MAX_RETRIES - count) + " more times.", LogEventType.System));
@@ -451,9 +441,6 @@ public class APITestHarness {
                     LOG.error(LogUtil.getLogMessage("Error writing script file: " + e, LogEventType.IO), e);
                     throw new RuntimeException(e);
                 }
-            } finally {
-                IOUtils.closeQuietly(is);
-                IOUtils.closeQuietly(out);
             }
         }
     }

@@ -1,5 +1,8 @@
 package com.intuit.tank.harness;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /*
  * #%L
  * Intuit Tank Agent (apiharness)
@@ -15,6 +18,7 @@ package com.intuit.tank.harness;
 
 public class StartedChecker implements Runnable {
 
+	private static Logger LOG = LogManager.getLogger(StartedChecker.class);
     private static final long SLEEP_TIME = 1000 * 60 * 5; // 5 minutes
 
     @Override
@@ -25,6 +29,7 @@ public class StartedChecker implements Runnable {
             e.printStackTrace();
         }
         if (!APITestHarness.getInstance().isStarted()) {
+            LOG.info("Waited 5 minutes, didn't hear anything from the controller.  Exiting.");
             System.exit(1);
         }
 
