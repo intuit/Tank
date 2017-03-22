@@ -29,7 +29,7 @@ public class StartedChecker implements Runnable {
             e.printStackTrace();
         }
         if (!APITestHarness.getInstance().isStarted()) {
-            LOG.info("Waited 10 minutes, didn't hear anything from the controller.  Exiting.");
+            LOG.error("Waited 10 minutes, didn't hear anything from the controller.  Exiting.");
             System.exit(1);
         }
 
