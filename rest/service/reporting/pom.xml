@@ -45,10 +45,10 @@
       <version>${project.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>net.sf.opencsv</groupId>
-      <artifactId>opencsv</artifactId>
-    </dependency>
+	<dependency>
+	    <groupId>com.opencsv</groupId>
+	    <artifactId>opencsv</artifactId>
+	</dependency>
 
   </dependencies>
 
