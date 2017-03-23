@@ -35,22 +35,18 @@ public class JobQueueAction {
         if (node instanceof ActJobNodeBean) {
             ActJobNodeBean jobNode = (ActJobNodeBean) node;
 
-            if (jobNode.getStatus().equals(JobQueueStatus.Created.name())) {
+            if (jobNode.getStatus().equals(JobQueueStatus.Created.toString())) {
                 controller.startJob(jobNode.getId());
             } else {
-                if (jobNode.getStatus().equals(JobStatus.Paused.name())
-                        || jobNode.getStatus().equals(JobStatus.RampPaused.name())) {
+                if (jobNode.getStatus().equals(JobStatus.Paused.toString())
+                        || jobNode.getStatus().equals(JobStatus.RampPaused.toString())) {
                     controller.restartJob(jobNode.getId());
                 } else {
                     controller.startJob(jobNode.getId());
                 }
             }
         } else if (node instanceof VMNodeBean) {
-            VMNodeBean agentNode = (VMNodeBean) node;
-            if (agentNode.getStatus().equals(JobStatus.Paused.name())
-                    || agentNode.getStatus().equals(JobStatus.RampPaused.name())) {
-                controller.restartAgent(agentNode.getId());
-            }
+             controller.restartAgent(node.getId());
         }
     }
 
@@ -59,11 +55,9 @@ public class JobQueueAction {
      */
     public void pause(JobNodeBean node) {
         if (node instanceof ActJobNodeBean) {
-            ActJobNodeBean jobNode = (ActJobNodeBean) node;
-            controller.pauseJob(jobNode.getId());
+            controller.pauseJob(node.getId());
         } else if (node instanceof VMNodeBean) {
-            VMNodeBean agentNode = (VMNodeBean) node;
-            controller.pauseAgent(agentNode.getId());
+            controller.pauseAgent(node.getId());
         }
     }
 
@@ -72,11 +66,9 @@ public class JobQueueAction {
      */
     public void pauseRamp(JobNodeBean node) {
         if (node instanceof ActJobNodeBean) {
-            ActJobNodeBean jobNode = (ActJobNodeBean) node;
-            controller.pauseRampJob(jobNode.getId());
+            controller.pauseRampJob(node.getId());
         } else if (node instanceof VMNodeBean) {
-            VMNodeBean agentNode = (VMNodeBean) node;
-            controller.pauseRampInstance(agentNode.getId());
+            controller.pauseRampInstance(node.getId());
         }
     }
 
@@ -87,11 +79,9 @@ public class JobQueueAction {
      */
     public void kill(JobNodeBean node) {
         if (node instanceof ActJobNodeBean) {
-            ActJobNodeBean jobNode = (ActJobNodeBean) node;
-            controller.killJob(jobNode.getId());
+            controller.killJob(node.getId());
         } else if (node instanceof VMNodeBean) {
-            VMNodeBean agentNode = (VMNodeBean) node;
-            controller.killInstance(agentNode.getId());
+            controller.killInstance(node.getId());
         }
     }
 
@@ -100,11 +90,9 @@ public class JobQueueAction {
      */
     public void stop(JobNodeBean node) {
         if (node instanceof ActJobNodeBean) {
-            ActJobNodeBean jobNode = (ActJobNodeBean) node;
-            controller.stopJob(jobNode.getId());
+            controller.stopJob(node.getId());
         } else if (node instanceof VMNodeBean) {
-            VMNodeBean agentNode = (VMNodeBean) node;
-            controller.stopAgent(agentNode.getId());
+            controller.stopAgent(node.getId());
         }
     }
 

@@ -52,17 +52,11 @@ public class JobController {
     @Inject
     private VMTracker vmTracker;
 
-    // @Inject
-    // private PerfManagerJobListener perfManagerJobListener;
-
     @Inject
     private JobManager jobManager;
 
     @Inject
     private AgentChannel agentChannel;
-
-    @Inject
-    private VMChannel channel;
 
     @Inject
     private Event<JobEvent> jobEventProducer;

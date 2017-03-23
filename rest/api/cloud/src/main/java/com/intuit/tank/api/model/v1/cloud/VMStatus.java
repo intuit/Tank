@@ -17,6 +17,7 @@ import java.io.Serializable;
 
 public enum VMStatus implements Serializable {
     unknown,
+    starting,
     pending,
     rebooting,
     running,

@@ -1,5 +1,7 @@
 package com.intuit.tank.job;
 
+import com.intuit.tank.api.model.v1.cloud.VMStatus;
+
 /*
  * #%L
  * JSF Support Beans
@@ -18,71 +20,41 @@ import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 public class JobStatusHelper {
 
     public static boolean canBeRun(String status) {
-        boolean retVal = false;
-        if (status.equals(JobQueueStatus.Created.toString())) {
-            retVal = true;
-        } else if (status.equals(JobQueueStatus.Queued.toString())) {
-            retVal = true;
-        } else if (status.equals(JobQueueStatus.Paused.toString())) {
-            retVal = true;
-        } else if (status.equals(JobQueueStatus.RampPaused.toString())) {
-            retVal = true;
-        }
-        return retVal;
+        return (status.equals(JobQueueStatus.Created.toString())
+        		|| status.equals(JobQueueStatus.Queued.toString())
+        		|| status.equals(JobQueueStatus.Paused.toString())
+        		|| status.equals(JobQueueStatus.RampPaused.toString()))
+        		? true : false;
     }
 
     public static boolean canBePaused(String status) {
-        boolean retVal = false;
-        if (status.equals(JobQueueStatus.Running.toString())) {
-            retVal = true;
-        } else if (status.equals(JobQueueStatus.Starting.toString())) {
-            retVal = true;
-        } else if (status.equals(JobQueueStatus.RampPaused.toString())) {
-            retVal = true;
-        }
-        return retVal;
+        return (status.equalsIgnoreCase(JobQueueStatus.Running.toString())
+        		|| status.equals(JobQueueStatus.Starting.toString())
+        		|| status.equals(JobQueueStatus.RampPaused.toString()))
+        		? true : false;
     }
 
     public static boolean canRampBePaused(String status) {
-        boolean retVal = false;
-        if (status.equals(JobQueueStatus.Running.toString())) {
-            retVal = true;
-        } else if (status.equals(JobQueueStatus.Starting.toString())) {
-            retVal = true;
-        } else if (status.equals(JobQueueStatus.Starting.toString())) {
-            retVal = true;
-        }
-        return retVal;
+    	return (status.equalsIgnoreCase(JobQueueStatus.Running.toString())
+    			|| status.equals(JobQueueStatus.Starting.toString()))
+            	? true : false;
     }
 
     public static boolean canBeStopped(String status) {
-        boolean retVal = false;
-        if (status.equals(JobQueueStatus.Starting.toString())) {
-            retVal = true;
-        } else if (status.equals(JobQueueStatus.Running.toString())) {
-            retVal = true;
-        } else if (status.equals(JobQueueStatus.Paused.toString())) {
-            retVal = true;
-        } else if (status.equals(JobQueueStatus.RampPaused.toString())) {
-            retVal = true;
-        }
-
-        return retVal;
+    	return (status.equalsIgnoreCase(JobQueueStatus.Running.toString())
+    			|| status.equals(JobQueueStatus.Starting.toString())
+    			|| status.equals(JobQueueStatus.Paused.toString())
+    			|| status.equals(JobQueueStatus.RampPaused.toString()))
+            	? true : false;
     }
 
     public static boolean canBeKilled(String status) {
-        boolean retVal = false;
-        if (status.equals(JobQueueStatus.Starting.toString())) {
-            retVal = true;
-        } else if (status.equals(JobQueueStatus.Running.toString())) {
-            retVal = true;
-        } else if (status.equals(JobQueueStatus.Paused.toString())) {
-            retVal = true;
-        } else if (status.equals(JobQueueStatus.Stopped.toString())) {
-            retVal = true;
-        } else if (status.equals(JobQueueStatus.RampPaused.toString())) {
-            retVal = true;
-        }
-        return retVal;
+        return (status.equalsIgnoreCase(JobQueueStatus.Running.toString())
+        		|| status.equalsIgnoreCase(JobQueueStatus.Stopped.toString())
+        		|| status.equalsIgnoreCase(JobQueueStatus.Starting.toString())
+        		|| status.equals(VMStatus.stopping.toString())
+        		|| status.equals(JobQueueStatus.Paused.toString())
+        		|| status.equals(JobQueueStatus.RampPaused.toString()))
+            	? true : false;
     }
 }
