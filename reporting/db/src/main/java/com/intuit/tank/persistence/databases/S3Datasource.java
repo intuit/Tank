@@ -133,9 +133,12 @@ public class S3Datasource implements IDatabase {
 					long average = sum / size;
 					int fiftieth = (size/2);
 					if (fiftieth >= 1) fiftieth--;
-					float ninety = 9/10;
+					float ninety = 0.9f;
 					int ninetieth = Math.round(size * ninety);
 					if (ninetieth >= 1) ninetieth--;
+					float ninetynine = 0.99f;
+					int ninetynineth = Math.round(size * ninetynine);
+					if (ninetynineth >= 1) ninetynineth--;
 					sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + timestamp + " transaction=" + requestName)
 						.append(Tags)
 						.append(metricString + ".resp_time.avg " + average + " " + timestamp + " transaction=" + requestName)
@@ -145,6 +148,8 @@ public class S3Datasource implements IDatabase {
 						.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + timestamp + " transaction=" + requestName)
 						.append(Tags)
 						.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + timestamp + " transaction=" + requestName)
+						.append(Tags)
+						.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth].longValue() + " " + timestamp + " transaction=" + requestName)
 						.append(Tags)
 						.append(metricString + ".rpi " + size + " " + timestamp + " transaction=" + requestName)
 						.append(Tags);
@@ -160,9 +165,12 @@ public class S3Datasource implements IDatabase {
 			long average = sum / size;
 			int fiftieth = (size/2);
 			if (fiftieth >= 1) fiftieth--;
-			float ninety = 9/10;
+			float ninety = 0.9f;
 			int ninetieth = Math.round(size * ninety);
 			if (ninetieth >= 1) ninetieth--;
+			float ninetynine = 0.99f;
+			int ninetynineth = Math.round(size * ninetynine);
+			if (ninetynineth >= 1) ninetynineth--;
 			sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + timestamp + " transaction=" + requestName)
 				.append(Tags)
 				.append(metricString + ".resp_time.avg " + average + " " + timestamp + " transaction=" + requestName)
@@ -172,6 +180,8 @@ public class S3Datasource implements IDatabase {
 				.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + timestamp + " transaction=" + requestName)
 				.append(Tags)
 				.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + timestamp + " transaction=" + requestName)
+				.append(Tags)
+				.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth].longValue() + " " + timestamp + " transaction=" + requestName)
 				.append(Tags)
 				.append(metricString + ".rpi " + size + " " + timestamp + " transaction=" + requestName)
 				.append(Tags);

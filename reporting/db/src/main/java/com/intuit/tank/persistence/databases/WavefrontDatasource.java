@@ -122,9 +122,12 @@ public class WavefrontDatasource implements IDatabase {
 				long average = sum / size;
 				int fiftieth = (size/2);
 				if (fiftieth >= 1) fiftieth--;
-				float ninety = 9/10;
+				float ninety = 0.9f;
 				int ninetieth = Math.round(size * ninety);
 				if (ninetieth >= 1) ninetieth--;
+				float ninetynine = 0.99f;
+				int ninetynineth = Math.round(size * ninetynine);
+				if (ninetynineth >= 1) ninetynineth--;
 				sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l)
 					.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
 					.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
@@ -138,6 +141,9 @@ public class WavefrontDatasource implements IDatabase {
 					.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
 					.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
 					.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + l)
+					.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+					.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+					.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth].longValue() + " " + l)
 					.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
 					.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
 					.append(metricString + ".rpi " + size + " " + l)
@@ -155,9 +161,12 @@ public class WavefrontDatasource implements IDatabase {
 		long average = sum / size;
 		int fiftieth = (size/2);
 		if (fiftieth >= 1) fiftieth--;
-		float ninety = 9/10;
+		float ninety = 0.9f;
 		int ninetieth = Math.round(size * ninety);
 		if (ninetieth >= 1) ninetieth--;
+		float ninetynine = 0.99f;
+		int ninetynineth = Math.round(size * ninetynine);
+		if (ninetynineth >= 1) ninetynineth--;
 		sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + l)
 			.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
 			.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
@@ -171,6 +180,9 @@ public class WavefrontDatasource implements IDatabase {
 			.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
 			.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
 			.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + l)
+			.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
+			.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
+			.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth].longValue() + " " + l)
 			.append(" source=" + hostname + " instanceid=" + instance + " transaction=" + requestName)
 			.append(" bu=ctg app=tnk pool=agent env=" + enviornemnt + " jobid=" + jobId + System.getProperty("line.separator"))
 			.append(metricString + ".rpi " + size + " " + l)
