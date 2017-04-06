@@ -60,7 +60,8 @@ public class TestPlanStarter implements Runnable {
             if ((threadsStarted - numStartUsers) % APITestHarness.getInstance().getAgentRunData().getUserInterval() == 0) {
                 waitForRampTime();
             }
-            while (APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause) {
+            while (APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause_ramp
+            		|| APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause) {
                 if (APITestHarness.getInstance().hasMetSimulationTime()) {
                     APITestHarness.getInstance().setCommand(WatsAgentCommand.stop);
                     break;
@@ -72,20 +73,8 @@ public class TestPlanStarter implements Runnable {
                     }
                 }
             }
-            while (APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause_ramp) {
-                if (APITestHarness.getInstance().hasMetSimulationTime()) {
-                    APITestHarness.getInstance().setCommand(WatsAgentCommand.stop);
-                    break;
-                } else {
-                    try {
-                        Thread.sleep(APITestHarness.POLL_INTERVAL);
-                    } catch (InterruptedException e) {
-                        // ignore
-                    }
-                }
-            }
-            if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.stop ||
-                    APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill) {
+            if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.stop
+            		|| APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill) {
                 break;
             }
             runners.pop().start();
