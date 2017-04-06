@@ -34,7 +34,7 @@
     <spring.version>2.5.6</spring.version>
  	<tomcat.version>8.5.9</tomcat.version>
  	
-    <weld-version>2.3.4.Final</weld-version>
+    <weld-version>2.4.2.Final</weld-version>
     <cdi-version>1.2</cdi-version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
     <slf.version>1.7.21</slf.version>
@@ -434,18 +434,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.weld</groupId>
-      <artifactId>weld-core</artifactId>
-      <!-- <scope>test</scope> -->
-      <exclusions>
-      	<exclusion>
-      		<artifactId>jboss-el-api_3.0_spec</artifactId>
-      		<groupId>org.jboss.spec.javax.el</groupId>
-      	</exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
       <groupId>javax.servlet.jsp</groupId>
       <artifactId>jsp-api</artifactId>
       <scope>test</scope>
@@ -658,9 +646,9 @@
       </dependency>
 
 	  <dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-collections4</artifactId>
-	    <version>4.1</version>
+    	<groupId>commons-collections</groupId>
+    	<artifactId>commons-collections</artifactId>
+    	<version>3.2.2</version>
 	  </dependency>
 
       <dependency>
@@ -970,21 +958,7 @@
 
       <dependency>
         <groupId>org.jboss.weld.servlet</groupId>
-        <artifactId>weld-servlet-parent</artifactId>
-        <version>${weld-version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.weld.servlet</groupId>
         <artifactId>weld-servlet</artifactId>
-        <version>${weld-version}</version>
-        <scope>runtime</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.weld</groupId>
-        <artifactId>weld-core</artifactId>
         <version>${weld-version}</version>
         <scope>runtime</scope>
       </dependency>
