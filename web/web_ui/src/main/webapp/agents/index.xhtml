@@ -63,7 +63,7 @@
 
         <p:treeTable style="width:#{jobQueueManager.tablePrefs.totalSize}px;" id="jobTableId" var="node"
           value="#{jobQueueManager.rootNode}" resizableColumns="true" liveResize="false" scrollable="true"
-          scrollWidth="100%">
+          scrollHeight="450" scrollWidth="100%">
 
           <p:ajax event="expand" listener="#{jobQueueManager.onNodeExpand}" update="jobTableId"
             onstart="saveScrollPos()" oncomplete="getScrollPos()" />

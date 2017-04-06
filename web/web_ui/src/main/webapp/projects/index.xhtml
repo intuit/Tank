@@ -40,7 +40,7 @@
           value="#{projectDescriptionBean.selectionList}" rowStyleClass="pointer" liveResize="false" scrollable="true"
           filteredValue="#{projectDescriptionBean.filteredData}" 
           style="width:#{projectDescriptionBean.tablePrefs.getMaxTotalSize(preferencesBean.screenWidth)}px;"
-          sortBy="#{pe.entity.created}"
+          scrollHeight="450" sortBy="#{pe.entity.created}"
           sortOrder="descending" paginator="true" rows="25" resizableColumns="true"
           paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
           rowsPerPageTemplate="25,50,75,100">
