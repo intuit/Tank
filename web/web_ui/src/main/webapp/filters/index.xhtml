@@ -32,7 +32,7 @@
           <p:growl globalOnly="true" id="messages" />
 
           <p:dataTable id="filterGroupTableId" var="filterGroupEnvelope" value="#{filterGroupBean.selectionList}"
-            styleClass="filterGroupTable full-width" scrollable="true" scrollHeight="450">
+            styleClass="filterGroupTable full-width" scrollable="true">
             
             <p:ajax event="filter" listener="#{filterGroupBean.onFilter}" update="@this" />
 
@@ -110,7 +110,7 @@
 
           <div class="vertical-spacer" />
           <p:dataTable id="filterTableId" var="filterEnvelope" value="#{filterBean.selectionList}"
-            styleClass="full-width" scrollable="true" scrollHeight="450">
+            styleClass="full-width" scrollable="true">
             
             <p:ajax event="filter" listener="#{filterBean.onFilter}" update="@this" />
 
