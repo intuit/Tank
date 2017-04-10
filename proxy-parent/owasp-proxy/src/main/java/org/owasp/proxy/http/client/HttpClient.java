@@ -106,7 +106,7 @@ public class HttpClient {
 
     private int soTimeout = 10000;
 
-    private String[] enabledProtocols = { "TLSv1", "SSLv3" };
+    private String[] enabledProtocols = { "SSLv3", "TLSv1.2" };
 
     public HttpClient() {
         String s = System.getProperty("https.protocols");

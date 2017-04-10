@@ -100,7 +100,7 @@ public class Main implements TransactionRecordedListener {
     private int apiPort;
     private String dumpFileName;
     static {
-        System.setProperty("https.protocols", "TLSv1.1");
+        System.setProperty("https.protocols", "TLSv1.2");
     }
 
     /**

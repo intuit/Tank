@@ -656,7 +656,7 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
             System.setProperty("jsse.enableSNIExtension", "false");
         }
         if (StringUtils.isBlank(System.getProperty("https.protocols"))) {
-            System.setProperty("https.protocols", "TLSv1,SSLv3");
+            System.setProperty("https.protocols", "TLSv1.2,SSLv3");
         }
         Security.addProvider(new BouncyCastleProvider()); // add it
         new ProxyApp();
