@@ -43,7 +43,6 @@
         <finalName>apiharness-1.0</finalName>
           <descriptors>
             <descriptor>src/main/assembly/assembly.xml</descriptor>
-            <descriptor>src/main/assembly/zip-assembly.xml</descriptor>
           </descriptors>
           <archive>
             <manifest>

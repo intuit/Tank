@@ -40,7 +40,6 @@
           <finalName>agent-standalone</finalName>
           <descriptors>
             <descriptor>src/main/assembly/assembly.xml</descriptor>
-            <descriptor>src/main/assembly/zip-assembly.xml</descriptor>
           </descriptors>
           <archive>
             <manifest>
