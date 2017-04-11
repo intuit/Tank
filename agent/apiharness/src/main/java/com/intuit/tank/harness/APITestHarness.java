@@ -201,6 +201,18 @@ public class APITestHarness {
                 agentRunData.setActiveProfile(LoggingProfile.VERBOSE);
                 setFlowControllerTemplate(new DebugFlowController());
                 continue;
+            } else if (values[0].equalsIgnoreCase("-t")) {
+                LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+                Configuration config = ctx.getConfiguration();
+                LoggerConfig loggerConfig = new LoggerConfig();
+                loggerConfig.setLevel(Level.DEBUG);
+                config.addLogger("com.intuit.tank.http", loggerConfig);
+                config.addLogger("com.intuit.tank", loggerConfig);
+                ctx.updateLoggers(config);
+                DEBUG = true;
+                agentRunData.setActiveProfile(LoggingProfile.VERBOSE);
+                setFlowControllerTemplate(new TraceFlowController());
+                continue;
             } else if (values[0].equalsIgnoreCase("-local")) {
                 isLocal = true;
                 continue;
@@ -290,6 +302,7 @@ public class APITestHarness {
                 .println("-start=<# of users to start with>:  The number of users to run concurrently when test begins");
         System.out.println("-http=<controller_base_url>:  The url of the controller to get test info from");
         System.out.println("-d:  Turns debug on to step through each request");
+        System.out.println("-t:  Turns trace on to print each request");
     }
 
     private void startHttp(String baseUrl) {
