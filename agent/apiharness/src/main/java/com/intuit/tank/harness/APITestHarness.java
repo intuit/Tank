@@ -118,11 +118,6 @@ public class APITestHarness {
             LOG.warn(LogUtil.getLogMessage("Error setting dns negative timeout: " + e1.toString(), LogEventType.System));
         }
         try {
-            System.setProperty("jsse.enableSNIExtension", "false");
-        } catch (Throwable e1) {
-            LOG.warn(LogUtil.getLogMessage("Error disabling SNI extension: " + e1.toString(), LogEventType.System));
-        }
-        try {
             System.setProperty("jdk.certpath.disabledAlgorithms", "");
         } catch (Throwable e1) {
             System.err.println("Error setting property jdk.certpath.disabledAlgorithms: " + e1.toString());
@@ -166,11 +161,6 @@ public class APITestHarness {
             java.security.Security.setProperty("networkaddress.cache.negative.ttl", "0");
         } catch (Throwable e1) {
             LOG.warn(LogUtil.getLogMessage("Error setting dns negative timeout: " + e1.toString(), LogEventType.System));
-        }
-        try {
-            System.setProperty("jsse.enableSNIExtension", "false");
-        } catch (Throwable e1) {
-            LOG.warn(LogUtil.getLogMessage("Error disabling SNI extension: " + e1.toString(), LogEventType.System));
         }
         if (args.length < 1) {
             usage();

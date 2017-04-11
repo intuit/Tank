@@ -652,9 +652,6 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
     }
 
     public static void main(String[] args) {
-        if (StringUtils.isBlank(System.getProperty("jsse.enableSNIExtension"))) {
-            System.setProperty("jsse.enableSNIExtension", "false");
-        }
         if (StringUtils.isBlank(System.getProperty("https.protocols"))) {
             System.setProperty("https.protocols", "TLSv1.2,SSLv3");
         }

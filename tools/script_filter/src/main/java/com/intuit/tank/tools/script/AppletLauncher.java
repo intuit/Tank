@@ -33,12 +33,6 @@ public class AppletLauncher extends JApplet {
     // Called when this applet is loaded into the browser.
     @Override
     public void init() {
-        try {
-            System.setProperty("jsse.enableSNIExtension", "false");
-        } catch (Throwable e1) {
-            System.err.println("Error setting property " + e1);
-            e1.printStackTrace();
-        }
         // Execute a job on the event-dispatching thread; creating this applet's GUI.
         try {
             SwingUtilities.invokeAndWait(new Runnable() {

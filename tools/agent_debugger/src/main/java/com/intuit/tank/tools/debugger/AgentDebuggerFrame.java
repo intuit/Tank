@@ -986,11 +986,6 @@ public class AgentDebuggerFrame extends JFrame {
             LOG.warn(LogUtil.getLogMessage("Error setting dns timeout: " + e1.toString(), LogEventType.System));
         }
         try {
-            System.setProperty("jsse.enableSNIExtension", "false");
-        } catch (Throwable e1) {
-            LOG.warn(LogUtil.getLogMessage("Error disabling SNI extension: " + e1.toString(), LogEventType.System));
-        }
-        try {
             System.setProperty("jdk.certpath.disabledAlgorithms", "");
         } catch (Throwable e1) {
             System.err.println("Error setting property jdk.certpath.disabledAlgorithms: " + e1.toString());
