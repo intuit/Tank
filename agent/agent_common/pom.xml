@@ -11,7 +11,7 @@
   <artifactId>agent-common</artifactId>
 
   <packaging>jar</packaging>
-  <name>Intuit Tank Agent (apiharness)</name>
+  <name>Intuit Tank Agent Common</name>
 
 
   <dependencies>
@@ -42,6 +42,11 @@
       <groupId>jdom</groupId>
       <artifactId>jdom</artifactId>
     </dependency>
+    
+	<dependency>
+	  <groupId>xml-apis</groupId>
+	  <artifactId>xml-apis</artifactId>
+	</dependency>
 
   </dependencies>
 
