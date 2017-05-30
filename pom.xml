@@ -30,7 +30,7 @@
 
     <version.hibernate>4.2.21.Final</version.hibernate>
     <aspectj.version>1.5.4</aspectj.version>
-    <version-aws-sdk>1.11.115</version-aws-sdk>
+    <version-aws-sdk>1.11.136</version-aws-sdk>
     <spring.version>2.5.6</spring.version>
  	<tomcat.version>8.5.13</tomcat.version>
  	
@@ -43,8 +43,8 @@
 
     <version.mojarra>2.2.13</version.mojarra>
     <version.jsf-api>2.2.13</version.jsf-api>
-    <version.primefaces>5.3</version.primefaces>
-    <version.primefaces-ext>4.0.0</version.primefaces-ext>
+    <version.primefaces>6.1</version.primefaces>
+    <version.primefaces-ext>6.1.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.12</version.surefire>
     <version.jersey>2.25.1</version.jersey>
