@@ -1,6 +1,6 @@
 ![](https://raw.githubusercontent.com/intuit/tank/master/src/TankLogo.gif)
 
-#Intuit Tank
+# Intuit Tank
 
 Intuit Tank is a load test platform that runs in a cloud environment. It currently supports Amazon web interfaces and utilizes services from EC2, S3, and DynamoDb.
 
@@ -11,7 +11,7 @@ It exposes a RESTful interface for invoking services. Data is stored in a MySql 
 
 Agents are instantiated on demand and exist for the duration of a test. They communicate with the controller via RESTful interfaces.
 
-##Building Intuit Tank
+## Building Intuit Tank
 Intuit Tank uses Maven and should be able to be built using public repositories. 
 You may need to increase the default memory settings for maven to build. e.g. export MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=128m"
 
@@ -29,14 +29,14 @@ There are several artifacts that are important.
 * tools/script_filter_pkg/target/Tank-Script-Runner-all.jar -- the visual script filter tool for writing scripts to filter or manipulate scripts on import.
 * proxy-parent/proxy_pkg/target/Tank-Proxy-pkg.jar -- the proxy recording tool. A Tool to record scripts using your browser. 
 
-##Quickstart
+## Quickstart
 There is a shell script to install and configure a standalone controller and agent and configured with a java database for 
 Mac and Linux. Windows users should install some POSIX tooling such as [Babun](http://babun.github.io) or [Cygwin](https://www.cygwin.com). 
 It can be downloaded from our [public site](http://tank-public.s3-website-us-east-1.amazonaws.com/all-in-one.sh) or 
 in the root of the distribution. You can use this version for small tests to try out the tools but should not use 
 it for large scale or production testing.
 
-##Guides
+## Guides
 Installation guide and User guide can be found in the docs folder and are built with the source. and can also be found on our [wiki](https://github.com/intuit/Tank/wiki).
 
 ## Issues & Contributions
