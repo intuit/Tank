@@ -2,6 +2,8 @@
 .classpath
 .metadata
 .clover
+.idea
+*.iml
 .project
 .settings
 .tmp_*
