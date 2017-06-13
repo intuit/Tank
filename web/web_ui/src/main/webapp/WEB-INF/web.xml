@@ -5,16 +5,6 @@
       http://java.sun.com/xml/ns/javaee
       http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
-
-  <!-- This is an optional parameter, but it makes troubleshooting errors 
-    much easier You should remove this context parameter before deploying to 
-    production! 
-  <Context>
-    <ResourceLink global='jdbc/watsDS' name='jdbc/watsDS'
-      type="javax.sql.Datasource" />
-  </Context>
-  <distributable />-->
-
   <resource-ref>
     <description>DB Connection</description>
     <res-ref-name>jdbc/watsDS</res-ref-name>
@@ -140,6 +130,10 @@
   <error-page>
     <exception-type>org.jboss.weld.context.NonexistentConversationException</exception-type>
     <location>/expired.xhtml</location>
+  </error-page>
+  
+  <error-page>
+    <location>/error.xhtml</location>
   </error-page>
 
   <session-config>
