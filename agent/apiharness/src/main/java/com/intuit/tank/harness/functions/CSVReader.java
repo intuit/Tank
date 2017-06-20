@@ -32,7 +32,7 @@ import com.intuit.tank.harness.logging.LogUtil;
 
 public class CSVReader {
 
-    private static Logger logger = LogManager.getLogger(CSVReader.class);
+    private static Logger LOG = LogManager.getLogger(CSVReader.class);
     private static Hashtable<String, CSVReader> instance = new Hashtable<String, CSVReader>();
 
     private List<String[]> lines = null;
@@ -67,10 +67,10 @@ public class CSVReader {
                 datafileDir = APITestHarness.getInstance().getTankConfig().getAgentConfig()
                         .getAgentDataFileStorageDir();
             } catch (Exception e) {
-                logger.warn("Cannot read config. Using datafileDir of " + datafileDir);
+                LOG.warn("Cannot read config. Using datafileDir of " + datafileDir);
             }
             File csvFile = new File(datafileDir, fileName);
-            logger.debug(LogUtil.getLogMessage("READING CSV FILE: " + csvFile.getAbsolutePath()));
+            LOG.debug(LogUtil.getLogMessage("READING CSV FILE: " + csvFile.getAbsolutePath()));
             FileInputStream fstream = new FileInputStream(csvFile);
             // Get the object of DataInputStream
             in = new DataInputStream(fstream);
@@ -81,11 +81,11 @@ public class CSVReader {
             while ((strLine = br.readLine()) != null) {
                 lines.add(strLine.split(","));
             }
-            logger.debug(LogUtil.getLogMessage("CSV file " + csvFile.getAbsolutePath() + " has " + lines.size()
+            LOG.debug(LogUtil.getLogMessage("CSV file " + csvFile.getAbsolutePath() + " has " + lines.size()
                     + " lines."));
 
         } catch (Exception e) {// Catch exception if any
-            logger.error(LogUtil.getLogMessage("Error reading CSV file: " + e.toString()), e);
+            LOG.error(LogUtil.getLogMessage("Error reading CSV file: " + e.toString()), e);
         } finally {
             // Close the input stream
             IOUtils.closeQuietly(in);

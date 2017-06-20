@@ -84,7 +84,7 @@ public abstract class JobTreeTableBean implements Serializable {
     protected TreeNode rootNode;
 
     @Inject
-    private VMTracker tracker;
+    private VMTracker vmTracker;
 
     @Inject
     private Messages messages;
@@ -382,7 +382,7 @@ public abstract class JobTreeTableBean implements Serializable {
      *            the refreshTimeSeconds to set
      */
     public void setRefreshTimeSeconds(String refreshTimeSeconds) {
-        if (NumberUtils.isNumber(refreshTimeSeconds)) {
+        if (NumberUtils.isCreatable(refreshTimeSeconds)) {
             int num = Integer.parseInt(refreshTimeSeconds);
             if (num >= MIN_REFRESH) {
                 refreshInterval = num;
@@ -565,7 +565,7 @@ public abstract class JobTreeTableBean implements Serializable {
             int projectTotal = 0;
             ValidationStatus projectFailures = new ValidationStatus();
             for (JobInstance jobInstance : jobs) {
-                CloudVmStatusContainer container = tracker.getVmStatusForJob(Integer.toString(jobInstance.getId()));
+                CloudVmStatusContainer container = vmTracker.getVmStatusForJob(Integer.toString(jobInstance.getId()));
                 trackerJobs.remove(Integer.toString(jobInstance.getId()));
                 if (!filterFinished || jobInstance.getEndTime() == null) {
                     ActJobNodeBean jobInstanceNode = new ActJobNodeBean(jobInstance, hasRights, preferencesBean.getDateTimeFormat());
@@ -578,10 +578,10 @@ public abstract class JobTreeTableBean implements Serializable {
                     for (VMNodeBean vmNodeBean : vmNodes) {
                         jobInstanceNode.addVMBean(vmNodeBean);
                         new DefaultTreeNode(vmNodeBean, jobNode);
-                        if (NumberUtils.isNumber(vmNodeBean.getActiveUsers())) {
+                        if (NumberUtils.isCreatable(vmNodeBean.getActiveUsers())) {
                             jobInstanceActive += Integer.parseInt(vmNodeBean.getActiveUsers());
                         }
-                        if (NumberUtils.isNumber(vmNodeBean.getTotalUsers())) {
+                        if (NumberUtils.isCreatable(vmNodeBean.getTotalUsers())) {
                             jobInstanceTotal += Integer.parseInt(vmNodeBean.getTotalUsers());
                         }
                         jobInstanceFailures.addFailures(vmNodeBean.getNumFailures());
@@ -611,7 +611,7 @@ public abstract class JobTreeTableBean implements Serializable {
             // pnb.setTpsDetailMap(totalTPSDetails);
             pnb.setNumFailures(projectFailures);
             pnb.reCalculate();
-            ProjectStatusContainer projectStatusContainer = tracker.getProjectStatusContainer(Integer.toString(p
+            ProjectStatusContainer projectStatusContainer = vmTracker.getProjectStatusContainer(Integer.toString(p
                     .getId()));
             if (projectStatusContainer != null) {
                 pnb.setUserDetails(projectStatusContainer.getUserDetails());
@@ -627,7 +627,7 @@ public abstract class JobTreeTableBean implements Serializable {
             String jobId) {
         // this needs to be a JobNode, not a projectNode
         // need to make new constructor for ActJobNodeBean that just sets empty strings?
-        CloudVmStatusContainer container = tracker.getVmStatusForJob(jobId);
+        CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
         ActJobNodeBean jobBeanNode = new ActJobNodeBean(jobId, container, preferencesBean.getDateTimeFormat());
         JobQueue jq = jqd.findForJobId(Integer.valueOf(jobId));
         if (jq != null) {
@@ -644,10 +644,10 @@ public abstract class JobTreeTableBean implements Serializable {
         for (VMNodeBean vmNodeBean : vmNodes) {
             new DefaultTreeNode(vmNodeBean, adhocNode);
             jobBeanNode.addVMBean(vmNodeBean);
-            if (NumberUtils.isNumber(vmNodeBean.getActiveUsers())) {
+            if (NumberUtils.isCreatable(vmNodeBean.getActiveUsers())) {
                 nodeActive += Integer.parseInt(vmNodeBean.getActiveUsers());
             }
-            if (NumberUtils.isNumber(vmNodeBean.getTotalUsers())) {
+            if (NumberUtils.isCreatable(vmNodeBean.getTotalUsers())) {
                 nodeTotal += Integer.parseInt(vmNodeBean.getTotalUsers());
             }
             nodeFailures.addFailures(vmNodeBean.getNumFailures());
@@ -672,7 +672,7 @@ public abstract class JobTreeTableBean implements Serializable {
      */
     private Set<String> getTrackerJobIds() {
         Set<String> result = new HashSet<String>();
-        Set<CloudVmStatusContainer> allJobs = tracker.getAllJobs();
+        Set<CloudVmStatusContainer> allJobs = vmTracker.getAllJobs();
         for (CloudVmStatusContainer c : allJobs) {
             result.add(c.getJobId());
         }
@@ -685,7 +685,7 @@ public abstract class JobTreeTableBean implements Serializable {
 
     private List<VMNodeBean> getVMStatus(String jobId, boolean hasRights) {
         List<VMNodeBean> vmNodes = new ArrayList<VMNodeBean>();
-        CloudVmStatusContainer container = tracker.getVmStatusForJob(jobId);
+        CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
         if (container != null) {
             Set<CloudVmStatus> statuses = container.getStatuses();
             for (CloudVmStatus cloudVmStatus : statuses) {

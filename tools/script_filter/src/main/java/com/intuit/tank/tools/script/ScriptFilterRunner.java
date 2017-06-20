@@ -576,12 +576,6 @@ public class ScriptFilterRunner extends JFrame {
      * @param args
      */
     public static void main(String[] args) {
-        try {
-            System.setProperty("jsse.enableSNIExtension", "false");
-        } catch (Throwable e1) {
-            System.err.println("Error setting property " + e1);
-            e1.printStackTrace();
-        }
         String url = "http://localhost:8080/";
         if (args.length > 0) {
             url = args[0];

@@ -13,10 +13,11 @@ import org.apache.logging.log4j.Logger;
 
 public abstract class BaseRequest {
 
-    public static final String CONTENT_TYPE_MULTIPART = "multipart/form-data";
-    private static final char NEWLINE = '\n';
-    static Logger logger = LogManager.getLogger(BaseRequest.class);
+	static Logger LOG = LogManager.getLogger(BaseRequest.class);
 
+	public static final String CONTENT_TYPE_MULTIPART = "multipart/form-data";
+    private static final char NEWLINE = '\n';
+    
     protected BaseResponse response = null;
     private TankHttpLogger logUtil;
 
@@ -152,6 +153,17 @@ public abstract class BaseRequest {
         httpclient.doDelete(this);
     }
 
+    /**
+     * Execute the options request.
+     * 
+     * @param response
+     *            The response object to populate
+     */
+    public void doOptions(BaseResponse response) {
+        this.response = response;
+        requestUrl = TankHttpUtil.buildUrl(protocol, host, port, path, urlVariables).toString();
+        httpclient.doOptions(this);
+    }
     /**
      * Execute the POST.
      */
@@ -289,11 +301,11 @@ public abstract class BaseRequest {
                 sb.append("REQUEST BODY: " + body).append(NEWLINE);
             }
             this.logMsg = sb.toString();
-            logger.debug("******** REQUEST *********");
-            logger.debug(this.logMsg);
+            LOG.debug("******** REQUEST *********");
+            LOG.debug(this.logMsg);
 
         } catch (Exception ex) {
-            logger.error("Unable to log request", ex);
+            LOG.error("Unable to log request", ex);
         }
     }
 

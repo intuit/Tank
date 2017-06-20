@@ -1,6 +1,7 @@
 package com.intuit.tank.okhttpclient;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.apache.commons.codec.binary.Base64;
@@ -8,7 +9,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.tomcat.util.net.URL;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

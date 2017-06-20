@@ -179,7 +179,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
             throw e;
         } catch (Exception e) {
         	rollback();
-            e.printStackTrace();
+        	LOG.error("Error updating object to persistent storage: " + e.toString(), e);
             throw new RuntimeException(e);
         } finally {
             cleanup();

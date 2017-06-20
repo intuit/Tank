@@ -20,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.CloudServiceClient;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.api.model.v1.cloud.VMStatus;
 import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.reporting.api.TPSInfoContainer;
@@ -122,11 +123,13 @@ public class APIMonitor implements Runnable {
     public synchronized static void setJobStatus(JobStatus jobStatus) {
         if (status.getJobStatus() != JobStatus.Completed) {
             try {
+            	VMStatus vmStatus =  (jobStatus.equals(JobStatus.Stopped)) ? VMStatus.stopping : status.getVmStatus();
+            	vmStatus =  (jobStatus.equals(JobStatus.Completed)) ? VMStatus.terminated : vmStatus;
                 WatsAgentStatusResponse stats = APITestHarness.getInstance().getStats();
                 Date endTime = (jobStatus == JobStatus.Completed) ? new Date() : status
                         .getEndTime();
                 status = new CloudVmStatus(status.getInstanceId(), status.getJobId(), status.getSecurityGroup(),
-                        jobStatus, status.getRole(), status.getVmRegion(), status.getVmStatus(),
+                        jobStatus, status.getRole(), status.getVmRegion(), vmStatus,
                         new ValidationStatus(stats.getKills(), stats.getAborts(),
                                 stats.getGotos(), stats.getSkips(), stats.getSkipGroups(), stats.getRestarts()),
                         stats.getMaxVirtualUsers(),

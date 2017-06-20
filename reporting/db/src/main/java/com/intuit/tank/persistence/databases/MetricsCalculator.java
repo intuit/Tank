@@ -46,8 +46,7 @@ import com.intuit.tank.vm.common.util.MethodTimer;
 import com.intuit.tank.vm.common.util.ReportUtil;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.settings.TimeUtil;
-
-import au.com.bytecode.opencsv.CSVWriter;
+import com.opencsv.CSVWriter;
 
 /**
  * MetricsCalculator

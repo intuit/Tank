@@ -180,7 +180,27 @@ public class TankOkHttpClient implements TankHttpClient {
         String type = request.getKey("Content-Type");
 
         if (StringUtils.isBlank(type)) {
-            request.setKey("Content-Type", "application/x-www-form-urlencoded");
+            request.setKey("Content-Type", "application/json");
+        }
+        sendRequest(request, builder, request.getBody(), "delete");
+
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.intuit.tank.okhttpclient.TankHttpClient#doDelete(com.intuit.tank.
+     * http. BaseRequest)
+     */
+    @Override
+    public void doOptions(BaseRequest request) {
+    	//TODO: Proper options call, probably same time as library update.
+        Builder builder = new Request.Builder().url(request.getRequestUrl());
+        String type = request.getKey("Content-Type");
+
+        if (StringUtils.isBlank(type)) {
+            request.setKey("Content-Type", "application/json");
         }
         sendRequest(request, builder, request.getBody(), "delete");
 

@@ -44,7 +44,6 @@ import com.intuit.tank.api.model.v1.cloud.ProjectStatusContainer;
 import com.intuit.tank.api.model.v1.cloud.VMStatus;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.WorkloadDao;
-import com.intuit.tank.harness.AmazonUtil;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
@@ -128,11 +127,10 @@ public class VMTrackerImpl implements VMTracker {
                 }
                 statusMap.put(status.getInstanceId(), status);
                 if (status.getVmStatus() == VMStatus.running
-                        && (status.getJobStatus() == JobStatus.Completed)) {
-                    if (!isDevMode()) {
-                        AmazonInstance amzInstance = new AmazonInstance(null, status.getVmRegion());
-                        amzInstance.kill(Arrays.asList(new String[] { status.getInstanceId() }));
-                    }
+                		&& (status.getJobStatus() == JobStatus.Completed)
+                		&& !isDevMode()) {
+	                        AmazonInstance amzInstance = new AmazonInstance(null, status.getVmRegion());
+	                        amzInstance.kill(Arrays.asList(new String[] { status.getInstanceId() }));
                 }
             }
             String jobId = status.getJobId();
@@ -203,15 +201,15 @@ public class VMTrackerImpl implements VMTracker {
      * @return
      */
     private boolean shouldUpdateStatus(CloudVmStatus curentStatus) {
-        boolean ret = true;
         if (curentStatus != null) {
             VMStatus status = curentStatus.getVmStatus();
-            if (status == VMStatus.shutting_down || status == VMStatus.stopped || status == VMStatus.stopping
-                    || status == VMStatus.terminated) {
-                ret = false;
-            }
+            return (status == VMStatus.shutting_down
+            		|| status == VMStatus.stopped
+            		|| status == VMStatus.stopping
+                    || status == VMStatus.terminated) 
+            		? false : true;
         }
-        return ret;
+        return true;
     }
 
     /**
@@ -270,7 +268,6 @@ public class VMTrackerImpl implements VMTracker {
     @Override
     public void stopJob(String id) {
         stoppedJobs.add(id);
-
     }
 
     /**

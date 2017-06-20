@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>tank-parent</artifactId>
-    <version>2.2.3</version>
+    <version>2.2.4</version>
   </parent>
 
 
@@ -19,7 +19,11 @@
 
 
   <dependencies>
-
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>commons-jxpath</groupId>
       <artifactId>commons-jxpath</artifactId>
@@ -36,8 +40,8 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-configuration</groupId>
-      <artifactId>commons-configuration</artifactId>
+	   <groupId>commons-configuration</groupId>
+	   <artifactId>commons-configuration</artifactId>
     </dependency>
     
     <dependency>

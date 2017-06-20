@@ -16,11 +16,9 @@ package com.intuit.tank.job;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
-import com.intuit.tank.vm.common.TankConstants;
 
 public class VMNodeBean extends JobNodeBean {
 
@@ -33,7 +31,7 @@ public class VMNodeBean extends JobNodeBean {
         this.setJobId(vmStatus.getJobId());
         this.setId(vmStatus.getInstanceId());
         this.setReportMode("");
-        this.setStatus(vmStatus.getJobStatus().toString());
+        this.setStatus(vmStatus.getVmStatus().toString());
         this.setRegion(vmStatus.getVmRegion().toString());
         this.setActiveUsers(String.valueOf(vmStatus.getCurrentUsers()));
         this.setNumFailures(vmStatus.getValidationFailures());

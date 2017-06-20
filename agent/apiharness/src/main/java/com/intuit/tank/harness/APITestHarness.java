@@ -13,13 +13,8 @@ package com.intuit.tank.harness;
  * #L%
  */
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -34,7 +29,6 @@ import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.Level;
@@ -110,7 +104,7 @@ public class APITestHarness {
     
     private Calendar c = Calendar.getInstance();
     private Date send = new Date();
-    private int interval = 20; // SECONDS
+    private int interval = 15; // SECONDS
 
     static {
         try {
@@ -122,11 +116,6 @@ public class APITestHarness {
             java.security.Security.setProperty("networkaddress.cache.negative.ttl", "0");
         } catch (Throwable e1) {
             LOG.warn(LogUtil.getLogMessage("Error setting dns negative timeout: " + e1.toString(), LogEventType.System));
-        }
-        try {
-            System.setProperty("jsse.enableSNIExtension", "false");
-        } catch (Throwable e1) {
-            LOG.warn(LogUtil.getLogMessage("Error disabling SNI extension: " + e1.toString(), LogEventType.System));
         }
         try {
             System.setProperty("jdk.certpath.disabledAlgorithms", "");
@@ -173,11 +162,6 @@ public class APITestHarness {
         } catch (Throwable e1) {
             LOG.warn(LogUtil.getLogMessage("Error setting dns negative timeout: " + e1.toString(), LogEventType.System));
         }
-        try {
-            System.setProperty("jsse.enableSNIExtension", "false");
-        } catch (Throwable e1) {
-            LOG.warn(LogUtil.getLogMessage("Error disabling SNI extension: " + e1.toString(), LogEventType.System));
-        }
         if (args.length < 1) {
             usage();
             return;
@@ -216,6 +200,18 @@ public class APITestHarness {
                 DEBUG = true;
                 agentRunData.setActiveProfile(LoggingProfile.VERBOSE);
                 setFlowControllerTemplate(new DebugFlowController());
+                continue;
+            } else if (values[0].equalsIgnoreCase("-t")) {
+                LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+                Configuration config = ctx.getConfiguration();
+                LoggerConfig loggerConfig = new LoggerConfig();
+                loggerConfig.setLevel(Level.DEBUG);
+                config.addLogger("com.intuit.tank.http", loggerConfig);
+                config.addLogger("com.intuit.tank", loggerConfig);
+                ctx.updateLoggers(config);
+                DEBUG = true;
+                agentRunData.setActiveProfile(LoggingProfile.VERBOSE);
+                setFlowControllerTemplate(new TraceFlowController());
                 continue;
             } else if (values[0].equalsIgnoreCase("-local")) {
                 isLocal = true;
@@ -306,6 +302,7 @@ public class APITestHarness {
                 .println("-start=<# of users to start with>:  The number of users to run concurrently when test begins");
         System.out.println("-http=<controller_base_url>:  The url of the controller to get test info from");
         System.out.println("-d:  Turns debug on to step through each request");
+        System.out.println("-t:  Turns trace on to print each request");
     }
 
     private void startHttp(String baseUrl) {
@@ -394,10 +391,10 @@ public class APITestHarness {
                     saveDataFile(dfRequest);
                 }
             }
-            Thread t = new Thread(new StartedChecker());
-            t.setName("StartedChecker");
-            t.setDaemon(false);
-            t.start();
+            Thread thread = new Thread(new StartedChecker());
+            thread.setName("StartedChecker");
+            thread.setDaemon(false);
+            thread.start();
         } catch (Exception e) {
             LOG.error("Error communicating with controller: " + e, e);
             System.exit(0);
@@ -409,27 +406,20 @@ public class APITestHarness {
      * 
      */
     public void writeXmlToFile(String scriptUrl) throws IOException {
-        File f = new File("script.xml");
-        LOG.info(LogUtil.getLogMessage("Writing xml to " + f.getAbsolutePath()));
-        Writer out = null;
-        InputStream is = null;
+        File file = new File("script.xml");
+        LOG.info(LogUtil.getLogMessage("Writing xml to " + file.getAbsolutePath()));
         int count = 0;
 
         while (count++ < MAX_RETRIES) {
             try {
-                if (f.exists()) {
-                    f.delete();
-                    f = new File("script.xml");
+                if (file.exists()) {
+                	file.delete();
+                    file = new File("script.xml");
                 }
                 URL url = new URL(scriptUrl);
-                LOG.info("Downloading file from url " + scriptUrl + " to file " + f.getAbsolutePath());
-                is = url.openStream();
-                out = new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream(f), "UTF8"));
-                IOUtils.copy(is, out);
-                IOUtils.closeQuietly(is);
-                IOUtils.closeQuietly(out);
-                String scriptXML = FileUtils.readFileToString(f, "UTF-8");
+                LOG.info("Downloading file from url " + scriptUrl + " to file " + file.getAbsolutePath());
+                FileUtils.copyURLToFile(url, file);
+                String scriptXML = FileUtils.readFileToString(file, "UTF-8");
                 List<String> tps = new ArrayList<String>();
                 tps.add(scriptXML);
                 setTestPlans(tps);
@@ -437,8 +427,6 @@ public class APITestHarness {
                 break;
             } catch (Exception e) {
                 if (count < MAX_RETRIES) {
-                    IOUtils.closeQuietly(is);
-                    IOUtils.closeQuietly(out);
                     LOG.warn(LogUtil.getLogMessage("Failed to download script file because of: " + e.toString()
                             + ". Will try "
                             + (MAX_RETRIES - count) + " more times.", LogEventType.System));
@@ -451,9 +439,6 @@ public class APITestHarness {
                     LOG.error(LogUtil.getLogMessage("Error writing script file: " + e, LogEventType.IO), e);
                     throw new RuntimeException(e);
                 }
-            } finally {
-                IOUtils.closeQuietly(is);
-                IOUtils.closeQuietly(out);
             }
         }
     }
@@ -467,8 +452,6 @@ public class APITestHarness {
             }
         }
         File dataFile = new File(dataFileDir, dataFileRequest.getFileName());
-        FileOutputStream fos = null;
-        InputStream is = null;
         int count = 0;
         while (count++ < MAX_RETRIES) {
             try {
@@ -476,10 +459,7 @@ public class APITestHarness {
                 LOG.info(LogUtil.getLogMessage(
                         "writing file " + dataFileRequest.getFileName() + " to " + dataFile.getAbsolutePath()
                                 + " from url " + url.toExternalForm(), LogEventType.System));
-                is = url.openStream();
-                fos = new FileOutputStream(dataFile);
-                IOUtils.copy(is, fos);
-                IOUtils.closeQuietly(fos);
+                FileUtils.copyURLToFile(url, dataFile);
                 if (dataFileRequest.isDefault()
                         && !dataFileRequest.getFileName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
                     File defaultFile = new File(dataFileDir, TankConstants.DEFAULT_CSV_FILE_NAME);
@@ -503,9 +483,6 @@ public class APITestHarness {
                     LOG.error(LogUtil.getLogMessage("Error downloading csv file: " + e, LogEventType.IO), e);
                     throw new RuntimeException(e);
                 }
-            } finally {
-                IOUtils.closeQuietly(is);
-                IOUtils.closeQuietly(fos);
             }
         }
 
@@ -889,22 +866,21 @@ public class APITestHarness {
     }
 
     public void queueTimingResult(TankResult result) {
-        if (logTiming) {
-            results.add(result);
-            //if (results.size() >= BATCH_SIZE) {
-            if (send.before(new Date())) {
-                sendBatchToDB(true);
-                
-        		c.setTime(new Date());
-        		c.add(Calendar.SECOND, interval);
-        		send = new Date(c.getTime().getTime());
-            }
-
-        }
+    	if (logTiming) {
+		    results.add(result);
+		    //if (results.size() >= BATCH_SIZE) {
+		    if (send.before(new Date())) {
+		        sendBatchToDB(true);
+		        
+				c.setTime(new Date());
+				c.add(Calendar.SECOND, interval);
+				send = new Date(c.getTime().getTime());
+		    }
+    	}
     }
 
     private void sendBatchToDB(boolean asynch) {
-        if (results.size() != 0 && logTiming) {
+        if (results.size() > 1 && logTiming) {
             final List<TankResult> l = new ArrayList<TankResult>();
             synchronized (results) {
                 l.addAll(results);
