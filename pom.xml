@@ -33,7 +33,7 @@
     <version-aws-sdk>1.11.69</version-aws-sdk>
     <spring.version>2.5.6</spring.version>
  	<tomcat.version>7.0.68</tomcat.version>
- 	
+
     <weld-version>2.3.4.Final</weld-version>
     <cdi-version>1.2</cdi-version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
@@ -51,7 +51,7 @@
     <version.arquillian>1.1.11.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0.CR7</version.arquillian.tomcat>
     <version.httpclient>4.5.2</version.httpclient>
-    
+
     <!-- maven-compiler-plugin -->
     <version.compiler.plugin>3.5.1</version.compiler.plugin>
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -79,114 +79,6 @@
     <connection>scm:git:git://github.com/intuit/tank.git</connection>
     <developerConnection>scm:git:git@github.com:intuit/tank.git</developerConnection>
   </scm>
-
-  <developers>
-    <developer>
-      <name>Denis Angleton</name>
-      <id>dangleton</id>
-      <email>denis_angleton@intuit.com</email>
-      <organization>Intuit, Inc.</organization>
-      <organizationUrl>http://www.intuit.com</organizationUrl>
-      <timezone>America/Los_Angeles</timezone>
-      <roles>
-        <role>architect</role>
-        <role>developer</role>
-        <role>lead</role>
-      </roles>
-    </developer>
-
-    <developer>
-      <name>Antonio Hernandez</name>
-      <id>ahernandez</id>
-      <email>antonio_hernandez@intuit.com</email>
-      <organization>Intuit, Inc.</organization>
-      <organizationUrl>http://www.intuit.com</organizationUrl>
-      <timezone>America/Los_Angeles</timezone>
-      <roles>
-        <role>developer</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>hsomani</id>
-      <name>Happy Somani</name>
-      <email>happy_somani@intuit.com</email>
-      <organization>Intuit, Inc.</organization>
-      <organizationUrl>http://www.intuit.com</organizationUrl>
-      <timezone>America/Los_Angeles</timezone>
-      <roles>
-        <role>developer</role>
-      </roles>
-    </developer>
-
-    <developer>
-      <id>rchamela</id>
-      <name>Ravi Chalmela</name>
-      <email>Ravi_Chalmela@intuit.com</email>
-      <organization>Intuit, Inc.</organization>
-      <organizationUrl>http://www.intuit.com</organizationUrl>
-      <timezone>America/Los_Angeles</timezone>
-      <roles>
-        <role>developer</role>
-      </roles>
-    </developer>
-
-    <developer>
-      <name>Ben Fiola</name>
-      <id>bfiola</id>
-      <email>ben_fiola@intuit.com</email>
-      <organization>Intuit, Inc.</organization>
-      <organizationUrl>http://www.intuit.com</organizationUrl>
-      <timezone>America/Los_Angeles</timezone>
-      <roles>
-        <role>developer</role>
-      </roles>
-    </developer>
-
-  </developers>
-
-  <contributors>
-    <contributor>
-      <name>Boki Beran</name>
-      <email>boki_beran@intuit.com</email>
-      <organization>Intuit, Inc.</organization>
-      <organizationUrl>http://www.intuit.com</organizationUrl>
-      <timezone>America/Los_Angeles</timezone>
-    </contributor>
-
-    <contributor>
-      <name>Ibrar Malik</name>
-      <email>ibrar_malik@intuit.com</email>
-      <organization>Intuit, Inc.</organization>
-      <organizationUrl>http://www.intuit.com</organizationUrl>
-      <timezone>America/Los_Angeles</timezone>
-    </contributor>
-
-    <contributor>
-      <name>Alfredo Martinez</name>
-      <email>alfredom@qualcomm.com</email>
-      <organization>Qualcomm, Inc.</organization>
-      <organizationUrl>http://www.qualcomm.com</organizationUrl>
-      <timezone>America/Los_Angeles</timezone>
-    </contributor>
-
-    <contributor>
-      <name>Justin Hermes</name>
-      <email>justin_hermes@intuit.com</email>
-      <organization>Intuit, Inc.</organization>
-      <organizationUrl>http://www.intuit.com</organizationUrl>
-      <timezone>America/Los_Angeles</timezone>
-    </contributor>
-
-    <contributor>
-      <name>Kevin McGoldrick</name>
-      <email>kevin_mcgoldrick@intuit.com</email>
-      <organization>Intuit, Inc.</organization>
-      <organizationUrl>http://www.intuit.com</organizationUrl>
-      <timezone>America/Los_Angeles</timezone>
-    </contributor>
-
-
-  </contributors>
 
   <profiles>
     <profile>
@@ -278,7 +170,7 @@
       </modules>
 
     </profile>
-    
+
     <profile>
       <id>wildfly</id>
       <activation>
@@ -303,7 +195,7 @@
         <module>tank_vmManager</module>
         <module>web</module>
       </modules>
-      
+
       <dependencyManagement>
     	<dependencies>
     		<dependency>
@@ -386,7 +278,7 @@
       <artifactId>easymockclassextension</artifactId>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
 	  <groupId>javax.ejb</groupId>
 	  <artifactId>ejb-api</artifactId>
@@ -608,7 +500,7 @@
         <scope>import</scope>
         <type>pom</type>
       </dependency>
-      
+
       <dependency>
    	  	<groupId>org.glassfish</groupId>
    	  	<artifactId>javax.ejb</artifactId>
@@ -751,7 +643,7 @@
         <artifactId>jersey-server</artifactId>
         <version>${version.jersey}</version>
       </dependency>
-      
+
       <dependency>
     	<groupId>org.glassfish.jersey.media</groupId>
     	<artifactId>jersey-media-multipart</artifactId>
@@ -763,13 +655,13 @@
 	    <artifactId>jersey-media-jaxb</artifactId>
 	    <version>${version.jersey}</version>
 	  </dependency>
-	  
+
 	  <dependency>
     	<groupId>org.glassfish.jersey.media</groupId>
     	<artifactId>jersey-media-json-jackson</artifactId>
     	<version>${version.jersey}</version>
 	  </dependency>
-	  	  
+
 	  <dependency>
     	<groupId>org.glassfish.jersey.containers</groupId>
     	<artifactId>jersey-container-servlet</artifactId>
@@ -1407,13 +1299,13 @@
     </repository>
     <repository>
       <id>jboss-public-repository-group</id>
-      <name>JBoss 
+      <name>JBoss
     Public Maven Repository Group</name>
       <url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
     </repository>
     <repository>
       <id>thirdparty-releases</id>
-      <name>JBoss Thirdparty 
+      <name>JBoss Thirdparty
     Releases</name>
       <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
     </repository>
@@ -1470,7 +1362,7 @@
      <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
      <name>JBoss Repo</name>
      <layout>default</layout>
-   </pluginRepository>  
+   </pluginRepository>
     <pluginRepository>
       <id>Maven Central 2 plugins</id>
       <name>Central</name>
