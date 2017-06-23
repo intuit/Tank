@@ -22,6 +22,7 @@ package com.intuit.tank.vm.api.enumerated;
 public enum VMRegion {
     STANDALONE("standalone-agent", "Standalone", "Standalone Agent", ""),
     US_EAST("us-east-1", "Virginia", "US East (Northern Virginia)", "ec2.us-east-1.amazonaws.com"),
+    US_EAST_2("us-east-2", "Ohio", "US East (Ohio)", "ec2.us-east-2.amazonaws.com"),
     US_WEST_1("us-west-1", "Northern California", "US West (Northern California)", "ec2.us-west-1.amazonaws.com"),
     US_WEST_2("us-west-2", "Oregon", "US West (Oregon)", "ec2.us-west-2.amazonaws.com"),
     EUROPE("eu-west-1", "Ireland", "EU (Ireland)", "ec2.eu-west-1.amazonaws.com"),

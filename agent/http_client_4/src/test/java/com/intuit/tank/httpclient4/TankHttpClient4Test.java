@@ -1,6 +1,7 @@
 package com.intuit.tank.httpclient4;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.apache.commons.codec.binary.Base64;
@@ -8,7 +9,6 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.tomcat.util.net.URL;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

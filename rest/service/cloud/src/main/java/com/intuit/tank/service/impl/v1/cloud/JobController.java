@@ -26,9 +26,6 @@ import java.util.Iterator;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
@@ -52,23 +49,14 @@ import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
  */
 public class JobController {
 
-    @SuppressWarnings("unused")
-    private static final Logger LOG = LogManager.getLogger(JobController.class);
-
     @Inject
     private VMTracker vmTracker;
-
-    // @Inject
-    // private PerfManagerJobListener perfManagerJobListener;
 
     @Inject
     private JobManager jobManager;
 
     @Inject
     private AgentChannel agentChannel;
-
-    @Inject
-    private VMChannel channel;
 
     @Inject
     private Event<JobEvent> jobEventProducer;
@@ -122,7 +110,7 @@ public class JobController {
      */
     public Set<CloudVmStatusContainer> killAllJobs() {
     	Set<CloudVmStatusContainer> jobs = vmTracker.getAllJobs();
-    	Iterator iter = jobs.iterator();
+    	Iterator<CloudVmStatusContainer> iter = jobs.iterator();
     	while (iter.hasNext()) {
     		String jobId = ((CloudVmStatusContainer)iter.next()).getJobId();
     		killJob(jobId, true);
@@ -167,7 +155,7 @@ public class JobController {
      */
     public Set<CloudVmStatusContainer> stopAllJobs() {
     	Set<CloudVmStatusContainer> jobs = vmTracker.getAllJobs();
-    	Iterator iter = jobs.iterator();
+    	Iterator<CloudVmStatusContainer> iter = jobs.iterator();
     	while (iter.hasNext()) {
     		String jobId = ((CloudVmStatusContainer)iter.next()).getJobId();
 	        List<String> instanceIds = getInstancesForJob(jobId);

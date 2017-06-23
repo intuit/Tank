@@ -16,7 +16,6 @@ import java.io.ByteArrayInputStream;
  */
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -29,9 +28,6 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import javax.annotation.Nonnull;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -46,10 +42,12 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.cookie.Cookie;
@@ -85,6 +83,7 @@ public class TankHttpClient4 implements TankHttpClient {
     private HttpClientContext context;
     private RequestConfig requestConfig;
     private SSLConnectionSocketFactory sslsf;
+    private boolean proxyOn = false;
 
     /**
      * no-arg constructor for client
@@ -93,12 +92,7 @@ public class TankHttpClient4 implements TankHttpClient {
         try {
             SSLContextBuilder builder = new SSLContextBuilder();
             builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
-            sslsf = new SSLConnectionSocketFactory(builder.build(), new HostnameVerifier() {
-                @Override
-                public boolean verify(String arg0, SSLSession arg1) {
-                    return true;
-                }
-            });
+            sslsf = new SSLConnectionSocketFactory(builder.build(), NoopHostnameVerifier.INSTANCE);
         } catch (Exception e) {
             LOG.error("Error setting accept all: " + e, e);
         }
@@ -109,7 +103,7 @@ public class TankHttpClient4 implements TankHttpClient {
         		.setCircularRedirectsAllowed(true)
         		.setAuthenticationEnabled(true)
         		.setRedirectsEnabled(true)
-        		.setCookieSpec(CookieSpecs.DEFAULT)
+        		.setCookieSpec(CookieSpecs.STANDARD)
                 .setMaxRedirects(100).build();
 
         // Make sure the same context is used to execute logically related
@@ -126,7 +120,7 @@ public class TankHttpClient4 implements TankHttpClient {
         		.setCircularRedirectsAllowed(true)
         		.setAuthenticationEnabled(true)
                 .setRedirectsEnabled(true)
-                .setCookieSpec(CookieSpecs.DEFAULT)
+                .setCookieSpec(CookieSpecs.STANDARD)
                 .setMaxRedirects(100).build();
         context.setRequestConfig(requestConfig);
     }
@@ -175,9 +169,28 @@ public class TankHttpClient4 implements TankHttpClient {
         String requestBody = request.getBody();
         String type = request.getHeaderInformation().get("Content-Type");
         if (StringUtils.isBlank(type)) {
-            request.getHeaderInformation().put("Content-Type", "application/x-www-form-urlencoded");
+            request.getHeaderInformation().put("Content-Type", "application/json");
         }
         sendRequest(request, httpdelete, requestBody);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.intuit.tank.httpclient3.TankHttpClient#doOptions(com.intuit.tank.http.
+     * BaseRequest)
+     */
+    @Override
+    public void doOptions(BaseRequest request) {
+    	HttpOptions httpoptions = new HttpOptions(request.getRequestUrl());
+        // Multiple calls can be expensive, so get it once
+        String requestBody = request.getBody();
+        String type = request.getHeaderInformation().get("Content-Type");
+        if (StringUtils.isBlank(type)) {
+            request.getHeaderInformation().put("Content-Type", "application/json");
+        }
+        sendRequest(request, httpoptions, requestBody);
     }
 
     /*
@@ -251,9 +264,10 @@ public class TankHttpClient4 implements TankHttpClient {
             HttpHost proxy = new HttpHost(proxyhost, proxyport);
             DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
             httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).setRoutePlanner(routePlanner).build();
-        } else {
-
+            proxyOn = true;
+        } else if (proxyOn){
             httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+            proxyOn = false;
         }
     }
 
@@ -281,8 +295,7 @@ public class TankHttpClient4 implements TankHttpClient {
             // check for no content headers
             if (response.getStatusLine().getStatusCode() != 203 && response.getStatusLine().getStatusCode() != 202 && response.getStatusLine().getStatusCode() != 204) {
                 try {
-                    InputStream httpInputStream = response.getEntity().getContent();
-                    responseBody = IOUtils.toByteArray(httpInputStream);
+                    responseBody = IOUtils.toByteArray(response.getEntity().getContent());
                 } catch (Exception e) {
                     LOG.warn("could not get response body: " + e);
                 }

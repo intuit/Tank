@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>tools-parent</artifactId>
-    <version>2.2.3</version>
+    <version>2.2.4</version>
   </parent>
 
   <artifactId>script-engine-bundle</artifactId>
@@ -17,8 +17,8 @@
   <dependencies>
 
     <dependency>
-      <groupId>com.sun.script.jruby</groupId>
-      <artifactId>jruby-engine</artifactId>
+      <groupId>org.jruby</groupId>
+      <artifactId>jruby</artifactId>
     </dependency>
 
     <dependency>

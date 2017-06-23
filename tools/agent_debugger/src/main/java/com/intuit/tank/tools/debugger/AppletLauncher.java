@@ -35,12 +35,6 @@ public class AppletLauncher extends JApplet {
     @Override
     public void init() {
         try {
-            System.setProperty("jsse.enableSNIExtension", "false");
-        } catch (Throwable e1) {
-            System.err.println("Error setting property jsse.enableSNIExtension: " + e1.toString());
-            e1.printStackTrace();
-        }
-        try {
             System.setProperty("jdk.certpath.disabledAlgorithms", "");
         } catch (Throwable e1) {
             System.err.println("Error setting property jdk.certpath.disabledAlgorithms: " + e1.toString());

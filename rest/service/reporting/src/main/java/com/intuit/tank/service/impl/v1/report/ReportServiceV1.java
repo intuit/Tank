@@ -64,8 +64,7 @@ import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.common.util.ReportUtil;
 import com.intuit.tank.vm.common.util.TimingPageName;
 import com.intuit.tank.vm.settings.TankConfig;
-
-import au.com.bytecode.opencsv.CSVWriter;
+import com.opencsv.CSVWriter;
 
 /**
  * ProjectServiceV1

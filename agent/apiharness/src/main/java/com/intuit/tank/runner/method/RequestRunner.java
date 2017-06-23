@@ -180,6 +180,8 @@ public class RequestRunner implements Runner {
                 baseRequest.doPut(baseResponse);
             } else if (method.equalsIgnoreCase("DELETE")) {
                 baseRequest.doDelete(baseResponse);
+            } else if (method.equalsIgnoreCase("OPTIONS")) {
+                baseRequest.doOptions(baseResponse);
             }
         } catch (Throwable e) {
             LOG.error( new MapMessage(
@@ -193,9 +195,6 @@ public class RequestRunner implements Runner {
         }
         validation = processValidations(variables, "", baseResponse);
         LogUtil.getLogEvent().setValidationStatus(validation);
-        if (!validation.equalsIgnoreCase(TankConstants.HTTP_CASE_PASS)) {
-            LOG.error( new MapMessage(LogUtil.getLogMessage("Validation Failed", LogEventType.Validation, LoggingProfile.VERBOSE)));
-        }
         if (APITestHarness.getInstance().getAgentRunData().getActiveProfile() == LoggingProfile.VERBOSE) {
             LOG.info( new MapMessage(LogUtil.getLogMessage("Made Call ...")));
         }
@@ -552,8 +551,8 @@ public class RequestRunner implements Runner {
             return TankConstants.HTTP_CASE_PASS;
         }
         String msg = "Failed body validation: body value = " + actualValue;
-        LOG.error( new MapMessage(LogUtil.getLogMessage(item.toString() + " " + msg, LogEventType.Validation,
-                LoggingProfile.USER_VARIABLE)));
+        LOG.error( new MapMessage(LogUtil.getLogMessage("Validation Failed: " + item.toString() + " " + msg, LogEventType.Validation,
+                LoggingProfile.VERBOSE)));
         tsc.addError(new ErrorContainer("BODY", original, item, msg));
         return TankConstants.HTTP_CASE_FAIL;
     }

@@ -84,7 +84,7 @@ public class EmbeddedProxy implements TransactionRecordedListener {
 	private Application application;
 
 	static {
-		System.setProperty("https.protocols", "TLSv1.1");
+		System.setProperty("https.protocols", "TLSv1.2");
 	}
 
 	/**

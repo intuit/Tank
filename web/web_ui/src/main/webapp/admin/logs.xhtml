@@ -5,7 +5,6 @@
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:ts="http://java.sun.com/jsf/composite/tag"
   xmlns:p="http://primefaces.org/ui"
-  xmlns:pe="http://primefaces.org/ui/extensions"
   template="/WEB-INF/templates/tank.xhtml">
   <ui:define name="content">
     <f:viewAction action="#{tsConversationManager.end}" />
@@ -26,14 +25,14 @@
 
             <div class="float-left h-space">
               Initial Lines:
-              <pe:inputNumber value="#{logViewer.numLines}" minValue="0"
+              <p:inputNumber value="#{logViewer.numLines}" minValue="0"
                 decimalPlaces="0" converter="javax.faces.Integer" />
               <ts:tip tipId="numLinsesTip"
                 text="Number of lines to tail at start. Set to 0 to view entire file." />
             </div>
             <div class="float-left h-space">
               Poll seconds:
-              <pe:inputNumber value="#{logViewer.pollSeconds}"
+              <p:inputNumber value="#{logViewer.pollSeconds}"
                 decimalPlaces="0" minValue="0" converter="javax.faces.Integer"/>
               <ts:tip tipId="pollTip"
                 text="Poll time in seconds. Set to 0 to not poll." />

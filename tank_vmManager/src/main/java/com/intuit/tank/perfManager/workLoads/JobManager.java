@@ -80,7 +80,7 @@ public class JobManager implements Serializable {
     private static final long RETRY_SLEEP = 1000;
 
     @Inject
-    private VMTracker tracker;
+    private VMTracker vmTracker;
 
     @Inject
     private StandaloneAgentTracker standaloneTracker;
@@ -157,6 +157,9 @@ public class JobManager implements Serializable {
                 ret.setTotalAgents(jobInfo.numberOfMachines);
                 ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement());
                 jobInfo.agentData.add(agent);
+                CloudVmStatus status = new CloudVmStatus(vmTracker.getStatus(agent.getInstanceId()));
+                status.setVmStatus(VMStatus.pending);
+                vmTracker.setStatus(status);
                 if (jobInfo.isFilled()) {
                     startTest(jobInfo);
                 }
@@ -168,12 +171,12 @@ public class JobManager implements Serializable {
 
     private void startTest(final JobInfo info) {
         LOG.info("Sending start command asynchronously.");
-        Thread t = new Thread(new Runnable() {
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 LOG.info("Sleeping for one minute before starting test to give time for all agents to download files.");
                 try {
-                    Thread.sleep(60000);// sixty seconds
+                    Thread.sleep(60 * 1000);// 1 minute
                 } catch (InterruptedException e) {
                     // ignore
                 }
@@ -188,28 +191,26 @@ public class JobManager implements Serializable {
                         AgentData dataFuture = future.get();
                         if (dataFuture != null) {
                             // error happened. TODO: message system that agent did not start.
-                            tracker.setStatus(crateFailureStatus(dataFuture));
-                            tracker.stopJob(info.jobRequest.getId());
+                            vmTracker.setStatus(crateFailureStatus(dataFuture));
+                            vmTracker.stopJob(info.jobRequest.getId());
                         }
                     }
                     LOG.info("All agents received start command.");
                 } catch (Exception e) {
                     LOG.error("Error sending start: " + e, e);
-                    tracker.stopJob(info.jobRequest.getId());
+                    vmTracker.stopJob(info.jobRequest.getId());
                 }
 
             }
 
         });
-        t.setDaemon(true);
-        t.start();
+        thread.setDaemon(true);
+        thread.start();
     }
 
     private CloudVmStatus crateFailureStatus(AgentData data) {
-        CloudVmStatus ret = new CloudVmStatus(data.getInstanceId(), data.getJobId(), null, JobStatus.Unknown,
-                VMImageType.AGENT,
+        return new CloudVmStatus(data.getInstanceId(), data.getJobId(), null, JobStatus.Unknown, VMImageType.AGENT,
                 data.getRegion(), VMStatus.stopped, new ValidationStatus(), data.getUsers(), 0, null, null);
-        return ret;
     }
 
     public FutureTask<AgentData> sendCommand(String instanceId, WatsAgentCommand cmd) {

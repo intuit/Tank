@@ -90,9 +90,8 @@ public class AgentServiceV1 implements AgentService {
     @Override
     public Response agentReady(AgentData data) {
         LOG.info("Agent ready: " + data);
-        ResponseBuilder responseBuilder = null;
+        ResponseBuilder responseBuilder = Response.ok();
         try {
-            responseBuilder = Response.ok();
             JobManager jobManager = new ServletInjector<JobManager>().getManagedBean(servletContext, JobManager.class);
             AgentTestStartData response = jobManager.registerAgentForJob(data);
             responseBuilder.entity(response);
@@ -106,9 +105,8 @@ public class AgentServiceV1 implements AgentService {
 
     @Override
     public Response getSettings() {
-        ResponseBuilder responseBuilder = null;
+        ResponseBuilder responseBuilder = Response.ok();
         try {
-            responseBuilder = Response.ok();
             File configFile = new TankConfig().getSourceConfigFile();
             File agentConfigFile = new File(configFile.getParentFile(), "agent-settings.xml");
             if (agentConfigFile.exists() && agentConfigFile.isFile()) {
