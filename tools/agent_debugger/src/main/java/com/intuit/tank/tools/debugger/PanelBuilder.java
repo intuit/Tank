@@ -29,6 +29,9 @@ import javax.swing.JToolBar;
 import javax.swing.text.BadLocationException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -38,6 +41,7 @@ import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.xml.sax.InputSource;
 
 import com.intuit.tank.tools.debugger.ActionProducer.IconSize;
 import com.intuit.tank.vm.agent.messages.Header;
@@ -86,8 +90,17 @@ public class PanelBuilder {
                 LOG.info("Starting up: making call to tank service url to get settings.xml "
                         + url.toExternalForm());
                 settingsStream = url.openStream();
+                
+            	//Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
+            	SAXParserFactory spf = SAXParserFactory.newInstance();
+            	spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            	spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            	spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            	
+            	Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(settingsStream));
+            	
                 JAXBContext ctx = JAXBContext.newInstance(Headers.class.getPackage().getName());
-                ret = (Headers) ctx.createUnmarshaller().unmarshal(settingsStream);
+                ret = (Headers) ctx.createUnmarshaller().unmarshal(xmlSource);
             } catch (Exception e) {
                 LOG.error("Error gettting headers: " + e, e);
             } finally {

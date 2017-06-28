@@ -43,12 +43,18 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.intuit.tank.api.model.v1.script.ExternalScriptContainer;
 import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
@@ -131,8 +137,16 @@ public class ScriptServiceV1 implements ScriptService {
         ResponseBuilder responseBuilder = null;
         if (is != null) {
             try {
+                //Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
+                SAXParserFactory spf = SAXParserFactory.newInstance();
+                spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+                spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+                spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+                
+                Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(is));
+                
                 JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
-                scriptTo = (ScriptTO) ctx.createUnmarshaller().unmarshal(is);
+                scriptTo = (ScriptTO) ctx.createUnmarshaller().unmarshal(xmlSource);
                 Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
                 if (script.getId() > 0) {
                     Script existing = dao.findById(script.getId());
@@ -180,11 +194,22 @@ public class ScriptServiceV1 implements ScriptService {
                     String s = part.getEntityAs(String.class);
                     if ("xmlString".equalsIgnoreCase(formName)) {
                         try {
+                            //Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
+                            SAXParserFactory spf = SAXParserFactory.newInstance();
+                            spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+                            spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+                            spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+                            
+                            Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(new StringReader(s)));
+                            
                             JAXBContext ctx = JAXBContext.newInstance(ScriptUploadRequest.class.getPackage().getName());
-                            request = (ScriptUploadRequest) ctx.createUnmarshaller().unmarshal(
-                                    new StringReader(s));
+                            request = (ScriptUploadRequest) ctx.createUnmarshaller().unmarshal(xmlSource);
                         } catch (JAXBException e) {
                             throw new RuntimeException(e);
+                        } catch (SAXException saxe) {
+                        	  throw new RuntimeException(saxe);
+                        } catch (ParserConfigurationException pce) {
+                          throw new RuntimeException(pce);
                         }
                     }
                 } else if (MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(mediaType)) {

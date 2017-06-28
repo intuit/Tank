@@ -22,6 +22,13 @@ import java.io.StringWriter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * JaxbUtil
@@ -73,11 +80,23 @@ public final class JaxbUtil {
      * @return the Object
      * @throws JAXBException
      *             if there is an error unmarshalling the String
+     * @throws ParserConfigurationException 
+     * @throws SAXException 
      */
     @SuppressWarnings("unchecked")
-    public static final <T> T unmarshall(String toUnmarshall, Class<T> clazz) throws JAXBException {
+    public static final <T> T unmarshall(String toUnmarshall, Class<T> clazz) throws JAXBException,
+    																				ParserConfigurationException,
+    																				SAXException {
+    	//Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
+    	SAXParserFactory spf = SAXParserFactory.newInstance();
+    	spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    	spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+    	spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+    	
+    	Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(new StringReader(toUnmarshall)));
+    	
         JAXBContext ctx = JAXBContext.newInstance(clazz.getPackage().getName());
-        Object unmarshalled = ctx.createUnmarshaller().unmarshal(new StringReader(toUnmarshall));
+        Object unmarshalled = ctx.createUnmarshaller().unmarshal(xmlSource);
         return (T) unmarshalled;
     }
 }

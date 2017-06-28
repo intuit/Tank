@@ -23,6 +23,9 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.bind.JAXBContext;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -33,6 +36,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.basic.User;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
+import org.xml.sax.InputSource;
 
 import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.api.model.v1.script.ScriptTO;
@@ -109,8 +113,17 @@ public class TankXmlUploadBean implements Serializable {
     public void processScript(InputStream inputStream, String fileName) throws Exception {
         try {
             ScriptDao dao = new ScriptDao();
+            
+            //Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
+            SAXParserFactory spf = SAXParserFactory.newInstance();
+            spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            
+            Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(inputStream));
+            
             JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
-            ScriptTO scriptTo = (ScriptTO) ctx.createUnmarshaller().unmarshal(inputStream);
+            ScriptTO scriptTo = (ScriptTO) ctx.createUnmarshaller().unmarshal(xmlSource);
             Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
             if (script.getId() > 0) {
                 Script existing = dao.findById(script.getId());

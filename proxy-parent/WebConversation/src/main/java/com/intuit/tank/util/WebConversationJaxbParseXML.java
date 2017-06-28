@@ -13,9 +13,6 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.events.XMLEvent;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.intuit.tank.conversation.Transaction;
 import com.intuit.tank.vm.exception.ParseExceptionConverter;
 import com.intuit.tank.vm.exception.WatsParseException;

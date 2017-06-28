@@ -37,12 +37,18 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptor;
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptorContainer;
@@ -125,12 +131,22 @@ public class DataFileServiceV1 implements DataFileService {
                     LOG.debug("Plain Text Value: " + s);
                     if ("xmlString".equalsIgnoreCase(formName)) {
                         try {
+                        	//Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
+                        	SAXParserFactory spf = SAXParserFactory.newInstance();
+                        	spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+                        	spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+                        	spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+                        	
+                        	Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(new StringReader(s)));
                             JAXBContext ctx = JAXBContext.newInstance(DataFileDescriptor.class.getPackage().getName());
-                            DataFileDescriptor dfd = (DataFileDescriptor) ctx.createUnmarshaller().unmarshal(
-                                    new StringReader(s));
+                            DataFileDescriptor dfd = (DataFileDescriptor) ctx.createUnmarshaller().unmarshal(xmlSource);
                             dataFile = descriptorToDataFile(dao, dfd);
                         } catch (JAXBException e) {
                             throw new RuntimeException(e);
+                        } catch (SAXException saxe) {
+                            throw new RuntimeException(saxe);
+                        } catch (ParserConfigurationException pce) {
+                            throw new RuntimeException(pce);
                         }
                     }
                 } else if (MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(mediaType)) {

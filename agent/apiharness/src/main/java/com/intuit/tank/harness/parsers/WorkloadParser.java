@@ -26,9 +26,13 @@ import java.io.StringReader;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.xml.sax.InputSource;
 
 import com.intuit.tank.harness.data.HDWorkload;
 
@@ -69,9 +73,17 @@ public class WorkloadParser {
 
     private void initialize(Reader reader) {
         try {
+        	//Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
+        	SAXParserFactory spf = SAXParserFactory.newInstance();
+        	spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        	spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        	spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        	
+        	Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(reader));
+        	
             JAXBContext context = JAXBContext.newInstance(HDWorkload.class.getPackage().getName());
             Unmarshaller unmarshaller = context.createUnmarshaller();
-            workload = (HDWorkload) unmarshaller.unmarshal(reader);
+            workload = (HDWorkload) unmarshaller.unmarshal(xmlSource);
             reader.close();
         } catch (Exception e) {
             e.printStackTrace();

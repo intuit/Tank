@@ -19,12 +19,7 @@ package com.intuit.tank.api.model.v1.datafile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
-import java.text.DateFormat;
 import java.util.Date;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Assert;
