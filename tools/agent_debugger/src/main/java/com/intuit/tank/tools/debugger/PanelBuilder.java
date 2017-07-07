@@ -93,6 +93,7 @@ public class PanelBuilder {
                 
             	//Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
             	SAXParserFactory spf = SAXParserFactory.newInstance();
+            	spf.setNamespaceAware(true);
             	spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
             	spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
             	spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
