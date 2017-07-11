@@ -445,6 +445,11 @@ public class AutomationServiceV1 implements AutomationService {
 		sender.sendEvent(new ModifiedEntityMessage(entity.getClass(), entity.getId(), type));
 	}
 
+	private String getName(AutomationRequest request, Workload workload) {
+		return !StringUtils.isEmpty(request.getName()) ? request.getName() : request.getScriptName() + "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"
+				+ ReportUtil.getTimestamp(new Date());
+	}
+
 	public JobInstance addJobToQueue(Project p, AutomationRequest request, Script script) {
 
 		JobQueueDao jobQueueDao = new JobQueueDao();
@@ -455,9 +460,7 @@ public class AutomationServiceV1 implements AutomationService {
 		Workload workload = p.getWorkloads().get(0);
 		JobConfiguration jc = workload.getJobConfiguration();
 		JobQueue queue = jobQueueDao.findOrCreateForProjectId(p.getId());
-		String name = request.getScriptName() + "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"
-				+ ReportUtil.getTimestamp(new Date());
-		JobInstance jobInstance = new JobInstance(workload, name);
+		JobInstance jobInstance = new JobInstance(workload, getName(request, workload));
 		jobInstance.setScheduledTime(new Date());
 		jobInstance.setLocation(jc.getLocation());
 		jobInstance.setLoggingProfile(jc.getLoggingProfile());
