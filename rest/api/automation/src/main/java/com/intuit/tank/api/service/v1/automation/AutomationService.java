@@ -119,7 +119,7 @@ public interface AutomationService {
      * 				Example: curl -X POST -H "Content-Type: application/json" -d '{"name":"xx",
      * 				"rampTime":"12m","simulationTime":"0","jobRegions":[{"region":"us-west-1","users":"100"},
      * 				{"region":"us-east-1","users":"300"}]}' http://xxx/rest/v1/automation-service/createJob
-     * @return Responds with JobId
+     * @return Respones with JobId
      */
     @POST
     @Path("/createJob")
