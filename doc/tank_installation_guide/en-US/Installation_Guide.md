@@ -1,4 +1,4 @@
-![](https://raw.githubusercontent.com/intuit/tank/master/src/TankLogo.gif)
+![](https://raw.githubusercontent.com/intuit/tank/master/assets/TankLogo.gif)
 
 # Tank Installation guide 
 
