@@ -32,9 +32,12 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
@@ -60,6 +63,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -67,6 +74,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
 import com.intuit.tank.api.model.v1.script.ScriptTO;
@@ -519,9 +528,18 @@ public class ScriptFilterRunner extends JFrame {
 
     private void loadTSXml(File selectedFile) {
         try {
+        	//Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
+        	SAXParserFactory spf = SAXParserFactory.newInstance();
+        	spf.setNamespaceAware(true);
+        	spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        	spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        	spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        	
+        	Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(new FileInputStream(selectedFile)));
+        	
             JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
             Unmarshaller unmarshaller = ctx.createUnmarshaller();
-            tankScript = (ScriptTO) unmarshaller.unmarshal(selectedFile);
+            tankScript = (ScriptTO) unmarshaller.unmarshal(xmlSource);
             currentFileLabel.setText(selectedFile.getName());
             xmlFile = selectedFile;
             showXmlBT.setEnabled(true);
@@ -529,8 +547,13 @@ public class ScriptFilterRunner extends JFrame {
             saveBT.setEnabled(true);
         } catch (JAXBException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error reading file", JOptionPane.ERROR_MESSAGE);
+        } catch (FileNotFoundException fnfe) {
+        	JOptionPane.showMessageDialog(this, fnfe.getMessage(), "Error reading file", JOptionPane.ERROR_MESSAGE);
+        } catch (SAXException saxe) {
+        	JOptionPane.showMessageDialog(this, saxe.getMessage(), "Error reading file", JOptionPane.ERROR_MESSAGE);
+        } catch (ParserConfigurationException pce) {
+        	JOptionPane.showMessageDialog(this, pce.getMessage(), "Error reading file", JOptionPane.ERROR_MESSAGE);
         }
-
     }
 
     private String toXml(ScriptTO turboScriptTO) {

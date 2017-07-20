@@ -21,6 +21,10 @@ import java.net.SocketAddress;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +33,8 @@ import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;
 import org.simpleframework.transport.connect.Connection;
 import org.simpleframework.transport.connect.SocketConnection;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.intuit.tank.vm.agent.messages.StandaloneAgentRequest;
 import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
@@ -95,10 +101,19 @@ public class CommandListener implements Container {
         }
     }
 
-    private StandaloneAgentRequest getRequest(InputStream inputStream) {
+    private StandaloneAgentRequest getRequest(InputStream inputStream) throws SAXException, ParserConfigurationException {
         try {
+        	//Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
+        	SAXParserFactory spf = SAXParserFactory.newInstance();
+        	spf.setNamespaceAware(true);
+        	spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        	spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        	spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        	
+        	Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(inputStream));
+        	
             JAXBContext ctx = JAXBContext.newInstance(StandaloneAgentRequest.class.getPackage().getName());
-            Object unmarshalled = ctx.createUnmarshaller().unmarshal(inputStream);
+            Object unmarshalled = ctx.createUnmarshaller().unmarshal(xmlSource);
             return (StandaloneAgentRequest) unmarshalled;
         } catch (JAXBException e) {
             LOG.error("Error unmarshalling body.");
