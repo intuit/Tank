@@ -1,4 +1,4 @@
-package com.intuit.tank.httpclient4;
+package com.intuit.tank.httpclient5;
 
 import java.io.ByteArrayInputStream;
 
@@ -25,40 +25,44 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
 import javax.annotation.Nonnull;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.NTCredentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
-import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.NTCredentials;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.config.CookieSpecs;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
+import org.apache.hc.client5.http.cookie.Cookie;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.impl.routing.DefaultProxyRoutePlanner;
+import org.apache.hc.client5.http.impl.sync.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.sync.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.sync.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.sync.HttpClients;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.client5.http.sync.methods.HttpDelete;
+import org.apache.hc.client5.http.sync.methods.HttpGet;
+import org.apache.hc.client5.http.sync.methods.HttpOptions;
+import org.apache.hc.client5.http.sync.methods.HttpPost;
+import org.apache.hc.client5.http.sync.methods.HttpPut;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -73,22 +77,29 @@ import com.intuit.tank.http.TankHttpUtil.PartHolder;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.vm.settings.AgentConfig;
 
-public class TankHttpClient4 implements TankHttpClient {
+public class TankHttpClient5 implements TankHttpClient {
 
-    static Logger LOG = LogManager.getLogger(TankHttpClient4.class);
+    static Logger LOG = LogManager.getLogger(TankHttpClient5.class);
 
     private CloseableHttpClient httpclient;
     private HttpClientContext context;
     private RequestConfig requestConfig;
+    private SSLConnectionSocketFactory sslsf;
+    private HttpClientConnectionManager cm;
     private boolean proxyOn = false;
 
     /**
      * no-arg constructor for client
      */
-    public TankHttpClient4() {
-        httpclient = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).build();
-        requestConfig = RequestConfig.custom().setSocketTimeout(30000)
-        		.setConnectTimeout(30000)
+    public TankHttpClient5() {
+        sslsf = new SSLConnectionSocketFactory(SSLContexts.createDefault(), NoopHostnameVerifier.INSTANCE);
+        cm = PoolingHttpClientConnectionManagerBuilder.create()
+                .setSSLSocketFactory(sslsf)
+                .build();
+        
+        httpclient = HttpClients.custom().setConnectionManager(cm).build();
+        requestConfig = RequestConfig.custom().setSocketTimeout(30, TimeUnit.SECONDS)
+        		.setConnectTimeout(30, TimeUnit.SECONDS)
         		.setCircularRedirectsAllowed(true)
         		.setAuthenticationEnabled(true)
         		.setRedirectsEnabled(true)
@@ -104,8 +115,8 @@ public class TankHttpClient4 implements TankHttpClient {
     }
 
     public void setConnectionTimeout(long connectionTimeout) {
-        requestConfig = RequestConfig.custom().setSocketTimeout(30000)
-        		.setConnectTimeout((int) connectionTimeout)
+        requestConfig = RequestConfig.custom().setSocketTimeout(30, TimeUnit.SECONDS)
+        		.setConnectTimeout((int) connectionTimeout, TimeUnit.MILLISECONDS)
         		.setCircularRedirectsAllowed(true)
         		.setAuthenticationEnabled(true)
                 .setRedirectsEnabled(true)
@@ -217,12 +228,13 @@ public class TankHttpClient4 implements TankHttpClient {
         int port = NumberUtils.toInt(creds.getPortString(), AuthScope.ANY_PORT);
         String scheme = creds.getScheme() != null ? creds.getScheme().getRepresentation() : AuthScope.ANY_SCHEME;
         AuthScope scope = new AuthScope(host, port, realm, scheme);
+        BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         if (AuthScheme.NTLM == creds.getScheme()) {
-            context.getCredentialsProvider().setCredentials(scope, new NTCredentials(creds.getUserName(), creds.getPassword(), "tank-test", creds.getRealm()));
+            credentialsProvider.setCredentials(scope, new NTCredentials(creds.getUserName(), creds.getPassword().toCharArray(), "tank-test", creds.getRealm()));
         } else {
-            context.getCredentialsProvider().setCredentials(scope, new UsernamePasswordCredentials(creds.getUserName(), creds.getPassword()));
+        	credentialsProvider.setCredentials(scope, new UsernamePasswordCredentials(creds.getUserName(), creds.getPassword().toCharArray()));
         }
-
+        context.setCredentialsProvider(credentialsProvider);
     }
 
     /*
@@ -252,20 +264,20 @@ public class TankHttpClient4 implements TankHttpClient {
         if (StringUtils.isNotBlank(proxyhost)) {
             HttpHost proxy = new HttpHost(proxyhost, proxyport);
             DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-            httpclient = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).setRoutePlanner(routePlanner).build();
+            httpclient = HttpClients.custom().setConnectionManager(cm).setRoutePlanner(routePlanner).build();
             proxyOn = true;
         } else if (proxyOn){
-            httpclient = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).build();
+            httpclient = HttpClients.custom().setConnectionManager(cm).build();
             proxyOn = false;
         }
     }
 
-    private void sendRequest(BaseRequest request, @Nonnull HttpRequestBase method, String requestBody) {
+    private void sendRequest(BaseRequest request, @Nonnull ClassicHttpRequest method, String requestBody) {
         String uri = null;
         long waitTime = 0L;
         CloseableHttpResponse response = null;
         try {
-            uri = method.getURI().toString();
+            uri = method.getRequestUri();
             LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
             List<String> cookies = new ArrayList<String>();
             if (context.getCookieStore().getCookies() != null) {
@@ -282,7 +294,7 @@ public class TankHttpClient4 implements TankHttpClient {
             // read response body
             byte[] responseBody = new byte[0];
             // check for no content headers
-            if (response.getStatusLine().getStatusCode() != 203 && response.getStatusLine().getStatusCode() != 202 && response.getStatusLine().getStatusCode() != 204) {
+            if (response.getCode() != 203 && response.getCode() != 202 && response.getCode() != 204) {
                 try {
                     responseBody = IOUtils.toByteArray(response.getEntity().getContent());
                 } catch (Exception e) {
@@ -290,7 +302,7 @@ public class TankHttpClient4 implements TankHttpClient {
                 }
             }
             waitTime = System.currentTimeMillis() - startTime;
-            processResponse(responseBody, waitTime, request, response.getStatusLine().getReasonPhrase(), response.getStatusLine().getStatusCode(), response.getAllHeaders());
+            processResponse(responseBody, waitTime, request, response.getReasonPhrase(), response.getCode(), response.getAllHeaders());
             
         } catch (UnknownHostException uhex) {
             LOG.error(request.getLogUtil().getLogMessage("UnknownHostException to url: " + uri + " |  error: " + uhex.toString(), LogEventType.IO), uhex);
@@ -301,7 +313,6 @@ public class TankHttpClient4 implements TankHttpClient {
             throw new RuntimeException(ex);
         } finally {
             try {
-                method.releaseConnection();
                 if (response != null) {
                     response.close();
                 }
@@ -406,7 +417,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * @param connection
      */
     @SuppressWarnings("rawtypes")
-    private void setHeaders(BaseRequest request, HttpRequestBase method, HashMap<String, String> headerInformation) {
+    private void setHeaders(BaseRequest request, ClassicHttpRequest method, HashMap<String, String> headerInformation) {
         try {
             Set set = headerInformation.entrySet();
             Iterator iter = set.iterator();
