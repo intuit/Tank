@@ -30,12 +30,6 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>script-engine-bundle</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>script-api</artifactId>
       <version>${project.version}</version>
     </dependency>
