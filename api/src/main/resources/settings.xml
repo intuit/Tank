@@ -139,10 +139,10 @@
 			</tank-client>
 			<tank-client name="Apache HttpClient 4.5">com.intuit.tank.httpclient4.TankHttpClient4
 			</tank-client>
-			<tank-client name="OkHttp Client 2.5">com.intuit.tank.okhttpclient.TankOkHttpClient
+			<tank-client name="Apache HttpClient 5">com.intuit.tank.httpclient5.TankHttpClient5
 			</tank-client>
 		</tank-http-clients>
-		<default-tank-client>Apache HttpClient 3.1</default-tank-client>
+		<default-tank-client>Apache HttpClient 5</default-tank-client>
 
 	</agent-config>
 

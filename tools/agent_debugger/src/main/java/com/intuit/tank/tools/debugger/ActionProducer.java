@@ -436,10 +436,11 @@ public class ActionProducer {
                 }
             }
         } catch (Exception e) {
-//            set to default
+        	// This is just a filler for the UI before you select a tank instance to import from.
             cb.addItem(new TankClientChoice("Apache HttpClient 3.1", "com.intuit.tank.httpclient3.TankHttpClient3"));
             cb.addItem(new TankClientChoice("Apache HttpClient 4.5", "com.intuit.tank.httpclient4.TankHttpClient4"));
-            cb.setSelectedIndex(1);
+            cb.addItem(new TankClientChoice("Apache HttpClient 5", "com.intuit.tank.httpclient5.TankHttpClient5"));
+            cb.setSelectedIndex(2);
         }
     }
 

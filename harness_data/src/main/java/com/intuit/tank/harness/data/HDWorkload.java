@@ -38,7 +38,7 @@ public class HDWorkload {
     private String description;
 
     @XmlElement(name = "client-class")
-    private String tankHttpClientClass = "com.intuit.tank.httpclient3.TankHttpClient3";
+    private String tankHttpClientClass = "com.intuit.tank.httpclient4.TankHttpClient4";
 
     @XmlElement(name = "variables")
     private HDTestVariables variables;
