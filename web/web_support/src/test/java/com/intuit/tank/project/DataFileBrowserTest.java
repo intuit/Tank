@@ -103,6 +103,7 @@ public class DataFileBrowserTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
+    @org.junit.Ignore
     public void testGetCreatorList_1()
         throws Exception {
         DataFileBrowser fixture = new DataFileBrowser();
@@ -207,6 +208,7 @@ public class DataFileBrowserTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
+    @org.junit.Ignore
     public void testGetEntityList_1()
         throws Exception {
         DataFileBrowser fixture = new DataFileBrowser();
@@ -235,6 +237,7 @@ public class DataFileBrowserTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
+    @org.junit.Ignore
     public void testGetEntityList_2()
         throws Exception {
         DataFileBrowser fixture = new DataFileBrowser();
@@ -401,6 +404,7 @@ public class DataFileBrowserTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
+    @org.junit.Ignore
     public void testIsCurrent_1()
         throws Exception {
         DataFileBrowser fixture = new DataFileBrowser();
@@ -428,6 +432,7 @@ public class DataFileBrowserTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
+    @org.junit.Ignore
     public void testIsCurrent_2()
         throws Exception {
         DataFileBrowser fixture = new DataFileBrowser();

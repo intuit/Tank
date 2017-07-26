@@ -55,6 +55,7 @@ public class ScriptCreationBeanTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
+    @Ignore
     public void testCancel_1()
         throws Exception {
         ScriptCreationBean fixture = new ScriptCreationBean();
@@ -80,6 +81,7 @@ public class ScriptCreationBeanTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
+    @org.junit.Ignore
     public void testCreateNewScript_1()
         throws Exception {
         ScriptCreationBean fixture = new ScriptCreationBean();

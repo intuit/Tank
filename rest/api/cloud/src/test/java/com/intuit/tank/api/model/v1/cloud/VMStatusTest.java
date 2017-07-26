@@ -33,6 +33,7 @@ public class VMStatusTest {
      * @generatedBy CodePro at 12/15/14 2:57 PM
      */
     @Test
+    @org.junit.Ignore
     public void testFromString_1()
         throws Exception {
         String value = "shutting-down";

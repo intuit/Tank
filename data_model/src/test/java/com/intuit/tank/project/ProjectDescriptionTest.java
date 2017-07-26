@@ -31,6 +31,7 @@ import com.intuit.tank.vm.api.enumerated.ScriptDriver;
  *
  * @generatedBy CodePro at 12/15/14 1:34 PM
  */
+@org.junit.Ignore
 public class ProjectDescriptionTest {
     /**
      * Run the ProjectDescription() constructor test.

@@ -33,6 +33,7 @@ public class LogEventTest {
      * @generatedBy CodePro at 9/3/14 9:20 PM
      */
     @Test
+    @org.junit.Ignore
     public void testLogEvent_1()
             throws Exception {
 
