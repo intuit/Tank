@@ -47,10 +47,6 @@
 				</exclusion>
 				<exclusion>
 					<groupId>org.hibernate</groupId>
-					<artifactId>hibernate-validator</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.hibernate</groupId>
 					<artifactId>hibernate-envers</artifactId>
 				</exclusion>
 				<exclusion>
@@ -66,28 +62,12 @@
 					<groupId>org.javassist</groupId>
 				</exclusion>
 				<exclusion>
-					<artifactId>weld-spi</artifactId>
-					<groupId>org.jboss.weld</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>weld-api</artifactId>
-					<groupId>org.jboss.weld</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-interceptor-core</artifactId>
-					<groupId>org.jboss.interceptor</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-interceptors-api_1.1_spec</artifactId>
-					<groupId>org.jboss.spec.javax.interceptor</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jboss-interceptor-spi</artifactId>
-					<groupId>org.jboss.interceptor</groupId>
-				</exclusion>
-				<exclusion>
 					<artifactId>opencsv</artifactId>
 					<groupId>net.sf.opencsv</groupId>
+				</exclusion>
+				<exclusion>
+			      <groupId>org.jboss.weld.servlet</groupId>
+			      <artifactId>weld-servlet</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

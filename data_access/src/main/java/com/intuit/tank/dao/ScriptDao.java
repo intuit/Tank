@@ -27,10 +27,9 @@ import javax.persistence.EntityManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.AnnotationException;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
-import org.hibernate.cfg.RecoverableException;
-
 import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.Script;
@@ -210,7 +209,7 @@ public class ScriptDao extends BaseDao<Script> {
             return new SerializedScriptStep(bos.toByteArray());
             // }
         } catch (IOException e) {
-            throw new RecoverableException(e);
+            throw new AnnotationException(e.toString());
         } finally {
             IOUtils.closeQuietly(s);
         }

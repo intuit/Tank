@@ -21,13 +21,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.envers.Audited;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Audited
@@ -37,19 +37,19 @@ public class Script extends OwnableEntity implements Comparable<Script> {
     private static final long serialVersionUID = 1L;
 
     @Column(name = "name", nullable = false, length = 255)
-    @NotEmpty
-    @Length(max = 255)
+    @NotNull
+    @Size(max = 255)
     private String name;
 
     @Column(name = "runtime")
     private int runtime;
 
     @Column(name = "product_name", length = 255)
-    @Length(max = 255)
+    @Size(max = 255)
     private String productName;
 
     @Column(name = "comments", length = 1024)
-    @Length(max = 1024)
+    @Size(max = 1024)
     private String comments;
 
     @Transient

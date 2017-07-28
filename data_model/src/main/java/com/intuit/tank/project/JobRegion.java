@@ -21,6 +21,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -28,7 +29,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.envers.Audited;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.vmManager.RegionRequest;
@@ -52,7 +52,7 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
     @Enumerated(EnumType.STRING)
     private VMRegion region = VMRegion.US_WEST_2;
 
-    @NotEmpty
+    @NotNull
     @Column(name = "users", nullable = false)
     private String users;
 

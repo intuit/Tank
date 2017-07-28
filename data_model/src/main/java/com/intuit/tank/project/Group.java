@@ -16,13 +16,13 @@ package com.intuit.tank.project;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Index;
 import org.hibernate.envers.Audited;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * 
@@ -41,8 +41,8 @@ public class Group extends BaseEntity {
     public static final String PROPERTY_NAME = "name";
 
     @Column(name = "name", nullable = false)
-    @NotEmpty
-    @Length(max = 255)
+    @NotNull
+    @Size(max = 255)
     @Index(name = "IDX_GROUP_NAME")
     private String name;
 

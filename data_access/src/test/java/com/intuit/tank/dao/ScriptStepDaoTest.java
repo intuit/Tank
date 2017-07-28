@@ -18,7 +18,6 @@ package com.intuit.tank.dao;
 
 import java.util.List;
 
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

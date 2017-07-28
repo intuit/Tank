@@ -26,14 +26,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.envers.AuditMappedBy;
 import org.hibernate.envers.Audited;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Audited
@@ -43,8 +43,8 @@ public class TestPlan extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     @Column(name = "name", nullable = false, length = 255)
-    @NotEmpty
-    @Length(max = 255)
+    @NotNull
+    @Size(max = 255)
     private String name;
 
     @Column(name = "user_percentage")

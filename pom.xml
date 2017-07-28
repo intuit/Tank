@@ -35,15 +35,14 @@
 
  	<tomcat.version>8.5.13</tomcat.version>
  	
-    <weld-version>2.4.3.Final</weld-version>
+    <weld-version>2.4.4.Final</weld-version>
     <cdi-version>1.2</cdi-version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
-    <slf.version>1.7.21</slf.version>
 
     <version.enunciate>2.6.0</version.enunciate>
 
-    <version.mojarra>2.2.13</version.mojarra>
-    <version.jsf-api>2.2.13</version.jsf-api>
+    <version.mojarra>2.2.14</version.mojarra>
+    <version.jsf-api>2.2.14</version.jsf-api>
     <version.primefaces>6.1</version.primefaces>
     <version.primefaces-ext>6.1.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
@@ -207,7 +206,7 @@
       		</dependency>
 	        <dependency>
 	        	<groupId>org.hibernate</groupId>
-	        	<artifactId>hibernate-entitymanager</artifactId>
+	        	<artifactId>hibernate-core</artifactId>
 	        	<version>${version.hibernate}</version>
 	        	<scope>provided</scope>
 	        </dependency>
@@ -241,7 +240,6 @@
 	  <artifactId>enunciate-core</artifactId>
       <scope>provided</scope>
     </dependency>
-
 
     <dependency>
       <groupId>net.sourceforge.findbugs</groupId>
@@ -331,10 +329,6 @@
       <artifactId>jsp-api</artifactId>
       <scope>test</scope>
     </dependency>
-
-
-
-
   </dependencies>
 
 
@@ -504,13 +498,7 @@
 
       <dependency>
         <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-validator</artifactId>
-        <version>4.3.2.Final</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-entitymanager</artifactId>
+        <artifactId>hibernate-core</artifactId>
         <version>${version.hibernate}</version>
       </dependency>
 
@@ -830,31 +818,13 @@
         <artifactId>jsr173</artifactId>
         <version>1.0</version>
       </dependency>
-      <!-- Mina Framework -->
-      <dependency>
-        <groupId>mina-core</groupId>
-        <artifactId>mina-core</artifactId>
-        <version>1.1.7</version>
-      </dependency>
-      <!-- SLF -->
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${slf.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>${slf.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>javax.enterprise</groupId>
         <artifactId>cdi-api</artifactId>
         <version>${cdi-version}</version>
         <scope>provided</scope>
       </dependency>
-
+      
       <dependency>
         <groupId>org.jboss.weld.servlet</groupId>
         <artifactId>weld-servlet</artifactId>
