@@ -26,12 +26,9 @@
     <cert.store.password>tanktank</cert.store.password>
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
-    <version.okhttp>2.7.5</version.okhttp>
 
     <version.hibernate>4.2.21.Final</version.hibernate>
-    <aspectj.version>1.5.4</aspectj.version>
-    <version-aws-sdk>1.11.136</version-aws-sdk>
-    <spring.version>2.5.6</spring.version>
+    <version-aws-sdk>1.11.169</version-aws-sdk>
 
  	<tomcat.version>8.5.13</tomcat.version>
  	
@@ -39,21 +36,21 @@
     <cdi-version>1.2</cdi-version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
-    <version.enunciate>2.6.0</version.enunciate>
+    <version.enunciate>2.9.1</version.enunciate>
 
     <version.mojarra>2.2.14</version.mojarra>
     <version.jsf-api>2.2.14</version.jsf-api>
     <version.primefaces>6.1</version.primefaces>
     <version.primefaces-ext>6.1.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
-    <version.surefire>2.12</version.surefire>
+    <version.surefire>2.20</version.surefire>
     <version.jersey>2.25.1</version.jersey>
     <version.arquillian>1.1.11.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0</version.arquillian.tomcat>
     <version.httpclient>4.5.3</version.httpclient>
 
     <!-- maven-compiler-plugin -->
-    <version.compiler.plugin>3.5.1</version.compiler.plugin>
+    <version.compiler.plugin>3.6.1</version.compiler.plugin>
     <maven.compiler.target>1.7</maven.compiler.target>
     <maven.compiler.source>1.7</maven.compiler.source>
   </properties>
@@ -485,12 +482,6 @@
       </dependency>
 
       <dependency>
-   	  	<groupId>org.glassfish</groupId>
-   	  	<artifactId>javax.ejb</artifactId>
-   	  	<version>3.1.1</version>
-	  </dependency>
-
-      <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
         <version>1.4.192</version>
@@ -517,7 +508,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.13</version>
+        <version>1.14</version>
       </dependency>
 
       <dependency>
@@ -670,11 +661,6 @@
 	    <artifactId>commons-lang3</artifactId>
 	    <version>3.5</version>
 	  </dependency>
-      <dependency>
-        <groupId>org.apache.xmlbeans</groupId>
-        <artifactId>xmlbeans</artifactId>
-        <version>2.6.0</version>
-      </dependency>
 	  <dependency>
 	    <groupId>javax.mail</groupId>
 	    <artifactId>javax.mail-api</artifactId>
@@ -743,11 +729,6 @@
         <version>3.0.1</version>
       </dependency>
       <dependency>
-        <groupId>com.squareup.okhttp</groupId>
-        <artifactId>okhttp</artifactId>
-        <version>${version.okhttp}</version>
-      </dependency>
-      <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
         <version>20160212</version>
@@ -773,21 +754,6 @@
         <version>1.4</version>
       </dependency>
       <dependency>
-        <groupId>axis</groupId>
-        <artifactId>axis-jaxrpc</artifactId>
-        <version>1.2.1</version>
-      </dependency>
-      <dependency>
-        <groupId>axis</groupId>
-        <artifactId>axis-saaj</artifactId>
-        <version>1.4</version>
-      </dependency>
-      <dependency>
-        <groupId>javax.activation</groupId>
-        <artifactId>activation</artifactId>
-        <version>1.1</version>
-      </dependency>
-      <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-core</artifactId>
         <version>3.4.0</version>
@@ -802,16 +768,6 @@
         <groupId>jdom</groupId>
         <artifactId>jdom</artifactId>
         <version>1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss</groupId>
-        <artifactId>jaxb-impl</artifactId>
-        <version>2.1</version>
-      </dependency>
-      <dependency>
-        <groupId>javax.xml</groupId>
-        <artifactId>jaxb-xjc</artifactId>
-        <version>2.0EA3</version>
       </dependency>
       <dependency>
         <groupId>javax.xml</groupId>
