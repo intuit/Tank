@@ -1,8 +1,3 @@
-/**
- * Copyright 2011 Intuit Inc. All Rights Reserved
- */
-package com.intuit.tank.api.model.v1.automation;
-
 /*
  * #%L
  * Automation Rest Api
@@ -15,37 +10,30 @@ package com.intuit.tank.api.model.v1.automation;
  * http://www.eclipse.org/legal/epl-v10.html
  * #L%
  */
+package com.intuit.tank.api.model.v1.automation;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import com.intuit.tank.api.model.v1.automation.adapter.XmlGenericMapAdapter;
 import com.intuit.tank.harness.StopBehavior;
-import com.intuit.tank.vm.api.enumerated.Location;
 
 /**
  * 
  * @author Kevin McGoldrick
  * 
  */
-
 @XmlRootElement
 public class CreateJobRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     @XmlElement(name="name")
     private String name;
     
@@ -64,30 +52,21 @@ public class CreateJobRequest implements Serializable {
     @XmlElement(name="jobRegions")
     private Set<CreateJobRegion> jobRegions = new HashSet<CreateJobRegion>();
 
-    /**
-     * 
-     */
-    public CreateJobRequest() {
-    }
-    
-    public CreateJobRequest(String name) {
-    	this.name = name;
-    }
-   
-    public CreateJobRequest(String name, String rampTime, String simulationTime, int userIntervalIncrement, String stopBehavior, Set<CreateJobRegion> jobRegions) {
-    	this.name = name;
-    	this.rampTime = rampTime;
-    	this.simulationTime = simulationTime;
-    	this.userIntervalIncrement = userIntervalIncrement;
-    	this.stopBehavior = stopBehavior;
-    	this.jobRegions = jobRegions;
-    }
-    
+//    public CreateJobRequest(String name) {
+//    	this.name = name;
+//    }
+
+    public CreateJobRequest() {}
+
     /**
      * @return the name
      */
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**

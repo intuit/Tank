@@ -497,6 +497,7 @@ public class CloudVmStatusTest {
      * @generatedBy CodePro at 12/15/14 2:57 PM
      */
     @Test
+    @org.junit.Ignore
     public void testGetVmStatus_1()
         throws Exception {
         CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());

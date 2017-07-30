@@ -1,5 +1,3 @@
-package com.intuit.tank.api.service.v1.automation;
-
 /*
  * #%L
  * Automation Rest Api
@@ -12,6 +10,7 @@ package com.intuit.tank.api.service.v1.automation;
  * http://www.eclipse.org/legal/epl-v10.html
  * #L%
  */
+package com.intuit.tank.api.service.v1.automation;
 
 import javax.annotation.Nonnull;
 import javax.ws.rs.Consumes;
@@ -29,10 +28,6 @@ import com.intuit.tank.api.model.v1.automation.ApplyFiltersRequest;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 /**
- * Copyright 2011 Intuit Inc. All Rights Reserved
- */
-
-/**
  * AutomationService Services for Automation integration.
  * 
  * @author dangleton
@@ -41,11 +36,9 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 @Path("/v1/automation-service")
 public interface AutomationService {
 
-    public static final String VAR_NAME = "";
-
     /**
      * Test method to test if the service is up.
-     * 
+     *
      * @return non-null String value.
      */
     @GET
@@ -67,7 +60,7 @@ public interface AutomationService {
     @Consumes({ MediaType.MULTIPART_FORM_DATA })
     @Produces({ MediaType.TEXT_PLAIN })
     @Nonnull
-    public Response runAutomationJob(@Nonnull FormDataMultiPart formData);
+    Response runAutomationJob(@Nonnull FormDataMultiPart formData);
 
     /**
      * SaveAs an exiting script to a new name and scriptId
@@ -80,7 +73,7 @@ public interface AutomationService {
     @Path("/saveAs"+ "/{scriptId}"+ "/{name}")
     @Produces({ MediaType.APPLICATION_JSON })
     @Nonnull
-    public Response saveAs(@PathParam("scriptId") String scriptId, @PathParam("name") String name);
+    Response saveAs(@PathParam("scriptId") String scriptId, @PathParam("name") String name);
     
     /**
      * Uploads a script to an existing script 
@@ -96,7 +89,7 @@ public interface AutomationService {
     @Consumes({ MediaType.MULTIPART_FORM_DATA })
     @Produces({ MediaType.APPLICATION_JSON })
     @Nonnull
-    public Response uploadScript(@Nonnull FormDataMultiPart formData);
+    Response uploadScript(@Nonnull FormDataMultiPart formData);
     
     /**
      * Applies Filters to an existing Script
@@ -110,23 +103,23 @@ public interface AutomationService {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @Nonnull
-    public Response applyFilters(@Nonnull ApplyFiltersRequest request);
+    Response applyFilters(@Nonnull ApplyFiltersRequest request);
     
     /**
-     * Creates a job and returns the jobid
+     * Creates a job and returns the JobId
      * 
      * @param request
      * 				Example: curl -X POST -H "Content-Type: application/json" -d '{"name":"xx",
      * 				"rampTime":"12m","simulationTime":"0","jobRegions":[{"region":"us-west-1","users":"100"},
      * 				{"region":"us-east-1","users":"300"}]}' http://xxx/rest/v1/automation-service/createJob
-     * @return Respones with JobId
+     * @return Responds with JobId
      */
     @POST
     @Path("/createJob")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     @Nonnull
-    public Response createJob(@Nonnull CreateJobRequest request);
+    Response createJob(@Nonnull CreateJobRequest request);
     
     /**
      * Runs Job based on the provided jobid
@@ -137,7 +130,7 @@ public interface AutomationService {
     @GET
     @Path("/run" + "/{jobId}")
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response runJob(@PathParam("jobId") String jobId);
+    Response runJob(@PathParam("jobId") String jobId);
     
     /**
      * Checks status of provided jobid
@@ -148,5 +141,5 @@ public interface AutomationService {
     @GET
     @Path("/status" + "/{jobId}")
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response getStatus(@PathParam("jobId") String jobId);
+    Response getStatus(@PathParam("jobId") String jobId);
 }

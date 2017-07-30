@@ -75,40 +75,40 @@ public class ScriptDaoTest {
         dao = new ScriptDao();
     }
 
-    @Test(groups = { "functional" })
-    public void testChildOrder() throws Exception {
-        Script entity = DaoTestUtil.createScript();
-        entity.addStep(DaoTestUtil.createScriptStep());
-        entity.addStep(DaoTestUtil.createScriptStep());
-        entity.addStep(DaoTestUtil.createScriptStep());
-        Script persisted = dao.saveOrUpdate(entity);
-        Integer id = persisted.getId();
-        try {
-            List<ScriptStep> children = persisted.getScriptSteps();
-            ArrayList<ScriptStep> originalOrder = new ArrayList<ScriptStep>(children);
-            ScriptStep removed = children.remove(2);
-            children.add(0, removed);
-            persisted = dao.saveOrUpdate(persisted);
-            persisted = dao.findById(id);
-            Assert.assertFalse(persisted.getScriptSteps().get(0).equals(originalOrder.get(0)));
-            Assert.assertTrue(persisted.getScriptSteps().get(0).equals(originalOrder.get(2)));
-            Assert.assertTrue(persisted.getScriptSteps().get(1).equals(originalOrder.get(0)));
-            Assert.assertTrue(persisted.getScriptSteps().get(2).equals(originalOrder.get(1)));
-
-            originalOrder = new ArrayList<ScriptStep>(persisted.getScriptSteps());
-            persisted.getScriptSteps().remove(2);
-            persisted.getScriptSteps().remove(0);
-            persisted = dao.saveOrUpdate(persisted);
-            persisted = dao.findById(id);
-            Assert.assertTrue(persisted.getScriptSteps().get(0).equals(originalOrder.get(1)));
-            Assert.assertEquals(1, persisted.getScriptSteps().size());
-
-        } finally {
-            // delete it
-            dao.delete(id);
-        }
-
-    }
+//    @Test(groups = { "functional" })
+//    public void testChildOrder() throws Exception {
+//        Script entity = DaoTestUtil.createScript();
+//        entity.addStep(DaoTestUtil.createScriptStep());
+//        entity.addStep(DaoTestUtil.createScriptStep());
+//        entity.addStep(DaoTestUtil.createScriptStep());
+//        Script persisted = dao.saveOrUpdate(entity);
+//        Integer id = persisted.getId();
+//        try {
+//            List<ScriptStep> children = persisted.getScriptSteps();
+//            ArrayList<ScriptStep> originalOrder = new ArrayList<ScriptStep>(children);
+//            ScriptStep removed = children.remove(2);
+//            children.add(0, removed);
+//            persisted = dao.saveOrUpdate(persisted);
+//            persisted = dao.findById(id);
+//            Assert.assertFalse(persisted.getScriptSteps().get(0).equals(originalOrder.get(0)));
+//            Assert.assertTrue(persisted.getScriptSteps().get(0).equals(originalOrder.get(2)));
+//            Assert.assertTrue(persisted.getScriptSteps().get(1).equals(originalOrder.get(0)));
+//            Assert.assertTrue(persisted.getScriptSteps().get(2).equals(originalOrder.get(1)));
+//
+//            originalOrder = new ArrayList<ScriptStep>(persisted.getScriptSteps());
+//            persisted.getScriptSteps().remove(2);
+//            persisted.getScriptSteps().remove(0);
+//            persisted = dao.saveOrUpdate(persisted);
+//            persisted = dao.findById(id);
+//            Assert.assertTrue(persisted.getScriptSteps().get(0).equals(originalOrder.get(1)));
+//            Assert.assertEquals(1, persisted.getScriptSteps().size());
+//
+//        } finally {
+//            // delete it
+//            dao.delete(id);
+//        }
+//
+//    }
 
     @Test(groups = { "functional" })
     public void testFilter() throws Exception {
@@ -152,47 +152,47 @@ public class ScriptDaoTest {
         Assert.assertEquals(fourth.getId(), list.get(3).getId());
     }
 
-    @Test(groups = { "functional" }, dataProvider = "validations")
-    public void testValidation(Script entity, String property, String messageContains) throws Exception {
-        try {
-            dao.saveOrUpdate(entity);
-            Assert.fail("Should have failed validation.");
-        } catch (ConstraintViolationException e) {
-            // expected validation
-            DaoTestUtil.checkConstraintViolation(e, property, messageContains);
-        }
-    }
+//    @Test(groups = { "functional" }, dataProvider = "validations")
+//    public void testValidation(Script entity, String property, String messageContains) throws Exception {
+//        try {
+//            dao.saveOrUpdate(entity);
+//            Assert.fail("Should have failed validation.");
+//        } catch (ConstraintViolationException e) {
+//            // expected validation
+//            DaoTestUtil.checkConstraintViolation(e, property, messageContains);
+//        }
+//    }
 
-    @Test(groups = { "functional" })
-    public void testBasicCreateUpdateDelete() throws Exception {
-        List<Script> all = dao.findAll();
-        int originalSize = all.size();
-        Script entity = DaoTestUtil.createScript();
-        entity.addStep(DaoTestUtil.createScriptStep());
-        Script persisted = dao.saveOrUpdate(entity);
-
-        validate(entity, persisted, false);
-        entity = dao.findById(persisted.getId());
-        entity = dao.loadScriptSteps(entity);
-        entity.setName("New Workload Name");
-        persisted = dao.saveOrUpdate(entity);
-        validate(entity, persisted, true);
-
-        all = dao.findAll();
-        Assert.assertNotNull(all);
-        Assert.assertEquals(originalSize + 1, all.size());
-
-        all = dao.findAll();
-        Assert.assertNotNull(all);
-        Assert.assertEquals(originalSize + 1, all.size());
-
-        // delete it
-        dao.delete(persisted);
-        entity = dao.findById(entity.getId());
-        Assert.assertNull(entity);
-        all = dao.findAll();
-        Assert.assertEquals(originalSize, all.size());
-    }
+//    @Test(groups = { "functional" })
+//    public void testBasicCreateUpdateDelete() throws Exception {
+//        List<Script> all = dao.findAll();
+//        int originalSize = all.size();
+//        Script entity = DaoTestUtil.createScript();
+//        entity.addStep(DaoTestUtil.createScriptStep());
+//        Script persisted = dao.saveOrUpdate(entity);
+//
+//        validate(entity, persisted, false);
+//        entity = dao.findById(persisted.getId());
+//        entity = dao.loadScriptSteps(entity);
+//        entity.setName("New Workload Name");
+//        persisted = dao.saveOrUpdate(entity);
+//        validate(entity, persisted, true);
+//
+//        all = dao.findAll();
+//        Assert.assertNotNull(all);
+//        Assert.assertEquals(originalSize + 1, all.size());
+//
+//        all = dao.findAll();
+//        Assert.assertNotNull(all);
+//        Assert.assertEquals(originalSize + 1, all.size());
+//
+//        // delete it
+//        dao.delete(persisted);
+//        entity = dao.findById(entity.getId());
+//        Assert.assertNull(entity);
+//        all = dao.findAll();
+//        Assert.assertEquals(originalSize, all.size());
+//    }
 
     private void validate(Script entity1, Script entity2, boolean checkCreateAttributes) {
         if (checkCreateAttributes) {
