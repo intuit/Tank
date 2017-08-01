@@ -342,12 +342,12 @@ public class AutomationServiceV1 implements AutomationService {
 	@Nonnull
 	public Response createJob(@Nonnull CreateJobRequest request) {
 		LOG.info(request.toString());
-		if (StringUtils.isEmpty(request.getName())) {
+		if (StringUtils.isEmpty(request.getProjectName())) {
 			return Response.status(Status.BAD_REQUEST)
 					.entity("Creating a Job requires a name\n").build();
 		} else {
 			ProjectDao projectDao = new ProjectDao();
-			Project project = projectDao.findByName(request.getName());
+			Project project = projectDao.findByName(request.getProjectName());
 
 			if (project != null) {
 				buildJobConfiguration(request, project);
@@ -544,6 +544,12 @@ public class AutomationServiceV1 implements AutomationService {
 		return jobInstance;
 	}
 
+	private String buildJobInstanceName(CreateJobRequest request, Workload workload) {
+		return StringUtils.isNotEmpty(request.getJobInstanceName()) ? request.getJobInstanceName()
+				: request.getProjectName() + "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"
+				+ ReportUtil.getTimestamp(new Date());
+	}
+
 	private JobInstance addJobToQueue(Project project, CreateJobRequest request) {
 		JobQueueDao jobQueueDao = new JobQueueDao();
 		DataFileDao dataFileDao = new DataFileDao();
@@ -553,7 +559,7 @@ public class AutomationServiceV1 implements AutomationService {
 		Workload workload = project.getWorkloads().get(0);
 		JobConfiguration jc = workload.getJobConfiguration();
 		JobQueue queue = jobQueueDao.findOrCreateForProjectId(project.getId());
-		JobInstance jobInstance = new JobInstance(workload, request.getName());
+		JobInstance jobInstance = new JobInstance(workload, buildJobInstanceName(request, workload));
 		jobInstance.setScheduledTime(new Date());
 		jobInstance.setLocation(jc.getLocation());
 		jobInstance.setLoggingProfile(jc.getLoggingProfile());
