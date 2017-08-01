@@ -34,8 +34,11 @@ public class CreateJobRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @XmlElement(name="name")
-    private String name;
+    @XmlElement(name="projectName")
+    private String projectName;
+
+    @XmlElement(name="jobInstanceName")
+    private String jobInstanceName;
     
     @XmlElement(name="rampTime")
     private String rampTime;
@@ -52,17 +55,24 @@ public class CreateJobRequest implements Serializable {
     @XmlElement(name="jobRegions")
     private Set<CreateJobRegion> jobRegions = new HashSet<CreateJobRegion>();
 
-    public CreateJobRequest(String name) {
-    	this.name = name;
+    public CreateJobRequest(String projectName) {
+    	this.projectName = projectName;
     }
 
     public CreateJobRequest() {}
 
     /**
-     * @return the name
+     * @return the project name
      */
-    public String getName() {
-        return name;
+    public String getProjectName() {
+        return projectName;
+    }
+
+    /**
+     * @return job Name
+     */
+    public String getJobInstanceName() {
+        return jobInstanceName;
     }
 
     /**
