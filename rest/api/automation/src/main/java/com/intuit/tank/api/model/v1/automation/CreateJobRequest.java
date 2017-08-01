@@ -52,9 +52,9 @@ public class CreateJobRequest implements Serializable {
     @XmlElement(name="jobRegions")
     private Set<CreateJobRegion> jobRegions = new HashSet<CreateJobRegion>();
 
-//    public CreateJobRequest(String name) {
-//    	this.name = name;
-//    }
+    public CreateJobRequest(String name) {
+    	this.name = name;
+    }
 
     public CreateJobRequest() {}
 
@@ -63,10 +63,6 @@ public class CreateJobRequest implements Serializable {
      */
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     /**
