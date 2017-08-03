@@ -763,7 +763,27 @@
       </h:form>
     </p:confirmDialog>
 
+    <p:confirmDialog id="jobQueueDeletePopup" appendTo="@(body)" widgetVar="confirmJobQueueDelete"
+                     header="Confirm Delete"
+                     message="Are you sure you want to delete this job?">
+      <h:form id="jobQueueDeleteForm">
+        <p:commandButton value="OK" id="okBtn3" action="#{projectJobQueueManager.deleteJobInstance(projectJobQueueManager.currentJobInstance)}"
+                         update=":mainForm:projectTabPanelID:jobTableId, :mainForm:messages"
+                         onsuccess="PF('confirmJobQueueDelete').hide();"/>
+        <h:panelGroup styleClass="horizontal-spacer"/>
+      </h:form>
+    </p:confirmDialog>
 
+    <p:confirmDialog id="jobQueueKillPopup" appendTo="@(body)" widgetVar="confirmJobQueueKill"
+                     header="Confirm Kill"
+                     message="Are you sure you want to kill this job?">
+      <h:form id="jobQueueKillForm">
+        <p:commandButton value="OK" id="okBtn4" action="#{jobQueueAction.kill(projectJobQueueManager.currentJobInstance)}"
+                         update=":mainForm:projectTabPanelID:jobTableId, :mainForm:messages"
+                         onsuccess="PF('confirmJobQueueKill').hide();"/>
+        <h:panelGroup styleClass="horizontal-spacer"/>
+      </h:form>
+    </p:confirmDialog>
 
     <p:confirmDialog id="testPlanDeletePopup" appendTo="@(body)" widgetVar="confirmTestPlanDelete"
       header="Confirm Delete"
