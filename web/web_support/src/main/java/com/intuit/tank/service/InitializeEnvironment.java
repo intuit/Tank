@@ -16,17 +16,12 @@ package com.intuit.tank.service;
  * #L%
  */
 
-import java.util.Collection;
-
 import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.enterprise.event.Observes;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.picketlink.event.PartitionManagerCreateEvent;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 
@@ -44,8 +39,7 @@ import com.intuit.tank.vm.settings.TankConfig;
  * @author dangleton
  * 
  */
-@Singleton
-@Startup
+@ApplicationScoped
 public class InitializeEnvironment {
     private static final Logger LOG = LogManager.getLogger(InitializeEnvironment.class);
 

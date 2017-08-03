@@ -19,14 +19,14 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.envers.Audited;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Audited
@@ -36,8 +36,8 @@ public class ExternalScript extends OwnableEntity implements Comparable<External
     private static final long serialVersionUID = 1L;
 
     @Column(name = "name", length = 255, nullable = false)
-    @NotEmpty
-    @Length(max = 255)
+    @NotNull
+    @Size(max = 255)
     private String name;
 
     @Column(name = "script")
@@ -45,7 +45,7 @@ public class ExternalScript extends OwnableEntity implements Comparable<External
     private String script;
 
     @Column(name = "product_name", length = 255)
-    @Length(max = 255)
+    @Size(max = 255)
     private String productName;
 
     public String getName() {

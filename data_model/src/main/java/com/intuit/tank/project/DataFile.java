@@ -16,13 +16,13 @@ package com.intuit.tank.project;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Index;
 import org.hibernate.envers.Audited;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Audited
@@ -34,12 +34,12 @@ public class DataFile extends OwnableEntity implements Comparable<DataFile> {
     // path relative from datafiles directory in S3
     @Column(name = "path", nullable = false)
     @Index(name = "IDX_PATH")
-    @NotEmpty
-    @Length(max = 255)
+    @NotNull
+    @Size(max = 255)
     private String path;
 
     @Column(name = "comments", length = 1024)
-    @Length(max = 1024)
+    @Size(max = 1024)
     private String comments;
 
     @Column(name = "file_name")
