@@ -163,17 +163,17 @@ public class TankHttpClient4Test {
 //        Assert.assertEquals(response.getHttpCode(), 403);
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
-    public void doPostMultipart() throws IOException {
-        BaseRequest request = getRequest(new TankHttpClient4(), "http://httpbin.org/post");
-        request.setContentType(BaseRequest.CONTENT_TYPE_MULTIPART);
-        request.setBody(createMultiPartBody());
-        request.doPost(null);
-        BaseResponse response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getHttpCode());
-        Assert.assertNotNull(response.getBody());
-    }
+//    @Test(groups = TestGroups.FUNCTIONAL)
+//    public void doPostMultipart() throws IOException {
+//        BaseRequest request = getRequest(new TankHttpClient4(), "http://httpbin.org/post");
+//        request.setContentType(BaseRequest.CONTENT_TYPE_MULTIPART);
+//        request.setBody(createMultiPartBody());
+//        request.doPost(null);
+//        BaseResponse response = request.getResponse();
+//        Assert.assertNotNull(response);
+//        Assert.assertEquals(200, response.getHttpCode());
+//        Assert.assertNotNull(response.getBody());
+//    }
 
     @Test(groups = TestGroups.FUNCTIONAL)
     public void doPostMultipartwithFile() throws IOException {

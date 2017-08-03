@@ -176,9 +176,11 @@
           <p:commandButton id="btnRun" action="#{jobQueueAction.run(node)}" value="R" title="Run"
             onerror="window.location.reload()" disabled="#{!node.isRunnable() or !projectJobQueueManager.canControlJob(node)}"
             ajax="true" update=":mainForm:projectTabPanelID:jobTableId" />
-          <p:commandButton id="btnKill" action="#{jobQueueAction.kill(node)}" value="K" title="Kill"
-            onerror="window.location.reload()" disabled="#{!node.isKillable() or !projectJobQueueManager.canControlJob(node)}"
-            ajax="true" update=":mainForm:projectTabPanelID:jobTableId" />
+          <p:commandButton oncomplete="PF('confirmJobQueueKill').show();" value="K" ajax="true"
+                           onerror="window.location.reload()" disabled="#{!node.isKillable() or !projectJobQueueManager.canControlJob(node)}"
+                           action="#{projectJobQueueManager.setCurrentJobInstance(node)}"
+                           title="Kill" update=":jobQueueKillPopup">
+          </p:commandButton>
           <p:commandButton id="btnPauseRamp" action="#{jobQueueAction.pauseRamp(node)}" value="PR" title="Pause Ramp"
             onerror="window.location.reload()"
             disabled="#{!node.isRampPausable() or !jobQueueManager.canControlJob(node)}" ajax="true"
@@ -189,9 +191,11 @@
           <p:commandButton id="btnStop" action="#{jobQueueAction.stop(node)}" value="S" title="Stop"
             onerror="window.location.reload()" disabled="#{!node.isStopable() or !projectJobQueueManager.canControlJob(node)}"
             ajax="true" update=":mainForm:projectTabPanelID:jobTableId" />
-          <p:commandButton id="btnDelete" action="#{projectJobQueueManager.deleteJobInstance(node)}" value="X"
-            onerror="window.location.reload()" rendered="#{node.isDeleteable() and projectJobQueueManager.canControlJob(node)}"
-            ajax="false" title="Delete" update=":mainForm:projectTabPanelID:jobTableId, :mainForm:messages" />
+
+          <p:commandButton oncomplete="PF('confirmJobQueueDelete').show();" value="X" ajax="true"
+                         action="#{projectJobQueueManager.setCurrentJobInstance(node)}"
+                         title="Delete" update=":jobQueueDeletePopup">
+          </p:commandButton>
         </div>
         <div class="float-right">
           <h:outputLink title="View Summary Timing Data" target="_new"

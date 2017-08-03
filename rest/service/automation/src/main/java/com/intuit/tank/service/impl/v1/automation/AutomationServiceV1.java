@@ -1,8 +1,3 @@
-/**
- * Copyright 2011 Intuit Inc. All Rights Reserved
- */
-package com.intuit.tank.service.impl.v1.automation;
-
 /*
  * #%L
  * Automation Rest Service
@@ -15,7 +10,9 @@ package com.intuit.tank.service.impl.v1.automation;
  * http://www.eclipse.org/legal/epl-v10.html
  * #L%
  */
+package com.intuit.tank.service.impl.v1.automation;
 
+import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -124,6 +121,7 @@ public class AutomationServiceV1 implements AutomationService {
 	 * @{inheritDoc
 	 */
 	@Override
+	@Nonnull
 	public String ping() {
 		return "PONG " + getClass().getSimpleName();
 	}
@@ -132,7 +130,8 @@ public class AutomationServiceV1 implements AutomationService {
 	 * @{inheritDoc
 	 */
 	@Override
-	public Response runAutomationJob(FormDataMultiPart formData) {
+	@Nonnull
+	public Response runAutomationJob(@Nonnull FormDataMultiPart formData) {
 		AutomationRequest request = null;
 		InputStream is = null;
 		Map<String, List<FormDataBodyPart>> fields = formData.getFields();
@@ -197,7 +196,7 @@ public class AutomationServiceV1 implements AutomationService {
 					script.setCreator(TankConstants.TANK_USER_SYSTEM);
 					List<ScriptStep> scriptSteps = scriptProcessor
 							.getScriptSteps(new BufferedReader(new InputStreamReader(is)), getFilters(filterIds));
-					List<ScriptStep> newSteps = new ArrayList<ScriptStep>();
+					List<ScriptStep> newSteps = new ArrayList<>();
 					for (ScriptStep step : scriptSteps) {
 						newSteps.add(step);
 					}
@@ -237,6 +236,7 @@ public class AutomationServiceV1 implements AutomationService {
 	 * @{inheritDoc
 	 */
 	@Override
+	@Nonnull
 	public Response saveAs(String scriptId, String saveAsName) {
 		String newScriptId = "FAILED";
 		if (StringUtils.isEmpty(scriptId)) {
@@ -262,7 +262,8 @@ public class AutomationServiceV1 implements AutomationService {
 	 * @{inheritDoc
 	 */
 	@Override
-	public Response uploadScript(FormDataMultiPart formData) {
+	@Nonnull
+	public Response uploadScript(@Nonnull FormDataMultiPart formData) {
 		ResponseBuilder responseBuilder = Response.ok();
 		FormDataBodyPart scriptId = formData.getField("scriptId");
 		FormDataBodyPart newScriptName = formData.getField("scriptName");
@@ -285,8 +286,8 @@ public class AutomationServiceV1 implements AutomationService {
 				script.setName(newScriptName.getValue());
 			}
 			List<ScriptStep> scriptSteps = scriptProcessor.getScriptSteps(new BufferedReader(new InputStreamReader(is)),
-					new ArrayList<ScriptFilter>());
-			List<ScriptStep> newSteps = new ArrayList<ScriptStep>();
+					new ArrayList<>());
+			List<ScriptStep> newSteps = new ArrayList<>();
 			for (ScriptStep step : scriptSteps) {
 				newSteps.add(step);
 			}
@@ -308,11 +309,12 @@ public class AutomationServiceV1 implements AutomationService {
 	 * @{inheritDoc
 	 */
 	@Override
-	public Response applyFilters(ApplyFiltersRequest request) {
-		if (request != null && StringUtils.isNotEmpty(request.getScriptId())) {
+	@Nonnull
+	public Response applyFilters(@Nonnull ApplyFiltersRequest request) {
+		if (StringUtils.isNotEmpty(request.getScriptId())) {
 			LOG.info(request.toString());
 			Script script = new ScriptDao().findById(Integer.parseInt(request.getScriptId()));
-			List<Integer> filterIds = new ArrayList<Integer>();
+			List<Integer> filterIds = new ArrayList<>();
 			filterIds.addAll(request.getFilterIds());
 			FilterGroupDao dao = new FilterGroupDao();
 			for (Integer id : request.getFilterGroupIds()) {
@@ -337,53 +339,59 @@ public class AutomationServiceV1 implements AutomationService {
 	 * @{inheritDoc
 	 */
 	@Override
-	public Response createJob(CreateJobRequest request) {
-		if (request != null) {
-			LOG.info(request.toString());
+	@Nonnull
+	public Response createJob(@Nonnull CreateJobRequest request) {
+		LOG.info(request.toString());
+		if (StringUtils.isEmpty(request.getProjectName())) {
+			return Response.status(Status.BAD_REQUEST)
+					.entity("Creating a Job requires a name\n").build();
+		} else {
 			ProjectDao projectDao = new ProjectDao();
-			if (StringUtils.isNotEmpty(request.getName())) {
-				Project project = projectDao.findByName(request.getName());
-				if (project != null) {
-					JobConfiguration jobConfiguration = project.getWorkloads().get(0).getJobConfiguration();
-					// jobConfiguration.setRampTime(TimeUtil.parseTimeString(request.getRampTime()));
-					if (StringUtils.isNotEmpty(request.getRampTime())) {
-						jobConfiguration.setRampTimeExpression(request.getRampTime());
-					}
-					if (StringUtils.isNotEmpty(request.getSimulationTime())) {
-						jobConfiguration.setSimulationTimeExpression(request.getSimulationTime());
-					}
-					jobConfiguration.setUserIntervalIncrement(request.getUserIntervalIncrement());
-					jobConfiguration.setStopBehavior(StringUtils.isEmpty(request.getStopBehavior())
-							? request.getStopBehavior() : StopBehavior.END_OF_SCRIPT_GROUP.getDisplay());
-					boolean hasSimTime = jobConfiguration.getSimulationTime() > 0
-							|| (StringUtils.isNotBlank(request.getSimulationTime())
-									&& !"0".equals(request.getSimulationTime()));
-					jobConfiguration
-							.setTerminationPolicy(hasSimTime ? TerminationPolicy.time : TerminationPolicy.script);
-					if (request.getJobRegions() != null) {
-						jobConfiguration.getJobRegions().clear();
-						JobRegionDao jrd = new JobRegionDao();
-						for (CreateJobRegion r : request.getJobRegions()) {
-							if (StringUtils.isNotEmpty(r.getRegion())) {
-								JobRegion jr = jrd.saveOrUpdate(
-										new JobRegion(VMRegion.getRegionFromZone(r.getRegion()), r.getUsers()));
-								jobConfiguration.getJobRegions().add(jr);
-							}
-						}
-					}
-					// Map<String, String> varMap =
-					// jobConfiguration.getVariables();
-					// varMap.putAll(request.getVariables());
+			Project project = projectDao.findByName(request.getProjectName());
 
-					project = projectDao.saveOrUpdateProject(project);
-
-					JobInstance job = addJobToQueue(project, request);
-					return Response.ok().entity(Integer.toString(job.getId())).build();
-				}
+			if (project != null) {
+				buildJobConfiguration(request, project);
+				project = projectDao.saveOrUpdateProject(project);
 			}
+
+			JobInstance job = addJobToQueue(project, request);
+			return Response.ok().entity(Integer.toString(job.getId())).build();
 		}
-		return Response.status(Status.BAD_REQUEST)
-				.entity("Requests to run automation jobs must contain an AutomationRequest\n").build();
+	}
+
+	private void buildJobConfiguration(@Nonnull CreateJobRequest request, Project project) {
+		JobConfiguration jobConfiguration = project.getWorkloads().get(0).getJobConfiguration();
+		if (StringUtils.isNotEmpty(request.getRampTime())) {
+            jobConfiguration.setRampTimeExpression(request.getRampTime());
+        }
+		if (StringUtils.isNotEmpty(request.getSimulationTime())) {
+            jobConfiguration.setSimulationTimeExpression(request.getSimulationTime());
+        }
+		jobConfiguration.setUserIntervalIncrement(request.getUserIntervalIncrement());
+		jobConfiguration.setStopBehavior(StringUtils.isNotEmpty(request.getStopBehavior())
+                ? request.getStopBehavior() : StopBehavior.END_OF_SCRIPT_GROUP.getDisplay());
+
+		boolean hasSimTime = jobConfiguration.getSimulationTime() > 0
+                || (StringUtils.isNotBlank(request.getSimulationTime())
+                && !"0".equals(request.getSimulationTime()));
+		jobConfiguration
+                .setTerminationPolicy(hasSimTime ? TerminationPolicy.time : TerminationPolicy.script);
+
+		if (request.getJobRegions() != null) {
+			setJobRegions(request, jobConfiguration);
+        }
+	}
+
+	private void setJobRegions(@Nonnull CreateJobRequest request, JobConfiguration jobConfiguration) {
+		jobConfiguration.getJobRegions().clear();
+		JobRegionDao jrd = new JobRegionDao();
+		for (CreateJobRegion r : request.getJobRegions()) {
+            if (StringUtils.isNotEmpty(r.getRegion())) {
+                JobRegion jr = jrd.saveOrUpdate(
+                        new JobRegion(VMRegion.getRegionFromZone(r.getRegion()), r.getUsers()));
+                jobConfiguration.getJobRegions().add(jr);
+            }
+        }
 	}
 
 	/**
@@ -421,7 +429,7 @@ public class AutomationServiceV1 implements AutomationService {
 		Project project = projectDao.findByName(request.getName());
 		if (project == null) {
 			Workload workload = new Workload();
-			List<Workload> workloads = new ArrayList<Workload>();
+			List<Workload> workloads = new ArrayList<>();
 			project = new Project();
 			project.setName(request.getName());
 			project.setProductName(request.getProductName());
@@ -465,7 +473,7 @@ public class AutomationServiceV1 implements AutomationService {
 		sender.sendEvent(new ModifiedEntityMessage(entity.getClass(), entity.getId(), type));
 	}
 
-	public JobInstance addJobToQueue(Project p, AutomationRequest request, Script script) {
+	private JobInstance addJobToQueue(Project p, AutomationRequest request, Script script) {
 
 		JobQueueDao jobQueueDao = new JobQueueDao();
 		DataFileDao dataFileDao = new DataFileDao();
@@ -536,19 +544,22 @@ public class AutomationServiceV1 implements AutomationService {
 		return jobInstance;
 	}
 
-	public JobInstance addJobToQueue(Project p, CreateJobRequest request) {
+	private String buildJobInstanceName(CreateJobRequest request, Workload workload) {
+		return StringUtils.isNotEmpty(request.getJobInstanceName()) ? request.getJobInstanceName()
+				: request.getProjectName() + "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"
+				+ ReportUtil.getTimestamp(new Date());
+	}
 
+	private JobInstance addJobToQueue(Project project, CreateJobRequest request) {
 		JobQueueDao jobQueueDao = new JobQueueDao();
 		DataFileDao dataFileDao = new DataFileDao();
 		JobNotificationDao jobNotificationDao = new JobNotificationDao();
 		JobInstanceDao jobInstanceDao = new JobInstanceDao();
 
-		Workload workload = p.getWorkloads().get(0);
+		Workload workload = project.getWorkloads().get(0);
 		JobConfiguration jc = workload.getJobConfiguration();
-		JobQueue queue = jobQueueDao.findOrCreateForProjectId(p.getId());
-		String name = request.getName() + "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"
-				+ ReportUtil.getTimestamp(new Date());
-		JobInstance jobInstance = new JobInstance(workload, name);
+		JobQueue queue = jobQueueDao.findOrCreateForProjectId(project.getId());
+		JobInstance jobInstance = new JobInstance(workload, buildJobInstanceName(request, workload));
 		jobInstance.setScheduledTime(new Date());
 		jobInstance.setLocation(jc.getLocation());
 		jobInstance.setLoggingProfile(jc.getLoggingProfile());
@@ -598,7 +609,7 @@ public class AutomationServiceV1 implements AutomationService {
 	@SuppressWarnings("rawtypes")
 	private Set<EntityVersion> getVersions(BaseDao dao, Collection<Integer> dataFileIds,
 			Class<? extends BaseEntity> entityClass) {
-		HashSet<EntityVersion> result = new HashSet<EntityVersion>();
+		HashSet<EntityVersion> result = new HashSet<>();
 		for (Integer id : dataFileIds) {
 			int versionId = dao.getHeadRevisionNumber(id);
 			result.add(new EntityVersion(id, versionId, entityClass));
@@ -613,7 +624,7 @@ public class AutomationServiceV1 implements AutomationService {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Set<EntityVersion> getVersions(BaseDao dao, Set<? extends BaseEntity> entities) {
-		HashSet<Integer> ids = new HashSet<Integer>();
+		HashSet<Integer> ids = new HashSet<>();
 		Class entityClass = null;
 		for (BaseEntity entity : entities) {
 			ids.add(entity.getId());
@@ -633,7 +644,7 @@ public class AutomationServiceV1 implements AutomationService {
 	 * @return
 	 */
 	private List<Integer> getFilterList(AutomationRequest request) {
-		Set<Integer> ret = new HashSet<Integer>();
+		Set<Integer> ret = new HashSet<>();
 		ret.addAll(request.getFilterIds());
 		FilterGroupDao dao = new FilterGroupDao();
 		for (Integer id : request.getFilterGroupIds()) {
@@ -644,11 +655,11 @@ public class AutomationServiceV1 implements AutomationService {
 				}
 			}
 		}
-		return new ArrayList<Integer>(ret);
+		return new ArrayList<>(ret);
 	}
 
 	private List<ScriptFilter> getFilters(List<Integer> filterIds) {
-		List<ScriptFilter> filters = new ArrayList<ScriptFilter>();
+		List<ScriptFilter> filters = new ArrayList<>();
 		for (Integer id : filterIds) {
 			ScriptFilter filter = new FilterDao().findById(id);
 			if (filter != null) {
