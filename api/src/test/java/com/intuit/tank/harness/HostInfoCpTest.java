@@ -41,39 +41,39 @@ import com.intuit.tank.test.TestGroups;
  */
 public class HostInfoCpTest extends Arquillian {
 
-    @Inject
-    private HostInfo hostInfo;
-
-    @Deployment
-    public static Archive<?> createDeployment() {
-        return ShrinkWrap.create(WebArchive.class, "test.war")
-                .addPackage(HostInfo.class.getPackage())
-                .addAsManifestResource("container-context.xml",
-                        "context.xml").setWebXML("container-web.xml")
-                .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
-    }
-
-    @BeforeClass
-    public void configure() {
-    	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-    	Configuration config = ctx.getConfiguration();
-    	config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
-    	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
-    }
-
-    /**
-     * Run the HostInfo() constructor test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 3:44 PM
-     */
-    @Test(groups = TestGroups.FUNCTIONAL)
-    public void testHostInfo_1()
-            throws Exception {
-        assertNotNull(hostInfo);
-        Assert.assertNotNull(hostInfo.getPublicHostname());
-        Assert.assertNotNull(hostInfo.getPublicIp());
-    }
+//    @Inject
+//    private HostInfo hostInfo;
+//
+//    @Deployment
+//    public static Archive<?> createDeployment() {
+//        return ShrinkWrap.create(WebArchive.class, "test.war")
+//                .addPackage(HostInfo.class.getPackage())
+//                .addAsManifestResource("container-context.xml",
+//                        "context.xml").setWebXML("container-web.xml")
+//                .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
+//    }
+//
+//    @BeforeClass
+//    public void configure() {
+//    	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+//    	Configuration config = ctx.getConfiguration();
+//    	config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
+//    	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
+//    }
+//
+//    /**
+//     * Run the HostInfo() constructor test.
+//     *
+//     * @throws Exception
+//     *
+//     * @generatedBy CodePro at 9/3/14 3:44 PM
+//     */
+//    @Test(groups = TestGroups.FUNCTIONAL)
+//    public void testHostInfo_1()
+//            throws Exception {
+//        assertNotNull(hostInfo);
+//        Assert.assertNotNull(hostInfo.getPublicHostname());
+//        Assert.assertNotNull(hostInfo.getPublicIp());
+//    }
 
 }

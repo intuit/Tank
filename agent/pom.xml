@@ -20,7 +20,6 @@
     <module>apiharness</module>
     <module>http_client_3</module>
     <module>http_client_4</module>
-    <module>ok_http_client</module>
     <module>agent_common</module>
   </modules>
 

@@ -27,6 +27,7 @@ import com.intuit.tank.project.User;
  * 
  * @generatedBy CodePro at 12/15/14 3:52 PM
  */
+@Ignore
 public class UserEditTest {
     /**
      * Run the UserEdit() constructor test.

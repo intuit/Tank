@@ -88,12 +88,6 @@
     </dependency>
 
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>ok_http_client</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.simpleframework</groupId>
       <artifactId>simple</artifactId>
     </dependency>

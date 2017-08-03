@@ -28,6 +28,7 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -35,8 +36,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.envers.AuditMappedBy;
 import org.hibernate.envers.Audited;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import com.intuit.tank.vm.api.enumerated.ScriptDriver;
 
@@ -61,8 +60,8 @@ public class Project extends OwnableEntity {
     public static final String PROPERTY_WORKLOADS = "workloads";
 
     @Column(name = "name", unique = true, nullable = false)
-    @NotEmpty
-    @Length(max = 255)
+    @NotNull
+    @Size(max = 255)
     private String name;
 
     @Column(name = "script_driver", nullable = false)
@@ -71,11 +70,11 @@ public class Project extends OwnableEntity {
     private ScriptDriver scriptDriver = ScriptDriver.Tank;
 
     @Column(name = "product_name")
-    @Length(max = 255)
+    @Size(max = 255)
     private String productName;
 
     @Column(name = "comments", length = 1024)
-    @Length(max = 1024)
+    @Size(max = 1024)
     private String comments;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)

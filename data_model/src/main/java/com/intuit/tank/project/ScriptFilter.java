@@ -24,13 +24,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.envers.Audited;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import com.intuit.tank.util.ScriptFilterType;
 
@@ -41,8 +41,8 @@ public class ScriptFilter extends OwnableEntity implements Comparable<ScriptFilt
 
     private static final long serialVersionUID = 1L;
     @Column(name = "name", length = 255, nullable = false)
-    @NotEmpty
-    @Length(max = 255)
+    @NotNull
+    @Size(max = 255)
     private String name;
 
     @Column(name = "persist")
@@ -58,7 +58,7 @@ public class ScriptFilter extends OwnableEntity implements Comparable<ScriptFilt
     private Integer externalScriptId;
 
     @Column(name = "product_name", length = 255)
-    @Length(max = 255)
+    @Size(max = 255)
     private String productName;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
