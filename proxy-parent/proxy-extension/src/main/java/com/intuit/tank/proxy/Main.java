@@ -142,7 +142,7 @@ public class Main implements TransactionRecordedListener {
                 protected HttpClient createClient() {
                     HttpClient client = super.createClient();
                     client.setProxySelector(ps);
-                    client.setSoTimeout(20000);
+                    client.setSoTimeout(0); 
                     return client;
                 }
             };
@@ -169,7 +169,7 @@ public class Main implements TransactionRecordedListener {
                     return Action.BUFFER;
                 }
             };
-            rh = new BufferingHttpRequestHandler(rh, bmi, 1024 * 1024, application);
+            rh = new BufferingHttpRequestHandler(rh, bmi, 4 * 1024 * 1024, application);
 
             HttpProxyConnectionHandler hpch = new HttpProxyConnectionHandler(rh);
             SSLContextSelector cp = getSSLContextSelector();
@@ -178,7 +178,7 @@ public class Main implements TransactionRecordedListener {
             hpch.setConnectHandler(tch);
             TargetedConnectionHandler socks = new SocksConnectionHandler(tch, true);
             p = new Proxy(listen, socks, null);
-            p.setSocketTimeout(90000);
+            p.setSocketTimeout(0);
             p.start();
         } catch (Exception e) {
             throw new RuntimeException(e);

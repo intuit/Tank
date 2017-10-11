@@ -67,7 +67,7 @@ public class AJPClient {
 
     private State state = State.DISCONNECTED;
 
-    private int timeout = 10000;
+    private int timeout = 0;
 
     private AJPProperties properties = new AJPProperties();
 
