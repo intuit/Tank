@@ -16,10 +16,10 @@ package com.intuit.tank.project;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.hibernate.envers.Audited;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * 
@@ -38,13 +38,13 @@ public class TimingResult extends OwnableEntity {
     public static final String PROPERTY_NAME = "name";
 
     @Column(name = "name", nullable = false)
-    @NotEmpty
-    @Length(max = 255)
+    @NotNull
+    @Size(max = 255)
     private String name;
 
     @Column(name = "job_id", nullable = false)
-    @NotEmpty
-    @Length(max = 255)
+    @NotNull
+    @Size(max = 255)
     private String jobId;
 
     public TimingResult() {

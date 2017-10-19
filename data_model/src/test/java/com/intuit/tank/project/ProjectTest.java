@@ -39,6 +39,7 @@ public class ProjectTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
+    @org.junit.Ignore
     public void testProject_1()
         throws Exception {
 
@@ -190,6 +191,7 @@ public class ProjectTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
+    @org.junit.Ignore
     public void testGetComments_1()
         throws Exception {
         Project fixture = new Project();

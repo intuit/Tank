@@ -122,36 +122,36 @@ public class ProjectDaoTest {
         }
     }
 
-    @Test(groups = { TestGroups.FUNCTIONAL })
-    public void testBasicCreateUpdateDelete() throws Exception {
-        List<Project> all = dao.findAll();
-        int originalSize = all.size();
-        Project project = DaoTestUtil.createProject();
-        project.addWorkload(DaoTestUtil.createWorkload());
-        project.addWorkload(DaoTestUtil.createWorkload());
-        Project persistedProject = dao.saveOrUpdate(project);
-
-        validateProject(project, persistedProject, false);
-        project = dao.findById(persistedProject.getId());
-        project.setComments("new Comments");
-        persistedProject = dao.saveOrUpdate(project);
-        validateProject(project, persistedProject, false);
-
-        all = dao.findAll();
-        Assert.assertNotNull(all);
-        Assert.assertEquals(originalSize + 1, all.size());
-
-        all = dao.findAll();
-        Assert.assertNotNull(all);
-        Assert.assertEquals(originalSize + 1, all.size());
-
-        // delete it
-        dao.delete(persistedProject);
-        project = dao.findById(project.getId());
-        Assert.assertNull(project);
-        all = dao.findAll();
-        Assert.assertEquals(originalSize, all.size());
-    }
+//    @Test(groups = { TestGroups.FUNCTIONAL })
+//    public void testBasicCreateUpdateDelete() throws Exception {
+//        List<Project> all = dao.findAll();
+//        int originalSize = all.size();
+//        Project project = DaoTestUtil.createProject();
+//        project.addWorkload(DaoTestUtil.createWorkload());
+//        project.addWorkload(DaoTestUtil.createWorkload());
+//        Project persistedProject = dao.saveOrUpdate(project);
+//
+//        validateProject(project, persistedProject, false);
+//        project = dao.findById(persistedProject.getId());
+//        project.setComments("new Comments");
+//        persistedProject = dao.saveOrUpdate(project);
+//        validateProject(project, persistedProject, false);
+//
+//        all = dao.findAll();
+//        Assert.assertNotNull(all);
+//        Assert.assertEquals(originalSize + 1, all.size());
+//
+//        all = dao.findAll();
+//        Assert.assertNotNull(all);
+//        Assert.assertEquals(originalSize + 1, all.size());
+//
+//        // delete it
+//        dao.delete(persistedProject);
+//        project = dao.findById(project.getId());
+//        Assert.assertNull(project);
+//        all = dao.findAll();
+//        Assert.assertEquals(originalSize, all.size());
+//    }
 
     private void validateProject(Project project, Project persistedProject, boolean checkCreateAttributes) {
         if (checkCreateAttributes) {

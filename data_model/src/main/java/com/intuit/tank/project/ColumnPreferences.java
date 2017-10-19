@@ -21,12 +21,12 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * ColumnPreferences
@@ -49,12 +49,12 @@ public class ColumnPreferences extends OwnableEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Size(max = 256, message = "Column name cannot be more than 256 characters long.")
-    @NotBlank(message = "Column Name must be specified.")
+    @NotNull(message = "Column Name must be specified.")
     @Column(name = "colname", nullable = false)
     private String colName;
 
     @Size(max = 256, message = "Display name cannot be more than 256 characters long.")
-    @NotBlank(message = "Display Name must be specified.")
+    @NotNull(message = "Display Name must be specified.")
     @Column(name = "displayname")
     private String displayName;
 
