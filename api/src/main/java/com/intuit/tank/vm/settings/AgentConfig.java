@@ -111,6 +111,7 @@ public class AgentConfig implements Serializable {
         if (tankClientMap.isEmpty()) {
             tankClientMap.put("Apache HttpClient 3.1", "com.intuit.tank.httpclient3.TankHttpClient3");
             tankClientMap.put("Apache HttpClient 4.5", "com.intuit.tank.httpclient4.TankHttpClient4");
+            tankClientMap.put("Apache HttpClient 5", "com.intuit.tank.httpclient5.TankHttpClient5");
         }
         resultsProviderMap = new HashMap<String, String>();
         resultsTypeMap = new HashMap<String, String>();
