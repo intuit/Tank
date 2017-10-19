@@ -118,7 +118,7 @@ public class EmbeddedProxy implements TransactionRecordedListener {
 
 			BufferedMessageInterceptor bmi = new ProxyBufferedMessageInterceptor();
 			HttpRequestHandler rh = new BufferingHttpRequestHandler(
-					new LoggingHttpRequestHandler(drh), bmi, 1024 * 1024,
+					new LoggingHttpRequestHandler(drh), bmi, 4 * 1024 * 1024,
 					application);
 
 			HttpProxyConnectionHandler hpch = new HttpProxyConnectionHandler(rh);
@@ -131,7 +131,7 @@ public class EmbeddedProxy implements TransactionRecordedListener {
 			TargetedConnectionHandler socks = new SocksConnectionHandler(tch,
 					true);
 			p = new Proxy(listen, socks, null);
-			p.setSocketTimeout(90000);
+			p.setSocketTimeout(0);
 			p.start();
 		} catch (Exception e) {
 			throw new RuntimeException(e);

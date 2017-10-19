@@ -202,7 +202,7 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
                 protected HttpClient createClient() {
                     HttpClient client = super.createClient();
                     client.setProxySelector(ps);
-                    client.setSoTimeout(20000);
+                    client.setSoTimeout(0);
                     return client;
                 }
             };
@@ -223,7 +223,7 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
                     return Action.BUFFER;
                 }
             };
-            rh = new BufferingHttpRequestHandler(rh, bmi, 1024 * 1024, application);
+            rh = new BufferingHttpRequestHandler(rh, bmi, 4 * 1024 * 1024, application);
 
             HttpProxyConnectionHandler hpch = new HttpProxyConnectionHandler(rh);
             SSLContextSelector cp = Main.getSSLContextSelector();
@@ -233,7 +233,7 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
             TargetedConnectionHandler socks = new SocksConnectionHandler(tch, true);
             application.startSession(this);
             p = new Proxy(listen, socks, null);
-            p.setSocketTimeout(90000);
+            p.setSocketTimeout(0);
             p.start();
             System.out.println("Listener started on " + listen);
         }

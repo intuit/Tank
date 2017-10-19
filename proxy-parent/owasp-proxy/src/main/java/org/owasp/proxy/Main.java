@@ -222,7 +222,7 @@ public class Main {
             protected HttpClient createClient() {
                 HttpClient client = super.createClient();
                 client.setProxySelector(ps);
-                client.setSoTimeout(90000);
+                client.setSoTimeout(0);
                 return client;
             }
         };
@@ -236,7 +236,7 @@ public class Main {
             JdbcMessageDAO dao = new JdbcMessageDAO();
             dao.setDataSource(dataSource);
             dao.createTables();
-            rh = new RecordingHttpRequestHandler(dao, rh, 1024 * 1024);
+            rh = new RecordingHttpRequestHandler(dao, rh, 4 * 1024 * 1024);
             rh = new ConversationServiceHttpRequestHandler("127.0.0.2", dao, rh);
         }
         BufferedMessageInterceptor bmi = new BufferedMessageInterceptor() {
@@ -256,7 +256,7 @@ public class Main {
                 return Action.BUFFER;
             }
         };
-        rh = new BufferingHttpRequestHandler(rh, bmi, 1024 * 1024);
+        rh = new BufferingHttpRequestHandler(rh, bmi, 4 * 1024 * 1024);
 
         HttpProxyConnectionHandler hpch = new HttpProxyConnectionHandler(rh);
         SSLContextSelector cp = getSSLContextSelector();
@@ -265,7 +265,7 @@ public class Main {
         hpch.setConnectHandler(tch);
         TargetedConnectionHandler socks = new SocksConnectionHandler(tch, true);
         Proxy p = new Proxy(listen, socks, null);
-        p.setSocketTimeout(90000);
+        p.setSocketTimeout(0);
         p.start();
 
         System.out.println("Listener started on " + listen);
