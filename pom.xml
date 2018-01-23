@@ -36,10 +36,10 @@
     <cdi-version>1.2</cdi-version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
-    <version.enunciate>2.9.1</version.enunciate>
+    <version.enunciate>2.10.1</version.enunciate>
 
-    <version.mojarra>2.2.14</version.mojarra>
-    <version.jsf-api>2.2.14</version.jsf-api>
+    <version.mojarra>2.2.16</version.mojarra>
+    <version.jsf-api>2.2.16</version.jsf-api>
     <version.primefaces>6.1</version.primefaces>
     <version.primefaces-ext>6.1.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
@@ -47,10 +47,10 @@
     <version.jersey>2.25.1</version.jersey>
     <version.arquillian>1.1.11.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0</version.arquillian.tomcat>
-    <version.httpclient>4.5.3</version.httpclient>
+    <version.httpclient>4.5.4</version.httpclient>
 
-      <version.groovy>2.4.9</version.groovy>
-      <version.spock>1.1-groovy-2.4</version.spock>
+    <version.groovy>2.4.9</version.groovy>
+    <version.spock>1.1-groovy-2.4</version.spock>
 
     <!-- maven-compiler-plugin -->
     <version.compiler.plugin>3.5.1</version.compiler.plugin>
@@ -326,7 +326,7 @@
 
     <dependency>
       <groupId>javax.servlet.jsp</groupId>
-      <artifactId>jsp-api</artifactId>
+      <artifactId>javax.servlet.jsp-api</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -340,13 +340,13 @@
       <dependency>
         <groupId>net.sf.docbook</groupId>
         <artifactId>docbook</artifactId>
-        <version>1.72.0</version>
+        <version>1.74.0</version>
       </dependency>
 
       <dependency>
         <groupId>org.jboss.pressgang</groupId>
         <artifactId>pressgang-highlight</artifactId>
-        <version>2.0.2</version>
+        <version>3.1.4</version>
       </dependency>
 
       <dependency>
@@ -392,8 +392,8 @@
 
       <dependency>
         <groupId>javax.servlet.jsp</groupId>
-        <artifactId>jsp-api</artifactId>
-        <version>2.2</version>
+        <artifactId>javax.servlet.jsp-api</artifactId>
+        <version>2.3.1</version>
         <scope>test</scope>
       </dependency>
 
@@ -430,13 +430,13 @@
       <dependency>
         <groupId>org.apache.poi</groupId>
         <artifactId>poi</artifactId>
-        <version>3.15</version>
+        <version>3.17</version>
       </dependency>
 
       <dependency>
 	    <groupId>com.itextpdf</groupId>
 	    <artifactId>itextpdf</artifactId>
-	    <version>5.5.10</version>
+	    <version>5.5.12</version>
       </dependency>
 
       <dependency>
@@ -487,7 +487,7 @@
       <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
-        <version>1.4.192</version>
+        <version>1.4.196</version>
       </dependency>
 
       <dependency>
@@ -511,7 +511,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.14</version>
+        <version>1.15</version>
       </dependency>
 
       <dependency>
@@ -549,17 +549,17 @@
         <artifactId>httpclient</artifactId>
         <version>${version.httpclient}</version>
       </dependency>
-      
+
      <dependency>
         <groupId>commons-httpclient</groupId>
         <artifactId>commons-httpclient</artifactId>
         <version>3.0.1</version>
       </dependency>
-      
+
       <dependency>
     	<groupId>org.apache.httpcomponents.client5</groupId>
     	<artifactId>httpclient5</artifactId>
-    	<version>5.0-alpha2</version>
+    	<version>5.0-beta1</version>
 	  </dependency>
 
       <dependency>
@@ -846,7 +846,7 @@
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
         <artifactId>wagon-webdav-jackrabbit</artifactId>
-        <version>2.10</version>
+        <version>3.0.0</version>
       </extension>
     </extensions>
 
@@ -856,7 +856,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>license-maven-plugin</artifactId>
-          <version>1.8</version>
+          <version>1.14</version>
         </plugin>
 
         <plugin>
@@ -868,19 +868,19 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
-          <version>1.7</version>
+          <version>3.0.0</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>2.6</version>
+          <version>3.2.0</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jarsigner-plugin</artifactId>
-          <version>1.2</version>
+          <version>1.4</version>
           <executions>
             <execution>
               <id>sign</id>
@@ -925,7 +925,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>findbugs-maven-plugin</artifactId>
-          <version>2.5.2</version>
+          <version>3.0.5</version>
           <configuration>
             <!-- Enables analysis which takes more memory but finds more bugs. If you run out of memory, changes the value of the effort element to 'Low'. -->
             <effort>Max</effort>
