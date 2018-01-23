@@ -86,6 +86,12 @@
       <artifactId>http_client_commons_4</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>http_client_commons_5</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.simpleframework</groupId>

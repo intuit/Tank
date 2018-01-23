@@ -549,6 +549,18 @@
         <artifactId>httpclient</artifactId>
         <version>${version.httpclient}</version>
       </dependency>
+      
+     <dependency>
+        <groupId>commons-httpclient</groupId>
+        <artifactId>commons-httpclient</artifactId>
+        <version>3.0.1</version>
+      </dependency>
+      
+      <dependency>
+    	<groupId>org.apache.httpcomponents.client5</groupId>
+    	<artifactId>httpclient5</artifactId>
+    	<version>5.0-alpha2</version>
+	  </dependency>
 
       <dependency>
 	    <groupId>org.apache.logging.log4j</groupId>
@@ -713,11 +725,6 @@
         <groupId>commons-discovery</groupId>
         <artifactId>commons-discovery</artifactId>
         <version>0.2</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-httpclient</groupId>
-        <artifactId>commons-httpclient</artifactId>
-        <version>3.0.1</version>
       </dependency>
       <dependency>
         <groupId>org.json</groupId>
