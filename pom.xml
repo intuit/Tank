@@ -727,11 +727,6 @@
         <version>0.2</version>
       </dependency>
       <dependency>
-        <groupId>com.squareup.okhttp</groupId>
-        <artifactId>okhttp</artifactId>
-        <version>${version.okhttp}</version>
-      </dependency>
-      <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
         <version>20160212</version>
