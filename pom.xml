@@ -32,7 +32,7 @@
 
  	<tomcat.version>8.5.13</tomcat.version>
  	
-    <weld-version>2.4.4.Final</weld-version>
+    <weld-version>2.4.6.Final</weld-version>
     <cdi-version>1.2</cdi-version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
@@ -44,7 +44,7 @@
     <version.primefaces-ext>6.1.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.20</version.surefire>
-    <version.jersey>2.25.1</version.jersey>
+    <version.jersey>2.26</version.jersey>
     <version.arquillian>1.1.11.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0</version.arquillian.tomcat>
     <version.httpclient>4.5.4</version.httpclient>
@@ -53,7 +53,7 @@
     <version.spock>1.1-groovy-2.4</version.spock>
 
     <!-- maven-compiler-plugin -->
-    <version.compiler.plugin>3.5.1</version.compiler.plugin>
+    <version.compiler.plugin>3.7.0</version.compiler.plugin>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
   </properties>
@@ -277,12 +277,6 @@
       <artifactId>easymockclassextension</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-	  <groupId>javax.ejb</groupId>
-	  <artifactId>ejb-api</artifactId>
-	  <version>3.0</version>
-	</dependency>
 
     <dependency>
       <groupId>org.jboss.arquillian.testng</groupId>
