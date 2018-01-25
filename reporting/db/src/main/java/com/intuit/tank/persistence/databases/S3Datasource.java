@@ -39,7 +39,8 @@ public class S3Datasource implements IDatabase {
 	
     private String hostname = "fail";
 	private String enviornemnt = "qa";
-	private String metricString = "ctg.tank.transaction";
+	private String metricString = "test.ctg.tank.transaction";
+	private String tags = "";
 	private String bucketName = "tank-test";
     
     private TankConfig config = new TankConfig();
@@ -79,17 +80,8 @@ public class S3Datasource implements IDatabase {
 	public void addTimingResults(String tableName, List<TankResult> results, boolean asynch) {
         if (resultsProviderConfig != null) {
             try {
-            	enviornemnt = config.getInstanceName();
-            	if (StringUtils.equalsIgnoreCase(enviornemnt, "prod")) {
-            		enviornemnt = "prd";
-            	} else if (StringUtils.equalsIgnoreCase(enviornemnt, "qa")) {
-            		enviornemnt = "qal";
-            	} else if (StringUtils.equalsIgnoreCase(enviornemnt, "canada")) {
-            		enviornemnt = "can";
-            	} else {
-            		enviornemnt = "prf";
-            	}
             	metricString = resultsProviderConfig.getString("metricString");
+				tags = resultsProviderConfig.getString("tags"); //Example "bu=ctg app=tto pool=agent service=tank env=prf"
             	bucketName = resultsProviderConfig.getString("bucket");
             	hostname = InetAddress.getLocalHost().getHostName();
             } catch (Exception e) {
@@ -107,10 +99,10 @@ public class S3Datasource implements IDatabase {
 			if (StringUtils.endsWith(bucketName, "-")) {
 				bucketName = bucketName.concat(Region);
 			}
-			String Tags = " source=" + hostname + 
+			String tagsComplete = " source=" + hostname +
 					" instanceid=" + instance +  
-					" location=" + Region + 
-					" bu=ctg app=tnk pool=agent env=" + enviornemnt + 
+					" location=" + Region +
+					" " + tags +
 					" jobid=" + jobId + 
 					System.getProperty("line.separator");
 			StringBuilder sb = new StringBuilder();
@@ -140,19 +132,19 @@ public class S3Datasource implements IDatabase {
 					int ninetynineth = Math.round(size * ninetynine);
 					if (ninetynineth >= 1) ninetynineth--;
 					sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + timestamp + " transaction=" + requestName)
-						.append(Tags)
+						.append(tagsComplete)
 						.append(metricString + ".resp_time.avg " + average + " " + timestamp + " transaction=" + requestName)
-						.append(Tags)
+						.append(tagsComplete)
 						.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + timestamp + " transaction=" + requestName)
-						.append(Tags)
+						.append(tagsComplete)
 						.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + timestamp + " transaction=" + requestName)
-						.append(Tags)
+						.append(tagsComplete)
 						.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + timestamp + " transaction=" + requestName)
-						.append(Tags)
+						.append(tagsComplete)
 						.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth].longValue() + " " + timestamp + " transaction=" + requestName)
-						.append(Tags)
+						.append(tagsComplete)
 						.append(metricString + ".rpi " + size + " " + timestamp + " transaction=" + requestName)
-						.append(Tags);
+						.append(tagsComplete);
 					requestName = metric.getRequestName();
 					groupResults.clear();
 					sum = metric.getResponseTime();
@@ -172,19 +164,19 @@ public class S3Datasource implements IDatabase {
 			int ninetynineth = Math.round(size * ninetynine);
 			if (ninetynineth >= 1) ninetynineth--;
 			sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + timestamp + " transaction=" + requestName)
-				.append(Tags)
+				.append(tagsComplete)
 				.append(metricString + ".resp_time.avg " + average + " " + timestamp + " transaction=" + requestName)
-				.append(Tags)
+				.append(tagsComplete)
 				.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + timestamp + " transaction=" + requestName)
-				.append(Tags)
+				.append(tagsComplete)
 				.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + timestamp + " transaction=" + requestName)
-				.append(Tags)
+				.append(tagsComplete)
 				.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + timestamp + " transaction=" + requestName)
-				.append(Tags)
+				.append(tagsComplete)
 				.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth].longValue() + " " + timestamp + " transaction=" + requestName)
-				.append(Tags)
+				.append(tagsComplete)
 				.append(metricString + ".rpi " + size + " " + timestamp + " transaction=" + requestName)
-				.append(Tags);
+				.append(tagsComplete);
 			InputStream is =  new ByteArrayInputStream(sb.toString().getBytes());
 			ObjectMetadata metaData = new ObjectMetadata();
 			metaData.setContentLength(sb.length());
