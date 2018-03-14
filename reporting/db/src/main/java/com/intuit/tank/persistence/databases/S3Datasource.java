@@ -38,10 +38,9 @@ public class S3Datasource implements IDatabase {
     private static final Logger LOG = LogManager.getLogger(S3Datasource.class);
 	
     private String hostname = "fail";
-	private String enviornemnt = "qa";
-	private String metricString = "test.ctg.tank.transaction";
+	private String metricString = "";
 	private String tags = "";
-	private String bucketName = "tank-test";
+	private String bucketName = "";
     
     private TankConfig config = new TankConfig();
 	private HierarchicalConfiguration resultsProviderConfig = config.getVmManagerConfig().getResultsProviderConfig();
@@ -80,9 +79,9 @@ public class S3Datasource implements IDatabase {
 	public void addTimingResults(String tableName, List<TankResult> results, boolean asynch) {
         if (resultsProviderConfig != null) {
             try {
-            	metricString = resultsProviderConfig.getString("metricString");
+            	metricString = resultsProviderConfig.getString("metricString","test.tank.transaction");
 				tags = resultsProviderConfig.getString("tags"); //Example "bu=ctg app=tto pool=agent service=tank env=prf"
-            	bucketName = resultsProviderConfig.getString("bucket");
+            	bucketName = resultsProviderConfig.getString("bucket", "tank-test");
             	hostname = InetAddress.getLocalHost().getHostName();
             } catch (Exception e) {
                 LOG.error("Failed to get S3 Datasource parameters " + e.toString(), e);
