@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <div>
 This number specifies the port number that our proxy will operate on.  It will be exposed in the build as the environment variable 'tankProxyPort'.
 </div>

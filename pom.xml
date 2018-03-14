@@ -28,32 +28,32 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>4.2.21.Final</version.hibernate>
-    <version-aws-sdk>1.11.169</version-aws-sdk>
+    <version-aws-sdk>1.11.294</version-aws-sdk>
 
  	<tomcat.version>8.5.13</tomcat.version>
  	
-    <weld-version>2.4.4.Final</weld-version>
-    <cdi-version>1.2</cdi-version>
+    <weld-version>2.4.6.Final</weld-version>
+    <cdi-version>2.0</cdi-version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
-    <version.enunciate>2.9.1</version.enunciate>
+    <version.enunciate>2.10.1</version.enunciate>
 
-    <version.mojarra>2.2.14</version.mojarra>
-    <version.jsf-api>2.2.14</version.jsf-api>
-    <version.primefaces>6.1</version.primefaces>
-    <version.primefaces-ext>6.1.0</version.primefaces-ext>
+    <version.mojarra>2.2.16</version.mojarra>
+    <version.jsf-api>2.2.16</version.jsf-api>
+    <version.primefaces>6.2</version.primefaces>
+    <version.primefaces-ext>6.1.1</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
-    <version.surefire>2.20</version.surefire>
-    <version.jersey>2.25.1</version.jersey>
+    <version.surefire>2.21.0</version.surefire>
+    <version.jersey>2.26</version.jersey>
     <version.arquillian>1.1.11.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0</version.arquillian.tomcat>
-    <version.httpclient>4.5.3</version.httpclient>
+    <version.httpclient>4.5.5</version.httpclient>
 
-      <version.groovy>2.4.9</version.groovy>
-      <version.spock>1.1-groovy-2.4</version.spock>
+    <version.groovy>2.4.9</version.groovy>
+    <version.spock>1.1-groovy-2.4</version.spock>
 
     <!-- maven-compiler-plugin -->
-    <version.compiler.plugin>3.5.1</version.compiler.plugin>
+    <version.compiler.plugin>3.7.0</version.compiler.plugin>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
   </properties>
@@ -279,12 +279,6 @@
     </dependency>
 
     <dependency>
-	  <groupId>javax.ejb</groupId>
-	  <artifactId>ejb-api</artifactId>
-	  <version>3.0</version>
-	</dependency>
-
-    <dependency>
       <groupId>org.jboss.arquillian.testng</groupId>
       <artifactId>arquillian-testng-container</artifactId>
       <scope>test</scope>
@@ -326,7 +320,7 @@
 
     <dependency>
       <groupId>javax.servlet.jsp</groupId>
-      <artifactId>jsp-api</artifactId>
+      <artifactId>javax.servlet.jsp-api</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -340,13 +334,13 @@
       <dependency>
         <groupId>net.sf.docbook</groupId>
         <artifactId>docbook</artifactId>
-        <version>1.72.0</version>
+        <version>1.74.0</version>
       </dependency>
 
       <dependency>
         <groupId>org.jboss.pressgang</groupId>
         <artifactId>pressgang-highlight</artifactId>
-        <version>2.0.2</version>
+        <version>3.1.4</version>
       </dependency>
 
       <dependency>
@@ -392,8 +386,8 @@
 
       <dependency>
         <groupId>javax.servlet.jsp</groupId>
-        <artifactId>jsp-api</artifactId>
-        <version>2.2</version>
+        <artifactId>javax.servlet.jsp-api</artifactId>
+        <version>2.3.1</version>
         <scope>test</scope>
       </dependency>
 
@@ -430,13 +424,13 @@
       <dependency>
         <groupId>org.apache.poi</groupId>
         <artifactId>poi</artifactId>
-        <version>3.15</version>
+        <version>3.17</version>
       </dependency>
 
       <dependency>
 	    <groupId>com.itextpdf</groupId>
 	    <artifactId>itextpdf</artifactId>
-	    <version>5.5.10</version>
+	    <version>5.5.12</version>
       </dependency>
 
       <dependency>
@@ -448,13 +442,13 @@
       <dependency>
         <groupId>org.primefaces.extensions</groupId>
         <artifactId>primefaces-extensions</artifactId>
-        <version>${version.primefaces-ext}</version>
+        <version>${version.primefaces}</version>
       </dependency>
 
       <dependency>
         <groupId>org.primefaces.extensions</groupId>
         <artifactId>resources-ckeditor</artifactId>
-        <version>${version.primefaces-ext}</version>
+        <version>${version.primefaces}</version>
       </dependency>
 
       <dependency>
@@ -487,7 +481,7 @@
       <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
-        <version>1.4.192</version>
+        <version>1.4.196</version>
       </dependency>
 
       <dependency>
@@ -511,7 +505,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.14</version>
+        <version>1.15</version>
       </dependency>
 
       <dependency>
@@ -549,23 +543,23 @@
         <artifactId>httpclient</artifactId>
         <version>${version.httpclient}</version>
       </dependency>
-      
+
      <dependency>
         <groupId>commons-httpclient</groupId>
         <artifactId>commons-httpclient</artifactId>
         <version>3.0.1</version>
       </dependency>
-      
+
       <dependency>
     	<groupId>org.apache.httpcomponents.client5</groupId>
     	<artifactId>httpclient5</artifactId>
-    	<version>5.0-alpha2</version>
+    	<version>5.0-beta1</version>
 	  </dependency>
 
       <dependency>
 	    <groupId>org.apache.logging.log4j</groupId>
 	    <artifactId>log4j-core</artifactId>
-	    <version>2.6.2</version>
+	    <version>2.10.0</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
@@ -638,6 +632,12 @@
     	<artifactId>jersey-container-servlet</artifactId>
         <version>${version.jersey}</version>
 	  </dependency>
+	  
+	  <dependency>
+   		<groupId>org.glassfish.jersey.inject</groupId>
+    	<artifactId>jersey-hk2</artifactId>
+    	<version>${version.jersey}</version>
+	  </dependency>
 
       <dependency>
         <groupId>saxpath</groupId>
@@ -657,17 +657,17 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.5</version>
+        <version>2.6</version>
       </dependency>
 	  <dependency>
 	    <groupId>org.apache.commons</groupId>
 	    <artifactId>commons-lang3</artifactId>
-	    <version>3.5</version>
+	    <version>3.7</version>
 	  </dependency>
 	  <dependency>
 	    <groupId>javax.mail</groupId>
 	    <artifactId>javax.mail-api</artifactId>
-	    <version>1.5.6</version>
+	    <version>1.6.1</version>
 	  </dependency>
       <dependency>
         <groupId>de.congrace</groupId>
@@ -846,7 +846,7 @@
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
         <artifactId>wagon-webdav-jackrabbit</artifactId>
-        <version>2.10</version>
+        <version>3.0.0</version>
       </extension>
     </extensions>
 
@@ -856,7 +856,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>license-maven-plugin</artifactId>
-          <version>1.8</version>
+          <version>1.14</version>
         </plugin>
 
         <plugin>
@@ -868,19 +868,19 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
-          <version>1.7</version>
+          <version>3.0.0</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>2.6</version>
+          <version>3.2.0</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jarsigner-plugin</artifactId>
-          <version>1.2</version>
+          <version>1.4</version>
           <executions>
             <execution>
               <id>sign</id>
@@ -925,7 +925,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>findbugs-maven-plugin</artifactId>
-          <version>2.5.2</version>
+          <version>3.0.5</version>
           <configuration>
             <!-- Enables analysis which takes more memory but finds more bugs. If you run out of memory, changes the value of the effort element to 'Low'. -->
             <effort>Max</effort>
@@ -987,7 +987,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.1.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1042,7 +1042,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
-          <version>2.3</version>
+          <version>2.5</version>
         </plugin>
 
       </plugins>

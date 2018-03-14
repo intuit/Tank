@@ -48,7 +48,7 @@ public class LogPrinter {
 	/**
 	 * This method will take a String that we intend to log and format it as the following:
 	 * 
-	 * <Class.getSimpleName()> : <Method Name> (<line number>) : <message to print>
+	 * Class.getSimpleName() : Method Name (line number) : message to print
 	 * 
 	 * @param s
 	 * 		The message that will be printed to the log.

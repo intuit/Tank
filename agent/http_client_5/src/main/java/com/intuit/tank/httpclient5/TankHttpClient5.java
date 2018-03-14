@@ -35,27 +35,27 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.NTCredentials;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpOptions;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.config.CookieSpecs;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.impl.routing.DefaultProxyRoutePlanner;
-import org.apache.hc.client5.http.impl.sync.BasicCredentialsProvider;
-import org.apache.hc.client5.http.impl.sync.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.sync.CloseableHttpResponse;
-import org.apache.hc.client5.http.impl.sync.HttpClients;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
-import org.apache.hc.client5.http.sync.methods.HttpDelete;
-import org.apache.hc.client5.http.sync.methods.HttpGet;
-import org.apache.hc.client5.http.sync.methods.HttpOptions;
-import org.apache.hc.client5.http.sync.methods.HttpPost;
-import org.apache.hc.client5.http.sync.methods.HttpPut;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
@@ -98,7 +98,7 @@ public class TankHttpClient5 implements TankHttpClient {
                 .build();
         
         httpclient = HttpClients.custom().setConnectionManager(cm).build();
-        requestConfig = RequestConfig.custom().setSocketTimeout(30, TimeUnit.SECONDS)
+        requestConfig = RequestConfig.custom()
         		.setConnectTimeout(30, TimeUnit.SECONDS)
         		.setCircularRedirectsAllowed(true)
         		.setAuthenticationEnabled(true)
@@ -115,7 +115,7 @@ public class TankHttpClient5 implements TankHttpClient {
     }
 
     public void setConnectionTimeout(long connectionTimeout) {
-        requestConfig = RequestConfig.custom().setSocketTimeout(30, TimeUnit.SECONDS)
+        requestConfig = RequestConfig.custom()
         		.setConnectTimeout((int) connectionTimeout, TimeUnit.MILLISECONDS)
         		.setCircularRedirectsAllowed(true)
         		.setAuthenticationEnabled(true)
@@ -223,11 +223,12 @@ public class TankHttpClient5 implements TankHttpClient {
      */
     @Override
     public void addAuth(AuthCredentials creds) {
-        String host = (StringUtils.isBlank(creds.getHost()) || "*".equals(creds.getHost())) ? AuthScope.ANY_HOST : creds.getHost();
-        String realm = (StringUtils.isBlank(creds.getRealm()) || "*".equals(creds.getRealm())) ? AuthScope.ANY_REALM : creds.getRealm();
-        int port = NumberUtils.toInt(creds.getPortString(), AuthScope.ANY_PORT);
-        String scheme = creds.getScheme() != null ? creds.getScheme().getRepresentation() : AuthScope.ANY_SCHEME;
-        AuthScope scope = new AuthScope(host, port, realm, scheme);
+        String protocol = null;
+        String host = (StringUtils.isBlank(creds.getHost()) || "*".equals(creds.getHost())) ? null : creds.getHost();
+        String realm = (StringUtils.isBlank(creds.getRealm()) || "*".equals(creds.getRealm())) ? null : creds.getRealm();
+        int port = NumberUtils.toInt(creds.getPortString(), -1);
+        String scheme = creds.getScheme() != null ? creds.getScheme().getRepresentation() : null;
+        AuthScope scope = new AuthScope(protocol, host, port, realm, scheme);
         BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         if (AuthScheme.NTLM == creds.getScheme()) {
             credentialsProvider.setCredentials(scope, new NTCredentials(creds.getUserName(), creds.getPassword().toCharArray(), "tank-test", creds.getRealm()));
@@ -413,8 +414,10 @@ public class TankHttpClient5 implements TankHttpClient {
 
     /**
      * Set all the header keys
-     * 
-     * @param connection
+     *
+     * @param request
+     * @param method
+     * @param headerInformation
      */
     @SuppressWarnings("rawtypes")
     private void setHeaders(BaseRequest request, ClassicHttpRequest method, HashMap<String, String> headerInformation) {
