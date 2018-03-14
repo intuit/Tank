@@ -28,26 +28,26 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>4.2.21.Final</version.hibernate>
-    <version-aws-sdk>1.11.269</version-aws-sdk>
+    <version-aws-sdk>1.11.294</version-aws-sdk>
 
  	<tomcat.version>8.5.13</tomcat.version>
  	
     <weld-version>2.4.6.Final</weld-version>
-    <cdi-version>1.2</cdi-version>
+    <cdi-version>2.0</cdi-version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
     <version.enunciate>2.10.1</version.enunciate>
 
     <version.mojarra>2.2.16</version.mojarra>
     <version.jsf-api>2.2.16</version.jsf-api>
-    <version.primefaces>6.1</version.primefaces>
-    <version.primefaces-ext>6.1.0</version.primefaces-ext>
+    <version.primefaces>6.2</version.primefaces>
+    <version.primefaces-ext>6.1.1</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
-    <version.surefire>2.20</version.surefire>
+    <version.surefire>2.21.0</version.surefire>
     <version.jersey>2.26</version.jersey>
     <version.arquillian>1.1.11.Final</version.arquillian>
     <version.arquillian.tomcat>1.0.0</version.arquillian.tomcat>
-    <version.httpclient>4.5.4</version.httpclient>
+    <version.httpclient>4.5.5</version.httpclient>
 
     <version.groovy>2.4.9</version.groovy>
     <version.spock>1.1-groovy-2.4</version.spock>
@@ -442,13 +442,13 @@
       <dependency>
         <groupId>org.primefaces.extensions</groupId>
         <artifactId>primefaces-extensions</artifactId>
-        <version>${version.primefaces-ext}</version>
+        <version>${version.primefaces}</version>
       </dependency>
 
       <dependency>
         <groupId>org.primefaces.extensions</groupId>
         <artifactId>resources-ckeditor</artifactId>
-        <version>${version.primefaces-ext}</version>
+        <version>${version.primefaces}</version>
       </dependency>
 
       <dependency>
@@ -559,7 +559,7 @@
       <dependency>
 	    <groupId>org.apache.logging.log4j</groupId>
 	    <artifactId>log4j-core</artifactId>
-	    <version>2.6.2</version>
+	    <version>2.10.0</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
@@ -657,17 +657,17 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.5</version>
+        <version>2.6</version>
       </dependency>
 	  <dependency>
 	    <groupId>org.apache.commons</groupId>
 	    <artifactId>commons-lang3</artifactId>
-	    <version>3.5</version>
+	    <version>3.7</version>
 	  </dependency>
 	  <dependency>
 	    <groupId>javax.mail</groupId>
 	    <artifactId>javax.mail-api</artifactId>
-	    <version>1.5.6</version>
+	    <version>1.6.1</version>
 	  </dependency>
       <dependency>
         <groupId>de.congrace</groupId>
@@ -987,7 +987,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.1.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1042,7 +1042,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
-          <version>2.3</version>
+          <version>2.5</version>
         </plugin>
 
       </plugins>
