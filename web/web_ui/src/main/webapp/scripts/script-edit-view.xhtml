@@ -322,7 +322,6 @@
         <pe:remoteCommand id="resizeListener" name="resizeFinished" update="scriptStepTableId, searchScriptStepTableId" />
         <p:dataTable id="scriptStepTableId" var="step" rowKey="#{step.uuid}" value="#{scriptEditor.steps}"
           rowIndexVar="rowIndex" headerSectionClass="rf-tb" bodyRowClass="pointer"
-          style="width:#{scriptEditor.tablePrefs.getMaxTotalSize(preferencesBean.screenWidth)}px;"
           selection="#{scriptEditor.selectedStepsArr}" selectionMode="multiple" widgetVar="scriptStepTable"
           rendered="#{!scriptSearchBean.searching}" liveResize=" false" scrollable="true" scrollHeight="450"
           sortBy="#{selectable.entity.created}" sortOrder="descending" paginator="true" rows="50"

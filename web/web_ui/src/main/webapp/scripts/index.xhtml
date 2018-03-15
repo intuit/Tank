@@ -56,7 +56,9 @@
       </ts:toolbar>
 
       <div class="vertical-spacer" />
-      <p:growl globalOnly="true" id="messages" autoUpdate="true" />
+      <p:growl globalOnly="true" id="messages">
+        <p:autoUpdate />
+      </p:growl>
       <pe:remoteCommand id="resizeListener" name="resizeFinished"
         update="scriptTableId" />
 
@@ -64,7 +66,6 @@
       <p:dataTable id="scriptTableId" var="selectable" widgetVar="scriptTable"
         value="#{scriptBean.selectionList}" liveResize="false" scrollable="true"
         filteredValue="#{scriptBean.filteredData}"
-        style="width:#{scriptBean.tablePrefs.getMaxTotalSize(preferencesBean.screenWidth)}px;"
         scrollHeight="450" sortBy="#{selectable.entity.modified}"
         sortOrder="descending" paginator="true" rows="25"
         resizableColumns="true"

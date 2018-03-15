@@ -49,7 +49,9 @@
         </ts:toolbar>
 
         <div class="vertical-spacer" />
-        <p:growl globalOnly="true" id="messages" autoUpdate="true" />
+        <p:growl globalOnly="true" id="messages">
+          <p:autoUpdate />
+        </p:growl>
 
         <h:panelGroup id="refreshDiv" rendered="#{jobQueueManager.refreshEnabled}">
 
@@ -61,7 +63,7 @@
 
         <pe:remoteCommand id="resizeListener" name="resizeFinished" update="jobTableId" />
 
-        <p:treeTable style="width:#{jobQueueManager.tablePrefs.totalSize}px;" id="jobTableId" var="node"
+        <p:treeTable id="jobTableId" var="node"
           value="#{jobQueueManager.rootNode}" resizableColumns="true" liveResize="false" scrollable="true"
           scrollHeight="450" scrollWidth="100%">
 

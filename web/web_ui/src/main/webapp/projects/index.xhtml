@@ -32,14 +32,15 @@
         </ts:toolbar>
 
         <div class="vertical-spacer" />
-        <p:growl globalOnly="true" id="messages" autoUpdate="true" />
+        <p:growl globalOnly="true" id="messages">
+          <p:autoUpdate />
+        </p:growl>
 
         <pe:remoteCommand id="resizeListener" name="resizeFinished" update="projectTableId" />
         
         <p:dataTable id="projectTableId" var="pe" rowIndexVar="rowIndex" widgetVar="projectTable"
           value="#{projectDescriptionBean.selectionList}" rowStyleClass="pointer" liveResize="false" scrollable="true"
-          filteredValue="#{projectDescriptionBean.filteredData}" 
-          style="width:#{projectDescriptionBean.tablePrefs.getMaxTotalSize(preferencesBean.screenWidth)}px;"
+          filteredValue="#{projectDescriptionBean.filteredData}"
           scrollHeight="450" sortBy="#{pe.entity.created}"
           sortOrder="descending" paginator="true" rows="25" resizableColumns="true"
           paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
