@@ -43,7 +43,7 @@ xmlns:ui="http://java.sun.com/jsf/facelets"
       
       <pe:remoteCommand id="resizeListener" name="resizeFinished" update="fileTableId" />
 
-      <p:dataTable id="fileTableId" var="selectableDataFile" widgetVar="fileTable"
+      <p:dataTable id="fileTableId" var="selectableDataFile" widgetVar="fileTable" class="pad2"
         value="#{dataFileBrowser.selectionList}"
          liveResize=" false" scrollable="true"
         filteredValue="#{dataFileBrowser.filteredData}" scrollHeight="100%"

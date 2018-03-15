@@ -38,7 +38,7 @@
 
         <pe:remoteCommand id="resizeListener" name="resizeFinished" update="projectTableId" />
         
-        <p:dataTable id="projectTableId" var="pe" rowIndexVar="rowIndex" widgetVar="projectTable"
+        <p:dataTable id="projectTableId" var="pe" rowIndexVar="rowIndex" widgetVar="projectTable" class="pad2"
           value="#{projectDescriptionBean.selectionList}" rowStyleClass="pointer" liveResize="false" scrollable="true"
           filteredValue="#{projectDescriptionBean.filteredData}"
           scrollHeight="100%" sortBy="#{pe.entity.created}"
