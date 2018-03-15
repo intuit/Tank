@@ -37,15 +37,16 @@ xmlns:ui="http://java.sun.com/jsf/facelets"
       </ts:toolbar>
 
       <div class="vertical-spacer" />
-      <p:growl globalOnly="true" id="messages" autoUpdate="true" />
+      <p:growl globalOnly="true" id="messages">
+        <p:autoUpdate />
+      </p:growl>
       
       <pe:remoteCommand id="resizeListener" name="resizeFinished" update="fileTableId" />
 
-      <p:dataTable id="fileTableId" var="selectableDataFile" widgetVar="fileTable"
+      <p:dataTable id="fileTableId" var="selectableDataFile" widgetVar="fileTable" class="pad2"
         value="#{dataFileBrowser.selectionList}"
          liveResize=" false" scrollable="true"
-        filteredValue="#{dataFileBrowser.filteredData}" scrollHeight="450" 
-        style="width:#{dataFileBrowser.tablePrefs.getMaxTotalSize(preferencesBean.screenWidth)}px;"
+        filteredValue="#{dataFileBrowser.filteredData}" scrollHeight="100%"
         sortBy="#{selectableDataFile.entity.created}"
         sortOrder="descending" paginator="true" rows="25" resizableColumns="true"
         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
