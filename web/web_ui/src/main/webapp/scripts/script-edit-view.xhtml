@@ -323,7 +323,7 @@
         <p:dataTable id="scriptStepTableId" var="step" rowKey="#{step.uuid}" value="#{scriptEditor.steps}"
           rowIndexVar="rowIndex" headerSectionClass="rf-tb" bodyRowClass="pointer"
           selection="#{scriptEditor.selectedStepsArr}" selectionMode="multiple" widgetVar="scriptStepTable"
-          rendered="#{!scriptSearchBean.searching}" liveResize=" false" scrollable="true" scrollHeight="450"
+          rendered="#{!scriptSearchBean.searching}" liveResize=" false" scrollable="true" scrollHeight="100%"
           sortBy="#{selectable.entity.created}" sortOrder="descending" paginator="true" rows="50"
           resizableColumns="true"
           paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} Rows per Page {RowsPerPageDropdown} Jump to Page {JumpToPageDropdown}"

@@ -66,7 +66,7 @@
       <p:dataTable id="scriptTableId" var="selectable" widgetVar="scriptTable"
         value="#{scriptBean.selectionList}" liveResize="false" scrollable="true"
         filteredValue="#{scriptBean.filteredData}"
-        scrollHeight="450" sortBy="#{selectable.entity.modified}"
+        scrollHeight="100%" sortBy="#{selectable.entity.modified}"
         sortOrder="descending" paginator="true" rows="25"
         resizableColumns="true"
         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
