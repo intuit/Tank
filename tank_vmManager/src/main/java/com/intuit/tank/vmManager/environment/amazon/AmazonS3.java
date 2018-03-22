@@ -13,21 +13,10 @@ package com.intuit.tank.vmManager.environment.amazon;
  * #L%
  */
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.amazonaws.ClientConfiguration;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -36,11 +25,22 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.intuit.tank.vm.settings.CloudCredentials;
 import com.intuit.tank.vm.settings.CloudProvider;
 import com.intuit.tank.vm.settings.TankConfig;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class AmazonS3 {
     private static final Logger LOG = LogManager.getLogger(AmazonS3.class);
 
-    private AmazonS3Client s3Client;
+    private com.amazonaws.services.s3.AmazonS3 s3Client;
 
     /**
      * 
@@ -64,9 +64,15 @@ public class AmazonS3 {
             }
             if (StringUtils.isNotBlank(creds.getKeyId()) && StringUtils.isNotBlank(creds.getKey())) {
                 BasicAWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
-                this.s3Client = new AmazonS3Client(credentials, config);
+                this.s3Client = AmazonS3ClientBuilder
+                        .standard()
+                        .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                        .withClientConfiguration(config)
+                        .build();
             } else {
-                this.s3Client = new AmazonS3Client(config);
+                this.s3Client = AmazonS3ClientBuilder.standard()
+                        .withClientConfiguration(config)
+                        .build();
             }
         } catch (Exception ex) {
             LOG.error(ex.getMessage());
@@ -83,9 +89,11 @@ public class AmazonS3 {
     }
 
     /**
-     * 
-     * @param key
-     * @param scriptFile
+     *
+     * @param bucketName
+     *            the base bucketname
+     * @param path
+     *            the
      * @return
      */
     public void storeFile(String bucketName, String path, Map<String, String> metaMap, InputStream in) {
@@ -99,8 +107,11 @@ public class AmazonS3 {
     }
 
     /**
-     * 
-     * @param key
+     *
+     * @param bucketName
+     *            the base bucketname
+     * @param path
+     *            the
      * @return
      */
     public InputStream getFile(String bucketName, String path) {
