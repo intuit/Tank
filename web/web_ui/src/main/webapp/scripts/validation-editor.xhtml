@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui"
-  xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:p="http://primefaces.org/ui">
   <div class="formRow">
     <p:commandButton value="Pre Validation" action="#{responseContentEditor.insertPreValidation()}" ajax="true"
       update=":requestForm:request-editor-tab-panel,:requestForm:request-editor-tab-panel:validationContentTable"
@@ -90,7 +92,7 @@
           <h:outputText value="Variable or Lookup String" />
         </f:facet>
         <p:inplace styleClass="ellipsis" editor="true" style="width:200px;">
-          <p:inputText value="#{content.value}" styleClass="ellipsis" style="width:140px;"></p:inputText>
+          <p:inputText value="#{content.value}" styleClass="ellipsis" style="width:140px;"/>
         </p:inplace>
       </p:column>
 

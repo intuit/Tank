@@ -61,7 +61,7 @@ public class LogViewer implements Serializable {
         File f = new File(fileRoot);
         LOG.info("Log file dir is " + f.getAbsolutePath());
         if (!f.exists()) {
-            f = new File("/opt/tomcat6/logs");
+            f = new File("/opt/tomcat/logs");
         }
         try {
             File[] list = f.listFiles();

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui"
-  xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:p="http://primefaces.org/ui">
   <h:panelGroup id="requestEditorPanelGroup">
     <p:messages />
     <div class="clear-both vertical-spacer" />
@@ -10,7 +11,7 @@
     <div class="formRowDiv float-left width30Percent">
       <div id="hostLabelDiv" class="width80px float-left pad15Right pad15Top">Host</div>
       <div id="nameInputDiv" class="pad15Top">
-        <h:inputText value="#{scriptRequestEditor.step.hostname}" defaultLabel="Enter Script Name"></h:inputText>
+        <h:inputText value="#{scriptRequestEditor.step.hostname}" defaultLabel="Enter Script Name"/>
       </div>
     </div>
 
@@ -95,28 +96,28 @@
     <div class="height350 full-width">
       <p:tabView id="request-editor-tab-panel">
         <p:tab title="Request Header" id="requestHeaderTabId">
-            <ui:include src="./request-header-editor.xhtml"></ui:include>
+            <ui:include src="./request-header-editor.xhtml"/>
         </p:tab>
         <p:tab title="Response Header" id="responseHeaderTabId">
-            <ui:include src="./response-header-editor.xhtml"></ui:include>
+            <ui:include src="./response-header-editor.xhtml"/>
         </p:tab>
         <p:tab title="Cookies" id="requestCookieTabId">
-            <ui:include src="./request-cookies-editor.xhtml"></ui:include>
+            <ui:include src="./request-cookies-editor.xhtml"/>
         </p:tab>
         <p:tab title="Response Cookies" id="responseCookieTabId">
-            <ui:include src="./response-cookies-editor.xhtml"></ui:include>
+            <ui:include src="./response-cookies-editor.xhtml"/>
         </p:tab>
         <p:tab title="Query String" id="queryStringTabId">
-            <ui:include src="./query-string-editor.xhtml"></ui:include>
+            <ui:include src="./query-string-editor.xhtml"/>
         </p:tab>
         <p:tab title="Post Data" id="postDataTabId">
-            <ui:include src="./post-data-editor.xhtml"></ui:include>
+            <ui:include src="./post-data-editor.xhtml"/>
         </p:tab>
         <p:tab title="Validation" id="validationContentTabId">
-            <ui:include src="./validation-editor.xhtml"></ui:include>
+            <ui:include src="./validation-editor.xhtml"/>
         </p:tab>
         <p:tab title="Assignments" id="assignmentContentTabId">
-            <ui:include src="./assignment-editor.xhtml"></ui:include>
+            <ui:include src="./assignment-editor.xhtml"/>
         </p:tab>
       </p:tabView>
     </div>

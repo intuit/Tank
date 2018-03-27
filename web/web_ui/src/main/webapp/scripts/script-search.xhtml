@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-  xmlns:p="http://primefaces.org/ui" template="/WEB-INF/templates/tank.xhtml">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag"
+  xmlns:p="http://primefaces.org/ui"
+  template="/WEB-INF/templates/tank.xhtml">
+
   <ui:define name="content">
     <h:form id="searchForm">
 
@@ -56,7 +60,7 @@
                   styleClass="request-search-width">
                   <p:column>
                     <p:selectBooleanCheckbox value="#{option.selected}" />
-                    <h:outputText value="#{option.label}"></h:outputText>
+                    <h:outputText value="#{option.label}"/>
                   </p:column>
                 </p:dataGrid>
               </p:tab>
@@ -95,7 +99,7 @@
                   styleClass="variable-search-width">
                   <p:column style="width:100px;">
                     <p:selectBooleanCheckbox value="#{option.selected}" />
-                    <h:outputText value="#{option.label}"></h:outputText>
+                    <h:outputText value="#{option.label}"/>
                   </p:column>
                 </p:dataGrid>
                 <!-- <p:selectManyCheckbox id="variableSection" value="#{scriptEditor.selectedVariableSection}"
@@ -161,15 +165,15 @@
             </div>
             <div class="smallFormInputDiv">
               <h:inputText value="#{scriptSearchBean.replaceString}" id="replaceInput">
-                <f:ajax event="keyup" execute="replaceInput" immediate="true" render="replaceEntityTableId"></f:ajax>
+                <f:ajax event="keyup" execute="replaceInput" immediate="true" render="replaceEntityTableId"/>
               </h:inputText>
             </div>
           </div>
           <div class="formRow">
-            <p:commandButton value="Next" action="#{scriptSearchBean.next()}" update="replaceEntityTableId"></p:commandButton>
-            <p:commandButton value="Previous" action="#{scriptSearchBean.previous()}" update="replaceEntityTableId"></p:commandButton>
-            <p:commandButton value="Replace" action="#{scriptSearchBean.replace()}" update="replaceEntityTableId, :searchForm:scriptStepTableId"></p:commandButton>
-            <p:commandButton value="Replace All" action="#{scriptSearchBean.replaceAll()}" update="replaceEntityTableId, :searchForm:scriptStepTableId"></p:commandButton>
+            <p:commandButton value="Next" action="#{scriptSearchBean.next()}" update="replaceEntityTableId"/>
+            <p:commandButton value="Previous" action="#{scriptSearchBean.previous()}" update="replaceEntityTableId"/>
+            <p:commandButton value="Replace" action="#{scriptSearchBean.replace()}" update="replaceEntityTableId, :searchForm:scriptStepTableId"/>
+            <p:commandButton value="Replace All" action="#{scriptSearchBean.replaceAll()}" update="replaceEntityTableId, :searchForm:scriptStepTableId"/>
           </div>
         </h:panelGroup>
 

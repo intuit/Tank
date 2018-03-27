@@ -463,13 +463,12 @@ public class AmazonInstance implements IEnvironmentInstance {
     private List<VMInformation> killForRegion(VMRegion region, List<String> instanceIds) {
         List<VMInformation> result = new ArrayList<VMInformation>();
         try {
-            asynchEc2Client.setEndpoint(region.getEndpoint());
             List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
             List<String> ids = new ArrayList<String>();
             for (VMInformation info : instances) {
                 ids.add(info.getInstanceId());
             }
-            if (ids.size() > 0) {
+            if (!ids.isEmpty()) {
                 TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest(ids);
                 TerminateInstancesResult terminateInstances = asynchEc2Client.terminateInstances(terminateInstancesRequest);
                 result = new AmazonDataConverter().processStateChange(terminateInstances.getTerminatingInstances());
@@ -484,7 +483,6 @@ public class AmazonInstance implements IEnvironmentInstance {
     private List<VMInformation> stopForRegion(VMRegion region, List<String> instanceIds) {
         List<VMInformation> result = new ArrayList<VMInformation>();
         try {
-            asynchEc2Client.setEndpoint(region.getEndpoint());
             List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
             List<String> ids = new ArrayList<String>();
             for (VMInformation info : instances) {
