@@ -214,7 +214,7 @@ public class HeaderParser {
      */
     public int getContentLength() {
         String contentLength = getSingleValue("Content-Length");
-        if (NumberUtils.isNumber(contentLength)) {
+        if (NumberUtils.isCreatable(contentLength)) {
             return Integer.parseInt(contentLength);
         }
         return 0;
@@ -416,7 +416,7 @@ public class HeaderParser {
                                 isFirst = false;
                             } else if (key.equalsIgnoreCase("Expires")) {
                                 c.setExpires(parseDate(value));
-                            } else if (key.equalsIgnoreCase("Max-Age") && NumberUtils.isNumber(value)) {
+                            } else if (key.equalsIgnoreCase("Max-Age") && NumberUtils.isCreatable(value)) {
                                 c.setMaxAge(value);
                             } else if (key.equalsIgnoreCase("Path") && !StringUtils.isEmpty(value)) {
                                 c.setPath(value);

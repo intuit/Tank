@@ -630,7 +630,7 @@ public class RequestRunner implements Runner {
     }
 
     private int compare(String actualValue, String expected) {
-        if (NumberUtils.isNumber(actualValue) && NumberUtils.isNumber(expected)) {
+        if (NumberUtils.isCreatable(actualValue) && NumberUtils.isCreatable(expected)) {
             Double a = NumberUtils.toDouble(actualValue);
             Double e = NumberUtils.toDouble(expected);
             return a.compareTo(e);

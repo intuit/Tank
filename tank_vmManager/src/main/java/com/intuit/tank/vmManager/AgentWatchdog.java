@@ -66,8 +66,9 @@ public class AgentWatchdog implements Runnable {
     private AmazonInstance amazonInstance;
 
     /**
-     * @param requestForAgents
-     * @param vmTrackerImpl
+     * @param instanceRequest
+     * @param vmInfo
+     * @param vmTracker
      */
     public AgentWatchdog(VMInstanceRequest instanceRequest, List<VMInformation> vmInfo, VMTracker vmTracker) {
         this.instanceRequest = instanceRequest;
@@ -267,7 +268,7 @@ public class AgentWatchdog implements Runnable {
     }
 
     /**
-     * @param request2
+     * @param req
      * @param info
      * @return
      */
@@ -280,7 +281,6 @@ public class AgentWatchdog implements Runnable {
     }
 
     /**
-     * @param request2
      * @param info
      * @return
      */

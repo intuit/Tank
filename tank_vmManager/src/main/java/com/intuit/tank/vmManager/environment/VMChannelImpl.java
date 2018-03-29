@@ -22,6 +22,7 @@ import javax.annotation.Nonnull;
 
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
+import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.vmManager.VMChannel;
 import com.intuit.tank.vm.vmManager.VMInformation;
 import com.intuit.tank.vm.vmManager.VMInstanceRequest;
@@ -53,8 +54,10 @@ public class VMChannelImpl implements VMChannel {
      */
     @Override
     public void terminateInstances(@Nonnull List<String> instanceIds) {
-        AmazonInstance amazonInstance = new AmazonInstance(null, null);
-        amazonInstance.kill(instanceIds);
+        for (VMRegion region : new TankConfig().getVmManagerConfig().getRegions()) {
+            AmazonInstance amazonInstance = new AmazonInstance(null, region);
+            amazonInstance.kill(instanceIds);
+        }
     }
 
     /**
@@ -62,8 +65,10 @@ public class VMChannelImpl implements VMChannel {
      */
     @Override
     public void stopInstances(@Nonnull List<String> instanceIds) {
-        AmazonInstance amazonInstance = new AmazonInstance(null, null);
-        amazonInstance.stopInstances(instanceIds);
+        for (VMRegion region : new TankConfig().getVmManagerConfig().getRegions()) {
+            AmazonInstance amazonInstance = new AmazonInstance(null, region);
+            amazonInstance.stopInstances(instanceIds);
+        }
     }
 
     /**

@@ -75,7 +75,7 @@ public class ProjectServiceUtil {
     public static synchronized File getScriptFile(String jobId) {
         File f = ProjectDaoUtil.getScriptFile(jobId);
         if (!f.exists()) {
-            if (NumberUtils.isNumber(jobId)) {
+            if (NumberUtils.isCreatable(jobId)) {
                 try {
                     String scriptString = getScriptString(new JobInstanceDao().findById(Integer.parseInt(jobId)));
                     ProjectDaoUtil.storeScriptFile(jobId, scriptString);

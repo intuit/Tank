@@ -131,7 +131,7 @@ public class UpgradeFilters implements Serializable {
                 s = "#{" + s.substring(1) + "}";
             } else if (s.startsWith("#{")) {
                 s = s.substring(2, s.length() - 1);
-            } else if (!NumberUtils.isNumber(s)) {
+            } else if (!NumberUtils.isCreatable(s)) {
                 s = '"' + s + '"';
             }
             sb.append(s);

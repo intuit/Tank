@@ -369,7 +369,7 @@ public class NumericFunctionsTest {
 
         String result = NumericFunctions.randomNegativeFloat(whole, decimal);
 
-        assertTrue(NumberUtils.isNumber(result));
+        assertTrue(NumberUtils.isCreatable(result));
         assertTrue(NumberUtils.toDouble(result) < 0);
     }
 
@@ -387,7 +387,7 @@ public class NumericFunctionsTest {
 
         String result = NumericFunctions.randomNegativeWhole(length);
 
-        assertTrue(NumberUtils.isNumber(result));
+        assertTrue(NumberUtils.isCreatable(result));
         assertTrue(NumberUtils.toDouble(result) < 0);
     }
 
@@ -406,7 +406,7 @@ public class NumericFunctionsTest {
 
         String result = NumericFunctions.randomPositiveFloat(whole, decimal);
 
-        assertTrue(NumberUtils.isNumber(result));
+        assertTrue(NumberUtils.isCreatable(result));
     }
 
     /**
@@ -424,7 +424,7 @@ public class NumericFunctionsTest {
 
         String result = NumericFunctions.randomPositiveFloat(whole, decimal);
 
-        assertTrue(NumberUtils.isNumber(result));
+        assertTrue(NumberUtils.isCreatable(result));
     }
 
     /**
@@ -458,7 +458,7 @@ public class NumericFunctionsTest {
 
         String result = NumericFunctions.randomPositiveWhole(length);
 
-        assertTrue(NumberUtils.isNumber(result));
+        assertTrue(NumberUtils.isCreatable(result));
     }
 
     /**
@@ -475,6 +475,6 @@ public class NumericFunctionsTest {
 
         String result = NumericFunctions.randomPositiveWhole(length);
 
-        assertTrue(NumberUtils.isNumber(result));
+        assertTrue(NumberUtils.isCreatable(result));
     }
 }

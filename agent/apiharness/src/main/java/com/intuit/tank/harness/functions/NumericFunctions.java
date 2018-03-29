@@ -53,10 +53,10 @@ class NumericFunctions {
             }
             if (values[2].equalsIgnoreCase("add")
                     || values[2].equalsIgnoreCase("subtract")) {
-                if (NumberUtils.isNumber(values[3]) && NumberUtils.isNumber(values[4])) {
+                if (NumberUtils.isCreatable(values[3]) && NumberUtils.isCreatable(values[4])) {
                     for (int i = 5; i < values.length; i++) {
                         if (values[i] != null) {
-                            if (!NumberUtils.isNumber(values[i])) {
+                            if (!NumberUtils.isCreatable(values[i])) {
                                 return false;
                             }
                         } else {

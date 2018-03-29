@@ -142,7 +142,7 @@ public class ScriptUtil {
         for (String group : toTest) {
             group = group.trim();
             if (StringUtils.isNotBlank(group) && StringUtils.containsNone(group, " ()'\",")) {
-                if (!NumberUtils.isNumber(group)) {
+                if (!NumberUtils.isCreatable(group)) {
                     // its a variable
                     ret.add(group);
                 }

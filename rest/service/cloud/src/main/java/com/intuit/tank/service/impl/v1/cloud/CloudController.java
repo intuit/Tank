@@ -150,7 +150,7 @@ public class CloudController {
                 }
                 if (killNonRegional || killModal) {
                     for (CloudVmStatusContainer statusForJob : tracker.getAllJobs()) {
-                        if (statusForJob.getEndTime() == null && !NumberUtils.isNumber(statusForJob.getJobId())) {
+                        if (statusForJob.getEndTime() == null && !NumberUtils.isCreatable(statusForJob.getJobId())) {
                             killNonRegional = false;
                             killModal = false;
                             LOG.info("Cannot kill Reporting instances because of automation job id: "
