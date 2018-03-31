@@ -58,7 +58,7 @@ public class TankMailer implements MailService, Serializable {
     private static final Logger LOG = LogManager.getLogger(TankMailer.class);
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void sendMail(MailMessage message, String... emailAddresses) {

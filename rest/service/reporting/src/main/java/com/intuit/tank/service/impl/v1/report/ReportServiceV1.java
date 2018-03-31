@@ -83,7 +83,7 @@ public class ReportServiceV1 implements ReportService {
     private static final FastDateFormat FMT = FastDateFormat.getInstance(ReportService.DATE_FORMAT, TimeZone.getTimeZone("PST"));
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String ping() {
@@ -124,7 +124,7 @@ public class ReportServiceV1 implements ReportService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response deleteTiming(String jobId) {
@@ -141,7 +141,7 @@ public class ReportServiceV1 implements ReportService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response processSummary(final String jobId) {
@@ -164,7 +164,7 @@ public class ReportServiceV1 implements ReportService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getTimingCsv(final String jobId) {
@@ -201,7 +201,7 @@ public class ReportServiceV1 implements ReportService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getTimingBucketCsv(final String jobId, final int period, final String min, final String max) {
@@ -320,7 +320,7 @@ public class ReportServiceV1 implements ReportService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getSummaryTimingCsv(final String jobId) {
@@ -401,7 +401,7 @@ public class ReportServiceV1 implements ReportService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getSummaryTimingHtml(final String jobId) {
@@ -452,7 +452,7 @@ public class ReportServiceV1 implements ReportService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getTimingBucketHtml(String jobId, int period) {

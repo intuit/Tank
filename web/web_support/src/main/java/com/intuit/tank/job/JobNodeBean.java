@@ -205,11 +205,11 @@ public abstract class JobNodeBean implements Serializable {
     }
 
     /**
-     * @param validationStatus
+     * @param status
      * 
      */
-    public void setNumFailures(ValidationStatus fails) {
-        this.numFailures = fails;
+    public void setNumFailures(ValidationStatus status) {
+        this.numFailures = status;
         this.totalFails = String.valueOf(numFailures.getTotal());
     }
 
@@ -332,7 +332,7 @@ public abstract class JobNodeBean implements Serializable {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int hashCode() {
@@ -341,7 +341,7 @@ public abstract class JobNodeBean implements Serializable {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean equals(Object obj) {

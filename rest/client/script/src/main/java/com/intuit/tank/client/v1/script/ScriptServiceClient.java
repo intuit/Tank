@@ -83,7 +83,7 @@ public class ScriptServiceClient extends BaseRestClient {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public ScriptTO convertScript(ScriptUploadRequest request, InputStream in) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_CONVERT_SCRIPT));
@@ -102,7 +102,7 @@ public class ScriptServiceClient extends BaseRestClient {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public ScriptDescriptionContainer getScriptDescriptions() throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_DESCRIPTION));
@@ -112,7 +112,7 @@ public class ScriptServiceClient extends BaseRestClient {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public ScriptStepContainer getScriptSteps(Integer id, int start, int numSteps) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_STEPS));
@@ -124,7 +124,7 @@ public class ScriptServiceClient extends BaseRestClient {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public ScriptDescription getScriptDescription(Integer id) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_DESCRIPTION, id));
@@ -134,7 +134,7 @@ public class ScriptServiceClient extends BaseRestClient {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public ScriptTO getScript(Integer id) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT, id));
@@ -144,7 +144,7 @@ public class ScriptServiceClient extends BaseRestClient {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public void deleteScript(Integer id) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT, id));
@@ -153,7 +153,7 @@ public class ScriptServiceClient extends BaseRestClient {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public void deleteScriptFilter(Integer id) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_FILTER, id));
@@ -162,7 +162,7 @@ public class ScriptServiceClient extends BaseRestClient {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public void updateScript(Integer id, ScriptTO script) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT, id));
@@ -178,7 +178,7 @@ public class ScriptServiceClient extends BaseRestClient {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public String updateTankScript(File f) throws RestServiceException {
         InputStream in = null;
@@ -193,7 +193,7 @@ public class ScriptServiceClient extends BaseRestClient {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public String updateTankScript(InputStream in) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_UPDATE));
@@ -206,7 +206,7 @@ public class ScriptServiceClient extends BaseRestClient {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public ScriptTO newScript(ScriptTO script) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT));
@@ -220,7 +220,7 @@ public class ScriptServiceClient extends BaseRestClient {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public ScriptTO scriptFilterRequest(ScriptFilterRequest filterRequest) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(ScriptService.METHOD_SCRIPT_FILTER));

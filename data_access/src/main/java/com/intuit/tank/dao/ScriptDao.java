@@ -56,7 +56,7 @@ public class ScriptDao extends BaseDao<Script> {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Script findById(Integer id) {
@@ -68,7 +68,7 @@ public class ScriptDao extends BaseDao<Script> {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public Script getScript(Integer id) {
         Script script = super.findById(id);
@@ -76,7 +76,7 @@ public class ScriptDao extends BaseDao<Script> {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void delete(Integer id) throws HibernateException {
@@ -162,7 +162,7 @@ public class ScriptDao extends BaseDao<Script> {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Script saveOrUpdate(Script script) {

@@ -120,7 +120,7 @@ public class CreateJobRequest implements Serializable {
     }
     
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String toString() {
@@ -128,7 +128,7 @@ public class CreateJobRequest implements Serializable {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean equals(Object obj) {

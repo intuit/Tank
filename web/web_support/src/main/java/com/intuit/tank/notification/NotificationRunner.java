@@ -64,7 +64,7 @@ public class NotificationRunner implements Runnable {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void run() {

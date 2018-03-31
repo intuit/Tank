@@ -29,7 +29,7 @@ public class JobQueueAction {
     /**
      * Runs the job for the given jobId
      * 
-     * @param jobId
+     * @param node
      */
     public void run(JobNodeBean node) {
         if (node instanceof ActJobNodeBean) {
@@ -75,7 +75,7 @@ public class JobQueueAction {
     /**
      * Kills the job for the given jobId
      * 
-     * @param jobId
+     * @param node
      */
     public void kill(JobNodeBean node) {
         if (node instanceof ActJobNodeBean) {

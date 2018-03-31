@@ -363,7 +363,7 @@ public class JobInstance extends BaseJob {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String toString() {
@@ -373,7 +373,7 @@ public class JobInstance extends BaseJob {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean equals(Object obj) {
@@ -385,7 +385,7 @@ public class JobInstance extends BaseJob {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int hashCode() {

@@ -23,29 +23,25 @@ public class JobStatusHelper {
         return (status.equals(JobQueueStatus.Created.toString())
         		|| status.equals(JobQueueStatus.Queued.toString())
         		|| status.equals(JobQueueStatus.Paused.toString())
-        		|| status.equals(JobQueueStatus.RampPaused.toString()))
-        		? true : false;
+        		|| status.equals(JobQueueStatus.RampPaused.toString()));
     }
 
     public static boolean canBePaused(String status) {
         return (status.equalsIgnoreCase(JobQueueStatus.Running.toString())
         		|| status.equals(JobQueueStatus.Starting.toString())
-        		|| status.equals(JobQueueStatus.RampPaused.toString()))
-        		? true : false;
+        		|| status.equals(JobQueueStatus.RampPaused.toString()));
     }
 
     public static boolean canRampBePaused(String status) {
     	return (status.equalsIgnoreCase(JobQueueStatus.Running.toString())
-    			|| status.equals(JobQueueStatus.Starting.toString()))
-            	? true : false;
+    			|| status.equals(JobQueueStatus.Starting.toString()));
     }
 
     public static boolean canBeStopped(String status) {
     	return (status.equalsIgnoreCase(JobQueueStatus.Running.toString())
     			|| status.equals(JobQueueStatus.Starting.toString())
     			|| status.equals(JobQueueStatus.Paused.toString())
-    			|| status.equals(JobQueueStatus.RampPaused.toString()))
-            	? true : false;
+    			|| status.equals(JobQueueStatus.RampPaused.toString()));
     }
 
     public static boolean canBeKilled(String status) {
@@ -54,7 +50,6 @@ public class JobStatusHelper {
         		|| status.equalsIgnoreCase(JobQueueStatus.Starting.toString())
         		|| status.equals(VMStatus.stopping.toString())
         		|| status.equals(JobQueueStatus.Paused.toString())
-        		|| status.equals(JobQueueStatus.RampPaused.toString()))
-            	? true : false;
+        		|| status.equals(JobQueueStatus.RampPaused.toString()));
     }
 }

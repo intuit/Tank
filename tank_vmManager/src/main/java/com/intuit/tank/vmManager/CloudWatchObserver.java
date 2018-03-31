@@ -133,7 +133,6 @@ public class CloudWatchObserver {
                 Set<CloudVmStatus> statuses = vmStatusForJob.getStatuses();
                 Map<VMRegion, Set<String>> instanceMap = new HashMap<VMRegion, Set<String>>();
                 for (CloudVmStatus s : statuses) {
-                    s.getVmRegion();
                     Set<String> set = instanceMap.get(s.getVmRegion());
                     if (set == null) {
                         set = new HashSet<String>();

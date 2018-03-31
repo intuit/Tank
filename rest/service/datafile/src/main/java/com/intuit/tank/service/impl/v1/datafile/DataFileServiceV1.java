@@ -75,7 +75,7 @@ public class DataFileServiceV1 implements DataFileService {
     private static final Logger LOG = LogManager.getLogger(DataFileServiceV1.class);
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String ping() {
@@ -83,7 +83,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public StreamingOutput getDataFileData(Integer id) {
@@ -91,7 +91,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public StreamingOutput getDataFileDataOffset(Integer id, int offset, int numLines) {
@@ -99,7 +99,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public StreamingOutput getDataFileVersion(Integer id, Integer version, final int offset, final int numLines) {
@@ -109,7 +109,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response saveOrUpdateDataFile(FormDataMultiPart formData) {
@@ -197,7 +197,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response deleteDataFile(Integer id) {
@@ -209,7 +209,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getDataFiles() {
@@ -227,7 +227,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getDataFile(Integer id) {
@@ -242,7 +242,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response setDataFile(Integer id, FormDataMultiPart formData) {
@@ -293,7 +293,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response downloadDataFileData(Integer id) {

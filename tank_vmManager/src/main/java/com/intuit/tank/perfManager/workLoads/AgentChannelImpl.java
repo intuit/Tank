@@ -44,13 +44,9 @@ public class AgentChannelImpl implements AgentChannel {
         sendCmd(instanceIds, WatsAgentCommand.stop);
     }
 
-    public void pauseAgents(List<String> instanceIds) {
-        sendCmd(instanceIds, WatsAgentCommand.pause);
-    }
+    public void pauseAgents(List<String> instanceIds) { sendCmd(instanceIds, WatsAgentCommand.pause); }
 
-    public void pauseRamp(List<String> instanceIds) {
-        sendCmd(instanceIds, WatsAgentCommand.pause_ramp);
-    }
+    public void pauseRamp(List<String> instanceIds) { sendCmd(instanceIds, WatsAgentCommand.pause_ramp); }
 
     public void resumeRamp(List<String> instanceIds) {
         sendCmd(instanceIds, WatsAgentCommand.resume_ramp);

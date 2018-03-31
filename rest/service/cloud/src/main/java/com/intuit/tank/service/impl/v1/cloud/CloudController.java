@@ -69,14 +69,14 @@ public class CloudController {
             new ThreadPoolExecutor.DiscardOldestPolicy());
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public CloudVmStatus getVmStatus(String instanceId) {
         return tracker.getStatus(instanceId);
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public void setVmStatus(final String instanceId, final CloudVmStatus status) {
 
@@ -104,7 +104,7 @@ public class CloudController {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public CloudVmStatusContainer getVmStatusForJob(String jobId) {
         return tracker.getVmStatusForJob(jobId);

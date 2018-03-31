@@ -66,7 +66,7 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
         list.addMouseListener(new MouseAdapter() {
 
             /**
-             * @{inheritDoc
+             * @inheritDoc
              */
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -95,7 +95,7 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void setVisible(boolean b) {

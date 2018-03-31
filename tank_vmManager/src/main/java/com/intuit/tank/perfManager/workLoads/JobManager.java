@@ -241,11 +241,11 @@ public class JobManager implements Serializable {
                         while (retries >= 0) {
                             retries--;
                             try {
-                                LOG.info("Sending command " + cmd + "to url " + url);
+                                LOG.info("Sending command " + cmd + " to url " + url);
                                 new URL(url).getContent();
                                 break;
                             } catch (Exception e) {
-                                LOG.error("Error sending command " + cmd.name() + ": " + e, e);
+                                LOG.error("Error sending command " + cmd.name() + " to " + url + ": " + e);
                                 // look up public ip
                                 if (!config.getStandalone()) {
                                     AmazonInstance amazonInstance = new AmazonInstance(null, agent.getRegion());

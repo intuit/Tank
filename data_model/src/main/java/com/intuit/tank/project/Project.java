@@ -153,7 +153,7 @@ public class Project extends OwnableEntity {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String toString() {
@@ -162,7 +162,7 @@ public class Project extends OwnableEntity {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean equals(Object obj) {
@@ -174,7 +174,7 @@ public class Project extends OwnableEntity {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int hashCode() {

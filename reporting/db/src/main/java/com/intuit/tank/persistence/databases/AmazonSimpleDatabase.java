@@ -70,7 +70,7 @@ public class AmazonSimpleDatabase implements IDatabase {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     public void createTable(String tableName) {
         try {
@@ -91,7 +91,7 @@ public class AmazonSimpleDatabase implements IDatabase {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void deleteForJob(final String tableName, String jobId, boolean asynch) {
@@ -112,7 +112,7 @@ public class AmazonSimpleDatabase implements IDatabase {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public Set<String> getTables(String regex) {
         Set<String> result = new HashSet<String>();
@@ -132,7 +132,7 @@ public class AmazonSimpleDatabase implements IDatabase {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     public void addTimingResults(final @Nonnull String tableName, final @Nonnull List<TankResult> messages, boolean asynch) {
         if (!messages.isEmpty()) {
@@ -171,7 +171,7 @@ public class AmazonSimpleDatabase implements IDatabase {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void addItems(final String tableName, final List<Item> items, boolean asynch) {
@@ -197,7 +197,7 @@ public class AmazonSimpleDatabase implements IDatabase {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean hasJobData(String tableName, String jobId) {
@@ -212,7 +212,7 @@ public class AmazonSimpleDatabase implements IDatabase {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     public String getDatabaseName(TankDatabaseType type, String jobId) {
         return type.name() + "_" + new TankConfig().getInstanceName() + "_" + jobId;
@@ -241,7 +241,7 @@ public class AmazonSimpleDatabase implements IDatabase {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     public boolean hasTable(@Nonnull String tableName) {
         boolean hasMore = true;
@@ -285,7 +285,7 @@ public class AmazonSimpleDatabase implements IDatabase {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public PagedDatabaseResult getPagedItems(String tableName, Object token, String minRange, String maxRange, String instanceId, String jobId) {
@@ -312,7 +312,7 @@ public class AmazonSimpleDatabase implements IDatabase {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public List<Item> getItems(String tableName, String minRange, String maxRange, String instanceId, String... jobIds) {

@@ -151,7 +151,7 @@ public class Workload extends BaseEntity {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String toString() {
@@ -160,7 +160,7 @@ public class Workload extends BaseEntity {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean equals(Object obj) {
@@ -172,7 +172,7 @@ public class Workload extends BaseEntity {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int hashCode() {

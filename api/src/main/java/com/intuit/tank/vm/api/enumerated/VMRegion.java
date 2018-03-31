@@ -81,7 +81,7 @@ public enum VMRegion {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     public String toString() {
         return description;
