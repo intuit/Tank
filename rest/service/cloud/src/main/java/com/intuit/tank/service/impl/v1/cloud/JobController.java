@@ -123,9 +123,7 @@ public class JobController {
     /**
      * @inheritDoc
      */
-    public void killInstance(String instanceId) {
-        killInstances(Arrays.asList(new String[] { instanceId }));
-    }
+    public void killInstance(String instanceId) { killInstances(Arrays.asList( instanceId )); }
 
     /**
      * @inheritDoc

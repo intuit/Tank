@@ -16,6 +16,7 @@ package com.intuit.tank.vm.settings;
 import java.io.File;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Named;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.logging.log4j.LogManager;
@@ -29,6 +30,7 @@ import org.apache.logging.log4j.Logger;
  * 
  * @author dangleton
  */
+@Named
 @ApplicationScoped
 public class TankConfig extends BaseCommonsXmlConfig {
 

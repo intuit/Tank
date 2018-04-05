@@ -103,9 +103,7 @@ public class VMNodeBean extends JobNodeBean {
     }
 
     @Override
-    public boolean isRunnable() {
-        return JobStatusHelper.canBeRun(getStatus());
-    }
+    public boolean isRunnable() { return JobStatusHelper.canBeRun(getStatus()); }
 
     @Override
     public boolean isPausable() {

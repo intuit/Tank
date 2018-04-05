@@ -91,7 +91,9 @@ public class JobManager implements Serializable {
     private Map<String, JobInfo> agentMap = new HashMap<String, JobInfo>();
 
     private Map<Integer, Integer> dataFileCountMap = new ConcurrentHashMap<Integer, Integer>();
-    private TankConfig config = new TankConfig();
+
+    @Inject
+    private TankConfig tankConfig;
 
     /**
      * @param id
@@ -157,7 +159,7 @@ public class JobManager implements Serializable {
                 ret.setTotalAgents(jobInfo.numberOfMachines);
                 ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement());
                 jobInfo.agentData.add(agent);
-                CloudVmStatus status = new CloudVmStatus(vmTracker.getStatus(agent.getInstanceId()));
+                CloudVmStatus status = vmTracker.getStatus(agent.getInstanceId());
                 status.setVmStatus(VMStatus.pending);
                 vmTracker.setStatus(status);
                 if (jobInfo.isFilled()) {
@@ -247,7 +249,7 @@ public class JobManager implements Serializable {
                             } catch (Exception e) {
                                 LOG.error("Error sending command " + cmd.name() + " to " + url + ": " + e);
                                 // look up public ip
-                                if (!config.getStandalone()) {
+                                if (!tankConfig.getStandalone()) {
                                     AmazonInstance amazonInstance = new AmazonInstance(null, agent.getRegion());
                                     String dns = amazonInstance.findPublicName(agent.getInstanceId());
                                     if (dns != null) {

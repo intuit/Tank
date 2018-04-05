@@ -78,10 +78,10 @@ public class AgentWatchdog implements Runnable {
         this.amazonInstance = new AmazonInstance(null, instanceRequest.getRegion());
 
         VmManagerConfig vmManagerConfig = new TankConfig().getVmManagerConfig();
-        this.maxWaitForResponse = vmManagerConfig.getMaxAgentReportMills(1000 * 60 * 5);
-        this.maxWaitForStart = vmManagerConfig.getMaxAgentStartMills(1000 * 60 * 3);
+        this.maxWaitForResponse = vmManagerConfig.getMaxAgentReportMills(1000 * 60 * 5); // 5 minutes
+        this.maxWaitForStart = vmManagerConfig.getMaxAgentStartMills(1000 * 60 * 3);     // 3 minutes
         this.maxRestarts = vmManagerConfig.getMaxRestarts(2);
-        this.sleepTime = vmManagerConfig.getWatchdogSleepTime(30 * 1000);
+        this.sleepTime = vmManagerConfig.getWatchdogSleepTime(30 * 1000);               // 30 seconds
     }
 
     /**
@@ -273,11 +273,10 @@ public class AgentWatchdog implements Runnable {
      * @return
      */
     private CloudVmStatus createCloudStatus(VMInstanceRequest req, VMInformation info) {
-        CloudVmStatus ret = new CloudVmStatus(info.getInstanceId(), req.getJobId(),
+        return new CloudVmStatus(info.getInstanceId(), req.getJobId(),
                 req.getInstanceDescription() != null ? req.getInstanceDescription().getSecurityGroup() : "unknown",
                 JobStatus.Starting,
                 VMImageType.AGENT, req.getRegion(), VMStatus.pending, new ValidationStatus(), 0, 0, null, null);
-        return ret;
     }
 
     /**
@@ -287,10 +286,9 @@ public class AgentWatchdog implements Runnable {
     private CloudVmStatus createTerminatedVmStatus(VMInformation info) {
         LOG.info(info);
         LOG.info(instanceRequest);
-        CloudVmStatus ret = new CloudVmStatus(info.getInstanceId(), instanceRequest.getJobId(), "unknown",
+        return new CloudVmStatus(info.getInstanceId(), instanceRequest.getJobId(), "unknown",
                 JobStatus.Stopped, VMImageType.AGENT, instanceRequest.getRegion(),
                 VMStatus.terminated, new ValidationStatus(), 0, 0, null, null);
-        return ret;
     }
 
     /**
@@ -331,7 +329,7 @@ public class AgentWatchdog implements Runnable {
     }
 
     /**
-     * @param info
+     * @param foundInstanceId
      * @param instances
      */
     private void removeInstance(String foundInstanceId, List<VMInformation> instances) {

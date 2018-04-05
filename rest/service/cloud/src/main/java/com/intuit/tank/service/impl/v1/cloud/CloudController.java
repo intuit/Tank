@@ -56,7 +56,7 @@ public class CloudController {
     private VMTerminator terminator;
 
     @Inject
-    private VMTracker tracker;
+    private VMTracker vmTracker;
 
     @Inject
     private MailService mailService;
@@ -72,7 +72,7 @@ public class CloudController {
      * @inheritDoc
      */
     public CloudVmStatus getVmStatus(String instanceId) {
-        return tracker.getStatus(instanceId);
+        return vmTracker.getStatus(instanceId);
     }
 
     /**
@@ -83,7 +83,7 @@ public class CloudController {
         Runnable task = new Runnable() {
             @Override
             public void run() {
-                tracker.setStatus(status);
+                vmTracker.setStatus(status);
                 if (status.getJobStatus() == JobStatus.Completed || status.getVmStatus() == VMStatus.terminated) {
                     // will terrminate instance after waiting for some cleanup time
                     terminator.terminate(status.getInstanceId());
@@ -107,7 +107,7 @@ public class CloudController {
      * @inheritDoc
      */
     public CloudVmStatusContainer getVmStatusForJob(String jobId) {
-        return tracker.getVmStatusForJob(jobId);
+        return vmTracker.getVmStatusForJob(jobId);
     }
 
     public void checkJobStatus(String jobId) {
@@ -119,7 +119,7 @@ public class CloudController {
      * @param mailService
      */
     private void checkJobStatus(String jobId, MailService mailService) {
-        CloudVmStatusContainer container = tracker.getVmStatusForJob(jobId);
+        CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
         LOG.info("Checking Job Status to see if we can kill reporting instances. Container=" + container);
         if (container != null) {
             if (container.getEndTime() != null) {
@@ -133,8 +133,7 @@ public class CloudController {
                     finishedJob.setStatus(JobQueueStatus.Completed);
                     dao.saveOrUpdate(finishedJob);
                 }
-                List<JobQueueStatus> statuses = Arrays.asList(new JobQueueStatus[] { JobQueueStatus.Running,
-                        JobQueueStatus.Starting });
+                List<JobQueueStatus> statuses = Arrays.asList(JobQueueStatus.Running,JobQueueStatus.Starting );
                 List<JobInstance> instances = dao.getForStatus(statuses);
                 LOG.info("Checking Job Status to see if we can kill reporting instances. found running instances: "
                         + instances.size());
@@ -142,14 +141,14 @@ public class CloudController {
                 boolean killNonRegional = true;
 
                 for (JobInstance job : instances) {
-                    CloudVmStatusContainer statusForJob = tracker.getVmStatusForJob(Integer.toString(job.getId()));
+                    CloudVmStatusContainer statusForJob = vmTracker.getVmStatusForJob(Integer.toString(job.getId()));
                     if (!jobId.equals(Integer.toString(job.getId())) && statusForJob != null
                             && statusForJob.getEndTime() == null) {
                         LOG.info("Found another job that is not finished: " + job);
                     }
                 }
                 if (killNonRegional || killModal) {
-                    for (CloudVmStatusContainer statusForJob : tracker.getAllJobs()) {
+                    for (CloudVmStatusContainer statusForJob : vmTracker.getAllJobs()) {
                         if (statusForJob.getEndTime() == null && !NumberUtils.isCreatable(statusForJob.getJobId())) {
                             killNonRegional = false;
                             killModal = false;

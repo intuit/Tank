@@ -23,7 +23,8 @@ public class JobStatusHelper {
         return (status.equals(JobQueueStatus.Created.toString())
         		|| status.equals(JobQueueStatus.Queued.toString())
         		|| status.equals(JobQueueStatus.Paused.toString())
-        		|| status.equals(JobQueueStatus.RampPaused.toString()));
+        		|| status.equals(JobQueueStatus.RampPaused.toString())
+				|| status.equals(VMStatus.rampPaused.toString()));
     }
 
     public static boolean canBePaused(String status) {

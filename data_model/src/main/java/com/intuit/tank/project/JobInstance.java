@@ -129,7 +129,7 @@ public class JobInstance extends BaseJob {
     }
 
     /**
-     * @param workloadVersionId
+     * @param workload
      * @param name
      */
     public JobInstance(Workload workload, String name) {

@@ -537,7 +537,6 @@ public class APITestHarness {
     /**
      * Run concurrent test plans at the same time
      * 
-     * @param parser
      */
     public void runConcurrentTestPlans() {
         if (started) {
@@ -731,7 +730,7 @@ public class APITestHarness {
         }
     }
 
-    public WatsAgentStatusResponse getStats() {
+    public WatsAgentStatusResponse getStatus() {
         int ramp = (agentRunData.getNumUsers() - agentRunData.getNumStartUsers());
 
         if (ramp > 0) {
@@ -836,25 +835,22 @@ public class APITestHarness {
     }
 
     /**
-     * @param cmd
+     * @param newCommand
      */
     public void setCommand(WatsAgentCommand newCommand) {
         if (cmd != WatsAgentCommand.stop) {
             cmd = newCommand;
             LOG.info(LogUtil.getLogMessage("Got new Command: " + newCommand + " with " + currentNumThreads
                     + " User Threads running.", LogEventType.System));
-            if (cmd == WatsAgentCommand.stop || cmd == WatsAgentCommand.pause || cmd == WatsAgentCommand.pause_ramp) {
-                APIMonitor.setJobStatus(cmd == WatsAgentCommand.stop ? JobStatus.Stopped
-                        : cmd == WatsAgentCommand.pause ? JobStatus.Paused : JobStatus.RampPaused);
-                if (cmd == WatsAgentCommand.pause) {
-                    for (Thread t : sessionThreads) {
-                        t.interrupt();
-                    }
+            APIMonitor.setJobStatus(cmd == WatsAgentCommand.stop ? JobStatus.Stopped
+                    : cmd == WatsAgentCommand.pause ? JobStatus.Paused
+                    : cmd == WatsAgentCommand.resume_ramp || cmd == WatsAgentCommand.run ? JobStatus.Running
+                    : JobStatus.RampPaused);
+            if (cmd == WatsAgentCommand.pause) {
+                for (Thread t : sessionThreads) {
+                    t.interrupt();
                 }
-            } else if (cmd == WatsAgentCommand.resume_ramp || cmd == WatsAgentCommand.run) {
-                APIMonitor.setJobStatus(JobStatus.Running);
             }
-
         }
     }
 

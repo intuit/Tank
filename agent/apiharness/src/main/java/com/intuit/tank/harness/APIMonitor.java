@@ -56,7 +56,7 @@ public class APIMonitor implements Runnable {
 
         while (doMonitor) {
             try {
-                CloudVmStatus newStatus = createStatus(APITestHarness.getInstance().getStats());
+                CloudVmStatus newStatus = createStatus(APITestHarness.getInstance().getStatus());
                 newStatus.setUserDetails(APITestHarness.getInstance().getUserTracker().getSnapshot());
                 TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPMonitor().getTPSInfo();
                 if (tpsInfo != null) {
@@ -70,7 +70,7 @@ public class APIMonitor implements Runnable {
                 LOG.error(LogUtil.getLogMessage("Unable to send status metrics | " + t.getMessage()), t);
             }
         }
-        CloudVmStatus newStatus = createStatus(APITestHarness.getInstance().getStats());
+        CloudVmStatus newStatus = createStatus(APITestHarness.getInstance().getStatus());
         client.setVmStatus(newStatus.getInstanceId(), newStatus);
     }
 
@@ -82,27 +82,27 @@ public class APIMonitor implements Runnable {
     }
 
     /**
-     * @param Statistics
+     * @param agentStatus
      *            for this instance
      * @return
      */
-    private CloudVmStatus createStatus(WatsAgentStatusResponse stats) {
-        CloudVmStatus ret = new CloudVmStatus(status.getInstanceId(), status.getJobId(), status.getSecurityGroup(),
-                calculateJobStatus(stats, status.getJobStatus()), status.getRole(), status.getVmRegion(),
+    private CloudVmStatus createStatus(WatsAgentStatusResponse agentStatus) {
+        return new CloudVmStatus(status.getInstanceId(), status.getJobId(), status.getSecurityGroup(),
+                calculateJobStatus(agentStatus, status.getJobStatus()), status.getRole(), status.getVmRegion(),
                 status.getVmStatus(),
-                new ValidationStatus(stats.getKills(), stats.getAborts(),
-                        stats.getGotos(), stats.getSkips(), stats.getSkipGroups(), stats.getRestarts()),
-                stats.getMaxVirtualUsers(),
-                stats.getCurrentNumberUsers(), status.getStartTime(), status.getEndTime());
-        return ret;
+                new ValidationStatus(agentStatus.getKills(), agentStatus.getAborts(),
+                        agentStatus.getGotos(), agentStatus.getSkips(), agentStatus.getSkipGroups(), agentStatus.getRestarts()),
+                agentStatus.getMaxVirtualUsers(),
+                agentStatus.getCurrentNumberUsers(), status.getStartTime(), status.getEndTime());
     }
 
     /**
-     * @param Statistics
+     * @param agentStatus
      *            for this instance
+     * @param currentStatus
      * @return
      */
-    private JobStatus calculateJobStatus(WatsAgentStatusResponse stats, JobStatus currentStatus) {
+    private JobStatus calculateJobStatus(WatsAgentStatusResponse agentStatus, JobStatus currentStatus) {
         if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause) {
             return JobStatus.Paused;
         } else if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.stop) {
@@ -110,7 +110,7 @@ public class APIMonitor implements Runnable {
         } else if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause_ramp) {
             return JobStatus.RampPaused;
         } else if ((currentStatus == JobStatus.Unknown || currentStatus == JobStatus.Starting)
-                && stats.getCurrentNumberUsers() > 0) {
+                && agentStatus.getCurrentNumberUsers() > 0) {
             return JobStatus.Running;
         }
         return currentStatus;
@@ -123,9 +123,11 @@ public class APIMonitor implements Runnable {
     public synchronized static void setJobStatus(JobStatus jobStatus) {
         if (status.getJobStatus() != JobStatus.Completed) {
             try {
-            	VMStatus vmStatus =  (jobStatus.equals(JobStatus.Stopped)) ? VMStatus.stopping : status.getVmStatus();
-            	vmStatus =  (jobStatus.equals(JobStatus.Completed)) ? VMStatus.terminated : vmStatus;
-                WatsAgentStatusResponse stats = APITestHarness.getInstance().getStats();
+            	VMStatus vmStatus =  jobStatus.equals(JobStatus.Stopped) ? VMStatus.stopping
+                        : jobStatus.equals(JobStatus.RampPaused) ? VMStatus.rampPaused
+                        : jobStatus.equals(JobStatus.Running) ? VMStatus.running
+                        : jobStatus.equals(JobStatus.Completed) ? VMStatus.terminated : status.getVmStatus();
+                WatsAgentStatusResponse stats = APITestHarness.getInstance().getStatus();
                 Date endTime = (jobStatus == JobStatus.Completed) ? new Date() : status
                         .getEndTime();
                 status = new CloudVmStatus(status.getInstanceId(), status.getJobId(), status.getSecurityGroup(),

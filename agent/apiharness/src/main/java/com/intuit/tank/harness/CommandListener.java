@@ -82,7 +82,7 @@ public class CommandListener implements Container {
                 msg = "Pausing Test " + APITestHarness.getInstance().getAgentRunData().getJobId();
                 APITestHarness.getInstance().setCommand(WatsAgentCommand.resume_ramp);
             } else if (path.startsWith(WatsAgentCommand.status.getPath())) {
-                msg = APITestHarness.getInstance().getStats().toString();
+                msg = APITestHarness.getInstance().getStatus().toString();
                 APITestHarness.getInstance().setCommand(WatsAgentCommand.resume_ramp);
             }
             LOG.info(msg);

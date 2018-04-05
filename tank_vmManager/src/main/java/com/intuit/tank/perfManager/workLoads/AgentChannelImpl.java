@@ -40,9 +40,7 @@ public class AgentChannelImpl implements AgentChannel {
     @Inject
     private JobManager jobManager;
 
-    public void stopAgents(List<String> instanceIds) {
-        sendCmd(instanceIds, WatsAgentCommand.stop);
-    }
+    public void stopAgents(List<String> instanceIds) { sendCmd(instanceIds, WatsAgentCommand.stop); }
 
     public void pauseAgents(List<String> instanceIds) { sendCmd(instanceIds, WatsAgentCommand.pause); }
 
@@ -56,9 +54,7 @@ public class AgentChannelImpl implements AgentChannel {
         sendCmd(instanceIds, WatsAgentCommand.kill);
     }
 
-    public void restartAgents(List<String> instanceIds) {
-        sendCmd(instanceIds, WatsAgentCommand.resume_ramp);
-    }
+    public void restartAgents(List<String> instanceIds) { sendCmd(instanceIds, WatsAgentCommand.resume_ramp); }
 
     private void sendCmd(List<String> ids, WatsAgentCommand cmd) {
         for (String instanceId : ids) {

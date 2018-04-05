@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
@@ -560,40 +561,43 @@ public abstract class JobTreeTableBean implements Serializable {
             projectNode = new DefaultTreeNode(pnb, null);
             List<JobInstance> jobs = new ArrayList<JobInstance>(jobQueue.getJobs());
             // mt.markAndLog("get jobs");
-            Collections.sort(jobs, new PropertyComparer<JobInstance>(JobInstance.PROPERTY_ID, SortOrder.DESCENDING));
+            jobs.sort(new PropertyComparer<JobInstance>(JobInstance.PROPERTY_ID, SortOrder.DESCENDING));
             int projectActive = 0;
             int projectTotal = 0;
             ValidationStatus projectFailures = new ValidationStatus();
             for (JobInstance jobInstance : jobs) {
-                CloudVmStatusContainer container = vmTracker.getVmStatusForJob(Integer.toString(jobInstance.getId()));
+
                 trackerJobs.remove(Integer.toString(jobInstance.getId()));
                 if (!filterFinished || jobInstance.getEndTime() == null) {
                     ActJobNodeBean jobInstanceNode = new ActJobNodeBean(jobInstance, hasRights, preferencesBean.getDateTimeFormat());
                     pnb.addJob(jobInstanceNode);
                     TreeNode jobNode = new DefaultTreeNode(jobInstanceNode, null);
-                    List<VMNodeBean> vmNodes = getVMStatus(jobInstance, hasRights);
                     int jobInstanceActive = 0;
                     int jobInstanceTotal = 0;
                     ValidationStatus jobInstanceFailures = new ValidationStatus();
-                    for (VMNodeBean vmNodeBean : vmNodes) {
-                        jobInstanceNode.addVMBean(vmNodeBean);
-                        new DefaultTreeNode(vmNodeBean, jobNode);
-                        if (NumberUtils.isCreatable(vmNodeBean.getActiveUsers())) {
-                            jobInstanceActive += Integer.parseInt(vmNodeBean.getActiveUsers());
+                    CloudVmStatusContainer container = vmTracker.getVmStatusForJob(Integer.toString(jobInstance.getId()));
+                    if ( container != null ) {
+                        List<VMNodeBean> vmNodes = getVMStatus(container, hasRights);
+
+                        for (VMNodeBean vmNodeBean : vmNodes) {
+                            jobInstanceNode.addVMBean(vmNodeBean);
+                            new DefaultTreeNode(vmNodeBean, jobNode);
+                            if (NumberUtils.isCreatable(vmNodeBean.getActiveUsers())) {
+                                jobInstanceActive += Integer.parseInt(vmNodeBean.getActiveUsers());
+                            }
+                            if (NumberUtils.isCreatable(vmNodeBean.getTotalUsers())) {
+                                jobInstanceTotal += Integer.parseInt(vmNodeBean.getTotalUsers());
+                            }
+                            jobInstanceFailures.addFailures(vmNodeBean.getNumFailures());
+                            jobInstanceNode.setTps(vmNodeBean.getTps() + jobInstanceNode.getTps());
                         }
-                        if (NumberUtils.isCreatable(vmNodeBean.getTotalUsers())) {
-                            jobInstanceTotal += Integer.parseInt(vmNodeBean.getTotalUsers());
-                        }
-                        jobInstanceFailures.addFailures(vmNodeBean.getNumFailures());
-                        jobInstanceNode.setTps(vmNodeBean.getTps() + jobInstanceNode.getTps());
-                    }
-                    jobInstanceNode.setNumFailures(jobInstanceFailures);
-                    if (container != null) {
+
                         jobInstanceNode.setUserDetails(container.getUserDetails());
                         jobInstanceNode.setStatusDetailMap(container.getDetailMap());
                         // jobInstanceNode.setTpsDetailMap(container.getTpsMap());
                         // combineTpsDetails(totalTPSDetails, container.getTpsMap());
                     }
+                    jobInstanceNode.setNumFailures(jobInstanceFailures);
                     jobInstanceNode.setActiveUsers(Integer.toString(jobInstanceActive));
                     projectActive += jobInstanceActive;
                     projectTotal += jobInstanceTotal;
@@ -637,7 +641,7 @@ public abstract class JobTreeTableBean implements Serializable {
             }
         }
         TreeNode adhocNode = new DefaultTreeNode(jobBeanNode, null);
-        List<VMNodeBean> vmNodes = getVMStatus(jobId, true);
+        List<VMNodeBean> vmNodes = getVMStatus(container, true);
         int nodeActive = 0;
         int nodeTotal = 0;
         ValidationStatus nodeFailures = new ValidationStatus();
@@ -679,21 +683,13 @@ public abstract class JobTreeTableBean implements Serializable {
         return result;
     }
 
-    private List<VMNodeBean> getVMStatus(JobInstance jobInstance, boolean hasRights) {
-        return getVMStatus(String.valueOf(jobInstance.getId()), hasRights);
-    }
-
-    private List<VMNodeBean> getVMStatus(String jobId, boolean hasRights) {
+    private List<VMNodeBean> getVMStatus(@Nonnull CloudVmStatusContainer container, boolean hasRights) {
         List<VMNodeBean> vmNodes = new ArrayList<VMNodeBean>();
-        CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
-        if (container != null) {
-            Set<CloudVmStatus> statuses = container.getStatuses();
-            for (CloudVmStatus cloudVmStatus : statuses) {
-                VMNodeBean vmNode = new VMNodeBean(cloudVmStatus, hasRights, preferencesBean.getDateTimeFormat());
-                vmNode.setStatusDetailMap(container.getDetailMap());
-                vmNode.setTps(cloudVmStatus.getTotalTps());
-                vmNodes.add(vmNode);
-            }
+        for (CloudVmStatus cloudVmStatus : container.getStatuses()) {
+            VMNodeBean vmNode = new VMNodeBean(cloudVmStatus, hasRights, preferencesBean.getDateTimeFormat());
+            vmNode.setStatusDetailMap(container.getDetailMap());
+            vmNode.setTps(cloudVmStatus.getTotalTps());
+            vmNodes.add(vmNode);
         }
         return vmNodes;
     }
