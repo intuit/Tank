@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -163,7 +164,7 @@ public class ProjectServiceV1 implements ProjectService {
                 // Get the object of DataInputStream
                 try {
                     in = new BufferedReader(new FileReader(file));
-                    IOUtils.copy(in, outputStream);
+                    IOUtils.copy(in, outputStream, StandardCharsets.UTF_8);
                 } catch (IOException e) {
                     LOG.error("Error streaming file: " + e.toString(), e);
                     throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
@@ -188,7 +189,7 @@ public class ProjectServiceV1 implements ProjectService {
             public void write(OutputStream outputStream) {
                 // Get the object of DataInputStream
                 try {
-                    IOUtils.write(scriptString, outputStream);
+                    IOUtils.write(scriptString, outputStream, StandardCharsets.UTF_8);
                 } catch (IOException e) {
                     LOG.error("Error streaming file: " + e.toString(), e);
                     throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);

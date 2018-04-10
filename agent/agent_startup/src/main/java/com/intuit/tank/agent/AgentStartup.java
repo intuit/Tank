@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -61,8 +62,8 @@ public class AgentStartup implements Runnable {
                     + url.toExternalForm());
             InputStream settingsStream = url.openStream();
             try {
-                String settings = IOUtils.toString(settingsStream);
-                FileUtils.writeStringToFile(new File("settings.xml"), settings);
+                String settings = IOUtils.toString(settingsStream, StandardCharsets.UTF_8);
+                FileUtils.writeStringToFile(new File("settings.xml"), settings, StandardCharsets.UTF_8);
                 logger.info("got settings file...");
             } finally {
                 IOUtils.closeQuietly(settingsStream);

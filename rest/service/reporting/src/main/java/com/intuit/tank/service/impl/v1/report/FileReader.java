@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
@@ -101,7 +102,7 @@ public final class FileReader {
      */
     @SuppressWarnings({ "unchecked" })
     private static long getStartChar(File f, long numLines, long total) throws IOException {
-        List<String> lines = FileUtils.readLines(f);
+        List<String> lines = FileUtils.readLines(f, StandardCharsets.UTF_8);
         long count = 0;
         if (lines.size() > numLines) {
             Collections.reverse(lines);

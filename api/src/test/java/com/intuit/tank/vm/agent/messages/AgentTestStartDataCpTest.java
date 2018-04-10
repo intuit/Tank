@@ -44,8 +44,8 @@ public class AgentTestStartDataCpTest {
         assertEquals(1, result.getUserIntervalIncrement());
         assertEquals(0, result.getTotalAgents());
         assertEquals(0, result.getConcurrentUsers());
-        assertEquals(null, result.getScriptUrl());
-        assertEquals(null, result.getDataFiles());
+        assertNull(result.getScriptUrl());
+        assertNull(result.getDataFiles());
         assertEquals(0, result.getStartUsers());
         assertEquals(0, result.getAgentInstanceNum());
         assertEquals(0L, result.getSimulationTime());
@@ -78,7 +78,7 @@ public class AgentTestStartDataCpTest {
         assertEquals(1, result.getTotalAgents());
         assertEquals(1, result.getConcurrentUsers());
         assertEquals("", result.getScriptUrl());
-        assertEquals(null, result.getDataFiles());
+        assertNull(result.getDataFiles());
         assertEquals(1, result.getStartUsers());
         assertEquals(1, result.getAgentInstanceNum());
         assertEquals(1L, result.getSimulationTime());
@@ -107,11 +107,11 @@ public class AgentTestStartDataCpTest {
         assertEquals(0, result.getTotalAgents());
         assertEquals(1, result.getConcurrentUsers());
         assertEquals("", result.getScriptUrl());
-        assertEquals(null, result.getDataFiles());
+        assertNull(result.getDataFiles());
         assertEquals(0, result.getStartUsers());
         assertEquals(0, result.getAgentInstanceNum());
         assertEquals(0L, result.getSimulationTime());
-        assertEquals(null, result.getJobId());
+        assertNull(result.getJobId());
     }
 
     /**

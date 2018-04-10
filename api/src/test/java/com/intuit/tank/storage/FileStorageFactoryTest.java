@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -44,11 +45,11 @@ public class FileStorageFactoryTest {
         storage.storeFileData(fd, bis);
 
         File file = getFile(f.getAbsolutePath(), fd);
-        String fromFile = FileUtils.readFileToString(file);
+        String fromFile = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
         Assert.assertEquals(s, fromFile);
 
         InputStream in = storage.readFileData(fd);
-        String fromService = IOUtils.toString(in);
+        String fromService = IOUtils.toString(in, StandardCharsets.UTF_8);
         IOUtils.closeQuietly(in);
         Assert.assertEquals(s, fromService);
         Assert.assertTrue(storage.exists(fd));
@@ -70,7 +71,7 @@ public class FileStorageFactoryTest {
 
         File file = getFile(f.getAbsolutePath(), fd);
         InputStream in = new GZIPInputStream(new FileInputStream(file));
-        String fromFile = IOUtils.toString(in);
+        String fromFile = IOUtils.toString(in, StandardCharsets.UTF_8);
         Assert.assertEquals(s, fromFile);
         IOUtils.closeQuietly(in);
 
@@ -99,7 +100,7 @@ public class FileStorageFactoryTest {
         storage.storeFileData(fd, bis);
 
         InputStream in = storage.readFileData(fd);
-        String fromService = IOUtils.toString(in);
+        String fromService = IOUtils.toString(in, StandardCharsets.UTF_8);
         IOUtils.closeQuietly(in);
         Assert.assertEquals(s, fromService);
         Assert.assertTrue(storage.exists(fd));
@@ -122,7 +123,7 @@ public class FileStorageFactoryTest {
         storage.storeFileData(fd, bis);
 
         InputStream in = storage.readFileData(fd);
-        String fromService = IOUtils.toString(in);
+        String fromService = IOUtils.toString(in, StandardCharsets.UTF_8);
         IOUtils.closeQuietly(in);
         Assert.assertEquals(s, fromService);
         Assert.assertTrue(storage.exists(fd));
@@ -216,7 +217,6 @@ public class FileStorageFactoryTest {
     }
 
     private File getFile(String base, FileData fd) {
-        File f = new File(FilenameUtils.normalize(base + "/" + fd.getPath() + "/" + fd.getFileName()));
-        return f;
+        return new File(FilenameUtils.normalize(base + "/" + fd.getPath() + "/" + fd.getFileName()));
     }
 }

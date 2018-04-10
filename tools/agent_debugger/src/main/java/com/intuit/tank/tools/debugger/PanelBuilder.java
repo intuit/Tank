@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -139,7 +140,7 @@ public class PanelBuilder {
         s.append("<logic-step>").append(NEWLINE);
         s.append("<insert-before><![CDATA[").append(NEWLINE);
         String js = IOUtils.toString(Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("insert.js"));
+                .getResourceAsStream("insert.js"), StandardCharsets.UTF_8);
         s.append(js).append(NEWLINE);
         s.append("]]>").append(NEWLINE);
         s.append("</insert-before>").append(NEWLINE);
@@ -150,12 +151,12 @@ public class PanelBuilder {
 
         s.append("</tank-settings>").append(NEWLINE);
         File settingsFile = new File(workingDir, "settings.xml");
-        FileUtils.writeStringToFile(settingsFile, s.toString());
+        FileUtils.writeStringToFile(settingsFile, s.toString(), StandardCharsets.UTF_8);
         System.out.println("Writing settings file to " + settingsFile.getAbsolutePath());
     }
 
     /**
-     * @param debuggerActions
+     * @param frame
      * @return
      */
     static Component createContentPanel(final AgentDebuggerFrame frame) {
@@ -226,7 +227,7 @@ public class PanelBuilder {
     }
 
     /**
-     * @param debuggerActions
+     * @param actionComponents
      * @return
      */
     static Component createTopPanel(ActionComponents actionComponents) {
@@ -237,8 +238,7 @@ public class PanelBuilder {
     }
 
     /**
-     * @param debuggerActions
-     * @param loadChooser
+     * @param frame
      * @return
      */
     static Component createBottomPanel(final AgentDebuggerFrame frame) {

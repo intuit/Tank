@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -286,7 +287,7 @@ public class ActionProducer {
                         if (option != JFileChooser.CANCEL_OPTION) {
                             File selectedFile = jFileChooser.getSelectedFile();
                             try {
-                                String scriptXml = FileUtils.readFileToString(selectedFile);
+                                String scriptXml = FileUtils.readFileToString(selectedFile, StandardCharsets.UTF_8);
                                 setFromString(scriptXml);
                                 debuggerFrame.setScriptSource(new ScriptSource(selectedFile.getAbsolutePath(),
                                         SourceType.file));
@@ -332,7 +333,7 @@ public class ActionProducer {
                                     try {
                                         String scriptXml = null;
                                         if (scriptSource.getSource() == SourceType.file) {
-                                            scriptXml = FileUtils.readFileToString(new File(scriptSource.getId()));
+                                            scriptXml = FileUtils.readFileToString(new File(scriptSource.getId()), StandardCharsets.UTF_8);
                                         } else if (scriptSource.getSource() == SourceType.script) {
                                             scriptXml = scriptServiceClient.downloadHarnessXml(Integer
                                                     .parseInt(scriptSource

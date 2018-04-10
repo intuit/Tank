@@ -43,8 +43,8 @@ public class VMUpdateStateRequestCpTest {
         VMUpdateStateRequest result = new VMUpdateStateRequest();
 
         assertNotNull(result);
-        assertEquals(null, result.getInstances());
-        assertEquals(null, result.getProvider());
+        assertNull(result.getInstances());
+        assertNull(result.getProvider());
     }
 
     /**
