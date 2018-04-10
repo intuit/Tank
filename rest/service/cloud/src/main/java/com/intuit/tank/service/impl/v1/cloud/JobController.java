@@ -31,8 +31,12 @@ import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 import com.intuit.tank.api.model.v1.cloud.VMStatus;
 import com.intuit.tank.dao.JobInstanceDao;
+import com.intuit.tank.dao.WorkloadDao;
+import com.intuit.tank.dao.util.ProjectDaoUtil;
 import com.intuit.tank.perfManager.workLoads.JobManager;
+import com.intuit.tank.perfManager.workLoads.util.WorkloadScriptUtil;
 import com.intuit.tank.project.JobInstance;
+import com.intuit.tank.project.Workload;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
@@ -78,6 +82,8 @@ public class JobController {
                 // save the job
                 job.setStatus(JobQueueStatus.Starting);
                 jobInstanceDao.saveOrUpdate(job);
+
+                ProjectDaoUtil.storeScriptFile(jobId, getScriptString(job));
 
                 vmTracker.removeStatusForJob(Integer.toString(job.getId()));
                 jobManager.startJob(job.getId());
@@ -298,6 +304,18 @@ public class JobController {
             }
         }
         return instanceIds;
+    }
+
+    /**
+     * @param job
+     * @return
+     */
+    public static String getScriptString(JobInstance job) {
+        WorkloadDao dao = new WorkloadDao();
+        Workload workload = dao.findById(job.getWorkloadId());
+        workload.getTestPlans();
+        dao.loadScriptsForWorkload(workload);
+        return WorkloadScriptUtil.getScriptForWorkload(workload, job);
     }
 
 }
