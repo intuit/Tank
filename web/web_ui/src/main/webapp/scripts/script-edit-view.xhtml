@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-  xmlns:p="http://primefaces.org/ui" xmlns:pe="http://primefaces.org/ui/extensions"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag"
+  xmlns:p="http://primefaces.org/ui"
+  xmlns:pe="http://primefaces.org/ui/extensions"
   template="/WEB-INF/templates/tank.xhtml">
   <ui:define name="content">
 
@@ -133,7 +136,7 @@
         </div>
 
         <div class="formRow">
-          <ts:ownerBox entity="#{scriptEditor.script}"></ts:ownerBox>
+          <ts:ownerBox entity="#{scriptEditor.script}"/>
         </div>
       </div>
 
@@ -264,7 +267,7 @@
                     styleClass="request-search-width">
                     <p:column>
                       <p:selectBooleanCheckbox value="#{option.selected}" />
-                      <h:outputText value="#{option.label}"></h:outputText>
+                      <h:outputText value="#{option.label}"/>
                     </p:column>
                   </p:dataGrid>
                 </p:tab>
@@ -273,7 +276,7 @@
                     styleClass="think-search-width">
                     <p:column>
                       <p:selectBooleanCheckbox value="#{option.selected}" />
-                      <h:outputText value="#{option.label}"></h:outputText>
+                      <h:outputText value="#{option.label}"/>
                     </p:column>
                   </p:dataGrid>
                 </p:tab>
@@ -282,7 +285,7 @@
                     styleClass="sleep-search-width">
                     <p:column>
                       <p:selectBooleanCheckbox value="#{option.selected}" />
-                      <h:outputText value="#{option.label}"></h:outputText>
+                      <h:outputText value="#{option.label}"/>
                     </p:column>
                   </p:dataGrid>
                 </p:tab>
@@ -291,7 +294,7 @@
                     styleClass="variable-search-width">
                     <p:column style="width:100px;">
                       <p:selectBooleanCheckbox value="#{option.selected}" />
-                      <h:outputText value="#{option.label}"></h:outputText>
+                      <h:outputText value="#{option.label}"/>
                     </p:column>
                   </p:dataGrid>
 
@@ -799,7 +802,7 @@
               <h:outputLabel for="commentsTF" value="Comments" styleClass="formLabel" />
             </div>
             <div style="width: 350px;" class="float-left">
-              <h:inputTextarea value="#{scriptEditor.script.comments}" id="commentsTF" rows="3" cols="40"></h:inputTextarea>
+              <h:inputTextarea value="#{scriptEditor.script.comments}" id="commentsTF" rows="3" cols="40"/>
             </div>
           </div>
           <div class="vertical-spacer" />
@@ -815,7 +818,7 @@
       dynamic="true" widgetVar="thinkTimeDialog" modal="true">
       <h:form id="thinkTimeForm">
         <h:panelGroup id="thinkTimePanelGroup">
-          <ui:include src="./thinktime-editor.xhtml"></ui:include>
+          <ui:include src="./thinktime-editor.xhtml"/>
           <div class="vertical-spacer" />
           <p:commandButton value="#{thinkTimeEditor.buttonLabel}" update=":scriptBrowserForm,:thinkTimeForm"
             onstart="saveScrollPos()" oncomplete="getScrollPos()" process="thinkTimePanelGroup"
@@ -829,7 +832,7 @@
       dynamic="true" widgetVar="sleepTimeDialog" modal="true">
       <h:form id="sleepTimeForm">
         <h:panelGroup id="sleepTimePanelGroup">
-          <ui:include src="./sleeptime-editor.xhtml"></ui:include>
+          <ui:include src="./sleeptime-editor.xhtml"/>
           <div class="vertical-spacer" />
           <p:commandButton value="#{sleepTimeEditor.buttonLabel}" process="sleepTimePanelGroup"
             update=":scriptBrowserForm,:sleepTimeForm" action="#{sleepTimeEditor.addToScript()}"
@@ -865,7 +868,7 @@
               </h:panelGroup>
             </f:facet>
           </ts:toolbar>
-          <ui:include src="./request-editor.xhtml"></ui:include>
+          <ui:include src="./request-editor.xhtml"/>
           <div class="vertical-spacer" />
 
         </h:panelGroup>
@@ -876,7 +879,7 @@
       widgetVar="variableDialog" modal="true">
       <h:form id="variableForm">
         <h:panelGroup id="variablePanelGroup">
-          <ui:include src="./variable-editor.xhtml"></ui:include>
+          <ui:include src="./variable-editor.xhtml"/>
           <div class="vertical-spacer" />
           <p:commandButton value="#{variableEditor.buttonLabel}" process="variablePanelGroup" onstart="saveScrollPos()"
             oncomplete="getScrollPos()" update=":scriptBrowserForm,:variableForm" onsuccess="PF('variableDialog').hide();"
@@ -958,7 +961,7 @@
             </div>
             <div class="smallFormInputDiv">
               <h:inputText value="#{scriptSearchBean.replaceString}" id="replaceInput">
-                <f:ajax event="keyup" execute="replaceInput" immediate="true" render="replaceEntityTableId"></f:ajax>
+                <f:ajax event="keyup" execute="replaceInput" immediate="true" render="replaceEntityTableId"/>
               </h:inputText>
             </div>
           </div>
@@ -1079,7 +1082,7 @@
       widgetVar="logicDialog" modal="true">
       <h:form id="logicForm">
         <h:panelGroup id="logicPanelGroup">
-          <ui:include src="./logic-editor.xhtml"></ui:include>
+          <ui:include src="./logic-editor.xhtml"/>
         </h:panelGroup>
       </h:form>
     </p:dialog>
@@ -1088,7 +1091,7 @@
       widgetVar="cookieDialog" modal="true">
       <h:form id="cookieForm">
         <h:panelGroup id="cookiePanelGroup">
-          <ui:include src="./set-cookie-editor.xhtml"></ui:include>
+          <ui:include src="./set-cookie-editor.xhtml"/>
           <div class="vertical-spacer" />
   
           <p:commandButton value="#{cookieStepEditor.buttonLabel}" update=":scriptBrowserForm,:cookieForm"

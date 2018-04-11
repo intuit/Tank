@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -106,7 +107,7 @@ public class ScriptServiceV1 implements ScriptService {
     private UriInfo uriInfo;
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String ping() {
@@ -114,7 +115,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response updateTankScript(FormDataMultiPart formData) {
@@ -174,7 +175,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response convertScript(FormDataMultiPart formData) {
@@ -254,7 +255,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response updateScript(Integer id, ScriptTO scriptTo) {
@@ -279,7 +280,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response deleteScript(Integer id) {
@@ -318,7 +319,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getScriptDescriptions() {
@@ -334,7 +335,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response newScript(ScriptTO scriptTo) {
@@ -356,7 +357,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getScript(Integer id) {
@@ -373,7 +374,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response downloadHarnessScript(Integer scriptId) {
@@ -391,7 +392,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     private StreamingOutput getTestScriptForScript(Script script) {
 
@@ -401,7 +402,7 @@ public class ScriptServiceV1 implements ScriptService {
             public void write(OutputStream outputStream) {
                 BufferedReader in = null;
                 try {
-                    IOUtils.write(scriptXML, outputStream);
+                    IOUtils.write(scriptXML, outputStream, StandardCharsets.UTF_8);
                 } catch (IOException e) {
                     LOG.error("Error streaming file: " + e.toString(), e);
                     throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
@@ -413,7 +414,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response downloadScript(Integer id) {
@@ -450,7 +451,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getScriptSteps(Integer id, int start, int numSteps) {
@@ -481,7 +482,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getScriptDescription(Integer id) {
@@ -498,7 +499,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response scriptFilterRequest(ScriptFilterRequest filterRequest) {
@@ -521,7 +522,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getExternalScript(Integer id) {
@@ -538,7 +539,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getExternalScripts() {
@@ -555,7 +556,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response saveOrUpdateExternalScript(ExternalScriptTO to) {

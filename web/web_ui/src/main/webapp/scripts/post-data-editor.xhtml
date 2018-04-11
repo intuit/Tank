@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui"
-  xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:p="http://primefaces.org/ui">
 
   <div class="formRow">
     <p:commandButton value="Post Data" action="#{postDataEditor.insertParameter()}" ajax="true"
@@ -48,7 +50,7 @@
             <h:outputText value="Value" />
           </f:facet>
           <p:inplace styleClass="ellipsis" editor="true" style="width:400px;">
-            <p:inputText value="#{data.value}" styleClass="ellipsis" style="width:340px;"></p:inputText>
+            <p:inputText value="#{data.value}" styleClass="ellipsis" style="width:340px;"/>
           </p:inplace>
         </p:column>
 

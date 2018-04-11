@@ -51,7 +51,7 @@ public class PropertyComparer<T> implements Comparator<T> {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override

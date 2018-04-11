@@ -73,7 +73,7 @@ public abstract class SelectableBean<T> implements Multiselectable<T> {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     public void deleteSelected() {
         ArrayList<SelectableWrapper<T>> copied = new ArrayList<SelectableWrapper<T>>(getSelectionList());
@@ -86,7 +86,7 @@ public abstract class SelectableBean<T> implements Multiselectable<T> {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     public void selectAll() {
         selectionTracker.selectAll();
@@ -94,7 +94,7 @@ public abstract class SelectableBean<T> implements Multiselectable<T> {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     public void unselectAll() {
         selectionTracker.unselectAll();
@@ -102,14 +102,14 @@ public abstract class SelectableBean<T> implements Multiselectable<T> {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     public boolean hasSelected() {
         return selectionTracker.hasSelected();
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public List<SelectableWrapper<T>> getSelectionList() {

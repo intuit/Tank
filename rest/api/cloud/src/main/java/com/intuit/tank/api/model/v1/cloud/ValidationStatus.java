@@ -187,7 +187,7 @@ public class ValidationStatus implements Serializable {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String toString() {
@@ -195,7 +195,7 @@ public class ValidationStatus implements Serializable {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean equals(Object obj) {
@@ -214,7 +214,7 @@ public class ValidationStatus implements Serializable {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int hashCode() {

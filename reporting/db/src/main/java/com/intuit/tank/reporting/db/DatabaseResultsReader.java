@@ -47,7 +47,7 @@ public class DatabaseResultsReader implements ResultsReader {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public List<TankResult> getAllTimingResults(String jobId) {
@@ -63,7 +63,7 @@ public class DatabaseResultsReader implements ResultsReader {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public PagedTimingResults getPagedTimingResults(String jobId, Object nextToken) {
@@ -75,6 +75,7 @@ public class DatabaseResultsReader implements ResultsReader {
                 results.add(ItemToTankResult(item));
             }
             nextToken = pagedItems.getNextToken();
+        } catch (NullPointerException npe) { //Ignore
         } catch (Exception e) {
             if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;
@@ -86,7 +87,7 @@ public class DatabaseResultsReader implements ResultsReader {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean hasTimingData(String jobId) {

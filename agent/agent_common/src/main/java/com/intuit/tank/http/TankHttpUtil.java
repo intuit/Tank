@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,10 +67,10 @@ public class TankHttpUtil {
                 for (Entry<String, String> entry : urlVariables.entrySet()) {
                     try {
                         StringBuilder nvp = new StringBuilder();
-                        nvp.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+                        nvp.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.toString()));
                         if (entry.getValue() != null) {
                             nvp.append("=");
-                            nvp.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+                            nvp.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.toString()));
                         }
                         nvp.append("&");
                         queryString.append(nvp.toString());

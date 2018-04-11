@@ -20,6 +20,7 @@ package com.intuit.tank.harness.functions;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,7 +76,7 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
     static private Hashtable<String, Stack<Integer>> stackMap = new Hashtable<String, Stack<Integer>>();
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void visit(JexlContext context) {
@@ -88,8 +89,9 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
 
     /**
      * Get a random, positive whole number
-     * 
-     * @param length
+     *
+     * @param values
+     * @param olength
      *            The length of the full numbers
      * @return A random whole number
      */
@@ -118,7 +120,7 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
     /**
      * Generate a random user date consisting of a prefix and a date
      * 
-     * @param prefixLength
+     * @param oprefixLength
      *            The length of the random prefix
      * @param dateFormat
      *            The format of the response (MM-dd-yyyy, MMddyyyy, etc)
@@ -135,9 +137,9 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
     /**
      * Generate a random user id in the range provided
      * 
-     * @param prefixLength
+     * @param ominId
      *            The length of the random prefix
-     * @param dateFormat
+     * @param omaxId
      *            The format for the date
      * @return The random user id
      */
@@ -535,7 +537,7 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
      */
     public String urlEncode(String toEncode) {
         try {
-            return URLEncoder.encode(toEncode, "utf-8");
+            return URLEncoder.encode(toEncode, StandardCharsets.UTF_8.toString());
         } catch (Exception e) {
             LOG.error("Error url encoding " + toEncode + ": " + e);
         }
@@ -551,7 +553,7 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
      */
     public String urlDecode(String toDecode) {
         try {
-            return URLDecoder.decode(toDecode, "utf-8");
+            return URLDecoder.decode(toDecode, StandardCharsets.UTF_8.toString());
         } catch (Exception e) {
             LOG.error("Error url decoding " + toDecode + ": " + e);
         }

@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag" template="/WEB-INF/templates/tank.xhtml">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:p="http://primefaces.org/ui"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag"
+  template="/WEB-INF/templates/tank.xhtml">
+
   <ui:define name="content">
 
 
@@ -47,7 +52,7 @@
       <div>
         <div id="formRow">
           <div class="formLabelDiv required">
-            <h:outputText value="Filter Name"></h:outputText>
+            <h:outputText value="Filter Name"/>
           </div>
           <div class="formInput float-left">
             <h:inputText id="filterNameId" value="#{scriptFilterCreationBean.name}" />
@@ -58,7 +63,7 @@
 
         <div class="formRow">
           <div class="formLabelDiv required">
-            <h:outputText value="Product Group"></h:outputText>
+            <h:outputText value="Product Group"/>
           </div>
           <div class="formInputDiv">
             <p:selectOneMenu value="#{scriptFilterCreationBean.productName}">
@@ -84,7 +89,7 @@
         <h:panelGroup rendered="#{scriptFilterCreationBean.creationMode.display eq 'Internal Filter'}">
           <h:panelGroup rendered="#{scriptFilterCreationBean.filter.id ne 0}">
             <div class="formRow">
-              <ts:ownerBox entity="#{scriptFilterCreationBean.filter}"></ts:ownerBox>
+              <ts:ownerBox entity="#{scriptFilterCreationBean.filter}"/>
             </div>
           </h:panelGroup>
 
@@ -258,7 +263,7 @@
               <div class="formInput float-left">
                 <p:selectOneMenu id="actionMenu" value="#{scriptFilterActionBean.actionType}">
                   <f:selectItems value="#{scriptFilterActionBean.actionValues}" />
-                  <f:ajax event="change" render="@form"></f:ajax>
+                  <f:ajax event="change" render="@form"/>
                 </p:selectOneMenu>
               </div>
             </div>
@@ -269,7 +274,7 @@
                 <div class="formInput float-left">
                   <p:selectOneMenu id="scopeMenu" value="#{scriptFilterActionBean.scope}">
                     <f:selectItems value="#{scriptFilterActionBean.actionScopeValues}" />
-                    <f:ajax event="change" render="@form"></f:ajax>
+                    <f:ajax event="change" render="@form"/>
                   </p:selectOneMenu>
                 </div>
               </h:panelGroup>

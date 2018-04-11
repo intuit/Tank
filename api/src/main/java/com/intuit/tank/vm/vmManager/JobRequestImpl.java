@@ -93,7 +93,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String getId() {
@@ -101,7 +101,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public IncrementStrategy getIncrementStrategy() {
@@ -109,7 +109,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String getLocation() {
@@ -117,7 +117,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public TerminationPolicy getTerminationPolicy() {
@@ -125,7 +125,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public long getRampTime() {
@@ -133,7 +133,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int getBaselineVirtualUsers() {
@@ -141,7 +141,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public long getSimulationTime() {
@@ -149,7 +149,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int getUserIntervalIncrement() {
@@ -157,7 +157,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String getReportingMode() {
@@ -202,7 +202,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int getTotalVirtualUsers() {
@@ -214,7 +214,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public JobQueueStatus getStatus() {
@@ -222,7 +222,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Set<? extends RegionRequest> getRegions() {
@@ -230,7 +230,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Set<? extends Notification> getNotifications() {
@@ -238,7 +238,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Set<Integer> getDataFileIds() {
@@ -246,7 +246,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc private String id;
+     * @inheritDoc private String id;
      * 
      *              private IncrementStrategy incrementStrategy = IncrementStrategy.increasing; private Location
      *              location = Location.san_diego; private TerminationPolicy terminationPolicy = TerminationPolicy.time;
@@ -275,7 +275,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean equals(Object obj) {
@@ -287,7 +287,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int hashCode() {

@@ -170,7 +170,7 @@ public class CloudVmStatus implements Serializable {
     }
 
     /**
-     * @param tpsInfo
+     * @param totalTps
      *            the tpsInfo to set
      */
     public void setTotalTps(int totalTps) {
@@ -237,9 +237,7 @@ public class CloudVmStatus implements Serializable {
     /**
      * @return the vmStatus
      */
-    public VMStatus getVmStatus() {
-        return vmStatus;
-    }
+    public VMStatus getVmStatus() { return vmStatus; }
 
     /**
      * @return the totalUsers
@@ -324,7 +322,7 @@ public class CloudVmStatus implements Serializable {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String toString() {
@@ -332,7 +330,7 @@ public class CloudVmStatus implements Serializable {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean equals(Object obj) {
@@ -345,7 +343,7 @@ public class CloudVmStatus implements Serializable {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int hashCode() {

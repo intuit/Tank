@@ -28,7 +28,7 @@ import org.apache.logging.log4j.Logger;
 public class NullOutputLogger implements OutputLogger {
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void setScrollContent(boolean autoScroll) {
@@ -37,7 +37,7 @@ public class NullOutputLogger implements OutputLogger {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void log(String text) {

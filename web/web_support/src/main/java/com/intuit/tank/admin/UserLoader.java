@@ -37,7 +37,7 @@ public class UserLoader extends EntityVersionLoader<User, ModifiedUserMessage> {
     private static final long serialVersionUID = 1L;
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     protected List<User> getEntities() {

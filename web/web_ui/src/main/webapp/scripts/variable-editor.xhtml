@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui"
-  xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:p="http://primefaces.org/ui">
 
   <p:messages />
   <div class="clear-both vertical-spacer" />
   <div id="keyRowDiv" class="formRowDiv">
     <div id="keyLabelDiv" class="formLabel required float-left">Key</div>
-    <div id="valueLabelDiv" class="float-left">
+    <div id="keyValueLabelDiv" class="float-left">
       <h:inputText value="#{variableEditor.key}">
       </h:inputText>
     </div>

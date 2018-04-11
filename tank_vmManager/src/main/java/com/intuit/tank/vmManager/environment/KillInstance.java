@@ -15,6 +15,7 @@ package com.intuit.tank.vmManager.environment;
 
 import java.util.List;
 
+import com.intuit.tank.vm.settings.TankConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,7 +57,7 @@ public class KillInstance implements Runnable {
         try {
             switch (this.request.getProvider()) {
             case Amazon:
-                environment = new AmazonInstance(this.request, null);
+                environment = new AmazonInstance(this.request, new TankConfig().getVmManagerConfig().getDefaultRegion());
                 break;
             case Pharos:
                 break;

@@ -228,7 +228,7 @@ public class Script extends OwnableEntity implements Comparable<Script> {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String toString() {
@@ -236,7 +236,7 @@ public class Script extends OwnableEntity implements Comparable<Script> {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean equals(Object obj) {
@@ -248,7 +248,7 @@ public class Script extends OwnableEntity implements Comparable<Script> {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int hashCode() {
@@ -344,7 +344,7 @@ public class Script extends OwnableEntity implements Comparable<Script> {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int compareTo(Script o) {

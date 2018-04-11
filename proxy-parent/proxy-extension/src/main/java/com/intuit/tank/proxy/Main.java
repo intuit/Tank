@@ -58,7 +58,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
+import org.apache.commons.cli.DefaultParser;
 import org.owasp.proxy.daemon.LoopAvoidingTargetedConnectionHandler;
 import org.owasp.proxy.daemon.Proxy;
 import org.owasp.proxy.daemon.ServerGroup;
@@ -376,7 +376,7 @@ public class Main implements TransactionRecordedListener {
         options.addOption(new Option("help", false, "Print usage."));
         String configFile = null;
         int apiPort = 8008;
-        CommandLineParser clp = new PosixParser();
+        CommandLineParser clp = new DefaultParser();
         try {
             CommandLine cl = clp.parse(options, args);
 
@@ -409,7 +409,7 @@ public class Main implements TransactionRecordedListener {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public void transactionProcessed(Transaction t, boolean filtered) {
         // don't know if we need to do something here

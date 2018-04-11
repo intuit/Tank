@@ -29,7 +29,7 @@ public class JobQueueAction {
     /**
      * Runs the job for the given jobId
      * 
-     * @param jobId
+     * @param node
      */
     public void run(JobNodeBean node) {
         if (node instanceof ActJobNodeBean) {
@@ -38,9 +38,10 @@ public class JobQueueAction {
             if (jobNode.getStatus().equals(JobQueueStatus.Created.toString())) {
                 controller.startJob(jobNode.getId());
             } else {
-                if (jobNode.getStatus().equals(JobStatus.Paused.toString())
-                        || jobNode.getStatus().equals(JobStatus.RampPaused.toString())) {
+                if (jobNode.getStatus().equals(JobStatus.Paused.toString())) {
                     controller.restartJob(jobNode.getId());
+                } else if ( jobNode.getStatus().equals(JobStatus.RampPaused.toString())) {
+                    controller.resumeRampJob(jobNode.getJobId());
                 } else {
                     controller.startJob(jobNode.getId());
                 }
@@ -75,7 +76,7 @@ public class JobQueueAction {
     /**
      * Kills the job for the given jobId
      * 
-     * @param jobId
+     * @param node
      */
     public void kill(JobNodeBean node) {
         if (node instanceof ActJobNodeBean) {

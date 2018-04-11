@@ -126,7 +126,7 @@ public class ShowHostsDialog extends JDialog {
             boolean pressed = false;
 
             /**
-             * @{inheritDoc
+             * @inheritDoc
              */
             @Override
             public void mousePressed(MouseEvent e) {
@@ -141,7 +141,7 @@ public class ShowHostsDialog extends JDialog {
             }
 
             /**
-             * @{inheritDoc
+             * @inheritDoc
              */
             @Override
             public void mouseReleased(MouseEvent e) {

@@ -14,6 +14,7 @@ package com.intuit.tank.harness.parsers;
  */
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
@@ -74,7 +75,7 @@ public class WorkloadParserTest {
     @Test
     public void testWorkloadParser_3()
         throws Exception {
-        String xmlFile = FileUtils.readFileToString(new File("src/test/resources/TEST_H.xml"));
+        String xmlFile = FileUtils.readFileToString(new File("src/test/resources/TEST_H.xml"), StandardCharsets.UTF_8);
 
         WorkloadParser result = new WorkloadParser(xmlFile);
 

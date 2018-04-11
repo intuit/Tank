@@ -72,14 +72,14 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public int getPort() {
         return config.getInt("proxy-port", 8888);
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean isFollowRedirects() {
@@ -87,14 +87,14 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public String getOutputFile() {
         return config.getString("output-file", new File("recordedOutput.xml").getAbsolutePath());
     }
     
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String getCertificateAuthorityPath() {
@@ -102,7 +102,7 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public Set<ConfigInclusionExclusionRule> getExclusions() {
         if (needsReload()) {
@@ -112,7 +112,7 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public Set<ConfigInclusionExclusionRule> getInclusions() {
         if (needsReload()) {
@@ -122,7 +122,7 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public Set<ConfigInclusionExclusionRule> getBodyInclusions() {
         if (needsReload()) {
@@ -132,7 +132,7 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public Set<ConfigInclusionExclusionRule> getBodyExclusions() {
         if (needsReload()) {

@@ -159,7 +159,7 @@ public class User extends BaseEntity {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String toString() {
@@ -168,7 +168,7 @@ public class User extends BaseEntity {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean equals(Object obj) {
@@ -180,7 +180,7 @@ public class User extends BaseEntity {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int hashCode() {

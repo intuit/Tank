@@ -280,7 +280,7 @@ public class JobReport extends SelectableBean<JobReportData> implements Serializ
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void delete(JobReportData entity) {
@@ -291,7 +291,7 @@ public class JobReport extends SelectableBean<JobReportData> implements Serializ
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean isCurrent() {

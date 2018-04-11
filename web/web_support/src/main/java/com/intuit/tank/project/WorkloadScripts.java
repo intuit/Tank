@@ -119,7 +119,7 @@ public class WorkloadScripts implements Serializable {
         this.insertIndex = -1;
         Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         String param = params.get("insertIndex");
-        if (param != null && NumberUtils.isNumber(param)) {
+        if (param != null && NumberUtils.isCreatable(param)) {
             insertIndex = Integer.parseInt(param);
         }
     }

@@ -113,7 +113,7 @@ public class Request {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int hashCode() {
@@ -124,7 +124,7 @@ public class Request {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean equals(Object obj) {

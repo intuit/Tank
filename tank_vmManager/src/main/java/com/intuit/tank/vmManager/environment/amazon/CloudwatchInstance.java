@@ -13,28 +13,20 @@ package com.intuit.tank.vmManager.environment.amazon;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Executors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.cloudwatch.AmazonCloudWatchAsyncClient;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchAsync;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchAsyncClientBuilder;
 import com.amazonaws.services.cloudwatch.model.ComparisonOperator;
 import com.amazonaws.services.cloudwatch.model.DeleteAlarmsRequest;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.MetricAlarm;
 import com.amazonaws.services.cloudwatch.model.PutMetricAlarmRequest;
 import com.amazonaws.services.cloudwatch.model.Statistic;
-import com.amazonaws.services.sns.AmazonSNSAsyncClient;
+import com.amazonaws.services.sns.AmazonSNSAsync;
+import com.amazonaws.services.sns.AmazonSNSAsyncClientBuilder;
 import com.amazonaws.services.sns.model.CreateTopicResult;
 import com.amazonaws.services.sns.model.ListTopicsResult;
 import com.amazonaws.services.sns.model.SubscribeRequest;
@@ -43,6 +35,13 @@ import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.settings.CloudCredentials;
 import com.intuit.tank.vm.settings.CloudProvider;
 import com.intuit.tank.vm.settings.TankConfig;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * 
@@ -56,15 +55,14 @@ public class CloudwatchInstance {
     protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 10;// ten minutes
     private static Logger logger = LogManager.getLogger(CloudwatchInstance.class);
 
-    private AmazonCloudWatchAsyncClient asynchCloudWatchClient;
+    private AmazonCloudWatchAsync asynchCloudWatchClient;
 
-    private AmazonSNSAsyncClient asyncSnsClient;
+    private AmazonSNSAsync asyncSnsClient;
 
     private TankConfig config = new TankConfig();
 
     /**
      * 
-     * @param request
      * @param vmRegion
      */
     public CloudwatchInstance(VMRegion vmRegion) {
@@ -74,7 +72,6 @@ public class CloudwatchInstance {
         }
         try {
             CloudCredentials creds = config.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-            AWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
             ClientConfiguration clientConfig = new ClientConfiguration();
             clientConfig.setMaxConnections(2);
             if (StringUtils.isNotBlank(creds.getProxyHost())) {
@@ -90,15 +87,29 @@ public class CloudwatchInstance {
 
             }
             if (StringUtils.isNotBlank(creds.getKeyId()) && StringUtils.isNotBlank(creds.getKey())) {
-                asynchCloudWatchClient = new AmazonCloudWatchAsyncClient(credentials, clientConfig,
-                        Executors.newFixedThreadPool(2));
-                asyncSnsClient = new AmazonSNSAsyncClient(credentials, clientConfig, Executors.newFixedThreadPool(2));
+                AWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
+                asynchCloudWatchClient = AmazonCloudWatchAsyncClientBuilder
+                        .standard()
+                        .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                        .withClientConfiguration(clientConfig)
+                        .withRegion(vmRegion.getRegion())
+                        .build();
+                asyncSnsClient = AmazonSNSAsyncClientBuilder
+                        .standard()
+                        .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                        .withClientConfiguration(clientConfig)
+                        .withRegion(vmRegion.getRegion())
+                        .build();
             } else {
-                asynchCloudWatchClient = new AmazonCloudWatchAsyncClient(clientConfig);
-                asyncSnsClient = new AmazonSNSAsyncClient(clientConfig);
+                asynchCloudWatchClient = AmazonCloudWatchAsyncClientBuilder.standard()
+                        .withClientConfiguration(clientConfig)
+                        .withRegion(vmRegion.getRegion())
+                        .build();
+                asyncSnsClient = AmazonSNSAsyncClientBuilder.standard()
+                        .withClientConfiguration(clientConfig)
+                        .withRegion(vmRegion.getRegion())
+                        .build();
             }
-            asynchCloudWatchClient.setRegion(Region.getRegion(Regions.fromName(vmRegion.getRegion())));
-            asyncSnsClient.setRegion(Region.getRegion(Regions.fromName(vmRegion.getRegion())));
         } catch (Exception ex) {
             logger.error(ex.getMessage());
             throw new RuntimeException(ex);

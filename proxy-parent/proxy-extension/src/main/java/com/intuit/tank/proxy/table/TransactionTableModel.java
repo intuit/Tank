@@ -63,7 +63,7 @@ public class TransactionTableModel extends DefaultTableModel {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Class<?> getColumnClass(int columnIndex) {
@@ -76,7 +76,7 @@ public class TransactionTableModel extends DefaultTableModel {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean isCellEditable(int arg0, int arg1) {

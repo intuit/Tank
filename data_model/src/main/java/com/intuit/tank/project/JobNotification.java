@@ -97,7 +97,7 @@ public class JobNotification extends BaseEntity implements Notification {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String getSubject() {
@@ -105,14 +105,14 @@ public class JobNotification extends BaseEntity implements Notification {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public void setSubject(String subject) {
         this.subject = subject;
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String getBody() {
@@ -120,7 +120,7 @@ public class JobNotification extends BaseEntity implements Notification {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     public void setBody(String body) {
         this.body = body;
@@ -176,7 +176,7 @@ public class JobNotification extends BaseEntity implements Notification {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String toString() {
@@ -185,7 +185,7 @@ public class JobNotification extends BaseEntity implements Notification {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean equals(Object obj) {
@@ -197,7 +197,7 @@ public class JobNotification extends BaseEntity implements Notification {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int hashCode() {
@@ -205,7 +205,7 @@ public class JobNotification extends BaseEntity implements Notification {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Set<? extends Recipient> getRecipients() {

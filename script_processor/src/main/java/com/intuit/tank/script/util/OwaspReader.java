@@ -66,7 +66,7 @@ public class OwaspReader implements RecordedScriptReader {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public List<ScriptStep> read(String xml) throws WatsParseException {
@@ -74,7 +74,7 @@ public class OwaspReader implements RecordedScriptReader {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public List<ScriptStep> read(Reader reader) throws WatsParseException {

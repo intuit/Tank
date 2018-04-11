@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui"
-  xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:p="http://primefaces.org/ui">
 
   <div class="formRow">
     <p:commandButton value="Query String" action="#{queryStringEditor.insertQueryString()}" ajax="true"
@@ -27,7 +29,7 @@
           <h:outputText value="Parameter" />
         </f:facet>
         <p:inplace styleClass="ellipsis" editor="true" style="width: 200px;">
-          <p:inputText value="#{tsqueryString.key}" styleClass="ellipsis" style="width: 130px;"></p:inputText>
+          <p:inputText value="#{tsqueryString.key}" styleClass="ellipsis" style="width: 130px;"/>
         </p:inplace>
       </p:column>
 
@@ -36,7 +38,7 @@
           <h:outputText value="Value" />
         </f:facet>
         <p:inplace styleClass="ellipsis" editor="true" style="width:400px;">
-          <p:inputText value="#{tsqueryString.value}" styleClass="ellipsis" style="width:340px;"></p:inputText>
+          <p:inputText value="#{tsqueryString.value}" styleClass="ellipsis" style="width:340px;"/>
         </p:inplace>
       </p:column>
 

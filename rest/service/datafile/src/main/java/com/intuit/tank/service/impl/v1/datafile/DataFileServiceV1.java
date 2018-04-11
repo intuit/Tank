@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +76,7 @@ public class DataFileServiceV1 implements DataFileService {
     private static final Logger LOG = LogManager.getLogger(DataFileServiceV1.class);
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String ping() {
@@ -83,7 +84,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public StreamingOutput getDataFileData(Integer id) {
@@ -91,7 +92,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public StreamingOutput getDataFileDataOffset(Integer id, int offset, int numLines) {
@@ -99,7 +100,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public StreamingOutput getDataFileVersion(Integer id, Integer version, final int offset, final int numLines) {
@@ -109,7 +110,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response saveOrUpdateDataFile(FormDataMultiPart formData) {
@@ -197,7 +198,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response deleteDataFile(Integer id) {
@@ -209,7 +210,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getDataFiles() {
@@ -227,7 +228,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getDataFile(Integer id) {
@@ -242,7 +243,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response setDataFile(Integer id, FormDataMultiPart formData) {
@@ -266,7 +267,7 @@ public class DataFileServiceV1 implements DataFileService {
                 PrintWriter out = null;
                 try {
                     int nl = numLines;
-                    in = new BufferedReader(new InputStreamReader(fileStorage.readFileData(fd), "utf-8"));
+                    in = new BufferedReader(new InputStreamReader(fileStorage.readFileData(fd), StandardCharsets.UTF_8));
                     out = new PrintWriter(outputStream);
                     if (!fd.getFileName().toLowerCase().endsWith(".csv")) {
                         nl = -1;
@@ -293,7 +294,7 @@ public class DataFileServiceV1 implements DataFileService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response downloadDataFileData(Integer id) {

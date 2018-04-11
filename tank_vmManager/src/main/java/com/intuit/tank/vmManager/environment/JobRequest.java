@@ -39,11 +39,11 @@ public class JobRequest implements Runnable {
     static Logger logger = LogManager.getLogger(JobRequest.class);
 
     private VMJobRequest request = null;
-    private VMTracker tracker;
+    private VMTracker vmTracker;
 
     public JobRequest(VMJobRequest request, VMTracker tracker) {
         this.request = request;
-        this.tracker = tracker;
+        this.vmTracker = tracker;
     }
 
     @Override
@@ -76,11 +76,11 @@ public class JobRequest implements Runnable {
         logger.info("Created " + vmInfo.size() + " Amazon instances.");
         VMImageDao dao = new VMImageDao();
         // create a watchdog to monitor these instances
-        AgentWatchdog watchDog = new AgentWatchdog(instanceRequest, vmInfo, tracker);
+        AgentWatchdog watchDog = new AgentWatchdog(instanceRequest, vmInfo, vmTracker);
         // persist the VMImages to database:
         for (VMInformation info : vmInfo) {
             try {
-                tracker.setStatus(createCloudStatus(instanceRequest, info));
+                vmTracker.setStatus(createCloudStatus(instanceRequest, info));
                 dao.addImageFromInfo(request.getJobId(), info, request.getRegion());
                 logger.info("Added image (" + info.getInstanceId() + ") to VMImage table");
             } catch (Exception e) {
@@ -93,7 +93,7 @@ public class JobRequest implements Runnable {
     }
 
     /**
-     * @param request2
+     * @param req
      * @param info
      * @return
      */

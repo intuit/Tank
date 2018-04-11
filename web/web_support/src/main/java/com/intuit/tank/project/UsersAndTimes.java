@@ -396,7 +396,7 @@ public class UsersAndTimes implements Serializable {
      *            String representation of an integer value.
      */
     public void setUserIncrement(String startUsers) {
-        if (NumberUtils.isNumber(startUsers)) {
+        if (NumberUtils.isCreatable(startUsers)) {
             projectBean.getJobConfiguration().setUserIntervalIncrement(Integer.parseInt(startUsers));
         }
     }

@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +71,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 public class AgentServiceV1 implements AgentService {
 
     private static final String HARNESS_JAR = "apiharness-1.0-all.jar";
+    private static final String START_SCRIPT = "startAgent.sh";
 
     private static final Logger LOG = LogManager.getLogger(AgentServiceV1.class);
 
@@ -77,7 +79,7 @@ public class AgentServiceV1 implements AgentService {
     private ServletContext servletContext;
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String ping() {
@@ -85,7 +87,7 @@ public class AgentServiceV1 implements AgentService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response agentReady(AgentData data) {
@@ -112,7 +114,7 @@ public class AgentServiceV1 implements AgentService {
             if (agentConfigFile.exists() && agentConfigFile.isFile()) {
                 configFile = agentConfigFile;
             }
-            responseBuilder.entity(FileUtils.readFileToString(configFile));
+            responseBuilder.entity(FileUtils.readFileToString(configFile, StandardCharsets.UTF_8));
         } catch (Exception e) {
             LOG.error("Error reading settings: " + e.getMessage(), e);
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
@@ -127,7 +129,7 @@ public class AgentServiceV1 implements AgentService {
         ResponseBuilder responseBuilder = Response.ok();
         // AuthUtil.checkLoggedIn(servletContext);
         final FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getJarDir(), false);
-
+        final File startScript = new File(servletContext.getRealPath("/tools/" + START_SCRIPT));
         final File harnessJar = new File(servletContext.getRealPath("/tools/" + HARNESS_JAR));
         LOG.info("harnessJar = " + harnessJar.getAbsolutePath());
         final List<FileData> files = fileStorage.listFileData("");
@@ -137,13 +139,16 @@ public class AgentServiceV1 implements AgentService {
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 ZipOutputStream zip = new ZipOutputStream(output);
                 try {
-                    boolean harnessJarExists = harnessJar.exists();
-                    if (harnessJarExists) {
+                    if (harnessJar.exists()) {
                         addFileToZip(HARNESS_JAR, new FileInputStream(harnessJar), zip);
                         zip.flush();
                     }
+                    if (startScript.exists()) {
+                        addFileToZip(START_SCRIPT, new FileInputStream(startScript), zip);
+                        zip.flush();
+                    }
                     for (FileData fileData : files) {
-                        if (harnessJarExists && fileData.getFileName().equals(HARNESS_JAR)) {
+                        if (harnessJar.exists() && fileData.getFileName().equals(HARNESS_JAR)) {
                             LOG.info("Not adding harness because we found it in the war.");
                         } else {
                             addFileToZip(fileData.getFileName(), fileStorage.readFileData(fileData), zip);

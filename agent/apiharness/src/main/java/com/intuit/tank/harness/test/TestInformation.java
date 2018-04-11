@@ -227,7 +227,7 @@ public class TestInformation {
      */
     public int getLoop() {
         String string = this.members.get("loop");
-        return NumberUtils.isNumber(string) ? Integer.parseInt(string) : 1;
+        return NumberUtils.isCreatable(string) ? Integer.parseInt(string) : 1;
     }
 
     /**

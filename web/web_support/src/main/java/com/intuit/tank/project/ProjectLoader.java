@@ -74,7 +74,7 @@ public class ProjectLoader extends EntityVersionLoader<Project, ModifiedProjectM
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     protected List<Project> getEntities() {

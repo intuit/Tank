@@ -43,6 +43,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 public class InitializeEnvironment {
     private static final Logger LOG = LogManager.getLogger(InitializeEnvironment.class);
 
+    @Inject
     private TankConfig tankConfig;
     
     @Inject
@@ -55,14 +56,12 @@ public class InitializeEnvironment {
     @PostConstruct
     public void init() {
     	identityManager = this.partitionManager.createIdentityManager();
-    	tankConfig = new TankConfig();
         createDefaultGroups();
         createDefaultUsers();
         initialize = true;
     }
 
     /**
-     * @param sb
      * @return
      */
     private void createDefaultUsers() {
@@ -93,7 +92,6 @@ public class InitializeEnvironment {
     }
 
     /**
-     * @param sb
      * @return
      */
     private void createDefaultGroups() {

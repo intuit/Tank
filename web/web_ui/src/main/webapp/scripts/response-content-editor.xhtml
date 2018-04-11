@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:p="http://primefaces.org/ui"
-  xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:p="http://primefaces.org/ui">
 
 <div class="formRow">
     <p:commandButton value="Raw Response" rendered="#{scriptRequestEditor.step.response ne null}"
@@ -57,7 +59,7 @@
         <h:outputText value="Response Key or Literal" />
       </f:facet>
       <p:inplace styleClass="ellipsis" editor="true" style="width:300px;">
-        <p:inputText value="#{content.value}" styleClass="ellipsis" style="width:240px;"></p:inputText>
+        <p:inputText value="#{content.value}" styleClass="ellipsis" style="width:240px;"/>
       </p:inplace>
     </p:column>
 

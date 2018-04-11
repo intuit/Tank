@@ -92,7 +92,7 @@ public class DataFileDao extends BaseDao<DataFile> {
     }
 
     // /**
-    // * @{inheritDoc}
+    // * @inheritDoc}
     // * Don't want to delete files because we may be using a version of the datafile.
     // */
     // @Override
@@ -110,7 +110,7 @@ public class DataFileDao extends BaseDao<DataFile> {
 
     /**
      * @param is
-     * @param fileName
+     * @param df
      */
     private void storeFile(InputStream is, DataFile df) throws IOException, IllegalAccessException {
         FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getDataFileStorageDir(), false);

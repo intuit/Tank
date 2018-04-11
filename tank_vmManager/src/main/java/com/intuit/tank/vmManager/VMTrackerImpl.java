@@ -33,6 +33,7 @@ import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
+import com.intuit.tank.project.JobVMInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -89,12 +90,11 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public CloudVmStatus getStatus(@Nonnull String instanceId) {
-        CloudVmStatus status = statusMap.get(instanceId);
-        return status;
+        return statusMap.get(instanceId);
     }
 
     public ProjectStatusContainer getProjectStatusContainer(String projectId) {
@@ -102,7 +102,7 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void publishEvent(JobEvent event) {
@@ -114,7 +114,7 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void setStatus(@Nonnull CloudVmStatus status) {
@@ -122,9 +122,6 @@ public class VMTrackerImpl implements VMTracker {
             status.setReportTime(new Date());
             CloudVmStatus curentStatus = getStatus(status.getInstanceId());
             if (shouldUpdateStatus(curentStatus)) {
-                if (curentStatus != null) {
-                    statusMap.remove(curentStatus);
-                }
                 statusMap.put(status.getInstanceId(), status);
                 if (status.getVmStatus() == VMStatus.running
                 		&& (status.getJobStatus() == JobStatus.Completed)
@@ -184,7 +181,8 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
-     * @param status
+     * @param oldStatus
+     * @param jobSatatus
      * @return
      */
     private JobQueueStatus getQueueStatus(JobQueueStatus oldStatus, JobStatus jobSatatus) {
@@ -197,6 +195,7 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
+     * If the vm is shutting down or terminated, don't update the status to something else.
      * @param curentStatus
      * @return
      */
@@ -214,7 +213,7 @@ public class VMTrackerImpl implements VMTracker {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void removeStatusForInstance(String instanceId) {
@@ -223,7 +222,7 @@ public class VMTrackerImpl implements VMTracker {
 
     /**
      * 
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void removeStatusForJob(String jobId) {
@@ -237,7 +236,7 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public CloudVmStatusContainer getVmStatusForJob(String jobId) {
@@ -245,7 +244,7 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean isDevMode() {
@@ -253,7 +252,7 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Set<CloudVmStatusContainer> getAllJobs() {

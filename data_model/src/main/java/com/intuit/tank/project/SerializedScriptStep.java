@@ -80,7 +80,7 @@ public class SerializedScriptStep extends BaseEntity {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String toString() {
@@ -89,7 +89,7 @@ public class SerializedScriptStep extends BaseEntity {
     }
 
     // /**
-    // * @{inheritDoc
+    // * @inheritDoc
     // */
     // @Override
     // public boolean equals(Object obj) {
@@ -101,7 +101,7 @@ public class SerializedScriptStep extends BaseEntity {
     // }
     //
     // /**
-    // * @{inheritDoc
+    // * @inheritDoc
     // */
     // @Override
     // public int hashCode() {

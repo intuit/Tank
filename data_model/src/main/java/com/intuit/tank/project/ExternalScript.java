@@ -91,7 +91,7 @@ public class ExternalScript extends OwnableEntity implements Comparable<External
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String toString() {
@@ -99,7 +99,7 @@ public class ExternalScript extends OwnableEntity implements Comparable<External
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean equals(Object obj) {
@@ -111,7 +111,7 @@ public class ExternalScript extends OwnableEntity implements Comparable<External
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int hashCode() {
@@ -119,7 +119,7 @@ public class ExternalScript extends OwnableEntity implements Comparable<External
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int compareTo(ExternalScript o) {

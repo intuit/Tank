@@ -148,7 +148,7 @@ public class ConfiguredLanguage {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String toString() {

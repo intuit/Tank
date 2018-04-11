@@ -92,7 +92,7 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public List<Project> getEntityList(ViewFilterType viewFilter) {
@@ -109,7 +109,7 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean isCurrent() {

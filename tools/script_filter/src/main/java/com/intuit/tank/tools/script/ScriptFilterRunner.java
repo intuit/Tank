@@ -40,6 +40,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -290,7 +291,6 @@ public class ScriptFilterRunner extends JFrame {
     }
 
     /**
-     * @param loadChooser
      * @return
      */
     public Component createBottomPanel() {
@@ -390,7 +390,7 @@ public class ScriptFilterRunner extends JFrame {
                         .getName());
                 if (languagebyExtension != null) {
                     try {
-                        scriptEditorTA.setText(FileUtils.readFileToString(file));
+                        scriptEditorTA.setText(FileUtils.readFileToString(file, StandardCharsets.UTF_8));
                         currentExternalScript = null;
                         languageSelector.setSelectedItem(languagebyExtension);
                     } catch (IOException e) {

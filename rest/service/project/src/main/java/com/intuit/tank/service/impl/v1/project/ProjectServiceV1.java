@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -65,7 +66,6 @@ import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.Project;
-import com.intuit.tank.project.ProjectDTO;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.service.impl.v1.cloud.JobController;
 import com.intuit.tank.service.util.ResponseUtil;
@@ -87,7 +87,7 @@ public class ProjectServiceV1 implements ProjectService {
     private ServletContext servletContext;
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String ping() {
@@ -95,7 +95,7 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response deleteProject(int projectId) {
@@ -103,7 +103,7 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response deleteProjectPost(int projectId) {
@@ -138,13 +138,13 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public StreamingOutput getTestScriptForJob(String jobId) {
         File f = ProjectDaoUtil.getScriptFile(jobId);
         if (!f.exists()) {
-            if (NumberUtils.isNumber(jobId)) {
+            if (NumberUtils.isCreatable(jobId)) {
                 JobInstance job = new JobInstanceDao().findById(Integer.parseInt(jobId));
                 if (job == null) {
                     throw new RuntimeException("Cannot find Job with id of " + jobId);
@@ -163,7 +163,7 @@ public class ProjectServiceV1 implements ProjectService {
                 // Get the object of DataInputStream
                 try {
                     in = new BufferedReader(new FileReader(file));
-                    IOUtils.copy(in, outputStream);
+                    IOUtils.copy(in, outputStream, StandardCharsets.UTF_8);
                 } catch (IOException e) {
                     LOG.error("Error streaming file: " + e.toString(), e);
                     throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
@@ -175,7 +175,7 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public StreamingOutput getTestScriptForProject(Integer projectId) {
@@ -188,7 +188,7 @@ public class ProjectServiceV1 implements ProjectService {
             public void write(OutputStream outputStream) {
                 // Get the object of DataInputStream
                 try {
-                    IOUtils.write(scriptString, outputStream);
+                    IOUtils.write(scriptString, outputStream, StandardCharsets.UTF_8);
                 } catch (IOException e) {
                     LOG.error("Error streaming file: " + e.toString(), e);
                     throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
@@ -199,7 +199,7 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response downloadTestScriptForJob(String jobId) {
@@ -212,7 +212,7 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response downloadTestScriptForProject(Integer projectId) {
@@ -225,7 +225,7 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public Response getProjectNames() {
@@ -304,8 +304,9 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @param dataFileDao2
+     * @param dao
      * @param dataFileIds
+     * @param entityClass
      * @return
      */
     @SuppressWarnings("rawtypes")
@@ -320,8 +321,8 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @param dataFileDao2
-     * @param dataFileIds
+     * @param dao
+     * @param entities
      * @return
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })

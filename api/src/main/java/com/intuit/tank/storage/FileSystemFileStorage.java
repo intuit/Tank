@@ -92,9 +92,11 @@ public class FileSystemFileStorage implements FileStorage, Serializable {
     public List<FileData> listFileData(String path) {
         List<FileData> ret = new ArrayList<FileData>();
         File dir = new File(FilenameUtils.normalize(basePath + "/" + path));
-        for (File f : dir.listFiles()) {
-            if (f.isFile()) {
-                ret.add(new FileData(path, f.getName()));
+        if (dir.exists()) {
+            for (File f : dir.listFiles()) {
+                if (f.isFile()) {
+                    ret.add(new FileData(path, f.getName()));
+                }
             }
         }
         return ret;

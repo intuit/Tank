@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag"
+  xmlns:p="http://primefaces.org/ui"
   template="/WEB-INF/templates/tank.xhtml">
 
   <ui:define name="content">
@@ -46,9 +49,7 @@
       </ts:toolbar>
 
       <div class="vertical-spacer" />
-      <p:growl globalOnly="true" id="messages">
-        <p:autoUpdate />
-      </p:growl>
+      <p:growl globalOnly="true" id="messages" autoUpdate="true" />
 
       <!-- Top info rows -->
       <h:panelGroup id="projectData">
@@ -117,7 +118,7 @@
           </div>
 
           <div class="formRow">
-            <ts:ownerBox entity="#{projectBean.project}"></ts:ownerBox>
+            <ts:ownerBox entity="#{projectBean.project}"/>
           </div>
 
           <div class="formRow">
@@ -135,25 +136,25 @@
         <p:tabView id="projectTabPanelID" dynamic="true" cache="false" widgetVar="projectTabPanel"
           styleClass="disabled-header">
           <p:tab id="userTabId" title="Users And Times">
-            <ui:include src="./usersAndTimes.xhtml"></ui:include>
+            <ui:include src="./usersAndTimes.xhtml"/>
           </p:tab>
           <p:tab id="scriptsTabId" title="Scripts">
-            <ui:include src="./workloadScripts.xhtml"></ui:include>
+            <ui:include src="./workloadScripts.xhtml"/>
           </p:tab>
           <p:tab id="fileAssociationTabId" title="Data Files">
-            <ui:include src="./associateFiles.xhtml"></ui:include>
+            <ui:include src="./associateFiles.xhtml"/>
           </p:tab>
           <p:tab id="notificationTabId" title="Notifications">
-            <ui:include src="./notifications.xhtml"></ui:include>
+            <ui:include src="./notifications.xhtml"/>
           </p:tab>
           <p:tab id="variablesTabId" title="Variables">
-            <ui:include src="./variables.xhtml"></ui:include>
+            <ui:include src="./variables.xhtml"/>
           </p:tab>
           <p:tab id="scheduleTabId" title="Create Job">
-            <ui:include src="./addWorkloadToJobQueue.xhtml"></ui:include>
+            <ui:include src="./addWorkloadToJobQueue.xhtml"/>
           </p:tab>
           <p:tab id="jobQueueTabId" title="Job Queue">
-            <ui:include src="./projectjobqueue.xhtml"></ui:include>
+            <ui:include src="./projectjobqueue.xhtml"/>
           </p:tab>
         </p:tabView>
       </h:panelGroup>
@@ -247,6 +248,7 @@
         </h:panelGroup>
       </h:form>
     </p:dialog>
+
     <p:dialog id="scriptGroupPopupID" appendTo="@(body)" dynamic="true" widgetVar="scriptGroupPopup" width="500"
       height="150" header="Add Script Group" modal="true" resizable="true" position="center">
       <h:form id="scriptGroupPopupForm">

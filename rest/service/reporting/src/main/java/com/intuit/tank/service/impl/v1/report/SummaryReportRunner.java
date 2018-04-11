@@ -72,7 +72,7 @@ public class SummaryReportRunner implements Runnable {
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public void run() {

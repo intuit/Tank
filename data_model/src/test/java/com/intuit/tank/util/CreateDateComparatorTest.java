@@ -102,7 +102,7 @@ public class CreateDateComparatorTest {
         }
 
         /**
-         * @{inheritDoc
+         * @inheritDoc
          */
         @Override
         public String toString() {

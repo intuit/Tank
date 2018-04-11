@@ -155,7 +155,7 @@ public class ScriptFilter extends OwnableEntity implements Comparable<ScriptFilt
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public String toString() {
@@ -165,7 +165,7 @@ public class ScriptFilter extends OwnableEntity implements Comparable<ScriptFilt
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public boolean equals(Object obj) {
@@ -177,7 +177,7 @@ public class ScriptFilter extends OwnableEntity implements Comparable<ScriptFilt
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int hashCode() {
@@ -185,7 +185,7 @@ public class ScriptFilter extends OwnableEntity implements Comparable<ScriptFilt
     }
 
     /**
-     * @{inheritDoc
+     * @inheritDoc
      */
     @Override
     public int compareTo(ScriptFilter o) {
