@@ -4,6 +4,7 @@
 package com.intuit.tank.util;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
@@ -60,7 +61,7 @@ public final class DataFileUtil {
         int ret = 0;
         if (fileStorage.exists(fd)) {
             try {
-                for (LineIterator iterator = IOUtils.lineIterator(fileStorage.readFileData(fd), "utf-8"); iterator.hasNext(); iterator.nextLine()) {
+                for (LineIterator iterator = IOUtils.lineIterator(fileStorage.readFileData(fd), StandardCharsets.UTF_8); iterator.hasNext(); iterator.nextLine()) {
                     ret++;
                 }
 

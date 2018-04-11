@@ -38,7 +38,7 @@ public class StandaloneAgentStartup implements Runnable {
 
     private static Logger LOG = LogManager.getLogger(StandaloneAgentStartup.class);
     public static final String SERVICE_RELATIVE_PATH = "/rest/v1/agent-service";
-    private static String API_HARNESS_COMMAND = "./start_wats.sh";
+    private static String API_HARNESS_COMMAND = "./startAgent.sh";
     public static final String METHOD_SETTINGS = "/settings";
     public static final String METHOD_SUPPORT = "/supportFiles";
     private static final long PING_TIME = 1000 * 60 * 5;// five minutes

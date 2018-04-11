@@ -66,7 +66,6 @@ import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.Project;
-import com.intuit.tank.project.ProjectDTO;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.service.impl.v1.cloud.JobController;
 import com.intuit.tank.service.util.ResponseUtil;
@@ -305,8 +304,9 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @param dataFileDao2
+     * @param dao
      * @param dataFileIds
+     * @param entityClass
      * @return
      */
     @SuppressWarnings("rawtypes")
@@ -321,8 +321,8 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @param dataFileDao2
-     * @param dataFileIds
+     * @param dao
+     * @param entities
      * @return
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })

@@ -51,6 +51,7 @@ public class JobStatusHelper {
         		|| status.equalsIgnoreCase(JobQueueStatus.Starting.toString())
         		|| status.equals(VMStatus.stopping.toString())
         		|| status.equals(JobQueueStatus.Paused.toString())
-        		|| status.equals(JobQueueStatus.RampPaused.toString()));
+        		|| status.equals(JobQueueStatus.RampPaused.toString())
+				|| status.equals(VMStatus.rampPaused.toString()));
     }
 }

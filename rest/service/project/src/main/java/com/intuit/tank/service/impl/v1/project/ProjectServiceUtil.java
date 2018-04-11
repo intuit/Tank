@@ -69,7 +69,7 @@ public class ProjectServiceUtil {
     }
 
     /**
-     * @param job
+     * @param jobId
      * @return
      */
     public static synchronized File getScriptFile(String jobId) {

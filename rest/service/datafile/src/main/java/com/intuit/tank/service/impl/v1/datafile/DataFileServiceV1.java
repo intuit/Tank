@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -266,7 +267,7 @@ public class DataFileServiceV1 implements DataFileService {
                 PrintWriter out = null;
                 try {
                     int nl = numLines;
-                    in = new BufferedReader(new InputStreamReader(fileStorage.readFileData(fd), "utf-8"));
+                    in = new BufferedReader(new InputStreamReader(fileStorage.readFileData(fd), StandardCharsets.UTF_8));
                     out = new PrintWriter(outputStream);
                     if (!fd.getFileName().toLowerCase().endsWith(".csv")) {
                         nl = -1;

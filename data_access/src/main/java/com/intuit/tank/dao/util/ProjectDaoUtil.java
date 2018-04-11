@@ -40,12 +40,11 @@ public class ProjectDaoUtil {
     }
 
     /**
-     * @param job
+     * @param jobId
      * @return
      */
     public static synchronized File getScriptFile(String jobId) {
-        File f = createScriptFile(jobId);
-        return f;
+        return createScriptFile(jobId);
     }
 
     /**
@@ -58,8 +57,7 @@ public class ProjectDaoUtil {
         if (!parentDir.exists()) {
             parentDir.mkdirs();
         }
-        File f = new File(parentDir, jobId);
-        return f;
+        return new File(parentDir, jobId);
     }
 
     /**

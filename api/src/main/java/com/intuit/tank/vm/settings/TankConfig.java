@@ -107,7 +107,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
      * @return the Datafile storage root dir
      */
     public String getDataFileStorageDir() {
-        return config.getString(KEY_DATA_FILE_STORAGE, "/mnt/wats/datafiles");
+        return config.getString(KEY_DATA_FILE_STORAGE, "/tmp/tank/datafiles");
     }
 
     /**
@@ -134,21 +134,21 @@ public class TankConfig extends BaseCommonsXmlConfig {
      * @return the Datafile storage root dir
      */
     public String getTmpDir() {
-        return config.getString(KEY_TMP_FILE_STORAGE, "/mnt/wats/tmpfiles");
+        return config.getString(KEY_TMP_FILE_STORAGE, "/tmp/tank/tmpfiles");
     }
 
     /**
      * @return the Datafile storage root dir
      */
     public String getJarDir() {
-        return config.getString(KEY_JAR_FILE_STORAGE, "/mnt/wats/jars");
+        return config.getString(KEY_JAR_FILE_STORAGE, "/tmp/tank/jars");
     }
 
     /**
      * @return the Datafile storage root dir
      */
     public String getTimingDir() {
-        return config.getString(KEY_TIMING_FILE_STORAGE, "/mnt/wats/timing");
+        return config.getString(KEY_TIMING_FILE_STORAGE, "/tmp/tank/timing");
     }
 
     /**

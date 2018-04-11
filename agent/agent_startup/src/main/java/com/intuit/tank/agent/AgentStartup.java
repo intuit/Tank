@@ -34,7 +34,7 @@ public class AgentStartup implements Runnable {
     private static Logger logger = LogManager.getLogger(AgentStartup.class);
     public static final String SERVICE_RELATIVE_PATH = "/rest/v1/agent-service";
     public static final String METHOD_SETTINGS = "/settings";
-    private static String API_HARNESS_COMMAND = "./start_wats.sh";
+    private static String API_HARNESS_COMMAND = "./startAgent.sh";
     public static final String METHOD_SUPPORT = "/supportFiles";
     private static final long WAIT_FOR_RESTART_TIME = 00000; // zero minute
 
