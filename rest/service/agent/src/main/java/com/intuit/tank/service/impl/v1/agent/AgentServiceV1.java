@@ -129,7 +129,6 @@ public class AgentServiceV1 implements AgentService {
         ResponseBuilder responseBuilder = Response.ok();
         // AuthUtil.checkLoggedIn(servletContext);
         final FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getJarDir(), false);
-        final File startScript = new File(servletContext.getRealPath("/tools/" + START_SCRIPT));
         final File harnessJar = new File(servletContext.getRealPath("/tools/" + HARNESS_JAR));
         LOG.info("harnessJar = " + harnessJar.getAbsolutePath());
         final List<FileData> files = fileStorage.listFileData("");
@@ -141,10 +140,6 @@ public class AgentServiceV1 implements AgentService {
                 try {
                     if (harnessJar.exists()) {
                         addFileToZip(HARNESS_JAR, new FileInputStream(harnessJar), zip);
-                        zip.flush();
-                    }
-                    if (startScript.exists()) {
-                        addFileToZip(START_SCRIPT, new FileInputStream(startScript), zip);
                         zip.flush();
                     }
                     for (FileData fileData : files) {
