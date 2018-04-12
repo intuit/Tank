@@ -498,9 +498,8 @@ public class ActionProducer {
                     try {
                         ScriptDescriptionContainer scriptDescriptions = scriptServiceClient.getScriptDescriptions();
                         List<ScriptDescription> scripts = scriptDescriptions.getScripts();
-                        Collections.sort(scripts, (ScriptDescription o1, ScriptDescription o2) ->
-                                o2.getCreated().compareTo(o1.getCreated())
-                        );
+                        scripts.sort((ScriptDescription o1, ScriptDescription o2) ->
+                                o2.getCreated().compareTo(o1.getCreated()));
                         SelectDialog<ScriptDescription> selectDialog = new SelectDialog<ScriptDescription>(
                                 debuggerFrame,
                                 scripts, "script");

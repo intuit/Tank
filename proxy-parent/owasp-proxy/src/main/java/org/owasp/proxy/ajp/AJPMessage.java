@@ -220,13 +220,11 @@ public class AJPMessage {
     }
 
     public byte getByte() {
-        byte res = buf[pos++];
-        return res;
+        return buf[pos++];
     }
 
     public byte peekByte() {
-        byte res = buf[pos];
-        return res;
+        return buf[pos];
     }
 
     public boolean getBoolean() {

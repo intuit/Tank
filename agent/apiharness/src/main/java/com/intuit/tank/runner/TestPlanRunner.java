@@ -262,18 +262,8 @@ public class TestPlanRunner implements Runnable {
     }
 
     private boolean checkGotoGroupUseCase(HDScriptUseCase hdScriptUseCase, String gotoGroup) {
-        boolean retVal = false;
         List<TestStep> scriptSteps = hdScriptUseCase.getScriptSteps();
-        for (TestStep testStep : scriptSteps) {
-            if (testStep instanceof RequestStep) {
-                RequestStep rs = (RequestStep) testStep;
-                if (gotoGroup.equals(rs.getScriptGroupName())) {
-                    retVal = true;
-                    break;
-                }
-            }
-        }
-        return retVal;
+        return scriptSteps.stream().filter(testStep -> testStep instanceof RequestStep).map(testStep -> (RequestStep) testStep).anyMatch(rs -> gotoGroup.equals(rs.getScriptGroupName()));
     }
 
     private void runScriptSteps(HDScriptUseCase hdScriptUseCase) throws KillScriptException,

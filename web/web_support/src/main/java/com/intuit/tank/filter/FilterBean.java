@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -145,13 +146,7 @@ public class FilterBean extends SelectableBean<ScriptFilter> implements Serializ
      * @return the list of integers representing the IDs of each selected filter
      */
     public List<Integer> getSelectedFilterIds() {
-        List<Integer> retVals = new ArrayList<Integer>();
-        for (SelectableWrapper<ScriptFilter> wrapper : this.getSelectionList()) {
-            if (wrapper.isSelected()) {
-                retVals.add(wrapper.getEntity().getId());
-            }
-        }
-        return retVals;
+        return this.getSelectionList().stream().filter(SelectableWrapper::isSelected).map(wrapper -> wrapper.getEntity().getId()).collect(Collectors.toList());
     }
 
 }

@@ -182,7 +182,7 @@ public class LogicTestData implements Serializable {
      */
     public List<Map.Entry<String, String>> getRequestHeaders() {
         ArrayList<Entry<String, String>> ret = new ArrayList<Map.Entry<String, String>>(requestHeaderMap.entrySet());
-        Collections.sort(ret, new MapEntryComparator());
+        ret.sort(new MapEntryComparator());
         return ret;
     }
 

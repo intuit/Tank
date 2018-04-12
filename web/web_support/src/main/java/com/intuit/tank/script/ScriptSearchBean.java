@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
@@ -355,52 +356,28 @@ public class ScriptSearchBean implements Serializable {
      * @return the selectedScriptStepSection
      */
     public List<Section> getSelectedRequestStepSection() {
-        List<Section> selected = new ArrayList<Section>();
-        for (SearchOptionWrapper option : requestSections) {
-            if (option.isSelected()) {
-                selected.add(option.getValue());
-            }
-        }
-        return selected;
+        return requestSections.stream().filter(SearchOptionWrapper::isSelected).map(SearchOptionWrapper::getValue).collect(Collectors.toList());
     }
 
     /**
      * @return the selectedThinkTimeSection
      */
     public List<Section> getSelectedThinkTimeSection() {
-        List<Section> selected = new ArrayList<Section>();
-        for (SearchOptionWrapper option : thinkTimeSections) {
-            if (option.isSelected()) {
-                selected.add(option.getValue());
-            }
-        }
-        return selected;
+        return thinkTimeSections.stream().filter(SearchOptionWrapper::isSelected).map(SearchOptionWrapper::getValue).collect(Collectors.toList());
     }
 
     /**
      * @return the selectedSleepTimeSection
      */
     public List<Section> getSelectedSleepTimeSection() {
-        List<Section> selected = new ArrayList<Section>();
-        for (SearchOptionWrapper option : sleepTimeSections) {
-            if (option.isSelected()) {
-                selected.add(option.getValue());
-            }
-        }
-        return selected;
+        return sleepTimeSections.stream().filter(SearchOptionWrapper::isSelected).map(SearchOptionWrapper::getValue).collect(Collectors.toList());
     }
 
     /**
      * @return the selectedVariableSection
      */
     public List<Section> getSelectedVariableSection() {
-        List<Section> selected = new ArrayList<Section>();
-        for (SearchOptionWrapper option : variableSections) {
-            if (option.isSelected()) {
-                selected.add(option.getValue());
-            }
-        }
-        return selected;
+        return variableSections.stream().filter(SearchOptionWrapper::isSelected).map(SearchOptionWrapper::getValue).collect(Collectors.toList());
     }
 
     public void initReplacementDialog() {

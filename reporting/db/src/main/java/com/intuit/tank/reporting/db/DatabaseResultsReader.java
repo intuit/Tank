@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.logging.log4j.LogManager;
@@ -71,9 +72,7 @@ public class DatabaseResultsReader implements ResultsReader {
         List<TankResult> results = new ArrayList<TankResult>();
         try {
             PagedDatabaseResult pagedItems = db.getPagedItems(tableName, nextToken, null, null, null, jobId);
-            for (Item item : pagedItems.getItems()) {
-                results.add(ItemToTankResult(item));
-            }
+            results = pagedItems.getItems().stream().map(this::ItemToTankResult).collect(Collectors.toList());
             nextToken = pagedItems.getNextToken();
         } catch (NullPointerException npe) { //Ignore
         } catch (Exception e) {

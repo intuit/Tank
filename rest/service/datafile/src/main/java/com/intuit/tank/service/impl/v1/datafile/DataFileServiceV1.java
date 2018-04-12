@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
@@ -217,10 +218,7 @@ public class DataFileServiceV1 implements DataFileService {
         ResponseBuilder responseBuilder = Response.ok();
         DataFileDao dao = new DataFileDao();
         List<DataFile> all = dao.findAll();
-        List<DataFileDescriptor> result = new ArrayList<DataFileDescriptor>();
-        for (DataFile df : all) {
-            result.add(DataFileServiceUtil.dataFileToDescriptor(df));
-        }
+        List<DataFileDescriptor> result = all.stream().map(DataFileServiceUtil::dataFileToDescriptor).collect(Collectors.toList());
 
         responseBuilder.entity(new DataFileDescriptorContainer(result));
         responseBuilder.cacheControl(ResponseUtil.getNoStoreCacheControl());

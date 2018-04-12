@@ -24,6 +24,7 @@
 package org.fife.ui.rsyntaxtextarea;
 
 import java.awt.*;
+import java.util.stream.IntStream;
 import javax.swing.JViewport;
 import javax.swing.text.*;
 import javax.swing.event.*;
@@ -348,9 +349,7 @@ public class WrappedSyntaxView extends BoxView implements TabExpander,
         Element e = getElement();
         int n = e.getElementCount();
         if (n > 0) {
-            View[] added = new View[n];
-            for (int i = 0; i < n; i++)
-                added[i] = new WrappedLine(e.getElement(i));
+            View[] added = IntStream.range(0, n).mapToObj(i -> new WrappedLine(e.getElement(i))).toArray(View[]::new);
             replace(0, 0, added);
         }
     }

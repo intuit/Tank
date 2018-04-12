@@ -69,6 +69,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class AmazonInstance implements IEnvironmentInstance {
 
@@ -312,10 +313,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 // reboot(result);
             }
             if (result.size() > 0) {
-                List<String> ids = new ArrayList<String>();
-                for (VMInformation inst : result) {
-                    ids.add(inst.getInstanceId());
-                }
+                List<String> ids = result.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
                 LOG.info("Setting tags for instances " + ids);
                 tagInstance(ids, buildTags(instanceRequest));
             }
@@ -337,10 +335,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public void tagInstance(final List<String> instanceIds, KeyValuePair... tag) {
         if (tag.length != 0) {
-            final List<Tag> tags = new ArrayList<Tag>();
-            for (KeyValuePair pair : tag) {
-                tags.add(new Tag(pair.getKey(), pair.getValue()));
-            }
+            final List<Tag> tags = Arrays.stream(tag).map(pair -> new Tag(pair.getKey(), pair.getValue())).collect(Collectors.toList());
 
             new Thread( () -> {
                 int count = 0;
@@ -426,10 +421,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     }
 
     public void killInstances(List<VMInformation> instances) {
-        List<String> instanceIds = new ArrayList<>(instances.size());
-        for (VMInformation instance : instances) {
-            instanceIds.add(instance.getInstanceId());
-        }
+        List<String> instanceIds = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
         asynchEc2Client.terminateInstances(new TerminateInstancesRequest(instanceIds));
     }
 
@@ -438,10 +430,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         List<VMInformation> result = new ArrayList<>();
         try {
             List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
-            List<String> ids = new ArrayList<String>();
-            for (VMInformation info : instances) {
-                ids.add(info.getInstanceId());
-            }
+            List<String> ids = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
             if (!ids.isEmpty()) {
                 TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest(ids);
                 TerminateInstancesResult terminateInstances = asynchEc2Client.terminateInstances(terminateInstancesRequest);
@@ -577,10 +566,7 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     @Override
     public void reboot(List<VMInformation> instances) {
-        List<String> instanceIds = new ArrayList<String>(instances.size());
-        for (VMInformation instance : instances) {
-            instanceIds.add(instance.getInstanceId());
-        }
+        List<String> instanceIds = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
         asynchEc2Client.rebootInstancesAsync(new RebootInstancesRequest(instanceIds));
         // ec2Interface.rebootInstances(instanceIds);
     }
@@ -592,10 +578,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         List<VMInformation> result = new ArrayList<VMInformation>();
         try {
             List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
-            List<String> ids = new ArrayList<String>();
-            for (VMInformation info : instances) {
-                ids.add(info.getInstanceId());
-            }
+            List<String> ids = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
             if (!ids.isEmpty()) {
                 StopInstancesRequest stopInstancesRequest = new StopInstancesRequest(ids);
                 StopInstancesResult stopResult = asynchEc2Client.stopInstances(stopInstancesRequest);
@@ -614,15 +597,9 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @return
      */
     private String buildUserData(@Nonnull Map<String, String> userDataMap) {
-        StringBuilder sb = new StringBuilder();
-        for (Entry<String, String> entry : userDataMap.entrySet()) {
-            if (sb.length() > 0) {
-                sb.append('\n');
-            }
-            sb.append(entry.getKey() + "=" + entry.getValue());
-        }
+        String sb = userDataMap.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining("\n"));
 
-        return Base64.encodeBase64String(sb.toString().getBytes());
+        return Base64.encodeBase64String(sb.getBytes());
     }
 
     private static class AssociateContainer {

@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -47,11 +48,9 @@ public class ScriptUtil {
     private static final Pattern csvPattern = Pattern.compile(TankConstants.CSV_EXPRESSION_REGEX);
 
     public static long getRunTime(List<ScriptStep> steps, Map<String, String> variables) {
-        long runTime = 0;
+        long runTime;
         TankConfig tankConfig = new TankConfig();
-        for (ScriptStep step : steps) {
-            runTime += calculateStepDuration(step, variables, tankConfig);
-        }
+        runTime = steps.stream().mapToLong(step -> calculateStepDuration(step, variables, tankConfig)).sum();
         return runTime;
     }
 
@@ -79,14 +78,8 @@ public class ScriptUtil {
     public static List<ScriptAssignment> getAssignments(ScriptStep step) {
         List<ScriptAssignment> ret = new ArrayList<ScriptAssignment>();
         if (step.getType().equals("request")) {
-            for (RequestData rd : step.getResponseData()) {
-                if (StringUtils.isNotBlank(rd.getKey())) {
-                    if (StringUtils.containsIgnoreCase(rd.getType(), "assignment")) {
-                        ret.add(new ScriptAssignment(rd.getKey().trim(), StringUtils.removeStart(
-                                StringUtils.trim(rd.getValue()), "="), step.getStepIndex()));
-                    }
-                }
-            }
+            ret = step.getResponseData().stream().filter(rd -> StringUtils.isNotBlank(rd.getKey())).filter(rd -> StringUtils.containsIgnoreCase(rd.getType(), "assignment")).map(rd -> new ScriptAssignment(rd.getKey().trim(), StringUtils.removeStart(
+                    StringUtils.trim(rd.getValue()), "="), step.getStepIndex())).collect(Collectors.toList());
         }
         return ret;
     }

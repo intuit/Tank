@@ -145,15 +145,9 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
                 Thread.sleep(200);
                 if (timeValue == timeClicked) {
                     SwingUtilities.invokeLater( () -> {
-                        List<SELECTION_TYPE> filtered = new ArrayList<SELECTION_TYPE>();
-                        for (SELECTION_TYPE obj : items) {
-                            if (StringUtils.isBlank(filterField.getText())
-                                    || StringUtils.containsIgnoreCase(obj.toString(), filterField.getText()
-                                            .trim())) {
-                                filtered.add(obj);
-                            }
-                        }
-                        list.setListData(filtered.toArray());
+                        list.setListData(items.stream().filter(obj -> StringUtils.isBlank(filterField.getText())
+                                || StringUtils.containsIgnoreCase(obj.toString(), filterField.getText()
+                                .trim())).toArray());
                         list.repaint();
                     });
                 } else {

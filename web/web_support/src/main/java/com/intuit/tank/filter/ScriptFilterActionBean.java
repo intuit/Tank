@@ -15,7 +15,9 @@ package com.intuit.tank.filter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
@@ -51,13 +53,7 @@ public class ScriptFilterActionBean implements Serializable {
     private boolean editMode;
 
     public ScriptFilterActionBean() {
-        List<FailureTypes> l = new ArrayList<FailureTypes>();
-        for (FailureTypes t : FailureTypes.values()) {
-            if (t != FailureTypes.gotoGroupRequest) {
-                l.add(t);
-            }
-        }
-        failureTypes = l.toArray(new FailureTypes[l.size()]);
+        failureTypes = Arrays.stream(FailureTypes.values()).filter(t -> t != FailureTypes.gotoGroupRequest).toArray(FailureTypes[]::new);
     }
 
     public void setupNewAction() {
@@ -116,21 +112,15 @@ public class ScriptFilterActionBean implements Serializable {
         List<String> values = new ArrayList<String>();
         if (actionType.equals(ScriptFilterActionType.add)) {
             AddActionScope[] aas = AddActionScope.values();
-            for (AddActionScope scope : aas) {
-                values.add(scope.getValue());
-            }
+            values = Arrays.stream(aas).map(AddActionScope::getValue).collect(Collectors.toList());
 
         } else if (actionType.equals(ScriptFilterActionType.remove)) {
             RemoveActionScope[] ras = RemoveActionScope.values();
-            for (RemoveActionScope scope : ras) {
-                values.add(scope.getValue());
-            }
+            values = Arrays.stream(ras).map(RemoveActionScope::getValue).collect(Collectors.toList());
 
         } else if (actionType.equals(ScriptFilterActionType.replace)) {
             ReplaceActionScope[] ras = ReplaceActionScope.values();
-            for (ReplaceActionScope scope : ras) {
-                values.add(scope.getValue());
-            }
+            values = Arrays.stream(ras).map(ReplaceActionScope::getValue).collect(Collectors.toList());
 
         }
         return values;
@@ -197,12 +187,8 @@ public class ScriptFilterActionBean implements Serializable {
     }
 
     public List<String> getActionValues() {
-        List<String> valueList = new ArrayList<String>();
         ScriptFilterActionType[] values = ScriptFilterActionType.values();
-        for (ScriptFilterActionType scriptFilterActionType : values) {
-            valueList.add(scriptFilterActionType.toString());
-        }
-        return valueList;
+        return Arrays.stream(values).map(Enum::toString).collect(Collectors.toList());
     }
 
     /**

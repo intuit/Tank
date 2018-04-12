@@ -40,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.IntStream;
 import javax.swing.JComponent;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
@@ -634,14 +635,7 @@ public class ErrorStrip extends JComponent {
         }
 
         public boolean containsMarkedOccurence() {
-            boolean result = false;
-            for (int i = 0; i < notices.size(); i++) {
-                if (notices.get(i) instanceof MarkedOccurrenceNotice) {
-                    result = true;
-                    break;
-                }
-            }
-            return result;
+            return IntStream.range(0, notices.size()).anyMatch(i -> notices.get(i) instanceof MarkedOccurrenceNotice);
         }
 
         public Color getColor() {

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -364,18 +365,12 @@ public class RequestRunner implements Runner {
     }
 
     /**
-     * @param preRequest
-     * @param headerValidation
+     * @param phase
+     * @param list
      * @return
      */
     private List<ValidationData> filterPhase(RequestDataPhase phase, List<ValidationData> list) {
-        List<ValidationData> ret = new ArrayList<ValidationData>();
-        for (ValidationData d : list) {
-            if (d.getPhase() != phase) {
-                ret.add(d);
-            }
-        }
-        return ret;
+        return list.stream().filter(d -> d.getPhase() != phase).collect(Collectors.toList());
     }
 
     /**
@@ -583,14 +578,14 @@ public class RequestRunner implements Runner {
     /**
      * Evaluate the validation information
      * 
-     * @param name
-     *            The test case name
+
      * @param actualValue
      *            The actual value from the response
      * @param expectedValue
      *            The expected value
      * @param condition
      *            The condition
+     * @param variables
      * @return TRUE if matches; FALSE otherwise
      */
     private boolean evaluateResult(String actualValue, String expectedValue, String condition,

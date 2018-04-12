@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -97,12 +98,9 @@ public class VariablesPanel extends JPanel implements StepListener, ScriptChange
 
     protected void displayVars(boolean isInitialValues) {
         VarsTableModel model = isInitialValues ? initVarsModel : afterVarsModel;
-        StringBuilder sb = new StringBuilder();
-        for (String key : model.keys) {
-            sb.append(key).append(" = ").append(model.values.get(key)).append('\n');
-        }
-        System.out.println(sb.toString());
-        JTextArea ta = new JTextArea(sb.toString());
+        String sb = model.keys.stream().map(key -> key + " = " + model.values.get(key) + '\n').collect(Collectors.joining());
+        System.out.println(sb);
+        JTextArea ta = new JTextArea(sb);
         ta.setEditable(false);
         JScrollPane sp = new JScrollPane(ta);
         JOptionPane.showMessageDialog(parent, sp, isInitialValues ? "Initial Varaible Values"

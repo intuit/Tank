@@ -9,6 +9,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -258,7 +259,6 @@ public class AmazonSimpleDatabase implements IDatabase {
         boolean hasMore = true;
         String nextToken = null;
 
-        List<String> ret = new ArrayList<String>(tableName.size());
         Set<String> tables = new HashSet<String>();
         while (hasMore) {
             ListDomainsResult listDomains = db.listDomains(new ListDomainsRequest().withNextToken(nextToken));
@@ -266,12 +266,7 @@ public class AmazonSimpleDatabase implements IDatabase {
             nextToken = listDomains.getNextToken();
             hasMore = !StringUtils.isEmpty(nextToken);
         }
-        for (String name : tableName) {
-            if (tables.contains(name)) {
-                ret.add(name);
-            }
-        }
-        return ret;
+        return tableName.stream().filter(tables::contains).collect(Collectors.toCollection(() -> new ArrayList<>(tableName.size())));
     }
 
     /**
@@ -279,7 +274,7 @@ public class AmazonSimpleDatabase implements IDatabase {
      */
     @Override
     public PagedDatabaseResult getPagedItems(String tableName, Object token, String minRange, String maxRange, String instanceId, String jobId) {
-        List<Item> ret = new ArrayList<Item>();
+        List<Item> ret;
         String whereClause = null;
         if (minRange != null && maxRange != null) {
             whereClause = " Timestamp between '" + minRange + "' and '" + maxRange + "' ";
@@ -294,9 +289,7 @@ public class AmazonSimpleDatabase implements IDatabase {
         String nextToken = (String) token;
         request.withNextToken(nextToken);
         SelectResult result = db.select(request);
-        for (com.amazonaws.services.simpledb.model.Item item : result.getItems()) {
-            ret.add(resultToItem(item));
-        }
+        ret = result.getItems().stream().map(this::resultToItem).collect(Collectors.toList());
         nextToken = result.getNextToken();
         return new PagedDatabaseResult(ret, result.getNextToken());
     }
@@ -327,8 +320,7 @@ public class AmazonSimpleDatabase implements IDatabase {
         for (com.intuit.tank.reporting.databases.Attribute attr : item.getAttributes()) {
             addAttribute(attributes, attr.getName(), attr.getValue());
         }
-        ReplaceableItem ret = new ReplaceableItem(item.getName(), attributes);
-        return ret;
+        return new ReplaceableItem(item.getName(), attributes);
     }
 
     /**

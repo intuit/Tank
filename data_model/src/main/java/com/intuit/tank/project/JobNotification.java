@@ -16,10 +16,8 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -216,9 +214,7 @@ public class JobNotification extends BaseEntity implements Notification {
                 // try semi colon
                 addresses = recipientList.split(",");
             }
-            for (String address : addresses) {
-                ret.add(new JobRecipient(address.trim(), RecipientType.email));
-            }
+            ret = Arrays.stream(addresses).map(address -> new JobRecipient(address.trim(), RecipientType.email)).collect(Collectors.toSet());
         }
         return ret;
     }

@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.Iterator;
+import java.util.stream.Collectors;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -299,9 +300,7 @@ public class JobController {
         List<String> instanceIds = new ArrayList<String>();
         CloudVmStatusContainer statuses = vmTracker.getVmStatusForJob(jobId);
         if (statuses != null) {
-            for (CloudVmStatus status : statuses.getStatuses()) {
-                instanceIds.add(status.getInstanceId());
-            }
+            instanceIds = statuses.getStatuses().stream().map(CloudVmStatus::getInstanceId).collect(Collectors.toList());
         }
         return instanceIds;
     }

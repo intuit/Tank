@@ -110,12 +110,7 @@ public class TablePreferences implements Serializable {
      * @return the size
      */
     public int getTotalSize() {
-        int ret = 0;
-        for (ColumnPreferences prefs : colSizeMap.values()) {
-            if (prefs.isVisible()) {
-                ret += prefs.getSize() + 20;
-            }
-        }
+        int ret = colSizeMap.values().stream().filter(ColumnPreferences::isVisible).mapToInt(prefs -> prefs.getSize() + 20).sum();
         return ret + 20;
     }
 
@@ -125,12 +120,7 @@ public class TablePreferences implements Serializable {
      * @return the size
      */
     public int getMaxTotalSize(int max) {
-        int ret = 0;
-        for (ColumnPreferences prefs : colSizeMap.values()) {
-            if (prefs.isVisible()) {
-                ret += prefs.getSize() + 20;
-            }
-        }
+        int ret = colSizeMap.values().stream().filter(ColumnPreferences::isVisible).mapToInt(prefs -> prefs.getSize() + 20).sum();
         ret += 40;
         return ret > max ? max : ret;
     }

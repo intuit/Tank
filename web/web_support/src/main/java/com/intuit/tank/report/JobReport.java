@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
@@ -103,7 +104,7 @@ public class JobReport extends SelectableBean<JobReportData> implements Serializ
         List<JobReportData> data = getJobReportData(all);
         filterDurationAndName(data);
         this.results = data;
-        Collections.sort(this.results, new PropertyComparer<JobReportData>(JobInstance.PROPERTY_ID,
+        this.results.sort(new PropertyComparer<JobReportData>(JobInstance.PROPERTY_ID,
                 SortOrder.DESCENDING));
         refresh();
     }
@@ -175,10 +176,7 @@ public class JobReport extends SelectableBean<JobReportData> implements Serializ
      * @return
      */
     private List<JobReportData> getJobReportData(List<JobInstance> all) {
-        Set<Integer> workloadIds = new HashSet<Integer>();
-        for (JobInstance job : all) {
-            workloadIds.add(job.getWorkloadId());
-        }
+        Set<Integer> workloadIds = all.stream().map(JobInstance::getWorkloadId).collect(Collectors.toSet());
         List<Workload> workloads = workloadIds.isEmpty() ? new ArrayList<Workload>() : new WorkloadDao()
                 .findForIds(new ArrayList<Integer>(workloadIds));
         Map<Integer, Project> projectMap = new HashMap<Integer, Project>();

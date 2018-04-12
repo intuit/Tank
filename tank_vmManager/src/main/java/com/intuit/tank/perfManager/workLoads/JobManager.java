@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
@@ -182,10 +183,7 @@ public class JobManager implements Serializable {
             }
             try {
                 LOG.info("Sending start commands on executer.");
-                List<FutureTask<AgentData>> futures = new ArrayList<FutureTask<AgentData>>();
-                for (AgentData agent : info.agentData) {
-                    futures.add(sendCommand(agent, WatsAgentCommand.start, true));
-                }
+                List<FutureTask<AgentData>> futures = info.agentData.stream().map(agent -> sendCommand(agent, WatsAgentCommand.start, true)).collect(Collectors.toList());
                 LOG.info("waiting for agentFutures to return.");
                 for (FutureTask<AgentData> future : futures) {
                     AgentData dataFuture = future.get();
@@ -219,14 +217,7 @@ public class JobManager implements Serializable {
     }
 
     private AgentData getAgentData(String instanceId) {
-        for (JobInfo info : agentMap.values()) {
-            for (AgentData data : info.agentData) {
-                if (instanceId.equals(data.getInstanceId())) {
-                    return data;
-                }
-            }
-        }
-        return null;
+        return agentMap.values().stream().flatMap(info -> info.agentData.stream()).filter(data -> instanceId.equals(data.getInstanceId())).findFirst().orElse(null);
     }
 
     private FutureTask<AgentData> sendCommand(final AgentData agent, final WatsAgentCommand cmd, final boolean retry) {

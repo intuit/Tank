@@ -9,6 +9,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.lang3.StringUtils;
@@ -59,11 +60,7 @@ public class DatabaseResultsReporter implements ResultsReporter {
 
         Runnable task = () -> {
             try {
-                List<Item> items = new ArrayList<Item>();
-                for (TPSInfo info : container.getTpsInfos()) {
-                    Item item = createItem(jobId, instanceId, info);
-                    items.add(item);
-                }
+                List<Item> items = container.getTpsInfos().stream().map(info -> createItem(jobId, instanceId, info)).collect(Collectors.toList());
                 if (!items.isEmpty()) {
                     String tableName = getTpsTableName(db);
                     LOG.info("Sending " + items.size() + " to TPS Table " + tableName);

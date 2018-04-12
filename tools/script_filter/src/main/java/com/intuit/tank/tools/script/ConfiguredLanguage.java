@@ -95,22 +95,16 @@ public class ConfiguredLanguage {
      * @return
      */
     public static ConfiguredLanguage getLanguagebyExtension(String scriptName) {
-        ConfiguredLanguage ret = null;
         String extension = FilenameUtils.getExtension(scriptName);
         ScriptEngine engineByExtension = manager.getEngineByExtension(extension);
-        for (ConfiguredLanguage lang : configuredLanguages) {
-            if (lang.name == engineByExtension.getFactory().getLanguageName()) {
-                ret = lang;
-                break;
-            }
-        }
-        return ret;
+        return configuredLanguages.stream().filter(lang -> lang.name == engineByExtension.getFactory().getLanguageName()).findFirst().orElse(null);
     }
 
     /**
      * @param name
-     * @param extension
+     * @param syntaxStyle
      * @param displayName
+     * @param defaultExtension
      */
     private ConfiguredLanguage(String name, String syntaxStyle, String displayName, String defaultExtension) {
         this.name = name;

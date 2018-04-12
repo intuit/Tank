@@ -42,6 +42,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 
@@ -146,12 +147,7 @@ public class CloudwatchInstance {
                 return;
             }
         }
-        List<Dimension> dimensions = new ArrayList<Dimension>();
-        for (String instanceId : instances) {
-            Dimension d = new Dimension().withName("InstanceId").withValue(instanceId);
-            dimensions.add(d);
-
-        }
+        List<Dimension> dimensions = instances.stream().map(instanceId -> new Dimension().withName("InstanceId").withValue(instanceId)).collect(Collectors.toList());
         PutMetricAlarmRequest request = new PutMetricAlarmRequest()
                 .withActionsEnabled(true).withAlarmName(alarmName)
                 .withComparisonOperator(ComparisonOperator.GreaterThanOrEqualToThreshold)
@@ -179,12 +175,7 @@ public class CloudwatchInstance {
         do {
             ListTopicsResult listTopics = asyncSnsClient.listTopics(nextToken);
             List<Topic> topics = listTopics.getTopics();
-            for (Topic s : topics) {
-                if (s.getTopicArn().endsWith(topicName)) {
-                    ret = s.getTopicArn();
-                    break;
-                }
-            }
+            ret = topics.stream().filter(s -> s.getTopicArn().endsWith(topicName)).findFirst().map(Topic::getTopicArn).orElse(ret);
             nextToken = listTopics.getNextToken();
         } while (ret == null && nextToken != null);
         if (ret == null) {

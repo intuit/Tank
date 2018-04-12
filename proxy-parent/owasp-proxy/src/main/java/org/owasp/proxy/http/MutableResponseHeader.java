@@ -21,6 +21,8 @@
 
 package org.owasp.proxy.http;
 
+import java.util.stream.IntStream;
+
 public interface MutableResponseHeader extends ResponseHeader,
         MutableMessageHeader {
 
@@ -50,13 +52,7 @@ public interface MutableResponseHeader extends ResponseHeader,
                 return null;
 
             // It's a 100 response, now look for a blank line
-            int sep = -1;
-            for (int i = 0; i < lines.length; i++) {
-                if ("".equals(lines[i])) {
-                    sep = i;
-                    break;
-                }
-            }
+            int sep = IntStream.range(0, lines.length).filter(i -> "".equals(lines[i])).findFirst().orElse(-1);
             if (sep == -1 || sep == lines.length - 1)
                 return null;
             String[] h = new String[sep + 1];

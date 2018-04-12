@@ -7,7 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -62,7 +64,6 @@ public class FileSystemFileStorage implements FileStorage, Serializable {
         } finally {
             IOUtils.closeQuietly(out);
         }
-
     }
 
     @Override
@@ -90,16 +91,11 @@ public class FileSystemFileStorage implements FileStorage, Serializable {
 
     @Override
     public List<FileData> listFileData(String path) {
-        List<FileData> ret = new ArrayList<FileData>();
         File dir = new File(FilenameUtils.normalize(basePath + "/" + path));
         if (dir.exists()) {
-            for (File f : dir.listFiles()) {
-                if (f.isFile()) {
-                    ret.add(new FileData(path, f.getName()));
-                }
-            }
+            return Arrays.stream(dir.listFiles()).filter(File::isFile).map(f -> new FileData(path, f.getName())).collect(Collectors.toList());
         }
-        return ret;
+        return new ArrayList<FileData>();
     }
 
     @Override

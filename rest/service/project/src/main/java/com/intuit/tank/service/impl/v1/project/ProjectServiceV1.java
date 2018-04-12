@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
@@ -227,10 +228,7 @@ public class ProjectServiceV1 implements ProjectService {
     public Response getProjectNames() {
         ResponseBuilder responseBuilder = Response.ok();
         List<Project> all = new ProjectDao().findAll();
-        List<ProjectTO> to = new ArrayList<ProjectTO>();
-        for (Project p : all) {
-            to.add(ProjectServiceUtil.projectToTransferObject(p));
-        }
+        List<ProjectTO> to = all.stream().map(ProjectServiceUtil::projectToTransferObject).collect(Collectors.toList());
         ProjectContainer container = new ProjectContainer(to);
         responseBuilder.entity(container);
         return responseBuilder.build();

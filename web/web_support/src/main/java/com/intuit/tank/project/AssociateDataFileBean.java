@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ConversationScoped;
 import javax.enterprise.event.Observes;
@@ -48,11 +49,6 @@ public class AssociateDataFileBean implements Serializable {
      * Initializes the instance variables. It also performs database operations to fetch the file items from the
      * database and perform check for the files that are associated with the given project and populate the instance
      * variables accordingly.
-     * 
-     * @param project
-     *            the project value to be set
-     * @param workload
-     *            the workload value to be set.
      */
     public void init() {
         initScriptSelectionModel();
@@ -78,7 +74,7 @@ public class AssociateDataFileBean implements Serializable {
     private void initScriptSelectionModel() {
         selectionModel = new DualListModel<DataFile>();
         List<DataFile> files = new DataFileDao().findAll();
-        Collections.sort(files, new CreateDateComparator(SortOrder.DESCENDING));
+        files.sort(new CreateDateComparator(SortOrder.DESCENDING));
         Set<Integer> dataFileIds = projectBean.getJobConfiguration().getDataFileIds();
         for (DataFile d : files) {
             if (dataFileIds.contains(d.getId())) {
@@ -109,18 +105,10 @@ public class AssociateDataFileBean implements Serializable {
      * 
      * @param list
      * 
-     * @param selectedFiles
-     *            selected file items.
-     * @param fileNameMap
-     *            Map that would return a data file for a given name.
      * @return
      */
     private static Set<Integer> getDataFileIds(List<DataFile> list) {
-        Set<Integer> set = new HashSet<Integer>();
-        for (DataFile df : list) {
-            set.add(df.getId());
-        }
-        return set;
+        return list.stream().map(BaseEntity::getId).collect(Collectors.toSet());
     }
 
 }

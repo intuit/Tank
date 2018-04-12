@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.stream.IntStream;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.InputMap;
@@ -920,17 +921,12 @@ public class RTextArea extends RTextAreaBase
                 try {
                     for (int i = 0; i < num; i++) {
                         MacroRecord record = (MacroRecord) macroRecords.get(i);
-                        for (int j = 0; j < numActions; j++) {
-                            if ((actions[j] instanceof RecordableTextAction) &&
-                                    record.id.equals(
-                                            ((RecordableTextAction) actions[j]).getMacroID())) {
-                                actions[j].actionPerformed(
-                                        new ActionEvent(this,
-                                                ActionEvent.ACTION_PERFORMED,
-                                                record.actionCommand));
-                                break;
-                            }
-                        }
+                        IntStream.range(0, numActions).filter(j -> (actions[j] instanceof RecordableTextAction) &&
+                                record.id.equals(
+                                        ((RecordableTextAction) actions[j]).getMacroID())).findFirst().ifPresent(j -> actions[j].actionPerformed(
+                                new ActionEvent(this,
+                                        ActionEvent.ACTION_PERFORMED,
+                                        record.actionCommand)));
                     }
                 } finally {
                     undoManager.endInternalAtomicEdit();

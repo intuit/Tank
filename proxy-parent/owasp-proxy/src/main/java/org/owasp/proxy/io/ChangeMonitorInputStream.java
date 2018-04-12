@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.IntStream;
 
 /**
  * This class is intended to provide as efficient a method of tracking changes in a series of filters operating on
@@ -223,10 +224,7 @@ public class ChangeMonitorInputStream extends FilterInputStream {
         public boolean compare(int start, byte[] data, int offset, int len) {
             if (start + len > this.count)
                 return false;
-            for (int i = 0; i < len; i++)
-                if (this.buf[start + i] != data[offset + i])
-                    return false;
-            return true;
+            return IntStream.range(0, len).noneMatch(i -> this.buf[start + i] != data[offset + i]);
         }
 
         private boolean compare(int start, int b) {

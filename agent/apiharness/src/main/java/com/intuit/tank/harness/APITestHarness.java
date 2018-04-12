@@ -20,11 +20,13 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
@@ -650,10 +652,7 @@ public class APITestHarness {
                     }
                 }
                 // if we broke early, fix our countdown latch
-                int numToCount = 0;
-                for (TestPlanStarter starter : testPlans) {
-                    numToCount += starter.getThreadsStarted();
-                }
+                int numToCount = testPlans.stream().mapToInt(TestPlanStarter::getThreadsStarted).sum();
                 while (numToCount < agentRunData.getNumUsers()) {
                     doneSignal.countDown();
                     numToCount++;
@@ -804,14 +803,8 @@ public class APITestHarness {
         int activeCount = threadGroup.activeCount();
         Thread[] threads = new Thread[activeCount];
         threadGroup.enumerate(threads);
-        int activeThreads = 0;
-        for (Thread t : threads) {
-            if (t != null) {
-                if (t.getState() == Thread.State.TIMED_WAITING || t.getState() == Thread.State.WAITING) {
-                    activeThreads++;
-                }
-            }
-        }
+        int activeThreads = (int) Arrays.stream(threads).filter(Objects::nonNull).filter(
+                t -> t.getState() == Thread.State.TIMED_WAITING || t.getState() == Thread.State.WAITING).count();
         LOG.info(LogUtil.getLogMessage("Have " + activeThreads + " of " + activeCount
                 + " active Threads in thread group "
                 + threadGroup.getName(), LogEventType.System));

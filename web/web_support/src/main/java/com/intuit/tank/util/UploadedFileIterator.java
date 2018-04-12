@@ -16,6 +16,7 @@ package com.intuit.tank.util;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -64,18 +65,11 @@ public class UploadedFileIterator {
     }
 
     /**
-     * @param lowerCase
+     * @param name
      * @return
      */
     private boolean isValid(String name) {
-        boolean ret = false;
-        for (String ext : extension) {
-            if (name.toLowerCase().endsWith(ext)) {
-                ret = true;
-                break;
-            }
-        }
-        return ret;
+        return Arrays.stream(extension).anyMatch(ext -> name.toLowerCase().endsWith(ext));
     }
 
     private void moveNext() {

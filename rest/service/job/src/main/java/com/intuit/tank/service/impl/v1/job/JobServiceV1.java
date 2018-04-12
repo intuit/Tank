@@ -19,6 +19,7 @@ package com.intuit.tank.service.impl.v1.job;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -85,11 +86,8 @@ public class JobServiceV1 implements JobService {
         if (prj != null) {
             JobQueue queue = new JobQueueDao().findOrCreateForProjectId(projectId);
             List<JobInstance> jobs = new ArrayList<JobInstance>(queue.getJobs());
-            Collections.sort(jobs, new CreateDateComparator(SortOrder.DESCENDING));
-            List<JobTO> list = new ArrayList<JobTO>();
-            for (JobInstance job : jobs) {
-                list.add(JobServiceUtil.jobToTO(job));
-            }
+            jobs.sort(new CreateDateComparator(SortOrder.DESCENDING));
+            List<JobTO> list = jobs.stream().map(JobServiceUtil::jobToTO).collect(Collectors.toList());
             response.entity(new JobContainer(list));
         } else {
             response = Response.status(Status.NOT_FOUND);

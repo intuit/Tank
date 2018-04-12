@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -70,11 +71,7 @@ public class ScriptServiceUtil {
     }
 
     public static List<ScriptStepTO> scriptStepsToTransferobjectList(List<ScriptStep> steps) {
-        List<ScriptStepTO> result = new ArrayList<ScriptStepTO>();
-        for (ScriptStep step : steps) {
-            result.add(scriptStepToTransferObject(step));
-        }
-        return result;
+       return steps.stream().map(ScriptServiceUtil::scriptStepToTransferObject).collect(Collectors.toList());
     }
 
     /**
@@ -301,45 +298,33 @@ public class ScriptServiceUtil {
     }
 
     /**
-     * @param data2
+     * @param data
      * @return
      */
     private static Set<RequestData> convertDataTO(Set<StepDataTO> data) {
-        Set<RequestData> ret = new HashSet<RequestData>();
-        for (StepDataTO to : data) {
-            ret.add(transferObjectToRequestData(to));
-        }
-        return ret;
+        return data.stream().map(ScriptServiceUtil::transferObjectToRequestData).collect(Collectors.toSet());
     }
 
     /**
-     * @param requestheaders2
+     * @param data
      * @return
      */
-    private static Set<StepDataTO> convertData(Set<RequestData> d) {
-        Set<StepDataTO> result = new HashSet<StepDataTO>();
-        if (d != null) {
-            for (RequestData rd : d) {
-                result.add(requestDataToTransferObject(rd));
-            }
+    private static Set<StepDataTO> convertData(Set<RequestData> data) {
+        if (data != null) {
+            return data.stream().map(ScriptServiceUtil::requestDataToTransferObject).collect(Collectors.toSet());
         }
-
-        return result;
+        return new HashSet<StepDataTO>();
     }
 
     /**
-     * @param requestheaders2
+     * @param data
      * @return
      */
-    private static Set<StepDataTO> copyData(Set<StepDataTO> d) {
-        Set<StepDataTO> result = new HashSet<StepDataTO>();
-        if (d != null) {
-            for (StepDataTO rd : d) {
-                result.add(copyStepDataTO(rd));
-            }
+    private static Set<StepDataTO> copyData(Set<StepDataTO> data) {
+        if (data != null) {
+            return data.stream().map(ScriptServiceUtil::copyStepDataTO).collect(Collectors.toSet());
         }
-
-        return result;
+        return new HashSet<StepDataTO>();
     }
 
     /**

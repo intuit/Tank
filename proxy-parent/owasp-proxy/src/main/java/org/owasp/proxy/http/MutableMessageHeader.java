@@ -25,6 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.owasp.proxy.util.AsciiString;
 
@@ -176,11 +178,9 @@ public interface MutableMessageHeader extends MessageHeader {
             if (parts == null || parts.length == 0) {
                 setStartLine(null);
             } else {
-                StringBuilder b = new StringBuilder(parts[0] == null ? ""
-                        : parts[0]);
-                for (int i = 1; i < parts.length; i++)
-                    b.append(" ").append(parts[i] == null ? "" : parts[i]);
-                setStartLine(b.toString());
+                String b = IntStream.range(1, parts.length).mapToObj(i -> " " + (parts[i] == null ? "" : parts[i])).collect(Collectors.joining("", parts[0] == null ? ""
+                        : parts[0], ""));
+                setStartLine(b);
             }
         }
 

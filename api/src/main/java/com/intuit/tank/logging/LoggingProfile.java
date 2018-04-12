@@ -13,6 +13,8 @@ package com.intuit.tank.logging;
  * #L%
  */
 
+import java.util.Arrays;
+
 public enum LoggingProfile {
 
     STANDARD("Standard", "Logs common fields.",
@@ -157,14 +159,7 @@ public enum LoggingProfile {
     }
 
     public boolean isFieldLogged(LogFields field) {
-        boolean ret = false;
-        for (LogFields f : fieldsToLog) {
-            if (f == field) {
-                ret = true;
-                break;
-            }
-        }
-        return ret;
+        return Arrays.stream(fieldsToLog).anyMatch(f -> f == field);
     }
 
     public static LoggingProfile fromString(String s) {
@@ -174,7 +169,7 @@ public enum LoggingProfile {
         } catch (Exception e) {
             // ignore
         }
-        return ret != null ? ret : LoggingProfile.STANDARD;
+        return ret;
     }
 
 }

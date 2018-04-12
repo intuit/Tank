@@ -18,14 +18,12 @@ package com.intuit.tank.service.impl.v1.agent;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -202,10 +200,7 @@ public class AgentServiceV1 implements AgentService {
         ResponseBuilder responseBuilder = Response.ok();
         AgentConfig config = new TankConfig().getAgentConfig();
         Map<String, String> map = config.getTankClientMap();
-        List<TankHttpClientDefinition> definitions = new ArrayList<TankHttpClientDefinition>();
-        for (Entry<String, String> entry : map.entrySet()) {
-            definitions.add(new TankHttpClientDefinition(entry.getKey(), entry.getValue()));
-        }
+        List<TankHttpClientDefinition> definitions = map.entrySet().stream().map(entry -> new TankHttpClientDefinition(entry.getKey(), entry.getValue())).collect(Collectors.toList());
         String defaultDefinition = config.getTankClientDefault();
         if (defaultDefinition == null && definitions.size() > 0) {
             defaultDefinition = definitions.get(0).getName();

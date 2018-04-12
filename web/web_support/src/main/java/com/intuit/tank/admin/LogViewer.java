@@ -73,7 +73,7 @@ public class LogViewer implements Serializable {
         } catch (Exception e) {
             LOG.error("Error getting log files: " + e, e);
         }
-        Collections.sort(logFiles, String.CASE_INSENSITIVE_ORDER);
+        logFiles.sort(String.CASE_INSENSITIVE_ORDER);
     }
 
     public String getLogFileUrl() {

@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
@@ -150,13 +151,7 @@ public abstract class JobTreeTableBean implements Serializable {
                 JobQueueDao jobQueueDao = new JobQueueDao();
                 Workload workload = new WorkloadDao().findById(jobInstance.getWorkloadId());
                 JobQueue queue = jobQueueDao.findOrCreateForProjectId(workload.getProject().getId());
-                JobInstance instance = null;
-                for (JobInstance job : queue.getJobs()) {
-                    if (job.getId() == jobInstance.getId()) {
-                        instance = job;
-                        break;
-                    }
-                }
+                JobInstance instance = queue.getJobs().stream().filter(job -> job.getId() == jobInstance.getId()).findFirst().orElse(null);
                 if (instance != null) {
                     queue.getJobs().remove(instance);
                     queue = new JobQueueDao().saveOrUpdate(queue);
@@ -347,11 +342,7 @@ public abstract class JobTreeTableBean implements Serializable {
             }
             ResultsReader resultsReader = ReportingFactory.getResultsReader();
             if (!jobNodes.isEmpty()) {
-                List<String> jobs = new ArrayList<String>();
-                for (JobNodeBean jobNode : jobNodes) {
-                    jobs.add(jobNode.getJobId());
-                }
-                ret = resultsReader.getTpsMapForJob(this.lastDate, jobs.toArray(new String[jobs.size()]));
+                ret = resultsReader.getTpsMapForJob(this.lastDate, jobNodes.stream().map(JobNodeBean::getJobId).toArray(String[]::new));
             }
             if (vmInstance != null) {
                 ret = resultsReader.getTpsMapForInstance(this.lastDate, vmInstance.getJobId(), vmInstance.getId());
@@ -675,12 +666,8 @@ public abstract class JobTreeTableBean implements Serializable {
      * 
      */
     private Set<String> getTrackerJobIds() {
-        Set<String> result = new HashSet<String>();
         Set<CloudVmStatusContainer> allJobs = vmTracker.getAllJobs();
-        for (CloudVmStatusContainer c : allJobs) {
-            result.add(c.getJobId());
-        }
-        return result;
+        return allJobs.stream().map(CloudVmStatusContainer::getJobId).collect(Collectors.toSet());
     }
 
     private List<VMNodeBean> getVMStatus(@Nonnull CloudVmStatusContainer container, boolean hasRights) {

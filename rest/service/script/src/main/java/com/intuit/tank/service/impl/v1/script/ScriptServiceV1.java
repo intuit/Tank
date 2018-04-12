@@ -29,7 +29,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
@@ -326,10 +328,7 @@ public class ScriptServiceV1 implements ScriptService {
         ResponseBuilder responseBuilder = Response.ok();
         ScriptDao dao = new ScriptDao();
         List<Script> all = dao.findAll();
-        List<ScriptDescription> result = new ArrayList<ScriptDescription>();
-        for (Script s : all) {
-            result.add(ScriptServiceUtil.scriptToScriptDescription(s));
-        }
+        List<ScriptDescription> result = all.stream().map(ScriptServiceUtil::scriptToScriptDescription).collect(Collectors.toList());
         responseBuilder.entity(new ScriptDescriptionContainer(result));
         return responseBuilder.build();
     }
@@ -590,14 +589,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     private List<ScriptFilter> getFilters(List<Integer> filterIds) {
-        List<ScriptFilter> filters = new ArrayList<ScriptFilter>();
-        for (Integer id : filterIds) {
-            ScriptFilter filter = new FilterDao().findById(id);
-            if (filter != null) {
-                filters.add(filter);
-            }
-        }
-        return filters;
+        return filterIds.stream().map(id -> new FilterDao().findById(id)).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     /*

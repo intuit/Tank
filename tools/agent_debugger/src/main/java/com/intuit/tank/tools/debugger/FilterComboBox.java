@@ -17,6 +17,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -45,12 +47,7 @@ public class FilterComboBox extends JComboBox {
     }
 
     public void comboFilter(String enteredText) {
-        List<String> filterArray = new ArrayList<String>();
-        for (int i = 0; i < array.size(); i++) {
-            if (array.get(i).toLowerCase().contains(enteredText.toLowerCase())) {
-                filterArray.add(array.get(i));
-            }
-        }
+        List<String> filterArray = IntStream.range(0, array.size()).filter(i -> array.get(i).toLowerCase().contains(enteredText.toLowerCase())).mapToObj(i -> array.get(i)).collect(Collectors.toList());
         if (filterArray.size() > 0) {
             this.setModel(new DefaultComboBoxModel(filterArray.toArray()));
             this.setSelectedItem(enteredText);

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -140,11 +141,7 @@ public class ConverterUtil {
     }
 
     private static List<HDScriptGroup> convertScriptGroups(List<ScriptGroup> scriptGroups, StepCounter sc) {
-        List<HDScriptGroup> hdScriptGroups = new ArrayList<HDScriptGroup>();
-        for (ScriptGroup scriptGroup : scriptGroups) {
-            hdScriptGroups.add(convertScriptGroup(scriptGroup, sc));
-        }
-        return hdScriptGroups;
+        return scriptGroups.stream().map(scriptGroup -> convertScriptGroup(scriptGroup, sc)).collect(Collectors.toList());
     }
 
     private static HDScriptGroup convertScriptGroup(ScriptGroup scriptGroup, StepCounter sc) {
@@ -157,11 +154,7 @@ public class ConverterUtil {
     }
 
     private static List<HDScript> convertScriptGroupSteps(List<ScriptGroupStep> sgs, StepCounter sc) {
-        List<HDScript> testGroupList = new ArrayList<HDScript>();
-        for (ScriptGroupStep scriptGroupStep : sgs) {
-            testGroupList.add(convertScriptGroupStep(scriptGroupStep, sc));
-        }
-        return testGroupList;
+        return sgs.stream().map(scriptGroupStep -> convertScriptGroupStep(scriptGroupStep, sc)).collect(Collectors.toList());
     }
 
     private static HDScript convertScriptGroupStep(ScriptGroupStep sgs, StepCounter sc) {
@@ -227,12 +220,7 @@ public class ConverterUtil {
     private static TestStep convertSleepStep(ScriptStep scriptStep) {
         SleepTimeStep sts = new SleepTimeStep();
         Set<RequestData> data = scriptStep.getData();
-        for (RequestData requestData : data) {
-            if (ScriptConstants.TIME.equals(requestData.getKey())) {
-                sts.setValue(requestData.getValue());
-                break;
-            }
-        }
+        data.stream().filter(requestData -> ScriptConstants.TIME.equals(requestData.getKey())).findFirst().ifPresent(requestData -> sts.setValue(requestData.getValue()));
         return sts;
     }
 
@@ -241,12 +229,7 @@ public class ConverterUtil {
         sts.setName(scriptStep.getName());
         sts.setScriptGroupName(scriptStep.getScriptGroupName());
         Set<RequestData> data = scriptStep.getData();
-        for (RequestData requestData : data) {
-            if (ScriptConstants.SCRIPT.equals(requestData.getKey())) {
-                sts.setScript(requestData.getValue());
-                break;
-            }
-        }
+        data.stream().filter(requestData -> ScriptConstants.SCRIPT.equals(requestData.getKey())).findFirst().ifPresent(requestData -> sts.setScript(requestData.getValue()));
         return sts;
     }
 
@@ -399,7 +382,7 @@ public class ConverterUtil {
     }
 
     /**
-     * @param value
+     * @param data
      * @return
      */
     public static boolean isAssignment(RequestData data) {
@@ -633,7 +616,7 @@ public class ConverterUtil {
 
     public static boolean includedHeader(String header) {
 
-        if (header.startsWith("Accept") ||
+        return (header.startsWith("Accept") ||
                 (!header.equalsIgnoreCase("host")
                         && !header.startsWith("Content")
                         && !header.equalsIgnoreCase("Connection")
@@ -643,10 +626,7 @@ public class ConverterUtil {
                         && !header.toLowerCase().startsWith("get ")
                         && !header.toLowerCase().startsWith("post ")
                         && !header.equalsIgnoreCase("If-None-Match")
-                        && !header.equalsIgnoreCase("If-Modified-Since"))) {
-            return true;
-        }
-        return false;
+                        && !header.equalsIgnoreCase("If-Modified-Since")));
     }
 
     private static class StepCounter {

@@ -17,19 +17,18 @@ package com.intuit.tank.service.impl.v1.report;
  */
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import javax.servlet.ServletContext;
@@ -250,16 +249,8 @@ public class ReportServiceV1 implements ReportService {
 
     private List<PeriodicData> consolidatePeriod(List<PeriodicData> data, int period) {
         List<PeriodicData> ret = new ArrayList<PeriodicData>();
-        Map<String, List<PeriodicData>> map = new HashMap<String, List<PeriodicData>>();
+        Map<String, List<PeriodicData>> map = data.stream().collect(Collectors.groupingBy(PeriodicData::getPageId));
         // bucket the data
-        for (PeriodicData pd : data) {
-            List<PeriodicData> list = map.get(pd.getPageId());
-            if (list == null) {
-                list = new ArrayList<PeriodicData>();
-                map.put(pd.getPageId(), list);
-            }
-            list.add(pd);
-        }
         // sort the buckets
         for (List<PeriodicData> l : map.values()) {
             Collections.sort(l);
@@ -527,13 +518,7 @@ public class ReportServiceV1 implements ReportService {
     }
 
     private void writeRow(StringBuilder out, String[] line, String cell, String bgColor) {
-        out.append("<tr style='background-color: " + bgColor + ";'>");
-        for (String s : line) {
-            out.append("<" + cell + ">");
-            out.append(s);
-            out.append("</" + cell + ">");
-        }
-        out.append("</tr>");
+        out.append(Arrays.stream(line).map(s -> "<" + cell + ">" + s + "</" + cell + ">").collect(Collectors.joining("", "<tr style='background-color: " + bgColor + ";'>", "</tr>")));
     }
 
     /**
