@@ -66,7 +66,7 @@ public class AggregatorEditor implements Serializable {
     public void editAggregator(ScriptStep step) {
         this.step = step;
         this.editMode = true;
-        aggregatorName = step.getData().stream().filter(requestData -> requestData.getKey().equalsIgnoreCase(ScriptConstants.LOGGING_KEY)).findFirst().map(RequestData::getValue).orElse(aggregatorName);
+        aggregatorName = step.getData().stream().filter(requestData -> requestData.getKey().equalsIgnoreCase(ScriptConstants.LOGGING_KEY)).findFirst().map(RequestData::getValue).orElseGet(() -> aggregatorName);
         buttonLabel = EDIT_LABEL;
     }
 

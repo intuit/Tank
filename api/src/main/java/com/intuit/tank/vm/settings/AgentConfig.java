@@ -184,7 +184,7 @@ public class AgentConfig implements Serializable {
     }
 
     /**
-     * @param results
+     * @param providerKey
      */
     public String getResultsProviderClass(String providerKey) {
         return resultsProviderMap.get(providerKey);
@@ -309,7 +309,7 @@ public class AgentConfig implements Serializable {
      * @return the Datafile storage root dir
      */
     public String getTankClientName(String  clientClass) {
-        return getTankClientMap().entrySet().stream().filter(entry -> entry.getValue().equals(clientClass)).findFirst().map(Entry::getKey).orElse(getTankClientDefault());
+        return getTankClientMap().entrySet().stream().filter(entry -> entry.getValue().equals(clientClass)).findFirst().map(Entry::getKey).orElseGet(this::getTankClientDefault);
     }
     
 
