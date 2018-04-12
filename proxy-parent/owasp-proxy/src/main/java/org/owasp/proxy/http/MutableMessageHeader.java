@@ -23,6 +23,7 @@ package org.owasp.proxy.http;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -148,8 +149,8 @@ public interface MutableMessageHeader extends MessageHeader {
                 throws MessageFormatException {
             ByteArrayOutputStream buff = new ByteArrayOutputStream();
             try {
-                for (int i = 0; i < lines.length; i++) {
-                    buff.write(AsciiString.getBytes(lines[i]));
+                for (String line : lines) {
+                    buff.write(AsciiString.getBytes(line));
                     buff.write(CRLF);
                 }
             } catch (IOException ioe) {
@@ -255,10 +256,7 @@ public interface MutableMessageHeader extends MessageHeader {
             NamedValue[] headers = getHeaders();
             if (headers == null || headers.length == 0)
                 return null;
-            for (int i = 0; i < headers.length; i++)
-                if (name.equalsIgnoreCase(headers[i].getName()))
-                    return headers[i].getValue();
-            return null;
+            return Arrays.stream(headers).filter(header1 -> name.equalsIgnoreCase(header1.getName())).findFirst().map(NamedValue::getValue).orElse(null);
         }
 
         /**

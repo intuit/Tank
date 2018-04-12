@@ -256,8 +256,8 @@ public class AJPClient {
         if (headers == null)
             headers = new NamedValue[0];
         message.appendInt(headers.length);
-        for (int i = 0; i < headers.length; i++) {
-            appendRequestHeader(message, headers[i]);
+        for (NamedValue header : headers) {
+            appendRequestHeader(message, header);
         }
 
         appendRequestAttribute(message, AJPConstants.SC_A_CONTEXT, properties

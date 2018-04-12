@@ -35,11 +35,11 @@ public class AgentUtil {
         String[] testPlanLists = plans.split(",");
         boolean output = true;
 
-        for (int t = 0; t < testPlanLists.length; t++) {
-            File xmlFile = new File(testPlanLists[t]);
+        for (String testPlanList : testPlanLists) {
+            File xmlFile = new File(testPlanList);
             if (!xmlFile.exists()) {
-                LOG.error(LogUtil.getLogMessage("File not found:  " + testPlanLists[t]));
-                System.err.println("File not found:  " + testPlanLists[t]);
+                LOG.error(LogUtil.getLogMessage("File not found:  " + testPlanList));
+                System.err.println("File not found:  " + testPlanList);
                 output = false;
             }
         }

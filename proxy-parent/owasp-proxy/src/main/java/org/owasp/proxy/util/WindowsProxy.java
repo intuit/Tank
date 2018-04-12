@@ -120,8 +120,7 @@ public class WindowsProxy {
         options[2].dwOption = WinInet.INTERNET_PER_CONN_PROXY_BYPASS;
         options[3].dwOption = WinInet.INTERNET_PER_CONN_AUTOCONFIG_URL;
         options[4].dwOption = WinInet.INTERNET_PER_CONN_AUTODISCOVERY_FLAGS;
-        for (int i = 0; i < options.length; i++)
-            options[i].write();
+        for (INTERNET_PER_CONN_OPTION option : options) option.write();
 
         INTERNET_PER_CONN_OPTION_LIST list = new INTERNET_PER_CONN_OPTION_LIST();
         list.dwOptionCount = options.length;

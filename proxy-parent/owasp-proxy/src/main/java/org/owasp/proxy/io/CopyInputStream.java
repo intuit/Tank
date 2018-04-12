@@ -148,9 +148,9 @@ public class CopyInputStream extends FilterInputStream {
     @Override
     public void close() throws IOException {
         super.close();
-        for (int i = 0; i < copy.length; i++) {
-            if (copy[i] != null)
-                copy[i].close();
+        for (OutputStream aCopy : copy) {
+            if (aCopy != null)
+                aCopy.close();
         }
     }
 

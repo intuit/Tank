@@ -21,6 +21,8 @@
 
 package org.owasp.proxy.http;
 
+import java.util.Arrays;
+
 public class NamedValue {
 
     private String name;
@@ -118,9 +120,6 @@ public class NamedValue {
     public static String findValue(NamedValue[] values, String name) {
         if (values == null || values.length == 0)
             return null;
-        for (int i = 0; i < values.length; i++)
-            if (name.equals(values[i].getName()))
-                return values[i].getValue();
-        return null;
+        return Arrays.stream(values).filter(value1 -> name.equals(value1.getName())).findFirst().map(NamedValue::getValue).orElse(null);
     }
 }

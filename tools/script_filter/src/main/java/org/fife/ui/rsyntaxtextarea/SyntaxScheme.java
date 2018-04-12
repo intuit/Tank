@@ -88,8 +88,7 @@ public class SyntaxScheme implements Cloneable {
      *            The new font of the text area.
      */
     void changeBaseFont(Font old, Font font) {
-        for (int i = 0; i < styles.length; i++) {
-            Style style = styles[i];
+        for (Style style : styles) {
             if (style != null && style.font != null) {
                 if (style.font.getFamily().equals(old.getFamily()) &&
                         style.font.getSize() == old.getSize()) {
@@ -179,9 +178,9 @@ public class SyntaxScheme implements Cloneable {
         // probably much slower than a "bad" hash code here.
         int hashCode = 0;
         int count = styles.length;
-        for (int i = 0; i < count; i++) {
-            if (styles[i] != null) {
-                hashCode ^= styles[i].hashCode();
+        for (Style style : styles) {
+            if (style != null) {
+                hashCode ^= style.hashCode();
                 break;
             }
         }
@@ -291,8 +290,7 @@ public class SyntaxScheme implements Cloneable {
 
     void refreshFontMetrics(Graphics2D g2d) {
         // It is assumed that any rendering hints are already applied to g2d.
-        for (int i = 0; i < styles.length; i++) {
-            Style s = styles[i];
+        for (Style s : styles) {
             if (s != null) {
                 s.fontMetrics = s.font == null ? null :
                         g2d.getFontMetrics(s.font);

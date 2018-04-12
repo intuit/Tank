@@ -614,10 +614,9 @@ public class ScriptServiceV1 implements ScriptService {
         ScriptFilterGroupDao sfgd = new ScriptFilterGroupDao();
         List<ScriptFilterGroup> scriptFilterGroupForFilter = sfgd.getScriptFilterGroupForFilter(id);
 
-        for (Iterator<ScriptFilterGroup> iterator = scriptFilterGroupForFilter.iterator(); iterator.hasNext();) {
-            ScriptFilterGroup scriptFilterGroup = iterator.next();
+        for (ScriptFilterGroup scriptFilterGroup : scriptFilterGroupForFilter) {
             Set<ScriptFilter> filters = scriptFilterGroup.getFilters();
-            for (Iterator<ScriptFilter> iterator2 = filters.iterator(); iterator2.hasNext();) {
+            for (Iterator<ScriptFilter> iterator2 = filters.iterator(); iterator2.hasNext(); ) {
                 ScriptFilter scriptFilter = iterator2.next();
                 if (scriptFilter.getId() == id) {
                     iterator2.remove();

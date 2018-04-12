@@ -82,8 +82,8 @@ public class ReportUtil {
     public static final String[] getSummaryHeaders() {
         List<String> l = new ArrayList<String>(SUMMARY_HEADERS.length + PERCENTILES.length);
         l.addAll(Arrays.asList(SUMMARY_HEADERS));
-        for (int n = 0; n < PERCENTILES.length; n++) {
-            l.add((String) PERCENTILES[n][0]);
+        for (Object[] PERCENTILE : PERCENTILES) {
+            l.add((String) PERCENTILE[0]);
         }
         return l.toArray(new String[l.size()]);
     }
@@ -101,8 +101,8 @@ public class ReportUtil {
         ret[i++] = DOUBLE_NF.format(stats.getKurtosis());// Kurtosis
         ret[i++] = DOUBLE_NF.format(stats.getSkewness());// Skewness
         ret[i++] = DOUBLE_NF.format(stats.getVariance());// Varience
-        for (int n = 0; n < PERCENTILES.length; n++) {
-            ret[i++] = INT_NF.format(stats.getPercentile((Integer) PERCENTILES[n][1]));// Percentiles
+        for (Object[] PERCENTILE : PERCENTILES) {
+            ret[i++] = INT_NF.format(stats.getPercentile((Integer) PERCENTILE[1]));// Percentiles
         }
         return ret;
     }

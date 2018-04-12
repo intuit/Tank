@@ -220,8 +220,8 @@ class ParserManager implements DocumentListener, ActionListener,
             RSyntaxTextAreaHighlighter h = (RSyntaxTextAreaHighlighter)
                     textArea.getHighlighter();
 
-            for (Iterator i = notices.iterator(); i.hasNext();) {
-                ParserNotice notice = (ParserNotice) i.next();
+            for (Object notice1 : notices) {
+                ParserNotice notice = (ParserNotice) notice1;
                 if (DEBUG_PARSING) {
                     System.out.println("[DEBUG]: ... adding: " + res);
                 }
@@ -408,8 +408,8 @@ class ParserManager implements DocumentListener, ActionListener,
          * return textArea.getText(start, end-start); } //} }
          */
         if (noticesToHighlights != null) {
-            for (Iterator j = noticesToHighlights.keySet().iterator(); j.hasNext();) {
-                ParserNotice notice = (ParserNotice) j.next();
+            for (Object o : noticesToHighlights.keySet()) {
+                ParserNotice notice = (ParserNotice) o;
                 if (notice.containsPosition(pos)) {
                     tip = notice.getToolTipText();
                     parserForTip = notice.getParser();

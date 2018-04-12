@@ -376,8 +376,8 @@ public class TankHttpClient5 implements TankHttpClient {
             response.setHttpCode(httpCode);
 
             // Get response header information
-            for (int h = 0; h < headers.length; h++) {
-                response.setHeader(headers[h].getName(), headers[h].getValue());
+            for (Header header : headers) {
+                response.setHeader(header.getName(), header.getValue());
             }
 
             if (context.getCookieStore().getCookies() != null) {

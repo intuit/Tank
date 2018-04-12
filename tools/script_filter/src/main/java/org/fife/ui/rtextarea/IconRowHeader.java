@@ -650,9 +650,9 @@ class IconRowHeader extends AbstractGutterComponent implements MouseListener {
         }
 
         boolean found = false;
-        for (int i = 0; i < icons.length; i++) {
-            if (icons[i].getIcon() == bookmarkIcon) {
-                removeTrackingIcon(icons[i]);
+        for (GutterIconImpl icon : icons) {
+            if (icon.getIcon() == bookmarkIcon) {
+                removeTrackingIcon(icon);
                 found = true;
                 // Don't quit, in case they manipulate the document so > 1
                 // bookmark is on a single line (kind of flaky, but it

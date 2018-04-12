@@ -24,6 +24,7 @@
 package org.fife.ui.rsyntaxtextarea;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.stream.IntStream;
 import javax.swing.JViewport;
 import javax.swing.text.*;
@@ -582,10 +583,8 @@ public class WrappedSyntaxView extends BoxView implements TabExpander,
             // the structure of this element changed.
             Element[] removedElems = ec.getChildrenRemoved();
             Element[] addedElems = ec.getChildrenAdded();
-            View[] added = new View[addedElems.length];
+            View[] added = Arrays.stream(addedElems).map(WrappedLine::new).toArray(View[]::new);
 
-            for (int i = 0; i < addedElems.length; i++)
-                added[i] = new WrappedLine(addedElems[i]);
             // System.err.println("Replacing " + removedElems.length +
             // " children with " + addedElems.length);
             replace(ec.getIndex(), removedElems.length, added);

@@ -265,12 +265,12 @@ class StringFunctions {
     static private String[] combineStringArrays(String[] value1, String[] value2) {
         String[] output = new String[value1.length + value2.length];
         int counter = 0;
-        for (int i = 0; i < value1.length; i++) {
-            output[counter] = value1[i];
+        for (String aValue1 : value1) {
+            output[counter] = aValue1;
             ++counter;
         }
-        for (int i = 0; i < value2.length; i++) {
-            output[counter] = value2[i];
+        for (String aValue2 : value2) {
+            output[counter] = aValue2;
             ++counter;
         }
         return output;

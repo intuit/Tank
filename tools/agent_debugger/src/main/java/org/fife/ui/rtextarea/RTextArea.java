@@ -398,8 +398,7 @@ public class RTextArea extends RTextAreaBase
         Highlighter h = getHighlighter();
         if (h != null && markAllHighlights != null) {
             int count = markAllHighlights.size();
-            for (int i = 0; i < count; i++)
-                h.removeHighlight(markAllHighlights.get(i));
+            for (Object markAllHighlight : markAllHighlights) h.removeHighlight(markAllHighlight);
             markAllHighlights.clear();
         }
         markedWord = null;
@@ -946,8 +945,8 @@ public class RTextArea extends RTextAreaBase
             if (num > 0) {
                 undoManager.beginInternalAtomicEdit();
                 try {
-                    for (int i = 0; i < num; i++) {
-                        MacroRecord record = (MacroRecord) macroRecords.get(i);
+                    for (Object macroRecord : macroRecords) {
+                        MacroRecord record = (MacroRecord) macroRecord;
                         IntStream.range(0, numActions).filter(j -> (actions[j] instanceof RecordableTextAction) &&
                                 record.id.equals(
                                         ((RecordableTextAction) actions[j]).getMacroID())).findFirst().ifPresent(j -> actions[j].actionPerformed(

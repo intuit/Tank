@@ -174,8 +174,7 @@ public class APITestHarness {
 
     private void initializeFromArgs(String[] args) {
         String controllerBase = null;
-        for (int iter = 0; iter < args.length; ++iter) {
-            String argument = args[iter];
+        for (String argument : args) {
             LOG.info("checking arg " + argument);
 
             String[] values = argument.split("=");

@@ -157,15 +157,10 @@ public class AggregatorEditor implements Serializable {
      * @return
      */
     public ScriptStep getAggregatorPair(ScriptStep step) {
-        ScriptStep ret = null;
+        ScriptStep ret;
         String pairId = step.getData().stream().filter(rd -> rd.getKey().equals(ScriptConstants.AGGREGATOR_PAIR)).findFirst().map(RequestData::getValue).orElse(null);
 
-        for (ScriptStep tempStep : scriptEditor.getSteps()) {
-            if (tempStep.getUuid().equals(pairId)) {
-                ret = tempStep;
-                break;
-            }
-        }
+        ret = scriptEditor.getSteps().stream().filter(tempStep -> tempStep.getUuid().equals(pairId)).findFirst().orElse(null);
         return ret;
     }
 
