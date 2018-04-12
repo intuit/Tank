@@ -173,38 +173,33 @@ public class JobManager implements Serializable {
 
     private void startTest(final JobInfo info) {
         LOG.info("Sending start command asynchronously.");
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                LOG.info("Sleeping for one minute before starting test to give time for all agents to download files.");
-                try {
-                    Thread.sleep(60 * 1000);// 1 minute
-                } catch (InterruptedException e) {
-                    // ignore
-                }
-                try {
-                    LOG.info("Sending start commands on executer.");
-                    List<FutureTask<AgentData>> futures = new ArrayList<FutureTask<AgentData>>();
-                    for (AgentData agent : info.agentData) {
-                        futures.add(sendCommand(agent, WatsAgentCommand.start, true));
-                    }
-                    LOG.info("waiting for agentFutures to return.");
-                    for (FutureTask<AgentData> future : futures) {
-                        AgentData dataFuture = future.get();
-                        if (dataFuture != null) {
-                            // error happened. TODO: message system that agent did not start.
-                            vmTracker.setStatus(crateFailureStatus(dataFuture));
-                            vmTracker.stopJob(info.jobRequest.getId());
-                        }
-                    }
-                    LOG.info("All agents received start command.");
-                } catch (Exception e) {
-                    LOG.error("Error sending start: " + e, e);
-                    vmTracker.stopJob(info.jobRequest.getId());
-                }
-
+        Thread thread = new Thread( () -> {
+            LOG.info("Sleeping for one minute before starting test to give time for all agents to download files.");
+            try {
+                Thread.sleep(60 * 1000);// 1 minute
+            } catch (InterruptedException e) {
+                // ignore
             }
-
+            try {
+                LOG.info("Sending start commands on executer.");
+                List<FutureTask<AgentData>> futures = new ArrayList<FutureTask<AgentData>>();
+                for (AgentData agent : info.agentData) {
+                    futures.add(sendCommand(agent, WatsAgentCommand.start, true));
+                }
+                LOG.info("waiting for agentFutures to return.");
+                for (FutureTask<AgentData> future : futures) {
+                    AgentData dataFuture = future.get();
+                    if (dataFuture != null) {
+                        // error happened. TODO: message system that agent did not start.
+                        vmTracker.setStatus(crateFailureStatus(dataFuture));
+                        vmTracker.stopJob(info.jobRequest.getId());
+                    }
+                }
+                LOG.info("All agents received start command.");
+            } catch (Exception e) {
+                LOG.error("Error sending start: " + e, e);
+                vmTracker.stopJob(info.jobRequest.getId());
+            }
         });
         thread.setDaemon(true);
         thread.start();
@@ -236,40 +231,38 @@ public class JobManager implements Serializable {
 
     private FutureTask<AgentData> sendCommand(final AgentData agent, final WatsAgentCommand cmd, final boolean retry) {
         FutureTask<AgentData> future =
-                new FutureTask<AgentData>(new Callable<AgentData>() {
-                    public AgentData call() {
-                        int retries = retry ? MAX_RETRIES : 0;
-                        String url = agent.getInstanceUrl() + cmd.getPath();
-                        while (retries >= 0) {
-                            retries--;
-                            try {
-                                LOG.info("Sending command " + cmd + " to url " + url);
-                                new URL(url).getContent();
-                                break;
-                            } catch (Exception e) {
-                                LOG.error("Error sending command " + cmd.name() + " to " + url + ": " + e);
-                                // look up public ip
-                                if (!tankConfig.getStandalone()) {
-                                    AmazonInstance amazonInstance = new AmazonInstance(null, agent.getRegion());
-                                    String dns = amazonInstance.findPublicName(agent.getInstanceId());
-                                    if (dns != null) {
-                                        url = "http://" + dns + ":"
-                                                + new TankConfig().getAgentConfig().getAgentPort();
-                                    }
+                new FutureTask<AgentData>( () -> {
+                    int retries = retry ? MAX_RETRIES : 0;
+                    String url = agent.getInstanceUrl() + cmd.getPath();
+                    while (retries >= 0) {
+                        retries--;
+                        try {
+                            LOG.info("Sending command " + cmd + " to url " + url);
+                            new URL(url).getContent();
+                            break;
+                        } catch (Exception e) {
+                            LOG.error("Error sending command " + cmd.name() + " to " + url + ": " + e);
+                            // look up public ip
+                            if (!tankConfig.getStandalone()) {
+                                AmazonInstance amazonInstance = new AmazonInstance(null, agent.getRegion());
+                                String dns = amazonInstance.findPublicName(agent.getInstanceId());
+                                if (dns != null) {
+                                    url = "http://" + dns + ":"
+                                            + new TankConfig().getAgentConfig().getAgentPort();
                                 }
-                                if (retries >= 0) {
-                                    try {
-                                        Thread.sleep(RETRY_SLEEP);
-                                    } catch (InterruptedException e1) {
-                                        LOG.error("interrupted: " + e1);
-                                    }
-                                    continue;
-                                }
-                                return agent;
                             }
+                            if (retries >= 0) {
+                                try {
+                                    Thread.sleep(RETRY_SLEEP);
+                                } catch (InterruptedException e1) {
+                                    LOG.error("interrupted: " + e1);
+                                }
+                                continue;
+                            }
+                            return agent;
                         }
-                        return null;
                     }
+                    return null;
                 });
         executor.execute(future);
         return future;

@@ -66,22 +66,19 @@ public class DebuggerAppender extends AbstractAppender {
 
         // Append formatted message to text area using the Thread.
         try {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    for (JTextArea jTA : jTextAreaList){
-                        try {
-                            if (jTA != null) {
-                                if (jTA.getText().length() == 0) {
-                                    jTA.setText(message);
-                                } else {
-                                    jTA.append(message);
-                                }
+            SwingUtilities.invokeLater( () -> {
+                for (JTextArea jTA : jTextAreaList){
+                    try {
+                        if (jTA != null) {
+                            if (jTA.getText().length() == 0) {
+                                jTA.setText(message);
+                            } else {
+                                jTA.append(message);
                             }
-                        } catch (final Throwable t) {
-                            System.out.println("Unable to append log to text area: "
-                                    + t.getMessage());
                         }
+                    } catch (final Throwable t) {
+                        System.out.println("Unable to append log to text area: "
+                                + t.getMessage());
                     }
                 }
             });

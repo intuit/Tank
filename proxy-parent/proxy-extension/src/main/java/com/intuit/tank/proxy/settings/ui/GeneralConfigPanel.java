@@ -217,17 +217,13 @@ public class GeneralConfigPanel extends JPanel {
             fileChooser.setFileFilter(new XmlFileFilter());
 
             browseButton = new JButton("Browse...");
-            browseButton.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    int showOpenDialog = fileChooser.showSaveDialog(GeneralConfigPanel.this);
-                    if (showOpenDialog == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            outputFileField.setText(fileChooser.getSelectedFile().getCanonicalPath());
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
+            browseButton.addActionListener((ActionEvent e) -> {
+                int showOpenDialog = fileChooser.showSaveDialog(GeneralConfigPanel.this);
+                if (showOpenDialog == JFileChooser.APPROVE_OPTION) {
+                    try {
+                        outputFileField.setText(fileChooser.getSelectedFile().getCanonicalPath());
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
                     }
                 }
             });

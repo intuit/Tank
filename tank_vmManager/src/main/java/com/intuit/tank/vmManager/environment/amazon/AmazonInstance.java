@@ -342,31 +342,27 @@ public class AmazonInstance implements IEnvironmentInstance {
                 tags.add(new Tag(pair.getKey(), pair.getValue()));
             }
 
-            new Thread(new Runnable() {
+            new Thread( () -> {
+                int count = 0;
+                try {
+                    while (++count <= 5 && !instanceIds.isEmpty()) {
+                        Thread.sleep(5000);
+                        CreateTagsRequest createTagsRequest = new CreateTagsRequest().withResources(instanceIds).withTags(tags);
+                        asynchEc2Client.createTagsAsync(createTagsRequest);
+                        Thread.sleep(1000);
 
-                @Override
-                public void run() {
-                    int count = 0;
-                    try {
-                        while (++count <= 5 && !instanceIds.isEmpty()) {
-                            Thread.sleep(5000);
-                            CreateTagsRequest createTagsRequest = new CreateTagsRequest().withResources(instanceIds).withTags(tags);
-                            asynchEc2Client.createTagsAsync(createTagsRequest);
-                            Thread.sleep(1000);
-
-                            Future<DescribeInstancesResult> describeInstances = asynchEc2Client.describeInstancesAsync(new DescribeInstancesRequest().withInstanceIds(instanceIds));
-                            for (Reservation r : describeInstances.get().getReservations()) {
-                                for (Instance i : r.getInstances()) {
-                                    if (i.getTags() != null && !i.getTags().isEmpty()) {
-                                        instanceIds.remove(i.getInstanceId());
-                                    }
+                        Future<DescribeInstancesResult> describeInstances = asynchEc2Client.describeInstancesAsync(new DescribeInstancesRequest().withInstanceIds(instanceIds));
+                        for (Reservation r : describeInstances.get().getReservations()) {
+                            for (Instance i : r.getInstances()) {
+                                if (i.getTags() != null && !i.getTags().isEmpty()) {
+                                    instanceIds.remove(i.getInstanceId());
                                 }
                             }
                         }
-                    } catch (Exception e) {
-                        LOG.error("Error tagging instances: " + e, e);
                     }
-                };
+                } catch (Exception e) {
+                    LOG.error("Error tagging instances: " + e, e);
+                }
             }).start();
         }
     }
@@ -528,57 +524,53 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public void associateAddress(final String instanceId, final Address address, final CountDownLatch latch) {
 
-        new Thread(new Runnable() {
+        new Thread( () -> {
+            boolean associated = false;
 
-            @Override
-            public void run() {
-                boolean associated = false;
-                
-                try {
-                    long start = System.currentTimeMillis();
-                    int count = 0;
-                    LOG.info("Setting ip for instance " + instanceId + " to " + address.getPublicIp());
-                    while ((System.currentTimeMillis() - start) < ASSOCIATE_IP_MAX_WAIT_MILIS && !associated) {
-                        count++;
-                        try {
-                           if (address.getAllocationId() == null) {
-                                asynchEc2Client.associateAddressAsync(new AssociateAddressRequest()
-																	.withInstanceId(instanceId)
-																	.withPublicIp(address.getPublicIp()));                           	
-                            } else {
-                            	asynchEc2Client.associateAddressAsync(new AssociateAddressRequest()
-                            										.withInstanceId(instanceId)
-                            										.withAllocationId(address.getAllocationId()));
-                            }
-                            Thread.sleep((new Random().nextInt(10) + 10) * 100L);
-                            Future<DescribeInstancesResult> describeInstances = asynchEc2Client.describeInstancesAsync(new DescribeInstancesRequest().withInstanceIds(instanceId));
-                            for (Reservation r : describeInstances.get().getReservations()) {
-                                for (Instance i : r.getInstances()) {
-                                    if (address.getPublicIp().equals(i.getPublicIpAddress())) {
-                                        associated = true;
-                                    }
+            try {
+                long start = System.currentTimeMillis();
+                int count = 0;
+                LOG.info("Setting ip for instance " + instanceId + " to " + address.getPublicIp());
+                while ((System.currentTimeMillis() - start) < ASSOCIATE_IP_MAX_WAIT_MILIS && !associated) {
+                    count++;
+                    try {
+                       if (address.getAllocationId() == null) {
+                            asynchEc2Client.associateAddressAsync(new AssociateAddressRequest()
+                                                                .withInstanceId(instanceId)
+                                                                .withPublicIp(address.getPublicIp()));
+                        } else {
+                            asynchEc2Client.associateAddressAsync(new AssociateAddressRequest()
+                                                                .withInstanceId(instanceId)
+                                                                .withAllocationId(address.getAllocationId()));
+                        }
+                        Thread.sleep((new Random().nextInt(10) + 10) * 100L);
+                        Future<DescribeInstancesResult> describeInstances = asynchEc2Client.describeInstancesAsync(new DescribeInstancesRequest().withInstanceIds(instanceId));
+                        for (Reservation r : describeInstances.get().getReservations()) {
+                            for (Instance i : r.getInstances()) {
+                                if (address.getPublicIp().equals(i.getPublicIpAddress())) {
+                                    associated = true;
                                 }
                             }
-                            if (associated) {
-                                LOG.info(instanceId + " associated with " + address.getPublicIp());
-                            } else if (count % 5 == 0) {
-                                LOG.info(instanceId + " not associated yet " + address.getPublicIp() + ". Retrying... count = " + count);
-                            }
-                        } catch (Exception e) {
-                            if (count < 5) {
-                                LOG.warn("Error associating ip address: " + e + " Will retry.");
-                            }
+                        }
+                        if (associated) {
+                            LOG.info(instanceId + " associated with " + address.getPublicIp());
+                        } else if (count % 5 == 0) {
+                            LOG.info(instanceId + " not associated yet " + address.getPublicIp() + ". Retrying... count = " + count);
+                        }
+                    } catch (Exception e) {
+                        if (count < 5) {
+                            LOG.warn("Error associating ip address: " + e + " Will retry.");
                         }
                     }
-                } catch (Exception e) {
-                    LOG.error("Error setting elastic ip: " + e, e);
-                } finally {
-                    LOG.info("exiting associated = " + associated);
-                    if (latch != null) {
-                        latch.countDown();
-                    }
                 }
-            };
+            } catch (Exception e) {
+                LOG.error("Error setting elastic ip: " + e, e);
+            } finally {
+                LOG.info("exiting associated = " + associated);
+                if (latch != null) {
+                    latch.countDown();
+                }
+            }
         }).start();
 
     }

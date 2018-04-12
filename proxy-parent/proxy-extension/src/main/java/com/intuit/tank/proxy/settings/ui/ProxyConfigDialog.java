@@ -76,35 +76,26 @@ public class ProxyConfigDialog extends JDialog {
             toolbar = new JToolBar();
             JButton saveButton = new JButton("Save", new ImageIcon(
                     ProxyConfigDialog.class.getResource("/icons/16/save_as.png")));
-            saveButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    try {
-                        saveConfig(false);
-                    } catch (IOException e1) {
-                        throw new IllegalArgumentException(e1);
-                    }
+            saveButton.addActionListener((ActionEvent e) -> {
+                try {
+                    saveConfig(false);
+                } catch (IOException e1) {
+                    throw new IllegalArgumentException(e1);
                 }
             });
             JButton saveasButton = new JButton("Save As...", new ImageIcon(
                     ProxyConfigDialog.class.getResource("/icons/16/save_as.png")));
-            saveasButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    try {
-                        saveConfig(true);
-                    } catch (IOException e1) {
-                        throw new IllegalArgumentException(e1);
-                    }
+            saveasButton.addActionListener( (ActionEvent e) -> {
+                try {
+                    saveConfig(true);
+                } catch (IOException e1) {
+                    throw new IllegalArgumentException(e1);
                 }
             });
             JButton openButton = new JButton("Open", new ImageIcon(
                     ProxyConfigDialog.class.getResource("/icons/16/open_folder.png")));
-            openButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    openConfig();
-                }
+            openButton.addActionListener((ActionEvent e) -> {
+                openConfig();
             });
             toolbar.add(Box.createHorizontalStrut(5));
             toolbar.add(openButton);

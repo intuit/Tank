@@ -134,33 +134,30 @@ public class AgentServiceV1 implements AgentService {
         LOG.info("harnessJar = " + harnessJar.getAbsolutePath());
         final List<FileData> files = fileStorage.listFileData("");
 
-        StreamingOutput streamingOutput = new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                ZipOutputStream zip = new ZipOutputStream(output);
-                try {
-                    if (harnessJar.exists()) {
-                        addFileToZip(HARNESS_JAR, new FileInputStream(harnessJar), zip);
-                        zip.flush();
-                    }
-                    if (startScript.exists()) {
-                        addFileToZip(START_SCRIPT, new FileInputStream(startScript), zip);
-                        zip.flush();
-                    }
-                    for (FileData fileData : files) {
-                        if (harnessJar.exists() && fileData.getFileName().equals(HARNESS_JAR)) {
-                            LOG.info("Not adding harness because we found it in the war.");
-                        } else {
-                            addFileToZip(fileData.getFileName(), fileStorage.readFileData(fileData), zip);
-                            zip.flush();
-                        }
-                    }
-
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    IOUtils.closeQuietly(zip);
+        StreamingOutput streamingOutput = outputStream -> {
+            ZipOutputStream zip = new ZipOutputStream(outputStream);
+            try {
+                if (harnessJar.exists()) {
+                    addFileToZip(HARNESS_JAR, new FileInputStream(harnessJar), zip);
+                    zip.flush();
                 }
+                if (startScript.exists()) {
+                    addFileToZip(START_SCRIPT, new FileInputStream(startScript), zip);
+                    zip.flush();
+                }
+                for (FileData fileData : files) {
+                    if (harnessJar.exists() && fileData.getFileName().equals(HARNESS_JAR)) {
+                        LOG.info("Not adding harness because we found it in the war.");
+                    } else {
+                        addFileToZip(fileData.getFileName(), fileStorage.readFileData(fileData), zip);
+                        zip.flush();
+                    }
+                }
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                IOUtils.closeQuietly(zip);
             }
         };
         String filename = "agent-support-files.zip";

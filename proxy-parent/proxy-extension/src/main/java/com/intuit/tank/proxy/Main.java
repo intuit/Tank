@@ -213,50 +213,48 @@ public class Main implements TransactionRecordedListener {
         InetSocketAddress addr = new InetSocketAddress(apiPort);
         HttpServer server = HttpServer.create(addr, 0);
 
-        HttpHandler handler = new HttpHandler() {
-            public void handle(HttpExchange exchange) throws IOException {
-                String requestMethod = exchange.getRequestMethod();
-                URI requestURI = exchange.getRequestURI();
-                String msg = "unknown path";
-                if (requestMethod.equalsIgnoreCase("GET")) {
-                    // Thread t = null;
-                    if (requestURI.getPath().startsWith("/start")) {
-                        msg = "starting proxy on port " + port + " outputting to " + dumpFileName;
-                        // t = new Thread(new Runnable() {
-                        // @Override
-                        // public void run() {
-                        start();
-                        // }
-                        // });
-                    } else if (requestURI.getPath().startsWith("/stop")) {
-                        msg = "stopping proxy and finalizing output in file " + dumpFileName;
-                        // t = new Thread(new Runnable() {
-                        // @Override
-                        // public void run() {
-                        stop();
-                        // }
-                        // });
-                    } else if (requestURI.getPath().startsWith("/quit")) {
-                        msg = "quitting proxy and finalizing output in file " + dumpFileName;
-                        // t = new Thread(new Runnable() {
-                        // @Override
-                        // public void run() {
-                        quit();
-                        // }
-                        // });
-                    }
-                    byte[] bytes = msg.getBytes();
-                    Headers responseHeaders = exchange.getResponseHeaders();
-                    responseHeaders.set("Content-Type", "text/plain");
-                    exchange.sendResponseHeaders(200, bytes.length);
-                    OutputStream responseBody = exchange.getResponseBody();
-
-                    responseBody.write(bytes);
-                    responseBody.close();
-                    // if (t != null) {
-                    // t.start();
+        HttpHandler handler = (HttpExchange exchange) -> {
+            String requestMethod = exchange.getRequestMethod();
+            URI requestURI = exchange.getRequestURI();
+            String msg = "unknown path";
+            if (requestMethod.equalsIgnoreCase("GET")) {
+                // Thread t = null;
+                if (requestURI.getPath().startsWith("/start")) {
+                    msg = "starting proxy on port " + port + " outputting to " + dumpFileName;
+                    // t = new Thread(new Runnable() {
+                    // @Override
+                    // public void run() {
+                    start();
                     // }
+                    // });
+                } else if (requestURI.getPath().startsWith("/stop")) {
+                    msg = "stopping proxy and finalizing output in file " + dumpFileName;
+                    // t = new Thread(new Runnable() {
+                    // @Override
+                    // public void run() {
+                    stop();
+                    // }
+                    // });
+                } else if (requestURI.getPath().startsWith("/quit")) {
+                    msg = "quitting proxy and finalizing output in file " + dumpFileName;
+                    // t = new Thread(new Runnable() {
+                    // @Override
+                    // public void run() {
+                    quit();
+                    // }
+                    // });
                 }
+                byte[] bytes = msg.getBytes();
+                Headers responseHeaders = exchange.getResponseHeaders();
+                responseHeaders.set("Content-Type", "text/plain");
+                exchange.sendResponseHeaders(200, bytes.length);
+                OutputStream responseBody = exchange.getResponseBody();
+
+                responseBody.write(bytes);
+                responseBody.close();
+                // if (t != null) {
+                // t.start();
+                // }
             }
         };
 

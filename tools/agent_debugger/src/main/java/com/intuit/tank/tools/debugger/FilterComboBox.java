@@ -36,10 +36,8 @@ public class FilterComboBox extends JComboBox {
         final JTextField textfield = (JTextField) this.getEditor().getEditorComponent();
         textfield.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent ke) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        comboFilter(textfield.getText());
-                    }
+                SwingUtilities.invokeLater( () -> {
+                    comboFilter(textfield.getText());
                 });
             }
         });

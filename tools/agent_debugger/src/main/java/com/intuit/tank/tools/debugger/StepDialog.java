@@ -73,20 +73,16 @@ public class StepDialog extends JDialog {
     private Component createButtonPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
         JButton saveBT = new JButton("Save");
-        saveBT.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                if (f.setStepfromString(ta.getText())) {
-                    setVisible(false);
-                }
+        saveBT.addActionListener( (ActionEvent arg0) -> {
+            if (f.setStepfromString(ta.getText())) {
+                setVisible(false);
             }
         });
         panel.add(saveBT);
 
         JButton cancelBT = new JButton("Close");
-        cancelBT.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                setVisible(false);
-            }
+        cancelBT.addActionListener( (ActionEvent arg0) -> {
+            setVisible(false);
         });
         panel.add(cancelBT);
         return panel;

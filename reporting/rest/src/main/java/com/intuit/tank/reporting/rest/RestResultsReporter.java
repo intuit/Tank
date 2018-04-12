@@ -42,14 +42,12 @@ public class RestResultsReporter implements ResultsReporter {
     @Override
     public void sendTpsResults(final String jobId, final String instanceId, final TPSInfoContainer container,
             boolean async) {
-        Runnable task = new Runnable() {
-            public void run() {
-                try {
-                    getClient().postTpsResults(jobId, instanceId, container);
-                } catch (Exception t) {
-                    LOG.error("Error adding results: " + t.getMessage(), t);
-                    throw new RuntimeException(t);
-                }
+        Runnable task = () -> {
+            try {
+                getClient().postTpsResults(jobId, instanceId, container);
+            } catch (Exception t) {
+                LOG.error("Error adding results: " + t.getMessage(), t);
+                throw new RuntimeException(t);
             }
         };
         if (async) {
@@ -66,14 +64,12 @@ public class RestResultsReporter implements ResultsReporter {
     public void sendTimingResults(final String jobId, final String instanceId, List<TankResult> results, boolean asynch) {
         if (results != null && !results.isEmpty()) {
             final List<TankResult> list = new ArrayList<TankResult>(results);
-            Runnable task = new Runnable() {
-                public void run() {
-                    try {
-                        getClient().postTimingResults(jobId, instanceId, list);
-                    } catch (Exception t) {
-                        LOG.error("Error adding results: " + t.getMessage(), t);
-                        throw new RuntimeException(t);
-                    }
+            Runnable task = () -> {
+                try {
+                    getClient().postTimingResults(jobId, instanceId, list);
+                } catch (Exception t) {
+                    LOG.error("Error adding results: " + t.getMessage(), t);
+                    throw new RuntimeException(t);
                 }
             };
             if (asynch) {

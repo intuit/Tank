@@ -57,23 +57,21 @@ public class DatabaseResultsReporter implements ResultsReporter {
     public void sendTpsResults(final String jobId, final String instanceId, final TPSInfoContainer container,
             boolean async) {
 
-        Runnable task = new Runnable() {
-            public void run() {
-                try {
-                    List<Item> items = new ArrayList<Item>();
-                    for (TPSInfo info : container.getTpsInfos()) {
-                        Item item = createItem(jobId, instanceId, info);
-                        items.add(item);
-                    }
-                    if (!items.isEmpty()) {
-                        String tableName = getTpsTableName(db);
-                        LOG.info("Sending " + items.size() + " to TPS Table " + tableName);
-                        db.addItems(tableName, items, false);
-                    }
-                } catch (Exception t) {
-                    LOG.error("Error adding results: " + t.getMessage(), t);
-                    throw new RuntimeException(t);
+        Runnable task = () -> {
+            try {
+                List<Item> items = new ArrayList<Item>();
+                for (TPSInfo info : container.getTpsInfos()) {
+                    Item item = createItem(jobId, instanceId, info);
+                    items.add(item);
                 }
+                if (!items.isEmpty()) {
+                    String tableName = getTpsTableName(db);
+                    LOG.info("Sending " + items.size() + " to TPS Table " + tableName);
+                    db.addItems(tableName, items, false);
+                }
+            } catch (Exception t) {
+                LOG.error("Error adding results: " + t.getMessage(), t);
+                throw new RuntimeException(t);
             }
         };
         if (async) {

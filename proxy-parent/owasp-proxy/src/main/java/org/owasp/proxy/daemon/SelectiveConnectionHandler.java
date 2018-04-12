@@ -34,13 +34,10 @@ public abstract class SelectiveConnectionHandler implements
     /**
      * Simply relays bytes from one socket to the other, ignoring any upstream proxy settings
      */
-    protected static final TargetedConnectionHandler RELAY = new TargetedConnectionHandler() {
-        public void handleConnection(Socket src, InetSocketAddress target)
-                throws IOException {
-            Socket dest = new Socket(Proxy.NO_PROXY);
-            dest.connect(target);
-            Pump.connect(src, dest);
-        }
+    protected static final TargetedConnectionHandler RELAY = (Socket src, InetSocketAddress target) -> {
+        Socket dest = new Socket(Proxy.NO_PROXY);
+        dest.connect(target);
+        Pump.connect(src, dest);
     };
 
     public abstract TargetedConnectionHandler getConnectionHandler(

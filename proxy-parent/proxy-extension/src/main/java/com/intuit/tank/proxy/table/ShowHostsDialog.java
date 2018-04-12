@@ -97,12 +97,10 @@ public class ShowHostsDialog extends JDialog {
         final JPopupMenu pm = new JPopupMenu();
         for (final IncludeType type : IncludeType.values()) {
             JMenuItem item = new JMenuItem("Add Host to " + type.getDisplay());
-            item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent arg0) {
-                    String value = (String) table.getSelectedValue();
-                    if (value != null) {
-                        configDialog.addHostRule(value, type);
-                    }
+            item.addActionListener( (ActionEvent arg0) -> {
+                String value = (String) table.getSelectedValue();
+                if (value != null) {
+                    configDialog.addHostRule(value, type);
                 }
             });
             pm.add(item);
@@ -110,12 +108,10 @@ public class ShowHostsDialog extends JDialog {
         pm.addSeparator();
         for (final IncludeType type : IncludeType.values()) {
             JMenuItem item = new JMenuItem("Add Domain to " + type.getDisplay());
-            item.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent arg0) {
-                    String value = (String) table.getSelectedValue();
-                    if (value != null) {
-                        configDialog.addHostRule(value, type);
-                    }
+            item.addActionListener( (ActionEvent arg0) -> {
+                String value = (String) table.getSelectedValue();
+                if (value != null) {
+                    configDialog.addHostRule(value, type);
                 }
             });
             pm.add(item);

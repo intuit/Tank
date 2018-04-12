@@ -95,20 +95,14 @@ public class AmazonSimpleDatabase implements IDatabase {
      */
     @Override
     public void deleteForJob(final String tableName, String jobId, boolean asynch) {
-        Runnable task = new Runnable() {
-
-            @Override
-            public void run() {
-                deleteTable(tableName);
-
-            }
+        Runnable task = () -> {
+            deleteTable(tableName);
         };
         if (asynch) {
             EXECUTOR.execute(task);
         } else {
             task.run();
         }
-
     }
 
     /**
@@ -136,30 +130,28 @@ public class AmazonSimpleDatabase implements IDatabase {
      */
     public void addTimingResults(final @Nonnull String tableName, final @Nonnull List<TankResult> messages, boolean asynch) {
         if (!messages.isEmpty()) {
-            Runnable task = new Runnable() {
-                public void run() {
-                    List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
-                    try {
-                        for (TankResult result : messages) {
-                            ReplaceableItem item = new ReplaceableItem();
-                            item.setAttributes(getTimingAttributes(result));
-                            item.setName(UUID.randomUUID().toString());
-                            items.add(item);
-                            if (items.size() == 25) {
-                                addItemsToTable(new BatchPutAttributesRequest(tableName, new ArrayList<ReplaceableItem>(items)));
-                                // logger.info("Sending " + items.size() + "
-                                // results to table " + tableName);
-                                items.clear();
-                            }
+            Runnable task = () -> {
+                List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
+                try {
+                    for (TankResult result : messages) {
+                        ReplaceableItem item = new ReplaceableItem();
+                        item.setAttributes(getTimingAttributes(result));
+                        item.setName(UUID.randomUUID().toString());
+                        items.add(item);
+                        if (items.size() == 25) {
+                            addItemsToTable(new BatchPutAttributesRequest(tableName, new ArrayList<ReplaceableItem>(items)));
+                            // logger.info("Sending " + items.size() + "
+                            // results to table " + tableName);
+                            items.clear();
                         }
-                        if (items.size() > 0) {
-                            addItemsToTable(new BatchPutAttributesRequest(tableName, items));
-                            logger.info("Sending " + items.size() + " results to table " + tableName);
-                        }
-                    } catch (Exception t) {
-                        logger.error("Error adding results: " + t.getMessage(), t);
-                        throw new RuntimeException(t);
                     }
+                    if (items.size() > 0) {
+                        addItemsToTable(new BatchPutAttributesRequest(tableName, items));
+                        logger.info("Sending " + items.size() + " results to table " + tableName);
+                    }
+                } catch (Exception t) {
+                    logger.error("Error adding results: " + t.getMessage(), t);
+                    throw new RuntimeException(t);
                 }
             };
             if (asynch) {
@@ -175,18 +167,16 @@ public class AmazonSimpleDatabase implements IDatabase {
      */
     @Override
     public void addItems(final String tableName, final List<Item> items, boolean asynch) {
-        Runnable task = new Runnable() {
-            public void run() {
-                List<ReplaceableItem> tmpItems = new ArrayList<ReplaceableItem>();
-                for (Item item : items) {
-                    tmpItems.add(itemToAWSItem(item));
-                    if (tmpItems.size() == 25) {
-                        addItemsToTable(new BatchPutAttributesRequest(tableName, tmpItems));
-                        tmpItems.clear();
-                    }
+        Runnable task = () -> {
+            List<ReplaceableItem> tmpItems = new ArrayList<ReplaceableItem>();
+            for (Item item : items) {
+                tmpItems.add(itemToAWSItem(item));
+                if (tmpItems.size() == 25) {
+                    addItemsToTable(new BatchPutAttributesRequest(tableName, tmpItems));
+                    tmpItems.clear();
                 }
-                addItemsToTable(new BatchPutAttributesRequest(tableName, tmpItems));
             }
+            addItemsToTable(new BatchPutAttributesRequest(tableName, tmpItems));
         };
         if (asynch) {
             EXECUTOR.execute(task);

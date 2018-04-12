@@ -193,26 +193,17 @@ public class RuleEditorDialog extends JDialog {
             opsPanel = new JPanel();
 
             JButton doneButton = new JButton("Done");
-            doneButton.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    System.out.println("RuleEditorDialog.getOpsPanel().new ActionListener() {...}.actionPerformed()");
-                    cancelFlag = false;
-                    processDoneAndClose();
-                }
-
+            doneButton.addActionListener( (ActionEvent e) -> {
+                System.out.println("RuleEditorDialog.getOpsPanel().new ActionListener() {...}.actionPerformed()");
+                cancelFlag = false;
+                processDoneAndClose();
             });
             JButton cancelButton = new JButton("Cancel");
-            cancelButton.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    // TODO Auto-generated method stub
-                    System.out.println("RuleEditorDialog.getOpsPanel().new ActionListener() {...}.actionPerformed()");
-                    cancelFlag = true;
-                    setVisible(false);
-                }
+            cancelButton.addActionListener((ActionEvent e) -> {
+                // TODO Auto-generated method stub
+                System.out.println("RuleEditorDialog.getOpsPanel().new ActionListener() {...}.actionPerformed()");
+                cancelFlag = true;
+                setVisible(false);
             });
             opsPanel.add(doneButton);
             opsPanel.add(cancelButton);

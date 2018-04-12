@@ -69,13 +69,8 @@ public class VariablesPanel extends JPanel implements StepListener, ScriptChange
         top.add(BorderLayout.WEST, new JLabel(isInitialValues ? "Initial Varaible Values"
                 : "Completed Variable Values"));
         JButton copyBtn = new JButton(ActionProducer.getIcon("copying_and_distribution.png", IconSize.SMALL));
-        copyBtn.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                displayVars(isInitialValues);
-
-            }
+        copyBtn.addActionListener( (ActionEvent arg0) -> {
+            displayVars(isInitialValues);
         });
         top.add(BorderLayout.EAST, copyBtn);
         ret.add(BorderLayout.NORTH, top);

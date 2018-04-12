@@ -259,36 +259,33 @@ public class DataFileServiceV1 implements DataFileService {
     private StreamingOutput getStreamingOutput(final int offset, final int numLines, DataFile dataFile) {
         final FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getDataFileStorageDir(), false);
         final FileData fd = DataFileUtil.getFileData(dataFile);
-        return new StreamingOutput() {
-
-            public void write(OutputStream outputStream) {
-                BufferedReader in = null;
-                // Get the object of DataInputStream
-                PrintWriter out = null;
-                try {
-                    int nl = numLines;
-                    in = new BufferedReader(new InputStreamReader(fileStorage.readFileData(fd), StandardCharsets.UTF_8));
-                    out = new PrintWriter(outputStream);
-                    if (!fd.getFileName().toLowerCase().endsWith(".csv")) {
-                        nl = -1;
-                    }
-                    // Read File Line By Line
-                    String strLine;
-                    int lineNum = 0;
-                    int os = offset < 0 ? 0 : offset;
-                    while ((strLine = in.readLine()) != null && (nl < 0 || lineNum < (os + numLines))) {
-                        if (numLines < 0 || lineNum >= os) {
-                            out.println(strLine);
-                        }
-                        lineNum++;
-                    }
-                } catch (IOException e) {
-                    LOG.error("Error streaming file: " + e.toString(), e);
-                    throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-                } finally {
-                    IOUtils.closeQuietly(out);
-                    IOUtils.closeQuietly(in);
+        return outputStream -> {
+            BufferedReader in = null;
+            // Get the object of DataInputStream
+            PrintWriter out = null;
+            try {
+                int nl = numLines;
+                in = new BufferedReader(new InputStreamReader(fileStorage.readFileData(fd), StandardCharsets.UTF_8));
+                out = new PrintWriter(outputStream);
+                if (!fd.getFileName().toLowerCase().endsWith(".csv")) {
+                    nl = -1;
                 }
+                // Read File Line By Line
+                String strLine;
+                int lineNum = 0;
+                int os = offset < 0 ? 0 : offset;
+                while ((strLine = in.readLine()) != null && (nl < 0 || lineNum < (os + numLines))) {
+                    if (numLines < 0 || lineNum >= os) {
+                        out.println(strLine);
+                    }
+                    lineNum++;
+                }
+            } catch (IOException e) {
+                LOG.error("Error streaming file: " + e.toString(), e);
+                throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            } finally {
+                IOUtils.closeQuietly(out);
+                IOUtils.closeQuietly(in);
             }
         };
     }

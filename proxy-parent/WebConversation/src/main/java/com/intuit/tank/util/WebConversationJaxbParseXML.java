@@ -51,14 +51,9 @@ public class WebConversationJaxbParseXML {
 
     private List<Transaction> parse(XMLInputFactory xmlif, XMLEventReader xmler) throws WatsParseException {
 
-        EventFilter filter = new EventFilter() {
-            public boolean accept(XMLEvent event) {
-                return event.isStartElement();
-            }
-        };
         List<Transaction> result = null;
         try {
-            XMLEventReader xmlfer = xmlif.createFilteredReader(xmler, filter);
+            XMLEventReader xmlfer = xmlif.createFilteredReader(xmler, XMLEvent::isStartElement);
             // Jump to the first element in the document, the enclosing log
             xmlfer.nextEvent();
             // Parse into typed objects
