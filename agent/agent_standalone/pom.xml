@@ -28,7 +28,7 @@
 
     <dependency>
       <groupId>org.simpleframework</groupId>
-      <artifactId>simple</artifactId>
+      <artifactId>simple-http</artifactId>
     </dependency>
 
     <dependency>
