@@ -31,6 +31,8 @@ import org.apache.logging.log4j.Logger;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;
+import org.simpleframework.http.core.ContainerSocketProcessor;
+import org.simpleframework.transport.SocketProcessor;
 import org.simpleframework.transport.connect.Connection;
 import org.simpleframework.transport.connect.SocketConnection;
 import org.xml.sax.InputSource;
@@ -53,7 +55,8 @@ public class CommandListener implements Container {
             agentStarter = standaloneAgentStartup;
             try {
                 Container container = new CommandListener();
-                @SuppressWarnings("resource") Connection connection = new SocketConnection(container);
+                SocketProcessor processor = new ContainerSocketProcessor(container);
+                Connection connection = new SocketConnection(processor);
                 SocketAddress address = new InetSocketAddress(port);
                 System.out.println("Starting httpserver on port " + port);
                 connection.connect(address);
@@ -87,8 +90,8 @@ public class CommandListener implements Container {
             }
             long time = System.currentTimeMillis();
             response.setCode(code);
-            response.set("Content-Type", "text/plain");
-            response.set("Server", "TAnk Agent/1.0");
+            response.setContentType("text/plain");
+            response.setDescription("Intuit Tank Agent/2.2.5");
             response.setDate("Date", time);
             response.setDate("Last-Modified", time);
 
