@@ -44,6 +44,7 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.logging.ConsoleHandler;
@@ -316,7 +317,7 @@ public class Main implements TransactionRecordedListener {
 
             @Override
             public List<java.net.Proxy> select(URI uri) {
-                return Arrays.asList(upstream);
+                return Collections.singletonList(upstream);
             }
         };
         return ps;

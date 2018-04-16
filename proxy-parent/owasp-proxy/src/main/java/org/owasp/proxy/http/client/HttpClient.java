@@ -38,6 +38,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -73,7 +74,7 @@ public class HttpClient {
 
         @Override
         public List<Proxy> select(URI uri) {
-            return Arrays.asList(Proxy.NO_PROXY);
+            return Collections.singletonList(Proxy.NO_PROXY);
         }
     };
 

@@ -18,6 +18,7 @@ package com.intuit.tank.service.impl.v1.cloud;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -129,7 +130,7 @@ public class JobController {
     /**
      * @inheritDoc
      */
-    public void killInstance(String instanceId) { killInstances(Arrays.asList( instanceId )); }
+    public void killInstance(String instanceId) { killInstances(Collections.singletonList(instanceId)); }
 
     /**
      * @inheritDoc
