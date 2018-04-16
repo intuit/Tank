@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathFactory;
@@ -242,15 +243,10 @@ public class GenericXMLHandler implements Cloneable {
      */
     public ArrayList<String> GetElementList(String xPathExpression) {
         try {
-            ArrayList<String> values = new ArrayList<String>();
+            ArrayList<String> values;
             List<?> nodeList = XPath.selectNodes(this.xmlDocument, xPathExpression);
 
-            Iterator<?> iter = nodeList.iterator();
-            while (iter.hasNext()) {
-                org.jdom.Element element = (org.jdom.Element) iter.next();
-                values.add(element.getText());
-            }
-            return values;
+            return nodeList.stream().map(aNodeList -> (Element) aNodeList).map(Element::getText).collect(Collectors.toCollection(ArrayList::new));
         } catch (Exception ex) {
             LOG.error("Error in handler: " + ex.getMessage(), ex);
             return null;

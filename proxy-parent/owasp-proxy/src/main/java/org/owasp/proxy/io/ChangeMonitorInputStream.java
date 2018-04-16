@@ -106,14 +106,7 @@ public class ChangeMonitorInputStream extends FilterInputStream {
     }
 
     public CopyStream[] getModifiedStreams() {
-        List<CopyStream> changed = new ArrayList<CopyStream>();
-        Iterator<CopyStream> it = watches.iterator();
-        while (it.hasNext()) {
-            CopyStream copy = it.next();
-            if (copy.getCopy() != null)
-                changed.add(copy);
-        }
-        return changed.toArray(new CopyStream[changed.size()]);
+        return watches.stream().filter(copy -> copy.getCopy() != null).toArray(CopyStream[]::new);
     }
 
     public class CopyStream extends FilterInputStream {

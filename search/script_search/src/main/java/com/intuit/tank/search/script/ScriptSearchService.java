@@ -63,14 +63,19 @@ public class ScriptSearchService {
                     Field.Index.NOT_ANALYZED);
             addField(document, ScriptSearchField.uuid, String.valueOf(steps.getUuid()), Field.Store.YES,
                     Field.Index.NO);
-            if (steps.getType().equals("request")) {
-                updateRequestDocument(steps, sb, document);
-            } else if (steps.getType().equals("sleep")) {
-                updateSleepTimeDocument(steps, sb, document);
-            } else if (steps.getType().equals("thinkTime")) {
-                updateThinkTimeDocument(steps, sb, document);
-            } else if (steps.getType().equals("variable")) {
-                updateVariableDocument(steps, sb, document);
+            switch (steps.getType()) {
+                case "request":
+                    updateRequestDocument(steps, sb, document);
+                    break;
+                case "sleep":
+                    updateSleepTimeDocument(steps, sb, document);
+                    break;
+                case "thinkTime":
+                    updateThinkTimeDocument(steps, sb, document);
+                    break;
+                case "variable":
+                    updateVariableDocument(steps, sb, document);
+                    break;
             }
             documents.add(document);
         }

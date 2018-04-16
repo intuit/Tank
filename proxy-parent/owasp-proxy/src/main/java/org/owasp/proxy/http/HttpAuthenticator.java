@@ -175,9 +175,7 @@ public class HttpAuthenticator {
     protected String selectChallenge(List<String> challenges) {
         if (challenges.size() == 1)
             return challenges.get(0);
-        Iterator<String> it = challenges.iterator();
-        while (it.hasNext()) {
-            String challenge = it.next();
+        for (String challenge : challenges) {
             if (challenge.toLowerCase().startsWith("basic"))
                 return challenge;
         }

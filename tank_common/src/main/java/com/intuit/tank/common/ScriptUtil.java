@@ -233,9 +233,7 @@ public class ScriptUtil {
         } else if (step.getType().equalsIgnoreCase(ScriptConstants.VARIABLE)) {
             Set<RequestData> setData = step.getData();
             if (null != setData) {
-                Iterator<RequestData> iter = setData.iterator();
-                while (iter.hasNext()) {
-                    RequestData d = iter.next();
+                for (RequestData d : setData) {
                     label.append("Variable definition " + d.getKey() + "=>" + d.getValue());
                 }
             }
@@ -245,15 +243,17 @@ public class ScriptUtil {
                 String scheme = "ALL";
                 String host = "";
                 String user = "";
-                Iterator<RequestData> iter = setData.iterator();
-                while (iter.hasNext()) {
-                    RequestData d = iter.next();
-                    if (d.getKey().equals(ScriptConstants.AUTH_SCHEME)) {
-                        scheme = d.getValue();
-                    } else if (d.getKey().equals(ScriptConstants.AUTH_HOST)) {
-                        host = d.getValue();
-                    } else if (d.getKey().equals(ScriptConstants.AUTH_USER_NAME)) {
-                        user = d.getValue();
+                for (RequestData d : setData) {
+                    switch (d.getKey()) {
+                        case ScriptConstants.AUTH_SCHEME:
+                            scheme = d.getValue();
+                            break;
+                        case ScriptConstants.AUTH_HOST:
+                            host = d.getValue();
+                            break;
+                        case ScriptConstants.AUTH_USER_NAME:
+                            user = d.getValue();
+                            break;
                     }
                 }
                 label.append("Authentication " + scheme + " [host: " + host + " user: " + user + "]");
@@ -264,9 +264,7 @@ public class ScriptUtil {
             String max = "0";
             Set<RequestData> setData = step.getData();
             if (null != setData) {
-                Iterator<RequestData> iter = setData.iterator();
-                while (iter.hasNext()) {
-                    RequestData d = iter.next();
+                for (RequestData d : setData) {
                     if (d.getKey().contains("min"))
                         min = d.getValue();
                     else if (d.getKey().contains("max"))
@@ -290,14 +288,12 @@ public class ScriptUtil {
                 // domain = requestData.getValue();
                 // }
             }
-            label.append("Set Cookie: ").append(name).append(" = ").append(value).toString();
+            label.append("Set Cookie: ").append(name).append(" = ").append(value);
         } else if (step.getType().equalsIgnoreCase(ScriptConstants.SLEEP)) {
 
             Set<RequestData> setData = step.getData();
             if (null != setData) {
-                Iterator<RequestData> iter = setData.iterator();
-                while (iter.hasNext()) {
-                    RequestData d = iter.next();
+                for (RequestData d : setData) {
                     label.append("Sleep for " + d.getValue());
                 }
             }
@@ -405,9 +401,7 @@ public class ScriptUtil {
                 String max = "0";
                 Set<RequestData> setData = step.getData();
                 if (null != setData) {
-                    Iterator<RequestData> iter = setData.iterator();
-                    while (iter.hasNext()) {
-                        RequestData d = iter.next();
+                    for (RequestData d : setData) {
                         if (d.getKey().contains("min")) {
                             min = d.getValue();
                         } else if (d.getKey().contains("max")) {
@@ -427,9 +421,7 @@ public class ScriptUtil {
             } else if (step.getType().equalsIgnoreCase("sleep")) {
                 Set<RequestData> setData = step.getData();
                 if (null != setData) {
-                    Iterator<RequestData> iter = setData.iterator();
-                    while (iter.hasNext()) {
-                        RequestData d = iter.next();
+                    for (RequestData d : setData) {
                         if (d.getKey().equalsIgnoreCase("time")) {
                             String time = d.getValue();
                             if (ValidationUtil.isAnyVariable(time)) {

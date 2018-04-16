@@ -374,9 +374,8 @@ class ParserManager implements DocumentListener, ActionListener,
     public List getParserNotices() {
         List notices = new ArrayList();
         if (noticesToHighlights != null) {
-            Iterator i = noticesToHighlights.keySet().iterator();
-            while (i.hasNext()) {
-                ParserNotice notice = (ParserNotice) i.next();
+            for (Object o : noticesToHighlights.keySet()) {
+                ParserNotice notice = (ParserNotice) o;
                 notices.add(notice);
             }
         }

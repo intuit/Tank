@@ -419,10 +419,9 @@ public class TankHttpClient5 implements TankHttpClient {
     private void setHeaders(BaseRequest request, ClassicHttpRequest method, HashMap<String, String> headerInformation) {
         try {
             Set set = headerInformation.entrySet();
-            Iterator iter = set.iterator();
 
-            while (iter.hasNext()) {
-                Map.Entry mapEntry = (Map.Entry) iter.next();
+            for (Object aSet : set) {
+                Map.Entry mapEntry = (Map.Entry) aSet;
                 method.setHeader((String) mapEntry.getKey(), (String) mapEntry.getValue());
             }
         } catch (Exception ex) {
