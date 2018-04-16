@@ -16,7 +16,6 @@ package com.intuit.tank.common;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,12 +75,11 @@ public class ScriptUtil {
     }
 
     public static List<ScriptAssignment> getAssignments(ScriptStep step) {
-        List<ScriptAssignment> ret = new ArrayList<ScriptAssignment>();
         if (step.getType().equals("request")) {
-            ret = step.getResponseData().stream().filter(rd -> StringUtils.isNotBlank(rd.getKey())).filter(rd -> StringUtils.containsIgnoreCase(rd.getType(), "assignment")).map(rd -> new ScriptAssignment(rd.getKey().trim(), StringUtils.removeStart(
+            return step.getResponseData().stream().filter(rd -> StringUtils.isNotBlank(rd.getKey())).filter(rd -> StringUtils.containsIgnoreCase(rd.getType(), "assignment")).map(rd -> new ScriptAssignment(rd.getKey().trim(), StringUtils.removeStart(
                     StringUtils.trim(rd.getValue()), "="), step.getStepIndex())).collect(Collectors.toList());
         }
-        return ret;
+        return new ArrayList<ScriptAssignment>();
     }
 
     private static void addKeys(Map<String, String> ret, Set<RequestData> rds, String type) {
@@ -202,6 +200,7 @@ public class ScriptUtil {
 
     /**
      * @param step
+     * @return
      */
     private static String getSleepTimeComment(ScriptStep step) {
         String delay = null;
