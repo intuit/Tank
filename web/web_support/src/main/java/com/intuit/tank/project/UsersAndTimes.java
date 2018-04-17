@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ConversationScoped;
@@ -238,10 +239,7 @@ public class UsersAndTimes implements Serializable {
         jc.setTerminationPolicy(jobConfiguration.getTerminationPolicy());
         jc.setUserIntervalIncrement(jobConfiguration.getUserIntervalIncrement());
         jc.setVariables(jobConfiguration.getVariables());
-        Set<JobRegion> regions = new HashSet<JobRegion>();
-        for (JobRegion jr : jobConfiguration.getJobRegions()) {
-            regions.add(copyRegion(jr));
-        }
+        Set<JobRegion> regions = jobConfiguration.getJobRegions().stream().map(this::copyRegion).collect(Collectors.toSet());
         jc.setJobRegions(regions);
         jc.setParent(copyTo);
         copyTo.setJobConfiguration(jc);

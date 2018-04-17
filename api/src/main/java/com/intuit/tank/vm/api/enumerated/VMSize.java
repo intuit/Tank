@@ -22,6 +22,8 @@ package com.intuit.tank.vm.api.enumerated;
  * HighCPUExtraLarge				:  20 ECUs, 8 Cores, 7 GB
  */
 
+import java.util.Arrays;
+
 public enum VMSize {
     Micro("t1.micro"), // $0.020 / hour
     Small("m1.small"), // $0.080 / hour
@@ -53,11 +55,6 @@ public enum VMSize {
     }
 
     public static VMSize fromRepresentation(String representation) {
-        for (VMSize s : VMSize.values()) {
-            if (s.representation.equalsIgnoreCase(representation)) {
-                return s;
-            }
-        }
-        return null;
+        return Arrays.stream(VMSize.values()).filter(s -> s.representation.equalsIgnoreCase(representation)).findFirst().orElse(null);
     }
 }

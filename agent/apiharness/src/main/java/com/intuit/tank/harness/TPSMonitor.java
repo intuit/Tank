@@ -107,15 +107,11 @@ public class TPSMonitor {
     public void addToMap(final String loggingKey, final BaseRequest req) {
         if (isEnabled()) {
             // LOG.info("Adding request " + req.getTimeStamp());
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if (req != null && req.getTimeStamp() != null) {
-                        Date targetDate = TimeUtil.normalizeToPeriod(period, req.getTimeStamp());
-                        // LOG.info("Adding normalized " + targetDate);
-                        counters.add(new Counter(loggingKey, targetDate));
-                    }
-
+            new Thread( () -> {
+                if (req != null && req.getTimeStamp() != null) {
+                    Date targetDate = TimeUtil.normalizeToPeriod(period, req.getTimeStamp());
+                    // LOG.info("Adding normalized " + targetDate);
+                    counters.add(new Counter(loggingKey, targetDate));
                 }
             }).start();
         }

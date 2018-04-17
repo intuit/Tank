@@ -211,13 +211,7 @@ public class JobMaker implements Serializable {
     }
 
     private int getDefaultNumUsers(String type) {
-        int ret = -1;
-        for (VmInstanceType t : new TankConfig().getVmManagerConfig().getInstanceTypes()) {
-            if (t.getName().equals(type)) {
-                ret = t.getUsers();
-                break;
-            }
-        }
+        int ret = new TankConfig().getVmManagerConfig().getInstanceTypes().stream().filter(t -> t.getName().equals(type)).findFirst().map(VmInstanceType::getUsers).orElse(-1);
         return ret;
     }
 
@@ -417,10 +411,7 @@ public class JobMaker implements Serializable {
                 && proposedJobInstance.getSimulationTime() == 0) {
             return false;
         }
-        int userPercentage = 0;
-        for (TestPlan plan : projectBean.getWorkload().getTestPlans()) {
-            userPercentage += plan.getUserPercentage();
-        }
+        int userPercentage = projectBean.getWorkload().getTestPlans().stream().mapToInt(TestPlan::getUserPercentage).sum();
         if (userPercentage != 100) {
             return false;
         }

@@ -164,17 +164,14 @@ public class RSyntaxTextAreaHighlighter extends BasicHighlighter {
      */
     void clearParserHighlights() {
 
-        for (int i = 0; i < parserHighlights.size(); i++) {
-
-            Object tag = parserHighlights.get(i);
+        for (Object tag : parserHighlights) {
 
             if (tag instanceof LayeredHighlightInfo) {
                 LayeredHighlightInfo lhi = (LayeredHighlightInfo) tag;
                 if (lhi.width > 0 && lhi.height > 0) {
                     textArea.repaint(lhi.x, lhi.y, lhi.width, lhi.height);
                 }
-            }
-            else {
+            } else {
                 HighlightInfo info = (HighlightInfo) tag;
                 TextUI ui = textArea.getUI();
                 ui.damageRange(textArea, info.getStartOffset(), info.getEndOffset());
@@ -235,8 +232,8 @@ public class RSyntaxTextAreaHighlighter extends BasicHighlighter {
      */
     public List getMarkedOccurrences() {
         List list = new ArrayList(markedOccurrences.size());
-        for (Iterator i = markedOccurrences.iterator(); i.hasNext();) {
-            HighlightInfo info = (HighlightInfo) i.next();
+        for (Object markedOccurrence : markedOccurrences) {
+            HighlightInfo info = (HighlightInfo) markedOccurrence;
             int start = info.getStartOffset();
             int end = info.getEndOffset() + 1; // HACK
             DocumentRange range = new DocumentRangeImpl(start, end);

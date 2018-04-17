@@ -66,59 +66,57 @@ public class StandaloneAgentStartup implements Runnable {
     }
 
     public void startTest(final StandaloneAgentRequest request) {
-        Thread t = new Thread(new Runnable() {
-            public void run() {
+        Thread t = new Thread( () -> {
+            try {
+                currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.DELEGATING);
+                sendAvailability();
+                LOG.info("Starting up: ControllerBaseUrl=" + controllerBase);
+                URL url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SETTINGS);
+                LOG.info("Starting up: making call to tank service url to get settings.xml "
+                        + url.toExternalForm());
+                InputStream settingsStream = url.openStream();
                 try {
-                    currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.DELEGATING);
-                    sendAvailability();
-                    LOG.info("Starting up: ControllerBaseUrl=" + controllerBase);
-                    URL url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SETTINGS);
-                    LOG.info("Starting up: making call to tank service url to get settings.xml "
-                            + url.toExternalForm());
-                    InputStream settingsStream = url.openStream();
-                    try {
-                        String settings = IOUtils.toString(settingsStream, StandardCharsets.UTF_8);
-                        FileUtils.writeStringToFile(new File("settings.xml"), settings, StandardCharsets.UTF_8);
-                        LOG.info("got settings file...");
-                    } finally {
-                        IOUtils.closeQuietly(settingsStream);
-                    }
-                    url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
-                    LOG.info("Making call to tank service url to get support files " + url.toExternalForm());
-                    ZipInputStream zip = new ZipInputStream(url.openStream());
-                    try {
-                        ZipEntry entry = zip.getNextEntry();
-                        while (entry != null) {
-                            String name = entry.getName();
-                            LOG.info("Got file from controller: " + name);
-                            File f = new File(name);
-                            FileOutputStream fout = FileUtils.openOutputStream(f);
-                            try {
-                                IOUtils.copy(zip, fout);
-                            } finally {
-                                IOUtils.closeQuietly(fout);
-                            }
-                            entry = zip.getNextEntry();
-                        }
-                    } finally {
-                        IOUtils.closeQuietly(zip);
-                    }
-                    // now start the harness
-                    String cmd = API_HARNESS_COMMAND + " -http=" + controllerBase + " -jobId=" + request.getJobId()
-                            + " -stopBehavior=" + request.getStopBehavior();
-                    LOG.info("Starting apiharness with command: " + cmd);
-                    currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.RUNNING_JOB);
-                    sendAvailability();
-                    Process exec = Runtime.getRuntime().exec(cmd);
-                    exec.waitFor();
-                    currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.AVAILABLE);
-                    sendAvailability();
-                    //
-                } catch (Exception e) {
-                    LOG.error("Error in AgentStartup " + e, e);
-                    currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.AVAILABLE);
-                    sendAvailability();
+                    String settings = IOUtils.toString(settingsStream, StandardCharsets.UTF_8);
+                    FileUtils.writeStringToFile(new File("settings.xml"), settings, StandardCharsets.UTF_8);
+                    LOG.info("got settings file...");
+                } finally {
+                    IOUtils.closeQuietly(settingsStream);
                 }
+                url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
+                LOG.info("Making call to tank service url to get support files " + url.toExternalForm());
+                ZipInputStream zip = new ZipInputStream(url.openStream());
+                try {
+                    ZipEntry entry = zip.getNextEntry();
+                    while (entry != null) {
+                        String name = entry.getName();
+                        LOG.info("Got file from controller: " + name);
+                        File f = new File(name);
+                        FileOutputStream fout = FileUtils.openOutputStream(f);
+                        try {
+                            IOUtils.copy(zip, fout);
+                        } finally {
+                            IOUtils.closeQuietly(fout);
+                        }
+                        entry = zip.getNextEntry();
+                    }
+                } finally {
+                    IOUtils.closeQuietly(zip);
+                }
+                // now start the harness
+                String cmd = API_HARNESS_COMMAND + " -http=" + controllerBase + " -jobId=" + request.getJobId()
+                        + " -stopBehavior=" + request.getStopBehavior();
+                LOG.info("Starting apiharness with command: " + cmd);
+                currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.RUNNING_JOB);
+                sendAvailability();
+                Process exec = Runtime.getRuntime().exec(cmd);
+                exec.waitFor();
+                currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.AVAILABLE);
+                sendAvailability();
+                //
+            } catch (Exception e) {
+                LOG.error("Error in AgentStartup " + e, e);
+                currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.AVAILABLE);
+                sendAvailability();
             }
         });
         t.start();
@@ -139,19 +137,17 @@ public class StandaloneAgentStartup implements Runnable {
 
     private void startPinger() {
 
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                while (true) {
-                    try {
-                        sendAvailability();
-                    } catch (Exception e1) {
-                        LOG.warn("Error sending Availability: " + e1, e1);
-                    }
-                    try {
-                        Thread.sleep(PING_TIME);
-                    } catch (InterruptedException e) {
-                        LOG.warn("Interrupted during sleep.", e);
-                    }
+        Thread t = new Thread( () -> {
+            while (true) {
+                try {
+                    sendAvailability();
+                } catch (Exception e1) {
+                    LOG.warn("Error sending Availability: " + e1, e1);
+                }
+                try {
+                    Thread.sleep(PING_TIME);
+                } catch (InterruptedException e) {
+                    LOG.warn("Interrupted during sleep.", e);
                 }
             }
         });
@@ -171,8 +167,7 @@ public class StandaloneAgentStartup implements Runnable {
     public static void main(String[] args) {
         StandaloneAgentStartup agentStartup = new StandaloneAgentStartup();
 
-        for (int iter = 0; iter < args.length; ++iter) {
-            String argument = args[iter];
+        for (String argument : args) {
             String[] values = argument.split("=");
 
             if (values[0].equalsIgnoreCase("-controller")) {

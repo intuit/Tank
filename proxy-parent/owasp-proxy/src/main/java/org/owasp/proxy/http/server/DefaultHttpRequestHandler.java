@@ -42,19 +42,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 
     private ServerGroup serverGroup = null;
 
-    private ThreadLocal<HttpClient> client = new ThreadLocal<HttpClient>() {
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.ThreadLocal#initialValue()
-         */
-        @Override
-        protected HttpClient initialValue() {
-            return createClient();
-        }
-
-    };
+    private ThreadLocal<HttpClient> client = ThreadLocal.withInitial(this::createClient);
 
     public void setServerGroup(ServerGroup serverGroup) {
         this.serverGroup = serverGroup;

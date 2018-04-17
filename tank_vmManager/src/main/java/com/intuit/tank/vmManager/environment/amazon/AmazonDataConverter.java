@@ -18,6 +18,7 @@ package com.intuit.tank.vmManager.environment.amazon;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -88,14 +89,8 @@ public class AmazonDataConverter {
      * @return
      */
     public List<VMInformation> processReservation(Reservation reservation, VMRegion region) {
-        List<VMInformation> output = new ArrayList<VMInformation>();
         try {
-            for (Instance instance : reservation.getInstances()) {
-                VMInformation info = instanceToVmInformation(reservation, instance, region);
-                output.add(info);
-            }
-
-            return output;
+            return reservation.getInstances().stream().map(instance -> instanceToVmInformation(reservation, instance, region)).collect(Collectors.toList());
         } catch (Exception ex) {
             LOG.error(ex.getMessage());
             throw new RuntimeException(ex);

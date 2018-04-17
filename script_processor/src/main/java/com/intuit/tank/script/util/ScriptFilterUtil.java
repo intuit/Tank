@@ -159,9 +159,7 @@ public class ScriptFilterUtil {
             }
         }
         int reqCount = 0;
-        Iterator<Integer> itr = stepsToAdd.keySet().iterator();
-        while (itr.hasNext()) {
-            int index = itr.next();
+        for (Integer index : stepsToAdd.keySet()) {
             steps.add(index + reqCount, stepsToAdd.get(index));
             reqCount++;
         }
@@ -190,33 +188,13 @@ public class ScriptFilterUtil {
             Set<ScriptStep> stepsToDelete, ScriptFilterAction scriptFilterAction, ScriptStep step) {
 
         if (scriptFilterAction.getScope().equalsIgnoreCase(ReplaceActionScope.requestHeader.getValue())) {
-            for (RequestData qs : step.getRequestheaders()) {
-                if (qs.getKey().trim().equals(scriptFilterAction.getKey())) {
-                    qs.setValue(scriptFilterAction.getValue());
-                    break;
-                }
-            }
+            step.getRequestheaders().stream().filter(qs -> qs.getKey().trim().equals(scriptFilterAction.getKey())).findFirst().ifPresent(qs -> qs.setValue(scriptFilterAction.getValue()));
         } else if (scriptFilterAction.getScope().equalsIgnoreCase(ReplaceActionScope.requestCookie.getValue())) {
-            for (RequestData qs : step.getRequestCookies()) {
-                if (qs.getKey().trim().equals(scriptFilterAction.getKey())) {
-                    qs.setValue(scriptFilterAction.getValue());
-                    break;
-                }
-            }
+            step.getRequestCookies().stream().filter(qs -> qs.getKey().trim().equals(scriptFilterAction.getKey())).findFirst().ifPresent(qs -> qs.setValue(scriptFilterAction.getValue()));
         } else if (scriptFilterAction.getScope().equalsIgnoreCase(ReplaceActionScope.queryString.getValue())) {
-            for (RequestData qs : step.getQueryStrings()) {
-                if (qs.getKey().trim().equals(scriptFilterAction.getKey())) {
-                    qs.setValue(scriptFilterAction.getValue());
-                    break;
-                }
-            }
+            step.getQueryStrings().stream().filter(qs -> qs.getKey().trim().equals(scriptFilterAction.getKey())).findFirst().ifPresent(qs -> qs.setValue(scriptFilterAction.getValue()));
         } else if (scriptFilterAction.getScope().equalsIgnoreCase(ReplaceActionScope.postData.getValue())) {
-            for (RequestData pd : step.getPostDatas()) {
-                if (pd.getKey().trim().equals(scriptFilterAction.getKey())) {
-                    pd.setValue(scriptFilterAction.getValue());
-                    break;
-                }
-            }
+            step.getPostDatas().stream().filter(pd -> pd.getKey().trim().equals(scriptFilterAction.getKey())).findFirst().ifPresent(pd -> pd.setValue(scriptFilterAction.getValue()));
         } else if (scriptFilterAction.getScope().equalsIgnoreCase(ReplaceActionScope.validation.getValue())) {
             for (RequestData pd : step.getResponseData()) {
                 if (pd.getKey().trim().equals(scriptFilterAction.getKey())) {
@@ -467,11 +445,8 @@ public class ScriptFilterUtil {
         if (fields == null) {
             return false;
         }
-        for (RequestData field : fields) {
-            String filterField = field.getKey() + "=" + field.getValue();
-            if (matchContition(condition, filterField)) {
-                return true;
-            }
+        if (fields.stream().map(field -> field.getKey() + "=" + field.getValue()).anyMatch(filterField -> matchContition(condition, filterField))) {
+            return true;
         }
 
         if ((condition.getCondition().equals("Does not contain")) ||
@@ -483,26 +458,33 @@ public class ScriptFilterUtil {
     }
 
     private static boolean matchContition(ScriptFilterCondition condition, String filterField) {
-        if (condition.getCondition().equals("Contains")) {
-            if (filterField.contains(condition.getValue())) {
-                return true;
-            }
-        } else if (condition.getCondition().equals("Matches")) {
-            if (filterField.matches(condition.getValue())) {
-                return true;
-            }
-        } else if (condition.getCondition().equals("Does not contain")) {
-            if (filterField.contains(condition.getValue())) {
-                return false;
-            }
-        } else if (condition.getCondition().equals("Starts with")) {
-            if (filterField.startsWith(condition.getValue())) {
-                return true;
-            }
-        } else if (condition.getCondition().equals("Exist") || condition.getCondition().equals("Does not exist")) {
-            if (StringUtils.isNotBlank(filterField)) {
-                return true;
-            }
+        switch (condition.getCondition()) {
+            case "Contains":
+                if (filterField.contains(condition.getValue())) {
+                    return true;
+                }
+                break;
+            case "Matches":
+                if (filterField.matches(condition.getValue())) {
+                    return true;
+                }
+                break;
+            case "Does not contain":
+                if (filterField.contains(condition.getValue())) {
+                    return false;
+                }
+                break;
+            case "Starts with":
+                if (filterField.startsWith(condition.getValue())) {
+                    return true;
+                }
+                break;
+            case "Exist":
+            case "Does not exist":
+                if (StringUtils.isNotBlank(filterField)) {
+                    return true;
+                }
+                break;
         }
         return false;
     }

@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -180,13 +181,7 @@ public class VmManagerConfig implements Serializable {
      */
     @Nonnull
     public List<VMRegion> getConfiguredRegions() {
-        List<VMRegion> ret = new ArrayList<VMRegion>();
-        for (VMRegion r : regionMap.keySet()) {
-            if (getInstanceForRegionAndType(r, VMImageType.AGENT) != null) {
-                ret.add(r);
-            }
-        }
-        return ret;
+        return regionMap.keySet().stream().filter(r -> getInstanceForRegionAndType(r, VMImageType.AGENT) != null).collect(Collectors.toList());
     }
 
     /**

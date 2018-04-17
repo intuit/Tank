@@ -18,6 +18,7 @@ package com.intuit.tank.service.impl.v1.filter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -57,12 +58,10 @@ public class FilterServiceV1 implements FilterService {
     @Override
     public Response getFilterGroups() {
         ResponseBuilder response = Response.ok();
-        List<FilterGroupTO> ret = new ArrayList<FilterGroupTO>();
+        List<FilterGroupTO> ret;
         ScriptFilterGroupDao dao = new ScriptFilterGroupDao();
         List<ScriptFilterGroup> all = dao.findAll();
-        for (ScriptFilterGroup g : all) {
-            ret.add(FilterServiceUtil.filterGroupToTO(g));
-        }
+        ret = all.stream().map(FilterServiceUtil::filterGroupToTO).collect(Collectors.toList());
         response.entity(new FilterGroupContainer(ret));
         return response.build();
     }

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
@@ -45,12 +46,7 @@ public class ProjectVariableEditor implements Serializable {
     private VariableEntry currentEntry;
 
     public void savedVariable(VariableEntry variable) {
-        List<VariableEntry> toRemove = new ArrayList<VariableEntry>();
-        for (VariableEntry var : variables) {
-            if (var != variable && var.getKey().equals(variable.getKey())) {
-                toRemove.add(var);
-            }
-        }
+        List<VariableEntry> toRemove = variables.stream().filter(var -> var != variable && var.getKey().equals(variable.getKey())).collect(Collectors.toList());
         variables.removeAll(toRemove);
     }
 
@@ -146,13 +142,7 @@ public class ProjectVariableEditor implements Serializable {
         if (key != null) {
             // only remove on save
             // projectBean.getWorkload().getJobConfiguration().getVariables().remove(key);
-            VariableEntry toRemove = null;
-            for (VariableEntry entry : variables) {
-                if (entry.getKey().equals(key)) {
-                    toRemove = entry;
-                    break;
-                }
-            }
+            VariableEntry toRemove = variables.stream().filter(entry -> entry.getKey().equals(key)).findFirst().orElse(null);
             if (toRemove != null) {
                 variables.remove(toRemove);
             }

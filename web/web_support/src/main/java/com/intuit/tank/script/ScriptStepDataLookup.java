@@ -24,16 +24,17 @@ import com.intuit.tank.script.ScriptConstants;
 public class ScriptStepDataLookup {
 
     public static String getData(ScriptStep scriptStep) {
-        if (scriptStep.getType().equals(ScriptConstants.THINK_TIME)) {
-            return getThinkTimeRepresentation(scriptStep.getData());
-        } else if (scriptStep.getType().equals(ScriptConstants.SLEEP)) {
-            return getSleepTimeRepresentation(scriptStep.getData());
-        } else if (scriptStep.getType().equals(ScriptConstants.VARIABLE)) {
-            return getVariableRepresentation(scriptStep.getData());
-        } else if (scriptStep.getType().equals(ScriptConstants.REQUEST)) {
-            return getRequestRepresentation(scriptStep);
-        } else {
-            throw new NotImplementedException("Request representation is not implemented.");
+        switch (scriptStep.getType()) {
+            case ScriptConstants.THINK_TIME:
+                return getThinkTimeRepresentation(scriptStep.getData());
+            case ScriptConstants.SLEEP:
+                return getSleepTimeRepresentation(scriptStep.getData());
+            case ScriptConstants.VARIABLE:
+                return getVariableRepresentation(scriptStep.getData());
+            case ScriptConstants.REQUEST:
+                return getRequestRepresentation(scriptStep);
+            default:
+                throw new NotImplementedException("Request representation is not implemented.");
         }
     }
 

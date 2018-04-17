@@ -55,14 +55,11 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
 
     private static final Logger LOG = LogManager.getLogger(BaseDao.class);
 
-    private static final ThreadLocalEntityManagerProvider emProvider = new ThreadLocalEntityManagerProvider();
+    private static final ThreadLocal<TransactionContainer> emProvider = ThreadLocal.withInitial(TransactionContainer::new);
 
     private Class<T_ENTITY> entityClass;
     private boolean reloadEntities;
 
-    /**
-     * @param entityClass
-     */
     @SuppressWarnings("unchecked")
     protected BaseDao() {
         // entity ManagerFactory = Persistence.createEntityManagerFactory("wats");
@@ -132,7 +129,6 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
             LOG.warn("No result for revision " + revisionNumber + " with id of " + id);
         } finally {
             cleanup();
-
         }
         return result;
     }
@@ -279,7 +275,6 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
 
     public void delete(@Nonnull T_ENTITY entity) throws HibernateException {
         delete(entity.getId());
-
     }
 
     /**
@@ -319,9 +314,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     public List<T_ENTITY> findForIds(@Nonnull List<Integer> ids) {
         String prefix = "x";
         NamedParameter parameter = new NamedParameter(BaseEntity.PROPERTY_ID, "id", ids);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere()).append(buildWhereClause(Operation.IN, prefix, parameter));
-        return listWithJQL(sb.toString(), parameter);
+        return listWithJQL(buildQlSelect(prefix) + startWhere() + buildWhereClause(Operation.IN, prefix, parameter), parameter);
     }
 
     /**
@@ -453,8 +446,8 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     }
 
     protected String buildQlSelect(String prefix) {
-        return new StringBuilder().append("SELECT ").append(prefix).append(" FROM ").append(entityClass.getName())
-                .append(" AS ").append(prefix).append(" ").toString();
+        return "SELECT " + prefix + " FROM " + entityClass.getName() +
+                " AS " + prefix + " ";
     }
 
     protected String buildWhereClause(Operation op, String prefix, NamedParameter param) {
@@ -496,8 +489,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
      * @return the session
      */
     protected Session getHibernateSession() {
-        Session s = (Session) getEntityManager().getDelegate();
-        return s;
+        return (Session) getEntityManager().getDelegate();
     }
 
     /**
@@ -508,13 +500,6 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     protected EntityManager getEntityManager() {
         return emProvider.get().getEntityManager();
 
-    }
-
-    /**
-     * @return the emProvider
-     */
-    protected ThreadLocalEntityManagerProvider getEmProvider() {
-        return emProvider;
     }
 
     protected void begin() {
@@ -533,10 +518,4 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
         emProvider.get().cleanup(this);
     }
 
-    public static class ThreadLocalEntityManagerProvider extends ThreadLocal<TransactionContainer> {
-        public TransactionContainer initialValue() {
-            return new TransactionContainer();
-
-        }
-    }
 }

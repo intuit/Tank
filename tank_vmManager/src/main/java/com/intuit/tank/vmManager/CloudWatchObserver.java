@@ -92,28 +92,25 @@ public class CloudWatchObserver {
      * @param not
      */
     private void addWatches(final JobInstance job, final JobNotification not) {
-        new Thread(new Runnable() {
-            public void run() {
-                String jobId = Integer.toString(job.getId());
-                CloudVmStatusContainer vmStatusForJob = vmTracker.getVmStatusForJob(jobId);
-                Set<CloudVmStatus> statuses = vmStatusForJob.getStatuses();
-                Map<VMRegion, Set<String>> instanceMap = new HashMap<VMRegion, Set<String>>();
-                for (CloudVmStatus s : statuses) {
-                    s.getVmRegion();
-                    Set<String> set = instanceMap.get(s.getVmRegion());
-                    if (set == null) {
-                        set = new HashSet<String>();
-                        instanceMap.put(s.getVmRegion(), set);
-                    }
-                    set.add(s.getInstanceId());
+        new Thread( () -> {
+            String jobId = Integer.toString(job.getId());
+            CloudVmStatusContainer vmStatusForJob = vmTracker.getVmStatusForJob(jobId);
+            Set<CloudVmStatus> statuses = vmStatusForJob.getStatuses();
+            Map<VMRegion, Set<String>> instanceMap = new HashMap<VMRegion, Set<String>>();
+            for (CloudVmStatus s : statuses) {
+                Set<String> set = instanceMap.get(s.getVmRegion());
+                if (set == null) {
+                    set = new HashSet<String>();
+                    instanceMap.put(s.getVmRegion(), set);
                 }
-                for (Entry<VMRegion, Set<String>> entry : instanceMap.entrySet()) {
-                    CloudwatchInstance cwInstance = new CloudwatchInstance(entry.getKey());
-                    for (Recipient recip : not.getRecipients()) {
-                        if (recip.getType() == RecipientType.email) {
-                            String email = recip.getAddress();
-                            cwInstance.addWatch(entry.getValue(), email, jobId);
-                        }
+                set.add(s.getInstanceId());
+            }
+            for (Entry<VMRegion, Set<String>> entry : instanceMap.entrySet()) {
+                CloudwatchInstance cwInstance = new CloudwatchInstance(entry.getKey());
+                for (Recipient recip : not.getRecipients()) {
+                    if (recip.getType() == RecipientType.email) {
+                        String email = recip.getAddress();
+                        cwInstance.addWatch(entry.getValue(), email, jobId);
                     }
                 }
             }
@@ -126,27 +123,25 @@ public class CloudWatchObserver {
      * @param not
      */
     private void removeWatches(final JobInstance job, final JobNotification not) {
-        new Thread(new Runnable() {
-            public void run() {
-                String jobId = Integer.toString(job.getId());
-                CloudVmStatusContainer vmStatusForJob = vmTracker.getVmStatusForJob(jobId);
-                Set<CloudVmStatus> statuses = vmStatusForJob.getStatuses();
-                Map<VMRegion, Set<String>> instanceMap = new HashMap<VMRegion, Set<String>>();
-                for (CloudVmStatus s : statuses) {
-                    Set<String> set = instanceMap.get(s.getVmRegion());
-                    if (set == null) {
-                        set = new HashSet<String>();
-                        instanceMap.put(s.getVmRegion(), set);
-                    }
-                    set.add(s.getInstanceId());
+        new Thread( () -> {
+            String jobId = Integer.toString(job.getId());
+            CloudVmStatusContainer vmStatusForJob = vmTracker.getVmStatusForJob(jobId);
+            Set<CloudVmStatus> statuses = vmStatusForJob.getStatuses();
+            Map<VMRegion, Set<String>> instanceMap = new HashMap<VMRegion, Set<String>>();
+            for (CloudVmStatus s : statuses) {
+                Set<String> set = instanceMap.get(s.getVmRegion());
+                if (set == null) {
+                    set = new HashSet<String>();
+                    instanceMap.put(s.getVmRegion(), set);
                 }
-                for (VMRegion vmRegion : instanceMap.keySet()) {
-                    CloudwatchInstance cwInstance = new CloudwatchInstance(vmRegion);
-                    for (Recipient recip : not.getRecipients()) {
-                        if (recip.getType() == RecipientType.email) {
-                            String email = recip.getAddress();
-                            cwInstance.removeWatch(email, jobId);
-                        }
+                set.add(s.getInstanceId());
+            }
+            for (VMRegion vmRegion : instanceMap.keySet()) {
+                CloudwatchInstance cwInstance = new CloudwatchInstance(vmRegion);
+                for (Recipient recip : not.getRecipients()) {
+                    if (recip.getType() == RecipientType.email) {
+                        String email = recip.getAddress();
+                        cwInstance.removeWatch(email, jobId);
                     }
                 }
             }

@@ -29,6 +29,8 @@ import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Generates RTF text via a simple Java API.
@@ -329,24 +331,9 @@ public class RtfGenerator {
     }
 
     private String getColorTableRtf() {
-
         // Example:
         // "{\\colortbl ;\\red255\\green0\\blue0;\\red0\\green0\\blue255; }"
-
-        StringBuffer sb = new StringBuffer();
-
-        sb.append("{\\colortbl ;");
-        for (int i = 0; i < colorList.size(); i++) {
-            Color c = (Color) colorList.get(i);
-            sb.append("\\red").append(c.getRed());
-            sb.append("\\green").append(c.getGreen());
-            sb.append("\\blue").append(c.getBlue());
-            sb.append(';');
-        }
-        sb.append("}");
-
-        return sb.toString();
-
+        return IntStream.range(0, colorList.size()).mapToObj(i -> (Color) colorList.get(i)).map(c -> "\\red" + c.getRed() + "\\green" + c.getGreen() + "\\blue" + c.getBlue() + ';').collect(Collectors.joining("", "{\\colortbl ;", "}"));
     }
 
     /**
@@ -379,14 +366,12 @@ public class RtfGenerator {
         // Example:
         // "{\\fonttbl{\\f0\\fmodern\\fcharset0 Courier;}}"
 
-        StringBuffer sb = new StringBuffer();
-
         // Workaround for text areas using the Java logical font "Monospaced"
         // by default. There's no way to know what it's mapped to, so we
         // just search for a monospaced font on the system.
         String monoFamilyName = getMonospacedFontName();
 
-        sb.append("{\\fonttbl{\\f0\\fnil\\fcharset0 " + monoFamilyName + ";}");
+        StringBuilder sb = new StringBuilder("{\\fonttbl{\\f0\\fnil\\fcharset0 " + monoFamilyName + ";}");
         for (int i = 0; i < fontList.size(); i++) {
             Font f = (Font) fontList.get(i);
             String familyName = f.getFamily();

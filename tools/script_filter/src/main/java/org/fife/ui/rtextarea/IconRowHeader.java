@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
@@ -179,12 +181,7 @@ class IconRowHeader extends AbstractGutterComponent implements MouseListener {
         List retVal = new ArrayList(1);
 
         if (trackingIcons != null) {
-            for (int i = 0; i < trackingIcons.size(); i++) {
-                GutterIconImpl ti = getTrackingIcon(i);
-                if (ti.getIcon() == bookmarkIcon) {
-                    retVal.add(ti);
-                }
-            }
+            retVal = IntStream.range(0, trackingIcons.size()).mapToObj(this::getTrackingIcon).filter(ti -> ti.getIcon() == bookmarkIcon).collect(Collectors.toCollection(() -> new ArrayList(1)));
         }
 
         GutterIconInfo[] array = new GutterIconInfo[retVal.size()];
@@ -653,9 +650,9 @@ class IconRowHeader extends AbstractGutterComponent implements MouseListener {
         }
 
         boolean found = false;
-        for (int i = 0; i < icons.length; i++) {
-            if (icons[i].getIcon() == bookmarkIcon) {
-                removeTrackingIcon(icons[i]);
+        for (GutterIconImpl icon : icons) {
+            if (icon.getIcon() == bookmarkIcon) {
+                removeTrackingIcon(icon);
                 found = true;
                 // Don't quit, in case they manipulate the document so > 1
                 // bookmark is on a single line (kind of flaky, but it

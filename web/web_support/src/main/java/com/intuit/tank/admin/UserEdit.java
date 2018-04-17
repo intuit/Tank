@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.Conversation;
 import javax.enterprise.context.ConversationScoped;
@@ -134,10 +135,7 @@ public class UserEdit implements Serializable {
             }
         }
 
-        List<SelectItem> ret = new ArrayList<SelectItem>();
-        for (Group g : groups) {
-            ret.add(new SelectItem(g.getName()));
-        }
+        List<SelectItem> ret = groups.stream().map(g -> new SelectItem(g.getName())).collect(Collectors.toList());
     }
 
     /**

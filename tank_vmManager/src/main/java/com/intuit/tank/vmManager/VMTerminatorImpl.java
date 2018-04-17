@@ -57,16 +57,13 @@ public class VMTerminatorImpl implements VMTerminator {
         if (!vmTracker.isDevMode()) {
             final List<String> finalList = new ArrayList<String>();
             finalList.add(instanceId);
-            queue.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(WAIT_TIME);
-                    } catch (InterruptedException e) {
-                        LOG.error("Thread interrupted. trying to send mesage to kill vm.");
-                    }
-                    channel.terminateInstances(finalList);
+            queue.execute( () -> {
+                try {
+                    Thread.sleep(WAIT_TIME);
+                } catch (InterruptedException e) {
+                    LOG.error("Thread interrupted. trying to send mesage to kill vm.");
                 }
+                channel.terminateInstances(finalList);
             });
         }
     }

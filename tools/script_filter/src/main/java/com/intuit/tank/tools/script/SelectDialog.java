@@ -52,16 +52,15 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
     private SELECTION_TYPE selectedObject;
 
     /**
-     * @param arg0
+     * @param f
+     * @param externalScripts
      */
     public SelectDialog(Frame f, List<SELECTION_TYPE> externalScripts) {
         super(f, true);
         setLayout(new BorderLayout());
         list = new JList(externalScripts.toArray());
-        list.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                okBT.setEnabled(list.getSelectedIndex() != -1);
-            }
+        list.addListSelectionListener( (ListSelectionEvent e) -> {
+            okBT.setEnabled(list.getSelectedIndex() != -1);
         });
         list.addMouseListener(new MouseAdapter() {
 
@@ -111,17 +110,12 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
     private Component createButtonPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
         JButton cancelBT = new JButton("Cancel");
-        cancelBT.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                setVisible(false);
-            }
+        cancelBT.addActionListener( (ActionEvent arg0) -> {
+            setVisible(false);
         });
         okBT = new JButton("Ok");
-        okBT.addActionListener(new ActionListener() {
-            @SuppressWarnings("unchecked")
-            public void actionPerformed(ActionEvent arg0) {
-                select();
-            }
+        okBT.addActionListener( (ActionEvent arg0) -> {
+            select();
         });
 
         panel.add(okBT);

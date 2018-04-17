@@ -20,12 +20,13 @@ public enum VMProvider implements Serializable {
     Pharos;
 
     public static VMProvider getProvider(String providerString) {
-        if (providerString.equals("Amazon")) {
-            return Amazon;
-        } else if (providerString.equals("Pharos")) {
-            return Pharos;
-        } else {
-            throw new IllegalArgumentException("Unknown provider type: " + providerString);
+        switch (providerString) {
+            case "Amazon":
+                return Amazon;
+            case "Pharos":
+                return Pharos;
+            default:
+                throw new IllegalArgumentException("Unknown provider type: " + providerString);
         }
     }
 }

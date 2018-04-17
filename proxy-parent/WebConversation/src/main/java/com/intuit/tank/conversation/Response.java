@@ -77,7 +77,7 @@ public class Response {
     }
 
     /**
-     * @param headers
+     * @param header
      *            the headers to set
      */
     public void addHeader(@Nonnull Header header) {
@@ -85,8 +85,8 @@ public class Response {
     }
 
     /**
-     * @param headers
-     *            the headers to set
+     * @param key
+     * @param value
      */
     public void addHeader(@Nonnull String key, @Nonnull String value) {
         this.headers.add(new Header(key, value));
@@ -124,14 +124,7 @@ public class Response {
     }
 
     public String extractContentType() {
-        String value = "";
-        for (Header header : headers) {
-            if (header.getKey().equalsIgnoreCase("content-type")) {
-                value = header.getValue();
-                break;
-            }
-        }
-        return value;
+        return headers.stream().filter(header -> header.getKey().equalsIgnoreCase("content-type")).findFirst().map(Header::getValue).orElse("");
     }
 
 }

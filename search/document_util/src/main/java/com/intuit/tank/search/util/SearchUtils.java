@@ -16,6 +16,8 @@ package com.intuit.tank.search.util;
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.lucene.search.BooleanQuery;
@@ -47,11 +49,8 @@ public class SearchUtils {
         private final DecimalFormat format;
 
         Padding(int numPlaces) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < numPlaces; i++) {
-                sb.append('0');
-            }
-            format = new DecimalFormat(sb.toString());
+            String sb = IntStream.range(0, numPlaces).mapToObj(i -> "0").collect(Collectors.joining());
+            format = new DecimalFormat(sb);
         }
 
         /**

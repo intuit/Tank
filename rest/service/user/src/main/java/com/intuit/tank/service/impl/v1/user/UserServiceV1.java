@@ -18,6 +18,7 @@ package com.intuit.tank.service.impl.v1.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
@@ -55,11 +56,9 @@ public class UserServiceV1 implements UserService {
     public Response getAllUsers() {
         ResponseBuilder responseBuilder = Response.ok();
         try {
-            List<User> users = new ArrayList<User>();
+            List<User> users;
             List<com.intuit.tank.project.User> findAll = new UserDao().findAll();
-            for (com.intuit.tank.project.User u : findAll) {
-                users.add(UserServiceUtil.userToTransferObject(u));
-            }
+            users = findAll.stream().map(UserServiceUtil::userToTransferObject).collect(Collectors.toList());
             UserContainer container = new UserContainer(users);
             responseBuilder.entity(container);
         } catch (Exception e) {

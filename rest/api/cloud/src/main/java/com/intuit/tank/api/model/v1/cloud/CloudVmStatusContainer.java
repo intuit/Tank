@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -107,7 +108,7 @@ public class CloudVmStatusContainer implements Serializable, Comparable<CloudVmS
     }
 
     public void calculateUserDetails() {
-        List<UserDetail> details = new ArrayList<UserDetail>();
+        List<UserDetail> details;
         Map<String, Integer> map = new HashMap<String, Integer>();
         for (CloudVmStatus status : statuses) {
             for (UserDetail detail : status.getUserDetails()) {
@@ -118,10 +119,7 @@ public class CloudVmStatusContainer implements Serializable, Comparable<CloudVmS
                 map.put(detail.getScript(), val + detail.getUsers());
             }
         }
-        for (Entry<String, Integer> entry : map.entrySet()) {
-            details.add(new UserDetail(entry.getKey(), entry.getValue()));
-        }
-        Collections.sort(details);
+        details = map.entrySet().stream().map(entry -> new UserDetail(entry.getKey(), entry.getValue())).sorted().collect(Collectors.toList());
         userDetails = details;
         detailMap.put(TimeUtil.normalizeToPeriod(15, new Date()), details);
     }

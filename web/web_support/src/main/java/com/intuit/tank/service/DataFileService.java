@@ -51,7 +51,7 @@ public class DataFileService implements Serializable {
      */
     public List<DataFile> getDataFiles() {
         List<DataFile> files = dao.findAll();
-        Collections.sort(files, new PropertyComparer<DataFile>("fileName",
+        files.sort(new PropertyComparer<DataFile>("fileName",
                 SortOrder.ASCENDING));
         return files;
     }

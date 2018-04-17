@@ -224,8 +224,7 @@ public class InfiniteProgressPanel extends JComponent implements MouseListener {
 
             while (!Thread.interrupted()) {
                 if (!inRamp) {
-                    for (int i = 0; i < ticker.length; i++)
-                        ticker[i].transform(toCircle);
+                    for (Area aTicker : ticker) aTicker.transform(toCircle);
                 }
 
                 repaint();

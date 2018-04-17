@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
@@ -65,12 +66,7 @@ public class AggregatorEditor implements Serializable {
     public void editAggregator(ScriptStep step) {
         this.step = step;
         this.editMode = true;
-        for (RequestData requestData : step.getData()) {
-            if (requestData.getKey().equalsIgnoreCase(ScriptConstants.LOGGING_KEY)) {
-                aggregatorName = requestData.getValue();
-                break;
-            }
-        }
+        aggregatorName = step.getData().stream().filter(requestData -> requestData.getKey().equalsIgnoreCase(ScriptConstants.LOGGING_KEY)).findFirst().map(RequestData::getValue).orElseGet(() -> aggregatorName);
         buttonLabel = EDIT_LABEL;
     }
 
@@ -92,14 +88,7 @@ public class AggregatorEditor implements Serializable {
     }
 
     public boolean isStart(ScriptStep step) {
-        boolean ret = false;
-        for (RequestData rd : step.getData()) {
-            if (rd.getKey().equals(ScriptConstants.IS_START) && rd.getValue().equals(TimerAction.START.name())) {
-                ret = true;
-                break;
-            }
-        }
-        return ret;
+        return step.getData().stream().anyMatch(rd -> rd.getKey().equals(ScriptConstants.IS_START) && rd.getValue().equals(TimerAction.START.name()));
     }
 
     public void checkFixOrder(ScriptStep step) {
@@ -147,15 +136,7 @@ public class AggregatorEditor implements Serializable {
      * @return
      */
     private RequestData getRequestDataWithKey(ScriptStep step, String key) {
-        RequestData ret = null;
-        for (RequestData rd : step.getData()) {
-            if (rd.getKey().equalsIgnoreCase(key)) {
-                ret = rd;
-                break;
-            }
-
-        }
-        return ret;
+        return step.getData().stream().filter(rd -> rd.getKey().equalsIgnoreCase(key)).findFirst().orElse(null);
     }
 
     /**
@@ -176,21 +157,10 @@ public class AggregatorEditor implements Serializable {
      * @return
      */
     public ScriptStep getAggregatorPair(ScriptStep step) {
-        ScriptStep ret = null;
-        String pairId = null;
-        for (RequestData rd : step.getData()) {
-            if (rd.getKey().equals(ScriptConstants.AGGREGATOR_PAIR)) {
-                pairId = rd.getValue();
-                break;
-            }
-        }
+        ScriptStep ret;
+        String pairId = step.getData().stream().filter(rd -> rd.getKey().equals(ScriptConstants.AGGREGATOR_PAIR)).findFirst().map(RequestData::getValue).orElse(null);
 
-        for (ScriptStep tempStep : scriptEditor.getSteps()) {
-            if (tempStep.getUuid().equals(pairId)) {
-                ret = tempStep;
-                break;
-            }
-        }
+        ret = scriptEditor.getSteps().stream().filter(tempStep -> tempStep.getUuid().equals(pairId)).findFirst().orElse(null);
         return ret;
     }
 
@@ -314,12 +284,7 @@ public class AggregatorEditor implements Serializable {
             // Check if steps are contiguous and also if they contain another
             // agregator
             int index = selectedSteps.get(0).getStepIndex();
-            for (int i = 0; i < selectedSteps.size(); i++) {
-                if (selectedSteps.get(i).getStepIndex() != (i + index)) {
-                    ret = false;
-                    break;
-                }
-            }
+            ret = IntStream.range(0, selectedSteps.size()).noneMatch(i -> selectedSteps.get(i).getStepIndex() != (i + index));
 
             // confirm that this selection does not already have an aggregator
             // pair around it
@@ -348,12 +313,7 @@ public class AggregatorEditor implements Serializable {
         boolean ret = false;
         if (ScriptConstants.TIMER.equals(step.getType())) {
             Set<RequestData> set = step.getData();
-            for (RequestData rd : set) {
-                if (ScriptConstants.LOGGING_KEY.equals(rd.getKey())) {
-                    ret = true;
-                    break;
-                }
-            }
+            ret = set.stream().anyMatch(rd -> ScriptConstants.LOGGING_KEY.equals(rd.getKey()));
         }
 
         return ret;

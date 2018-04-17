@@ -80,11 +80,6 @@ public class SelectionTracker<T> implements Serializable {
      */
     public boolean hasSelected() {
         List<SelectableWrapper<T>> list = selectable.getSelectionList();
-        for (SelectableWrapper<T> wrapper : list) {
-            if (wrapper.isSelected()) {
-                return true;
-            }
-        }
-        return false;
+        return list.stream().anyMatch(SelectableWrapper::isSelected);
     }
 }

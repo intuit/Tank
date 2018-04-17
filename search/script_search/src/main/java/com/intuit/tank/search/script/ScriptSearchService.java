@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -62,14 +63,19 @@ public class ScriptSearchService {
                     Field.Index.NOT_ANALYZED);
             addField(document, ScriptSearchField.uuid, String.valueOf(steps.getUuid()), Field.Store.YES,
                     Field.Index.NO);
-            if (steps.getType().equals("request")) {
-                updateRequestDocument(steps, sb, document);
-            } else if (steps.getType().equals("sleep")) {
-                updateSleepTimeDocument(steps, sb, document);
-            } else if (steps.getType().equals("thinkTime")) {
-                updateThinkTimeDocument(steps, sb, document);
-            } else if (steps.getType().equals("variable")) {
-                updateVariableDocument(steps, sb, document);
+            switch (steps.getType()) {
+                case "request":
+                    updateRequestDocument(steps, sb, document);
+                    break;
+                case "sleep":
+                    updateSleepTimeDocument(steps, sb, document);
+                    break;
+                case "thinkTime":
+                    updateThinkTimeDocument(steps, sb, document);
+                    break;
+                case "variable":
+                    updateVariableDocument(steps, sb, document);
+                    break;
             }
             documents.add(document);
         }
@@ -305,12 +311,7 @@ public class ScriptSearchService {
     }
 
     private Set<String> convertDocumentList(List<Document> search) {
-        Set<String> uuidList = new HashSet<String>();
-        for (Document document : search) {
-            String uuid = document.get(ScriptSearchField.uuid.getValue());
-            uuidList.add(uuid);
-        }
-        return uuidList;
+        return search.stream().map(document -> document.get(ScriptSearchField.uuid.getValue())).collect(Collectors.toSet());
     }
 
 }

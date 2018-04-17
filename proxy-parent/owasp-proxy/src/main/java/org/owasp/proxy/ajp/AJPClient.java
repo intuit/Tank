@@ -256,8 +256,8 @@ public class AJPClient {
         if (headers == null)
             headers = new NamedValue[0];
         message.appendInt(headers.length);
-        for (int i = 0; i < headers.length; i++) {
-            appendRequestHeader(message, headers[i]);
+        for (NamedValue header : headers) {
+            appendRequestHeader(message, header);
         }
 
         appendRequestAttribute(message, AJPConstants.SC_A_CONTEXT, properties
@@ -327,9 +327,7 @@ public class AJPClient {
             Map<String, String> values) {
         if (values == null || values.size() == 0)
             return;
-        Iterator<Entry<String, String>> it = values.entrySet().iterator();
-        while (it.hasNext()) {
-            Entry<String, String> entry = it.next();
+        for (Entry<String, String> entry : values.entrySet()) {
             message.appendByte(AJPConstants.SC_A_REQ_ATTRIBUTE);
             message.appendString(entry.getKey());
             message.appendString(entry.getValue());

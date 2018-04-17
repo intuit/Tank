@@ -13,6 +13,8 @@ package com.intuit.tank.vm.api.enumerated;
  * #L%
  */
 
+import java.util.Arrays;
+
 /**
  * represents a geographic data center that the vm will run in.
  * 
@@ -62,12 +64,7 @@ public enum VMRegion {
      * @return
      */
     public static VMRegion getRegionFromZone(String zone) {
-        for (VMRegion vmr : VMRegion.values()) {
-            if (zone.toLowerCase().startsWith(vmr.region.toLowerCase())) {
-                return vmr;
-            }
-        }
-        return VMRegion.US_EAST;
+        return Arrays.stream(VMRegion.values()).filter(vmr -> zone.toLowerCase().startsWith(vmr.region.toLowerCase())).findFirst().orElse(VMRegion.US_EAST);
     }
 
     /**

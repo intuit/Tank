@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.swing.table.DefaultTableModel;
 
@@ -170,13 +171,7 @@ public class TransactionTableModel extends DefaultTableModel {
      * @return
      */
     public List<Transaction> getAllTransactions() {
-        List<Transaction> ret = new ArrayList<Transaction>(dataList.size());
-        for (Transaction t : dataList) {
-            if (t != NULL_TRANSACTION) {
-                ret.add(t);
-            }
-        }
-        return ret;
+        return dataList.stream().filter(t -> t != NULL_TRANSACTION).collect(Collectors.toCollection(() -> new ArrayList<>(dataList.size())));
     }
 
     /**

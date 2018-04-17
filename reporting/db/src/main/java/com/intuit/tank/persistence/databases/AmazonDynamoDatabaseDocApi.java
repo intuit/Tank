@@ -25,6 +25,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -228,14 +229,9 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
             Runnable task = new Runnable() {
                 public void run() {
                     MethodTimer mt = new MethodTimer(logger, this.getClass(), "addTimingResults (" + results + ")");
-                    List<WriteRequest> requests = new ArrayList<WriteRequest>();
+                    List<WriteRequest> requests;
                     try {
-                        for (TankResult result : results) {
-                            Map<String, AttributeValue> item = getTimingAttributes(result);
-                            PutRequest putRequest = new PutRequest().withItem(item);
-                            WriteRequest writeRequest = new WriteRequest().withPutRequest(putRequest);
-                            requests.add(writeRequest);
-                        }
+                        requests = results.stream().map(result -> getTimingAttributes(result)).map(item -> new PutRequest().withItem(item)).map(putRequest -> new WriteRequest().withPutRequest(putRequest)).collect(Collectors.toList());
                         sendBatch(tableName, requests);
                     } catch (Exception t) {
                         logger.error("Error adding results: " + t.getMessage(), t);
@@ -281,7 +277,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     @Override
     public PagedDatabaseResult getPagedItems(String tableName, Object nextToken, String minRange,
             String maxRange, String instanceId, String jobId) {
-        List<Item> ret = new ArrayList<Item>();
+        List<Item> ret;
         Map<String, AttributeValue> lastKeyEvaluated = (Map<String, AttributeValue>) nextToken;
         ScanRequest scanRequest = new ScanRequest().withTableName(tableName);
         Map<String, Condition> conditions = new HashMap<String, Condition>();
@@ -321,9 +317,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
         scanRequest.withExclusiveStartKey(lastKeyEvaluated);
 
         ScanResult result = dynamoDb.scan(scanRequest);
-        for (Map<String, AttributeValue> item : result.getItems()) {
-            ret.add(getItemFromResult(item));
-        }
+        ret = result.getItems().stream().map(this::getItemFromResult).collect(Collectors.toList());
         return new PagedDatabaseResult(ret, result.getLastEvaluatedKey());
     }
 
@@ -357,14 +351,9 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
             Runnable task = new Runnable() {
                 public void run() {
                     MethodTimer mt = new MethodTimer(logger, this.getClass(), "addItems (" + items + ")");
-                    List<WriteRequest> requests = new ArrayList<WriteRequest>();
+                    List<WriteRequest> requests;
                     try {
-                        for (Item item : items) {
-                            Map<String, AttributeValue> toInsert = itemToMap(item);
-                            PutRequest putRequest = new PutRequest().withItem(toInsert);
-                            WriteRequest writeRequest = new WriteRequest().withPutRequest(putRequest);
-                            requests.add(writeRequest);
-                        }
+                        requests = items.stream().map(item -> itemToMap(item)).map(toInsert -> new PutRequest().withItem(toInsert)).map(putRequest -> new WriteRequest().withPutRequest(putRequest)).collect(Collectors.toList());
                         sendBatch(tableName, requests);
                     } catch (Exception t) {
                         logger.error("Error adding results: " + t.getMessage(), t);
@@ -395,13 +384,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
                     List<WriteRequest> requests = new ArrayList<WriteRequest>();
                     try {
                         for (Item item : items) {
-                            String id = null;
-                            for (Attribute attr : item.getAttributes()) {
-                                if (DatabaseKeys.REQUEST_NAME_KEY.getShortKey().equals(attr.getName())) {
-                                    id = attr.getValue();
-                                    break;
-                                }
-                            }
+                            String id = item.getAttributes().stream().filter(attr -> DatabaseKeys.REQUEST_NAME_KEY.getShortKey().equals(attr.getName())).findFirst().map(Attribute::getValue).orElse(null);
                             if (id != null) {
                                 Map<String, AttributeValue> keyMap = new HashMap<String, AttributeValue>();
                                 keyMap.put(DatabaseKeys.REQUEST_NAME_KEY.getShortKey(), new AttributeValue().withS(id));

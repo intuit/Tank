@@ -24,7 +24,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
@@ -608,7 +610,7 @@ public class AutomationServiceV1 implements AutomationService {
 	 */
 	@SuppressWarnings("rawtypes")
 	private Set<EntityVersion> getVersions(BaseDao dao, Collection<Integer> dataFileIds,
-			Class<? extends BaseEntity> entityClass) {
+                                           Class<? extends BaseEntity> entityClass) {
 		HashSet<EntityVersion> result = new HashSet<>();
 		for (Integer id : dataFileIds) {
 			int versionId = dao.getHeadRevisionNumber(id);
@@ -659,14 +661,7 @@ public class AutomationServiceV1 implements AutomationService {
 	}
 
 	private List<ScriptFilter> getFilters(List<Integer> filterIds) {
-		List<ScriptFilter> filters = new ArrayList<>();
-		for (Integer id : filterIds) {
-			ScriptFilter filter = new FilterDao().findById(id);
-			if (filter != null) {
-				filters.add(filter);
-			}
-		}
-		return filters;
+        return filterIds.stream().map(id -> new FilterDao().findById(id)).filter(Objects::nonNull).collect(Collectors.toList());
 	}
 
 }

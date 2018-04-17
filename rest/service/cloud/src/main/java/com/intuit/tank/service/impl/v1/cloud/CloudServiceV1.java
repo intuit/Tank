@@ -24,6 +24,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Stack;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
@@ -89,10 +91,7 @@ public class CloudServiceV1 implements CloudService {
     private synchronized Stack<Integer> getStack(Integer minId, Integer maxId) {
         Stack<Integer> stack = stackMap.get(minId.toString() + "-" + maxId.toString());
         if (stack == null) {
-            List<Integer> list = new ArrayList<Integer>();
-            for (int i = minId; i <= maxId; i++) {
-                list.add(i);
-            }
+            List<Integer> list = IntStream.rangeClosed(minId, maxId).boxed().collect(Collectors.toList());
             Collections.shuffle(list);
             stack = new Stack<Integer>();
             stack.addAll(list);

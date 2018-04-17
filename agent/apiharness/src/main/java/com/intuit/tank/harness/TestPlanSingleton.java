@@ -46,9 +46,9 @@ public class TestPlanSingleton {
 
         String[] testPlanLists = plans.split(",");
 
-        for (int t = 0; t < testPlanLists.length; t++) {
+        for (String testPlanList : testPlanLists) {
             try {
-                File xmlFile = new File(testPlanLists[t]);
+                File xmlFile = new File(testPlanList);
                 if (!xmlFile.exists()) {
                     throw new Exception("File not found");
                 }

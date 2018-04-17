@@ -309,17 +309,12 @@ public class AgentWatchdog implements Runnable {
      * 
      */
     private void removeRunningInstances(List<VMInformation> instances) {
-        List<String> instanceIds = new ArrayList<String>();
         CloudVmStatusContainer vmStatusForJob = vmTracker.getVmStatusForJob(instanceRequest.getJobId());
         if (shouldRelaunchInstances() && (vmStatusForJob == null || vmStatusForJob.getEndTime() != null)) {
             stopped = true;
             throw new RuntimeException("Job appears to have been stopped. Exiting...");
         }
-        for (VMInformation info : instances) {
-            instanceIds.add(info.getInstanceId());
-        }
-        List<VMInformation> foundInstances = amazonInstance.describeInstances(instanceIds
-                .toArray(new String[instanceIds.size()]));
+        List<VMInformation> foundInstances = amazonInstance.describeInstances(instances.stream().map(VMInformation::getInstanceId).toArray(String[]::new));
         for (VMInformation info : foundInstances) {
             if ("running".equalsIgnoreCase(info.getState())) {
                 removeInstance(info.getInstanceId(), instances);

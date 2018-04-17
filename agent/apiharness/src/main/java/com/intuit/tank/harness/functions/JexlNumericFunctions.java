@@ -17,6 +17,7 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
+import java.util.Arrays;
 import java.util.Random;
 
 import org.apache.commons.jexl2.JexlContext;
@@ -63,10 +64,7 @@ public class JexlNumericFunctions implements ExpressionContextVisitor {
      * @return summation
      */
     public String add(Object... values) {
-        double result = 0;
-        for (int i = 0; i < values.length; i++) {
-            result += FunctionHandler.getDouble(values[i]);
-        }
+        double result = Arrays.stream(values).mapToDouble(FunctionHandler::getDouble).sum();
         return Double.toString(result);
     }
 

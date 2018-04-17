@@ -34,6 +34,8 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.swing.JTextArea;
 import javax.swing.event.CaretEvent;
 import javax.swing.plaf.ColorUIResource;
@@ -171,24 +173,16 @@ abstract class RTextAreaBase extends JTextArea {
      * 1.5.0).
      */
     protected void addCurrentLineHighlightListeners() {
-        boolean add = true;
+        boolean add;
         MouseMotionListener[] mouseMotionListeners = getMouseMotionListeners();
-        for (int i = 0; i < mouseMotionListeners.length; i++) {
-            if (mouseMotionListeners[i] == mouseListener) {
-                add = false;
-                break;
-            }
-        }
+        add = IntStream.range(0, mouseMotionListeners.length).noneMatch(i -> mouseMotionListeners[i] == mouseListener);
         if (add == true) {
             // System.err.println("Adding mouse motion listener!");
             addMouseMotionListener(mouseListener);
         }
         MouseListener[] mouseListeners = getMouseListeners();
-        for (int i = 0; i < mouseListeners.length; i++) {
-            if (mouseListeners[i] == mouseListener) {
-                add = false;
-                break;
-            }
+        if (IntStream.range(0, mouseListeners.length).anyMatch(i -> mouseListeners[i] == mouseListener)) {
+            add = false;
         }
         if (add == true) {
             // System.err.println("Adding mouse listener!");
@@ -248,11 +242,9 @@ abstract class RTextAreaBase extends JTextArea {
 
         int caretPosition = getCaretPosition();
         int tabSize = getTabSize();
-        StringBuffer tabInSpaces = new StringBuffer();
-        for (int i = 0; i < tabSize; i++)
-            tabInSpaces.append(' ');
+        String tabInSpaces = IntStream.range(0, tabSize).mapToObj(i -> " ").collect(Collectors.joining());
         String text = getText();
-        setText(text.replaceAll("\t", tabInSpaces.toString()));
+        setText(text.replaceAll("\t", tabInSpaces));
 
         // Put caret back at same place in document.
         setCaretPosition(caretPosition);

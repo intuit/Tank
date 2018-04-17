@@ -621,8 +621,8 @@ public class SyntaxView extends View implements TabExpander,
                     possiblyUpdateLongLine(added[i], addedAt + i);
             }
             if (removed != null) {
-                for (int i = 0; i < removed.length; i++) {
-                    if (removed[i] == longLine) {
+                for (Element aRemoved : removed) {
+                    if (aRemoved == longLine) {
                         longLineWidth = -1; // Must do this!!
                         calculateLongestLine();
                         break;

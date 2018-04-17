@@ -263,15 +263,15 @@ public class AJPConnectionHandler implements ConnectionHandler {
         if (headers == null)
             headers = new NamedValue[0];
         message.appendInt(headers.length);
-        for (int i = 0; i < headers.length; i++) {
+        for (NamedValue header : headers) {
             int code = AJPConstants
-                    .getResponseHeaderIndex(headers[i].getName());
+                    .getResponseHeaderIndex(header.getName());
             if (code > 0) {
                 message.appendInt(code);
             } else {
-                message.appendString(headers[i].getName());
+                message.appendString(header.getName());
             }
-            message.appendString(headers[i].getValue());
+            message.appendString(header.getValue());
         }
         message.endServerMessage();
     }

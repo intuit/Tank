@@ -14,11 +14,14 @@ package com.intuit.tank.harness.functions;
  */
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -262,12 +265,12 @@ class StringFunctions {
     static private String[] combineStringArrays(String[] value1, String[] value2) {
         String[] output = new String[value1.length + value2.length];
         int counter = 0;
-        for (int i = 0; i < value1.length; i++) {
-            output[counter] = value1[i];
+        for (String aValue1 : value1) {
+            output[counter] = aValue1;
             ++counter;
         }
-        for (int i = 0; i < value2.length; i++) {
-            output[counter] = value2[i];
+        for (String aValue2 : value2) {
+            output[counter] = aValue2;
             ++counter;
         }
         return output;
@@ -283,10 +286,7 @@ class StringFunctions {
      * @return A random whole number
      */
     static private String randomString(String[] values, int length) {
-        StringBuilder output = new StringBuilder(length);
-        for (int i = 0; i < length; i++)
-            output.append(values[rnd.nextInt(values.length)]);
-        return output.toString();
+        return IntStream.range(0, length).mapToObj(i -> values[rnd.nextInt(values.length)]).collect(Collectors.joining());
     }
 
     /**
@@ -335,11 +335,9 @@ class StringFunctions {
      * 
      * e.g. #function.string.useridFromRange.25.100
      * 
-     * @param prefixLength
-     *            The length of the random prefix
-     * @param dateFormat
-     *            The format for the date
-     * @return The random user id
+     * @param values
+     * @param include
+     * @return
      */
     static private String userIdFromRangeWithMod(String[] values, boolean include) {
         int minId = Integer.parseInt(values[3]);
@@ -367,17 +365,10 @@ class StringFunctions {
                     + " and containing  " + blockSize
                     + " entries with " + (include ? "inclusion" : "exclusion") + " pattern(s) of " + exclusions,
                     LogEventType.System));
-            List<Integer> list = new ArrayList<Integer>();
+            List<Integer> list;
             List<String> exclusionList = parseExclusions(exclusions);
 
-            for (int i = 0; i < blockSize; i++) {
-                int nextNum = i + minId + offset;
-                if (nextNum < maxId) {
-                    if (shouldInclude(Integer.toString(nextNum), exclusionList, include)) {
-                        list.add(nextNum);
-                    }
-                }
-            }
+            list = IntStream.range(0, blockSize).map(i -> i + minId + offset).filter(nextNum -> nextNum < maxId).filter(nextNum -> shouldInclude(Integer.toString(nextNum), exclusionList, include)).boxed().collect(Collectors.toList());
             Collections.shuffle(list);
             // Collections.reverse(list);
             stack = new Stack<Integer>();
@@ -427,22 +418,16 @@ class StringFunctions {
     }
 
     private static List<String> parseExclusions(String exclusions) {
-        List<String> ret = new ArrayList<String>();
         if (!StringUtils.isBlank(exclusions)) {
             String[] terms = exclusions.split(",");
-            for (String term : terms) {
-                ret.add(term.trim());
-            }
+            return Arrays.stream(terms).map(String::trim).collect(Collectors.toList());
         }
-        return ret;
+        return new ArrayList<String>();
     }
 
     public static boolean shouldInclude(String value, List<String> expressions, boolean include) {
-        boolean isMatch = false;
-        for (String exp : expressions) {
-            isMatch = isMatch | value.matches(exp);
-        }
-        return include ? isMatch : !isMatch;
+        boolean isMatch = expressions.stream().map(value::matches).reduce(false, (a, b) -> a || b);
+        return include == isMatch;
     }
 
     /**

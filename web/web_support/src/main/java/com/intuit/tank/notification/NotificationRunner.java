@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
@@ -95,10 +96,7 @@ public class NotificationRunner implements Runnable {
     private void sendMail(Notification n) {
         // what to do if we don't have a template for that event?
         MailMessage mailMessage = getMailMessage(jobEvent.getEvent());
-        List<String> addresses = new ArrayList<String>();
-        for (Recipient r : n.getRecipients()) {
-            addresses.add(r.getAddress());
-        }
+        List<String> addresses = n.getRecipients().stream().map(Recipient::getAddress).collect(Collectors.toList());
         if (mailMessage != null) {
             mailService.sendMail(mailMessage, addresses.toArray(new String[addresses.size()]));
         } else {

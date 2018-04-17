@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -53,7 +54,7 @@ public class ProjectService implements Serializable {
      */
     public List<Project> getProjectList() {
         List<Project> projects = prjDao.findAll();
-        Collections.sort(projects, new PropertyComparer<Project>("name", SortOrder.ASCENDING));
+        projects.sort(new PropertyComparer<Project>("name", SortOrder.ASCENDING));
         return projects;
     }
 
@@ -74,12 +75,7 @@ public class ProjectService implements Serializable {
      * @return
      */
     public List<ProjectDescription> getProjectDescriptions() {
-        List<Project> projectList = getProjectList();
-        List<ProjectDescription> result = new ArrayList<ProjectDescription>();
-        for (Project project : projectList) {
-            result.add(new ProjectDescription(project));
-        }
-        return result;
+        return getProjectList().stream().map(ProjectDescription::new).collect(Collectors.toList());
     }
 
     /**

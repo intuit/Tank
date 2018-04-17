@@ -121,7 +121,7 @@ public class APIMonitor implements Runnable {
     }
 
     public synchronized static void setJobStatus(JobStatus jobStatus) {
-        if (status.getJobStatus() != JobStatus.Completed) {
+        if (status != null && status.getJobStatus() != JobStatus.Completed) {
             try {
             	VMStatus vmStatus =  jobStatus.equals(JobStatus.Stopped) ? VMStatus.stopping
                         : jobStatus.equals(JobStatus.RampPaused) ? VMStatus.rampPaused

@@ -253,8 +253,8 @@ public class CodeTemplateManager {
     public synchronized void replaceTemplates(CodeTemplate[] newTemplates) {
         templates.clear();
         if (newTemplates != null) {
-            for (int i = 0; i < newTemplates.length; i++) {
-                templates.add(newTemplates[i]);
+            for (CodeTemplate newTemplate : newTemplates) {
+                templates.add(newTemplate);
             }
         }
         sortTemplates(); // Also recomputes maxTemplateIDLength.
@@ -278,14 +278,14 @@ public class CodeTemplateManager {
         if (oldXMLFiles == null)
             return false; // Either an IOException or it isn't a directory.
         int count = oldXMLFiles.length;
-        for (int i = 0; i < count; i++) {
-            /* boolean deleted = */oldXMLFiles[i].delete();
+        for (File oldXMLFile : oldXMLFiles) {
+            /* boolean deleted = */
+            oldXMLFile.delete();
         }
 
         // Save all current templates as XML.
         boolean wasSuccessful = true;
-        for (Iterator<CodeTemplate> i = templates.iterator(); i.hasNext();) {
-            CodeTemplate template = (CodeTemplate) i.next();
+        for (CodeTemplate template : templates) {
             File xmlFile = new File(directory, template.getID() + ".xml");
             try {
                 XMLEncoder e = new XMLEncoder(new BufferedOutputStream(

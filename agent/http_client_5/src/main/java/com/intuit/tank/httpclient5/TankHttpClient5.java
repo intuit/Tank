@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import javax.annotation.Nonnull;
@@ -61,6 +63,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.logging.log4j.LogManager;
@@ -282,9 +285,7 @@ public class TankHttpClient5 implements TankHttpClient {
             LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
             List<String> cookies = new ArrayList<String>();
             if (context.getCookieStore().getCookies() != null) {
-                for (Cookie cookie : context.getCookieStore().getCookies()) {
-                    cookies.add("REQUEST COOKIE: " + cookie.toString());
-                }
+                cookies = context.getCookieStore().getCookies().stream().map(cookie -> "REQUEST COOKIE: " + cookie.toString()).collect(Collectors.toList());
             }
             request.logRequest(uri, requestBody, method.getMethod(), request.getHeaderInformation(), cookies, false);
             setHeaders(request, method, request.getHeaderInformation());
@@ -364,13 +365,8 @@ public class TankHttpClient5 implements TankHttpClient {
         try {
             if (response == null) {
                 // Get response header information
-                String contentType = "";
-                for (Header h : headers) {
-                    if ("ContentType".equalsIgnoreCase(h.getName())) {
-                        contentType = h.getValue();
-                        break;
-                    }
-                }
+                String contentType = Arrays.stream(headers).filter(
+                        h -> "ContentType".equalsIgnoreCase(h.getName())).findFirst().map(NameValuePair::getValue).orElse("");
                 response = TankHttpUtil.newResponseObject(contentType);
                 request.setResponse(response);
             }
@@ -380,8 +376,8 @@ public class TankHttpClient5 implements TankHttpClient {
             response.setHttpCode(httpCode);
 
             // Get response header information
-            for (int h = 0; h < headers.length; h++) {
-                response.setHeader(headers[h].getName(), headers[h].getValue());
+            for (Header header : headers) {
+                response.setHeader(header.getName(), header.getValue());
             }
 
             if (context.getCookieStore().getCookies() != null) {
@@ -423,10 +419,9 @@ public class TankHttpClient5 implements TankHttpClient {
     private void setHeaders(BaseRequest request, ClassicHttpRequest method, HashMap<String, String> headerInformation) {
         try {
             Set set = headerInformation.entrySet();
-            Iterator iter = set.iterator();
 
-            while (iter.hasNext()) {
-                Map.Entry mapEntry = (Map.Entry) iter.next();
+            for (Object aSet : set) {
+                Map.Entry mapEntry = (Map.Entry) aSet;
                 method.setHeader((String) mapEntry.getKey(), (String) mapEntry.getValue());
             }
         } catch (Exception ex) {

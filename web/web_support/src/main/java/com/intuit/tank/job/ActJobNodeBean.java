@@ -84,11 +84,7 @@ public class ActJobNodeBean extends JobNodeBean {
     }
 
     private int calculateTPS() {
-        int ret = 0;
-        for (VMNodeBean bean : vmBeans) {
-            ret += bean.getTps();
-        }
-        return ret;
+        return vmBeans.stream().mapToInt(JobNodeBean::getTps).sum();
     }
 
     public String getJobDetails() {
@@ -116,7 +112,7 @@ public class ActJobNodeBean extends JobNodeBean {
     }
 
     /**
-     * @param jobBeans
+     * @param vmBeans
      *            the jobBeans to set
      */
     public void setVmBeans(List<VMNodeBean> vmBeans) {

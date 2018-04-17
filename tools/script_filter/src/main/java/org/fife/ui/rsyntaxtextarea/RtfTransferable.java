@@ -26,6 +26,7 @@ import java.awt.datatransfer.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.stream.IntStream;
 
 /**
  * Object used during copy/paste and DnD operations to represent RTF text. It can return the text being moved as either
@@ -86,12 +87,7 @@ class RtfTransferable implements Transferable {
     }
 
     public boolean isDataFlavorSupported(DataFlavor flavor) {
-        for (int i = 0; i < FLAVORS.length; i++) {
-            if (flavor.equals(FLAVORS[i])) {
-                return true;
-            }
-        }
-        return false;
+        return IntStream.range(0, FLAVORS.length).anyMatch(i -> flavor.equals(FLAVORS[i]));
     }
 
 }

@@ -25,6 +25,7 @@ package org.fife.ui.rsyntaxtextarea;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Stack;
+import java.util.stream.IntStream;
 import javax.swing.*;
 import javax.swing.text.*;
 
@@ -897,11 +898,7 @@ public class RSyntaxTextAreaEditorKit extends RTextAreaEditorKit {
          *         string).
          */
         private static final int atEndOfLine(int pos, String s, int sLen) {
-            for (int i = pos; i < sLen; i++) {
-                if (!RSyntaxUtilities.isWhitespace(s.charAt(i)))
-                    return i;
-            }
-            return -1;
+            return IntStream.range(pos, sLen).filter(i -> !RSyntaxUtilities.isWhitespace(s.charAt(i))).findFirst().orElse(-1);
         }
 
         private static final int getOpenBraceCount(RSyntaxDocument doc) {

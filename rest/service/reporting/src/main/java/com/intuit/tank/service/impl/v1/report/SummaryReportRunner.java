@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.enterprise.event.Event;
 
@@ -99,8 +100,7 @@ public class SummaryReportRunner implements Runnable {
     }
 
     /**
-     * @param db
-     * @param tableName
+     * @param jobIdString
      */
     public static void generateSummary(String jobIdString) {
         synchronized (jobIdString) {
@@ -124,13 +124,9 @@ public class SummaryReportRunner implements Runnable {
                             .getSummaryResults();
                     if (!timingData.isEmpty()) {
                         try {
-                            List<SummaryData> toStore = new ArrayList<SummaryData>();
-                            for (Entry<String, DescriptiveStatistics> entry : timingData
-                                    .entrySet()) {
-                                SummaryData data = getSummaryData(jobId,
-                                        entry.getKey(), entry.getValue());
-                                toStore.add(data);
-                            }
+                            List<SummaryData> toStore = timingData
+                                    .entrySet().stream().map(entry -> getSummaryData(jobId,
+                                            entry.getKey(), entry.getValue())).collect(Collectors.toList());
                             dao.persistCollection(toStore);
                             LOG.info("Finished Summary Report for job " + jobId);
                         } catch (Exception t) {
@@ -177,20 +173,33 @@ public class SummaryReportRunner implements Runnable {
     }
 
     private static Date calculateSteadyStateEnd(JobInstance jobInstance) {
-        if (jobInstance.getStartTime() != null
-                && jobInstance.getSimulationTime() > 0) {
-            return new Date(jobInstance.getStartTime().getTime()
+        return (jobInstance.getStartTime() != null
+                && jobInstance.getSimulationTime() > 0) ? null :
+            new Date(jobInstance.getStartTime().getTime()
                     + jobInstance.getSimulationTime());
-        }
-        return null;
     }
 
     private static Date calculateSteadyStateStart(JobInstance jobInstance) {
-        if (jobInstance.getStartTime() != null) {
-            return new Date(jobInstance.getStartTime().getTime()
+        return jobInstance.getStartTime() != null ? null :
+            new Date(jobInstance.getStartTime().getTime()
                     + jobInstance.getRampTime());
-        }
-        return null;
+    }
+
+    /**
+     * @param jobId
+     * @param key
+     * @param bucketItem
+     * @return
+     */
+    private static PeriodicData getBucketData(int jobId, String key,
+            BucketDataItem bucketItem) {
+        DescriptiveStatistics stats = bucketItem.getStats();
+        return PeriodicDataBuilder.periodicData().withJobId(jobId)
+                .withMax(stats.getMax()).withMean(stats.getMean())
+                .withMin(stats.getMin()).withPageId(key)
+                .withSampleSize((int) stats.getN())
+                .withPeriod(bucketItem.getPeriod())
+                .withTimestamp(bucketItem.getStartTime()).build();
     }
 
     /**
@@ -199,26 +208,9 @@ public class SummaryReportRunner implements Runnable {
      * @param stats
      * @return
      */
-    private static PeriodicData getBucketData(int jobId, String key,
-            BucketDataItem bucketItem) {
-        DescriptiveStatistics stats = bucketItem.getStats();
-        PeriodicData ret = PeriodicDataBuilder.periodicData().withJobId(jobId)
-                .withMax(stats.getMax()).withMean(stats.getMean())
-                .withMin(stats.getMin()).withPageId(key)
-                .withSampleSize((int) stats.getN())
-                .withPeriod(bucketItem.getPeriod())
-                .withTimestamp(bucketItem.getStartTime()).build();
-        return ret;
-    }
-
-    /**
-     * @param key
-     * @param value
-     * @return
-     */
     private static SummaryData getSummaryData(int jobId, String key,
             DescriptiveStatistics stats) {
-        SummaryData ret = SummaryDataBuilder
+        return SummaryDataBuilder
                 .summaryData()
                 .withJobId(jobId)
                 .withKurtosis(
@@ -249,7 +241,6 @@ public class SummaryReportRunner implements Runnable {
                 .withVarience(
                         !Double.isNaN(stats.getVariance()) ? stats
                                 .getVariance() : 0).build();
-        return ret;
     }
 
 }

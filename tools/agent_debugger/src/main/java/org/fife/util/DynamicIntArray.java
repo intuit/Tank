@@ -23,6 +23,8 @@
  */
 package org.fife.util;
 
+import java.util.stream.IntStream;
+
 /**
  * Similar to a <code>java.util.ArrayList</code>, but specifically for <code>int</code>s. This is basically an array of
  * integers that resizes itself (if necessary) when adding new elements.
@@ -160,11 +162,7 @@ public class DynamicIntArray {
      * @return Whether the given integer is contained in this array.
      */
     public boolean contains(int integer) {
-        for (int i = 0; i < size; i++) {
-            if (data[i] == integer)
-                return true;
-        }
-        return false;
+        return IntStream.range(0, size).anyMatch(i -> data[i] == integer);
     }
 
     /**

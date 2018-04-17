@@ -206,11 +206,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
      */
     @Override
     public int getTotalVirtualUsers() {
-        int result = 0;
-        for (RegionRequest region : regions) {
-            result += JobUtil.parseUserString(region.getUsers());
-        }
-        return result;
+        return regions.stream().mapToInt(region -> JobUtil.parseUserString(region.getUsers())).sum();
     }
 
     /**

@@ -29,7 +29,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
@@ -326,10 +328,7 @@ public class ScriptServiceV1 implements ScriptService {
         ResponseBuilder responseBuilder = Response.ok();
         ScriptDao dao = new ScriptDao();
         List<Script> all = dao.findAll();
-        List<ScriptDescription> result = new ArrayList<ScriptDescription>();
-        for (Script s : all) {
-            result.add(ScriptServiceUtil.scriptToScriptDescription(s));
-        }
+        List<ScriptDescription> result = all.stream().map(ScriptServiceUtil::scriptToScriptDescription).collect(Collectors.toList());
         responseBuilder.entity(new ScriptDescriptionContainer(result));
         return responseBuilder.build();
     }
@@ -398,17 +397,15 @@ public class ScriptServiceV1 implements ScriptService {
 
         HDWorkload hdWorkload = ConverterUtil.convertScriptToHdWorkload(script);
         final String scriptXML = ConverterUtil.getWorkloadXML(hdWorkload);
-        return new StreamingOutput() {
-            public void write(OutputStream outputStream) {
-                BufferedReader in = null;
-                try {
-                    IOUtils.write(scriptXML, outputStream, StandardCharsets.UTF_8);
-                } catch (IOException e) {
-                    LOG.error("Error streaming file: " + e.toString(), e);
-                    throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-                } finally {
-                    IOUtils.closeQuietly(in);
-                }
+        return (OutputStream outputStream) -> {
+            BufferedReader in = null;
+            try {
+                IOUtils.write(scriptXML, outputStream, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                LOG.error("Error streaming file: " + e.toString(), e);
+                throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            } finally {
+                IOUtils.closeQuietly(in);
             }
         };
     }
@@ -426,19 +423,17 @@ public class ScriptServiceV1 implements ScriptService {
             responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
             responseBuilder.cacheControl(ResponseUtil.getNoStoreCacheControl());
             final ScriptTO scriptTO = ScriptServiceUtil.scriptToTransferObject(script);
-            StreamingOutput so = new StreamingOutput() {
-                public void write(OutputStream outputStream) {
-                    // Get the object of DataInputStream
-                    try {
-                        JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
-                        Marshaller marshaller = ctx.createMarshaller();
-                        marshaller.setProperty("jaxb.formatted.output", Boolean.TRUE);
-                        marshaller.marshal(scriptTO, outputStream);
-                    } catch (Exception e) {
-                        LOG.error("Error streaming file: " + e.toString(), e);
-                        throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-                    } finally {
-                    }
+            StreamingOutput so = (OutputStream outputStream) -> {
+                // Get the object of DataInputStream
+                try {
+                    JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
+                    Marshaller marshaller = ctx.createMarshaller();
+                    marshaller.setProperty("jaxb.formatted.output", Boolean.TRUE);
+                    marshaller.marshal(scriptTO, outputStream);
+                } catch (Exception e) {
+                    LOG.error("Error streaming file: " + e.toString(), e);
+                    throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+                } finally {
                 }
             };
             responseBuilder.type(MediaType.APPLICATION_OCTET_STREAM_TYPE).entity(so);
@@ -594,14 +589,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     private List<ScriptFilter> getFilters(List<Integer> filterIds) {
-        List<ScriptFilter> filters = new ArrayList<ScriptFilter>();
-        for (Integer id : filterIds) {
-            ScriptFilter filter = new FilterDao().findById(id);
-            if (filter != null) {
-                filters.add(filter);
-            }
-        }
-        return filters;
+        return filterIds.stream().map(id -> new FilterDao().findById(id)).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     /*
@@ -626,10 +614,9 @@ public class ScriptServiceV1 implements ScriptService {
         ScriptFilterGroupDao sfgd = new ScriptFilterGroupDao();
         List<ScriptFilterGroup> scriptFilterGroupForFilter = sfgd.getScriptFilterGroupForFilter(id);
 
-        for (Iterator<ScriptFilterGroup> iterator = scriptFilterGroupForFilter.iterator(); iterator.hasNext();) {
-            ScriptFilterGroup scriptFilterGroup = iterator.next();
+        for (ScriptFilterGroup scriptFilterGroup : scriptFilterGroupForFilter) {
             Set<ScriptFilter> filters = scriptFilterGroup.getFilters();
-            for (Iterator<ScriptFilter> iterator2 = filters.iterator(); iterator2.hasNext();) {
+            for (Iterator<ScriptFilter> iterator2 = filters.iterator(); iterator2.hasNext(); ) {
                 ScriptFilter scriptFilter = iterator2.next();
                 if (scriptFilter.getId() == id) {
                     iterator2.remove();

@@ -328,30 +328,28 @@ public class ActionProducer {
                             debuggerFrame.startWaiting();
                             setFromString(null);
                             // get script in thread
-                            new Thread(new Runnable() {
-                                public void run() {
-                                    try {
-                                        String scriptXml = null;
-                                        if (scriptSource.getSource() == SourceType.file) {
-                                            scriptXml = FileUtils.readFileToString(new File(scriptSource.getId()), StandardCharsets.UTF_8);
-                                        } else if (scriptSource.getSource() == SourceType.script) {
-                                            scriptXml = scriptServiceClient.downloadHarnessXml(Integer
-                                                    .parseInt(scriptSource
-                                                            .getId()));
-                                        } else if (scriptSource.getSource() == SourceType.project) {
-                                            scriptXml = projectServiceClient.downloadTestScriptForProject(Integer
-                                                    .parseInt(scriptSource.getId()));
-                                        }
-                                        if (scriptXml != null) {
-                                            setFromString(scriptXml);
-                                        }
-                                    } catch (Exception e1) {
-                                        e1.printStackTrace();
-                                        debuggerFrame.stopWaiting();
-                                        showError("Error opening from source: " + e1);
-                                    } finally {
-                                        debuggerFrame.stopWaiting();
+                            new Thread( () ->{
+                                try {
+                                    String scriptXml = null;
+                                    if (scriptSource.getSource() == SourceType.file) {
+                                        scriptXml = FileUtils.readFileToString(new File(scriptSource.getId()), StandardCharsets.UTF_8);
+                                    } else if (scriptSource.getSource() == SourceType.script) {
+                                        scriptXml = scriptServiceClient.downloadHarnessXml(Integer
+                                                .parseInt(scriptSource
+                                                        .getId()));
+                                    } else if (scriptSource.getSource() == SourceType.project) {
+                                        scriptXml = projectServiceClient.downloadTestScriptForProject(Integer
+                                                .parseInt(scriptSource.getId()));
                                     }
+                                    if (scriptXml != null) {
+                                        setFromString(scriptXml);
+                                    }
+                                } catch (Exception e1) {
+                                    e1.printStackTrace();
+                                    debuggerFrame.stopWaiting();
+                                    showError("Error opening from source: " + e1);
+                                } finally {
+                                    debuggerFrame.stopWaiting();
                                 }
                             }).start();
 
@@ -500,13 +498,8 @@ public class ActionProducer {
                     try {
                         ScriptDescriptionContainer scriptDescriptions = scriptServiceClient.getScriptDescriptions();
                         List<ScriptDescription> scripts = scriptDescriptions.getScripts();
-                        Collections.sort(scripts, new Comparator<ScriptDescription>() {
-
-                            @Override
-                            public int compare(ScriptDescription o1, ScriptDescription o2) {
-                                return o2.getCreated().compareTo(o1.getCreated());
-                            }
-                        });
+                        scripts.sort((ScriptDescription o1, ScriptDescription o2) ->
+                                o2.getCreated().compareTo(o1.getCreated()));
                         SelectDialog<ScriptDescription> selectDialog = new SelectDialog<ScriptDescription>(
                                 debuggerFrame,
                                 scripts, "script");
@@ -516,21 +509,19 @@ public class ActionProducer {
                             debuggerFrame.startWaiting();
                             setFromString(null);
                             // get script in thread
-                            new Thread(new Runnable() {
-                                public void run() {
-                                    try {
-                                        String scriptXml = scriptServiceClient.downloadHarnessXml(scriptSelected
-                                                .getId());
-                                        setFromString(scriptXml);
-                                        debuggerFrame.setCurrentTitle("Selected Script: " + scriptSelected.getName());
-                                        debuggerFrame.setScriptSource(new ScriptSource(scriptSelected.getId()
-                                                .toString(), SourceType.script));
-                                    } catch (Exception e1) {
-                                        debuggerFrame.stopWaiting();
-                                        showError("Error downloading script: " + e1);
-                                    } finally {
-                                        debuggerFrame.stopWaiting();
-                                    }
+                            new Thread( () -> {
+                                try {
+                                    String scriptXml = scriptServiceClient.downloadHarnessXml(scriptSelected
+                                            .getId());
+                                    setFromString(scriptXml);
+                                    debuggerFrame.setCurrentTitle("Selected Script: " + scriptSelected.getName());
+                                    debuggerFrame.setScriptSource(new ScriptSource(scriptSelected.getId()
+                                            .toString(), SourceType.script));
+                                } catch (Exception e1) {
+                                    debuggerFrame.stopWaiting();
+                                    showError("Error downloading script: " + e1);
+                                } finally {
+                                    debuggerFrame.stopWaiting();
                                 }
                             }).start();
                         }
@@ -559,11 +550,9 @@ public class ActionProducer {
                 public void actionPerformed(ActionEvent e) {
                     try {
                         List<DataFileDescriptor> dataFiles = dataFileClient.getDataFiles();
-                        Collections.sort(dataFiles, new Comparator<DataFileDescriptor>() {
-                            public int compare(DataFileDescriptor o1, DataFileDescriptor o2) {
-                                return o2.getName().compareTo(o1.getName());
-                            }
-                        });
+                        Collections.sort(dataFiles, (DataFileDescriptor o1, DataFileDescriptor o2) ->
+                                o2.getName().compareTo(o1.getName())
+                        );
                         SelectDialog<DataFileDescriptor> selectDialog = new SelectDialog<DataFileDescriptor>(
                                 debuggerFrame,
                                 dataFiles, "datafiles", false);
@@ -631,24 +620,22 @@ public class ActionProducer {
                             debuggerFrame.startWaiting();
                             setFromString(null);
                             // get script in thread
-                            new Thread(new Runnable() {
-                                public void run() {
-                                    try {
-                                        String scriptXml = projectServiceClient.downloadTestScriptForProject(selected
-                                                .getId());
-                                        debuggerFrame.setDataFromProject(selected);
-                                        setFromString(scriptXml);
-                                        debuggerFrame.setCurrentTitle("Selected Project: " + selected.getName());
-                                        debuggerFrame.setScriptSource(new ScriptSource(selected.getId().toString(),
-                                                SourceType.project));
-                                        debuggerFrame.stopWaiting();
-                                    } catch (Exception e1) {
-                                        e1.printStackTrace();
-                                        debuggerFrame.stopWaiting();
-                                        showError("Error downloading project: " + e1);
-                                    } finally {
-                                        debuggerFrame.stopWaiting();
-                                    }
+                            new Thread( () -> {
+                                try {
+                                    String scriptXml = projectServiceClient.downloadTestScriptForProject(selected
+                                            .getId());
+                                    debuggerFrame.setDataFromProject(selected);
+                                    setFromString(scriptXml);
+                                    debuggerFrame.setCurrentTitle("Selected Project: " + selected.getName());
+                                    debuggerFrame.setScriptSource(new ScriptSource(selected.getId().toString(),
+                                            SourceType.project));
+                                    debuggerFrame.stopWaiting();
+                                } catch (Exception e1) {
+                                    e1.printStackTrace();
+                                    debuggerFrame.stopWaiting();
+                                    showError("Error downloading project: " + e1);
+                                } finally {
+                                    debuggerFrame.stopWaiting();
                                 }
                             }).start();
                         }
@@ -914,11 +901,8 @@ public class ActionProducer {
 
     private void showError(final String msg) {
         LOG.error(msg);
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                JOptionPane.showMessageDialog(debuggerFrame, msg, "Error", JOptionPane.ERROR_MESSAGE);
-
-            }
+        SwingUtilities.invokeLater( () -> {
+            JOptionPane.showMessageDialog(debuggerFrame, msg, "Error", JOptionPane.ERROR_MESSAGE);
         });
     }
 

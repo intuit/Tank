@@ -161,17 +161,12 @@ public class AgentDebuggerFrame extends JFrame {
         requestResponsePanel = new RequestResponsePanel(this);
         requestResponsePanel.init();
         testPlanChooser = new JComboBox<HDTestPlan>();
-        testPlanChooser.addItemListener(new ItemListener() {
-
-            @Override
-            public void itemStateChanged(ItemEvent event) {
-                if (event.getItem() != null) {
-                    HDTestPlan selected = (HDTestPlan) event.getItem();
-                    if (!selected.equals(currentTestPlan)) {
-                        setCurrentTestPlan(selected);
-                    }
+        testPlanChooser.addItemListener( (ItemEvent event) -> {
+            if (event.getItem() != null) {
+                HDTestPlan selected = (HDTestPlan) event.getItem();
+                if (!selected.equals(currentTestPlan)) {
+                    setCurrentTestPlan(selected);
                 }
-
             }
         });
 
@@ -268,15 +263,11 @@ public class AgentDebuggerFrame extends JFrame {
 
         KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 
-        manager.addKeyEventDispatcher(new KeyEventDispatcher() {
-
-            @Override
-            public boolean dispatchKeyEvent(KeyEvent e) {
-                if (e.getID() == KeyEvent.KEY_PRESSED) {
-                    handleKeyEvent(e);
-                }
-                return false;
+        manager.addKeyEventDispatcher( (KeyEvent e) -> {
+            if (e.getID() == KeyEvent.KEY_PRESSED) {
+                handleKeyEvent(e);
             }
+            return false;
         });
     }
 
@@ -757,47 +748,43 @@ public class AgentDebuggerFrame extends JFrame {
         loggerTA.setText("");
         loggerTA.setCaretPosition(0);
         loggerTA.repaint();
-        new Thread(new Runnable() {
-            public void run() {
-
-                fireStepChanged(-1);
-                if (!steps.isEmpty()) {
-                    for (DebugStep step : steps) {
-                        step.clear();
-                    }
-                    setCurrentStep(-1);
-                    for (GutterIconInfo gi : scriptEditorScrollPane.getGutter().getAllTrackingIcons()) {
-                        if (gi.getIcon() == errorIcon) {
-                            scriptEditorScrollPane.getGutter().removeTrackingIcon(gi);
-                        } else if (gi.getIcon() == skippedIcon) {
-                            try {
-                                flowController.skip(scriptEditorTA.getLineOfOffset(gi.getMarkedOffset()));
-                            } catch (BadLocationException e) {
-                                e.printStackTrace();
-                            }
+        Runnable task = () -> {
+            fireStepChanged(-1);
+            if (!steps.isEmpty()) {
+                for (DebugStep step : steps) {
+                    step.clear();
+                }
+                setCurrentStep(-1);
+                for (GutterIconInfo gi : scriptEditorScrollPane.getGutter().getAllTrackingIcons()) {
+                    if (gi.getIcon() == errorIcon) {
+                        scriptEditorScrollPane.getGutter().removeTrackingIcon(gi);
+                    } else if (gi.getIcon() == skippedIcon) {
+                        try {
+                            flowController.skip(scriptEditorTA.getLineOfOffset(gi.getMarkedOffset()));
+                        } catch (BadLocationException e) {
+                            e.printStackTrace();
                         }
                     }
-                    // start apiHarness and get the variables....
-                    try {
-                        createHarness();
-                        runningThread = new Thread(new Runnable() {
-                            public void run() {
-                                harness.runConcurrentTestPlans();
-                            }
-                        });
+                }
+                // start apiHarness and get the variables....
+                try {
+                    createHarness();
+                    runningThread = new Thread(() -> {
+                        harness.runConcurrentTestPlans();
+                    });
 
-                        runningThread.start();
-                    } catch (Exception e) {
-                        showError("Error starting test: " + e);
-                        actionComponents.stop();
-                    }
-
-                } else {
-                    stopWaiting();
+                    runningThread.start();
+                } catch (Exception e) {
+                    showError("Error starting test: " + e);
                     actionComponents.stop();
                 }
+
+            } else {
+                stopWaiting();
+                actionComponents.stop();
             }
-        }).start();
+        };
+        new Thread(task).start();
     }
 
     private void createHarness() throws JAXBException {
@@ -869,20 +856,18 @@ public class AgentDebuggerFrame extends JFrame {
 
     public void stepStarted(final TestStepContext context) {
         try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() {
-                    actionComponents.stepping();
-                    int stepIndex = context.getTestStep().getStepIndex();
-                    setCurrentStep(stepIndex);
-                    DebugStep debugStep = steps.get(currentRunningStep);
-                    if (debugStep != null) {
-                        debugStep.setEntryVariables(context.getVariables().getVaribleValues());
-                        debugStep.setRequest(context.getRequest());
-                        debugStep.setResponse(context.getResponse());
-                    }
-                    fireStepChanged(stepIndex);
-                    fireStepStarted(stepIndex);
+            SwingUtilities.invokeAndWait( () -> {
+                actionComponents.stepping();
+                int stepIndex = context.getTestStep().getStepIndex();
+                setCurrentStep(stepIndex);
+                DebugStep debugStep = steps.get(currentRunningStep);
+                if (debugStep != null) {
+                    debugStep.setEntryVariables(context.getVariables().getVaribleValues());
+                    debugStep.setRequest(context.getRequest());
+                    debugStep.setResponse(context.getResponse());
                 }
+                fireStepChanged(stepIndex);
+                fireStepStarted(stepIndex);
             });
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -893,36 +878,34 @@ public class AgentDebuggerFrame extends JFrame {
 
     public void stepFinished(final TestStepContext context) {
         try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() {
-                    actionComponents.doneStepping();
-                    DebugStep debugStep = steps.get(currentRunningStep);
-                    if (debugStep != null) {
-                        debugStep.setExitVariables(context.getVariables().getVaribleValues());
-                        debugStep.setRequest(context.getRequest());
-                        debugStep.setResponse(context.getResponse());
-                    }
-                    try {
-                        if (context.getResponse() != null && (context.getResponse().getHttpCode() >= 400 || context.getResponse().getHttpCode() == -1)) {
-                            // highlight the line
-                            int lineStartOffset = scriptEditorTA.getLineStartOffset(currentRunningStep);
-                            int lineEndOffset = scriptEditorTA.getLineEndOffset(currentRunningStep);
-
-                            scriptEditorTA.getHighlighter().addHighlight(lineStartOffset, lineEndOffset, new SquiggleUnderlineHighlightPainter(Color.RED));
-                        }
-                    } catch (BadLocationException e1) {
-                        e1.printStackTrace();
-                    }
-                    if (!context.getErrors().isEmpty()) {
-                        try {
-                            debugStep.setErrors(context.getErrors());
-                            scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(scriptEditorTA.getLineStartOffset(currentRunningStep), errorIcon);
-                        } catch (BadLocationException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    fireStepExited(context.getTestStep().getStepIndex());
+            SwingUtilities.invokeAndWait( () -> {
+                actionComponents.doneStepping();
+                DebugStep debugStep = steps.get(currentRunningStep);
+                if (debugStep != null) {
+                    debugStep.setExitVariables(context.getVariables().getVaribleValues());
+                    debugStep.setRequest(context.getRequest());
+                    debugStep.setResponse(context.getResponse());
                 }
+                try {
+                    if (context.getResponse() != null && (context.getResponse().getHttpCode() >= 400 || context.getResponse().getHttpCode() == -1)) {
+                        // highlight the line
+                        int lineStartOffset = scriptEditorTA.getLineStartOffset(currentRunningStep);
+                        int lineEndOffset = scriptEditorTA.getLineEndOffset(currentRunningStep);
+
+                        scriptEditorTA.getHighlighter().addHighlight(lineStartOffset, lineEndOffset, new SquiggleUnderlineHighlightPainter(Color.RED));
+                    }
+                } catch (BadLocationException e1) {
+                    e1.printStackTrace();
+                }
+                if (!context.getErrors().isEmpty()) {
+                    try {
+                        debugStep.setErrors(context.getErrors());
+                        scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(scriptEditorTA.getLineStartOffset(currentRunningStep), errorIcon);
+                    } catch (BadLocationException e) {
+                        e.printStackTrace();
+                    }
+                }
+                fireStepExited(context.getTestStep().getStepIndex());
             });
         } catch (Exception e) {
             e.printStackTrace();
@@ -930,23 +913,19 @@ public class AgentDebuggerFrame extends JFrame {
     }
 
     public void testStarted() {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                stopWaiting();
-                actionComponents.setRunningActions(true);
-            }
+        SwingUtilities.invokeLater( () -> {
+            stopWaiting();
+            actionComponents.setRunningActions(true);
         });
 
     }
 
     public void testFinished() {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                runningThread = null;
-                harness = null;
-                scriptEditorTA.setActiveLineRange(-1, -1);
-                actionComponents.stop();
-            }
+        SwingUtilities.invokeLater( () -> {
+            runningThread = null;
+            harness = null;
+            scriptEditorTA.setActiveLineRange(-1, -1);
+            actionComponents.stop();
         });
 
     }

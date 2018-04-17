@@ -124,40 +124,53 @@ public class ConversationServiceHttpRequestHandler implements
                         "=");
                 resource = resource.substring(0, q);
             }
-            if (resource.equals(CONVERSATIONS)) {
-                String since = NamedValue.findValue(parameters, "since");
-                if (since != null)
-                    return listConversations(Integer.parseInt(since));
-                return listConversations(0);
-            } else if (resource.equals(SUMMARIES)) {
-                String since = NamedValue.findValue(parameters, "since");
-                if (since != null)
-                    return getSummaries(Integer.parseInt(since));
-                return getSummaries(0);
-            } else if (resource.equals(SUMMARY)) {
-                String id = NamedValue.findValue(parameters, "id");
-                if (id != null)
-                    return getSummary(Integer.parseInt(id));
-            } else if (resource.equals(REQUEST_HEADER)) {
-                String id = NamedValue.findValue(parameters, "id");
-                if (id != null)
-                    return getRequestHeader(Integer.parseInt(id));
-            } else if (resource.equals(RESPONSE_HEADER)) {
-                String id = NamedValue.findValue(parameters, "id");
-                if (id != null)
-                    return getResponseHeader(Integer.parseInt(id));
-            } else if (resource.equals(REQUEST_CONTENT)) {
-                String id = NamedValue.findValue(parameters, "id");
-                String decode = NamedValue.findValue(parameters, "decode");
-                if (id != null)
-                    return getRequestContent(Integer.parseInt(id), "true"
-                            .equals(decode));
-            } else if (resource.equals(RESPONSE_CONTENT)) {
-                String id = NamedValue.findValue(parameters, "id");
-                String decode = NamedValue.findValue(parameters, "decode");
-                if (id != null)
-                    return getResponseContent(Integer.parseInt(id), "true"
-                            .equals(decode));
+            switch (resource) {
+                case CONVERSATIONS: {
+                    String since = NamedValue.findValue(parameters, "since");
+                    if (since != null)
+                        return listConversations(Integer.parseInt(since));
+                    return listConversations(0);
+                }
+                case SUMMARIES: {
+                    String since = NamedValue.findValue(parameters, "since");
+                    if (since != null)
+                        return getSummaries(Integer.parseInt(since));
+                    return getSummaries(0);
+                }
+                case SUMMARY: {
+                    String id = NamedValue.findValue(parameters, "id");
+                    if (id != null)
+                        return getSummary(Integer.parseInt(id));
+                    break;
+                }
+                case REQUEST_HEADER: {
+                    String id = NamedValue.findValue(parameters, "id");
+                    if (id != null)
+                        return getRequestHeader(Integer.parseInt(id));
+                    break;
+                }
+                case RESPONSE_HEADER: {
+                    String id = NamedValue.findValue(parameters, "id");
+                    if (id != null)
+                        return getResponseHeader(Integer.parseInt(id));
+                    break;
+                }
+                case REQUEST_CONTENT: {
+                    String id = NamedValue.findValue(parameters, "id");
+                    String decode = NamedValue.findValue(parameters, "decode");
+                    if (id != null)
+                        return getRequestContent(Integer.parseInt(id), "true"
+                                .equals(decode));
+                    break;
+                }
+                case RESPONSE_CONTENT: {
+                    String id = NamedValue.findValue(parameters, "id");
+                    String decode = NamedValue.findValue(parameters, "decode");
+                    if (id != null)
+                        return getResponseContent(Integer.parseInt(id), "true"
+                                .equals(decode));
+                    break;
+                }
             }
         } catch (MessageFormatException mfe) {
             mfe.printStackTrace();

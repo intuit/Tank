@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
@@ -94,7 +95,8 @@ public class OwaspReader implements RecordedScriptReader {
     }
 
     /**
-     * @param entry
+     * @param fromXml
+     * @param currentIndex
      * @return
      * @throws MalformedURLException
      */
@@ -178,7 +180,7 @@ public class OwaspReader implements RecordedScriptReader {
     }
 
     /**
-     * @param headers
+     * @param contentType
      * @return
      */
     private String findRequestFormat(String contentType) {
@@ -200,7 +202,7 @@ public class OwaspReader implements RecordedScriptReader {
     }
 
     /**
-     * @param headers
+     * @param contentType
      * @return
      */
     private String findResponseFormat(String contentType) {
@@ -234,16 +236,12 @@ public class OwaspReader implements RecordedScriptReader {
     }
 
     private Set<RequestData> populateHeaders(List<Header> headers, String type) {
-        Set<RequestData> list = new HashSet<RequestData>();
-        for (Header h : headers) {
-            list.add(new RequestData(h.getKey(), h.getValue(), type));
-        }
-        return list;
+        return headers.stream().map(h -> new RequestData(h.getKey(), h.getValue(), type)).collect(Collectors.toSet());
     }
 
     /**
-     * @param param
-     * @param string
+     * @param params
+     * @param type
      * @return
      */
     private Set<RequestData> formDataToSet(List<KeyValuePair> params,
@@ -274,7 +272,7 @@ public class OwaspReader implements RecordedScriptReader {
     }
 
     /**
-     * @param rawdata
+     * @param response
      * @return
      * @throws JSONException
      */

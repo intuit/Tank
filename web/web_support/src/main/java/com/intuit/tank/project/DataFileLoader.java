@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -78,14 +79,7 @@ public class DataFileLoader extends EntityVersionLoader<DataFile, ModifiedDatafi
     @Override
     protected List<DataFile> getEntities() {
     	List<DataFile> files = new DataFileDao().findFiltered(ViewFilterType.ALL);
-        Set<String> set = new HashSet<String>();
-        for (DataFile f : files) {
-        	if( !f.getCreator().isEmpty() ) {
-        		set.add(f.getCreator());
-        	}
-        }
-        List<String> list = new ArrayList<String>(set);
-        Collections.sort(list);
+        List<String> list = files.stream().filter(f -> !f.getCreator().isEmpty()).map(OwnableEntity::getCreator).distinct().sorted().collect(Collectors.toList());
         creatorList = new SelectItem[list.size() + 1];
         creatorList[0] = new SelectItem("", "All");
         for (int i = 0; i < list.size(); i++) {
