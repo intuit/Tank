@@ -45,9 +45,7 @@ public class JobConfigurationDao extends BaseDao<JobConfiguration> {
     public List<JobConfiguration> getConfigurationsForWorkplace(Integer... ids) {
         String prefix = "x";
         NamedParameter parameter = new NamedParameter(JobConfiguration.PROPERTY_WORKLOAD_ID, "wId", ids);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere()).append(buildWhereClause(Operation.IN, prefix, parameter));
-        return listWithJQL(sb.toString(), parameter);
+        return listWithJQL(buildQlSelect(prefix) + startWhere() + buildWhereClause(Operation.IN, prefix, parameter), parameter);
         // return super.listWithCriteria(Restrictions.in(JobConfiguration.PROPERTY_WORKLOAD_ID, ids));
     }
 
@@ -61,10 +59,9 @@ public class JobConfigurationDao extends BaseDao<JobConfiguration> {
     public List<JobConfiguration> getConfigurationsForProject(int projectId) {
         String prefix = "x";
         NamedParameter parameter = new NamedParameter(JobConfiguration.PROPERTY_WORKLOAD_ID, "pId", projectId);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere())
-                .append(buildWhereClause(Operation.EQUALS, prefix, parameter));
-        return listWithJQL(sb.toString(), parameter);
+        String sb = buildQlSelect(prefix) + startWhere() +
+                buildWhereClause(Operation.EQUALS, prefix, parameter);
+        return listWithJQL(sb, parameter);
         // return super.listWithCriteria(Restrictions.eq(JobConfiguration.PROPERTY_PROJECT_ID, projectId));
     }
 

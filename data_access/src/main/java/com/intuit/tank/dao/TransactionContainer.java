@@ -42,26 +42,19 @@ public class TransactionContainer {
     private EntityTransaction transaction;
     private Object initiatingObject;
 
-    /**
-     * @param em
-     * @param initiatingObject
-     */
     public TransactionContainer() {
-    	synchronized(lock){  
-            
-  	      if(initialized){  
-  	        return;  
-  	      }  
-  	        
-  	      initialized = true;  
-  	        
-  	      try{  
-  	    	  entityManagerFactory = Persistence.createEntityManagerFactory("wats"); 
-  	          
-  	      } catch(Throwable t){  
-  	        LOG.error("Failed to setup persistence unit!", t);  
-  	      }  
-  	}  
+        synchronized(lock){
+
+            if(initialized){
+                return;
+            }
+            try{
+                entityManagerFactory = Persistence.createEntityManagerFactory("tank");
+                initialized = true;
+            } catch(Throwable t){
+                LOG.error("Failed to setup persistence unit!", t);
+            }
+        }
     }
 
     /**

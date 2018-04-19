@@ -65,6 +65,7 @@ public class JobNotificationDao extends BaseDao<JobNotification> {
             result.getLifecycleEvents().contains(JobLifecycleEvent.QUEUE_ADD);
             commit();
         } catch (NoResultException e) {
+            rollback();
             LOG.warn("No result for revision " + revisionNumber + " with id of " + id);
         } finally {
             cleanup();

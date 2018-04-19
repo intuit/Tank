@@ -73,6 +73,7 @@ public class WorkloadDao extends BaseDao<Workload> {
     		}
     		commit();
         } catch (Exception e) {
+    	    rollback();
             e.printStackTrace();
             throw new RuntimeException(e);
 		} finally {
