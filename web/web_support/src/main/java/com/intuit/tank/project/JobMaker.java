@@ -211,8 +211,11 @@ public class JobMaker implements Serializable {
     }
 
     private int getDefaultNumUsers(String type) {
-        int ret = new TankConfig().getVmManagerConfig().getInstanceTypes().stream().filter(t -> t.getName().equals(type)).findFirst().map(VmInstanceType::getUsers).orElse(-1);
-        return ret;
+        return new TankConfig().getVmManagerConfig()
+                .getInstanceTypes().stream()
+                .filter(t -> t.getName().equals(type))
+                .findFirst().map(VmInstanceType::getUsers)
+                .orElse(-1);
     }
 
     /**
@@ -345,17 +348,13 @@ public class JobMaker implements Serializable {
     }
 
     private String createJobDetails() {
-        String ret = null;
         if (proposedJobInstance != null) {
             Workload workload = projectBean.getWorkload();
             JobValidator validator = new JobValidator(workload.getTestPlans(), proposedJobInstance.getVariables(),
                     false);
-            ret = JobDetailFormatter.createJobDetails(validator, workload, proposedJobInstance);
-        } else {
-            ret = "Job is incomplete.";
+            return JobDetailFormatter.createJobDetails(validator, workload, proposedJobInstance);
         }
-
-        return ret;
+        return "Job is incomplete.";
     }
 
     public void addJobToQueue() {
@@ -419,22 +418,22 @@ public class JobMaker implements Serializable {
     }
 
     private boolean hasScripts() {
-        boolean ret = false;
         Workload workload = projectBean.getWorkload();
         workload.getTestPlans();
         for (TestPlan plan : workload.getTestPlans()) {
             for (ScriptGroup group : plan.getScriptGroups()) {
                 if (!group.getScriptGroupSteps().isEmpty()) {
-                    ret = true;
+                    return true;
                 }
             }
         }
-        return ret;
+        return false;
     }
 
     /**
-     * @param dataFileDao2
+     * @param dao
      * @param dataFileIds
+     * @param entityClass
      * @return
      */
     @SuppressWarnings("rawtypes")
@@ -449,8 +448,8 @@ public class JobMaker implements Serializable {
     }
 
     /**
-     * @param dataFileDao2
-     * @param dataFileIds
+     * @param dao
+     * @param entities
      * @return
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })

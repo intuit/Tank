@@ -253,9 +253,7 @@ public class CodeTemplateManager {
     public synchronized void replaceTemplates(CodeTemplate[] newTemplates) {
         templates.clear();
         if (newTemplates != null) {
-            for (CodeTemplate newTemplate : newTemplates) {
-                templates.add(newTemplate);
-            }
+            Collections.addAll(templates, newTemplates);
         }
         sortTemplates(); // Also recomputes maxTemplateIDLength.
     }

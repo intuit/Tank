@@ -44,11 +44,10 @@ public class SummaryDataDao extends BaseDao<SummaryData> {
     public List<SummaryData> findByJobId(int jobId) {
         String prefix = "x";
         NamedParameter parameter = new NamedParameter(SummaryData.PROPERTY_JOB_ID, "j", jobId);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere())
-                .append(buildWhereClause(Operation.EQUALS, prefix, parameter));
-        sb.append(buildSortOrderClause(SortDirection.ASC, prefix, SummaryData.PROPERTY_PAGE_ID));
-        return super.listWithJQL(sb.toString(), parameter);
+        String sb = buildQlSelect(prefix) + startWhere() +
+                buildWhereClause(Operation.EQUALS, prefix, parameter) +
+                buildSortOrderClause(SortDirection.ASC, prefix, SummaryData.PROPERTY_PAGE_ID);
+        return super.listWithJQL(sb, parameter);
     }
 
 }

@@ -186,7 +186,7 @@ class StringFunctions {
 
         String newString = string.substring(beginIndex + start.length());
 
-        if (!end.equals("")) {
+        if (!end.isEmpty()) {
             int endIndex = newString.indexOf(end);
             if (endIndex > 0)
                 newString = newString.substring(0, endIndex);

@@ -87,16 +87,12 @@ public class SummaryReportRunner implements Runnable {
      * @return
      */
     private String getSummaryEventMessage() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(
-                "Summary Timing Data Report for job " + jobEvent.getJobId()
-                        + " is ready for download.").append(NEWLINE)
-                .append(NEWLINE);
-        sb.append("The report can be downloaded at ").append(rootUrl)
-                .append("/rest").append(ReportService.SERVICE_RELATIVE_PATH)
-                .append(ReportService.METHOD_TIMING_SUMMARY_CSV).append('/')
-                .append(jobEvent.getJobId());
-        return sb.toString();
+        return "Summary Timing Data Report for job " + jobEvent.getJobId()
+                + " is ready for download." + NEWLINE + NEWLINE
+                + "The report can be downloaded at " + rootUrl
+                + "/rest"+ ReportService.SERVICE_RELATIVE_PATH
+                + ReportService.METHOD_TIMING_SUMMARY_CSV + '/'
+                + jobEvent.getJobId();
     }
 
     /**

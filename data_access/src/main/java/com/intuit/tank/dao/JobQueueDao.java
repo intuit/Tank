@@ -43,9 +43,6 @@ import com.intuit.tank.project.JobQueue;
 public class JobQueueDao extends BaseDao<JobQueue> {
     private static final Logger LOG = LogManager.getLogger(JobQueueDao.class);
 
-    /**
-     * @param entityClass
-     */
     public JobQueueDao() {
         super();
         setReloadEntities(true);
@@ -57,32 +54,9 @@ public class JobQueueDao extends BaseDao<JobQueue> {
      * @return
      */
     public synchronized JobQueue findOrCreateForProjectId(@Nonnull int projectId) {
-        JobQueue result = null;
-        List<JobQueue> resultList = null;
-        EntityManager em = getEntityManager();
-    	try {
-    		begin();
-    		CriteriaBuilder cb = em.getCriteriaBuilder();
-	        CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
-	        Root<JobQueue> root = query.from(JobQueue.class);
-	        root.join("jobs");
-	        query.where(cb.equal(root.<String>get(JobQueue.PROPERTY_PROJECT_ID), projectId));
-	        query.select(root);
-	        resultList = em.createQuery(query).getResultList();  
-	        commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-    	} finally {
-    		cleanup();
-    	}
-        if (resultList.size() > 1) {
-            LOG.warn("Have " + resultList.size() + " queues for project " + projectId);
-        }
-        if (resultList.size() > 0) {
-            result = resultList.get(0);
-        }
+        String prefix = "x";
+        NamedParameter parameter = new NamedParameter(JobQueue.PROPERTY_PROJECT_ID, "pId", projectId);
+        JobQueue result = super.findOneWithJQL(buildQlSelect(prefix) + startWhere() + buildWhereClause(Operation.EQUALS, prefix, parameter), parameter);
         if (result == null) {
             result = new JobQueue(projectId);
             result = saveOrUpdate(result);
@@ -94,16 +68,13 @@ public class JobQueueDao extends BaseDao<JobQueue> {
 
     /**
      * 
-     * @param projectId
+     * @param projectIds
      * @return
      */
     public List<JobQueue> getForProjectIds(@Nonnull List<Integer> projectIds) {
         String prefix = "x";
         NamedParameter parameter = new NamedParameter(JobQueue.PROPERTY_PROJECT_ID, "pId", projectIds);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere()).append(buildWhereClause(Operation.IN, prefix, parameter));
-        List<JobQueue> resultList = super.listWithJQL(sb.toString(), parameter);
-        return resultList;
+        return super.listWithJQL(buildQlSelect(prefix) + startWhere() + buildWhereClause(Operation.IN, prefix, parameter), parameter);
     }
     
     /**
@@ -141,7 +112,6 @@ public class JobQueueDao extends BaseDao<JobQueue> {
      * @return JobQueue
      */
     public JobQueue findForJobId(Integer jobId) {
-        JobQueue ret = null;
         try {
             String string = "select x.test_id from test_instance_jobs x where x.job_id = ?";
             Query q = getEntityManager().createNativeQuery(string);
@@ -152,10 +122,10 @@ public class JobQueueDao extends BaseDao<JobQueue> {
             } catch (NoResultException nre) {
             	return null;
             }
-            ret = findById(result);
+            return findById(result);
         } catch (Exception e) {
             LOG.error("Error finding for Job ID: " + e, e);
         }
-        return ret;
+        return null;
     }
 }

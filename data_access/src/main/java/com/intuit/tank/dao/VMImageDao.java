@@ -52,10 +52,9 @@ public class VMImageDao extends BaseDao<VMInstance> {
     public VMInstance getImageByInstanceId(@Nonnull String instanceId) {
         String prefix = "x";
         NamedParameter parameter = new NamedParameter(VMInstance.PROPERTY_INSTANCE_ID, "iId", instanceId);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere())
-                .append(buildWhereClause(Operation.EQUALS, prefix, parameter));
-        return super.findOneWithJQL(sb.toString(), parameter);
+        String sb = buildQlSelect(prefix) + startWhere() +
+                buildWhereClause(Operation.EQUALS, prefix, parameter);
+        return super.findOneWithJQL(sb, parameter);
     }
 
     /**

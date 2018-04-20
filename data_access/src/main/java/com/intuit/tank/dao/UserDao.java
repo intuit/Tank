@@ -70,10 +70,9 @@ public class UserDao extends BaseDao<User> {
     public User findByUserName(@Nonnull String userName) {
         String prefix = "x";
         NamedParameter parameter = new NamedParameter(User.PROPERTY_NAME, "name", userName);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere())
-                .append(buildWhereClause(Operation.EQUALS, prefix, parameter));
-        return super.findOneWithJQL(sb.toString(), parameter);
+        String sb = buildQlSelect(prefix) + startWhere() +
+                buildWhereClause(Operation.EQUALS, prefix, parameter);
+        return super.findOneWithJQL(sb, parameter);
     }
     /**
      * finds the user by the apiToken.
@@ -85,10 +84,9 @@ public class UserDao extends BaseDao<User> {
     public User findByApiToken(@Nonnull String apiToken) {
         String prefix = "x";
         NamedParameter parameter = new NamedParameter(User.PROPERTY_TOKEN, "token", apiToken);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere())
-        .append(buildWhereClause(Operation.EQUALS, prefix, parameter));
-        return super.findOneWithJQL(sb.toString(), parameter);
+        String sb = buildQlSelect(prefix) + startWhere() +
+                buildWhereClause(Operation.EQUALS, prefix, parameter);
+        return super.findOneWithJQL(sb, parameter);
     }
 
 }

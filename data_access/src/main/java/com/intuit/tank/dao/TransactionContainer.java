@@ -36,32 +36,25 @@ public class TransactionContainer {
 
     private static EntityManagerFactory entityManagerFactory;
     private static volatile boolean initialized = false;  
-    private static Boolean lock = new Boolean(true);
+    private static Boolean lock = Boolean.TRUE;
 
     private EntityManager em;
     private EntityTransaction transaction;
     private Object initiatingObject;
 
-    /**
-     * @param em
-     * @param initiatingObject
-     */
     public TransactionContainer() {
-    	synchronized(lock){  
-            
-  	      if(initialized){  
-  	        return;  
-  	      }  
-  	        
-  	      initialized = true;  
-  	        
-  	      try{  
-  	    	  entityManagerFactory = Persistence.createEntityManagerFactory("wats"); 
-  	          
-  	      } catch(Throwable t){  
-  	        LOG.error("Failed to setup persistence unit!", t);  
-  	      }  
-  	}  
+        synchronized(lock){
+
+            if(initialized){
+                return;
+            }
+            try{
+                entityManagerFactory = Persistence.createEntityManagerFactory("tank");
+                initialized = true;
+            } catch(Throwable t){
+                LOG.error("Failed to setup persistence unit!", t);
+            }
+        }
     }
 
     /**

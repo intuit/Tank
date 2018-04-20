@@ -56,10 +56,9 @@ public abstract class OwnableDao<T_ENTITY extends OwnableEntity> extends BaseDao
         try {
             String prefix = "x";
             NamedParameter parameter = new NamedParameter(OwnableEntity.PROPERTY_CREATOR, "pId", owner);
-            StringBuilder sb = new StringBuilder();
-            sb.append(buildQlSelect(prefix)).append(startWhere())
-                    .append(buildWhereClause(Operation.EQUALS, prefix, parameter));
-            return listWithJQL(sb.toString(), parameter);
+            String sb = buildQlSelect(prefix) + startWhere() +
+                    buildWhereClause(Operation.EQUALS, prefix, parameter);
+            return listWithJQL(sb, parameter);
         } catch (Exception e) {
             LOG.info("No entities for owner " + owner);
         }

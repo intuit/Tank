@@ -25,7 +25,7 @@
             <p:commandButton value="Import Intuit Tank XML"
               oncomplete="PF('xmlUploadDialog').show();"
               immediate="true"
-              action="#{tankXmlUploadBean.clearDialog}"
+              action="#{tankXmlUploadBean.clearDialog()}"
               style=" background-image: url(#{request.contextPath}/resources/gfx/16/document_import.png);
                     background-repeat: no-repeat;
                     background-position: 3px 5px;

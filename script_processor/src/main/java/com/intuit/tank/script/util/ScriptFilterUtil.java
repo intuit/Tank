@@ -73,7 +73,7 @@ public class ScriptFilterUtil {
      * Applys the filters specified by filterIds
      * 
      * @param filterIds
-     * @param steps
+     * @param script
      */
     public static void applyFilters(List<Integer> filterIds, Script script) {
         ScriptFilterDao dao = new ScriptFilterDao();
@@ -83,8 +83,8 @@ public class ScriptFilterUtil {
     /**
      * Applys the filters specified by filterIds
      * 
-     * @param filterIds
-     * @param steps
+     * @param filters
+     * @param script
      */
     public static void applyFiltersToScript(Collection<ScriptFilter> filters, Script script) {
         ExternalScriptDao externalScriptDao = new ExternalScriptDao();
@@ -188,13 +188,21 @@ public class ScriptFilterUtil {
             Set<ScriptStep> stepsToDelete, ScriptFilterAction scriptFilterAction, ScriptStep step) {
 
         if (scriptFilterAction.getScope().equalsIgnoreCase(ReplaceActionScope.requestHeader.getValue())) {
-            step.getRequestheaders().stream().filter(qs -> qs.getKey().trim().equals(scriptFilterAction.getKey())).findFirst().ifPresent(qs -> qs.setValue(scriptFilterAction.getValue()));
+            step.getRequestheaders().stream()
+                    .filter(qs -> qs.getKey().trim().equals(scriptFilterAction.getKey()))
+                    .findFirst().ifPresent(qs -> qs.setValue(scriptFilterAction.getValue()));
         } else if (scriptFilterAction.getScope().equalsIgnoreCase(ReplaceActionScope.requestCookie.getValue())) {
-            step.getRequestCookies().stream().filter(qs -> qs.getKey().trim().equals(scriptFilterAction.getKey())).findFirst().ifPresent(qs -> qs.setValue(scriptFilterAction.getValue()));
+            step.getRequestCookies().stream()
+                    .filter(qs -> qs.getKey().trim().equals(scriptFilterAction.getKey()))
+                    .findFirst().ifPresent(qs -> qs.setValue(scriptFilterAction.getValue()));
         } else if (scriptFilterAction.getScope().equalsIgnoreCase(ReplaceActionScope.queryString.getValue())) {
-            step.getQueryStrings().stream().filter(qs -> qs.getKey().trim().equals(scriptFilterAction.getKey())).findFirst().ifPresent(qs -> qs.setValue(scriptFilterAction.getValue()));
+            step.getQueryStrings().stream()
+                    .filter(qs -> qs.getKey().trim().equals(scriptFilterAction.getKey()))
+                    .findFirst().ifPresent(qs -> qs.setValue(scriptFilterAction.getValue()));
         } else if (scriptFilterAction.getScope().equalsIgnoreCase(ReplaceActionScope.postData.getValue())) {
-            step.getPostDatas().stream().filter(pd -> pd.getKey().trim().equals(scriptFilterAction.getKey())).findFirst().ifPresent(pd -> pd.setValue(scriptFilterAction.getValue()));
+            step.getPostDatas().stream()
+                    .filter(pd -> pd.getKey().trim().equals(scriptFilterAction.getKey()))
+                    .findFirst().ifPresent(pd -> pd.setValue(scriptFilterAction.getValue()));
         } else if (scriptFilterAction.getScope().equalsIgnoreCase(ReplaceActionScope.validation.getValue())) {
             for (RequestData pd : step.getResponseData()) {
                 if (pd.getKey().trim().equals(scriptFilterAction.getKey())) {
@@ -236,37 +244,13 @@ public class ScriptFilterUtil {
         if (scriptFilterAction.getScope().equalsIgnoreCase(RemoveActionScope.request.getValue())) {
             stepsToDelete.add(step);
         } else if (scriptFilterAction.getScope().equalsIgnoreCase(RemoveActionScope.requestCookie.getValue())) {
-            Set<RequestData> requestCookies = step.getRequestCookies();
-            for (Iterator<RequestData> iterator = requestCookies.iterator(); iterator.hasNext();) {
-                RequestData requestData = iterator.next();
-                if (requestData.getKey().equalsIgnoreCase(scriptFilterAction.getKey())) {
-                    iterator.remove();
-                }
-            }
+            step.getRequestCookies().removeIf(requestData -> requestData.getKey().equalsIgnoreCase(scriptFilterAction.getKey()));
         } else if (scriptFilterAction.getScope().equalsIgnoreCase(RemoveActionScope.requestHeader.getValue())) {
-            Set<RequestData> requestHeaders = step.getRequestheaders();
-            for (Iterator<RequestData> iterator = requestHeaders.iterator(); iterator.hasNext();) {
-                RequestData requestData = iterator.next();
-                if (requestData.getKey().equalsIgnoreCase(scriptFilterAction.getKey())) {
-                    iterator.remove();
-                }
-            }
+            step.getRequestheaders().removeIf(requestData -> requestData.getKey().equalsIgnoreCase(scriptFilterAction.getKey()));
         } else if (scriptFilterAction.getScope().equalsIgnoreCase(RemoveActionScope.queryString.getValue())) {
-            Set<RequestData> queryStrings = step.getQueryStrings();
-            for (Iterator<RequestData> iterator = queryStrings.iterator(); iterator.hasNext();) {
-                RequestData requestData = iterator.next();
-                if (requestData.getKey().equalsIgnoreCase(scriptFilterAction.getKey())) {
-                    iterator.remove();
-                }
-            }
+            step.getQueryStrings().removeIf(requestData -> requestData.getKey().equalsIgnoreCase(scriptFilterAction.getKey()));
         } else if (scriptFilterAction.getScope().equalsIgnoreCase(RemoveActionScope.postData.getValue())) {
-            Set<RequestData> postData = step.getPostDatas();
-            for (Iterator<RequestData> iterator = postData.iterator(); iterator.hasNext();) {
-                RequestData requestData = iterator.next();
-                if (requestData.getKey().equalsIgnoreCase(scriptFilterAction.getKey())) {
-                    iterator.remove();
-                }
-            }
+            step.getPostDatas().removeIf(requestData -> requestData.getKey().equalsIgnoreCase(scriptFilterAction.getKey()));
         } else {
             logger.warn("Remove Action not available for scope " + scriptFilterAction.getScope());
         }
@@ -424,10 +408,10 @@ public class ScriptFilterUtil {
             if (filterField.startsWith(condition.getValue()))
                 return true;
         } else if (condition.getCondition().equalsIgnoreCase("Exist")) {
-            if (!filterField.equals(""))
+            if (!filterField.isEmpty())
                 return true;
         } else if (condition.getCondition().equalsIgnoreCase("Does not exist")) {
-            if (filterField.equals(""))
+            if (filterField.isEmpty())
                 return true;
             // return doAction(condition.getActions(), currentStep);
         }
@@ -445,7 +429,8 @@ public class ScriptFilterUtil {
         if (fields == null) {
             return false;
         }
-        if (fields.stream().map(field -> field.getKey() + "=" + field.getValue()).anyMatch(filterField -> matchContition(condition, filterField))) {
+        if (fields.stream().map(field -> field.getKey() + "=" + field.getValue())
+                .anyMatch(filterField -> matchContition(condition, filterField))) {
             return true;
         }
 
