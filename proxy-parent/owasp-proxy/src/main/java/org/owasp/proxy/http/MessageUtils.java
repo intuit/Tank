@@ -99,7 +99,7 @@ public class MessageUtils {
 
     public static InputStream decode(String codings, InputStream content)
             throws IOException, MessageFormatException {
-        if (codings == null || codings.trim().equals(""))
+        if (codings == null || codings.trim().isEmpty())
             return content;
         String[] algos = codings.split("[ \t]*,[ \t]*");
         if (algos.length == 1 && IDENTITY.equalsIgnoreCase(algos[0]))
@@ -169,7 +169,7 @@ public class MessageUtils {
 
     public static InputStream encode(String codings, InputStream content)
             throws MessageFormatException {
-        if (codings == null || codings.trim().equals(""))
+        if (codings == null || codings.trim().isEmpty())
             return content;
         String[] algos = codings.split("[ \t]*,[ \t]*");
         if (algos.length == 1 && IDENTITY.equalsIgnoreCase(algos[0]))

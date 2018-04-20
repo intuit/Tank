@@ -174,7 +174,7 @@ public class HttpProxyConnectionHandler implements ConnectionHandler,
             String line;
             do {
                 line = cis.readLine();
-            } while (line != null && !"".equals(line));
+            } while (line != null && !line.isEmpty());
         } catch (IOException e) {
             byte[] headerBytes = copy.toByteArray();
             if (headerBytes == null || headerBytes.length == 0)

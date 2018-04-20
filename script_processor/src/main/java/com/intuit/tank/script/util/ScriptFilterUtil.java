@@ -424,10 +424,10 @@ public class ScriptFilterUtil {
             if (filterField.startsWith(condition.getValue()))
                 return true;
         } else if (condition.getCondition().equalsIgnoreCase("Exist")) {
-            if (!filterField.equals(""))
+            if (!filterField.isEmpty())
                 return true;
         } else if (condition.getCondition().equalsIgnoreCase("Does not exist")) {
-            if (filterField.equals(""))
+            if (filterField.isEmpty())
                 return true;
             // return doAction(condition.getActions(), currentStep);
         }

@@ -603,7 +603,7 @@ public class ConverterUtil {
                    * else { cookieStr += "." + c.getKey().replace(".", "-dot-") + "=." + c.getValue() + ".;"; }
                    */
             }
-            if (!cookieStr.equals("")) {
+            if (!cookieStr.isEmpty()) {
                 String cookieValue = "#function.string.concat" + cookieStr;
                 Header cookieData = new Header();
                 cookieData.setKey("Cookie");
