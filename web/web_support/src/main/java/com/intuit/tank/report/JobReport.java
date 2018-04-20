@@ -116,12 +116,7 @@ public class JobReport extends SelectableBean<JobReportData> implements Serializ
         if (!StringUtils.isEmpty(jobReportOptions.getDurationStart())) {
             try {
                 int duration = findDuration(jobReportOptions.getDurationStart());
-                for (Iterator<JobReportData> iter = data.iterator(); iter.hasNext();) {
-                    JobReportData job = iter.next();
-                    if (duration > job.getDuration()) {
-                        iter.remove();
-                    }
-                }
+                data.removeIf(job -> duration > job.getDuration());
             } catch (Exception e) {
                 LOG.warn("Error with min duration value of " + jobReportOptions.getDurationStart());
             }

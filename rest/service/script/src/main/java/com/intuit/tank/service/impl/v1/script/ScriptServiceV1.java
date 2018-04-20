@@ -616,12 +616,7 @@ public class ScriptServiceV1 implements ScriptService {
 
         for (ScriptFilterGroup scriptFilterGroup : scriptFilterGroupForFilter) {
             Set<ScriptFilter> filters = scriptFilterGroup.getFilters();
-            for (Iterator<ScriptFilter> iterator2 = filters.iterator(); iterator2.hasNext(); ) {
-                ScriptFilter scriptFilter = iterator2.next();
-                if (scriptFilter.getId() == id) {
-                    iterator2.remove();
-                }
-            }
+            filters.removeIf(scriptFilter -> scriptFilter.getId() == id);
             sfgd.saveOrUpdate(scriptFilterGroup);
         }
 

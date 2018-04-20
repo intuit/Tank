@@ -549,7 +549,7 @@ public class APITestHarness {
                 .append("; agentRunData.getNumUsers()=").append(agentRunData.getNumUsers())
                 .append("; NUM_START_THREADS=").append(agentRunData.getNumStartUsers())
                 .append("; simulationTime=").append(agentRunData.getSimulationTime());
-        LOG.info(LogUtil.getLogMessage("starting test with " + info.toString()));
+        LOG.info(LogUtil.getLogMessage("starting test with " + info));
         started = true;
 
         if (agentRunData.getJobId() == null) {

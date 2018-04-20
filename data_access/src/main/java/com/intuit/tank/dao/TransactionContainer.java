@@ -36,7 +36,7 @@ public class TransactionContainer {
 
     private static EntityManagerFactory entityManagerFactory;
     private static volatile boolean initialized = false;  
-    private static Boolean lock = new Boolean(true);
+    private static Boolean lock = Boolean.TRUE;
 
     private EntityManager em;
     private EntityTransaction transaction;
