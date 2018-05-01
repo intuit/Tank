@@ -54,9 +54,16 @@ public class JobQueueDao extends BaseDao<JobQueue> {
      * @return
      */
     public synchronized JobQueue findOrCreateForProjectId(@Nonnull int projectId) {
+        JobQueue result = null;
         String prefix = "x";
         NamedParameter parameter = new NamedParameter(JobQueue.PROPERTY_PROJECT_ID, "pId", projectId);
-        JobQueue result = super.findOneWithJQL(buildQlSelect(prefix) + startWhere() + buildWhereClause(Operation.EQUALS, prefix, parameter), parameter);
+        List<JobQueue> resultList = super.listWithJQL(buildQlSelect(prefix) + startWhere() + buildWhereClause(Operation.EQUALS, prefix, parameter), parameter);
+        if (resultList.size() > 1) {
+            LOG.warn("Have " + resultList.size() + " queues for project " + projectId);
+        }
+        if (!resultList.isEmpty()) {
+            result = resultList.get(0);
+        }
         if (result == null) {
             result = new JobQueue(projectId);
             result = saveOrUpdate(result);

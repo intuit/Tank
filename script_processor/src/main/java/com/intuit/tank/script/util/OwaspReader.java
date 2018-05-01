@@ -16,8 +16,6 @@ package com.intuit.tank.script.util;
  * #L%
  */
 
-import java.io.File;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -32,7 +30,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,13 +80,11 @@ public class OwaspReader implements RecordedScriptReader {
                 .parse(reader));
     }
 
-    public List<ScriptStep> transactionsToRequest(
-            Collection<Transaction> entries) {
+    public List<ScriptStep> transactionsToRequest( Collection<Transaction> entries) {
         List<ScriptStep> result = new ArrayList<ScriptStep>();
         int index = 0;
         for (Transaction transaction : entries) {
-            index++;
-            result.add(transactionToResult(transaction, index));
+            result.add(transactionToResult(transaction, ++index));
         }
         return result;
     }
@@ -278,7 +273,6 @@ public class OwaspReader implements RecordedScriptReader {
      */
     public static Set<RequestData> rawJsonToSet(String response)
             throws JSONException {
-        Set<RequestData> map = new LinkedHashSet<RequestData>();
         JSONObject jsonObject = new JSONObject(response);
         String[] names = JSONObject.getNames(jsonObject);
         List<RequestData> itemList = new ArrayList<RequestData>();
@@ -286,7 +280,7 @@ public class OwaspReader implements RecordedScriptReader {
             traverse(name, jsonObject, itemList, new RequestDataBuilder(
                     RequestDataType.requestPostData.name()));
         }
-        map.addAll(itemList);
+        Set<RequestData> map = new LinkedHashSet<RequestData>(itemList);
 
         return map;
     }

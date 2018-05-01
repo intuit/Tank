@@ -8,7 +8,6 @@ import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.EventFilter;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.events.XMLEvent;
@@ -51,7 +50,7 @@ public class WebConversationJaxbParseXML {
 
     private List<Transaction> parse(XMLInputFactory xmlif, XMLEventReader xmler) throws WatsParseException {
 
-        List<Transaction> result = null;
+        List<Transaction> result = new ArrayList<Transaction>();
         try {
             XMLEventReader xmlfer = xmlif.createFilteredReader(xmler, XMLEvent::isStartElement);
             // Jump to the first element in the document, the enclosing log
@@ -59,7 +58,6 @@ public class WebConversationJaxbParseXML {
             // Parse into typed objects
             JAXBContext ctx = JAXBContext.newInstance(Transaction.class.getPackage().getName());
             Unmarshaller um = ctx.createUnmarshaller();
-            result = new ArrayList<Transaction>();
             while (xmlfer.peek() != null) {
                 Object o = um.unmarshal(xmler);
                 if (o instanceof Transaction) {
