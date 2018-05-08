@@ -486,26 +486,22 @@ public class RtfGenerator {
      */
     public String getRtf() {
 
-        StringBuffer sb = new StringBuffer();
-        sb.append("{");
-
         // Header
-        sb.append("\\rtf1\\ansi\\ansicpg1252");
-        sb.append("\\deff0"); // First font in font table is the default
-        sb.append("\\deflang1033");
-        sb.append("\\viewkind4"); // "Normal" view
-        sb.append("\\uc\\pard\\f0");
-        sb.append("\\fs20"); // Font size in half-points (default 24)
-        sb.append(getFontTableRtf()).append('\n');
-        sb.append(getColorTableRtf()).append('\n');
 
         // Content
-        sb.append(document);
-
-        sb.append("}");
 
         // System.err.println("*** " + sb.length());
-        return sb.toString();
+        return "{" +
+                "\\rtf1\\ansi\\ansicpg1252" +
+                "\\deff0" + // First font in font table is the default
+                "\\deflang1033" +
+                "\\viewkind4" + // "Normal" view
+                "\\uc\\pard\\f0" +
+                "\\fs20" + // Font size in half-points (default 24)
+                getFontTableRtf() + '\n' +
+                getColorTableRtf() + '\n' +
+                document +
+                "}";
 
     }
 

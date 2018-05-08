@@ -275,7 +275,7 @@ public class JobManager implements Serializable {
                 ret.add(dataRequest);
             }
         }
-        return ret.toArray(new DataFileRequest[ret.size()]);
+        return ret.toArray(new DataFileRequest[0]);
     }
 
     private int getNumberOfLines(Integer dataFileId) {

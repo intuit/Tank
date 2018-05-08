@@ -307,7 +307,7 @@ public class Main implements TransactionRecordedListener {
                     .substring(0, c), Integer.parseInt(proxy.substring(c + 1)));
             upstream = new java.net.Proxy(type, addr);
         }
-        ProxySelector ps = new ProxySelector() {
+        return new ProxySelector() {
 
             @Override
             public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
@@ -320,7 +320,6 @@ public class Main implements TransactionRecordedListener {
                 return Collections.singletonList(upstream);
             }
         };
-        return ps;
     }
 
     static SSLContextSelector getSSLContextSelector()

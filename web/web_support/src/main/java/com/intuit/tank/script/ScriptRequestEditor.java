@@ -169,8 +169,7 @@ public class ScriptRequestEditor implements Serializable {
     }
 
     public FailureTypes[] getFailureValues() {
-        FailureTypes[] failureTypes = FailureTypes.values();
-        return failureTypes;
+        return FailureTypes.values();
         // return new String[] { "Abort Script, goto Next Script", "Continue to Next Request",
         // "Skip remaining Requests in Group", "Goto Group", "Terminate User" };
     }
@@ -211,8 +210,7 @@ public class ScriptRequestEditor implements Serializable {
         RepresentationEntity multiPart = new RepresentationEntity("Multi-Part", ScriptConstants.MULTI_PART_TYPE);
         RepresentationEntity plainText = new RepresentationEntity("Plain Text", ScriptConstants.PLAIN_TEXT_TYPE);
 
-        RepresentationEntity[] entities = new RepresentationEntity[] { keyValue, xml, json, plainText, multiPart };
-        return entities;
+        return new RepresentationEntity[] { keyValue, xml, json, plainText, multiPart };
     }
 
     public RepresentationEntity[] getResponseFormats() {
@@ -220,8 +218,7 @@ public class ScriptRequestEditor implements Serializable {
         RepresentationEntity raw = new RepresentationEntity("RAW", "raw");
         RepresentationEntity xml = new RepresentationEntity("XML", "xml");
 
-        RepresentationEntity[] entities = new RepresentationEntity[] { jsonValue, raw, xml };
-        return entities;
+        return new RepresentationEntity[] { jsonValue, raw, xml };
     }
 
 }

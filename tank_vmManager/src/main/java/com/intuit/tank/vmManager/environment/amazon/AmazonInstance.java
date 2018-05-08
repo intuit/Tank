@@ -387,7 +387,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         for (InstanceTag tag : tags) {
             pairs.add(new KeyValuePair(tag.getName(), tag.getValue()));
         }
-        return pairs.toArray(new KeyValuePair[pairs.size()]);
+        return pairs.toArray(new KeyValuePair[0]);
     }
 
     /**
@@ -429,7 +429,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     public List<VMInformation> kill(List<String> instanceIds) {
         List<VMInformation> result = new ArrayList<>();
         try {
-            List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
+            List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[0]));
             List<String> ids = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
             if (!ids.isEmpty()) {
                 TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest(ids);
@@ -577,7 +577,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     public List<VMInformation> stopInstances(List<String> instanceIds) {
         List<VMInformation> result = new ArrayList<VMInformation>();
         try {
-            List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
+            List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[0]));
             List<String> ids = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
             if (!ids.isEmpty()) {
                 StopInstancesRequest stopInstancesRequest = new StopInstancesRequest(ids);

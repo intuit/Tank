@@ -94,7 +94,7 @@ public class TPSInfoContainer implements Serializable {
                 ArrayList<Date> dates = new ArrayList<Date>(transactionMap.keySet());
                 Collections.sort(dates);
                 Date date = dates.get(dates.size() - 1);
-                totalTps = transactionMap.get(date).intValue() / period;
+                totalTps = transactionMap.get(date) / period;
             }
         }
     }

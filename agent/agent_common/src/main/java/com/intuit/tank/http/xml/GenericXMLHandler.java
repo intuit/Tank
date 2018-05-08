@@ -146,7 +146,7 @@ public class GenericXMLHandler implements Cloneable {
      * 
      * @param xPathExpression
      *            The xpath expression for the element
-     * @param value
+     * @param currentNode
      *            The value to set the text to
      * @throws JDOMException
      */
@@ -156,8 +156,7 @@ public class GenericXMLHandler implements Cloneable {
 
         if (xPathExists(currentPath)) {
             if (currentPath.equals(xPathExpression)) {
-                org.jdom.Element node = (org.jdom.Element) XPath.selectSingleNode(this.xmlDocument, xPathExpression);
-                return node;
+                return (org.jdom.Element) XPath.selectSingleNode(this.xmlDocument, xPathExpression);
             }
             else {
                 return SetElementText(xPathExpression, currentNode + 1);
@@ -243,9 +242,7 @@ public class GenericXMLHandler implements Cloneable {
      */
     public ArrayList<String> GetElementList(String xPathExpression) {
         try {
-            ArrayList<String> values;
             List<?> nodeList = XPath.selectNodes(this.xmlDocument, xPathExpression);
-
             return nodeList.stream().map(aNodeList -> (Element) aNodeList).map(Element::getText).collect(Collectors.toCollection(ArrayList::new));
         } catch (Exception ex) {
             LOG.error("Error in handler: " + ex.getMessage(), ex);
@@ -263,9 +260,7 @@ public class GenericXMLHandler implements Cloneable {
     public boolean xPathExists(String xpathExpr)
     {
         try {
-            if (XPath.selectSingleNode(this.xmlDocument, xpathExpr) == null)
-                return false;
-            return true;
+            return !(XPath.selectSingleNode(this.xmlDocument, xpathExpr) == null);
         } catch (Exception ex) {
             return false;
         }
@@ -302,9 +297,7 @@ public class GenericXMLHandler implements Cloneable {
     }
 
     public boolean isXMLValid() {
-        if (this.xmlDocument == null)
-            return false;
-        return true;
+        return !(this.xmlDocument == null);
     }
 
     /**
@@ -328,11 +321,12 @@ public class GenericXMLHandler implements Cloneable {
 
         String[] paths = xpath.split("/");
 
-        String newPath = "";
+        StringBuilder newPath = new StringBuilder();
         for (int i = 1; i <= paths.length - 2; i++) {
-            newPath = newPath + "/" + paths[i];
+            newPath.append("/");
+            newPath.append(paths[i]);
         }
-        return newPath;
+        return newPath.toString();
 
     }
 
@@ -346,11 +340,12 @@ public class GenericXMLHandler implements Cloneable {
 
         String[] paths = xpath.split("/");
 
-        String newPath = "";
+        StringBuilder newPath = new StringBuilder();
         for (int i = 0; i <= node; i++) {
-            newPath = newPath + "/" + paths[i + 1];
+            newPath.append("/");
+            newPath.append(paths[i + 1]);
         }
-        return newPath;
+        return newPath.toString();
 
     }
 

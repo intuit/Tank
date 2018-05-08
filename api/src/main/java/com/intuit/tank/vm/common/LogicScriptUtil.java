@@ -29,9 +29,7 @@ public class LogicScriptUtil implements Serializable {
      */
     public String buildScript(String script) {
         LogicStepConfig logicStepConfig = new TankConfig().getLogicStepConfig();
-        StringBuilder sb = new StringBuilder();
-        sb.append(logicStepConfig.getInsertBefore()).append('\n').append('\n')
-                .append(script).append('\n').append('\n').append(logicStepConfig.getAppendAfter());
-        return sb.toString();
+        return logicStepConfig.getInsertBefore() + '\n' + '\n' +
+                script + '\n' + '\n' + logicStepConfig.getAppendAfter();
     }
 }

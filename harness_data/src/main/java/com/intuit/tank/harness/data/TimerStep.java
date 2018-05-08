@@ -56,8 +56,7 @@ public class TimerStep extends TestStep {
 
     @Override
     public String getInfo() {
-        return new StringBuilder().append((isStart() ? "Start" : "Stop") + "_Timer(").append(value).append(')')
-                .toString();
+        return ((isStart() ? "Start" : "Stop") + "_Timer(") + value + ')';
     }
 
     /**

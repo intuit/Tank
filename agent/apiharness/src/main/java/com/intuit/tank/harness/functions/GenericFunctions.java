@@ -131,7 +131,7 @@ class GenericFunctions {
 
     /**
      * 
-     * @param startSsn
+     * @param val
      * @return
      */
     public static String getSsn(String val) {
@@ -157,12 +157,9 @@ class GenericFunctions {
 
     private static boolean isValidSsn(int ssn) {
 
-        if (((ssn >= 1010001) && (ssn <= 699999999)) ||
+        return (((ssn >= 1010001) && (ssn <= 699999999)) ||
                 ((ssn >= 700010001) && (ssn <= 733999999)) ||
                 ((ssn >= 750010001) && (ssn <= 763999999)) ||
-                ((ssn >= 764010001) && (ssn <= 899999999))) {
-            return true;
-        }
-        return false;
+                ((ssn >= 764010001) && (ssn <= 899999999)));
     }
 }

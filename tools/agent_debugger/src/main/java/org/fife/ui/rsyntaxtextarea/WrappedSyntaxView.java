@@ -312,8 +312,7 @@ public class WrappedSyntaxView extends BoxView implements TabExpander,
     protected int getTabSize() {
         Integer i = (Integer) getDocument().
                 getProperty(PlainDocument.tabSizeAttribute);
-        int size = (i != null) ? i.intValue() : 5;
-        return size;
+        return (i != null) ? i : 5;
     }
 
     /**
@@ -704,8 +703,7 @@ public class WrappedSyntaxView extends BoxView implements TabExpander,
             case View.Y_AXIS:
                 if (nlines == 0 || widthChanging)
                     nlines = calculateLineCount();
-                int h = nlines * ((RSyntaxTextArea) getContainer()).getLineHeight();
-                return h;
+                return nlines * ((RSyntaxTextArea) getContainer()).getLineHeight();
             default:
                 throw new IllegalArgumentException("Invalid axis: " + axis);
             }

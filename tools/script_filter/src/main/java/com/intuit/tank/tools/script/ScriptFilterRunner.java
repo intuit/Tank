@@ -483,9 +483,8 @@ public class ScriptFilterRunner extends JFrame {
      * @return
      */
     private GridBagConstraints getConstraints(int x, int y, int fill) {
-        GridBagConstraints ret = new GridBagConstraints(x, y, 1, 1, x, .5D, GridBagConstraints.WEST, fill, new Insets(
+        return new GridBagConstraints(x, y, 1, 1, x, .5D, GridBagConstraints.WEST, fill, new Insets(
                 5, 5, 5, 5), 5, 5);
-        return ret;
     }
 
     private void loadTSXml(File selectedFile) {

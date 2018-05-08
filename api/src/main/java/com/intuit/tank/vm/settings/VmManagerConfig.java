@@ -240,9 +240,8 @@ public class VmManagerConfig implements Serializable {
      * @return the read capacity for dynamoDB tables.
      */
     public HierarchicalConfiguration getResultsProviderConfig() {
-        SubnodeConfiguration ret = config.configurationAt("results/config");
 
-        return ret;
+        return config.configurationAt("results/config");
     }
 
     /**

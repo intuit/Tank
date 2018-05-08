@@ -109,8 +109,7 @@ public class UpdateScriptGroups {
     }
 
     private ScriptGroupStep copyStep(ScriptGroupStep copyFrom) {
-        ScriptGroupStep step = ScriptGroupStep.builder().loop(copyFrom.getLoop()).script(copyFrom.getScript()).build();
-        return step;
+        return ScriptGroupStep.builder().loop(copyFrom.getLoop()).script(copyFrom.getScript()).build();
     }
 
 }

@@ -145,9 +145,8 @@ public class AggregatorEditor implements Serializable {
      * @return
      */
     private boolean validate() {
-        boolean retVal = true;
         // TODO check if name is is not nested within a pair with the same name
-        return retVal;
+        return true;
     }
 
     /**

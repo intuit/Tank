@@ -35,8 +35,8 @@ public class RequestCookiesEditor implements Serializable {
     }
 
     /**
-     * @param requestHeaders
-     *            the requestHeaders to set
+     * @param cookies
+     *            the list of cookies to set
      */
     public void setRequestCookies(List<RequestData> cookies) {
         this.requestCookies = cookies;
@@ -65,8 +65,7 @@ public class RequestCookiesEditor implements Serializable {
     }
 
     public Set<RequestData> getRequestDataSet() {
-        Set<RequestData> reqDataSet = new HashSet<RequestData>(getRequestCookies());
-        return reqDataSet;
+        return new HashSet<RequestData>(getRequestCookies());
     }
 
 }

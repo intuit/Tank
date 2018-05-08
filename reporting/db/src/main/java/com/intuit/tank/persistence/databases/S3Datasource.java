@@ -130,17 +130,17 @@ public class S3Datasource implements IDatabase {
 					float ninetynine = 0.99f;
 					int ninetynineth = Math.round(size * ninetynine);
 					if (ninetynineth >= 1) ninetynineth--;
-					sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + timestamp + " transaction=" + requestName)
+					sb.append(metricString + ".resp_time.min " + sortedList[0] + " " + timestamp + " transaction=" + requestName)
 						.append(tagsComplete)
 						.append(metricString + ".resp_time.avg " + average + " " + timestamp + " transaction=" + requestName)
 						.append(tagsComplete)
-						.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + timestamp + " transaction=" + requestName)
+						.append(metricString + ".resp_time.max " + sortedList[size - 1] + " " + timestamp + " transaction=" + requestName)
 						.append(tagsComplete)
-						.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + timestamp + " transaction=" + requestName)
+						.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth] + " " + timestamp + " transaction=" + requestName)
 						.append(tagsComplete)
-						.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + timestamp + " transaction=" + requestName)
+						.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth] + " " + timestamp + " transaction=" + requestName)
 						.append(tagsComplete)
-						.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth].longValue() + " " + timestamp + " transaction=" + requestName)
+						.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth] + " " + timestamp + " transaction=" + requestName)
 						.append(tagsComplete)
 						.append(metricString + ".rpi " + size + " " + timestamp + " transaction=" + requestName)
 						.append(tagsComplete);
@@ -162,17 +162,17 @@ public class S3Datasource implements IDatabase {
 			float ninetynine = 0.99f;
 			int ninetynineth = Math.round(size * ninetynine);
 			if (ninetynineth >= 1) ninetynineth--;
-			sb.append(metricString + ".resp_time.min " + sortedList[0].longValue() + " " + timestamp + " transaction=" + requestName)
+			sb.append(metricString + ".resp_time.min " + sortedList[0] + " " + timestamp + " transaction=" + requestName)
 				.append(tagsComplete)
 				.append(metricString + ".resp_time.avg " + average + " " + timestamp + " transaction=" + requestName)
 				.append(tagsComplete)
-				.append(metricString + ".resp_time.max " + sortedList[size-1].longValue() + " " + timestamp + " transaction=" + requestName)
+				.append(metricString + ".resp_time.max " + sortedList[size - 1] + " " + timestamp + " transaction=" + requestName)
 				.append(tagsComplete)
-				.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth].longValue() + " " + timestamp + " transaction=" + requestName)
+				.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth] + " " + timestamp + " transaction=" + requestName)
 				.append(tagsComplete)
-				.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth].longValue() + " " + timestamp + " transaction=" + requestName)
+				.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth] + " " + timestamp + " transaction=" + requestName)
 				.append(tagsComplete)
-				.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth].longValue() + " " + timestamp + " transaction=" + requestName)
+				.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth] + " " + timestamp + " transaction=" + requestName)
 				.append(tagsComplete)
 				.append(metricString + ".rpi " + size + " " + timestamp + " transaction=" + requestName)
 				.append(tagsComplete);

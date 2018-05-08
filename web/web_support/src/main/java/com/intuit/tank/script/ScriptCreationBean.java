@@ -265,8 +265,7 @@ public class ScriptCreationBean implements Serializable {
      * @return List of selected script filters
      */
     private List<ScriptFilter> getSelectedFilters() {
-        List<ScriptFilter> selectedFilters = getFilterWrappers().stream().filter(SelectableWrapper::isSelected).map(SelectableWrapper::getEntity).collect(Collectors.toList());
-        return selectedFilters;
+        return getFilterWrappers().stream().filter(SelectableWrapper::isSelected).map(SelectableWrapper::getEntity).collect(Collectors.toList());
     }
 
     /**

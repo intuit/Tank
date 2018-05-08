@@ -89,11 +89,9 @@ public class BouncyCastleCertificateUtils {
                 addCertificateExtensions(pubKey, caPubKey, certGen);
             }
 
-            X509Certificate cert = certGen.generate(caKey, "BC"); // note:
-                                                                  // private
-                                                                  // key of CA
-
-            return cert;
+            return certGen.generate(caKey, "BC"); // note:
+                                                     // private
+                                                     // key of CA
         } catch (Exception e) {
             e.printStackTrace();
             throw new CertificateEncodingException("generate: "

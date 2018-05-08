@@ -83,7 +83,7 @@ public class PeriodicDataDao extends BaseDao<PeriodicData> {
         }
         sb.append(buildSortOrderClause(SortDirection.ASC, prefix, PeriodicData.PROPERTY_TIMESTAMP));
         LOG.info(sb.toString());
-        return super.listWithJQL(sb.toString(), paramList.toArray(new NamedParameter[paramList.size()]));
+        return super.listWithJQL(sb.toString(), paramList.toArray(new NamedParameter[0]));
     }
 
 }

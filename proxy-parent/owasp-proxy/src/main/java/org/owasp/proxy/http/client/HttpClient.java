@@ -116,7 +116,7 @@ public class HttpClient {
             String[] split = s.split(",");
             List<String> protos = Arrays.stream(split).map(String::trim).filter(candidate -> candidate.length() > 0).collect(Collectors.toList());
             if (protos.size() != 0) {
-                enabledProtocols = protos.toArray(new String[protos.size()]);
+                enabledProtocols = protos.toArray(new String[0]);
             }
         }
     }
