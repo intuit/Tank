@@ -188,7 +188,7 @@ public class JobController {
      * @inheritDoc
      */
     public void stopAgent(String instanceId) {
-        stopAgents(Arrays.asList(new String[] { instanceId }));
+        stopAgents(Arrays.asList(instanceId));
 
     }
 
@@ -212,7 +212,7 @@ public class JobController {
      * @inheritDoc
      */
     public void pauseAgent(String instanceId) {
-        pauseAgents(Arrays.asList(new String[] { instanceId }));
+        pauseAgents(Arrays.asList(instanceId));
     }
 
     /**
@@ -235,7 +235,7 @@ public class JobController {
      * @inheritDoc
      */
     public void restartAgent(String instanceId) {
-        restartAgents(Arrays.asList(new String[] { instanceId }));
+        restartAgents(Arrays.asList(instanceId));
     }
 
     /**
@@ -249,7 +249,7 @@ public class JobController {
      * @inheritDoc
      */
     public void pauseRampInstance(String instanceId) {
-        pauseRampInstances(Arrays.asList(new String[] { instanceId }));
+        pauseRampInstances(Arrays.asList(instanceId));
     }
 
     /**
@@ -272,7 +272,7 @@ public class JobController {
      * @inheritDoc
      */
     public void resumeRampInstance(String instanceId) {
-        resumeRampInstances(Arrays.asList(new String[] { instanceId }));
+        resumeRampInstances(Arrays.asList(instanceId));
     }
 
     /**

@@ -199,9 +199,7 @@ public class AutomationServiceV1 implements AutomationService {
 					List<ScriptStep> scriptSteps = scriptProcessor
 							.getScriptSteps(new BufferedReader(new InputStreamReader(is)), getFilters(filterIds));
 					List<ScriptStep> newSteps = new ArrayList<>();
-					for (ScriptStep step : scriptSteps) {
-						newSteps.add(step);
-					}
+					newSteps.addAll(scriptSteps);
 					// script.setScriptSteps(newSteps);
 					//
 					// script.setScriptSteps(newSteps);
@@ -290,9 +288,7 @@ public class AutomationServiceV1 implements AutomationService {
 			List<ScriptStep> scriptSteps = scriptProcessor.getScriptSteps(new BufferedReader(new InputStreamReader(is)),
 					new ArrayList<>());
 			List<ScriptStep> newSteps = new ArrayList<>();
-			for (ScriptStep step : scriptSteps) {
-				newSteps.add(step);
-			}
+			newSteps.addAll(scriptSteps);
 			script = new ScriptDao().saveOrUpdate(script);
 			sendMsg(script, ModificationType.UPDATE);
 			responseBuilder.entity(Integer.toString(script.getId()));
