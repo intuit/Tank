@@ -14,8 +14,8 @@
   <name>Tank Doc Parent</name>
 
   <properties>
-    <mpjdocbook.version>2.3.7</mpjdocbook.version>
-    <docbook.version>1.72.0</docbook.version>
+    <mpjdocbook.version>2.3.10</mpjdocbook.version>
+    <docbook.version>1.74.0</docbook.version>
     <mpjdocbook-style.version>2.0.0</mpjdocbook-style.version>
   </properties>
 
