@@ -41,20 +41,17 @@ public class JobInstanceDao extends BaseDao<JobInstance> {
     public List<JobInstance> getForStatus(List<JobQueueStatus> statuses) {
         String prefix = "x";
         NamedParameter parameter = new NamedParameter(JobInstance.PROPERTY_STATUS, "status", statuses);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere()).append(buildWhereClause(Operation.IN, prefix, parameter));
-        return listWithJQL(sb.toString(), parameter);
+        return listWithJQL(buildQlSelect(prefix) + startWhere() + buildWhereClause(Operation.IN, prefix, parameter), parameter);
     }
 
     public List<JobInstance> findCompleted() {
         String prefix = "x";
         NamedParameter startTimeParam = new NamedParameter(JobInstance.PROPERTY_START_TIME, "startTime", null);
         NamedParameter endTimeParam = new NamedParameter(JobInstance.PROPERTY_END_TIME, "endTime", null);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere())
-                .append(buildWhereClause(Operation.NOT_NULL, prefix, startTimeParam)).append(getAnd())
-                .append(buildWhereClause(Operation.NOT_NULL, prefix, endTimeParam));
-        return listWithJQL(sb.toString());
+        String sb = buildQlSelect(prefix) + startWhere() +
+                buildWhereClause(Operation.NOT_NULL, prefix, startTimeParam) + getAnd() +
+                buildWhereClause(Operation.NOT_NULL, prefix, endTimeParam);
+        return listWithJQL(sb);
     }
 
     public List<JobInstance> findNotCompleted() {
@@ -63,10 +60,9 @@ public class JobInstanceDao extends BaseDao<JobInstance> {
         statuses.add(JobQueueStatus.Completed);
         statuses.add(JobQueueStatus.Aborted);
         NamedParameter parameter = new NamedParameter(JobInstance.PROPERTY_STATUS, "status", statuses);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere())
-                .append(buildWhereClause(Operation.NOT_IN, prefix, parameter));
-        return listWithJQL(sb.toString(), parameter);
+        String sb = buildQlSelect(prefix) + startWhere() +
+                buildWhereClause(Operation.NOT_IN, prefix, parameter);
+        return listWithJQL(sb, parameter);
     }
 
 }

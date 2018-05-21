@@ -62,35 +62,23 @@ public class GeneralInclusionPanel extends JPanel {
         JPanel opsPanel = new JPanel();
 
         JButton addButton = new JButton("Add");
-        addButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handler.addRule(ruleTableModel, dialog);
-            }
+        addButton.addActionListener((ActionEvent e) -> {
+            handler.addRule(ruleTableModel, dialog);
         });
         JButton deleteButton = new JButton("Delete");
-        deleteButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedRow = ruleTable.getSelectedRow();
-                if (selectedRow != -1) {
-                    handler.removeRule(ruleTableModel, ruleTableModel.getRuleForIndex(selectedRow),
-                            ruleTable.getSelectedRow());
-                }
+        deleteButton.addActionListener((ActionEvent e) -> {
+            int selectedRow = ruleTable.getSelectedRow();
+            if (selectedRow != -1) {
+                handler.removeRule(ruleTableModel, ruleTableModel.getRuleForIndex(selectedRow),
+                        ruleTable.getSelectedRow());
             }
         });
         JButton editButton = new JButton("Edit");
-        editButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedRow = ruleTable.getSelectedRow();
-                if (selectedRow != -1) {
-                    handler.editRule(ruleTableModel, ruleTableModel.getRuleForIndex(selectedRow),
-                            ruleTable.getSelectedRow(), dialog);
-                }
+        editButton.addActionListener( (ActionEvent e) -> {
+            int selectedRow = ruleTable.getSelectedRow();
+            if (selectedRow != -1) {
+                handler.editRule(ruleTableModel, ruleTableModel.getRuleForIndex(selectedRow),
+                        ruleTable.getSelectedRow(), dialog);
             }
         });
 

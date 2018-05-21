@@ -9,6 +9,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -95,20 +96,14 @@ public class AmazonSimpleDatabase implements IDatabase {
      */
     @Override
     public void deleteForJob(final String tableName, String jobId, boolean asynch) {
-        Runnable task = new Runnable() {
-
-            @Override
-            public void run() {
-                deleteTable(tableName);
-
-            }
+        Runnable task = () -> {
+            deleteTable(tableName);
         };
         if (asynch) {
             EXECUTOR.execute(task);
         } else {
             task.run();
         }
-
     }
 
     /**
@@ -136,30 +131,28 @@ public class AmazonSimpleDatabase implements IDatabase {
      */
     public void addTimingResults(final @Nonnull String tableName, final @Nonnull List<TankResult> messages, boolean asynch) {
         if (!messages.isEmpty()) {
-            Runnable task = new Runnable() {
-                public void run() {
-                    List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
-                    try {
-                        for (TankResult result : messages) {
-                            ReplaceableItem item = new ReplaceableItem();
-                            item.setAttributes(getTimingAttributes(result));
-                            item.setName(UUID.randomUUID().toString());
-                            items.add(item);
-                            if (items.size() == 25) {
-                                addItemsToTable(new BatchPutAttributesRequest(tableName, new ArrayList<ReplaceableItem>(items)));
-                                // logger.info("Sending " + items.size() + "
-                                // results to table " + tableName);
-                                items.clear();
-                            }
+            Runnable task = () -> {
+                List<ReplaceableItem> items = new ArrayList<ReplaceableItem>();
+                try {
+                    for (TankResult result : messages) {
+                        ReplaceableItem item = new ReplaceableItem();
+                        item.setAttributes(getTimingAttributes(result));
+                        item.setName(UUID.randomUUID().toString());
+                        items.add(item);
+                        if (items.size() == 25) {
+                            addItemsToTable(new BatchPutAttributesRequest(tableName, new ArrayList<ReplaceableItem>(items)));
+                            // logger.info("Sending " + items.size() + "
+                            // results to table " + tableName);
+                            items.clear();
                         }
-                        if (items.size() > 0) {
-                            addItemsToTable(new BatchPutAttributesRequest(tableName, items));
-                            logger.info("Sending " + items.size() + " results to table " + tableName);
-                        }
-                    } catch (Exception t) {
-                        logger.error("Error adding results: " + t.getMessage(), t);
-                        throw new RuntimeException(t);
                     }
+                    if (items.size() > 0) {
+                        addItemsToTable(new BatchPutAttributesRequest(tableName, items));
+                        logger.info("Sending " + items.size() + " results to table " + tableName);
+                    }
+                } catch (Exception t) {
+                    logger.error("Error adding results: " + t.getMessage(), t);
+                    throw new RuntimeException(t);
                 }
             };
             if (asynch) {
@@ -175,18 +168,16 @@ public class AmazonSimpleDatabase implements IDatabase {
      */
     @Override
     public void addItems(final String tableName, final List<Item> items, boolean asynch) {
-        Runnable task = new Runnable() {
-            public void run() {
-                List<ReplaceableItem> tmpItems = new ArrayList<ReplaceableItem>();
-                for (Item item : items) {
-                    tmpItems.add(itemToAWSItem(item));
-                    if (tmpItems.size() == 25) {
-                        addItemsToTable(new BatchPutAttributesRequest(tableName, tmpItems));
-                        tmpItems.clear();
-                    }
+        Runnable task = () -> {
+            List<ReplaceableItem> tmpItems = new ArrayList<ReplaceableItem>();
+            for (Item item : items) {
+                tmpItems.add(itemToAWSItem(item));
+                if (tmpItems.size() == 25) {
+                    addItemsToTable(new BatchPutAttributesRequest(tableName, tmpItems));
+                    tmpItems.clear();
                 }
-                addItemsToTable(new BatchPutAttributesRequest(tableName, tmpItems));
             }
+            addItemsToTable(new BatchPutAttributesRequest(tableName, tmpItems));
         };
         if (asynch) {
             EXECUTOR.execute(task);
@@ -268,7 +259,6 @@ public class AmazonSimpleDatabase implements IDatabase {
         boolean hasMore = true;
         String nextToken = null;
 
-        List<String> ret = new ArrayList<String>(tableName.size());
         Set<String> tables = new HashSet<String>();
         while (hasMore) {
             ListDomainsResult listDomains = db.listDomains(new ListDomainsRequest().withNextToken(nextToken));
@@ -276,12 +266,7 @@ public class AmazonSimpleDatabase implements IDatabase {
             nextToken = listDomains.getNextToken();
             hasMore = !StringUtils.isEmpty(nextToken);
         }
-        for (String name : tableName) {
-            if (tables.contains(name)) {
-                ret.add(name);
-            }
-        }
-        return ret;
+        return tableName.stream().filter(tables::contains).collect(Collectors.toCollection(() -> new ArrayList<>(tableName.size())));
     }
 
     /**
@@ -289,7 +274,7 @@ public class AmazonSimpleDatabase implements IDatabase {
      */
     @Override
     public PagedDatabaseResult getPagedItems(String tableName, Object token, String minRange, String maxRange, String instanceId, String jobId) {
-        List<Item> ret = new ArrayList<Item>();
+        List<Item> ret;
         String whereClause = null;
         if (minRange != null && maxRange != null) {
             whereClause = " Timestamp between '" + minRange + "' and '" + maxRange + "' ";
@@ -304,9 +289,7 @@ public class AmazonSimpleDatabase implements IDatabase {
         String nextToken = (String) token;
         request.withNextToken(nextToken);
         SelectResult result = db.select(request);
-        for (com.amazonaws.services.simpledb.model.Item item : result.getItems()) {
-            ret.add(resultToItem(item));
-        }
+        ret = result.getItems().stream().map(this::resultToItem).collect(Collectors.toList());
         nextToken = result.getNextToken();
         return new PagedDatabaseResult(ret, result.getNextToken());
     }
@@ -337,8 +320,7 @@ public class AmazonSimpleDatabase implements IDatabase {
         for (com.intuit.tank.reporting.databases.Attribute attr : item.getAttributes()) {
             addAttribute(attributes, attr.getName(), attr.getValue());
         }
-        ReplaceableItem ret = new ReplaceableItem(item.getName(), attributes);
-        return ret;
+        return new ReplaceableItem(item.getName(), attributes);
     }
 
     /**

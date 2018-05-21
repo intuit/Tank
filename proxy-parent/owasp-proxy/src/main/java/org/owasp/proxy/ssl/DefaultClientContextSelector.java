@@ -29,6 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -77,14 +78,8 @@ public class DefaultClientContextSelector implements SSLContextSelector {
             TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
             tmf.init((KeyStore) null);
             TrustManager[] managers = tmf.getTrustManagers();
-            X509TrustManager manager = null;
-            for (int i = 0; i < managers.length; i++) {
-                if (managers[i] instanceof X509TrustManager) {
-                    manager = new LoggingTrustManager(
-                            (X509TrustManager) managers[i]);
-                    break;
-                }
-            }
+            X509TrustManager manager = Arrays.stream(managers).filter(manager1 -> manager1 instanceof X509TrustManager).findFirst().map(manager1 -> new LoggingTrustManager(
+                    (X509TrustManager) manager1)).orElse(null);
             if (manager == null) {
                 manager = new X509TrustManager() {
 

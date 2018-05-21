@@ -99,23 +99,23 @@ public class MessageUtils {
 
     public static InputStream decode(String codings, InputStream content)
             throws IOException, MessageFormatException {
-        if (codings == null || codings.trim().equals(""))
+        if (codings == null || codings.trim().isEmpty())
             return content;
         String[] algos = codings.split("[ \t]*,[ \t]*");
         if (algos.length == 1 && IDENTITY.equalsIgnoreCase(algos[0]))
             return content;
-        for (int i = 0; i < algos.length; i++) {
-            if (CHUNKED.equalsIgnoreCase(algos[i])) {
+        for (String algo : algos) {
+            if (CHUNKED.equalsIgnoreCase(algo)) {
                 content = new ChunkedInputStream(content);
-            } else if (DEFLATE.equalsIgnoreCase(algos[i])) {
+            } else if (DEFLATE.equalsIgnoreCase(algo)) {
                 content = new DeflaterInputStream(content);
-            } else if (GZIP.equalsIgnoreCase(algos[i])) {
+            } else if (GZIP.equalsIgnoreCase(algo)) {
                 content = new GunzipInputStream(content);
-            } else if (IDENTITY.equalsIgnoreCase(algos[i])) {
+            } else if (IDENTITY.equalsIgnoreCase(algo)) {
                 // nothing to do
             } else
                 throw new MessageFormatException("Unsupported coding : "
-                        + algos[i]);
+                        + algo);
         }
         return content;
     }
@@ -169,21 +169,21 @@ public class MessageUtils {
 
     public static InputStream encode(String codings, InputStream content)
             throws MessageFormatException {
-        if (codings == null || codings.trim().equals(""))
+        if (codings == null || codings.trim().isEmpty())
             return content;
         String[] algos = codings.split("[ \t]*,[ \t]*");
         if (algos.length == 1 && IDENTITY.equalsIgnoreCase(algos[0]))
             return content;
-        for (int i = 0; i < algos.length; i++) {
-            if (CHUNKED.equalsIgnoreCase(algos[i])) {
+        for (String algo : algos) {
+            if (CHUNKED.equalsIgnoreCase(algo)) {
                 content = new ChunkingInputStream(content);
-            } else if (GZIP.equalsIgnoreCase(algos[i])) {
+            } else if (GZIP.equalsIgnoreCase(algo)) {
                 content = new GzipInputStream(content);
-            } else if (IDENTITY.equalsIgnoreCase(algos[i])) {
+            } else if (IDENTITY.equalsIgnoreCase(algo)) {
                 // nothing to do
             } else
                 throw new MessageFormatException("Unsupported coding : "
-                        + algos[i]);
+                        + algo);
         }
         return content;
     }

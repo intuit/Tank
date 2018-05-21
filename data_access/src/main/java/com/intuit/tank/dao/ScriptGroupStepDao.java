@@ -44,9 +44,7 @@ public class ScriptGroupStepDao extends BaseDao<ScriptGroupStep> {
     public List<ScriptGroupStep> getScriptGroupsForScript(Script script) {
         String prefix = "x";
         NamedParameter parameter = new NamedParameter(ScriptGroupStep.PROPERTY_SCRIPT, "s", script);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere()).append(buildWhereClause(Operation.IN, prefix, parameter));
-        return listWithJQL(sb.toString(), parameter);
+        return listWithJQL(buildQlSelect(prefix) + startWhere() + buildWhereClause(Operation.IN, prefix, parameter), parameter);
     }
 
 }

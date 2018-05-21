@@ -63,7 +63,7 @@ public class GroupAdmin implements Serializable {
         if (groups == null) {
             List<Group> grp = new GroupDao().findAll();
             groups = new ArrayList<SelectableWrapper<Group>>(grp.size());
-            Collections.sort(grp, new PropertyComparer<Group>(Group.PROPERTY_NAME));
+            grp.sort(new PropertyComparer<Group>(Group.PROPERTY_NAME));
             for (Group group : grp) {
                 groups.add(new SelectableWrapper<Group>(group));
             }

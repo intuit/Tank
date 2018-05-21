@@ -80,18 +80,15 @@ public class CloudController {
      */
     public void setVmStatus(final String instanceId, final CloudVmStatus status) {
 
-        Runnable task = new Runnable() {
-            @Override
-            public void run() {
-                vmTracker.setStatus(status);
-                if (status.getJobStatus() == JobStatus.Completed || status.getVmStatus() == VMStatus.terminated) {
-                    // will terrminate instance after waiting for some cleanup time
-                    terminator.terminate(status.getInstanceId());
-                    // check job status and kill off instances appropriately
-                    checkJobStatus(status.getJobId(), mailService);
-                }
-
+        Runnable task = () -> {
+            vmTracker.setStatus(status);
+            if (status.getJobStatus() == JobStatus.Completed || status.getVmStatus() == VMStatus.terminated) {
+                // will terrminate instance after waiting for some cleanup time
+                terminator.terminate(status.getInstanceId());
+                // check job status and kill off instances appropriately
+                checkJobStatus(status.getJobId(), mailService);
             }
+
         };
         if (status.getJobStatus() == JobStatus.Completed || status.getVmStatus() == VMStatus.terminated) {
             Thread t = new Thread(task);

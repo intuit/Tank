@@ -69,6 +69,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class AmazonInstance implements IEnvironmentInstance {
 
@@ -173,12 +174,11 @@ public class AmazonInstance implements IEnvironmentInstance {
             VMInstanceRequest instanceRequest = (VMInstanceRequest) request;
             InstanceDescription instanceDescription = instanceRequest.getInstanceDescription();
             if (instanceDescription == null) {
-                instanceDescription = new TankConfig().getVmManagerConfig().getInstanceForRegionAndType(vmRegion, instanceRequest.getImage());
+                instanceDescription = config.getVmManagerConfig().getInstanceForRegionAndType(vmRegion, instanceRequest.getImage());
             }
 
             // Get the required data
             int number = instanceRequest.getNumberOfInstances();
-            String image = instanceDescription.getAmi();
             if (instanceRequest.getReuseStoppedInstance()) {
                 List<VMInformation> instances = findAllInstancesOfType(this.vmRegion, instanceRequest.getImage());
                 LOG.info("looking for stopped instance with ami-id of " + instanceRequest.getImage());
@@ -255,6 +255,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 }
                 List<Address> randomizedIps = new ArrayList<Address>(availableEips);
                 Collections.shuffle(randomizedIps);
+                String image = instanceDescription.getAmi();
                 RunInstancesRequest runInstancesRequest = new RunInstancesRequest(image, number, number);
                 Tenancy tenancy = StringUtils.isEmpty(instanceDescription.getTenancy()) ? Tenancy.Default : Tenancy.fromValue(instanceDescription.getTenancy());
                 runInstancesRequest.withInstanceType(size.toString())
@@ -311,11 +312,8 @@ public class AmazonInstance implements IEnvironmentInstance {
                 associateAddress(instanceId, new Address().withPublicIp(instanceDescription.getPublicIp()), null);
                 // reboot(result);
             }
-            if (result.size() > 0) {
-                List<String> ids = new ArrayList<String>();
-                for (VMInformation inst : result) {
-                    ids.add(inst.getInstanceId());
-                }
+            if (!result.isEmpty()) {
+                List<String> ids = result.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
                 LOG.info("Setting tags for instances " + ids);
                 tagInstance(ids, buildTags(instanceRequest));
             }
@@ -337,36 +335,29 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public void tagInstance(final List<String> instanceIds, KeyValuePair... tag) {
         if (tag.length != 0) {
-            final List<Tag> tags = new ArrayList<Tag>();
-            for (KeyValuePair pair : tag) {
-                tags.add(new Tag(pair.getKey(), pair.getValue()));
-            }
+            final List<Tag> tags = Arrays.stream(tag).map(pair -> new Tag(pair.getKey(), pair.getValue())).collect(Collectors.toList());
 
-            new Thread(new Runnable() {
+            new Thread( () -> {
+                int count = 0;
+                try {
+                    while (++count <= 5 && !instanceIds.isEmpty()) {
+                        Thread.sleep(5000);
+                        CreateTagsRequest createTagsRequest = new CreateTagsRequest().withResources(instanceIds).withTags(tags);
+                        asynchEc2Client.createTagsAsync(createTagsRequest);
+                        Thread.sleep(1000);
 
-                @Override
-                public void run() {
-                    int count = 0;
-                    try {
-                        while (++count <= 5 && !instanceIds.isEmpty()) {
-                            Thread.sleep(5000);
-                            CreateTagsRequest createTagsRequest = new CreateTagsRequest().withResources(instanceIds).withTags(tags);
-                            asynchEc2Client.createTagsAsync(createTagsRequest);
-                            Thread.sleep(1000);
-
-                            Future<DescribeInstancesResult> describeInstances = asynchEc2Client.describeInstancesAsync(new DescribeInstancesRequest().withInstanceIds(instanceIds));
-                            for (Reservation r : describeInstances.get().getReservations()) {
-                                for (Instance i : r.getInstances()) {
-                                    if (i.getTags() != null && !i.getTags().isEmpty()) {
-                                        instanceIds.remove(i.getInstanceId());
-                                    }
+                        Future<DescribeInstancesResult> describeInstances = asynchEc2Client.describeInstancesAsync(new DescribeInstancesRequest().withInstanceIds(instanceIds));
+                        for (Reservation r : describeInstances.get().getReservations()) {
+                            for (Instance i : r.getInstances()) {
+                                if (i.getTags() != null && !i.getTags().isEmpty()) {
+                                    instanceIds.remove(i.getInstanceId());
                                 }
                             }
                         }
-                    } catch (Exception e) {
-                        LOG.error("Error tagging instances: " + e, e);
                     }
-                };
+                } catch (Exception e) {
+                    LOG.error("Error tagging instances: " + e, e);
+                }
             }).start();
         }
     }
@@ -430,10 +421,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     }
 
     public void killInstances(List<VMInformation> instances) {
-        List<String> instanceIds = new ArrayList<>(instances.size());
-        for (VMInformation instance : instances) {
-            instanceIds.add(instance.getInstanceId());
-        }
+        List<String> instanceIds = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
         asynchEc2Client.terminateInstances(new TerminateInstancesRequest(instanceIds));
     }
 
@@ -442,10 +430,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         List<VMInformation> result = new ArrayList<>();
         try {
             List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
-            List<String> ids = new ArrayList<String>();
-            for (VMInformation info : instances) {
-                ids.add(info.getInstanceId());
-            }
+            List<String> ids = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
             if (!ids.isEmpty()) {
                 TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest(ids);
                 TerminateInstancesResult terminateInstances = asynchEc2Client.terminateInstances(terminateInstancesRequest);
@@ -466,7 +451,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         List<VMInformation> ret = new ArrayList<>();
         try {
             DescribeInstancesResult instances = asynchEc2Client.describeInstances();
-            InstanceDescription instanceForRegionAndType = new TankConfig().getVmManagerConfig().getInstanceForRegionAndType(region, type);
+            InstanceDescription instanceForRegionAndType = config.getVmManagerConfig().getInstanceForRegionAndType(region, type);
             for (Reservation res : instances.getReservations()) {
                 if (res.getInstances() != null) {
                     for (com.amazonaws.services.ec2.model.Instance inst : res.getInstances()) {
@@ -491,7 +476,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         List<VMInformation> ret = new ArrayList<VMInformation>();
         try {
             DescribeInstancesResult instances = asynchEc2Client.describeInstances();
-            InstanceDescription instanceForRegionAndType = new TankConfig().getVmManagerConfig().getInstanceForRegionAndType(region, type);
+            InstanceDescription instanceForRegionAndType = config.getVmManagerConfig().getInstanceForRegionAndType(region, type);
             for (Reservation res : instances.getReservations()) {
                 if (res.getInstances() != null) {
                     for (com.amazonaws.services.ec2.model.Instance inst : res.getInstances()) {
@@ -528,67 +513,60 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public void associateAddress(final String instanceId, final Address address, final CountDownLatch latch) {
 
-        new Thread(new Runnable() {
+        new Thread( () -> {
+            boolean associated = false;
 
-            @Override
-            public void run() {
-                boolean associated = false;
-                
-                try {
-                    long start = System.currentTimeMillis();
-                    int count = 0;
-                    LOG.info("Setting ip for instance " + instanceId + " to " + address.getPublicIp());
-                    while ((System.currentTimeMillis() - start) < ASSOCIATE_IP_MAX_WAIT_MILIS && !associated) {
-                        count++;
-                        try {
-                           if (address.getAllocationId() == null) {
-                                asynchEc2Client.associateAddressAsync(new AssociateAddressRequest()
-																	.withInstanceId(instanceId)
-																	.withPublicIp(address.getPublicIp()));                           	
-                            } else {
-                            	asynchEc2Client.associateAddressAsync(new AssociateAddressRequest()
-                            										.withInstanceId(instanceId)
-                            										.withAllocationId(address.getAllocationId()));
-                            }
-                            Thread.sleep((new Random().nextInt(10) + 10) * 100L);
-                            Future<DescribeInstancesResult> describeInstances = asynchEc2Client.describeInstancesAsync(new DescribeInstancesRequest().withInstanceIds(instanceId));
-                            for (Reservation r : describeInstances.get().getReservations()) {
-                                for (Instance i : r.getInstances()) {
-                                    if (address.getPublicIp().equals(i.getPublicIpAddress())) {
-                                        associated = true;
-                                    }
+            try {
+                long start = System.currentTimeMillis();
+                int count = 0;
+                LOG.info("Setting ip for instance " + instanceId + " to " + address.getPublicIp());
+                while ((System.currentTimeMillis() - start) < ASSOCIATE_IP_MAX_WAIT_MILIS && !associated) {
+                    count++;
+                    try {
+                       if (address.getAllocationId() == null) {
+                            asynchEc2Client.associateAddressAsync(new AssociateAddressRequest()
+                                                                .withInstanceId(instanceId)
+                                                                .withPublicIp(address.getPublicIp()));
+                        } else {
+                            asynchEc2Client.associateAddressAsync(new AssociateAddressRequest()
+                                                                .withInstanceId(instanceId)
+                                                                .withAllocationId(address.getAllocationId()));
+                        }
+                        Thread.sleep((new Random().nextInt(10) + 10) * 100L);
+                        Future<DescribeInstancesResult> describeInstances = asynchEc2Client.describeInstancesAsync(new DescribeInstancesRequest().withInstanceIds(instanceId));
+                        for (Reservation r : describeInstances.get().getReservations()) {
+                            for (Instance i : r.getInstances()) {
+                                if (address.getPublicIp().equals(i.getPublicIpAddress())) {
+                                    associated = true;
                                 }
                             }
-                            if (associated) {
-                                LOG.info(instanceId + " associated with " + address.getPublicIp());
-                            } else if (count % 5 == 0) {
-                                LOG.info(instanceId + " not associated yet " + address.getPublicIp() + ". Retrying... count = " + count);
-                            }
-                        } catch (Exception e) {
-                            if (count < 5) {
-                                LOG.warn("Error associating ip address: " + e + " Will retry.");
-                            }
+                        }
+                        if (associated) {
+                            LOG.info(instanceId + " associated with " + address.getPublicIp());
+                        } else if (count % 5 == 0) {
+                            LOG.info(instanceId + " not associated yet " + address.getPublicIp() + ". Retrying... count = " + count);
+                        }
+                    } catch (Exception e) {
+                        if (count < 5) {
+                            LOG.warn("Error associating ip address: " + e + " Will retry.");
                         }
                     }
-                } catch (Exception e) {
-                    LOG.error("Error setting elastic ip: " + e, e);
-                } finally {
-                    LOG.info("exiting associated = " + associated);
-                    if (latch != null) {
-                        latch.countDown();
-                    }
                 }
-            };
+            } catch (Exception e) {
+                LOG.error("Error setting elastic ip: " + e, e);
+            } finally {
+                LOG.info("exiting associated = " + associated);
+                if (latch != null) {
+                    latch.countDown();
+                }
+            }
         }).start();
 
     }
 
     @Override
     public void reboot(List<VMInformation> instances) {
-        List<String> instanceIds = new ArrayList<String>(instances.size());
-        for (VMInformation instance : instances) {
-            instanceIds.add(instance.getInstanceId());
-        }
+        List<String> instanceIds = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
         asynchEc2Client.rebootInstancesAsync(new RebootInstancesRequest(instanceIds));
         // ec2Interface.rebootInstances(instanceIds);
     }
@@ -600,10 +578,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         List<VMInformation> result = new ArrayList<VMInformation>();
         try {
             List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
-            List<String> ids = new ArrayList<String>();
-            for (VMInformation info : instances) {
-                ids.add(info.getInstanceId());
-            }
+            List<String> ids = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
             if (!ids.isEmpty()) {
                 StopInstancesRequest stopInstancesRequest = new StopInstancesRequest(ids);
                 StopInstancesResult stopResult = asynchEc2Client.stopInstances(stopInstancesRequest);
@@ -622,15 +597,9 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @return
      */
     private String buildUserData(@Nonnull Map<String, String> userDataMap) {
-        StringBuilder sb = new StringBuilder();
-        for (Entry<String, String> entry : userDataMap.entrySet()) {
-            if (sb.length() > 0) {
-                sb.append('\n');
-            }
-            sb.append(entry.getKey() + "=" + entry.getValue());
-        }
+        String sb = userDataMap.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining("\n"));
 
-        return Base64.encodeBase64String(sb.toString().getBytes());
+        return Base64.encodeBase64String(sb.getBytes());
     }
 
     private static class AssociateContainer {

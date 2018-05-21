@@ -119,7 +119,7 @@ public class TankMailer implements MailService, Serializable {
             sb.append("From: ").append(StringUtils.join(m.getFrom(), ',')).append('\n');
             sb.append("Subject: ").append(m.getSubject()).append('\n');
             sb.append("Body: ").append(m.getContent()).append('\n');
-            LOG.info("Sending email to server (" + host + "):\n" + sb.toString());
+            LOG.info("Sending email to server (" + host + "):\n" + sb);
         } catch (Exception e) {
             LOG.error("Error generating log msg: " + e);
         }

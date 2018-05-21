@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.enterprise.event.Observes;
 
@@ -133,15 +134,8 @@ public abstract class EntityVersionLoader<T extends BaseEntity, MESSAGE_TYPE> im
         if (viewFilter == ViewFilterType.ALL) {
             return entityList;
         }
-        List<T> ret = new ArrayList<T>();
         Date d = ViewFilterType.getViewFilterDate(viewFilter);
-        for (T entity : entityList) {
-            if (entity.getCreated().after(d)) {
-                ret.add(entity);
-            }
-        }
-        Collections.sort(ret, new ModifiedDateComparator(SortOrder.DESCENDING));
-        return ret;
+        return entityList.stream().filter(entity -> entity.getCreated().after(d)).sorted(new ModifiedDateComparator(SortOrder.DESCENDING)).collect(Collectors.toList());
     }
 
     /**

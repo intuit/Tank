@@ -29,6 +29,8 @@ import java.net.PasswordAuthentication;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import jcifs.ntlmssp.NtlmFlags;
 import jcifs.ntlmssp.NtlmMessage;
@@ -93,14 +95,8 @@ public class HttpAuthenticator {
 
     private static List<String> getChallenges(ResponseHeader response,
             String header) throws MessageFormatException {
-        List<String> challenges = new ArrayList<String>();
         NamedValue[] headers = response.getHeaders();
-        for (int i = 0; i < headers.length; i++) {
-            if (header.equalsIgnoreCase(headers[i].getName())) {
-                challenges.add(headers[i].getValue());
-            }
-        }
-        return challenges;
+        return IntStream.range(0, headers.length).filter(i -> header.equalsIgnoreCase(headers[i].getName())).mapToObj(i -> headers[i].getValue()).collect(Collectors.toList());
     }
 
     protected String constructResponse(InetSocketAddress target,
@@ -179,9 +175,7 @@ public class HttpAuthenticator {
     protected String selectChallenge(List<String> challenges) {
         if (challenges.size() == 1)
             return challenges.get(0);
-        Iterator<String> it = challenges.iterator();
-        while (it.hasNext()) {
-            String challenge = it.next();
+        for (String challenge : challenges) {
             if (challenge.toLowerCase().startsWith("basic"))
                 return challenge;
         }

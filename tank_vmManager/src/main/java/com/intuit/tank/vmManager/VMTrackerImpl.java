@@ -202,11 +202,10 @@ public class VMTrackerImpl implements VMTracker {
     private boolean shouldUpdateStatus(CloudVmStatus curentStatus) {
         if (curentStatus != null) {
             VMStatus status = curentStatus.getVmStatus();
-            return (status == VMStatus.shutting_down
-            		|| status == VMStatus.stopped
-            		|| status == VMStatus.stopping
-                    || status == VMStatus.terminated) 
-            		? false : true;
+            return (status != VMStatus.shutting_down
+            		|| status != VMStatus.stopped
+            		|| status != VMStatus.stopping
+                    || status != VMStatus.terminated);
         }
         return true;
     }
@@ -283,22 +282,26 @@ public class VMTrackerImpl implements VMTracker {
         boolean paused = true;
         boolean rampPaused = true;
         boolean stopped = true;
+        boolean running = true;
 
         // look up the job
         JobInstance job = getJob(status.getJobId());
         for (CloudVmStatus s : cloudVmStatusContainer.getStatuses()) {
             JobStatus jobStatus = s.getJobStatus();
-            if (jobStatus != JobStatus.Completed) {
+            if (jobStatus != JobStatus.Completed) {  // If no VMs are Completed
                 isFinished = false;
             }
-            if (jobStatus != JobStatus.Paused) {
+            if (jobStatus != JobStatus.Paused) {  // If no VMs are Paused
                 paused = false;
             }
-            if (jobStatus != JobStatus.RampPaused) {
+            if (jobStatus != JobStatus.RampPaused) {  // If no VMs are RampPaused
                 rampPaused = false;
             }
-            if (jobStatus != JobStatus.Stopped) {
+            if (jobStatus != JobStatus.Stopped) {  // If no VMs are Stopped
                 stopped = false;
+            }
+            if (jobStatus != JobStatus.Running) {  // If no VMs are Running
+                running = false;
             }
         }
         if (isFinished) {
@@ -314,40 +317,33 @@ public class VMTrackerImpl implements VMTracker {
         if (job != null) {
             job.setEndTime(cloudVmStatusContainer.getEndTime());
             JobQueueStatus newStatus = job.getStatus();
-            boolean needsUpdate = false;
             boolean loadStarted = false;
             if (isFinished) {
                 newStatus = JobQueueStatus.Completed;
-                needsUpdate = true;
                 stopJob(Integer.toString(job.getId()));
             } else if (paused) {
-                needsUpdate = true;
                 newStatus = JobQueueStatus.Paused;
             } else if (rampPaused) {
-                needsUpdate = true;
                 newStatus = JobQueueStatus.RampPaused;
             } else if (stopped) {
                 newStatus = JobQueueStatus.Stopped;
-                needsUpdate = true;
-            } else {
+            } else if (running) {
                 newStatus = JobQueueStatus.Running;
                 if (job.getStartTime() == null && status.getJobStatus() == JobStatus.Running) {
                     job.setStartTime(status.getStartTime());
-                    needsUpdate = true;
                     loadStarted = true;
-
                 }
             }
+
             if (job.getStartTime() != null && cloudVmStatusContainer.getStartTime() != null) {
                 if (job.getStartTime().before(cloudVmStatusContainer.getStartTime())) {
                     cloudVmStatusContainer.setStartTime(job.getStartTime());
                 }
             }
-            if (needsUpdate || newStatus != job.getStatus()) {
-                LOG.info("Setting newStatus to " + newStatus);
-                job.setStatus(newStatus);
-                job = new JobInstanceDao().saveOrUpdate(job);
-            }
+            LOG.info("Setting newStatus to " + newStatus);
+            job.setStatus(newStatus);
+            job = new JobInstanceDao().saveOrUpdate(job);
+
             if (loadStarted) {
                 jobEventProducer.fire(new JobEvent(Integer.toString(job.getId()), "", JobLifecycleEvent.LOAD_STARTED));
             }

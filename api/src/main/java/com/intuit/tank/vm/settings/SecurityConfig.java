@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -58,10 +59,7 @@ public class SecurityConfig {
             for (HierarchicalConfiguration restrictionConfig : restrictionConfigs) {
                 List<HierarchicalConfiguration> restrictionGroups = restrictionConfig.configurationsAt("groups/group");
                 String key = restrictionConfig.getString("@operation");
-                List<String> value = new ArrayList<String>();
-                for (HierarchicalConfiguration restrictionGroupConfig : restrictionGroups) {
-                    value.add(restrictionGroupConfig.getString(""));
-                }
+                List<String> value = restrictionGroups.stream().map(restrictionGroupConfig -> restrictionGroupConfig.getString("")).collect(Collectors.toList());
                 restrictionMap.put(key, value);
             }
 

@@ -2,6 +2,8 @@ package trial;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @XmlRootElement(name = "RootWrapper")
 public class RootWrapper {
@@ -11,11 +13,7 @@ public class RootWrapper {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (Root r : roots) {
-            sb.append(r.toString()).append("\n");
-        }
-        return sb.toString();
+        return Arrays.stream(roots).map(r -> r.toString() + "\n").collect(Collectors.joining());
     }
 
 }

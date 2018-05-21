@@ -16,8 +16,6 @@ package com.intuit.tank.script.util;
  * #L%
  */
 
-import java.io.File;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -29,9 +27,9 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -82,19 +80,18 @@ public class OwaspReader implements RecordedScriptReader {
                 .parse(reader));
     }
 
-    public List<ScriptStep> transactionsToRequest(
-            Collection<Transaction> entries) {
+    public List<ScriptStep> transactionsToRequest( Collection<Transaction> entries) {
         List<ScriptStep> result = new ArrayList<ScriptStep>();
         int index = 0;
         for (Transaction transaction : entries) {
-            index++;
-            result.add(transactionToResult(transaction, index));
+            result.add(transactionToResult(transaction, ++index));
         }
         return result;
     }
 
     /**
-     * @param entry
+     * @param fromXml
+     * @param currentIndex
      * @return
      * @throws MalformedURLException
      */
@@ -178,7 +175,7 @@ public class OwaspReader implements RecordedScriptReader {
     }
 
     /**
-     * @param headers
+     * @param contentType
      * @return
      */
     private String findRequestFormat(String contentType) {
@@ -200,7 +197,7 @@ public class OwaspReader implements RecordedScriptReader {
     }
 
     /**
-     * @param headers
+     * @param contentType
      * @return
      */
     private String findResponseFormat(String contentType) {
@@ -234,16 +231,12 @@ public class OwaspReader implements RecordedScriptReader {
     }
 
     private Set<RequestData> populateHeaders(List<Header> headers, String type) {
-        Set<RequestData> list = new HashSet<RequestData>();
-        for (Header h : headers) {
-            list.add(new RequestData(h.getKey(), h.getValue(), type));
-        }
-        return list;
+        return headers.stream().map(h -> new RequestData(h.getKey(), h.getValue(), type)).collect(Collectors.toSet());
     }
 
     /**
-     * @param param
-     * @param string
+     * @param params
+     * @param type
      * @return
      */
     private Set<RequestData> formDataToSet(List<KeyValuePair> params,
@@ -274,13 +267,12 @@ public class OwaspReader implements RecordedScriptReader {
     }
 
     /**
-     * @param rawdata
+     * @param response
      * @return
      * @throws JSONException
      */
     public static Set<RequestData> rawJsonToSet(String response)
             throws JSONException {
-        Set<RequestData> map = new LinkedHashSet<RequestData>();
         JSONObject jsonObject = new JSONObject(response);
         String[] names = JSONObject.getNames(jsonObject);
         List<RequestData> itemList = new ArrayList<RequestData>();
@@ -288,7 +280,7 @@ public class OwaspReader implements RecordedScriptReader {
             traverse(name, jsonObject, itemList, new RequestDataBuilder(
                     RequestDataType.requestPostData.name()));
         }
-        map.addAll(itemList);
+        Set<RequestData> map = new LinkedHashSet<RequestData>(itemList);
 
         return map;
     }

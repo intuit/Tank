@@ -46,10 +46,9 @@ public class FilterGroupDao extends BaseDao<ScriptFilterGroup> {
         String prefix = "x";
         NamedParameter parameter = new NamedParameter(ScriptFilterGroup.PROPERTY_PRODUCT_NAME, "productName",
                 productName);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere())
-                .append(buildWhereClause(Operation.EQUALS, prefix, parameter));
-        return listWithJQL(sb.toString(), parameter);
+        String sb = buildQlSelect(prefix) + startWhere() +
+                buildWhereClause(Operation.EQUALS, prefix, parameter);
+        return listWithJQL(sb, parameter);
     }
 
 }

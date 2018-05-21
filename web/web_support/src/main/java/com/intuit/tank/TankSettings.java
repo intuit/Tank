@@ -67,12 +67,7 @@ public class TankSettings implements Serializable {
             init();
         }
         try {
-            for (VMRegion r : regions) {
-                if (r.name().equalsIgnoreCase(region)) {
-                    ret = true;
-                    break;
-                }
-            }
+            ret = regions.stream().anyMatch(r -> r.name().equalsIgnoreCase(region));
         } catch (Exception e) {
             LOG.error("Error finding region: " + e, e);
         }

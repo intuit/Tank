@@ -103,7 +103,7 @@ public class ScriptDao extends BaseDao<Script> {
                     if (sb.length() > 0) {
                         // throw exception
                         throw new IllegalArgumentException("Cannot delete script " + entity.getName()
-                                + " because it is used in the following projects: " + sb.toString());
+                                + " because it is used in the following projects: " + sb);
                     }
                 }
                 LOG.debug("deleting entity " + entity.toString());

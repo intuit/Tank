@@ -58,10 +58,7 @@ public class ProjectNodeBean extends JobNodeBean {
 
     @Override
     public void reCalculate() {
-        int tps = 0;
-        for (JobNodeBean bean : jobBeans) {
-            tps += bean.getTps();
-        }
+        int tps = jobBeans.stream().mapToInt(JobNodeBean::getTps).sum();
         setTps(tps);
     }
 

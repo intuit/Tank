@@ -38,8 +38,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
@@ -72,7 +74,7 @@ public class HttpClient {
 
         @Override
         public List<Proxy> select(URI uri) {
-            return Arrays.asList(Proxy.NO_PROXY);
+            return Collections.singletonList(Proxy.NO_PROXY);
         }
     };
 
@@ -112,13 +114,7 @@ public class HttpClient {
         String s = System.getProperty("https.protocols");
         if (s != null && s.length() > 0) {
             String[] split = s.split(",");
-            List<String> protos = new ArrayList<String>();
-            for (String proto : split) {
-                String candidate = proto.trim();
-                if (candidate.length() > 0) {
-                    protos.add(candidate);
-                }
-            }
+            List<String> protos = Arrays.stream(split).map(String::trim).filter(candidate -> candidate.length() > 0).collect(Collectors.toList());
             if (protos.size() != 0) {
                 enabledProtocols = protos.toArray(new String[protos.size()]);
             }

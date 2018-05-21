@@ -354,28 +354,26 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
         table.setRowSorter(sorter);
         final JPopupMenu pm = new JPopupMenu();
         JMenuItem item = new JMenuItem("Delete Selected");
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                int[] selectedRows = table.getSelectedRows();
-                if (selectedRows.length != 0) {
-                    int response = JOptionPane.showConfirmDialog(ProxyApp.this, "Are you sure you want to delete "
-                            + selectedRows.length + " Transactions?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
-                    if (response == JOptionPane.YES_OPTION) {
-                        int[] correctedRows = new int[selectedRows.length];
-                        for (int i = selectedRows.length; --i >= 0;) {
-                            int row = selectedRows[i];
-                            int index = (Integer) table.getValueAt(row, 0) - 1;
-                            correctedRows[i] = index;
-                        }
-                        Arrays.sort(correctedRows);
-                        for (int i = correctedRows.length; --i >= 0;) {
-                            int row = correctedRows[i];
-                            Transaction transaction = model.getTransactionForIndex(row);
-                            if (transaction != null) {
-                                model.removeTransaction(transaction, row);
-                                isDirty = true;
-                                saveAction.setEnabled(isDirty && !stopAction.isEnabled());
-                            }
+        item.addActionListener((ActionEvent arg0) -> {
+            int[] selectedRows = table.getSelectedRows();
+            if (selectedRows.length != 0) {
+                int response = JOptionPane.showConfirmDialog(ProxyApp.this, "Are you sure you want to delete "
+                        + selectedRows.length + " Transactions?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+                if (response == JOptionPane.YES_OPTION) {
+                    int[] correctedRows = new int[selectedRows.length];
+                    for (int i = selectedRows.length; --i >= 0;) {
+                        int row = selectedRows[i];
+                        int index = (Integer) table.getValueAt(row, 0) - 1;
+                        correctedRows[i] = index;
+                    }
+                    Arrays.sort(correctedRows);
+                    for (int i = correctedRows.length; --i >= 0;) {
+                        int row = correctedRows[i];
+                        Transaction transaction = model.getTransactionForIndex(row);
+                        if (transaction != null) {
+                            model.removeTransaction(transaction, row);
+                            isDirty = true;
+                            saveAction.setEnabled(isDirty && !stopAction.isEnabled());
                         }
                     }
                 }

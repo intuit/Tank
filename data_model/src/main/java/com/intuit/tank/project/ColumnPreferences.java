@@ -83,8 +83,8 @@ public class ColumnPreferences extends OwnableEntity implements Serializable {
         this.colName = colName;
         this.displayName = displayName;
         this.size = size;
-        this.visible = visible == Visibility.VISIBLE ? true : false;
-        this.hideable = hidable == Hidability.HIDABLE ? true : false;
+        this.visible = visible == Visibility.VISIBLE;
+        this.hideable = hidable == Hidability.HIDABLE;
     }
 
     /**

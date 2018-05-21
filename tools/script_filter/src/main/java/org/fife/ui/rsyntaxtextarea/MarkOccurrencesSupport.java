@@ -241,8 +241,8 @@ class MarkOccurrencesSupport implements CaretListener, ActionListener {
         if (textArea != null) {
             RSyntaxTextAreaHighlighter h = (RSyntaxTextAreaHighlighter)
                     textArea.getHighlighter();
-            for (int i = 0; i < tags.size(); i++) {
-                h.removeMarkOccurrencesHighlight(tags.get(i));
+            for (Object tag : tags) {
+                h.removeMarkOccurrencesHighlight(tag);
             }
         }
         tags.clear();

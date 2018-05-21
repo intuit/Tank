@@ -55,14 +55,11 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
 
     private static final Logger LOG = LogManager.getLogger(BaseDao.class);
 
-    private static final ThreadLocalEntityManagerProvider emProvider = new ThreadLocalEntityManagerProvider();
+    private static final ThreadLocal<TransactionContainer> emProvider = ThreadLocal.withInitial(TransactionContainer::new);
 
     private Class<T_ENTITY> entityClass;
     private boolean reloadEntities;
 
-    /**
-     * @param entityClass
-     */
     @SuppressWarnings("unchecked")
     protected BaseDao() {
         // entity ManagerFactory = Persistence.createEntityManagerFactory("wats");
@@ -132,7 +129,6 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
             LOG.warn("No result for revision " + revisionNumber + " with id of " + id);
         } finally {
             cleanup();
-
         }
         return result;
     }
@@ -191,8 +187,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
      * 
      * @param entities
      */
-    public List<T_ENTITY> persistCollection(Collection<T_ENTITY> entities) {
-        List<T_ENTITY> ret = new ArrayList<T_ENTITY>();
+    public void persistCollection(Collection<T_ENTITY> entities) {
         EntityManager em = getEntityManager();
         try {
             begin();
@@ -203,7 +198,6 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
                 } else {
                     entity = em.merge(entity);
                 }
-                ret.add(entity);
                 if (++count % 1000 == 0) {
                     em.flush();
                     em.clear();
@@ -237,7 +231,6 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
         } finally {
             cleanup();
         }
-        return ret;
     }
 
     /**
@@ -279,7 +272,6 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
 
     public void delete(@Nonnull T_ENTITY entity) throws HibernateException {
         delete(entity.getId());
-
     }
 
     /**
@@ -319,9 +311,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     public List<T_ENTITY> findForIds(@Nonnull List<Integer> ids) {
         String prefix = "x";
         NamedParameter parameter = new NamedParameter(BaseEntity.PROPERTY_ID, "id", ids);
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildQlSelect(prefix)).append(startWhere()).append(buildWhereClause(Operation.IN, prefix, parameter));
-        return listWithJQL(sb.toString(), parameter);
+        return listWithJQL(buildQlSelect(prefix) + startWhere() + buildWhereClause(Operation.IN, prefix, parameter), parameter);
     }
 
     /**
@@ -400,10 +390,9 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     public T_ENTITY findOneWithJQL(String qlString, NamedParameter... params) {
         T_ENTITY result = null;
         TypedQuery<T_ENTITY> query = null;
-        EntityManager em = getEntityManager();
         try {
             begin();
-            query = em.createQuery(qlString, entityClass);
+            query = getEntityManager().createQuery(qlString, entityClass);
             for (NamedParameter param : params) {
                 query.setParameter(param.getName(), param.getValue());
             }
@@ -421,10 +410,10 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     /**
      * returns list of entities meeting the specified criteria.
      * 
-     * @param criterion
+     * @param qlString
      *            varargs criterion. (use something like Restrictions.eq(propertyName, value);) null criterion returns
      *            all.
-     * @param sortOrder
+     * @param params
      *            the Order Object. Null value indicates no sort order.
      * @return the non null list.
      * @throws HibernateException
@@ -433,10 +422,9 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     @Nonnull
     public List<T_ENTITY> listWithJQL(String qlString, NamedParameter... params) {
         List<T_ENTITY> result = null;
-        EntityManager em = getEntityManager();
         try {
             begin();
-            TypedQuery<T_ENTITY> query = em.createQuery(qlString, entityClass);
+            TypedQuery<T_ENTITY> query = getEntityManager().createQuery(qlString, entityClass);
             for (NamedParameter param : params) {
                 query.setParameter(param.getName(), param.getValue());
             }
@@ -453,8 +441,8 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     }
 
     protected String buildQlSelect(String prefix) {
-        return new StringBuilder().append("SELECT ").append(prefix).append(" FROM ").append(entityClass.getName())
-                .append(" AS ").append(prefix).append(" ").toString();
+        return "SELECT " + prefix + " FROM " + entityClass.getName() +
+                " AS " + prefix + " ";
     }
 
     protected String buildWhereClause(Operation op, String prefix, NamedParameter param) {
@@ -464,16 +452,16 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
         return buildFieldId(prefix, param.getField()) + buildParameterName(op, param.getName());
     }
 
-    protected String buildFieldId(String prefix, String field) {
+    protected String buildSortOrderClause(SortDirection direction, String prefix, String field) {
+        return " ORDER BY " + prefix + "." + field + " " + direction.name();
+    }
+
+    private String buildFieldId(String prefix, String field) {
         return " " + prefix + "." + field + " ";
     }
 
-    protected String buildParameterName(Operation op, String name) {
+    private String buildParameterName(Operation op, String name) {
         return " " + op.getRepresentation() + " :" + name + op.getEnding() + " ";
-    }
-
-    protected String buildSortOrderClause(SortDirection direction, String prefix, String field) {
-        return " ORDER BY " + prefix + "." + field + " " + direction.name();
     }
 
     /**
@@ -496,8 +484,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
      * @return the session
      */
     protected Session getHibernateSession() {
-        Session s = (Session) getEntityManager().getDelegate();
-        return s;
+        return (Session) getEntityManager().getDelegate();
     }
 
     /**
@@ -508,13 +495,6 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     protected EntityManager getEntityManager() {
         return emProvider.get().getEntityManager();
 
-    }
-
-    /**
-     * @return the emProvider
-     */
-    protected ThreadLocalEntityManagerProvider getEmProvider() {
-        return emProvider;
     }
 
     protected void begin() {
@@ -533,10 +513,4 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
         emProvider.get().cleanup(this);
     }
 
-    public static class ThreadLocalEntityManagerProvider extends ThreadLocal<TransactionContainer> {
-        public TransactionContainer initialValue() {
-            return new TransactionContainer();
-
-        }
-    }
 }

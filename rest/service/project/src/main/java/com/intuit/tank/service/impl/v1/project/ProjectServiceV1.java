@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
@@ -157,19 +158,17 @@ public class ProjectServiceV1 implements ProjectService {
             }
         }
         final File file = f;
-        return new StreamingOutput() {
-            public void write(OutputStream outputStream) {
-                BufferedReader in = null;
-                // Get the object of DataInputStream
-                try {
-                    in = new BufferedReader(new FileReader(file));
-                    IOUtils.copy(in, outputStream, StandardCharsets.UTF_8);
-                } catch (IOException e) {
-                    LOG.error("Error streaming file: " + e.toString(), e);
-                    throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-                } finally {
-                    IOUtils.closeQuietly(in);
-                }
+        return (OutputStream outputStream) -> {
+            BufferedReader in = null;
+            // Get the object of DataInputStream
+            try {
+                in = new BufferedReader(new FileReader(file));
+                IOUtils.copy(in, outputStream, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                LOG.error("Error streaming file: " + e.toString(), e);
+                throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            } finally {
+                IOUtils.closeQuietly(in);
             }
         };
     }
@@ -184,16 +183,14 @@ public class ProjectServiceV1 implements ProjectService {
             throw new RuntimeException("Cannot find Project with id of " + projectId);
         }
         final String scriptString = WorkloadScriptUtil.getScriptForWorkload(p.getWorkloads().get(0), p.getWorkloads().get(0).getJobConfiguration());
-        return new StreamingOutput() {
-            public void write(OutputStream outputStream) {
-                // Get the object of DataInputStream
-                try {
-                    IOUtils.write(scriptString, outputStream, StandardCharsets.UTF_8);
-                } catch (IOException e) {
-                    LOG.error("Error streaming file: " + e.toString(), e);
-                    throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-                } finally {
-                }
+        return (OutputStream outputStream) -> {
+            // Get the object of DataInputStream
+            try {
+                IOUtils.write(scriptString, outputStream, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                LOG.error("Error streaming file: " + e.toString(), e);
+                throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            } finally {
             }
         };
     }
@@ -231,10 +228,7 @@ public class ProjectServiceV1 implements ProjectService {
     public Response getProjectNames() {
         ResponseBuilder responseBuilder = Response.ok();
         List<Project> all = new ProjectDao().findAll();
-        List<ProjectTO> to = new ArrayList<ProjectTO>();
-        for (Project p : all) {
-            to.add(ProjectServiceUtil.projectToTransferObject(p));
-        }
+        List<ProjectTO> to = all.stream().map(ProjectServiceUtil::projectToTransferObject).collect(Collectors.toList());
         ProjectContainer container = new ProjectContainer(to);
         responseBuilder.entity(container);
         return responseBuilder.build();

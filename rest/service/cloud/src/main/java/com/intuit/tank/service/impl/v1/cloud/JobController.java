@@ -18,10 +18,12 @@ package com.intuit.tank.service.impl.v1.cloud;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.Iterator;
+import java.util.stream.Collectors;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -118,18 +120,17 @@ public class JobController {
      */
     public Set<CloudVmStatusContainer> killAllJobs() {
     	Set<CloudVmStatusContainer> jobs = vmTracker.getAllJobs();
-    	Iterator<CloudVmStatusContainer> iter = jobs.iterator();
-    	while (iter.hasNext()) {
-    		String jobId = ((CloudVmStatusContainer)iter.next()).getJobId();
-    		killJob(jobId, true);
-    	}
+        for (CloudVmStatusContainer job : jobs) {
+            String jobId = (job).getJobId();
+            killJob(jobId, true);
+        }
     	return jobs;
     }
 
     /**
      * @inheritDoc
      */
-    public void killInstance(String instanceId) { killInstances(Arrays.asList( instanceId )); }
+    public void killInstance(String instanceId) { killInstances(Collections.singletonList(instanceId)); }
 
     /**
      * @inheritDoc
@@ -163,14 +164,13 @@ public class JobController {
      */
     public Set<CloudVmStatusContainer> stopAllJobs() {
     	Set<CloudVmStatusContainer> jobs = vmTracker.getAllJobs();
-    	Iterator<CloudVmStatusContainer> iter = jobs.iterator();
-    	while (iter.hasNext()) {
-    		String jobId = ((CloudVmStatusContainer)iter.next()).getJobId();
-	        List<String> instanceIds = getInstancesForJob(jobId);
-	        vmTracker.stopJob(jobId);
-	        stopAgents(instanceIds);
-	        jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_STOPPED));
-    	}
+        for (CloudVmStatusContainer job : jobs) {
+            String jobId = (job).getJobId();
+            List<String> instanceIds = getInstancesForJob(jobId);
+            vmTracker.stopJob(jobId);
+            stopAgents(instanceIds);
+            jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_STOPPED));
+        }
     	return jobs;
     }
     
@@ -299,9 +299,7 @@ public class JobController {
         List<String> instanceIds = new ArrayList<String>();
         CloudVmStatusContainer statuses = vmTracker.getVmStatusForJob(jobId);
         if (statuses != null) {
-            for (CloudVmStatus status : statuses.getStatuses()) {
-                instanceIds.add(status.getInstanceId());
-            }
+            instanceIds = statuses.getStatuses().stream().map(CloudVmStatus::getInstanceId).collect(Collectors.toList());
         }
         return instanceIds;
     }

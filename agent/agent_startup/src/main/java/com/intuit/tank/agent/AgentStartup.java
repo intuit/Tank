@@ -101,8 +101,7 @@ public class AgentStartup implements Runnable {
     public static void main(String[] args) {
         AgentStartup agentStartup = new AgentStartup();
 
-        for (int iter = 0; iter < args.length; ++iter) {
-            String argument = args[iter];
+        for (String argument : args) {
             String[] values = argument.split("=");
 
             if (values[0].equalsIgnoreCase("-controller")) {
@@ -111,7 +110,6 @@ public class AgentStartup implements Runnable {
                     return;
                 }
                 agentStartup.controllerBase = values[1];
-                continue;
             }
 
         }

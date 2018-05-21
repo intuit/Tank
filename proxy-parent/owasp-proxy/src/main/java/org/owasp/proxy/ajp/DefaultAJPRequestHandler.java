@@ -43,19 +43,7 @@ public class DefaultAJPRequestHandler implements AJPRequestHandler,
 
     private AJPProperties properties = new AJPProperties();
 
-    private ThreadLocal<AJPClient> client = new ThreadLocal<AJPClient>() {
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.ThreadLocal#initialValue()
-         */
-        @Override
-        protected AJPClient initialValue() {
-            return createClient();
-        }
-
-    };
+    private ThreadLocal<AJPClient> client = ThreadLocal.withInitial(this::createClient);
 
     public DefaultAJPRequestHandler() {
     }

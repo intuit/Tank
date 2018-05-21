@@ -17,19 +17,18 @@ package com.intuit.tank.service.impl.v1.report;
  */
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import javax.servlet.ServletContext;
@@ -147,10 +146,8 @@ public class ReportServiceV1 implements ReportService {
     public Response processSummary(final String jobId) {
         ResponseBuilder responseBuilder = Response.ok();
         try {
-            Thread t = new Thread(new Runnable() {
-                public void run() {
-                    SummaryReportRunner.generateSummary(jobId);
-                }
+            Thread t = new Thread( () -> {
+                SummaryReportRunner.generateSummary(jobId);
             });
             t.setDaemon(true);
             t.start();
@@ -176,18 +173,15 @@ public class ReportServiceV1 implements ReportService {
         final FileStorage fileStorage = FileStorageFactory.getFileStorage(tankConfig.getTimingDir(), false);
         final FileData fd = new FileData("", fileName);
         if (fileStorage.exists(fd)) {
-            StreamingOutput streamingOutput = new StreamingOutput() {
-                @Override
-                public void write(OutputStream output) throws IOException, WebApplicationException {
-                    InputStream in = null;
-                    in = new GZIPInputStream(fileStorage.readFileData(fd));
-                    try {
-                        IOUtils.copy(in, output);
-                    } catch (RuntimeException e) {
-                        throw e;
-                    } finally {
-                        IOUtils.closeQuietly(in);
-                    }
+            StreamingOutput streamingOutput = outputStream -> {
+                InputStream in = null;
+                in = new GZIPInputStream(fileStorage.readFileData(fd));
+                try {
+                    IOUtils.copy(in, outputStream);
+                } catch (RuntimeException e) {
+                    throw e;
+                } finally {
+                    IOUtils.closeQuietly(in);
                 }
             };
             String filename = "timing_" + tankConfig.getInstanceName() + "_" + jobId + ".csv";
@@ -207,47 +201,43 @@ public class ReportServiceV1 implements ReportService {
     public Response getTimingBucketCsv(final String jobId, final int period, final String min, final String max) {
         ResponseBuilder responseBuilder = Response.ok();
         final String tableName = ReportUtil.getBucketedTableName(jobId);
-        StreamingOutput streamingOutput = new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                Date minDate = null;
-                Date maxDate = null;
+        StreamingOutput streamingOutput = outputStream -> {
+            Date minDate = null;
+            Date maxDate = null;
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+                minDate = StringUtils.isBlank(min) ? null : sdf.parse(min);
+                maxDate = StringUtils.isBlank(max) ? null : sdf.parse(max);
+            } catch (ParseException e1) {
+                LOG.warn("Could not parse date : " + e1);
+            }
+            PeriodicDataDao dao = new PeriodicDataDao();
+            List<PeriodicData> data = dao.findByJobId(Integer.parseInt(jobId), minDate, maxDate);
+            LOG.info("found " + data.size() + " entries for job " + jobId + " for dates " + minDate + " - " + maxDate);
+            if (!data.isEmpty()) {
+                CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream));
                 try {
-                    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-                    minDate = StringUtils.isBlank(min) ? null : sdf.parse(min);
-                    maxDate = StringUtils.isBlank(max) ? null : sdf.parse(max);
-                } catch (ParseException e1) {
-                    LOG.warn("Could not parse date : " + e1);
-                }
-                PeriodicDataDao dao = new PeriodicDataDao();
-                List<PeriodicData> data = dao.findByJobId(Integer.parseInt(jobId), minDate, maxDate);
-                LOG.info("found " + data.size() + " entries for job " + jobId + " for dates " + minDate + " - " + maxDate);
-                if (!data.isEmpty()) {
-                    CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(output));
-                    try {
-                        String[] headers = ReportUtil.BUCKET_HEADERS;
-                        csvWriter.writeNext(headers);
-                        int count = 0;
-                        if (period > 15) {
-                            data = consolidatePeriod(data, period);
-                        }
-                        for (PeriodicData item : data) {
-                            count++;
-                            String[] line = getBucketLine(jobId, period, item);
-                            csvWriter.writeNext(line);
-                            if (count % 500 == 0) {
-                                csvWriter.flush();
-                            }
-                        }
-                        csvWriter.flush();
-                    } catch (RuntimeException e) {
-                        throw e;
-                    } finally {
-                        csvWriter.close();
+                    String[] headers = ReportUtil.BUCKET_HEADERS;
+                    csvWriter.writeNext(headers);
+                    int count = 0;
+                    if (period > 15) {
+                        data = consolidatePeriod(data, period);
                     }
+                    for (PeriodicData item : data) {
+                        count++;
+                        String[] line = getBucketLine(jobId, period, item);
+                        csvWriter.writeNext(line);
+                        if (count % 500 == 0) {
+                            csvWriter.flush();
+                        }
+                    }
+                    csvWriter.flush();
+                } catch (RuntimeException e) {
+                    throw e;
+                } finally {
+                    csvWriter.close();
                 }
             }
-
         };
 
         String filename = tableName + "_" + jobId + ".csv";
@@ -259,16 +249,8 @@ public class ReportServiceV1 implements ReportService {
 
     private List<PeriodicData> consolidatePeriod(List<PeriodicData> data, int period) {
         List<PeriodicData> ret = new ArrayList<PeriodicData>();
-        Map<String, List<PeriodicData>> map = new HashMap<String, List<PeriodicData>>();
+        Map<String, List<PeriodicData>> map = data.stream().collect(Collectors.groupingBy(PeriodicData::getPageId));
         // bucket the data
-        for (PeriodicData pd : data) {
-            List<PeriodicData> list = map.get(pd.getPageId());
-            if (list == null) {
-                list = new ArrayList<PeriodicData>();
-                map.put(pd.getPageId(), list);
-            }
-            list.add(pd);
-        }
         // sort the buckets
         for (List<PeriodicData> l : map.values()) {
             Collections.sort(l);
@@ -326,26 +308,23 @@ public class ReportServiceV1 implements ReportService {
     public Response getSummaryTimingCsv(final String jobId) {
         ResponseBuilder responseBuilder = Response.ok();
         // AuthUtil.checkLoggedIn(servletContext);
-        StreamingOutput streamingOutput = new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                List<SummaryData> data = new SummaryDataDao().findByJobId(Integer.parseInt(jobId));
+        StreamingOutput streamingOutput = outputStream -> {
+            List<SummaryData> data = new SummaryDataDao().findByJobId(Integer.parseInt(jobId));
 
-                if (!data.isEmpty()) {
-                    CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(output));
-                    try {
-                        String[] headers = ReportUtil.getSummaryHeaders();
-                        csvWriter.writeNext(headers);
-                        for (SummaryData item : data) {
-                            String[] line = getLine(item);
-                            csvWriter.writeNext(line);
-                            csvWriter.flush();
-                        }
-                    } catch (RuntimeException e) {
-                        throw e;
-                    } finally {
-                        csvWriter.close();
+            if (!data.isEmpty()) {
+                CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream));
+                try {
+                    String[] headers = ReportUtil.getSummaryHeaders();
+                    csvWriter.writeNext(headers);
+                    for (SummaryData item : data) {
+                        String[] line = getLine(item);
+                        csvWriter.writeNext(line);
+                        csvWriter.flush();
                     }
+                } catch (RuntimeException e) {
+                    throw e;
+                } finally {
+                    csvWriter.close();
                 }
             }
         };
@@ -510,10 +489,8 @@ public class ReportServiceV1 implements ReportService {
     public Response setTPSInfos(final TPSReportingPackage reportingPackage) {
         ResponseBuilder responseBuilder = null;
         try {
-            new Thread(new Runnable() {
-                public void run() {
-                    ResultsStorage.instance().storeTpsResults(reportingPackage.getJobId(), reportingPackage.getInstanceId(), reportingPackage.getContainer());
-                }
+            new Thread( () -> {
+                ResultsStorage.instance().storeTpsResults(reportingPackage.getJobId(), reportingPackage.getInstanceId(), reportingPackage.getContainer());
             }).start();
             responseBuilder = Response.status(Status.ACCEPTED);
 
@@ -528,10 +505,8 @@ public class ReportServiceV1 implements ReportService {
     public Response sendTimingResults(final TankResultPackage results) {
         ResponseBuilder responseBuilder = null;
         try {
-            new Thread(new Runnable() {
-                public void run() {
-                    ResultsStorage.instance().storeTimingResults(results.getJobId(), results.getInstanceId(), results.getResults());
-                }
+            new Thread( () -> {
+                ResultsStorage.instance().storeTimingResults(results.getJobId(), results.getInstanceId(), results.getResults());
             }).start();
             responseBuilder = Response.status(Status.ACCEPTED);
 
@@ -543,13 +518,7 @@ public class ReportServiceV1 implements ReportService {
     }
 
     private void writeRow(StringBuilder out, String[] line, String cell, String bgColor) {
-        out.append("<tr style='background-color: " + bgColor + ";'>");
-        for (String s : line) {
-            out.append("<" + cell + ">");
-            out.append(s);
-            out.append("</" + cell + ">");
-        }
-        out.append("</tr>");
+        out.append(Arrays.stream(line).map(s -> "<" + cell + ">" + s + "</" + cell + ">").collect(Collectors.joining("", "<tr style='background-color: " + bgColor + ";'>", "</tr>")));
     }
 
     /**

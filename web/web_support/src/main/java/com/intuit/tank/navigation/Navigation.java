@@ -17,6 +17,7 @@ package com.intuit.tank.navigation;
  */
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,11 +91,6 @@ public class Navigation implements Serializable {
     }
 
     private SiteSection findPageSection(String viewId) {
-        for (SiteSection section : SiteSection.values()) {
-            if (section.isMatch(viewId)) {
-                return section;
-            }
-        }
-        return SiteSection.unknown;
+        return Arrays.stream(SiteSection.values()).filter(section -> section.isMatch(viewId)).findFirst().orElse(SiteSection.unknown);
     }
 }

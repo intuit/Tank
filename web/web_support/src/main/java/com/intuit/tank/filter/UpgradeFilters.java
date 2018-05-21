@@ -19,10 +19,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
+import com.intuit.tank.project.BaseEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
@@ -58,10 +60,7 @@ public class UpgradeFilters implements Serializable {
                 ScriptFilterDao filterDao = new ScriptFilterDao();
                 ScriptFilterActionDao actionDao = new ScriptFilterActionDao();
                 List<ScriptFilter> all = filterDao.findAll();
-                Set<Integer> toDelete = new HashSet<Integer>();
-                for (ScriptFilterAction act : actionDao.findAll()) {
-                    toDelete.add(act.getId());
-                }
+                Set<Integer> toDelete = actionDao.findAll().stream().map(BaseEntity::getId).collect(Collectors.toSet());
                 for (ScriptFilter filter : all) {
                     for (ScriptFilterAction action : filter.getActions()) {
                         toDelete.remove(action.getId());

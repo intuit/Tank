@@ -140,9 +140,8 @@ public class Macro {
 
         if (records != null) {
             macroRecords = new ArrayList(records.size());
-            Iterator i = records.iterator();
-            while (i.hasNext()) {
-                MacroRecord record = (MacroRecord) i.next();
+            for (Object record1 : records) {
+                MacroRecord record = (MacroRecord) record1;
                 macroRecords.add(record);
             }
         }
@@ -308,8 +307,8 @@ public class Macro {
 
             // Write all actions (the meat) in the macro.
             int numActions = macroRecords.size();
-            for (int i = 0; i < numActions; i++) {
-                MacroRecord record = (MacroRecord) macroRecords.get(i);
+            for (Object macroRecord : macroRecords) {
+                MacroRecord record = (MacroRecord) macroRecord;
                 Element actionElement = doc.createElement(ACTION);
                 actionElement.setAttribute(ID, record.id);
                 if (record.actionCommand != null &&

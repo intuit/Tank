@@ -85,10 +85,8 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
         list = new JList(items.toArray());
         list.setSelectionMode(singleSelection ? ListSelectionModel.SINGLE_SELECTION
                 : ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        list.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                okBT.setEnabled(list.getSelectedIndex() != -1);
-            }
+        list.addListSelectionListener( (ListSelectionEvent e) -> {
+            okBT.setEnabled(list.getSelectedIndex() != -1);
         });
         list.addMouseListener(new MouseAdapter() {
 
@@ -142,35 +140,21 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
     }
 
     public void filter(final long timeValue) {
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(200);
-                    if (timeValue == timeClicked) {
-                        SwingUtilities.invokeLater(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                List<SELECTION_TYPE> filtered = new ArrayList<SELECTION_TYPE>();
-                                for (SELECTION_TYPE obj : items) {
-                                    if (StringUtils.isBlank(filterField.getText())
-                                            || StringUtils.containsIgnoreCase(obj.toString(), filterField.getText()
-                                                    .trim())) {
-                                        filtered.add(obj);
-                                    }
-                                }
-                                list.setListData(filtered.toArray());
-                                list.repaint();
-                            }
-                        });
-                    } else {
-                        System.out.println("skipping...");
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        new Thread( () -> {
+            try {
+                Thread.sleep(200);
+                if (timeValue == timeClicked) {
+                    SwingUtilities.invokeLater( () -> {
+                        list.setListData(items.stream().filter(obj -> StringUtils.isBlank(filterField.getText())
+                                || StringUtils.containsIgnoreCase(obj.toString(), filterField.getText()
+                                .trim())).toArray());
+                        list.repaint();
+                    });
+                } else {
+                    System.out.println("skipping...");
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }).start();
 
@@ -194,16 +178,12 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
     private Component createButtonPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
         JButton cancelBT = new JButton("Cancel");
-        cancelBT.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                setVisible(false);
-            }
+        cancelBT.addActionListener( (ActionEvent arg0) -> {
+            setVisible(false);
         });
         okBT = new JButton("Ok");
-        okBT.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                select();
-            }
+        okBT.addActionListener( (ActionEvent arg0) -> {
+            select();
         });
 
         panel.add(okBT);

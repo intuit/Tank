@@ -18,6 +18,7 @@ package com.intuit.tank.vm.settings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
@@ -104,13 +105,10 @@ public class InstanceDescriptionDefaults {
         return config.getString(key, defaultInstance != null ? defaultInstance.getString(key) : null);
     }
     
-	List<String> getList(String key) {
-		List<String> strings = new ArrayList<>();
+	private List<String> getList(String key) {
+		List<String> strings;
     	List<Object> list = config.getList(key, defaultInstance != null ? defaultInstance.getList(key) : null);
-    	for (Object object : list ) {
-    	    strings.add(object != null ? object.toString() : null);
-    	}
-        return strings;
+        return list.stream().map(object -> object != null ? object.toString() : null).collect(Collectors.toList());
     }
 
 }

@@ -33,6 +33,7 @@ import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.stream.IntStream;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.border.EmptyBorder;
@@ -222,12 +223,7 @@ public class Gutter extends JComponent {
      * @return Whether or not line numbers are visible.
      */
     public boolean getLineNumbersEnabled() {
-        for (int i = 0; i < getComponentCount(); i++) {
-            if (getComponent(i) == lineNumberList) {
-                return true;
-            }
-        }
-        return false;
+        return IntStream.range(0, getComponentCount()).anyMatch(i -> getComponent(i) == lineNumberList);
     }
 
     /**
@@ -261,12 +257,7 @@ public class Gutter extends JComponent {
      * @return Whether the icon row header is enabled.
      */
     public boolean isIconRowHeaderEnabled() {
-        for (int i = 0; i < getComponentCount(); i++) {
-            if (getComponent(i) == iconArea) {
-                return true;
-            }
-        }
-        return false;
+        return IntStream.range(0, getComponentCount()).anyMatch(i -> getComponent(i) == iconArea);
     }
 
     /**

@@ -102,67 +102,59 @@ public class VariableDialog extends JDialog implements ListSelectionListener {
     private Component createButtonPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
         JButton saveBT = new JButton("Save");
-        saveBT.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                if (table.isEditing()) {
-                    table.getCellEditor().stopCellEditing();
-                }
-                Map<String, String> ret = new HashMap<String, String>();
-                for (int row = 0; row < table.getModel().getRowCount(); row++) {
-                    String key = (String) table.getModel().getValueAt(row, 0);
-                    String value = (String) table.getModel().getValueAt(row, 1);
-                    if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
-                        ret.put(key, value);
-                    }
-                }
-                f.setProjectVariables(ret);
-                setVisible(false);
+        saveBT.addActionListener( (ActionEvent arg0) -> {
+            if (table.isEditing()) {
+                table.getCellEditor().stopCellEditing();
             }
+            Map<String, String> ret = new HashMap<String, String>();
+            for (int row = 0; row < table.getModel().getRowCount(); row++) {
+                String key = (String) table.getModel().getValueAt(row, 0);
+                String value = (String) table.getModel().getValueAt(row, 1);
+                if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
+                    ret.put(key, value);
+                }
+            }
+            f.setProjectVariables(ret);
+            setVisible(false);
         });
         panel.add(saveBT);
 
         JButton cancelBT = new JButton("Close");
-        cancelBT.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                setVisible(false);
-            }
+        cancelBT.addActionListener( (ActionEvent arg0) -> {
+            setVisible(false);
         });
         panel.add(cancelBT);
 
         JButton addBt = new JButton("Add Variable");
-        addBt.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                if (table.isEditing()) {
-                    table.getCellEditor().stopCellEditing();
-                }
-                try {
-                    ((DefaultTableModel) table.getModel()).addRow(new Object[] { "Key", "Value" });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        addBt.addActionListener( (ActionEvent arg0) -> {
+            if (table.isEditing()) {
+                table.getCellEditor().stopCellEditing();
+            }
+            try {
+                ((DefaultTableModel) table.getModel()).addRow(new Object[] { "Key", "Value" });
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
         panel.add(addBt);
 
         deleteBT = new JButton("Delete Variable");
-        deleteBT.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                if (table.isEditing()) {
-                    table.getCellEditor().stopCellEditing();
+        deleteBT.addActionListener( (ActionEvent arg0) -> {
+            if (table.isEditing()) {
+                table.getCellEditor().stopCellEditing();
+            }
+            try {
+                int selectedRow = table.getSelectedRow();
+                ((DefaultTableModel) table.getModel()).removeRow(table.getSelectedRow());
+                if (selectedRow > 0) {
+                    table.getSelectionModel().setSelectionInterval(selectedRow - 1, selectedRow - 1);
+                } else if (table.getRowCount() > 0) {
+                    table.getSelectionModel().setSelectionInterval(0, 0);
+                } else {
+                    table.getSelectionModel().clearSelection();
                 }
-                try {
-                    int selectedRow = table.getSelectedRow();
-                    ((DefaultTableModel) table.getModel()).removeRow(table.getSelectedRow());
-                    if (selectedRow > 0) {
-                        table.getSelectionModel().setSelectionInterval(selectedRow - 1, selectedRow - 1);
-                    } else if (table.getRowCount() > 0) {
-                        table.getSelectionModel().setSelectionInterval(0, 0);
-                    } else {
-                        table.getSelectionModel().clearSelection();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
         deleteBT.setEnabled(false);

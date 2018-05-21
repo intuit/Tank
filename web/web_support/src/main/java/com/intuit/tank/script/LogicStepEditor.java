@@ -76,12 +76,8 @@ public class LogicStepEditor implements Serializable {
         this.previousRequest = scriptEditor.getPreviousRequest(step);
         this.groupName = step.getScriptGroupName();
         logicTestData = new LogicTestData(step, scriptEditor.getScript());
-        for (RequestData requestData : step.getData()) {// dd
-            if (ScriptConstants.SCRIPT.equals(requestData.getKey())) {
-                script = requestData.getValue();
-                break;
-            }
-        }
+        // dd
+        script = step.getData().stream().filter(requestData -> ScriptConstants.SCRIPT.equals(requestData.getKey())).findFirst().map(RequestData::getValue).orElseGet(() -> script);
         buttonLabel = EDIT_LABEL;
     }
 

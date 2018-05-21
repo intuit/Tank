@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import com.intuit.tank.api.model.v1.cloud.UserDetail;
 
@@ -40,11 +41,7 @@ public class UserTracker implements Serializable {
      * @return
      */
     public synchronized List<UserDetail> getSnapshot() {
-        List<UserDetail> ret = new ArrayList<UserDetail>();
-        for (Entry<String, Integer> entry : userMap.entrySet()) {
-            ret.add(new UserDetail(entry.getKey(), entry.getValue()));
-        }
-        return ret;
+        return userMap.entrySet().stream().map(entry -> new UserDetail(entry.getKey(), entry.getValue())).collect(Collectors.toList());
     }
 
     /**

@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Stack;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.jexl2.JexlContext;
@@ -97,11 +99,7 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
      */
     private String randomString(String[] values, Object olength) {
         int length = FunctionHandler.getInt(olength);
-        StringBuilder output = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            output.append(values[rnd.nextInt(values.length)]);
-        }
-        return output.toString();
+        return IntStream.range(0, length).mapToObj(i -> values[rnd.nextInt(values.length)]).collect(Collectors.joining());
     }
 
     /**
@@ -167,12 +165,8 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
             int offset = APITestHarness.getInstance().getAgentRunData().getAgentInstanceNum() * blockSize;
             LOG.info(LogUtil.getLogMessage("Creating userId Block starting at " + offset
                     + " and containing  " + blockSize + " entries.", LogEventType.System));
-            List<Integer> list = new ArrayList<Integer>();
+            List<Integer> list = IntStream.range(0, blockSize).map(i -> i + minId + offset).boxed().collect(Collectors.toList());
 
-            for (int i = 0; i < blockSize; i++) {
-                int nextNum = i + minId + offset;
-                list.add(nextNum);
-            }
             Collections.shuffle(list);
             // Collections.reverse(list);
             stack = new Stack<Integer>();
@@ -394,12 +388,12 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
     private String[] combineStringArrays(String[] value1, String[] value2) {
         String[] output = new String[value1.length + value2.length];
         int counter = 0;
-        for (int i = 0; i < value1.length; i++) {
-            output[counter] = value1[i];
+        for (String aValue1 : value1) {
+            output[counter] = aValue1;
             ++counter;
         }
-        for (int i = 0; i < value2.length; i++) {
-            output[counter] = value2[i];
+        for (String aValue2 : value2) {
+            output[counter] = aValue2;
             ++counter;
         }
         return output;

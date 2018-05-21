@@ -1,6 +1,7 @@
 package com.intuit.tank.conversation;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -80,11 +81,7 @@ public class Transaction {
      * @return
      */
     public String buildHeaderString(String prefix, List<Header> headers) {
-        StringBuilder sb = new StringBuilder();
-        for (Header h : headers) {
-            sb.append(prefix).append(h.getKey()).append(": ").append(h.getValue()).append(NEWLINE);
-        }
-        return sb.toString();
+        return headers.stream().map(h -> prefix + h.getKey() + ": " + h.getValue() + NEWLINE).collect(Collectors.joining());
     }
 
 }

@@ -18,6 +18,7 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.Conversation;
 import javax.enterprise.context.ConversationScoped;
@@ -264,12 +265,7 @@ public class ScriptCreationBean implements Serializable {
      * @return List of selected script filters
      */
     private List<ScriptFilter> getSelectedFilters() {
-        List<ScriptFilter> selectedFilters = new ArrayList<ScriptFilter>();
-        for (SelectableWrapper<ScriptFilter> scriptFilterWrapper : getFilterWrappers()) {
-            if (scriptFilterWrapper.isSelected()) {
-                selectedFilters.add(scriptFilterWrapper.getEntity());
-            }
-        }
+        List<ScriptFilter> selectedFilters = getFilterWrappers().stream().filter(SelectableWrapper::isSelected).map(SelectableWrapper::getEntity).collect(Collectors.toList());
         return selectedFilters;
     }
 
@@ -290,12 +286,7 @@ public class ScriptCreationBean implements Serializable {
      * @param flag
      */
     private void updateFilterWrapperForGroup(ScriptFilter filter, boolean flag) {
-        for (SelectableWrapper<ScriptFilter> filterWrapper : getFilterWrappers()) {
-            if (filterWrapper.getEntity().getId() == filter.getId()) {
-                filterWrapper.setSelected(flag);
-                return;
-            }
-        }
+        getFilterWrappers().stream().filter(filterWrapper -> filterWrapper.getEntity().getId() == filter.getId()).findFirst().ifPresent(filterWrapper -> filterWrapper.setSelected(flag));
     }
 
     private List<ScriptStep> parseScript(Reader reader, List<ScriptFilter> filters) throws WatsParseException {

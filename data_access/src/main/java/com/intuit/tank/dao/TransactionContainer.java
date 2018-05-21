@@ -20,6 +20,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import javax.persistence.PersistenceUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,47 +35,42 @@ public class TransactionContainer {
 
     private static final Logger LOG = LogManager.getLogger(TransactionContainer.class);
 
+    @PersistenceUnit
     private static EntityManagerFactory entityManagerFactory;
+
     private static volatile boolean initialized = false;  
-    private static Boolean lock = new Boolean(true);
+    private static Boolean lock = Boolean.TRUE;
 
     private EntityManager em;
     private EntityTransaction transaction;
     private Object initiatingObject;
 
-    /**
-     * @param em
-     * @param initiatingObject
-     */
-    public TransactionContainer() {
-    	synchronized(lock){  
-            
-  	      if(initialized){  
-  	        return;  
-  	      }  
-  	        
-  	      initialized = true;  
-  	        
-  	      try{  
-  	    	  entityManagerFactory = Persistence.createEntityManagerFactory("wats"); 
-  	          
-  	      } catch(Throwable t){  
-  	        LOG.error("Failed to setup persistence unit!", t);  
-  	      }  
-  	}  
+    protected TransactionContainer() {
+        synchronized(lock){
+
+            if(initialized){
+                return;
+            }
+            try{
+                entityManagerFactory = Persistence.createEntityManagerFactory("tank");
+                initialized = true;
+            } catch(Throwable t){
+                LOG.error("Failed to setup persistence unit!", t);
+            }
+        }
     }
 
     /**
      * @return the em
      */
-    public EntityManager getEntityManager() {
+    protected EntityManager getEntityManager() {
         if (em == null) {
             em = entityManagerFactory.createEntityManager();
         }
         return em;
     }
 
-    public void startTrasaction(Object initiatingObject) {
+    protected void startTrasaction(Object initiatingObject) {
         if (em == null) {
             getEntityManager();
         }
@@ -89,7 +85,7 @@ public class TransactionContainer {
         }
     }
 
-    public void commitTransaction(Object initiatingObject) {
+    protected void commitTransaction(Object initiatingObject) {
         if (transaction != null && this.initiatingObject == initiatingObject) {
             LOG.debug("Committing transaciton with initiating Object " + initiatingObject);
             transaction.commit();
@@ -99,7 +95,7 @@ public class TransactionContainer {
         }
     }
     
-    public void rollbackTransaction(Object initiatingObject) {
+    protected void rollbackTransaction(Object initiatingObject) {
         if (transaction != null && this.initiatingObject == initiatingObject) {
             LOG.debug("Rollback transaciton with initiating Object " + initiatingObject);
             transaction.rollback();
@@ -109,7 +105,7 @@ public class TransactionContainer {
         }
     }
 
-    public void cleanup(Object initiatingObject) {
+    protected void cleanup(Object initiatingObject) {
         if (this.initiatingObject == initiatingObject) {
             if (transaction != null) {
                 if (transaction.isActive()) {

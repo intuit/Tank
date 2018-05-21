@@ -40,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.IntStream;
 import javax.swing.JComponent;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
@@ -314,8 +315,8 @@ public class ErrorStrip extends JComponent {
         Map markerMap = new HashMap();
 
         List notices = textArea.getParserNotices();
-        for (Iterator i = notices.iterator(); i.hasNext();) {
-            ParserNotice notice = (ParserNotice) i.next();
+        for (Object notice1 : notices) {
+            ParserNotice notice = (ParserNotice) notice1;
             if (notice.getLevel() <= levelThreshold ||
                     (notice instanceof TaskNotice)) {
                 // 1.5: Use Integer.valueOf(notice.getLine())
@@ -326,8 +327,7 @@ public class ErrorStrip extends JComponent {
                     m.addMouseListener(listener);
                     markerMap.put(key, m);
                     add(m);
-                }
-                else {
+                } else {
                     m.addNotice(notice);
                 }
             }
@@ -335,8 +335,8 @@ public class ErrorStrip extends JComponent {
 
         if (getShowMarkedOccurrences() && textArea.getMarkOccurrences()) {
             List occurrences = textArea.getMarkedOccurrences();
-            for (Iterator i = occurrences.iterator(); i.hasNext();) {
-                DocumentRange range = (DocumentRange) i.next();
+            for (Object occurrence : occurrences) {
+                DocumentRange range = (DocumentRange) occurrence;
                 int line = 0;
                 try {
                     line = textArea.getLineOfOffset(range.getStartOffset());
@@ -352,8 +352,7 @@ public class ErrorStrip extends JComponent {
                     m.addMouseListener(listener);
                     markerMap.put(key, m);
                     add(m);
-                }
-                else {
+                } else {
                     if (!m.containsMarkedOccurence()) {
                         m.addNotice(notice);
                     }
@@ -634,22 +633,15 @@ public class ErrorStrip extends JComponent {
         }
 
         public boolean containsMarkedOccurence() {
-            boolean result = false;
-            for (int i = 0; i < notices.size(); i++) {
-                if (notices.get(i) instanceof MarkedOccurrenceNotice) {
-                    result = true;
-                    break;
-                }
-            }
-            return result;
+            return IntStream.range(0, notices.size()).anyMatch(i -> notices.get(i) instanceof MarkedOccurrenceNotice);
         }
 
         public Color getColor() {
             // Return the color for the highest-level parser.
             Color c = null;
             int lowestLevel = Integer.MAX_VALUE; // ERROR is 0
-            for (Iterator i = notices.iterator(); i.hasNext();) {
-                ParserNotice notice = (ParserNotice) i.next();
+            for (Object notice1 : notices) {
+                ParserNotice notice = (ParserNotice) notice1;
                 if (notice.getLevel() < lowestLevel) {
                     lowestLevel = notice.getLevel();
                     c = notice.getColor();
@@ -674,8 +666,8 @@ public class ErrorStrip extends JComponent {
                 StringBuffer sb = new StringBuffer("<html>");
                 sb.append(msg.getString("MultipleMarkers"));
                 sb.append("<br>");
-                for (int i = 0; i < notices.size(); i++) {
-                    ParserNotice pn = (ParserNotice) notices.get(i);
+                for (Object notice : notices) {
+                    ParserNotice pn = (ParserNotice) notice;
                     sb.append("&nbsp;&nbsp;&nbsp;- ");
                     sb.append(pn.getMessage());
                     sb.append("<br>");

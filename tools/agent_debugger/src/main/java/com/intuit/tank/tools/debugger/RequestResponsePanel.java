@@ -157,12 +157,7 @@ public class RequestResponsePanel extends JPanel implements StepListener, Script
         boolean ret = false;
         List<DebugStep> steps = parent.getSteps();
         if (steps != null && !steps.isEmpty()) {
-            for (DebugStep step : steps) {
-                if (step != null && step.getRequest() != null && StringUtils.isNotBlank(step.getRequest().getLogMsg())) {
-                    ret = true;
-                    break;
-                }
-            }
+            ret = steps.stream().anyMatch(step -> step != null && step.getRequest() != null && StringUtils.isNotBlank(step.getRequest().getLogMsg()));
         }
         return ret;
     }

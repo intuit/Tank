@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -221,10 +222,8 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
         SubnodeConfiguration groupConfig = config.configurationAt(key);
         if (groupConfig != null) {
             @SuppressWarnings("unchecked") List<HierarchicalConfiguration> list = groupConfig.configurationsAt("rule");
-            for (HierarchicalConfiguration c : list) {
-                ret.add(new ConfigInclusionExclusionRule(getTransactionPart(c), c.getString("@header", "all"),
-                        getMatchType(c), c.getString("")));
-            }
+            ret = list.stream().map(c -> new ConfigInclusionExclusionRule(getTransactionPart(c), c.getString("@header", "all"),
+                    getMatchType(c), c.getString(""))).collect(Collectors.toSet());
         }
         return ret;
     }

@@ -48,18 +48,8 @@ public class Proxy extends Server {
             final TargetedConnectionHandler connectionHandler,
             final InetSocketAddress target) throws IOException {
         super(listen, executor, connectionHandler == null ? null
-                : new ConnectionHandler() {
-
-                    /*
-                     * (non-Javadoc)
-                     * 
-                     * @see org.owasp.proxy.daemon.ConnectionHandler#handleConnection (java .net.Socket)
-                     */
-                    public void handleConnection(Socket socket)
-                            throws IOException {
-                        connectionHandler.handleConnection(socket, target);
-                    }
-
+                : (Socket socket) -> {
+                    connectionHandler.handleConnection(socket, target);
                 });
     }
 }

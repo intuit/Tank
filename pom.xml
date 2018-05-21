@@ -593,8 +593,8 @@
 
       <dependency>
         <groupId>org.simpleframework</groupId>
-        <artifactId>simple</artifactId>
-        <version>4.1.21</version>
+        <artifactId>simple-http</artifactId>
+        <version>6.0.1</version>
       </dependency>
 
       <dependency>
@@ -1235,11 +1235,6 @@
       <url>http://download.java.net/maven/2</url>
     </repository>
     <repository>
-      <id>java.net.glassfish</id>
-      <name>GlassFish Maven Repository</name>
-      <url>http://download.java.net/maven/glassfish</url>
-    </repository>
-    <repository>
       <id>prime-repo</id>
       <name>PrimeFaces Maven Repository</name>
       <url>http://repository.primefaces.org</url>
@@ -1268,15 +1263,14 @@
       <id>Maven Central 2</id>
       <url>http://central.maven.org/maven2</url>
     </repository>
-  </repositories>
+    <repository>
+      <id>Spring Plugins Repository</id>
+      <url>http://repo.spring.io/plugins-release/</url>
+    </repository>
+</repositories>
+
   <pluginRepositories>
 
-<!--    <pluginRepository>
-      <id>jboss-public-repository</id>
-      <name>JBoss Public Maven Repository</name>
-      <url>https://repository.jboss.org/nexus/content/groups/public</url>
-      <layout>default</layout>
-    </pluginRepository>-->
     <pluginRepository>
      <id>JBoss Repo</id>
      <url>https://repository.jboss.org/nexus/content/repositories/releases</url>

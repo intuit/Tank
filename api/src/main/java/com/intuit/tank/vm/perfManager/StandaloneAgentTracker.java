@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 import javax.enterprise.context.ApplicationScoped;
@@ -97,12 +98,7 @@ public class StandaloneAgentTracker {
     }
 
     private void cleanOutdatedAvailability() {
-        List<String> toClean = new ArrayList<String>();
-        for (AgentAvailability a : availabilityMap.values()) {
-            if (!isValid(a)) {
-                toClean.add(a.getInstanceId());
-            }
-        }
+        List<String> toClean = availabilityMap.values().stream().filter(a -> !isValid(a)).map(AgentAvailability::getInstanceId).collect(Collectors.toList());
         for (String s : toClean) {
             availabilityMap.remove(s);
         }

@@ -327,21 +327,11 @@ public class Request implements Serializable {
     }
 
     public boolean isHasValidation() {
-        for (RequestData data : responseData) {
-            if (!isAssignment(data)) {
-                return true;
-            }
-        }
-        return false;
+        return responseData.stream().anyMatch(data -> !isAssignment(data));
     }
 
     public boolean isHasAssignments() {
-        for (RequestData data : responseData) {
-            if (isAssignment(data)) {
-                return true;
-            }
-        }
-        return false;
+        return responseData.stream().anyMatch(Request::isAssignment);
     }
 
     /**

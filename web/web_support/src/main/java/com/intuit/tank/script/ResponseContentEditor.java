@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ConversationScoped;
 import javax.inject.Named;
@@ -118,10 +119,7 @@ public class ResponseContentEditor implements Serializable {
     }
 
     public Set<RequestData> getRequestDataSet() {
-        Set<RequestData> reqDataSet = new HashSet<RequestData>();
-        for (RequestDataContentWrapper requestDataContentWrapper : assignmentContent) {
-            reqDataSet.add(requestDataContentWrapper.getData());
-        }
+        Set<RequestData> reqDataSet = assignmentContent.stream().map(RequestDataContentWrapper::getData).collect(Collectors.toSet());
         for (RequestDataContentWrapper requestDataContentWrapper : validationContent) {
             reqDataSet.add(requestDataContentWrapper.getData());
         }

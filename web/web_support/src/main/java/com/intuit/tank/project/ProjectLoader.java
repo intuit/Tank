@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -79,14 +80,7 @@ public class ProjectLoader extends EntityVersionLoader<Project, ModifiedProjectM
     @Override
     protected List<Project> getEntities() {
         List<Project> projects = new ProjectDao().findFiltered(ViewFilterType.ALL);
-        Set<String> set = new HashSet<String>();
-        for (Project p : projects) {
-        	if( !p.getCreator().isEmpty() ) {
-        		set.add(p.getCreator());
-        	}
-        }
-        List<String> list = new ArrayList<String>(set);
-        Collections.sort(list);
+        List<String> list = projects.stream().filter(p -> !p.getCreator().isEmpty()).map(OwnableEntity::getCreator).distinct().sorted().collect(Collectors.toList());
         creatorList = new SelectItem[list.size() + 1];
         creatorList[0] = new SelectItem("", "All");
         for (int i = 0; i < list.size(); i++) {

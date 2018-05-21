@@ -22,6 +22,8 @@
 package org.owasp.proxy.util;
 
 import java.io.PrintStream;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class DebugUtils {
 
@@ -67,12 +69,7 @@ public class DebugUtils {
     }
 
     private static String pad(String s, int len, char f) {
-        StringBuilder pad = new StringBuilder(len);
-        for (int i = 0; i < len - s.length(); i++) {
-            pad.append(f);
-        }
-        pad.append(s);
-        return pad.toString();
+        return IntStream.range(0, len - s.length()).mapToObj(i -> String.valueOf(f)).collect(Collectors.joining("", "", s));
     }
 
     private static String hex(byte b) {

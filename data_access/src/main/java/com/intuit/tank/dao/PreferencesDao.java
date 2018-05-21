@@ -30,20 +30,16 @@ import com.intuit.tank.project.Preferences;
  */
 public class PreferencesDao extends OwnableDao<Preferences> {
 
-    /**
-     * @param entityClass
-     */
     public PreferencesDao() {
         super();
     }
 
     public Preferences getForOwner(@Nonnull String owner) {
-        Preferences ret = null;
         List<Preferences> listForOwner = listForOwner(owner);
-        if (listForOwner.size() > 0) {
-            ret = listForOwner.get(0);
+        if (!listForOwner.isEmpty()) {
+            return listForOwner.get(0);
         }
-        return ret;
+        return null;
     }
 
 }

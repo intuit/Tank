@@ -26,6 +26,7 @@ import java.io.PushbackInputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
+import java.util.stream.IntStream;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
@@ -92,10 +93,7 @@ public class SSLConnectionHandler implements TargetedConnectionHandler {
     }
 
     protected final boolean isSSL(byte[] sniff) {
-        for (int i = 0; i < sniff.length; i++)
-            if (sniff[i] == 0x03)
-                return true;
-        return false;
+        return IntStream.range(0, sniff.length).anyMatch(i -> sniff[i] == 0x03);
     }
 
     /*

@@ -108,11 +108,7 @@ public class Security implements Serializable {
         SecurityConfig config = new TankConfig().getSecurityConfig();
         List<String> associatedGroups = config.getRestrictionMap().get(right.name());
         if (associatedGroups != null) {
-            for (String role : associatedGroups) {
-                if ( hasRole(role) ) {
-                    return true;
-                }
-            }
+            return associatedGroups.stream().anyMatch(this::hasRole);
         }
         return false;
     }

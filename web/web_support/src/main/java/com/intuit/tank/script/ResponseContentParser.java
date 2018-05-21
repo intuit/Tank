@@ -18,6 +18,8 @@ import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ValidationResponseContent;
 import com.intuit.tank.vm.api.enumerated.ValidationType;
 
+import java.util.Arrays;
+
 public class ResponseContentParser {
 
     public static String extractOperator(RequestData data) {
@@ -47,16 +49,11 @@ public class ResponseContentParser {
     }
 
     public static String extractCondition(String conditionStr) {
-        String ret = "";
+        String ret;
         if (conditionStr.length() > 1 && conditionStr.charAt(0) == '=' && conditionStr.charAt(1) != '=') {
             ret = "=";
         } else {
-            for (ValidationType type : ValidationType.values()) {
-                if (conditionStr.startsWith(type.getValue())) {
-                    ret = type.getValue();
-                    break;
-                }
-            }
+            ret = Arrays.stream(ValidationType.values()).filter(type -> conditionStr.startsWith(type.getValue())).findFirst().map(ValidationType::getValue).orElse("");
         }
         return ret;
     }

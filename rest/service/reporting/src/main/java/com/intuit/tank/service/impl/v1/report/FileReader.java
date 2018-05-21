@@ -74,20 +74,15 @@ public final class FileReader {
         final long to = l > total ? 0 : total;
         final long from = l;
 
-        StreamingOutput streamer = new StreamingOutput() {
-            @SuppressWarnings("resource")
-            @Override
-            public void write(final OutputStream output) throws IOException, WebApplicationException {
-
-                final FileChannel inputChannel = new FileInputStream(f).getChannel();
-                final WritableByteChannel outputChannel = Channels.newChannel(output);
-                try {
-                    inputChannel.transferTo(from, to, outputChannel);
-                } finally {
-                    // closing the channels
-                    inputChannel.close();
-                    outputChannel.close();
-                }
+        StreamingOutput streamer = (final OutputStream output) -> {
+            final FileChannel inputChannel = new FileInputStream(f).getChannel();
+            final WritableByteChannel outputChannel = Channels.newChannel(output);
+            try {
+                inputChannel.transferTo(from, to, outputChannel);
+            } finally {
+                // closing the channels
+                inputChannel.close();
+                outputChannel.close();
             }
         };
         LOG.debug("returning data from " + from + " - " + to + " of total " + total);
@@ -96,7 +91,8 @@ public final class FileReader {
 
     /**
      * @param f
-     * @param l
+     * @param numLines
+     * @param total
      * @return
      * @throws IOException
      */

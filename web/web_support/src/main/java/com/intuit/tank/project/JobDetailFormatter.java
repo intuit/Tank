@@ -133,10 +133,7 @@ public class JobDetailFormatter {
             sb.append(BREAK);
             sb.append(BREAK);
 
-            int userPercentage = 0;
-            for (TestPlan plan : workload.getTestPlans()) {
-                userPercentage += plan.getUserPercentage();
-            }
+            int userPercentage = workload.getTestPlans().stream().mapToInt(TestPlan::getUserPercentage).sum();
             if (userPercentage != 100) {
                 addError(errorSB, "User Percentage of Test Plans does not add up to 100%");
             }
@@ -282,22 +279,9 @@ public class JobDetailFormatter {
     protected static String calculateCost(TankConfig config, JobInstance proposedJobInstance,
             List<JobRegion> regions, long simulationTime) {
         List<VmInstanceType> instanceTypes = config.getVmManagerConfig().getInstanceTypes();
-        BigDecimal costPerHour = new BigDecimal(.5D);
-        for (VmInstanceType type : instanceTypes) {
-
-            if (type.getName().equals(proposedJobInstance.getVmInstanceType())) {
-                costPerHour = new BigDecimal(type.getCost());
-                break;
-            }
-        }
+        BigDecimal costPerHour = instanceTypes.stream().filter(type -> type.getName().equals(proposedJobInstance.getVmInstanceType())).findFirst().map(type -> new BigDecimal(type.getCost())).orElseGet(() -> new BigDecimal(.5D));
         long time = simulationTime + proposedJobInstance.getRampTime();
-        int numMachines = 0;
-        for (JobRegion region : regions) {
-            int users = Integer.parseInt(region.getUsers());
-            if (users > 0) {
-                numMachines += (int) Math.ceil((double) users / (double) proposedJobInstance.getNumUsersPerAgent());
-            }
-        }
+        int numMachines = regions.stream().mapToInt(region -> Integer.parseInt(region.getUsers())).filter(users -> users > 0).map(users -> (int) Math.ceil((double) users / (double) proposedJobInstance.getNumUsersPerAgent())).sum();
         // dynamoDB costs about 1.5 times the instance cost
         BigDecimal cost = estimateCost(numMachines, costPerHour, time);
         NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);
@@ -318,15 +302,10 @@ public class JobDetailFormatter {
         List<VmInstanceType> instanceTypes = config.getVmManagerConfig().getInstanceTypes();
         StringBuilder sb = new StringBuilder();
         sb.append(vmInstanceType);
-        for (VmInstanceType type : instanceTypes) {
-            if (type.getName().equals(vmInstanceType)) {
-                sb.append(" (cpus=").append(type.getCpus())
-                        .append(" ecus=").append(type.getEcus())
-                        .append(" memory=").append(type.getMemory())
-                        .append(" cost=$").append(type.getCost()).append(" per hour)");
-                break;
-            }
-        }
+        instanceTypes.stream().filter(type -> type.getName().equals(vmInstanceType)).findFirst().ifPresent(type -> sb.append(" (cpus=").append(type.getCpus())
+                .append(" ecus=").append(type.getEcus())
+                .append(" memory=").append(type.getMemory())
+                .append(" cost=$").append(type.getCost()).append(" per hour)"));
         return sb.toString();
     }
 
