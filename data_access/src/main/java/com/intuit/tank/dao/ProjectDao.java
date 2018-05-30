@@ -27,21 +27,15 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.Root;
 
-import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
-import org.hibernate.transform.Transformers;
 
-import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.Project;
-import com.intuit.tank.project.ProjectDTO;
 import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
-import com.intuit.tank.view.filter.ViewFilterType;
 
 /**
  * ProductDao
@@ -51,21 +45,9 @@ import com.intuit.tank.view.filter.ViewFilterType;
  */
 public class ProjectDao extends OwnableDao<Project> {
 
-    /**
-     * @param entityClass
-     */
     public ProjectDao() {
         super();
         setReloadEntities(true);
-    }
-
-    /**
-     * @param id
-     * @return
-     */
-    @Nonnull
-    public List<Workload> getWorkloadsForProject(@Nonnull Integer projectId) {
-        return findById(projectId).getWorkloads();
     }
 
     /**
@@ -85,19 +67,9 @@ public class ProjectDao extends OwnableDao<Project> {
 	        wl.fetch("jobConfiguration");
 	        query.select(root);
 	        query.where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
-	        project = em.createQuery(query).getSingleResult();   		
-    		if( project != null) {
-    			project.getWorkloads().get(0).getJobConfiguration().readConfig();
-    			project.getWorkloads().get(0).getJobConfiguration().getJobRegions();
-    			project.getWorkloads().get(0).getJobConfiguration().getVariables();
-    			project.getWorkloads().get(0).getJobConfiguration().getDataFileIds();
-    			project.getWorkloads().get(0).getJobConfiguration().getNotifications();
-    			for ( TestPlan tp : project.getWorkloads().get(0).getTestPlans() ) {
-    				for (ScriptGroup sg : tp.getScriptGroups() ) {
-    					sg.getScriptGroupSteps();
-    				}
-    			}
-    		}
+	        project = em.createQuery(query).getSingleResult();
+			Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
+			Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
     		commit();
         } catch (Exception e) {
         	rollback();
@@ -160,18 +132,8 @@ public class ProjectDao extends OwnableDao<Project> {
     	try {
     		begin();
     		project = getEntityManager().find(Project.class, id);
-    		if( project != null) {
-    			project.getWorkloads().get(0).getJobConfiguration().readConfig();
-    			project.getWorkloads().get(0).getJobConfiguration().getJobRegions();
-    			project.getWorkloads().get(0).getJobConfiguration().getVariables();
-    			project.getWorkloads().get(0).getJobConfiguration().getDataFileIds();
-    			project.getWorkloads().get(0).getJobConfiguration().getNotifications();
-    			for ( TestPlan tp : project.getWorkloads().get(0).getTestPlans() ) {
-    				for (ScriptGroup sg : tp.getScriptGroups() ) {
-    					sg.getScriptGroupSteps();
-    				}
-    			}
-    		}
+			Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
+			Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
     		commit();
         } catch (Exception e) {
         	rollback();
@@ -204,8 +166,7 @@ public class ProjectDao extends OwnableDao<Project> {
 	        query.select(root);
 	        results = em.createQuery(query).getResultList();
 	        for (Project project : results) {
-	        	project.getWorkloads().get(0).getJobConfiguration().getVariables();
-	        	project.getWorkloads().get(0).getJobConfiguration().getDataFileIds();	        	
+				Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
 	        }
 	        commit();
         } catch (Exception e) {
