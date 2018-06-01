@@ -73,6 +73,7 @@ public class VMTrackerImpl implements VMTracker {
 
     @Inject
     private Instance<JobInstanceDao> jobDaoInstance;
+
     @Inject
     private Instance<WorkloadDao> workloadDaoInstance;
 

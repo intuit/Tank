@@ -57,6 +57,9 @@ public class Security implements Serializable {
     @Inject
     private RelationshipManager relationshipManager;
 
+    @Inject
+    private TankConfig tankConfig;
+
     /**
      * 
      * @param entity
@@ -105,7 +108,7 @@ public class Security implements Serializable {
         if (isAdmin()) {
             return true;
         }
-        SecurityConfig config = new TankConfig().getSecurityConfig();
+        SecurityConfig config = tankConfig.getSecurityConfig();
         List<String> associatedGroups = config.getRestrictionMap().get(right.name());
         if (associatedGroups != null) {
             return associatedGroups.stream().anyMatch(this::hasRole);
