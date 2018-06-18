@@ -132,8 +132,8 @@ public class AgentServiceV1 implements AgentService {
         final List<FileData> files = fileStorage.listFileData("");
 
         StreamingOutput streamingOutput = outputStream -> {
-            ZipOutputStream zip = new ZipOutputStream(outputStream);
-            try {
+            // open the zip stream in a try resource block, no finally needed
+            try (ZipOutputStream zip = new ZipOutputStream(outputStream)) {
                 if (harnessJar.exists()) {
                     addFileToZip(HARNESS_JAR, new FileInputStream(harnessJar), zip);
                     zip.flush();
@@ -148,8 +148,6 @@ public class AgentServiceV1 implements AgentService {
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
-            } finally {
-                IOUtils.closeQuietly(zip);
             }
         };
         String filename = "agent-support-files.zip";
