@@ -19,7 +19,9 @@
           <h:inputText id="usersTF"
             value="#{jobRegion.users}"
             styleClass="formInput inputWidthSmall" required="true"
-            requiredMessage="#{jobRegion.region.description} Users cannot be empty." />
+            requiredMessage="#{jobRegion.region.description} Users cannot be empty." >
+            <f:validateLongRange minimum = "0" maximum = "999999" />
+          </h:inputText>
           <p:ajax event="save" update=":mainForm:totalUsersTF" />
         </p:inplace>
         <ts:tip tipId="UserTip"
