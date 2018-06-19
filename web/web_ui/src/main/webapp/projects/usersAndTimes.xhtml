@@ -18,7 +18,7 @@
         <p:inplace label="#{jobRegion.users}" editor="true">
           <h:inputText id="usersTF"
             value="#{jobRegion.users}"
-            styleClass="formInput inputWidthSmall" required="false"
+            styleClass="formInput inputWidthSmall" required="true"
             requiredMessage="#{jobRegion.region.description} Users cannot be empty." />
           <p:ajax event="save" update=":mainForm:totalUsersTF" />
         </p:inplace>
@@ -73,7 +73,7 @@
         <p:inplace label="#{usersAndTimes.startUsers}" editor="true">
           <h:inputText id="startUsersTF"
             value="#{usersAndTimes.startUsers}"
-            styleClass="formInput inputWidthSmall" required="false"
+            styleClass="formInput inputWidthSmall" required="true"
             requiredMessage="Start Users cannot be empty." />
         </p:inplace>
       </div>
@@ -88,7 +88,7 @@
         <p:inplace label="#{usersAndTimes.userIncrement}" editor="true">
           <h:inputText id="userIncrementTF"
             value="#{usersAndTimes.userIncrement}"
-            styleClass="formInput inputWidthSmall" required="false"
+            styleClass="formInput inputWidthSmall" required="true"
             requiredMessage="User Increment cannot be empty." />
         </p:inplace>
       </div>
