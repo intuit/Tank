@@ -76,7 +76,9 @@
           <h:inputText id="startUsersTF"
             value="#{usersAndTimes.startUsers}"
             styleClass="formInput inputWidthSmall" required="true"
-            requiredMessage="Start Users cannot be empty." />
+            requiredMessage="Start Users cannot be empty." >
+            <f:validateLongRange minimum = "0" maximum = "999999" />
+          </h:inputText>
         </p:inplace>
       </div>
     </div>
@@ -91,7 +93,9 @@
           <h:inputText id="userIncrementTF"
             value="#{usersAndTimes.userIncrement}"
             styleClass="formInput inputWidthSmall" required="true"
-            requiredMessage="User Increment cannot be empty." />
+            requiredMessage="User Increment cannot be empty." >
+            <f:validateLongRange minimum = "1" maximum = "999999" />
+          </h:inputText>
         </p:inplace>
       </div>
     </div>
