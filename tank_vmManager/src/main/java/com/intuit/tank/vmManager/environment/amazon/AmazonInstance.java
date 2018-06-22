@@ -179,6 +179,9 @@ public class AmazonInstance implements IEnvironmentInstance {
 
             // Get the required data
             int number = instanceRequest.getNumberOfInstances();
+            String image = instanceDescription.getAmi();
+            LOG.info("Requesting " + number + " instances in " + vmRegion.getName() + " with AMI=" + image);
+            RunInstancesRequest runInstancesRequest = new RunInstancesRequest(image, number, number);
             if (instanceRequest.getReuseStoppedInstance()) {
                 List<VMInformation> instances = findAllInstancesOfType(this.vmRegion, instanceRequest.getImage());
                 LOG.info("looking for stopped instance with ami-id of " + instanceRequest.getImage());
@@ -255,8 +258,6 @@ public class AmazonInstance implements IEnvironmentInstance {
                 }
                 List<Address> randomizedIps = new ArrayList<Address>(availableEips);
                 Collections.shuffle(randomizedIps);
-                String image = instanceDescription.getAmi();
-                RunInstancesRequest runInstancesRequest = new RunInstancesRequest(image, number, number);
                 Tenancy tenancy = StringUtils.isEmpty(instanceDescription.getTenancy()) ? Tenancy.Default : Tenancy.fromValue(instanceDescription.getTenancy());
                 runInstancesRequest.withInstanceType(size.toString())
                 					.withKeyName(keyPair)
