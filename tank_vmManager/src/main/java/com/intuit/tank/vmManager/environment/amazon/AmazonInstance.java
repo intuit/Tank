@@ -267,6 +267,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 int position = 0;
                 while ( remaining > MAX_INSTANCE_BATCH_SIZE ) {
                     RunInstancesRequest runInstancesRequestClone = runInstancesRequest.clone();
+                    runInstancesRequest.withMinCount(1);
                     if (!subnetIds.isEmpty()) {
                         runInstancesRequestClone.withSubnetId(subnetIds.get(position++));
                         position = (position == subnetIds.size()) ? 0 : position;
@@ -284,6 +285,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                     runInstancesRequest.withSubnetId(subnetIds.get(position));
                 }
                 try {
+                    runInstancesRequest.withMinCount(remaining);
                     RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequest.withMaxCount(remaining));
                     result.addAll(new AmazonDataConverter().processReservation(results.getReservation(), vmRegion));
                 } catch (AmazonEC2Exception ae) {
