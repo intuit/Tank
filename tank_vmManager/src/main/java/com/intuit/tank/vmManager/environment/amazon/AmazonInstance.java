@@ -265,17 +265,15 @@ public class AmazonInstance implements IEnvironmentInstance {
                 }
                 List<String> subnetIds = instanceDescription.getSubnetIds();
                 int position = 0;
-                while ( remaining > MAX_INSTANCE_BATCH_SIZE ) {
+                while ( !subnetIds.isEmpty() && remaining > MAX_INSTANCE_BATCH_SIZE ) {
                     RunInstancesRequest runInstancesRequestClone = runInstancesRequest.clone();
-                    runInstancesRequest.withMinCount(1);
-                    if (!subnetIds.isEmpty()) {
-                        runInstancesRequestClone.withSubnetId(subnetIds.get(position++));
-                        position = (position == subnetIds.size()) ? 0 : position;
-                    }
+                    runInstancesRequestClone.withSubnetId(subnetIds.get(position++));
+                    position = (position == subnetIds.size()) ? 0 : position;
                     try {
-                        RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequestClone.withMaxCount(MAX_INSTANCE_BATCH_SIZE));
+                        RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequestClone.withMinCount(1)
+                                                                                    .withMaxCount(MAX_INSTANCE_BATCH_SIZE));
                         result.addAll(new AmazonDataConverter().processReservation(results.getReservation(), vmRegion));
-                        remaining =- results.getReservation().getInstances().size();
+                        remaining -= results.getReservation().getInstances().size();
                     } catch (AmazonEC2Exception ae) {
                         LOG.error("Amazon issue starting instancs: count=" + MAX_INSTANCE_BATCH_SIZE + " : " + ae.getMessage(), ae);
                         subnetIds.remove(runInstancesRequestClone.getSubnetId());
@@ -285,8 +283,8 @@ public class AmazonInstance implements IEnvironmentInstance {
                     runInstancesRequest.withSubnetId(subnetIds.get(position));
                 }
                 try {
-                    runInstancesRequest.withMinCount(remaining);
-                    RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequest.withMaxCount(remaining));
+                    RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequest.withMinCount(remaining)
+                                                                                                .withMaxCount(remaining));
                     result.addAll(new AmazonDataConverter().processReservation(results.getReservation(), vmRegion));
                 } catch (AmazonEC2Exception ae) {
                     LOG.error("Amazon issue starting instancs: count=" + remaining + " : " + ae.getMessage(), ae);
