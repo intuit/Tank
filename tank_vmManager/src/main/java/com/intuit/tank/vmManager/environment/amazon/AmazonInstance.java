@@ -67,6 +67,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class AmazonInstance implements IEnvironmentInstance {
@@ -262,7 +263,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                     runInstancesRequest.withPlacement(new Placement().withAvailabilityZone(instanceDescription.getZone()));
                 }
                 List<String> subnetIds = instanceDescription.getSubnetIds();
-                int position = 0;
+                int position = ThreadLocalRandom.current().nextInt(subnetIds.size());
                 while ( !subnetIds.isEmpty() && remaining > MAX_INSTANCE_BATCH_SIZE ) {
                     RunInstancesRequest runInstancesRequestClone = runInstancesRequest.clone();
                     runInstancesRequestClone.withSubnetId(subnetIds.get(position++));
