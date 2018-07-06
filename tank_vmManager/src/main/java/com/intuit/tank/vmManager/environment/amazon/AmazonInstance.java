@@ -543,17 +543,17 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @return The ami assigned
      */
     private String getAMI(InstanceDescription instanceDescription) {
-        String ami = instanceDescription.getAmi();
-        if (!StringUtils.startsWith(ami, "ami-")) {
+        String name = instanceDescription.getSSMAmi();
+        if (StringUtils.isNotEmpty(name)) {
             try {
                 final AWSSimpleSystemsManagement client = AWSSimpleSystemsManagementClientBuilder.defaultClient();
-                GetParameterResult result = client.getParameter(new GetParameterRequest().withName(ami));
+                GetParameterResult result = client.getParameter(new GetParameterRequest().withName(name));
                 return result.getParameter().getValue();
             } catch (Exception e) {
-                LOG.error("Error retriveing AMI from SSM with name " + ami + ", default to InstanceRequest", e);
+                LOG.error("Error retriveing AMI from SSM with name " + name + ", default to InstanceRequest", e);
             }
         }
-        return ami;
+        return instanceDescription.getAmi();
     }
 
     @Override
