@@ -722,6 +722,11 @@
         <version>${version-aws-sdk}</version>
       </dependency>
       <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-ssm</artifactId>
+        <version>${version-aws-sdk}</version>
+      </dependency>
+      <dependency>
         <groupId>commons-discovery</groupId>
         <artifactId>commons-discovery</artifactId>
         <version>0.2</version>

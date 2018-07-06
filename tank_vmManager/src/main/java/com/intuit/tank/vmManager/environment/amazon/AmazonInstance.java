@@ -32,6 +32,10 @@ import com.amazonaws.services.ec2.model.Tag;
 import com.amazonaws.services.ec2.model.Tenancy;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
+import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
+import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
+import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
+import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -236,8 +240,10 @@ public class AmazonInstance implements IEnvironmentInstance {
                 String userData = buildUserData(instanceRequest.getUserData());
 
                 int remaining = instanceRequest.getNumberOfInstances();
-                String image = instanceDescription.getAmi();
+                String image = requestAMIfromSSM();
+                if (StringUtils.isEmpty(image)) image = instanceDescription.getAmi();
                 LOG.info("Requesting " + remaining + " instances in " + vmRegion.getName() + " with AMI=" + image);
+                
                 RunInstancesRequest runInstancesRequest = new RunInstancesRequest();
                 Tenancy tenancy = StringUtils.isEmpty(instanceDescription.getTenancy()) ? Tenancy.Default : Tenancy.fromValue(instanceDescription.getTenancy());
                 runInstancesRequest.withImageId(image)
@@ -262,6 +268,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 if (!StringUtils.isEmpty(instanceDescription.getZone())) {
                     runInstancesRequest.withPlacement(new Placement().withAvailabilityZone(instanceDescription.getZone()));
                 }
+                // Loop to request agent instances
                 List<String> subnetIds = instanceDescription.getSubnetIds();
                 int position = ThreadLocalRandom.current().nextInt(subnetIds.size());
                 while ( !subnetIds.isEmpty() && remaining > MAX_INSTANCE_BATCH_SIZE ) {
@@ -274,7 +281,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                         result.addAll(new AmazonDataConverter().processReservation(results.getReservation(), vmRegion));
                         remaining -= results.getReservation().getInstances().size();
                     } catch (AmazonEC2Exception ae) {
-                        LOG.error("Amazon issue starting instancs: count=" + MAX_INSTANCE_BATCH_SIZE + " : " + ae.getMessage(), ae);
+                        LOG.error("Amazon issue starting instances: count=" + MAX_INSTANCE_BATCH_SIZE + " : " + ae.getMessage(), ae);
                         subnetIds.remove(runInstancesRequestClone.getSubnetId());
                     }
                 }
@@ -286,7 +293,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                                                                                                 .withMaxCount(remaining));
                     result.addAll(new AmazonDataConverter().processReservation(results.getReservation(), vmRegion));
                 } catch (AmazonEC2Exception ae) {
-                    LOG.error("Amazon issue starting instancs: count=" + remaining + " : " + ae.getMessage(), ae);
+                    LOG.error("Amazon issue starting instances: count=" + remaining + " : " + ae.getMessage(), ae);
                 }
 
                 if (instanceRequest.isUseEips()) {
@@ -523,13 +530,30 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @return The size assigned
      */
     private static InstanceType getInstanceType(String size) {
-        InstanceType output = InstanceType.C42xlarge;
         try {
-            output = InstanceType.fromValue(size);
+            return InstanceType.fromValue(size);
         } catch (Exception e) {
             LOG.warn("Error parsing vminstanceType " + size, e);
         }
-        return output;
+        return InstanceType.C52xlarge;
+    }
+
+    /**
+     * Request the ami parameter from SSM
+     *
+     * @return The ami assigned
+     */
+    private String requestAMIfromSSM() {
+        try {
+            final AWSSimpleSystemsManagement client = AWSSimpleSystemsManagementClientBuilder.defaultClient();
+            GetParameterRequest request = new GetParameterRequest();
+            request.withName("/TANK/" + new TankConfig().getInstanceName() + "/" + vmRegion.getRegion() + "/ami");
+            GetParameterResult result = client.getParameter(request);
+            return result.getParameter().getValue();
+        } catch (Exception e) {
+            LOG.warn("Error retriveing AMI from SSM, default to InstanceRequest", e);
+        }
+        return null;
     }
 
     @Override
