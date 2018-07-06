@@ -240,8 +240,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 String userData = buildUserData(instanceRequest.getUserData());
 
                 int remaining = instanceRequest.getNumberOfInstances();
-                String image = requestAMIfromSSM();
-                if (StringUtils.isEmpty(image)) image = instanceDescription.getAmi();
+                String image = getAMI(instanceDescription);
                 LOG.info("Requesting " + remaining + " instances in " + vmRegion.getName() + " with AMI=" + image);
 
                 RunInstancesRequest runInstancesRequest = new RunInstancesRequest();
@@ -540,22 +539,22 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     /**
      * Request the ami parameter from SSM
-     *
+     * @param instanceDescription
      * @return The ami assigned
      */
-    private String requestAMIfromSSM() {
-        String name = "empty";
-        try {
-            final AWSSimpleSystemsManagement client = AWSSimpleSystemsManagementClientBuilder.defaultClient();
-            GetParameterRequest request = new GetParameterRequest();
-            name = "/Tank/" + new TankConfig().getInstanceName() + "/" + vmRegion.getRegion() + "/ami";
-            request.withName(name);
-            GetParameterResult result = client.getParameter(request);
-            return result.getParameter().getValue();
-        } catch (Exception e) {
-            LOG.error("Error retriveing AMI from SSM with name " + name + ", default to InstanceRequest", e);
-        }
-        return null;
+    private String getAMI(InstanceDescription instanceDescription) {
+        String ami = instanceDescription.getAmi();
+        if (!StringUtils.startsWith(ami, "ami-")) {
+            try {
+                final AWSSimpleSystemsManagement client = AWSSimpleSystemsManagementClientBuilder.defaultClient();
+                GetParameterRequest request = new GetParameterRequest();
+                request.withName(ami);
+                GetParameterResult result = client.getParameter(request);
+                return result.getParameter().getValue();
+            } catch (Exception e) {
+                LOG.error("Error retriveing AMI from SSM with name " + ami + ", default to InstanceRequest", e);
+            }
+        return ami;
     }
 
     @Override
