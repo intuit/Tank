@@ -243,7 +243,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 String image = requestAMIfromSSM();
                 if (StringUtils.isEmpty(image)) image = instanceDescription.getAmi();
                 LOG.info("Requesting " + remaining + " instances in " + vmRegion.getName() + " with AMI=" + image);
-                
+
                 RunInstancesRequest runInstancesRequest = new RunInstancesRequest();
                 Tenancy tenancy = StringUtils.isEmpty(instanceDescription.getTenancy()) ? Tenancy.Default : Tenancy.fromValue(instanceDescription.getTenancy());
                 runInstancesRequest.withImageId(image)
@@ -544,14 +544,16 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @return The ami assigned
      */
     private String requestAMIfromSSM() {
+        String name = "empty";
         try {
             final AWSSimpleSystemsManagement client = AWSSimpleSystemsManagementClientBuilder.defaultClient();
             GetParameterRequest request = new GetParameterRequest();
-            request.withName("/TANK/" + new TankConfig().getInstanceName() + "/" + vmRegion.getRegion() + "/ami");
+            name = "/Tank/" + new TankConfig().getInstanceName() + "/" + vmRegion.getRegion() + "/ami";
+            request.withName(name);
             GetParameterResult result = client.getParameter(request);
             return result.getParameter().getValue();
         } catch (Exception e) {
-            LOG.warn("Error retriveing AMI from SSM, default to InstanceRequest", e);
+            LOG.error("Error retriveing AMI from SSM with name " + name + ", default to InstanceRequest", e);
         }
         return null;
     }
