@@ -83,7 +83,6 @@ public class PanelBuilder {
     }
 
     private static Headers getHeaders(String serviceUrl) {
-        Headers ret = null;
         if (StringUtils.isNotBlank(serviceUrl)) {
             InputStream settingsStream = null;
             try {
@@ -102,14 +101,14 @@ public class PanelBuilder {
             	Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(settingsStream));
             	
                 JAXBContext ctx = JAXBContext.newInstance(Headers.class.getPackage().getName());
-                ret = (Headers) ctx.createUnmarshaller().unmarshal(xmlSource);
+                return (Headers) ctx.createUnmarshaller().unmarshal(xmlSource);
             } catch (Exception e) {
                 LOG.error("Error gettting headers: " + e, e);
             } finally {
                 IOUtils.closeQuietly(settingsStream);
             }
         }
-        return ret;
+        return null;
     }
 
     private static void writeSettings(File workingDir, Headers headers) throws IOException {

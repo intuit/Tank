@@ -44,7 +44,7 @@ public class SleepTimeStep extends TestStep {
 
     @Override
     public String getInfo() {
-        return new StringBuilder().append("Sleep(").append(value).append(')').toString();
+        return "Sleep(" + value + ')';
     }
 
     /**

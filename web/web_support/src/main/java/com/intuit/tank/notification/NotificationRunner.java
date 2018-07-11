@@ -98,7 +98,7 @@ public class NotificationRunner implements Runnable {
         MailMessage mailMessage = getMailMessage(jobEvent.getEvent());
         List<String> addresses = n.getRecipients().stream().map(Recipient::getAddress).collect(Collectors.toList());
         if (mailMessage != null) {
-            mailService.sendMail(mailMessage, addresses.toArray(new String[addresses.size()]));
+            mailService.sendMail(mailMessage, addresses.toArray(new String[0]));
         } else {
             LOG.warn("Mail template does not exist for job event: " + jobEvent.getEvent().getDisplay());
         }

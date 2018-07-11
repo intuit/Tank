@@ -298,7 +298,7 @@ public class ReportServiceV1 implements ReportService {
         list.add(ReportUtil.DOUBLE_NF.format(item.getMax()));
         list.add(ReportUtil.INT_NF.format(period));
         list.add(FMT.format(item.getTimestamp()));
-        return list.toArray(new String[list.size()]);
+        return list.toArray(new String[0]);
     }
 
     /**
@@ -376,7 +376,7 @@ public class ReportServiceV1 implements ReportService {
         list.add(ReportUtil.DOUBLE_NF.format(item.getPercentile90()));
         list.add(ReportUtil.DOUBLE_NF.format(item.getPercentile95()));
         list.add(ReportUtil.DOUBLE_NF.format(item.getPercentile99()));
-        return list.toArray(new String[list.size()]);
+        return list.toArray(new String[0]);
     }
 
     /**

@@ -136,14 +136,12 @@ public class PropertiesFile {
      * @return The development path
      */
     private String getDevelopmentPath() {
-        StringBuilder output = new StringBuilder();
-        output.append(".");
-        output.append(File.separatorChar);
-        output.append("src");
-        output.append(File.separatorChar);
-        output.append("main");
-        output.append(File.separatorChar);
-        return output.toString();
+        return "." +
+                File.separatorChar +
+                "src" +
+                File.separatorChar +
+                "main" +
+                File.separatorChar;
     }
 
     /**

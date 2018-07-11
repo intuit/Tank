@@ -173,11 +173,11 @@ public class VmInstanceType implements Serializable {
 
     public String getDisplay() {
         NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);
-        return new StringBuilder().append(name).append(" (cpus=").append(cpus)
-                .append(" ecus=").append(ecus)
-                .append(" users=").append(users)
-                .append(" memory=").append(memory).append("G")
-                .append(" cost=").append(nf.format(cost)).append(" / hour)").toString();
+        return name + " (cpus=" + cpus +
+                " ecus=" + ecus +
+                " users=" + users +
+                " memory=" + memory + "G" +
+                " cost=" + nf.format(cost) + " / hour)";
     }
 
 }

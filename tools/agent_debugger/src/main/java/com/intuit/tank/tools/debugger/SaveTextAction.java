@@ -56,17 +56,13 @@ public class SaveTextAction extends AbstractAction {
                     return;
                 }
             }
-            FileWriter fw = null;
-            try {
-                fw = new FileWriter(selectedFile);
+            try (FileWriter fw = new FileWriter(selectedFile)) {
                 writer.writeText(fw);
             } catch (Exception e) {
                 System.err.println("Error writing file: " + e.toString());
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(parent, "Error writing file: " + e.toString(), "Error",
                         JOptionPane.ERROR_MESSAGE);
-            } finally {
-                IOUtils.closeQuietly(fw);
             }
         }
 

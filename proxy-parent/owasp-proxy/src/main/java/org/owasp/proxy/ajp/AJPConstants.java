@@ -177,10 +177,7 @@ public class AJPConstants {
 
     public static final int getRequestMethodIndex(String method) {
         Integer i = requestMethodsHash.get(method);
-        if (i == null)
-            return 0;
-        else
-            return i.intValue();
+        return (i == null)? 0 : i;
     }
 
     public static final String getRequestMethod(int index) {
@@ -189,10 +186,7 @@ public class AJPConstants {
 
     public static final int getRequestHeaderIndex(String header) {
         Integer i = requestHeadersHash.get(header.toLowerCase());
-        if (i == null)
-            return 0;
-        else
-            return i.intValue();
+        return (i == null)? 0 : i;
     }
 
     public static final String getRequestHeader(int index) {
@@ -201,10 +195,7 @@ public class AJPConstants {
 
     public static final int getResponseHeaderIndex(String header) {
         Integer i = responseHeadersHash.get(header);
-        if (i == null)
-            return 0;
-        else
-            return i.intValue();
+        return (i == null)? 0 : i;
     }
 
     public static final String getResponseHeader(int index) {

@@ -496,7 +496,6 @@ public class AgentDebuggerFrame extends JFrame {
             }
             step.getRequest().setLabel(StringUtils.abbreviate(label.toString(), 1024));
         }
-        return;
     }
 
     public void showError(String msg) {

@@ -134,7 +134,7 @@ public interface MutableMessageHeader extends MessageHeader {
                 lines.add(AsciiString.create(header, start, sep - start));
                 start = sep + CRLF.length;
             }
-            return lines.toArray(new String[lines.size()]);
+            return lines.toArray(new String[0]);
         }
 
         /**

@@ -61,8 +61,8 @@ public class VariableStep extends TestStep {
 
     @Override
     public String getInfo() {
-        return new StringBuilder().append("Set_Variable(").append(key).append("->")
-                .append(value).append(')').toString();
+        return "Set_Variable(" + key + "->" +
+                value + ')';
     }
 
     /**

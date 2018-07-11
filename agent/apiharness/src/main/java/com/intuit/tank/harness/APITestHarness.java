@@ -319,7 +319,6 @@ public class APITestHarness {
             try {
                 instanceUrl = "http://" + AmazonUtil.getPublicHostName() + ":"
                         + tankConfig.getAgentConfig().getAgentPort();
-                LOG.info("MyInstanceURL  = " + instanceUrl);
             } catch (IOException e1) {
                 tries++;
                 if (tries < 10) {

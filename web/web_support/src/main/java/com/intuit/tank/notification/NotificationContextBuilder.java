@@ -138,7 +138,7 @@ public class NotificationContextBuilder {
     }
 
     /**
-     * @param jobId
+     * @param container
      */
     private void addTrackerInfo(CloudVmStatusContainer container) {
         ValidationStatus failures = new ValidationStatus();
@@ -284,23 +284,19 @@ public class NotificationContextBuilder {
     }
 
     private String getTimingDataUrl(String jobId) {
-        StringBuilder ret = new StringBuilder();
-        ret.append(config.getControllerBase());
-        ret.append(TankConstants.REST_SERVICE_CONTEXT + ReportService.SERVICE_RELATIVE_PATH
-                + ReportService.METHOD_TIMING_CSV);
-        ret.append("/");
-        ret.append(jobId);
-        return ret.toString();
+        return config.getControllerBase() +
+                TankConstants.REST_SERVICE_CONTEXT + ReportService.SERVICE_RELATIVE_PATH
+                + ReportService.METHOD_TIMING_CSV +
+                "/" +
+                jobId;
     }
 
     private String getTimingSummaryUrl(String jobId) {
-        StringBuilder ret = new StringBuilder();
-        ret.append(config.getControllerBase());
-        ret.append(TankConstants.REST_SERVICE_CONTEXT + ReportService.SERVICE_RELATIVE_PATH
-                + ReportService.METHOD_TIMING_SUMMARY_HTML);
-        ret.append("/");
-        ret.append(jobId);
-        return ret.toString();
+        return config.getControllerBase() +
+                TankConstants.REST_SERVICE_CONTEXT + ReportService.SERVICE_RELATIVE_PATH
+                + ReportService.METHOD_TIMING_SUMMARY_HTML +
+                "/" +
+                jobId;
     }
 
 }

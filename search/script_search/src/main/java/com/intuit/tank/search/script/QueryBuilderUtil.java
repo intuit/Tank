@@ -37,8 +37,7 @@ public class QueryBuilderUtil {
         CompositeSearchQuery csq = new CompositeSearchQuery(idQueryBuilder.toSearchQuery(),
                 actualQueryBuilder.toSearchQuery(),
                 Operator.AND);
-        Query createLuceneQuery = SearchUtils.createLuceneQuery(Operator.AND, csq);
-        return createLuceneQuery;
+        return SearchUtils.createLuceneQuery(Operator.AND, csq);
     }
 
 }

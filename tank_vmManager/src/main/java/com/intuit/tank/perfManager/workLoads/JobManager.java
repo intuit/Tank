@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,6 +36,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -78,7 +78,7 @@ public class JobManager implements Serializable {
     private static final Logger LOG = LogManager.getLogger(JobManager.class);
 
     private static final int MAX_RETRIES = 60;
-    private static final long RETRY_SLEEP = 1000;
+    private static final long RETRY_SLEEP = 30 * 1000; // 30 second
 
     @Inject
     private VMTracker vmTracker;
@@ -237,9 +237,10 @@ public class JobManager implements Serializable {
                             if (!tankConfig.getStandalone()) {
                                 AmazonInstance amazonInstance = new AmazonInstance(null, agent.getRegion());
                                 String dns = amazonInstance.findPublicName(agent.getInstanceId());
-                                if (dns != null) {
+                                if (StringUtils.isNotEmpty(dns)) {
                                     url = "http://" + dns + ":"
-                                            + new TankConfig().getAgentConfig().getAgentPort();
+                                            + new TankConfig().getAgentConfig().getAgentPort()
+                                            + cmd.getPath();
                                 }
                             }
                             if (retries >= 0) {
@@ -275,7 +276,7 @@ public class JobManager implements Serializable {
                 ret.add(dataRequest);
             }
         }
-        return ret.toArray(new DataFileRequest[ret.size()]);
+        return ret.toArray(new DataFileRequest[0]);
     }
 
     private int getNumberOfLines(Integer dataFileId) {

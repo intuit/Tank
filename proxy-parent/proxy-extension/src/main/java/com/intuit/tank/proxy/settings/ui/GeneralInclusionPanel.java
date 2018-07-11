@@ -91,8 +91,7 @@ public class GeneralInclusionPanel extends JPanel {
 
     public Set<ConfigInclusionExclusionRule> getData() {
         List<ConfigInclusionExclusionRule> dataList = ruleTableModel.getDataList();
-        Set<ConfigInclusionExclusionRule> ruleSet = new HashSet<ConfigInclusionExclusionRule>(dataList);
-        return ruleSet;
+        return new HashSet<ConfigInclusionExclusionRule>(dataList);
     }
 
     public void addRule(ConfigInclusionExclusionRule rule) {

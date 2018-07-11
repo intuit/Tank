@@ -172,12 +172,11 @@ public class AJPProperties {
 
     public void setSslCert(X509Certificate cert)
             throws CertificateEncodingException, IOException {
-        StringBuilder buff = new StringBuilder();
-        buff.append(START_CERTIFICATE);
-        buff.append(Base64
-                .encodeBytes(cert.getEncoded(), Base64.DO_BREAK_LINES));
-        buff.append(END_CERTIFICATE);
-        setSslCert(buff.toString());
+        String buff = START_CERTIFICATE +
+                Base64
+                        .encodeBytes(cert.getEncoded(), Base64.DO_BREAK_LINES) +
+                END_CERTIFICATE;
+        setSslCert(buff);
     }
 
     /**
