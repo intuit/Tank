@@ -139,11 +139,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.primefaces.extensions</groupId>
-      <artifactId>resources-codemirror</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
     </dependency>

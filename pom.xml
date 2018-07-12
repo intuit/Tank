@@ -28,7 +28,7 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>4.2.21.Final</version.hibernate>
-    <version-aws-sdk>1.11.324</version-aws-sdk>
+    <version-aws-sdk>1.11.365</version-aws-sdk>
 
  	<tomcat.version>9.0.8</tomcat.version>
  	
@@ -40,8 +40,8 @@
 
     <version.mojarra>2.2.16</version.mojarra>
     <version.jsf-api>2.2.16</version.jsf-api>
-    <version.primefaces>6.1</version.primefaces>
-    <version.primefaces-ext>6.1.1</version.primefaces-ext>
+    <version.primefaces>6.2</version.primefaces>
+    <version.primefaces-ext>6.2.7</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.21.0</version.surefire>
     <version.jersey>2.26</version.jersey>
@@ -448,12 +448,6 @@
       <dependency>
         <groupId>org.primefaces.extensions</groupId>
         <artifactId>resources-ckeditor</artifactId>
-        <version>${version.primefaces-ext}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.primefaces.extensions</groupId>
-        <artifactId>resources-codemirror</artifactId>
         <version>${version.primefaces-ext}</version>
       </dependency>
 
