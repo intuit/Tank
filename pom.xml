@@ -32,14 +32,14 @@
 
  	<tomcat.version>9.0.8</tomcat.version>
  	
-    <weld-version>2.4.7.Final</weld-version>
+    <weld-version>3.0.4.Final</weld-version>
     <cdi-version>2.0</cdi-version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
     <version.enunciate>2.10.1</version.enunciate>
 
-    <version.mojarra>2.2.16</version.mojarra>
-    <version.jsf-api>2.2.16</version.jsf-api>
+    <version.mojarra>2.2.17</version.mojarra>
+    <version.jsf-api>2.2.17</version.jsf-api>
     <version.primefaces>6.2</version.primefaces>
     <version.primefaces-ext>6.2.7</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
@@ -314,7 +314,7 @@
     <!-- Weld servlet, EL and JSP required for testing CDI injections -->
     <dependency>
       <groupId>org.jboss.weld.servlet</groupId>
-      <artifactId>weld-servlet</artifactId>
+      <artifactId>weld-servlet-shaded</artifactId>
       <!-- <scope>test</scope> -->
     </dependency>
 
@@ -780,7 +780,7 @@
       
       <dependency>
         <groupId>org.jboss.weld.servlet</groupId>
-        <artifactId>weld-servlet</artifactId>
+        <artifactId>weld-servlet-shaded</artifactId>
         <version>${weld-version}</version>
         <scope>runtime</scope>
       </dependency>
