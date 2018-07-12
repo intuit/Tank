@@ -86,10 +86,11 @@ public class LogViewer implements Serializable {
                         + ReportService.SERVICE_RELATIVE_PATH + File.separator
                         + URLEncoder.encode(currentLogFile, StandardCharsets.UTF_8.toString());
             } catch (UnsupportedEncodingException e) {
+                return "error " + contextPath + " error";
                 // never happens stupid exception
             }
         }
-        return null;
+        return "empty";
     }
 
     /**

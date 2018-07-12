@@ -2,9 +2,6 @@
   Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:component xmlns="http://www.w3.org/1999/xhtml"
   xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:pe="http://primefaces.org/ui/extensions"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag"
-  xmlns:f="http://java.sun.com/jsf/core"
   xmlns:p="http://primefaces.org/ui"
   xmlns:composite="http://java.sun.com/jsf/composite"
   xmlns:ui="http://java.sun.com/jsf/facelets">
@@ -21,7 +18,7 @@
   <composite:implementation>
 
     <h:outputScript target="head" library="js" name="codemirror.js" />
-    <h:outputStylesheet target="head" library="js" name="codemirror.css" />
+    <h:outputStylesheet target="head" library="css" name="codemirror.css" />
     <style type="text/css">
       .CodeMirror {
         border: 1px solid black;
@@ -173,7 +170,7 @@
         });
 
     })();
-// ]]>
+    // ]]>
     </script>
 
 
