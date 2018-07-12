@@ -20,15 +20,15 @@ import java.io.File;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -57,15 +57,16 @@ public class LogViewer implements Serializable {
     @PostConstruct
     public void init() {
         logFiles = new ArrayList<String>();
-        String fileRoot = "logs";
+        String fileRoot = System.getProperty("catalina.base")
+                + File.separator
+                + "logs";
         File f = new File(fileRoot);
         LOG.info("Log file dir is " + f.getAbsolutePath());
         if (!f.exists()) {
             f = new File("/opt/tomcat/logs");
         }
         try {
-            File[] list = f.listFiles();
-            for (File file : list) {
+            for (File file : Objects.requireNonNull(f.listFiles())) {
                 if (file.isFile()) {
                     logFiles.add(file.getName());
                 }
@@ -77,19 +78,18 @@ public class LogViewer implements Serializable {
     }
 
     public String getLogFileUrl() {
-        String ret = null;
         if (StringUtils.isNotBlank(currentLogFile)) {
-            HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
-                    .getRequest();
+            String contextPath = FacesContext.getCurrentInstance().getExternalContext()
+                    .getRequestContextPath();
             try {
-                ret = getContextRoot(req.getContextPath()) + "rest"
-                        + ReportService.SERVICE_RELATIVE_PATH + "/"
-                        + URLEncoder.encode(currentLogFile, "UTF-8");
+                return getContextRoot(contextPath) + "rest"
+                        + ReportService.SERVICE_RELATIVE_PATH + File.separator
+                        + URLEncoder.encode(currentLogFile, StandardCharsets.UTF_8.toString());
             } catch (UnsupportedEncodingException e) {
                 // never happens stupid exception
             }
         }
-        return ret;
+        return null;
     }
 
     /**
@@ -97,8 +97,8 @@ public class LogViewer implements Serializable {
      * @return
      */
     private String getContextRoot(String contextPath) {
-        if (!contextPath.endsWith("/")) {
-            contextPath = contextPath + "/";
+        if (!StringUtils.endsWith(contextPath, File.separator)) {
+            contextPath = contextPath + File.separator;
         }
         return contextPath;
     }
