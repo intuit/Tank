@@ -16,10 +16,10 @@
     <!-- Allows to use $ instead of jquery -->
     <script type="text/javascript"> $ = jQuery;</script>
 
-    <script type="text/javascript" src="#{request.contextPath}/res/tank.js"></script>
-    <link type="text/css" href="#{request.contextPath}/resources/css/tank.css" rel="stylesheet" />
-    <link type="text/css" href="#{request.contextPath}/resources/css/primefaces-override.css" rel="stylesheet" />
-    <link type="text/css" href="#{request.contextPath}/resources/css/screen.css" rel="stylesheet" />
+    <h:outputScript library="js" name="tank.js" />
+    <h:outputStylesheet library="css" name="tank.css" />
+    <h:outputStylesheet library="css" name="primefaces-override.css" />
+    <h:outputStylesheet library="css" name="screen.css" />
   </h:head>
   <h:body>
     <div id="container">
