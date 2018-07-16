@@ -20,12 +20,8 @@
                       background-position: 3px 5px;
                       border-radius:5px;"
                 styleClass="icon-button h-space"/>
-                <p:commandButton id="cancelBtn" action="#{scriptEditor.enterFilterMode()}" value="Cancel" ajax="true"  
-                  style=" background-image: url(#{resource['gfx:16/cancel.png']});
-                        background-repeat: no-repeat;
-                        background-position: 3px 5px;
-                        border-radius:5px;"
-                  styleClass="icon-button h-space" />
+              <p:commandButton id="cancelBtn" action="#{scriptEditor.enterFilterMode()}" value="Cancel" ajax="true"
+                icon="ui-icon-cancel" styleClass="icon-button h-space" />
             </h:panelGroup>
           </f:facet>
         </ts:toolbar>

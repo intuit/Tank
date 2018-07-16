@@ -33,11 +33,7 @@
               disabled="#{not scriptEditor.canEditScript()}" />
 
             <p:commandButton id="tbCancelBtn" action="#{scriptEditor.cancel()}" value="Cancel" immediate="true"
-              style=" background-image: url(#{resource['gfx:16/cancel.png']});
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
-              styleClass="icon-button h-space" />
+              icon="ui-icon-cancel" styleClass="icon-button h-space" />
 
             <p:commandButton id="commentsBT" value="Comments" update=":commentsDialogId" ajax="true"
               title="Comments for #{scriptEditor.script.name}" oncomplete="PF('commentsDialog').show();"
@@ -860,11 +856,7 @@
 					border-radius:5px;"
                   styleClass="icon-button h-space" />
                 <p:commandButton id="tbCancelBtn" value="Cancel" onclick="PF('requestDialog').hide()" type="button"
-                  style=" background-image: url(#{resource['gfx:16/cancel.png']});
-					background-repeat: no-repeat;
-					background-position: 3px 5px;
-					border-radius:5px;"
-                  styleClass="icon-button h-space" />
+                  icon="ui-icon-cancel" styleClass="icon-button h-space" />
               </h:panelGroup>
             </f:facet>
           </ts:toolbar>

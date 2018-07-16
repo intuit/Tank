@@ -23,26 +23,15 @@
                 
               title="Save Changes to Project #{projectBean.project.name}" ajax="true" 
               update=":mainForm:projectData, :mainForm:messages"
-              style=" background-image: url(#{resource['gfx:16/save_as.png']});
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
+              icon="ui-icon-disk"
               styleClass="icon-button h-space" disabled="#{not projectBean.canEditProject()}" />
 
             <p:commandButton id="saveAsBt" value="Save As..." type="button"
-              style=" background-image: url(#{resource['gfx:16/save_as.png']});
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
+              icon="ui-icon-disk"
               styleClass="icon-button h-space" onclick="PF('saveAsConfirm').show()"
               disabled="#{not projectBean.canEditProject()}" />
             <p:commandButton id="tbCancelBtn" action="#{projectBean.cancel()}" value="Cancel" immediate="true"
-              ajax="true"
-              style=" background-image: url(#{resource['gfx:16/cancel.png']});
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
-              styleClass="icon-button h-space" />
+              ajax="true" icon="ui-icon-cancel" styleClass="icon-button h-space" />
 			</div>
           </h:panelGroup>
         </f:facet>
