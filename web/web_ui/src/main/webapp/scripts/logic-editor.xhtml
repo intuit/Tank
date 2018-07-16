@@ -9,7 +9,7 @@
     <div class="formLabelDiv required ">Name</div>
     <div class="formInputDiv">
       <h:inputText value="#{logicStepEditor.name}" style="width:250px; margin-right:20px;" />
-      <h:graphicImage id="logicHelp" value="/resources/gfx/help.png"
+      <h:graphicImage id="logicHelp" library="gfx" name="help.png"
         style="width:16px;height:16px; padding: 0 0 0 15px;vertical-align:middle;"
         onclick="PF('logicHelpPopup').hide();PF('logicHelpPopup').show()" />
       <p:dialog id="logicHelpPopupID" appendTo="@(body)" widgetVar="logicHelpPopup" width="600" height="420"
