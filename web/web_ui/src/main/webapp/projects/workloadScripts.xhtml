@@ -17,7 +17,7 @@
     <div class="float-left" style="margin-left: 20px;">
       <h:outputLink title="Download Harness XML"
         value="#{request.contextPath}/rest/v1/project-service/download/script/project/#{projectBean.project.id}">
-        <h:graphicImage value="/resources/gfx/16/script_go.png" width="16" height="16" style="padding: 5px 0;" />
+        <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16" style="padding: 5px 0;" />
       </h:outputLink>
     </div>
   </h:panelGroup>
@@ -118,12 +118,12 @@
               <p:commandLink oncomplete="PF('confirmScriptGroupDelete').show();" ajax="true"
                 action="#{workloadScripts.setCurrentScriptGroup(group)}"
                 update=":scriptDeletePopup">
-                <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+                <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
               </p:commandLink>
 
               <p:commandLink update=":editScriptGroupID" ajax="true" action="#{workloadScripts.setScriptGroup(group)}"
                 oncomplete="PF('editScriptGroup').show();">
-                <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+                <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                   style="padding: 2px;" title="Edit #{group.name}?" />
               </p:commandLink>
 
@@ -131,7 +131,7 @@
                 action="#{workloadScripts.initCurrentGroup(testPlan)}" immediate="true"
                 oncomplete="PF('scriptGroupPopup').show();">
                 <f:param name="insertIndex" value="#{rowIndex}" />
-                <h:graphicImage value="/resources/gfx/16/application_add.png" width="16px" height="16px"
+                <h:graphicImage library="gfx" name="16/application_add.png" width="16px" height="16px"
                   style="padding: 2px;" title="Insert Script Group before #{group.name}." />
               </p:commandLink>
 

@@ -40,7 +40,7 @@
       <p:commandLink styleClass="no-decor" update=":mainForm:projectTabPanelID:viewPane" oncomplete="PF('viewPane').show()"
         ajax="true" action="#{dataFileBrowser.selectDataFile}">
         <f:param name="dataFileId" value="#{datafile.id}" />
-        <h:graphicImage value="/resources/gfx/16/magnifier.png" width="16px" height="16px" style="padding: 2px;"
+        <h:graphicImage library="gfx" name="16/magnifier.png" width="16px" height="16px" style="padding: 2px;"
           title="View sample of #{datafile.path}" />
       </p:commandLink>
     </p:column>

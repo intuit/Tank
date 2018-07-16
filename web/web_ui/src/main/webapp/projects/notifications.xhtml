@@ -53,7 +53,7 @@
         <p:commandLink oncomplete="PF('confirmNotificationDelete').show();" ajax="true"
           action="#{notificationsEditor.setCurrentNotification(notification)}" immediate="true"
           id="deleteNotificationBT" update=":mainForm:projectTabPanelID:notificationDeletePopup:confirmNotificationDeleteID">
-          <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+          <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
         </p:commandLink>
       </p:column>
     </p:dataTable>

@@ -50,7 +50,7 @@
         <p:commandLink oncomplete="PF('confirmVariableDelete').show();" ajax="true"
           action="#{projectVariableEditor.setCurrentEntry(variable)}" immediate="true" id="deleteVariableBT"
           update=":mainForm:projectTabPanelID:variableDeletePopup:confirmVariableDeleteID">
-          <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+          <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
         </p:commandLink>
       </p:column>
     </p:dataTable>

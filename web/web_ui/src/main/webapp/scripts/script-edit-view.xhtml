@@ -503,55 +503,55 @@
             rendered="#{scriptBean.stepTablePrefs.isVisible('actionsColumn')}" resizable="false">
             <p:commandLink id="btnDel" action="#{scriptEditor.setCurrentStep(step)}" title="Delete #{step.label}"
               oncomplete="PF('confirmDelete').show();" ajax="true" update=":confirmDeleteDialogId">
-              <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="pad2" />
+              <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenVariable" update=":variableForm:variablePanelGroup" title="Edit Variable"
               rendered="#{scriptEditor.isVariable(step)}" action="#{scriptEditor.editVariable(step)}"
               styleClass="pointer" oncomplete="PF('variableDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenThinkTime" update=":thinkTimeForm:thinkTimePanelGroup" title="Edit "
               rendered="#{scriptEditor.isLogicStep(step)}" action="#{scriptEditor.editThinkTime(step)}"
               oncomplete="PF('thinkTimeDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenLogic" update=":logicForm:logicPanelGroup" title="Edit "
               rendered="#{scriptEditor.isLogicStep(step)}" action="#{scriptEditor.editLogicStep(step)}"
               oncomplete="PF('logicDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenCookie" update=":cookieForm:cookiePanelGroup" title="Edit "
               rendered="#{scriptEditor.isCookieStep(step)}" action="#{scriptEditor.editCookieStep(step)}"
               oncomplete="PF('cookieDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenAuth" update=":authenticationForm:authenticationPanelGroup" title="Edit "
               rendered="#{scriptEditor.isAuthStep(step)}" action="#{scriptEditor.editAuthStep(step)}"
               oncomplete="PF('authenticationDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
 
             <p:commandLink id="btnOpenSleeptime" update=":sleepTimeForm:sleepTimePanelGroup" title="Edit Sleep Time"
               rendered="#{scriptEditor.isSleepTime(step)}" action="#{scriptEditor.editSleepTime(step)}"
               oncomplete="PF('sleepTimeDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenRequest" update=":requestForm:requestPanelGroup" title="Edit Request"
               rendered="#{scriptEditor.isRequest(step)}" action="#{scriptEditor.editRequest(step)}"
               oncomplete="PF('requestDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenAggregator" update=":aggregatorForm:aggregatorPanelGroup" title="Edit Request"
               rendered="#{scriptEditor.isAggregator(step)}" action="#{scriptEditor.editAggregator(step)}"
               oncomplete="PF('aggregatorDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
           </p:column>
@@ -733,49 +733,49 @@
             rendered="#{scriptBean.stepTablePrefs.isVisible('actionsColumn')}" resizable="false">
             <p:commandLink id="btnDel" action="#{scriptEditor.setCurrentStep(step)}" title="Delete #{step.label}"
               oncomplete="PF('confirmDelete').show();" ajax="true" update=":confirmDeleteDialogId">
-              <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="pad2" />
+              <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="pad2" />
             </p:commandLink>
 
             <p:commandLink id="btnOpenVariable" update=":variableForm:variablePanelGroup" title="Edit Variable"
               rendered="#{scriptEditor.isVariable(step)}" action="#{scriptEditor.editVariable(step)}"
               styleClass="pointer" oncomplete="PF('variableDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenThinkTime" update=":thinkTimeForm:thinkTimePanelGroup" title="Edit "
               rendered="#{scriptEditor.isThinkTime(step)}" action="#{scriptEditor.editThinkTime(step)}"
               oncomplete="PF('thinkTimeDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenLogic" update=":logicForm:logicPanelGroup" title="Edit "
               rendered="#{scriptEditor.isLogicStep(step)}" action="#{scriptEditor.editLogicStep(step)}"
               oncomplete="PF('logicDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenCookie" update=":cookieForm:cookiePanelGroup" title="Edit "
               rendered="#{scriptEditor.isCookieStep(step)}" action="#{scriptEditor.editCookieStep(step)}"
               oncomplete="PF('cookieDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenAuth" update=":authenticationForm:authenticationPanelGroup" title="Edit "
               rendered="#{scriptEditor.isAuthStep(step)}" action="#{scriptEditor.editAuthStep(step)}"
               oncomplete="PF('authenticationDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenSleeptime" update=":sleepTimeForm:sleepTimePanelGroup" title="Edit Sleep Time"
               rendered="#{scriptEditor.isSleepTime(step)}" action="#{scriptEditor.editSleepTime(step)}"
               oncomplete="PF('sleepTimeDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenRequest" update=":requestForm:requestPanelGroup" title="Edit Request"
               rendered="#{scriptEditor.isRequest(step)}" action="#{scriptEditor.editRequest(step)}"
               oncomplete="PF('requestDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
           </p:column>

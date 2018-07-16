@@ -182,28 +182,28 @@
           <div class="float-left">
             <p:commandLink title="Delete This Result" oncomplete="PF('confirmDelete').show();" ajax="true"
               action="#{jobReport.setSelectedResult(selectableResult)}" update=":confirmDeleteDialog">
-              <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+              <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
             </p:commandLink>
           </div>
           <div class="float-right">
           <h:outputLink title="View Summary Timing Data" target="_new" rendered="#{selectableResult.entity.status eq 'Completed' or selectableResult.entity.status eq 'Stopped'}"
                 value="#{request.contextPath}/rest/v1/report-service/timing/summary/html/#{selectableResult.entity.jobInstance.id}">
-                <h:graphicImage value="/resources/gfx/16/table_chart.png" width="16" height="16" style="padding: 5px 0; margin-right:5px;" />
+                <h:graphicImage library="gfx" name="16/table_chart.png" width="16" height="16" style="padding: 5px 0; margin-right:5px;" />
               </h:outputLink>
               
               <h:outputLink title="View Periodic Timing Data" target="_new" rendered="#{selectableResult.entity.status eq 'Completed' or selectableResult.entity.status eq 'Stopped'}"
                 value="#{request.contextPath}/rest/v1/report-service/timing/periodic/html/#{selectableResult.entity.jobInstance.id}">
-                <h:graphicImage value="/resources/gfx/16/table_heatmap.png" width="16" height="16" style="padding: 5px 0; margin-right:5px;" />
+                <h:graphicImage library="gfx" name="16/table_heatmap.png" width="16" height="16" style="padding: 5px 0; margin-right:5px;" />
               </h:outputLink>
               
               <h:outputLink title="Download CSV Timing Data"  rendered="#{selectableResult.entity.status eq 'Completed' or selectableResult.entity.status eq 'Stopped'}"
                 value="#{request.contextPath}/rest/v1/report-service/timing/csv/#{selectableResult.entity.jobInstance.id}">
-                <h:graphicImage value="/resources/gfx/16/table_excel.png" width="16" height="16" style="padding: 5px 0; margin-right:5px;" />
+                <h:graphicImage library="gfx" name="16/table_excel.png" width="16" height="16" style="padding: 5px 0; margin-right:5px;" />
               </h:outputLink>
 
           <h:outputLink title="Download Harness XML" rendered="#{selectableResult.entity.status eq 'Completed' or selectableResult.entity.status eq 'Stopped'}"
             value="#{request.contextPath}/rest/v1/project-service/download/script/#{selectableResult.entity.jobInstance.id}">
-            <h:graphicImage value="/resources/gfx/16/script_go.png" width="16" height="16" style="padding: 5px 0;" />
+            <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16" style="padding: 5px 0;" />
           </h:outputLink>
         </div>
         </p:column>
