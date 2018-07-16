@@ -8,10 +8,7 @@
     <div class="float-left">
       <p:commandButton ajax="true" value="Add Test Plan" update=":testPlanPopupID" immediate="true"
         action="#{addTestPlan.clear()}" oncomplete="PF('testPlanPopup').show();"
-        style=" background-image: url(#{resource['gfx:16/application_add.png']});
-                              background-repeat: no-repeat;
-                              background-position: 3px 5px;
-                              border-radius:5px;"
+        icon="ui-icon-document" style="margin: 0 10px 0 20px; border-radius:5px"
         styleClass="icon-button h-space" />
     </div>
     <div class="float-left" style="margin-left: 20px;">
@@ -68,21 +65,14 @@
           <div class="float-left">
             <p:commandButton ajax="true" value="Insert Script Group" update=":scriptGroupPopupID" immediate="true"
               action="#{workloadScripts.initCurrentGroup}" oncomplete="PF('scriptGroupPopup').show();"
-              style=" background-image: url(#{resource['gfx:16/application_add.png']});
-                                    background-repeat: no-repeat;
-                                    background-position: 3px 5px;
-                                    border-radius:5px;"
+              icon="ui-icon-document" style="margin: 0 10px 0 20px; border-radius:5px"
               styleClass="icon-button h-space" />
           </div>
 
           <div class="float-left">
             <p:commandButton ajax="true" value="Delete Test Plan" oncomplete="PF('confirmTestPlanDelete').show();"
               disabled="#{workloadScripts.deleteTestPlanDisabled}" immediate="true"
-              update=":testPlanDeletePopup"
-              style=" background-image: url(#{resource['gfx:16/delete.png']});
-                                    background-repeat: no-repeat;
-                                    background-position: 3px 5px;
-                                    border-radius:5px;"
+              update=":testPlanDeletePopup" icon="ui-icon-trash" style="margin: 0 10px 0 20px; border-radius:5px"
               styleClass="icon-button h-space" />
           </div>
 

@@ -31,11 +31,7 @@
               <h:panelGroup styleClass="formButton pad15Left">
                 <p:commandButton action="#{jobQueueManager.refreshData()}" value="Refresh" onstart="saveScrollPos()"
                   oncomplete="getScrollPos()" update=":mainForm:jobTableId, :mainForm:refreshDiv, :vldFormStatus"
-                  ajax="true"
-                  style="background-image: url(#{resource['gfx:16/refresh.png']});
-					background-repeat: no-repeat;
-					background-position: 3px 5px;
-					border-radius:5px;"
+                  ajax="true" icon="ui-icon-refresh" style="margin: 0 10px 0 20px; border-radius:5px"
                   styleClass="icon-button h-space" />
               </h:panelGroup>
             </h:panelGroup>

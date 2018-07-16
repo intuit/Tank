@@ -26,11 +26,7 @@
         <h:panelGroup styleClass="h-space">
           <p:commandButton action="#{projectJobQueueManager.refreshData()}" value="Refresh"
             update=":mainForm:projectTabPanelID:jobTableId, :mainForm:projectTabPanelID:refreshDiv, :mainForm:messages, :vldDataForm"
-            ajax="true"
-            style=" background-image: url(#{resource['gfx:16/refresh.png']});
-                                  background-repeat: no-repeat;
-                                  background-position: 3px 5px;
-                                  border-radius:5px;"
+            ajax="true" icon="ui-icon-refresh" style="margin: 0 10px 0 20px; border-radius:5px"
             styleClass="icon-button h-space" />
         </h:panelGroup>
 
