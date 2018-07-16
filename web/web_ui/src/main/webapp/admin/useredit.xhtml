@@ -20,7 +20,7 @@
               action="#{userEdit.save()}"
               title="Save Changes to Project #{projectBean.project.name}"
               update=":mainForm:messages"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
+              style=" background-image: url(#{resource['gfx:16/save_as.png']});
                     background-repeat: no-repeat;
                     background-position: 3px 5px;
                     border-radius:5px;"
@@ -28,7 +28,7 @@
             <p:commandButton id="tbCancelBtn"
               action="#{userEdit.cancel()}" value="Cancel"
               immediate="true"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/cancel.png);
+              style=" background-image: url(#{resource['gfx:16/cancel.png']});
                     background-repeat: no-repeat;
                     background-position: 3px 5px;
                     border-radius:5px;"
