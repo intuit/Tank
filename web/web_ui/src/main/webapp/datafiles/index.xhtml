@@ -16,10 +16,7 @@ xmlns:ui="http://java.sun.com/jsf/facelets"
         <f:facet name="actions">
           <h:panelGroup layout="block" styleClass="toolbar-ui">
             <p:commandButton value="Upload" onclick="PF('fileUploadDialog').show();" type="button"
-              style=" background-image: url(#{resource['gfx:16/document_import.png']});
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
+              icon="ui-icon-document"
               styleClass="icon-button h-space" rendered="#{dataFileBrowser.canCreateDatafile()}">
             </p:commandButton>
           </h:panelGroup>

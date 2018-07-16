@@ -28,11 +28,7 @@
               oncomplete="PF('xmlUploadDialog').show();"
               immediate="true"
               action="#{tankXmlUploadBean.clearDialog()}"
-              style=" background-image: url(#{resource['gfx:16/document_import.png']});
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    vertical-align: top;
-                    border-radius:5px;"
+              icon="ui-icon-document"
               styleClass="icon-button h-space"
               disabled="#{not scriptCreationBean.canCreateScript()}">
             </p:commandButton>

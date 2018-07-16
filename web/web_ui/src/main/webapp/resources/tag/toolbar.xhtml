@@ -46,10 +46,7 @@
       <p:toolbarGroup rendered="#{cc.attrs.selectionTracker ne null and cc.attrs.shortToolbar eq 'false'}" align="left">
         <h:panelGroup layout="block" styleClass="toolbar-ui">
           <p:commandButton id="deleteSelectedBtn" value="#{cc.attrs.deleteSelectedLabel}" type="button"
-            style=" background-image: url(#{resource['gfx:16/delete.png']});
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
+            icon="ui-icon-trash"
             styleClass="icon-button" disabled="#{!cc.attrs.selectionTracker.hasSelected()}"
             onclick="PF('#{cc.attrs.widgetVar}').show()" rendered="#{cc.attrs.showDeleteSelected}"/>
         </h:panelGroup>
