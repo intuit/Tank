@@ -22,14 +22,14 @@
            <div class="toolbar-ui">
             <p:commandButton value="New Script"
               action="#{scriptCreationBean.createNewScript()}" ajax="true" icon="ui-icon-plus"
-              rendered="#{scriptCreationBean.canCreateScript()}" style="margin: 0 10px 0 20px; border-radius:5px">
+              rendered="#{scriptCreationBean.canCreateScript()}" style="margin: 0 0 0 5px; border-radius:5px">
             </p:commandButton>
             <p:commandButton value="Import Intuit Tank XML"
               oncomplete="PF('xmlUploadDialog').show();"
               immediate="true"
               action="#{tankXmlUploadBean.clearDialog()}"
               icon="ui-icon-document"
-              style="margin: 0 10px 0 20px; border-radius:5px"
+              style="margin: 0 5px 0 5px; border-radius:5px"
               styleClass="icon-button h-space"
               disabled="#{not scriptCreationBean.canCreateScript()}">
             </p:commandButton>

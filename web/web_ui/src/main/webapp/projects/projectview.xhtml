@@ -20,8 +20,7 @@
           <h:panelGroup styleClass="toolbar-ui" id="projectActions">
           <div class="toolbar-ui">
             <p:commandButton id="tbSaveBtn" value="Save" action="#{projectBean.save()}" 
-                
-              title="Save Changes to Project #{projectBean.project.name}" ajax="true" 
+              title="Save Changes to Project #{projectBean.project.name}" ajax="true"
               update=":mainForm:projectData, :mainForm:messages"
               icon="ui-icon-disk"
               styleClass="icon-button h-space" disabled="#{not projectBean.canEditProject()}" />
