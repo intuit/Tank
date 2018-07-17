@@ -31,61 +31,38 @@
             <p:commandButton id="commentsBT" value="Comments" update=":commentsDialogId" ajax="true"
               title="Comments for #{scriptEditor.script.name}" oncomplete="PF('commentsDialog').show();"
               styleClass="icon-button h-space"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/comment_add.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;" />
+              icon="ui-icon-comment" style="margin: 0 5px 0 5px; border-radius:5px" />
 
             <p:commandButton id="searchBT" value="Search" ajax="true" immediate="true"
               action="#{scriptSearchBean.toggleSearching()}" update=":scriptBrowserForm"
               rendered="#{!scriptSearchBean.searching}" title="Search #{scriptEditor.script.name}"
               styleClass="icon-button h-space"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/find.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;" />
+              icon="ui-icon-search" style="margin: 0 5px 0 5px; border-radius:5px" />
 
             <p:commandButton id="tbBackBtn" action="#{scriptSearchBean.toggleSearching()}" value="Back" ajax="true"
               update=":scriptBrowserForm, :scriptBrowserForm:scriptStepTableId" rendered="#{scriptSearchBean.searching}"
               immediate="true"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/document_page_previous.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
+              icon="ui-icon-arrowrefresh-1-w" style="margin: 0 5px 0 5px; border-radius:5px"
               styleClass="icon-button h-space" oncomplete="PF('scriptStepTable').unselectAllRows();" />
 
             <p:commandButton id="reapplyFilters" action="#{scriptEditor.enterFilterMode()}" value="Apply Filters"
               ajax="true"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/arrow_redo.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
+              icon="ui-icon-script" style="margin: 0 5px 0 5px; border-radius:5px"
               styleClass="icon-button h-space" />
 
             <p:commandButton id="validateScript" action="#{scriptEditor.createScriptDetails()}" value="Validate..."
               ajax="true" update=":validatePopupId" oncomplete="PF('validatePopup').show();"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/check_box.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
+              icon="ui-icon-check" style="margin: 0 5px 0 5px; border-radius:5px"
               styleClass="icon-button h-space" />
-
-
             <p:commandButton id="downloadHarnessBT" value="Harness XML" title="Download Harness XML"
               styleClass="icon-button h-space" type="button"
               onclick="location.href='#{request.contextPath}/rest/v1/script-service/download/harness/script/#{scriptEditor.script.id}'"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/download.png);
-				      background-repeat: no-repeat;
-				      background-position: 3px 5px;
-				      border-radius:5px;">
+              icon="ui-icon-arrowstop-1-s" style="margin: 0 5px 0 5px; border-radius:5px" >
             </p:commandButton>
             <p:commandButton id="downloadTSBT" value="Intuit Tank XML" title="Download Intuit Tank XML"
               styleClass="icon-button h-space" type="button"
               onclick="location.href='#{request.contextPath}/rest/v1/script-service/download/script/#{scriptEditor.script.id}'"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/download.png);
-				      background-repeat: no-repeat;
-				      background-position: 3px 5px;
-				      border-radius:5px;">
+              icon="ui-icon-arrowstop-1-s" style="margin: 0 5px 0 5px; border-radius:5px" >
             </p:commandButton>
 
 
@@ -196,36 +173,24 @@
                   <p:commandButton id="reorderBT" value="Reorder Steps" immediate="true" ajax="true"
                     oncomplete="PF('reorderDialog').show();" update=":reorderForm:reorderList"
                     styleClass="icon-button h-space"
-                    style="background-image: url(#{resource['gfx:16/shape_move_back.png']});
-					  background-repeat: no-repeat;
-					  background-position: 3px 5px;
-					  border-radius:5px;" />
+                    icon="ui-icon-transfer-e-w" style="margin: 0 5px 0 5px; border-radius:5px" />
 
                   <p:commandButton value="Timer Group" immediate="true" ajax="true"
                     disabled="#{!aggregatorEditor.canBeAggregated}" id="aggregatorCBId" widgetVar="aggregatorCB"
                     oncomplete="PF('aggregatorDialog').show();" action="#{scriptEditor.addTimerGroup}"
                     update=":aggregatorDialogId" styleClass="icon-button h-space"
-                    style="background-image: url(#{resource['gfx:16/shape_move_back.png']});
-					  background-repeat: no-repeat;
-					  background-position: 3px 5px;
-					  border-radius:5px;" />
+                    icon="ui-icon-transfer-e-w" style="margin: 0 5px 0 5px; border-radius:5px" />
 
                   <p:commandButton value="Copy Steps" immediate="true" ajax="true"
                     disabled="#{!scriptEditor.copyEnabled}" id="copyCB" action="#{scriptEditor.copySelected}"
                     update=":scriptBrowserForm:titleToolbar:updateGroup" styleClass="icon-button h-space"
-                    style="background-image: url(#{resource['gfx:16/page_copy.png']});
-					  background-repeat: no-repeat;
-					  background-position: 3px 5px;
-					  border-radius:5px;" />
+                    icon="ui-icon-copy" style="margin: 0 5px 0 5px; border-radius:5px" />
 
                   <p:commandButton value="Paste Steps" immediate="true" ajax="true"
                     disabled="#{!copyBuffer.pasteEnabled}" id="pasteCB" action="#{scriptEditor.paste}"
                     update=":scriptBrowserForm:scriptStepTableId" styleClass="icon-button h-space"
                     onstart="saveScrollPos()" oncomplete="getScrollPos()"
-                    style="background-image: url(#{resource['gfx:16/page_paste.png']});
-					  background-repeat: no-repeat;
-					  background-position: 3px 5px;
-					  border-radius:5px;" />
+                    icon="ui-icon-clipboard" style="margin: 0 5px 0 5px; border-radius:5px" />
                 </h:panelGroup>
               </h:panelGroup>
             </f:facet>

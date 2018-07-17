@@ -22,7 +22,7 @@
            <div class="toolbar-ui">
             <p:commandButton value="New Script"
               action="#{scriptCreationBean.createNewScript()}" ajax="true" icon="ui-icon-plus"
-              rendered="#{scriptCreationBean.canCreateScript()}" style="margin: 0 0 0 5px; border-radius:5px">
+              rendered="#{scriptCreationBean.canCreateScript()}" style="margin: 0 5px 0 0; border-radius:5px">
             </p:commandButton>
             <p:commandButton value="Import Intuit Tank XML"
               oncomplete="PF('xmlUploadDialog').show();"
