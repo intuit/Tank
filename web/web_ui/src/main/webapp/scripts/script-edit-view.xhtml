@@ -802,10 +802,7 @@
                   title="Save Changes to script #{scriptEditor.script.name}" process=":requestForm:requestPanelGroup"
                   onstart="saveScrollPos()" oncomplete="getScrollPos()" update=":scriptBrowserForm,:requestForm"
                   action="#{scriptRequestEditor.addToScript()}" onsuccess="PF('requestDialog').hide();"
-                  style=" background-image: url(#{resource['gfx:16/save_as.png']});
-					background-repeat: no-repeat;
-					background-position: 3px 5px;
-					border-radius:5px;"
+                  icon="ui-icon-disk" style="margin: 0 5px 0 5px; border-radius:5px"
                   styleClass="icon-button h-space" />
                 <p:commandButton id="tbCancelBtn" value="Cancel" onclick="PF('requestDialog').hide()" type="button"
                   icon="ui-icon-cancel" styleClass="icon-button h-space" />

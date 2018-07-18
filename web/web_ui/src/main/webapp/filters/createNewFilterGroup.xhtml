@@ -19,18 +19,12 @@
             <h:panelGroup styleClass="toolbar-ui">
               <p:commandButton id="tbSaveBtn" value="Save" action="#{filterGroupCreationBean.save()}"
                 title="Save Filter Group" ajax="true" update=":createNewFilterGroupForm:messages"
-                style=" background-image: url(#{resource['gfx:16/save_as.png']});
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
+                icon="ui-icon-disk" style="margin: 0 5px 0 5px; border-radius:5px"
                 styleClass="icon-button h-space"
                 disabled="#{!filterGroupCreationBean.canEditFilterGroup()}" />
 
               <p:commandButton id="saveAsBt" value="Save As..." type="button" rendered="#{filterGroupCreationBean.editing}"
-                style=" background-image: url(#{resource['gfx:16/save_as.png']});
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
+                icon="ui-icon-disk" style="margin: 0 5px 0 5px; border-radius:5px"
                 styleClass="icon-button h-space" onclick="PF('saveAsConfirm').show()" 
                 disabled="#{!filterGroupCreationBean.canEditFilterGroup()}" />
 
