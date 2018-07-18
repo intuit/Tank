@@ -1,4 +1,8 @@
-version: 0.1
+version: 0.2
+
+env:
+  variables:
+    MAVEN_OPTS: "-Xms1g -Xmx2g"
 
 phases:
   build:
