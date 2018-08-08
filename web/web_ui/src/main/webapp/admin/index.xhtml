@@ -7,7 +7,9 @@
   	xmlns:p="http://primefaces.org/ui"
   	template="/WEB-INF/templates/tank.xhtml">
   <ui:define name="content">
-    <f:viewAction action="#{tsConversationManager.end}" />
+    <f:metadata>
+      <f:viewAction action="#{tsConversationManager.end}" />
+    </f:metadata>
     <h:form>
       <ts:toolbar title="Administration" />
       <div class="vertical-spacer" />

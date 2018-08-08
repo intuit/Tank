@@ -17,86 +17,52 @@
             <p:commandButton id="tbSaveBT" value="Save" update=":scriptBrowserForm, :scriptBrowserForm:messages"
               onstart="saveScrollPos()" oncomplete="getScrollPos()" ajax="true"
               title="Save Changes to Script #{scriptEditor.script.name}" action="#{scriptEditor.save()}"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
+              icon="ui-icon-disk" style="margin: 0 5px 0 5px; border-radius:5px"
               styleClass="icon-button h-space" disabled="#{not scriptEditor.canEditScript()}" />
 
             <p:commandButton id="saveAsBt" value="Save As..." type="button" onstart="saveScrollPos()"
-              oncomplete="getScrollPos()"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
+              oncomplete="getScrollPos()" icon="ui-icon-disk" style="margin: 0 5px 0 5px; border-radius:5px"
               styleClass="icon-button h-space" onclick="PF('saveAsConfirm').show()"
               disabled="#{not scriptEditor.canEditScript()}" />
 
             <p:commandButton id="tbCancelBtn" action="#{scriptEditor.cancel()}" value="Cancel" immediate="true"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/cancel.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
-              styleClass="icon-button h-space" />
+              icon="ui-icon-cancel" styleClass="icon-button h-space" />
 
             <p:commandButton id="commentsBT" value="Comments" update=":commentsDialogId" ajax="true"
               title="Comments for #{scriptEditor.script.name}" oncomplete="PF('commentsDialog').show();"
               styleClass="icon-button h-space"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/comment_add.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;" />
+              icon="ui-icon-comment" style="margin: 0 5px 0 5px; border-radius:5px" />
 
             <p:commandButton id="searchBT" value="Search" ajax="true" immediate="true"
               action="#{scriptSearchBean.toggleSearching()}" update=":scriptBrowserForm"
               rendered="#{!scriptSearchBean.searching}" title="Search #{scriptEditor.script.name}"
               styleClass="icon-button h-space"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/find.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;" />
+              icon="ui-icon-search" style="margin: 0 5px 0 5px; border-radius:5px" />
 
             <p:commandButton id="tbBackBtn" action="#{scriptSearchBean.toggleSearching()}" value="Back" ajax="true"
               update=":scriptBrowserForm, :scriptBrowserForm:scriptStepTableId" rendered="#{scriptSearchBean.searching}"
               immediate="true"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/document_page_previous.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
+              icon="ui-icon-arrowrefresh-1-w" style="margin: 0 5px 0 5px; border-radius:5px"
               styleClass="icon-button h-space" oncomplete="PF('scriptStepTable').unselectAllRows();" />
 
             <p:commandButton id="reapplyFilters" action="#{scriptEditor.enterFilterMode()}" value="Apply Filters"
               ajax="true"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/arrow_redo.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
+              icon="ui-icon-script" style="margin: 0 5px 0 5px; border-radius:5px"
               styleClass="icon-button h-space" />
 
             <p:commandButton id="validateScript" action="#{scriptEditor.createScriptDetails()}" value="Validate..."
               ajax="true" update=":validatePopupId" oncomplete="PF('validatePopup').show();"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/check_box.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
+              icon="ui-icon-check" style="margin: 0 5px 0 5px; border-radius:5px"
               styleClass="icon-button h-space" />
-
-
             <p:commandButton id="downloadHarnessBT" value="Harness XML" title="Download Harness XML"
               styleClass="icon-button h-space" type="button"
               onclick="location.href='#{request.contextPath}/rest/v1/script-service/download/harness/script/#{scriptEditor.script.id}'"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/download.png);
-				      background-repeat: no-repeat;
-				      background-position: 3px 5px;
-				      border-radius:5px;">
+              icon="ui-icon-arrowstop-1-s" style="margin: 0 5px 0 5px; border-radius:5px" >
             </p:commandButton>
             <p:commandButton id="downloadTSBT" value="Intuit Tank XML" title="Download Intuit Tank XML"
               styleClass="icon-button h-space" type="button"
               onclick="location.href='#{request.contextPath}/rest/v1/script-service/download/script/#{scriptEditor.script.id}'"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/download.png);
-				      background-repeat: no-repeat;
-				      background-position: 3px 5px;
-				      border-radius:5px;">
+              icon="ui-icon-arrowstop-1-s" style="margin: 0 5px 0 5px; border-radius:5px" >
             </p:commandButton>
 
 
@@ -202,44 +168,29 @@
                   <p:commandButton value="Delete Selected" onsuccess="PF('confirmMultiple').show();"
                     disabled="#{!scriptEditor.deleteEnabled}" update=":scriptBrowserForm:scriptStepTableId"
                     onstart="saveScrollPos()" oncomplete="getScrollPos()" styleClass="icon-button h-space"
-                    style="background-image: url(#{request.contextPath}/resources/gfx/16/delete.png);
-					  background-repeat: no-repeat;
-					  background-position: 3px 5px;
-					  border-radius:5px;" />
+                    icon="ui-icon-trash" />
 
                   <p:commandButton id="reorderBT" value="Reorder Steps" immediate="true" ajax="true"
                     oncomplete="PF('reorderDialog').show();" update=":reorderForm:reorderList"
                     styleClass="icon-button h-space"
-                    style="background-image: url(#{request.contextPath}/resources/gfx/16/shape_move_back.png);
-					  background-repeat: no-repeat;
-					  background-position: 3px 5px;
-					  border-radius:5px;" />
+                    icon="ui-icon-transfer-e-w" style="margin: 0 5px 0 5px; border-radius:5px" />
 
                   <p:commandButton value="Timer Group" immediate="true" ajax="true"
                     disabled="#{!aggregatorEditor.canBeAggregated}" id="aggregatorCBId" widgetVar="aggregatorCB"
                     oncomplete="PF('aggregatorDialog').show();" action="#{scriptEditor.addTimerGroup}"
                     update=":aggregatorDialogId" styleClass="icon-button h-space"
-                    style="background-image: url(#{request.contextPath}/resources/gfx/16/shape_move_back.png);
-					  background-repeat: no-repeat;
-					  background-position: 3px 5px;
-					  border-radius:5px;" />
+                    icon="ui-icon-transfer-e-w" style="margin: 0 5px 0 5px; border-radius:5px" />
 
                   <p:commandButton value="Copy Steps" immediate="true" ajax="true"
                     disabled="#{!scriptEditor.copyEnabled}" id="copyCB" action="#{scriptEditor.copySelected}"
                     update=":scriptBrowserForm:titleToolbar:updateGroup" styleClass="icon-button h-space"
-                    style="background-image: url(#{request.contextPath}/resources/gfx/16/page_copy.png);
-					  background-repeat: no-repeat;
-					  background-position: 3px 5px;
-					  border-radius:5px;" />
+                    icon="ui-icon-copy" style="margin: 0 5px 0 5px; border-radius:5px" />
 
                   <p:commandButton value="Paste Steps" immediate="true" ajax="true"
                     disabled="#{!copyBuffer.pasteEnabled}" id="pasteCB" action="#{scriptEditor.paste}"
                     update=":scriptBrowserForm:scriptStepTableId" styleClass="icon-button h-space"
                     onstart="saveScrollPos()" oncomplete="getScrollPos()"
-                    style="background-image: url(#{request.contextPath}/resources/gfx/16/page_paste.png);
-					  background-repeat: no-repeat;
-					  background-position: 3px 5px;
-					  border-radius:5px;" />
+                    icon="ui-icon-clipboard" style="margin: 0 5px 0 5px; border-radius:5px" />
                 </h:panelGroup>
               </h:panelGroup>
             </f:facet>
@@ -313,10 +264,7 @@
                 <p:commandButton value="Delete Selected" onsuccess="PF('confirmMultiple').show();"
                   disabled="#{!scriptEditor.deleteEnabled}" update=":scriptBrowserForm:searchScriptStepTableId"
                   onstart="saveScrollPos()" oncomplete="getScrollPos()" styleClass="icon-button h-space"
-                  style="background-image: url(#{request.contextPath}/resources/gfx/16/delete.png);
-					  background-repeat: no-repeat;
-					  background-position: 3px 5px;
-					  border-radius:5px;" />
+                  icon="ui-icon-trash" />
               </h:panelGroup>
             </h:panelGroup>
           </f:facet>
@@ -503,55 +451,55 @@
             rendered="#{scriptBean.stepTablePrefs.isVisible('actionsColumn')}" resizable="false">
             <p:commandLink id="btnDel" action="#{scriptEditor.setCurrentStep(step)}" title="Delete #{step.label}"
               oncomplete="PF('confirmDelete').show();" ajax="true" update=":confirmDeleteDialogId">
-              <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="pad2" />
+              <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenVariable" update=":variableForm:variablePanelGroup" title="Edit Variable"
               rendered="#{scriptEditor.isVariable(step)}" action="#{scriptEditor.editVariable(step)}"
               styleClass="pointer" oncomplete="PF('variableDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenThinkTime" update=":thinkTimeForm:thinkTimePanelGroup" title="Edit "
               rendered="#{scriptEditor.isLogicStep(step)}" action="#{scriptEditor.editThinkTime(step)}"
               oncomplete="PF('thinkTimeDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenLogic" update=":logicForm:logicPanelGroup" title="Edit "
               rendered="#{scriptEditor.isLogicStep(step)}" action="#{scriptEditor.editLogicStep(step)}"
               oncomplete="PF('logicDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenCookie" update=":cookieForm:cookiePanelGroup" title="Edit "
               rendered="#{scriptEditor.isCookieStep(step)}" action="#{scriptEditor.editCookieStep(step)}"
               oncomplete="PF('cookieDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenAuth" update=":authenticationForm:authenticationPanelGroup" title="Edit "
               rendered="#{scriptEditor.isAuthStep(step)}" action="#{scriptEditor.editAuthStep(step)}"
               oncomplete="PF('authenticationDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
 
             <p:commandLink id="btnOpenSleeptime" update=":sleepTimeForm:sleepTimePanelGroup" title="Edit Sleep Time"
               rendered="#{scriptEditor.isSleepTime(step)}" action="#{scriptEditor.editSleepTime(step)}"
               oncomplete="PF('sleepTimeDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenRequest" update=":requestForm:requestPanelGroup" title="Edit Request"
               rendered="#{scriptEditor.isRequest(step)}" action="#{scriptEditor.editRequest(step)}"
               oncomplete="PF('requestDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenAggregator" update=":aggregatorForm:aggregatorPanelGroup" title="Edit Request"
               rendered="#{scriptEditor.isAggregator(step)}" action="#{scriptEditor.editAggregator(step)}"
               oncomplete="PF('aggregatorDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
           </p:column>
@@ -733,49 +681,49 @@
             rendered="#{scriptBean.stepTablePrefs.isVisible('actionsColumn')}" resizable="false">
             <p:commandLink id="btnDel" action="#{scriptEditor.setCurrentStep(step)}" title="Delete #{step.label}"
               oncomplete="PF('confirmDelete').show();" ajax="true" update=":confirmDeleteDialogId">
-              <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="pad2" />
+              <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="pad2" />
             </p:commandLink>
 
             <p:commandLink id="btnOpenVariable" update=":variableForm:variablePanelGroup" title="Edit Variable"
               rendered="#{scriptEditor.isVariable(step)}" action="#{scriptEditor.editVariable(step)}"
               styleClass="pointer" oncomplete="PF('variableDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenThinkTime" update=":thinkTimeForm:thinkTimePanelGroup" title="Edit "
               rendered="#{scriptEditor.isThinkTime(step)}" action="#{scriptEditor.editThinkTime(step)}"
               oncomplete="PF('thinkTimeDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenLogic" update=":logicForm:logicPanelGroup" title="Edit "
               rendered="#{scriptEditor.isLogicStep(step)}" action="#{scriptEditor.editLogicStep(step)}"
               oncomplete="PF('logicDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenCookie" update=":cookieForm:cookiePanelGroup" title="Edit "
               rendered="#{scriptEditor.isCookieStep(step)}" action="#{scriptEditor.editCookieStep(step)}"
               oncomplete="PF('cookieDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenAuth" update=":authenticationForm:authenticationPanelGroup" title="Edit "
               rendered="#{scriptEditor.isAuthStep(step)}" action="#{scriptEditor.editAuthStep(step)}"
               oncomplete="PF('authenticationDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenSleeptime" update=":sleepTimeForm:sleepTimePanelGroup" title="Edit Sleep Time"
               rendered="#{scriptEditor.isSleepTime(step)}" action="#{scriptEditor.editSleepTime(step)}"
               oncomplete="PF('sleepTimeDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenRequest" update=":requestForm:requestPanelGroup" title="Edit Request"
               rendered="#{scriptEditor.isRequest(step)}" action="#{scriptEditor.editRequest(step)}"
               oncomplete="PF('requestDialog').show();">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
           </p:column>
@@ -854,17 +802,10 @@
                   title="Save Changes to script #{scriptEditor.script.name}" process=":requestForm:requestPanelGroup"
                   onstart="saveScrollPos()" oncomplete="getScrollPos()" update=":scriptBrowserForm,:requestForm"
                   action="#{scriptRequestEditor.addToScript()}" onsuccess="PF('requestDialog').hide();"
-                  style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
-					background-repeat: no-repeat;
-					background-position: 3px 5px;
-					border-radius:5px;"
+                  icon="ui-icon-disk" style="margin: 0 5px 0 5px; border-radius:5px"
                   styleClass="icon-button h-space" />
                 <p:commandButton id="tbCancelBtn" value="Cancel" onclick="PF('requestDialog').hide()" type="button"
-                  style=" background-image: url(#{request.contextPath}/resources/gfx/16/cancel.png);
-					background-repeat: no-repeat;
-					background-position: 3px 5px;
-					border-radius:5px;"
-                  styleClass="icon-button h-space" />
+                  icon="ui-icon-cancel" styleClass="icon-button h-space" />
               </h:panelGroup>
             </f:facet>
           </ts:toolbar>

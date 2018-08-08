@@ -20,36 +20,26 @@
           <h:panelGroup styleClass="toolbar-ui" id="projectActions">
           <div class="toolbar-ui">
             <p:commandButton id="tbSaveBtn" value="Save" action="#{projectBean.save()}" 
-                
-              title="Save Changes to Project #{projectBean.project.name}" ajax="true" 
+              title="Save Changes to Project #{projectBean.project.name}" ajax="true"
               update=":mainForm:projectData, :mainForm:messages"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
+              icon="ui-icon-disk"
               styleClass="icon-button h-space" disabled="#{not projectBean.canEditProject()}" />
 
             <p:commandButton id="saveAsBt" value="Save As..." type="button"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
+              icon="ui-icon-disk"
               styleClass="icon-button h-space" onclick="PF('saveAsConfirm').show()"
               disabled="#{not projectBean.canEditProject()}" />
             <p:commandButton id="tbCancelBtn" action="#{projectBean.cancel()}" value="Cancel" immediate="true"
-              ajax="true"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/cancel.png); 
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
-              styleClass="icon-button h-space" />
+              ajax="true" icon="ui-icon-cancel" styleClass="icon-button h-space" />
 			</div>
           </h:panelGroup>
         </f:facet>
       </ts:toolbar>
 
       <div class="vertical-spacer" />
-      <p:growl globalOnly="true" id="messages" autoUpdate="true" />
+      <p:growl globalOnly="true" id="messages">
+        <p:autoUpdate/>
+      </p:growl>
 
       <!-- Top info rows -->
       <h:panelGroup id="projectData">
@@ -381,7 +371,8 @@
     </p:dialog>
     <p:dialog id="validationStatusPopupID" appendTo="@(body)" dynamic="true" widgetVar="validationStatusPopup"
       width="300" height="160" header="Validation Errors" resizable="true" modal="true" position="center">
-      <p:outputPanel id="vldDataForm" autoUpdate="true" rendered="#{projectJobQueueManager.currentJobInstance ne null}">
+      <p:outputPanel id="vldDataForm" rendered="#{projectJobQueueManager.currentJobInstance ne null}">
+        <p:autoUpdate/>
         <div class="formRow">
           <div class="smallFormLabelDiv">
             <h:outputText value="ID: " style="font-weight:bold" />
@@ -804,10 +795,11 @@
 
     <!-- Add scripts that are needed here so the ordering is correct. -->
 
-    <h:outputScript library="primefaces" name="primefaces.js" target="head" />
+    <h:outputScript library="primefaces" name="core.js" target="head" />
+    <h:outputScript library="primefaces" name="components.js" target="head" />
 
-    <h:outputScript library="primefaces" name="charts/charts.js" target="head" />
-    <h:outputStylesheet library="primefaces" name="charts/charts.css" target="head" />
+    <h:outputScript target="head" library="primefaces" name="charts/charts.js" />
+    <h:outputStylesheet target="head" library="primefaces" name="charts/charts.css" />
     <h:outputScript target="head" library="jqplot" name="plugins/jqplot.highlighter.js" />
     <h:outputScript target="head" library="jqplot" name="plugins/jqplot.canvasOverlay.js" />
     <h:outputScript target="head" library="jqplot" name="plugins/jqplot.categoryAxisRenderer.js" />

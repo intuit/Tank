@@ -16,10 +16,8 @@ xmlns:ui="http://java.sun.com/jsf/facelets"
         <f:facet name="actions">
           <h:panelGroup layout="block" styleClass="toolbar-ui">
             <p:commandButton value="Upload" onclick="PF('fileUploadDialog').show();" type="button"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/document_import.png);
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
+              icon="ui-icon-document"
+              style="margin: 0 0 0 5px; border-radius:5px"
               styleClass="icon-button h-space" rendered="#{dataFileBrowser.canCreateDatafile()}">
             </p:commandButton>
           </h:panelGroup>
@@ -37,7 +35,9 @@ xmlns:ui="http://java.sun.com/jsf/facelets"
       </ts:toolbar>
 
       <div class="vertical-spacer" />
-      <p:growl globalOnly="true" id="messages" autoUpdate="true" />
+      <p:growl globalOnly="true" id="messages">
+        <p:autoUpdate/>
+      </p:growl>
       
       <pe:remoteCommand id="resizeListener" name="resizeFinished" update="fileTableId" />
 

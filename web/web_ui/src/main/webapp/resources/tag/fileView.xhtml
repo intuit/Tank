@@ -2,9 +2,6 @@
   Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:component xmlns="http://www.w3.org/1999/xhtml"
   xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:pe="http://primefaces.org/ui/extensions"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag"
-  xmlns:f="http://java.sun.com/jsf/core"
   xmlns:p="http://primefaces.org/ui"
   xmlns:composite="http://java.sun.com/jsf/composite"
   xmlns:ui="http://java.sun.com/jsf/facelets">
@@ -27,7 +24,7 @@
         border: 1px solid black;
         height: #{cc.attrs.height}px;
     }
-</style>
+    </style>
     <h:panelGroup layout="block" style="margin: 10px;">
       <h:outputText value="Viewing File #{cc.attrs.fileName}" />
       <p:commandButton value="Pause" type="button"
@@ -149,7 +146,7 @@
         }
 
         $(document).ready(function() {
-            $(window).error(error);
+            $(window).on("error", error);
             
             /* Add pause toggle */
             $(pausetoggle).click(function(e) {
@@ -173,7 +170,7 @@
         });
 
     })();
-// ]]>
+    // ]]>
     </script>
 
 

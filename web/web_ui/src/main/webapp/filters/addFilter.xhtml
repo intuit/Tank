@@ -18,28 +18,19 @@
           <h:panelGroup styleClass="toolbar-ui">
             <p:commandButton id="tbSaveBtn" value="Save" action="#{scriptFilterCreationBean.save()}" title="Save Filter"
               ajax="true" update=":addFilterForm:messages"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
+              icon="ui-icon-disk" style="margin: 0 5px 0 5px; border-radius:5px"
               styleClass="icon-button h-space"
               disabled="#{!scriptFilterCreationBean.canEditFilter()}" />
 
             <p:commandButton id="saveAsBt" value="Save As..." type="button"
               rendered="#{scriptFilterCreationBean.editing}"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
+              icon="ui-icon-disk" style="margin: 0 5px 0 5px; border-radius:5px"
               styleClass="icon-button h-space" onclick="PF('saveAsConfirm').show()"
               disabled="#{!scriptFilterCreationBean.canEditFilter()}" />
 
             <p:commandButton id="tbCancelBtn" action="#{scriptFilterCreationBean.cancel()}" value="Cancel"
               immediate="true" ajax="true"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/cancel.png);
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
+              icon="ui-icon-cancel"
               styleClass="icon-button h-space" />
           </h:panelGroup>
         </f:facet>

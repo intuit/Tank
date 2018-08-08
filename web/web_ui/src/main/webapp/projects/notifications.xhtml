@@ -10,7 +10,7 @@
   <h:panelGroup layout="block">
     <p:commandButton ajax="true" value="Add Notification" immediate="true" id="addNotBt"
       action="#{notificationsEditor.addNotification()}" update=":mainForm:projectTabPanelID:notificationTable,"
-      style=" background-image: url(#{request.contextPath}/resources/gfx/16/application_add.png);
+      style=" background-image: url(#{resource['gfx:16/application_add.png']});
                     background-repeat: no-repeat;
                     background-position: 3px 5px;
                     border-radius:5px;"
@@ -53,7 +53,7 @@
         <p:commandLink oncomplete="PF('confirmNotificationDelete').show();" ajax="true"
           action="#{notificationsEditor.setCurrentNotification(notification)}" immediate="true"
           id="deleteNotificationBT" update=":mainForm:projectTabPanelID:notificationDeletePopup:confirmNotificationDeleteID">
-          <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+          <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
         </p:commandLink>
       </p:column>
     </p:dataTable>
