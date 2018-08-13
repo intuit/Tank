@@ -13,11 +13,11 @@ package com.intuit.tank.vm.common;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.common.LogicScriptUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>LogicScriptUtilCpTest</code> contains tests for the class <code>{@link LogicScriptUtil}</code>.

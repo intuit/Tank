@@ -16,11 +16,11 @@ package com.intuit.tank.results;
 import java.text.DateFormat;
 import java.util.Date;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.results.TankResult;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>TankResultTest</code> contains tests for the class <code>{@link TankResult}</code>.

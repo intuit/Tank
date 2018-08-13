@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 import com.intuit.tank.http.AuthScheme;
 import com.intuit.tank.test.TestGroups;
 
-import org.junit.Assert;
+import org.testng.Assert;
 
 public class AuthCredentialsTest {
 

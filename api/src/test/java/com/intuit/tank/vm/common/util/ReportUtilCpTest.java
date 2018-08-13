@@ -13,13 +13,13 @@ package com.intuit.tank.vm.common.util;
  * #L%
  */
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Date;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.junit.Test;
 
 /**
  * The class <code>ReportUtilCpTest</code> contains tests for the class <code>{@link ReportUtil}</code>.

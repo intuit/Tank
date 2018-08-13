@@ -22,10 +22,10 @@
 package org.owasp.proxy.http;
 
 import org.junit.After;
-import org.junit.Assert;
+import org.testng.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.owasp.proxy.http.MutableResponseHeader;
 import org.owasp.proxy.util.AsciiString;
 

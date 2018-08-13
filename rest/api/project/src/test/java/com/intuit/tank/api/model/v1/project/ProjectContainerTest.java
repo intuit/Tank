@@ -16,12 +16,12 @@ package com.intuit.tank.api.model.v1.project;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.api.model.v1.project.ProjectContainer;
 import com.intuit.tank.api.model.v1.project.ProjectTO;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ProjectContainerTest</code> contains tests for the class <code>{@link ProjectContainer}</code>.

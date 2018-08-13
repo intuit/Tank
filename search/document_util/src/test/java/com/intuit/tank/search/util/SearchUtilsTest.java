@@ -17,11 +17,13 @@ import java.util.Date;
 
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
-import org.junit.*;
+import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.search.util.SearchUtils;
+import org.testng.Assert;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 /**
  * The class <code>SearchUtilsTest</code> contains tests for the class <code>{@link SearchUtils}</code>.

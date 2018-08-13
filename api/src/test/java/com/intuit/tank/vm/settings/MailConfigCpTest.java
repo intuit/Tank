@@ -14,11 +14,11 @@ package com.intuit.tank.vm.settings;
  */
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.settings.MailConfig;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>MailConfigCpTest</code> contains tests for the class <code>{@link MailConfig}</code>.

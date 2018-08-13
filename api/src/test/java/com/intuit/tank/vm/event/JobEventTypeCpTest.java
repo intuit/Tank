@@ -13,11 +13,11 @@ package com.intuit.tank.vm.event;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.event.JobEventType;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>JobEventTypeCpTest</code> contains tests for the class <code>{@link JobEventType}</code>.

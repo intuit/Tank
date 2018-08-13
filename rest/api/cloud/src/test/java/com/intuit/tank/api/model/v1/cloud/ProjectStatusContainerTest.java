@@ -18,13 +18,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 import com.intuit.tank.api.model.v1.cloud.ProjectStatusContainer;
 import com.intuit.tank.api.model.v1.cloud.UserDetail;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ProjectStatusContainerTest</code> contains tests for the class <code>{@link ProjectStatusContainer}</code>.

@@ -1,7 +1,7 @@
 package com.intuit.tank.runner.method;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /*
  * #%L
@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
  * http://www.eclipse.org/legal/epl-v10.html
  * #L%
  */
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.results.TankResult;
 

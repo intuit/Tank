@@ -16,11 +16,11 @@ package com.intuit.tank.api.model.v1.automation.adapter;
 import java.util.Map;
 
 import org.apache.commons.collections.DefaultMapEntry;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.api.model.v1.automation.adapter.MapEntryType;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>MapEntryTypeTest</code> contains tests for the class <code>{@link MapEntryType}</code>.

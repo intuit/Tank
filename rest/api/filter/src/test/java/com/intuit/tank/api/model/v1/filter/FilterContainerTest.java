@@ -16,12 +16,12 @@ package com.intuit.tank.api.model.v1.filter;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.api.model.v1.filter.FilterContainer;
 import com.intuit.tank.api.model.v1.filter.FilterTO;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>FilterContainerTest</code> contains tests for the class <code>{@link FilterContainer}</code>.

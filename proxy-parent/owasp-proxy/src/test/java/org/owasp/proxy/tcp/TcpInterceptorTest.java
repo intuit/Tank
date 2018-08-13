@@ -21,8 +21,8 @@
 
 package org.owasp.proxy.tcp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.owasp.proxy.daemon.Proxy;
 import org.owasp.proxy.daemon.TargetedConnectionHandler;
 import org.owasp.proxy.http.MessageFormatException;
@@ -123,7 +123,7 @@ public class TcpInterceptorTest {
     public static void tearDownAfterClass() throws Exception {
         ts.stop();
         Thread.sleep(1000);
-        assertTrue("TraceServer shutdown failed!", ts.isStopped());
+        assertTrue(ts.isStopped(),"TraceServer shutdown failed!");
     }
 
     @Test
@@ -136,14 +136,14 @@ public class TcpInterceptorTest {
         client.setSoTimeout(0);
         client.connect(listen, false);
 
-        assertEquals("Expected '200' response", 200, sendRequest(client, true));
-        assertEquals("Expected '200' response", 200, sendRequest(client, false));
+        assertEquals(200, sendRequest(client, true),"Expected '200' response");
+        assertEquals(200, sendRequest(client, false),"Expected '200' response");
 
         client.disconnect();
         Thread.sleep(2000);
-        assertEquals("Both handlers did not terminate", 0, handlers.size());
+        assertEquals(0, handlers.size(),"Both handlers did not terminate");
         proxy.stop();
-        assertTrue("Listener didn't exit", proxy.isStopped());
+        assertTrue(proxy.isStopped(),"Listener didn't exit");
     }
 
     @Test
@@ -156,14 +156,14 @@ public class TcpInterceptorTest {
         client.setSoTimeout(0);
         client.connect(listen, false);
 
-        assertEquals("Expected '200' response", 200, sendRequest(client, true));
-        assertEquals("Expected '200' response", 200, sendRequest(client, true));
+        assertEquals(200, sendRequest(client, true),"Expected '200' response");
+        assertEquals(200, sendRequest(client, true),"Expected '200' response");
 
         client.disconnect();
         Thread.sleep(2000);
-        assertEquals("Both handlers did not terminate", 0, handlers.size());
+        assertEquals( 0, handlers.size(),"Both handlers did not terminate");
         proxy.stop();
-        assertTrue("Listener didn't exit", proxy.isStopped());
+        assertTrue(proxy.isStopped(),"Listener didn't exit");
     }
 
     private int sendRequest(HttpClient client, boolean keepAlive)

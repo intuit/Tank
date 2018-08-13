@@ -13,11 +13,11 @@ package com.intuit.tank.api.model.v1.job;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.api.model.v1.job.Namespace;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>NamespaceTest</code> contains tests for the class <code>{@link Namespace}</code>.

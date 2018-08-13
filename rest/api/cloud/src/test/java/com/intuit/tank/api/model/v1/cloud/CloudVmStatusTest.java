@@ -20,9 +20,9 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.UserDetail;
@@ -497,7 +497,7 @@ public class CloudVmStatusTest {
      * @generatedBy CodePro at 12/15/14 2:57 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testGetVmStatus_1()
         throws Exception {
         CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());

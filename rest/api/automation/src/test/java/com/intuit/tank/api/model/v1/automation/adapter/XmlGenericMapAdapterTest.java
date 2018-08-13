@@ -18,12 +18,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.api.model.v1.automation.adapter.MapType;
 import com.intuit.tank.api.model.v1.automation.adapter.XmlGenericMapAdapter;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>XmlGenericMapAdapterTest</code> contains tests for the class <code>{@link XmlGenericMapAdapter}</code>.

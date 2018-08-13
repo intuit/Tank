@@ -1,8 +1,8 @@
 package com.intuit.tank.http;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.script.ScriptConstants;
 

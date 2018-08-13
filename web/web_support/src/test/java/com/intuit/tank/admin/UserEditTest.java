@@ -13,9 +13,9 @@ package com.intuit.tank.admin;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.primefaces.model.DualListModel;
 
@@ -27,7 +27,7 @@ import com.intuit.tank.project.User;
  * 
  * @generatedBy CodePro at 12/15/14 3:52 PM
  */
-@Ignore
+@org.testng.annotations.Ignore
 public class UserEditTest {
     /**
      * Run the UserEdit() constructor test.

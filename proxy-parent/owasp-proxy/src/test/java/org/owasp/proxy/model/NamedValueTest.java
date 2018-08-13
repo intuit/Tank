@@ -21,9 +21,9 @@
 
 package org.owasp.proxy.model;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.owasp.proxy.http.MessageFormatException;
 import org.owasp.proxy.http.NamedValue;
 

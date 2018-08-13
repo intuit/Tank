@@ -13,14 +13,14 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.ProjectDescription;
@@ -31,7 +31,7 @@ import com.intuit.tank.vm.api.enumerated.ScriptDriver;
  *
  * @generatedBy CodePro at 12/15/14 1:34 PM
  */
-@org.junit.Ignore
+@org.testng.annotations.Ignore
 public class ProjectDescriptionTest {
     /**
      * Run the ProjectDescription() constructor test.

@@ -17,11 +17,11 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.persistence.databases.BucketDataItem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>BucketDataItemTest</code> contains tests for the class <code>{@link BucketDataItem}</code>.

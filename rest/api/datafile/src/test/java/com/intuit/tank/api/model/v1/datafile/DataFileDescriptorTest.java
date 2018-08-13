@@ -16,14 +16,14 @@ package com.intuit.tank.api.model.v1.datafile;
  * #L%
  */
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Date;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptor;
 import com.intuit.tank.test.JaxbUtil;

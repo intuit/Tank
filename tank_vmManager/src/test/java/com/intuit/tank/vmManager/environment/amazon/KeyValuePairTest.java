@@ -13,11 +13,11 @@ package com.intuit.tank.vmManager.environment.amazon;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vmManager.environment.amazon.KeyValuePair;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>KeyValuePairTest</code> contains tests for the class <code>{@link KeyValuePair}</code>.

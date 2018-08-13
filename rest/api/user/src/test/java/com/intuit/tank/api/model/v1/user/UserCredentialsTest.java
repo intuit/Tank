@@ -13,11 +13,11 @@ package com.intuit.tank.api.model.v1.user;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.api.model.v1.user.UserCredentials;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>UserCredentialsTest</code> contains tests for the class <code>{@link UserCredentials}</code>.

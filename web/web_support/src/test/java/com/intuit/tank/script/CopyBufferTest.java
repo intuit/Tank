@@ -15,10 +15,10 @@ package com.intuit.tank.script;
 
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 import org.picketlink.idm.model.basic.User;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.auth.TankUser;
 import com.intuit.tank.project.ScriptStep;

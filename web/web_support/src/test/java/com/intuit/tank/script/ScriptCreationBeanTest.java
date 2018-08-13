@@ -16,9 +16,9 @@ package com.intuit.tank.script;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.primefaces.model.DefaultUploadedFile;
 import org.primefaces.model.UploadedFile;
@@ -27,6 +27,7 @@ import com.intuit.tank.project.ScriptFilter;
 import com.intuit.tank.project.ScriptFilterGroup;
 import com.intuit.tank.script.ScriptCreationBean;
 import com.intuit.tank.wrapper.SelectableWrapper;
+import org.testng.annotations.Ignore;
 
 /**
  * The class <code>ScriptCreationBeanTest</code> contains tests for the class <code>{@link ScriptCreationBean}</code>.
@@ -81,7 +82,7 @@ public class ScriptCreationBeanTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testCreateNewScript_1()
         throws Exception {
         ScriptCreationBean fixture = new ScriptCreationBean();

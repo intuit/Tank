@@ -15,9 +15,9 @@ package com.intuit.tank.vm.exception;
 
 import javax.xml.stream.XMLStreamException;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.xml.sax.Locator;
 import org.xml.sax.SAXParseException;
@@ -89,10 +89,10 @@ public class ParseExceptionConverterCpTest {
      * 
      * @generatedBy CodePro at 9/3/14 3:44 PM
      */
-    @Test(expected = com.intuit.tank.vm.exception.WatsParseException.class)
+    @Test()
     public void testHandleException_4()
             throws Exception {
-        Throwable throwable = new WatsParseException(new Throwable(), "", 1, 1);
+        Throwable throwable = assertThrows(com.intuit.tank.vm.exception.WatsParseException.class, () -> new WatsParseException(new Throwable(), "", 1, 1));
 
         WatsParseException result = ParseExceptionConverter.handleException(throwable);
 

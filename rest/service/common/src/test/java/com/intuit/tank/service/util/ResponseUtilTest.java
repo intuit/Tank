@@ -15,11 +15,11 @@ package com.intuit.tank.service.util;
 
 import javax.ws.rs.core.CacheControl;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.service.util.ResponseUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ResponseUtilTest</code> contains tests for the class <code>{@link ResponseUtil}</code>.

@@ -16,7 +16,7 @@ package com.intuit.tank.rest;
 import com.intuit.tank.rest.RestServiceException;
 import com.intuit.tank.test.TestGroups;
 
-import org.junit.Assert;
+import org.testng.Assert;
 
 import org.testng.annotations.Test;
 

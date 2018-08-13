@@ -17,12 +17,12 @@ import java.io.File;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.settings.BaseCommonsXmlConfig;
 import com.intuit.tank.vm.settings.MailMessageConfig;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>BaseCommonsXmlConfigCpTest</code> contains tests for the class

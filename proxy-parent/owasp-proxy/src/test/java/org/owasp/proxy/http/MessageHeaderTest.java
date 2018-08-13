@@ -21,12 +21,12 @@
 
 package org.owasp.proxy.http;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.owasp.proxy.http.MessageFormatException;
 import org.owasp.proxy.http.MutableMessageHeader;
 import org.owasp.proxy.http.NamedValue;

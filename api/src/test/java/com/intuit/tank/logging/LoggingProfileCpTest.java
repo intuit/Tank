@@ -13,12 +13,12 @@ package com.intuit.tank.logging;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.logging.LogFields;
 import com.intuit.tank.logging.LoggingProfile;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>LoggingProfileCpTest</code> contains tests for the class <code>{@link LoggingProfile}</code>.

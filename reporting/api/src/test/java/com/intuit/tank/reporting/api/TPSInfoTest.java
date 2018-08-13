@@ -16,11 +16,11 @@ package com.intuit.tank.reporting.api;
 import java.text.DateFormat;
 import java.util.Date;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.reporting.api.TPSInfo;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>TPSInfoTest</code> contains tests for the class <code>{@link TPSInfo}</code>.

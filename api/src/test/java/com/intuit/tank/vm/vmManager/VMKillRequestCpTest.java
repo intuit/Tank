@@ -17,9 +17,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.api.enumerated.VMProvider;
 import com.intuit.tank.vm.vmManager.VMKillRequest;

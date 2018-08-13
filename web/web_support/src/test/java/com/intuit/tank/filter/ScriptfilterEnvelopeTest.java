@@ -13,9 +13,9 @@ package com.intuit.tank.filter;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.filter.ScriptfilterEnvelope;
 import com.intuit.tank.project.ScriptFilter;

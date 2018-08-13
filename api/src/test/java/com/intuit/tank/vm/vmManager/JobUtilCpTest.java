@@ -16,12 +16,12 @@ package com.intuit.tank.vm.vmManager;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.vmManager.JobUtil;
 import com.intuit.tank.vm.vmManager.RegionRequest;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>JobUtilCpTest</code> contains tests for the class <code>{@link JobUtil}</code>.

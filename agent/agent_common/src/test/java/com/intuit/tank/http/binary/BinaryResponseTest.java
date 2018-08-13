@@ -13,11 +13,11 @@ package com.intuit.tank.http.binary;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.http.binary.BinaryResponse;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>BinaryResponseTest</code> contains tests for the class <code>{@link BinaryResponse}</code>.

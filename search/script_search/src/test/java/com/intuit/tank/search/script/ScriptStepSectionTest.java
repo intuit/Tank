@@ -13,12 +13,12 @@ package com.intuit.tank.search.script;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.search.script.ScriptSearchField;
 import com.intuit.tank.search.script.ScriptStepSection;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ScriptStepSectionTest</code> contains tests for the class <code>{@link ScriptStepSection}</code>.

@@ -16,11 +16,11 @@ package com.intuit.tank.wrapper;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.wrapper.FileInputStreamWrapper;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>FileInputStreamWrapperTest</code> contains tests for the class <code>{@link FileInputStreamWrapper}</code>.

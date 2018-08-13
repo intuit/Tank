@@ -16,11 +16,11 @@ package com.intuit.tank.perfManager.workLoads;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.perfManager.workLoads.AgentChannelImpl;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>AgentChannelImplTest</code> contains tests for the class <code>{@link AgentChannelImpl}</code>.

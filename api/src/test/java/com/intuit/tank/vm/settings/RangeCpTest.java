@@ -13,11 +13,11 @@ package com.intuit.tank.vm.settings;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.settings.Range;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>RangeCpTest</code> contains tests for the class <code>{@link Range}</code>.

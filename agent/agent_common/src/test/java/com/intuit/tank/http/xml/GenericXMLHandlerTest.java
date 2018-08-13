@@ -18,11 +18,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.jdom.Document;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.http.xml.GenericXMLHandler;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>GenericXMLHandlerTest</code> contains tests for the class <code>{@link GenericXMLHandler}</code>.
@@ -267,7 +267,7 @@ public class GenericXMLHandlerTest {
      * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testGetElementAttr_1()
             throws Exception {
         GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
@@ -291,7 +291,7 @@ public class GenericXMLHandlerTest {
      * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testGetElementAttr_2()
             throws Exception {
         GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
@@ -825,7 +825,7 @@ public class GenericXMLHandlerTest {
      * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testXPathExists_1()
             throws Exception {
         GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
@@ -849,7 +849,7 @@ public class GenericXMLHandlerTest {
      * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testXPathExists_2()
             throws Exception {
         GenericXMLHandler fixture = new GenericXMLHandler(new File("src/test/resources/tt.xml"));

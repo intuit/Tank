@@ -13,11 +13,11 @@ package com.intuit.tank.search.util;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.search.util.SortOrder;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>SortOrderTest</code> contains tests for the class <code>{@link SortOrder}</code>.

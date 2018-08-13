@@ -13,11 +13,11 @@ package com.intuit.tank.converter;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.converter.ScriptStepHolder;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ScriptStepHolderTest</code> contains tests for the class <code>{@link ScriptStepHolder}</code>.

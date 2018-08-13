@@ -29,7 +29,7 @@ import java.util.Date;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.owasp.proxy.ssl.AutoGeneratingContextSelector;
 import org.owasp.proxy.ssl.EncryptedConnectionHandler;
 import org.owasp.proxy.ssl.SSLConnectionHandler;

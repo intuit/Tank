@@ -13,11 +13,11 @@ package com.intuit.tank.harness;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.harness.StopBehavior;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>StopBehaviorCpTest</code> contains tests for the class <code>{@link StopBehavior}</code>.

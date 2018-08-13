@@ -15,9 +15,9 @@ package com.intuit.tank.admin;
 
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.admin.GroupAdmin;
 import com.intuit.tank.project.Group;
@@ -49,7 +49,7 @@ public class GroupAdminTest {
      * @generatedBy CodePro at 12/15/14 3:53 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testBegin_1()
         throws Exception {
         GroupAdmin fixture = new GroupAdmin();

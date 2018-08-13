@@ -20,9 +20,9 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.behavior.Behavior;
 import javax.faces.event.AjaxBehaviorEvent;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.primefaces.extensions.behavior.javascript.JavascriptBehavior;
 import org.primefaces.extensions.component.dynaform.DynaForm;
@@ -41,7 +41,7 @@ import com.intuit.tank.wrapper.SelectableWrapper;
  * 
  * @generatedBy CodePro at 12/15/14 3:52 PM
  */
-@org.junit.Ignore
+@org.testng.annotations.Ignore
 public class SelectableBeanTest {
     /**
      * Run the void deleteSelected() method test.

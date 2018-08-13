@@ -13,11 +13,11 @@ package com.intuit.tank.script;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.script.FailureTypes;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>FailureTypesTest</code> contains tests for the class <code>{@link FailureTypes}</code>.

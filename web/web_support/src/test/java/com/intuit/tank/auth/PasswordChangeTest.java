@@ -13,11 +13,11 @@ package com.intuit.tank.auth;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.auth.AccountModify;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>PasswordChangeTest</code> contains tests for the class <code>{@link AccountModify}</code>.

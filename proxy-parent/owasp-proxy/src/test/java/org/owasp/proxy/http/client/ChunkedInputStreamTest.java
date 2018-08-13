@@ -21,8 +21,8 @@
 
 package org.owasp.proxy.http.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.owasp.proxy.io.ChunkedInputStream;
 import org.owasp.proxy.io.ChunkedOutputStream;
 
@@ -111,8 +111,8 @@ public class ChunkedInputStreamTest {
             logger.fine("Read " + got + " bytes");
             // verify expectation
             for (int i = 0; i < got; i++) {
-                assertEquals("byte " + (total + i) + " different!",
-                        (byte) ((total + i) % 26 + 'A'), buff[i]);
+                assertEquals(
+                        (byte) ((total + i) % 26 + 'A'), buff[i], "byte " + (total + i) + " different!");
             }
             total = total + got;
         }

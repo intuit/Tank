@@ -20,12 +20,12 @@ import java.util.Collection;
 
 import org.apache.lucene.search.Filter;
 
-import org.junit.Assert;
+import org.testng.Assert;
 
 import org.apache.lucene.search.Query;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.testng.annotations.Test;
 

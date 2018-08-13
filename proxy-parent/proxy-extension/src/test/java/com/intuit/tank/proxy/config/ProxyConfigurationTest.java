@@ -16,7 +16,7 @@ package com.intuit.tank.proxy.config;
  * #L%
  */
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.intuit.tank.proxy.config.CommonsProxyConfiguration;

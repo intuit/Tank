@@ -1,10 +1,10 @@
 package com.intuit.tank.util;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.util.KeyValuePair;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>KeyValuePairTest</code> contains tests for the class <code>{@link KeyValuePair}</code>.

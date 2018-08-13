@@ -13,11 +13,11 @@ package com.intuit.tank.wrapper;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.wrapper.SelectableWrapper;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>SelectableWrapperTest</code> contains tests for the class <code>{@link SelectableWrapper}</code>.

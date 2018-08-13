@@ -13,11 +13,11 @@ package com.intuit.tank.monitor;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.monitor.GlobalPercentCompleteMonitor;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>GlobalPercentCompleteMonitorTest</code> contains tests for the class

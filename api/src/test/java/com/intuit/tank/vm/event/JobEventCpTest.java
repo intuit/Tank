@@ -15,9 +15,9 @@ package com.intuit.tank.vm.event;
 
 import java.util.Map;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.event.JobEvent;

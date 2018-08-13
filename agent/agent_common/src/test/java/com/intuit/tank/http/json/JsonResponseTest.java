@@ -13,7 +13,7 @@ package com.intuit.tank.http.json;
  * #L%
  */
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
