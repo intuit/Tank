@@ -15,6 +15,7 @@ package com.intuit.tank.project;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +25,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang3.math.NumberUtils;
 import com.intuit.tank.util.Messages;
 import org.primefaces.component.tabview.TabView;
@@ -33,11 +33,6 @@ import org.primefaces.model.DualListModel;
 
 import com.intuit.tank.ProjectBean;
 import com.intuit.tank.dao.ScriptGroupDao;
-import com.intuit.tank.project.Script;
-import com.intuit.tank.project.ScriptGroup;
-import com.intuit.tank.project.ScriptGroupStep;
-import com.intuit.tank.project.TestPlan;
-import com.intuit.tank.project.Workload;
 import com.intuit.tank.script.ScriptLoader;
 
 @Named
@@ -127,8 +122,6 @@ public class WorkloadScripts implements Serializable {
     /**
      * Initializes the class variables with appropriate references
      * 
-     * @param project
-     * @param workload
      */
     public void init() {
         initScriptSelectionModel();
@@ -238,18 +231,6 @@ public class WorkloadScripts implements Serializable {
         }
     }
 
-    /**
-     * Helps in creating a new script group
-     */
-    public void newScriptGroup() {
-        throw new NotImplementedException();
-    }
-
-    public void editScriptSteps(ScriptGroup scriptGroup) {
-        this.scriptGroup = scriptGroup;
-        initScriptSelectionModel();
-    }
-
     public int getLoop() {
         return loop;
     }
@@ -274,11 +255,10 @@ public class WorkloadScripts implements Serializable {
     }
 
     private void initScriptSelectionModel() {
-        scriptSelectionModel = new DualListModel<Script>();
-        List<Script> scripts = scriptLoader.getVersionEntities();
-        for (Script s : scripts) {
-            scriptSelectionModel.getSource().add(s);
-        }
+        scriptSelectionModel = new DualListModel<Script>(
+                                                scriptLoader.getVersionEntities(),
+                                                new ArrayList<Script>());
+
     }
 
     public ScriptGroup getScriptGroup() {
