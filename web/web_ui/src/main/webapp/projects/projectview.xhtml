@@ -37,9 +37,7 @@
       </ts:toolbar>
 
       <div class="vertical-spacer" />
-      <p:growl globalOnly="true" id="messages">
-        <p:autoUpdate/>
-      </p:growl>
+      <p:growl globalOnly="true" id="messages" autoUpdate="true" />
 
       <!-- Top info rows -->
       <h:panelGroup id="projectData">
@@ -367,8 +365,7 @@
     </p:dialog>
     <p:dialog id="validationStatusPopupID" appendTo="@(body)" dynamic="true" widgetVar="validationStatusPopup"
       width="300" height="160" header="Validation Errors" resizable="true" modal="true" position="center">
-      <p:outputPanel id="vldDataForm" rendered="#{projectJobQueueManager.currentJobInstance ne null}">
-        <p:autoUpdate/>
+      <p:outputPanel id="vldDataForm" autoUpdate="true" rendered="#{projectJobQueueManager.currentJobInstance ne null}">
         <div class="formRow">
           <div class="smallFormLabelDiv">
             <h:outputText value="ID: " style="font-weight:bold" />
