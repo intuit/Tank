@@ -841,14 +841,6 @@
     <outputDirectory>${project.build.directory}/classes</outputDirectory>
     <testOutputDirectory>${project.build.directory}/test-classes</testOutputDirectory>
 
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-webdav-jackrabbit</artifactId>
-        <version>3.1.0</version>
-      </extension>
-    </extensions>
-
     <pluginManagement>
       <plugins>
 
