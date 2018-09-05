@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.primefaces.event.data.FilterEvent;
 
 import com.intuit.tank.prefs.TablePreferences;
 import com.intuit.tank.prefs.TableViewState;
@@ -170,7 +171,25 @@ public abstract class SelectableBean<T> implements Multiselectable<T> {
     public void setViewFilterType(ViewFilterType viewFilterType) {
         this.viewFilterType = viewFilterType;
     }
+    
+	@SuppressWarnings({ "unchecked", "deprecation" })
+	public void onFilter(FilterEvent event) {
+    	filteredData = (List<SelectableWrapper<T>>) event.getData();
+    }
 
+/*    public void onFilter(AjaxBehaviorEvent event) {
+        DataTable dataTable = (DataTable) event.getSource();
+        @SuppressWarnings("unchecked") ArrayList<SelectableWrapper<T>> tempList = (ArrayList<SelectableWrapper<T>>) dataTable
+                .getFilteredValue();
+        // ArrayList<SelectableWrapper<T>> tempList = (ArrayList<SelectableWrapper<T>>)dataTable.getFilteredData();
+        if (tempList != null) {
+            filteredData = tempList;
+        } else {
+            filteredData = selectionList;
+        }
+
+    }
+*/
     public abstract List<T> getEntityList(ViewFilterType viewFilter);
 
     public abstract void delete(T entity);

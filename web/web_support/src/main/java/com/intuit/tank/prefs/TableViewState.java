@@ -19,6 +19,9 @@ package com.intuit.tank.prefs;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import org.primefaces.event.data.FilterEvent;
 
 /**
  * FilterValues
@@ -51,6 +54,14 @@ public class TableViewState implements Serializable {
     public void clearFilters() {
         filteredValues.clear();
 
+    }
+
+    public void onFilter(FilterEvent event) {
+        Map<String, Object> filters = event.getFilters();
+        clearFilters();
+        for (Entry<String, Object> entry : filters.entrySet()) {
+            setFilterValue(entry.getKey(), entry.getValue());
+        }
     }
 
 }
