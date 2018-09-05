@@ -66,6 +66,7 @@
       <from-action>#{scriptEditor.reapplyFilters()}</from-action>
       <from-outcome>success</from-outcome>
       <to-view-id>/scripts/script-edit-view.xhtml</to-view-id>
+      <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
@@ -74,6 +75,7 @@
       <from-action>#{scriptEditor.reapplyFilters()}</from-action>
       <from-outcome>failure</from-outcome>
       <to-view-id>/scripts/script-edit-view.xhtml</to-view-id>
+      <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
