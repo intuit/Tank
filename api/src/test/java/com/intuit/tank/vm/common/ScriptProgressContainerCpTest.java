@@ -13,11 +13,11 @@ package com.intuit.tank.vm.common;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.common.ScriptProgressContainer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ScriptProgressContainerCpTest</code> contains tests for the class

@@ -1,6 +1,6 @@
 package com.intuit.tank.http;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /*
  * #%L
@@ -19,7 +19,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 /**
  * The class <code>BaseRequestHandlerTest</code> contains tests for the class <code>{@link TankHttpUtil}</code>.

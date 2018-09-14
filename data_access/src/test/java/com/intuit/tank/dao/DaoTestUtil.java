@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
-import org.junit.Assert;
+import org.testng.Assert;
 
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.Script;

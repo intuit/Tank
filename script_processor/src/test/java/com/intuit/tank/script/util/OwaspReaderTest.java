@@ -24,9 +24,9 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.conversation.Transaction;
 import com.intuit.tank.project.RequestData;
@@ -63,14 +63,12 @@ public class OwaspReaderTest {
      *
      * @generatedBy CodePro at 12/16/14 4:48 PM
      */
-    @Test(expected = org.json.JSONException.class)
+    @Test()
     public void testRawJsonToSet_1()
         throws Exception {
         String response = "";
 
-        Set<RequestData> result = OwaspReader.rawJsonToSet(response);
-
-        assertNotNull(result);
+        assertThrows(org.json.JSONException.class, () -> OwaspReader.rawJsonToSet(response));
     }
 
     /**
@@ -80,14 +78,12 @@ public class OwaspReaderTest {
      *
      * @generatedBy CodePro at 12/16/14 4:48 PM
      */
-    @Test(expected = org.json.JSONException.class)
+    @Test()
     public void testRawJsonToSet_2()
         throws Exception {
         String response = "";
 
-        Set<RequestData> result = OwaspReader.rawJsonToSet(response);
-
-        assertNotNull(result);
+        assertThrows(org.json.JSONException.class, () -> OwaspReader.rawJsonToSet(response));
     }
 
     /**
@@ -97,14 +93,12 @@ public class OwaspReaderTest {
      *
      * @generatedBy CodePro at 12/16/14 4:48 PM
      */
-    @Test(expected = org.json.JSONException.class)
+    @Test()
     public void testRawJsonToSet_3()
         throws Exception {
         String response = "";
 
-        Set<RequestData> result = OwaspReader.rawJsonToSet(response);
-
-        assertNotNull(result);
+        assertThrows(org.json.JSONException.class, () ->  OwaspReader.rawJsonToSet(response));
     }
 
  
@@ -116,15 +110,13 @@ public class OwaspReaderTest {
      *
      * @generatedBy CodePro at 12/16/14 4:48 PM
      */
-    @Test(expected = com.intuit.tank.vm.exception.WatsParseException.class)
+    @Test()
     public void testRead_4()
         throws Exception {
         OwaspReader fixture = new OwaspReader();
         String xml = "";
 
-        List<ScriptStep> result = fixture.read(xml);
-
-        assertNotNull(result);
+        assertThrows(com.intuit.tank.vm.exception.WatsParseException.class, () -> fixture.read(xml));
     }
 
     /**

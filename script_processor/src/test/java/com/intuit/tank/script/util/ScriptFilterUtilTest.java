@@ -16,9 +16,10 @@ package com.intuit.tank.script.util;
  * #L%
  */
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,7 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
@@ -1178,7 +1179,7 @@ public class ScriptFilterUtilTest {
      *
      * @generatedBy CodePro at 12/16/14 4:48 PM
      */
-    @Test(expected = java.lang.IllegalArgumentException.class)
+    @Test()
     public void testTestConditions_9()
         throws Exception {
         String scope = "";
@@ -1186,8 +1187,6 @@ public class ScriptFilterUtilTest {
         ScriptStep step = new ScriptStep();
         List<ScriptStep> steps = new LinkedList();
 
-        boolean result = ScriptFilterUtil.testConditions(scope, condition, step, steps);
-
-        assertTrue(result);
+        assertThrows(java.lang.IllegalArgumentException.class, () -> ScriptFilterUtil.testConditions(scope, condition, step, steps));
     }
 }

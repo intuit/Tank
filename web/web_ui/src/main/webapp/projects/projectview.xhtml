@@ -37,9 +37,7 @@
       </ts:toolbar>
 
       <div class="vertical-spacer" />
-      <p:growl globalOnly="true" id="messages">
-        <p:autoUpdate/>
-      </p:growl>
+      <p:growl globalOnly="true" id="messages" autoUpdate="true" />
 
       <!-- Top info rows -->
       <h:panelGroup id="projectData">
@@ -190,13 +188,9 @@
           <h:panelGroup id="listGroup">
             <p:pickList id="scriptShuffleListId" value="#{workloadScripts.scriptSelectionModel}" var="script"
               itemValue="#{script}" itemLabel="#{script.name}" filterMatchMode="contains" showSourceFilter="true"
-              showTargetFilter="true" converter="tsScriptConverter" showTargetControls="false"
-              showSourceControls="false">
+              showTargetFilter="true" converter="tsScriptConverter">
               <f:facet name="sourceCaption">Available</f:facet>
               <f:facet name="targetCaption">Selected</f:facet>
-              <p:column headerText="File">
-                <h:outputText value="#{script}" />
-              </p:column>
             </p:pickList>
           </h:panelGroup>
 
@@ -371,8 +365,7 @@
     </p:dialog>
     <p:dialog id="validationStatusPopupID" appendTo="@(body)" dynamic="true" widgetVar="validationStatusPopup"
       width="300" height="160" header="Validation Errors" resizable="true" modal="true" position="center">
-      <p:outputPanel id="vldDataForm" rendered="#{projectJobQueueManager.currentJobInstance ne null}">
-        <p:autoUpdate/>
+      <p:outputPanel id="vldDataForm" autoUpdate="true" rendered="#{projectJobQueueManager.currentJobInstance ne null}">
         <div class="formRow">
           <div class="smallFormLabelDiv">
             <h:outputText value="ID: " style="font-weight:bold" />

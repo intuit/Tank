@@ -17,9 +17,9 @@ import java.util.List;
 
 import javax.faces.model.SelectItem;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.ModifiedDatafileMessage;
 import com.intuit.tank.project.DataFile;
@@ -103,7 +103,7 @@ public class DataFileBrowserTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testGetCreatorList_1()
         throws Exception {
         DataFileBrowser fixture = new DataFileBrowser();
@@ -208,7 +208,7 @@ public class DataFileBrowserTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testGetEntityList_1()
         throws Exception {
         DataFileBrowser fixture = new DataFileBrowser();
@@ -237,7 +237,7 @@ public class DataFileBrowserTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testGetEntityList_2()
         throws Exception {
         DataFileBrowser fixture = new DataFileBrowser();
@@ -404,7 +404,7 @@ public class DataFileBrowserTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testIsCurrent_1()
         throws Exception {
         DataFileBrowser fixture = new DataFileBrowser();
@@ -432,7 +432,7 @@ public class DataFileBrowserTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testIsCurrent_2()
         throws Exception {
         DataFileBrowser fixture = new DataFileBrowser();

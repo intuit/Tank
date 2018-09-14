@@ -15,9 +15,9 @@ package com.intuit.tank.perfManager.workLoads;
 
 import java.util.concurrent.FutureTask;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.vm.agent.messages.AgentData;

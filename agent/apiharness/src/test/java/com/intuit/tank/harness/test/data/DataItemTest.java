@@ -13,11 +13,11 @@ package com.intuit.tank.harness.test.data;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.harness.test.data.DataItem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>DataItemTest</code> contains tests for the class <code>{@link DataItem}</code>.

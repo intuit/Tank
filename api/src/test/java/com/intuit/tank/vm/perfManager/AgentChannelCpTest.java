@@ -15,11 +15,11 @@ package com.intuit.tank.vm.perfManager;
 
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.perfManager.AgentChannel;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>AgentChannelCpTest</code> contains tests for the class <code>{@link AgentChannel}</code>.

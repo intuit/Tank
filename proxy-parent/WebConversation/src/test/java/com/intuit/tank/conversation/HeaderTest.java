@@ -1,10 +1,10 @@
 package com.intuit.tank.conversation;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.conversation.Header;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>HeaderTest</code> contains tests for the class <code>{@link Header}</code>.

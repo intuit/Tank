@@ -13,11 +13,11 @@ package com.intuit.tank.vm.common;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.common.ValidationTypeConstants;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ValidationTypeConstantsCpTest</code> contains tests for the class

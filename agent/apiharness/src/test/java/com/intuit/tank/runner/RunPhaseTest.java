@@ -13,11 +13,11 @@ package com.intuit.tank.runner;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.runner.RunPhase;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>RunPhaseTest</code> contains tests for the class <code>{@link RunPhase}</code>.

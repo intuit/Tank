@@ -13,11 +13,11 @@ package com.intuit.tank.vm.common.util;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.common.util.ValidationUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ValidationUtilCpTest</code> contains tests for the class <code>{@link ValidationUtil}</code>.

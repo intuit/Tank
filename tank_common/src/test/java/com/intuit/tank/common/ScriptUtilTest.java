@@ -13,7 +13,7 @@ package com.intuit.tank.common;
  * #L%
  */
 
-import org.junit.Assert;
+import org.testng.Assert;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

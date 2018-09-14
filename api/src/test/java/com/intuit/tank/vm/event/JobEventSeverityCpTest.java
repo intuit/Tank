@@ -13,11 +13,11 @@ package com.intuit.tank.vm.event;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.event.JobEventSeverity;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>JobEventSeverityCpTest</code> contains tests for the class <code>{@link JobEventSeverity}</code>.

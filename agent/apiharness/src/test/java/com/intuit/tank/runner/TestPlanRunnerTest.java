@@ -1,6 +1,6 @@
 package com.intuit.tank.runner;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /*
  * #%L
@@ -17,7 +17,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.harness.data.HDTestPlan;
 

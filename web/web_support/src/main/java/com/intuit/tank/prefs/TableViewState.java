@@ -60,9 +60,7 @@ public class TableViewState implements Serializable {
         Map<String, Object> filters = event.getFilters();
         clearFilters();
         for (Entry<String, Object> entry : filters.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            setFilterValue(key, value);
+            setFilterValue(entry.getKey(), entry.getValue());
         }
     }
 

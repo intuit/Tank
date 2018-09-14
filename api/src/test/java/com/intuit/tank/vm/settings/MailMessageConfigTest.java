@@ -16,7 +16,7 @@ package com.intuit.tank.vm.settings;
  * #L%
  */
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;

@@ -13,11 +13,11 @@ package com.intuit.tank.vm.api.enumerated;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.api.enumerated.DataLocation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>DataLocationCpTest</code> contains tests for the class <code>{@link DataLocation}</code>.

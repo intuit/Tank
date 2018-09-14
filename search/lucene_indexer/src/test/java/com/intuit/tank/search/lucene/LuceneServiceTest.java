@@ -23,11 +23,11 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.store.RAMDirectory;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.search.lucene.LuceneService;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>LuceneServiceTest</code> contains tests for the class <code>{@link LuceneService}</code>.

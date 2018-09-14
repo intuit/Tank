@@ -15,9 +15,9 @@ package com.intuit.tank.vm.scheduleManager;
 
 import java.util.Hashtable;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.api.enumerated.VMProvider;
 import com.intuit.tank.vm.scheduleManager.AgentRequest;

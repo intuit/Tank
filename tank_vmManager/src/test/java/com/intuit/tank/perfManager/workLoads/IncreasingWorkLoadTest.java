@@ -13,9 +13,9 @@ package com.intuit.tank.perfManager.workLoads;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.perfManager.workLoads.IncreasingWorkLoad;
 import com.intuit.tank.vm.scheduleManager.AgentDispatcher;

@@ -18,12 +18,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.settings.DefaultUser;
 import com.intuit.tank.vm.settings.SecurityConfig;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>SecurityConfigCpTest</code> contains tests for the class <code>{@link SecurityConfig}</code>.

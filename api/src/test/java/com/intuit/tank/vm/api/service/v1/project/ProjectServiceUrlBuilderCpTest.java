@@ -13,11 +13,11 @@ package com.intuit.tank.vm.api.service.v1.project;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.api.service.v1.project.ProjectServiceUrlBuilder;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ProjectServiceUrlBuilderCpTest</code> contains tests for the class

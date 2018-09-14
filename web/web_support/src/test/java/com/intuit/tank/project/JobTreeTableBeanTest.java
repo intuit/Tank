@@ -21,9 +21,9 @@ import java.util.List;
 import javax.faces.component.UIComponent;
 import javax.faces.component.behavior.Behavior;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.primefaces.event.NodeCollapseEvent;
 import org.primefaces.event.NodeExpandEvent;
@@ -109,7 +109,7 @@ public class JobTreeTableBeanTest {
         fixture.setRefreshTimeSeconds("30");
         String result = fixture.getRefreshTimeSeconds();
         assertNotNull(result);
-        Assert.assertEquals("30", fixture.getRefreshTimeSeconds());
+        assertEquals("30", fixture.getRefreshTimeSeconds());
     }
 
     /**

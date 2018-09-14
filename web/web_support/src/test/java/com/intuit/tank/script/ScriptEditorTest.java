@@ -16,9 +16,9 @@ package com.intuit.tank.script;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.converter.ScriptStepHolder;
 import com.intuit.tank.prefs.TablePreferences;
@@ -54,7 +54,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testCancel_1()
             throws Exception {
         ScriptEditor fixture = new ScriptEditor();

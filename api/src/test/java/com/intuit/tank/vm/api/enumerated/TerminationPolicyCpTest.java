@@ -13,11 +13,11 @@ package com.intuit.tank.vm.api.enumerated;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>TerminationPolicyCpTest</code> contains tests for the class <code>{@link TerminationPolicy}</code>.

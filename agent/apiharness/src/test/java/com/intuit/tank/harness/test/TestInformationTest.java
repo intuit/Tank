@@ -16,9 +16,9 @@ package com.intuit.tank.harness.test;
 import java.util.HashMap;
 import java.util.Vector;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.harness.test.TestInformation;
 import com.intuit.tank.harness.test.data.Variables;

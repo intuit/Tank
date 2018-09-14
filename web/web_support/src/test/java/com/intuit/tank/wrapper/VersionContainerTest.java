@@ -17,11 +17,11 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.wrapper.VersionContainer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>VersionContainerTest</code> contains tests for the class <code>{@link VersionContainer}</code>.

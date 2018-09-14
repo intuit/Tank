@@ -17,9 +17,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.job.ActJobNodeBean;
 import com.intuit.tank.job.ProjectNodeBean;

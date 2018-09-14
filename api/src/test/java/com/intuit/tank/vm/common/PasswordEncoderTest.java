@@ -16,7 +16,7 @@ package com.intuit.tank.vm.common;
  * #L%
  */
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.intuit.tank.vm.common.PasswordEncoder;

@@ -19,7 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 
-import org.junit.Assert;
+import org.testng.Assert;
 
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;

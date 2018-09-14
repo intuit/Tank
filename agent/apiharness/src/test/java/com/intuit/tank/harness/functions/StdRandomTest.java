@@ -13,11 +13,11 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.harness.functions.StdRandom;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>StdRandomTest</code> contains tests for the class <code>{@link StdRandom}</code>.

@@ -18,7 +18,7 @@ package com.intuit.tank.dao;
 
 import java.util.List;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 

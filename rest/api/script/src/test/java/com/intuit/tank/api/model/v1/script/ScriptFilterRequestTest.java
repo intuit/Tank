@@ -24,10 +24,10 @@ import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
-import org.junit.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import static org.junit.Assert.*;
-
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.intuit.tank.api.model.v1.script.ScriptFilterRequest;

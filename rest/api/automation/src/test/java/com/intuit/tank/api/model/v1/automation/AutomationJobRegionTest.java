@@ -13,9 +13,9 @@ package com.intuit.tank.api.model.v1.automation;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.api.model.v1.automation.AutomationJobRegion;
 import com.intuit.tank.vm.api.enumerated.VMRegion;

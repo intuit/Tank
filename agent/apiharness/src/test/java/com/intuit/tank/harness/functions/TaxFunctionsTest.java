@@ -13,9 +13,9 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.harness.functions.TaxFunctions;
 import com.intuit.tank.harness.test.data.Variables;

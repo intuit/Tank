@@ -16,12 +16,12 @@ package com.intuit.tank.reporting.databases;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.reporting.databases.Attribute;
 import com.intuit.tank.reporting.databases.Item;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ItemTest</code> contains tests for the class <code>{@link Item}</code>.

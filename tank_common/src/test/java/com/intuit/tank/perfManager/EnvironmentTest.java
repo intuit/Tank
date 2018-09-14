@@ -13,11 +13,11 @@ package com.intuit.tank.perfManager;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.perfManager.Environment;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>EnvironmentTest</code> contains tests for the class <code>{@link Environment}</code>.

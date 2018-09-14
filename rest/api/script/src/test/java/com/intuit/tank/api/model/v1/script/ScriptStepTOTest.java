@@ -18,12 +18,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.api.model.v1.script.ScriptStepTO;
 import com.intuit.tank.api.model.v1.script.StepDataTO;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ScriptStepTOTest</code> contains tests for the class <code>{@link ScriptStepTO}</code>.

@@ -26,6 +26,12 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>web-support</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.primefaces</groupId>
+          <artifactId>primefaces</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>

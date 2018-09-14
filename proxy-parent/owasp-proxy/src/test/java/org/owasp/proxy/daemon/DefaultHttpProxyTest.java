@@ -21,7 +21,7 @@
 
 package org.owasp.proxy.daemon;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.owasp.proxy.http.server.DefaultHttpRequestHandler;
 import org.owasp.proxy.http.server.HttpProxyConnectionHandler;
 import org.owasp.proxy.http.server.HttpRequestHandler;
@@ -80,7 +80,7 @@ public class DefaultHttpProxyTest {
     public static void tearDownAfterClass() throws Exception {
         ts.stop();
         Thread.sleep(1000);
-        assertTrue("TraceServer shutdown failed!", ts.isStopped());
+        assertTrue(ts.isStopped(),"TraceServer shutdown failed!");
     }
 
     @Test
@@ -91,7 +91,7 @@ public class DefaultHttpProxyTest {
         Thread.sleep(1000);
 
         proxy.stop();
-        assertTrue("Listener didn't exit", proxy.isStopped());
+        assertTrue(proxy.isStopped(),"Listener didn't exit");
     }
 
     @Test
@@ -200,7 +200,7 @@ public class DefaultHttpProxyTest {
             ioe.printStackTrace();
         } finally {
             proxy.stop();
-            assertTrue("Listener didn't exit", proxy.isStopped());
+            assertTrue(proxy.isStopped(),"Listener didn't exit");
         }
     }
 
@@ -270,7 +270,7 @@ public class DefaultHttpProxyTest {
             }
         } finally {
             proxy.stop();
-            assertTrue("Listener didn't exit", proxy.isStopped());
+            assertTrue(proxy.isStopped(),"Listener didn't exit");
         }
     }
 

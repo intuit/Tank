@@ -13,11 +13,11 @@ package com.intuit.tank.persistence.databases;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.persistence.databases.DatabaseQueue;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>DatabaseQueueTest</code> contains tests for the class <code>{@link DatabaseQueue}</code>.
@@ -32,14 +32,12 @@ public class DatabaseQueueTest {
      * 
      * @generatedBy CodePro at 9/10/14 10:32 AM
      */
-    @Test(expected = java.lang.CloneNotSupportedException.class)
+    @Test()
     public void testClone_1()
             throws Exception {
         DatabaseQueue fixture = DatabaseQueue.getInstance();
 
-        DatabaseQueue result = fixture.clone();
-
-        assertNotNull(result);
+        assertThrows(java.lang.CloneNotSupportedException.class, () -> fixture.clone());
     }
 
     /**

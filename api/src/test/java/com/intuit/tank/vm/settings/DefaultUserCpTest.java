@@ -16,11 +16,11 @@ package com.intuit.tank.vm.settings;
 import java.util.Set;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.settings.DefaultUser;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>DefaultUserCpTest</code> contains tests for the class <code>{@link DefaultUser}</code>.

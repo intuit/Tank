@@ -27,13 +27,14 @@ import java.io.InputStream;
 import java.util.logging.Logger;
 
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.Assert;
+
+import org.junit.jupiter.api.Test;
 import org.owasp.proxy.io.ChunkedInputStream;
 import org.owasp.proxy.io.ChunkingInputStream;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 
 public class ChunkingInputStreamTest {
 
@@ -77,8 +78,8 @@ public class ChunkingInputStreamTest {
 
     private void compare(byte[] a, int ao, byte[] b, int bo, int len) {
         for (int i = 0; i < len; i++) {
-            Assert.assertEquals("Unexpected input at position " + (ao + i)
-                    + "/" + (bo + i), a[ao + i], b[bo + i]);
+            Assert.assertEquals( a[ao + i], b[bo + i],"Unexpected input at position " + (ao + i)
+                    + "/" + (bo + i));
         }
     }
 

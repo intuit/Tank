@@ -13,11 +13,11 @@ package com.intuit.tank.auth;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 import org.picketlink.Identity;
 import org.picketlink.internal.DefaultIdentity;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.auth.InternalSecurity;
 import com.intuit.tank.project.ColumnPreferences;

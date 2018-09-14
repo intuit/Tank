@@ -14,11 +14,11 @@ package com.intuit.tank.vm.common.util;
  */
 
 import org.apache.commons.jexl2.JexlContext;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.common.util.ExpressionContextVisitor;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ExpressionContextVisitorCpTest</code> contains tests for the class

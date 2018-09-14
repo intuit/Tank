@@ -18,9 +18,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.*;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.harness.data.Header;
@@ -35,6 +36,7 @@ import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.script.RequestDataType;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
+import org.testng.Assert;
 
 /**
  * The class <code>ConverterUtilTest</code> contains tests for the class

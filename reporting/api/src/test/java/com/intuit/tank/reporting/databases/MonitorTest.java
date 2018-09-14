@@ -13,9 +13,9 @@ package com.intuit.tank.reporting.databases;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.reporting.databases.Monitor;
 import com.intuit.tank.results.TankAgentStatusResponse;

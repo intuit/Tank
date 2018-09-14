@@ -13,11 +13,11 @@ package com.intuit.tank.vm.script.util;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.script.util.ReplaceActionScope;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ReplaceActionScopeCpTest</code> contains tests for the class <code>{@link ReplaceActionScope}</code>.

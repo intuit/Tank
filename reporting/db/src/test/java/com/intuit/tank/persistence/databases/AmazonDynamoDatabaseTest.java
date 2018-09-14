@@ -25,7 +25,7 @@ import com.intuit.tank.results.TankResultBuilder;
 import com.intuit.tank.test.TestGroups;
 import com.intuit.tank.vm.common.util.ReportUtil;
 
-import org.junit.Assert;
+import org.testng.Assert;
 
 public class AmazonDynamoDatabaseTest {
 

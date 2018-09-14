@@ -16,11 +16,11 @@ package com.intuit.tank.vm.settings;
 import java.text.DateFormat;
 import java.util.Date;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.settings.TimeUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>TimeUtilCpTest</code> contains tests for the class <code>{@link TimeUtil}</code>.

@@ -13,11 +13,11 @@ package com.intuit.tank.prefs;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.prefs.PreferencesChangedListener;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>PreferencesChangedListenerTest</code> contains tests for the class <code>{@link PreferencesChangedListener}</code>.

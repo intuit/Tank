@@ -13,11 +13,11 @@ package com.intuit.tank.job;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.job.JobStatusHelper;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>JobStatusHelperTest</code> contains tests for the class <code>{@link JobStatusHelper}</code>.

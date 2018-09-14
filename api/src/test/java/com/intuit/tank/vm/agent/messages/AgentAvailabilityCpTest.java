@@ -16,12 +16,12 @@ package com.intuit.tank.vm.agent.messages;
 import java.text.DateFormat;
 import java.util.Date;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentAvailabilityStatus;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>AgentAvailabilityCpTest</code> contains tests for the class <code>{@link AgentAvailability}</code>.

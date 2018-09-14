@@ -15,9 +15,9 @@ package com.intuit.tank.service;
 
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.ScriptFilterGroup;
 import com.intuit.tank.service.FilterGroupService;

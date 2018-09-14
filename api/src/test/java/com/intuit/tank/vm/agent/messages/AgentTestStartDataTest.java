@@ -14,7 +14,7 @@ package com.intuit.tank.vm.agent.messages;
  */
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;

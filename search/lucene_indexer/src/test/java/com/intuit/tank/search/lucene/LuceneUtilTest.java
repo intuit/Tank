@@ -16,11 +16,11 @@ package com.intuit.tank.search.lucene;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.search.lucene.LuceneUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>LuceneUtilTest</code> contains tests for the class <code>{@link LuceneUtil}</code>.

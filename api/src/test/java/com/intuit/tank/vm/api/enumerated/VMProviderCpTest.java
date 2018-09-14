@@ -13,11 +13,11 @@ package com.intuit.tank.vm.api.enumerated;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.api.enumerated.VMProvider;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>VMProviderCpTest</code> contains tests for the class <code>{@link VMProvider}</code>.
@@ -72,13 +72,11 @@ public class VMProviderCpTest {
      * 
      * @generatedBy CodePro at 9/3/14 3:44 PM
      */
-    @Test(expected = java.lang.IllegalArgumentException.class)
+    @Test()
     public void testGetProvider_3()
             throws Exception {
         String providerString = "";
 
-        VMProvider result = VMProvider.getProvider(providerString);
-
-        assertNotNull(result);
+        assertThrows(java.lang.IllegalArgumentException.class, () -> VMProvider.getProvider(providerString));
     }
 }

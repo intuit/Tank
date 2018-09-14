@@ -18,7 +18,7 @@ import com.intuit.tank.test.TestGroups;
  * #L%
  */
 
-import org.junit.Assert;
+import org.testng.Assert;
 
 public class JsonRequestTest {
 

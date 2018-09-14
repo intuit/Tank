@@ -13,11 +13,11 @@ package com.intuit.tank.harness.test;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.harness.test.NextScriptGroupException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>NextScriptGroupExceptionTest</code> contains tests for the class

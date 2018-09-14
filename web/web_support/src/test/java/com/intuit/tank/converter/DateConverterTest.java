@@ -13,14 +13,14 @@ package com.intuit.tank.converter;
  * #L%
  */
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Date;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.primefaces.extensions.component.dynaform.DynaForm;
 
 import com.intuit.tank.converter.DateConverter;

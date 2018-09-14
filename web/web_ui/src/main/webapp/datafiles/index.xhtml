@@ -35,9 +35,7 @@ xmlns:ui="http://java.sun.com/jsf/facelets"
       </ts:toolbar>
 
       <div class="vertical-spacer" />
-      <p:growl globalOnly="true" id="messages">
-        <p:autoUpdate/>
-      </p:growl>
+      <p:growl globalOnly="true" id="messages" autoUpdate="true" />
       
       <pe:remoteCommand id="resizeListener" name="resizeFinished" update="fileTableId" />
 

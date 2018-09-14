@@ -15,11 +15,11 @@ package com.intuit.tank.dao.util;
 
 import java.io.File;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.dao.util.ProjectDaoUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ProjectDaoUtilTest</code> contains tests for the class <code>{@link ProjectDaoUtil}</code>.
