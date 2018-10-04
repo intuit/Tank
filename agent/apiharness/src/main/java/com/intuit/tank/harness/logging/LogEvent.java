@@ -14,10 +14,10 @@ package com.intuit.tank.harness.logging;
  */
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -80,17 +80,11 @@ public class LogEvent implements Serializable {
     }
 
     public Map<String, String> buildMessage() {
-    	Map<String, String> map = new HashMap<String,String>();
+    	Map<String, String> map = new TreeMap<>();
         appendField(map, LogFields.EventType, eventType.name());
         appendField(map, LogFields.SourceType, sourceType.name());
-        appendField(map, LogFields.InstanceId, instanceId);
-        appendField(map, LogFields.PublicIp, publicIp);
-        appendField(map, LogFields.Hostname, hostname);
-        appendField(map, LogFields.JobId, jobId);
         appendField(map, LogFields.TransactionId, transactionId);
-        appendField(map, LogFields.ThreadId, threadId);
         appendField(map, LogFields.LoggingKey, loggingKey);
-        appendField(map, LogFields.ProjectName, projectName);
         appendField(map, LogFields.TestPlanName, testPlan != null ? testPlan.getTestPlanName() : null);
         appendField(map, LogFields.GroupName, group != null ? group.getName() : null);
         appendField(map, LogFields.ScriptName, script != null ? script.getName() : null);

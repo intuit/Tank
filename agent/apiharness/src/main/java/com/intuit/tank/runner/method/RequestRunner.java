@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.message.MapMessage;
 
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.data.AssignmentData;
@@ -162,13 +161,13 @@ public class RequestRunner implements Runner {
     public String execute() {
         String validation = TankConstants.HTTP_CASE_PASS;
         if (APITestHarness.getInstance().getAgentRunData().getActiveProfile() == LoggingProfile.TRACE) {
-            LOG.info( new MapMessage(LogUtil.getLogMessage("Executing step...")));
+            LOG.info(LogUtil.getLogMessage("Executing step..."));
         }
         if (checkPreValidations()) {
             if (LOG.isDebugEnabled()
                     || APITestHarness.getInstance().getAgentRunData().getActiveProfile() == LoggingProfile.VERBOSE
                     || APITestHarness.getInstance().getAgentRunData().getActiveProfile() == LoggingProfile.TRACE) {
-                LOG.info( new MapMessage(LogUtil.getLogMessage("Skipping request because of Pre-Validation.")));
+                LOG.info(LogUtil.getLogMessage("Skipping request because of Pre-Validation."));
             }
             return TankConstants.HTTP_CASE_PASS;
         }
@@ -185,8 +184,8 @@ public class RequestRunner implements Runner {
                 baseRequest.doOptions(baseResponse);
             }
         } catch (Throwable e) {
-            LOG.error( new MapMessage(
-                    LogUtil.getLogMessage("Unexpected Exception executing request: " + e.toString(), LogEventType.IO)),
+            LOG.error(
+                    LogUtil.getLogMessage("Unexpected Exception executing request: " + e.toString(), LogEventType.IO),
                     e);
         }
         if (APITestHarness.getInstance().getTPMonitor().isEnabled()) {
@@ -197,11 +196,11 @@ public class RequestRunner implements Runner {
         validation = processValidations(variables, "", baseResponse);
         LogUtil.getLogEvent().setValidationStatus(validation);
         if (APITestHarness.getInstance().getAgentRunData().getActiveProfile() == LoggingProfile.VERBOSE) {
-            LOG.info( new MapMessage(LogUtil.getLogMessage("Made Call ...")));
+            LOG.info(LogUtil.getLogMessage("Made Call ..."));
         }
         processVariables(variables, baseResponse);
         if (APITestHarness.getInstance().getAgentRunData().getActiveProfile() == LoggingProfile.TRACE) {
-            LOG.info( new MapMessage(LogUtil.getLogMessage("Variables Processed. Exiting ...")));
+            LOG.info(LogUtil.getLogMessage("Variables Processed. Exiting ..."));
         }
         if (!APITestHarness.getInstance().isDebug()) {
             processPerfResponse(validation, uniqueName, Integer.valueOf(variables.getVariable("THREAD_ID")),
@@ -304,7 +303,7 @@ public class RequestRunner implements Runner {
         if (!headerValidation.isEmpty() || !bodyValidation.isEmpty() || !cookieValidation.isEmpty()) {
             String testCaseResult = TankConstants.HTTP_CASE_PASS;
             if (reqResponse.getHttpCode() == -1) {
-                LOG.error( new MapMessage(LogUtil.getLogMessage("Failure due to IO Error.")));
+                LOG.error(LogUtil.getLogMessage("Failure due to IO Error."));
                 return TankConstants.HTTP_CASE_FAIL;
             }
 
@@ -503,7 +502,7 @@ public class RequestRunner implements Runner {
             return TankConstants.HTTP_CASE_PASS;
         }
         String msg = "Failed http validation: value = " + actualValue;
-        LOG.error( new MapMessage(LogUtil.getLogMessage(item.toString() + " " + msg, LogEventType.Validation)));
+        LOG.error(LogUtil.getLogMessage(item.toString() + " " + msg, LogEventType.Validation));
         tsc.addError(new ErrorContainer("HTTP_CODE", original, item, msg));
         return TankConstants.HTTP_CASE_FAIL;
     }
@@ -524,7 +523,7 @@ public class RequestRunner implements Runner {
             return TankConstants.HTTP_CASE_PASS;
         }
         String msg = "Failed header validation: header value = " + actualValue;
-        LOG.error( new MapMessage(LogUtil.getLogMessage(item.toString() + " " + msg, LogEventType.Validation)));
+        LOG.error(LogUtil.getLogMessage(item.toString() + " " + msg, LogEventType.Validation));
         tsc.addError(new ErrorContainer("HEADER", original, item, msg));
         return TankConstants.HTTP_CASE_FAIL;
     }
@@ -546,8 +545,8 @@ public class RequestRunner implements Runner {
             return TankConstants.HTTP_CASE_PASS;
         }
         String msg = "Failed body validation: body value = " + actualValue;
-        LOG.error( new MapMessage(LogUtil.getLogMessage("Validation Failed: " + item.toString() + " " + msg, LogEventType.Validation,
-                LoggingProfile.VERBOSE)));
+        LOG.error(LogUtil.getLogMessage("Validation Failed: " + item.toString() + " " + msg, LogEventType.Validation,
+                LoggingProfile.VERBOSE));
         tsc.addError(new ErrorContainer("BODY", original, item, msg));
         return TankConstants.HTTP_CASE_FAIL;
     }
@@ -570,7 +569,7 @@ public class RequestRunner implements Runner {
             return TankConstants.HTTP_CASE_PASS;
         }
         String msg = "Failed cookie validation: cookie value = " + actualValue;
-        LOG.error( new MapMessage(LogUtil.getLogMessage(item.toString() + " " + msg, LogEventType.Validation)));
+        LOG.error(LogUtil.getLogMessage(item.toString() + " " + msg, LogEventType.Validation));
         tsc.addError(new ErrorContainer("COOKIE", original, item, msg));
         return TankConstants.HTTP_CASE_FAIL;
     }

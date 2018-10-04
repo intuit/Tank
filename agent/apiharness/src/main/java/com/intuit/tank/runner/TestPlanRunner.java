@@ -54,7 +54,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 
 public class TestPlanRunner implements Runnable {
 
-    static Logger LOG = LogManager.getLogger(TestPlanRunner.class);
+    private static Logger LOG = LogManager.getLogger(TestPlanRunner.class);
     private Variables variables;
     private TimerMap timerMap;
     private String uniqueName;
@@ -65,11 +65,6 @@ public class TestPlanRunner implements Runnable {
     private BaseResponse previousResponse = null;
     private boolean finished = false;
     private Map<String, String> headerMap;
-
-    // SSL values
-    long lastSslHandshake = 0;
-    // SSLContext sslContext = null;
-    long sslTimeout = 90000;
 
     public TestPlanRunner(HDTestPlan testPlan, int threadNumber) {
         headerMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
@@ -235,7 +230,8 @@ public class TestPlanRunner implements Runnable {
     /**
      * Check to see if the thread/virtual user should continue for another loop
      * 
-     * @param lastLoop
+     * @param phase
+     * @param finished
      * 
      * @return
      */

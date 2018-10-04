@@ -350,7 +350,7 @@ public class AmazonUtil {
     }
 
     /**
-     * @param string
+     * @param url
      * @return
      * @throws IOException
      */

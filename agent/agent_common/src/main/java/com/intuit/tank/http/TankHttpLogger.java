@@ -5,6 +5,7 @@ import java.util.Map;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.settings.AgentConfig;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 public interface TankHttpLogger {
 
@@ -15,21 +16,21 @@ public interface TankHttpLogger {
      * @param msg
      * @return
      */
-    public Map<String,String> getLogMessage(String msg);
+    public ObjectMessage getLogMessage(String msg);
     /**
      * Returns the message to log. will prepend the jobId to the log message in the form of jobId[id]:
      * 
      * @param msg
      * @return
      */
-    public Map<String,String> getLogMessage(String msg, LogEventType type);
+    public ObjectMessage getLogMessage(String msg, LogEventType type);
     /**
      * Returns the message to log. will prepend the jobId to the log message in the form of jobId[id]:
      * 
      * @param msg
      * @return
      */
-    public Map<String,String> getLogMessage(String msg, LogEventType type, LoggingProfile profile);
+    public ObjectMessage getLogMessage(String msg, LogEventType type, LoggingProfile profile);
 
     /**
      * Returns true if the argument is a valid mimeType else returns false

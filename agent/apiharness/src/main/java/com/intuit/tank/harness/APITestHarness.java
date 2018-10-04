@@ -30,12 +30,14 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
+import com.amazonaws.regions.Regions;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -308,6 +310,7 @@ public class APITestHarness {
 
     private void startHttp(String baseUrl) {
         isLocal = false;
+        HostInfo hostInfo = new HostInfo();
         CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
         if (baseUrl == null) {
             baseUrl = AmazonUtil.getControllerBaseUrl();
@@ -329,7 +332,7 @@ public class APITestHarness {
                     }
                 } else {
                     LOG.error("Error getting amazon host. maybe local.");
-                    String publicIp = new HostInfo().getPublicIp();
+                    String publicIp = hostInfo.getPublicIp();
                     
                     if (!publicIp.equals(HostInfo.UNKNOWN)) {
                         instanceUrl = "http://" + publicIp + ":"
@@ -341,7 +344,7 @@ public class APITestHarness {
                 }
             }
         }
-        LOG.info("MyInstanceURL  = " + instanceUrl);
+        LOG.info("MyInstanceURL = " + instanceUrl);
         if (capacity < 0) {
             capacity = AmazonUtil.getCapacity();
         }
@@ -359,6 +362,12 @@ public class APITestHarness {
         }
 
         LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
+        ThreadContext.put("jobId", agentRunData.getJobId());
+        ThreadContext.put("projectName", agentRunData.getProjectName());
+        ThreadContext.put("instanceId", agentRunData.getInstanceId());
+        ThreadContext.put("publicIp", hostInfo.getPublicIp());
+        ThreadContext.put("region", Regions.getCurrentRegion().getName());
+        ThreadContext.put("httpHost", baseUrl);
         LOG.info(LogUtil.getLogMessage("Active Profile" + agentRunData.getActiveProfile().getDisplayName()));
         AgentData data = new AgentData(agentRunData.getJobId(), instanceId, instanceUrl, capacity,
                 region, AmazonUtil.getZone());

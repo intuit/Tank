@@ -25,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 /**
  * LogUtil
@@ -51,7 +52,7 @@ public final class LogUtil {
      * @param msg
      * @return
      */
-    public static final Map<String,String> getLogMessage(String msg) {
+    public static final ObjectMessage getLogMessage(String msg) {
         return getLogMessage(msg, null);
     }
 
@@ -61,11 +62,11 @@ public final class LogUtil {
      * @param msg
      * @return
      */
-    public static final Map<String,String> getLogMessage(String msg, LogEventType type) {
+    public static final ObjectMessage getLogMessage(String msg, LogEventType type) {
         LogEvent logEvent = getLogEvent();
         logEvent.setMessage(msg);
         logEvent.setEventType(type != null ? type : LogEventType.System);
-        return logEvent.buildMessage();
+        return new ObjectMessage(logEvent.buildMessage());
     }
 
     /**
@@ -74,13 +75,13 @@ public final class LogUtil {
      * @param msg
      * @return
      */
-    public static final Map<String,String> getLogMessage(String msg, LogEventType type, LoggingProfile profile) {
+    public static final ObjectMessage getLogMessage(String msg, LogEventType type, LoggingProfile profile) {
         LogEvent logEvent = getLogEvent();
         LoggingProfile resetProfile = logEvent.getActiveProfile();
         if (null != profile) {
             logEvent.setActiveProfile(profile);
         }
-        Map<String,String> map = getLogMessage(msg, type);
+        ObjectMessage map = getLogMessage(msg, type);
         logEvent.setActiveProfile(resetProfile);
         return map;
     }

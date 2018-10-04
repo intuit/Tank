@@ -13,6 +13,7 @@ import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.script.ScriptConstants;
 import com.intuit.tank.vm.settings.AgentConfig;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 public class HttpRequestFactory {
 
@@ -35,17 +36,17 @@ public class HttpRequestFactory {
     public static final class TankLogUtil implements TankHttpLogger {
 
         @Override
-        public Map<String,String> getLogMessage(String msg) {
+        public ObjectMessage getLogMessage(String msg) {
             return LogUtil.getLogMessage(msg);
         }
 
         @Override
-        public Map<String,String> getLogMessage(String msg, LogEventType type) {
+        public ObjectMessage getLogMessage(String msg, LogEventType type) {
             return LogUtil.getLogMessage(msg, type);
         }
 
         @Override
-        public Map<String,String> getLogMessage(String msg, LogEventType type, LoggingProfile profile) {
+        public ObjectMessage getLogMessage(String msg, LogEventType type, LoggingProfile profile) {
             return LogUtil.getLogMessage(msg, type, profile);
         }
 
