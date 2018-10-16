@@ -155,21 +155,20 @@ public class APITestHarness {
      * @param args
      */
     public static void main(String[] args) {
-        // set ttl on dns to small value
-        try {
-            java.security.Security.setProperty("networkaddress.cache.ttl", "5");
-        } catch (Throwable e1) {
-            LOG.warn(LogUtil.getLogMessage("Error setting dns timeout: " + e1.toString(), LogEventType.System));
-        }
-        try {
-            java.security.Security.setProperty("networkaddress.cache.negative.ttl", "0");
-        } catch (Throwable e1) {
-            LOG.warn(LogUtil.getLogMessage("Error setting dns negative timeout: " + e1.toString(), LogEventType.System));
-        }
+
         if (args.length < 1) {
             usage();
             return;
         }
+
+        HostInfo hostInfo = new HostInfo();
+        ThreadContext.put("jobId", getInstance().getAgentRunData().getJobId());
+        ThreadContext.put("projectName", getInstance().getAgentRunData().getProjectName());
+        ThreadContext.put("instanceId", getInstance().getAgentRunData().getInstanceId());
+        ThreadContext.put("publicIp", hostInfo.getPublicIp());
+        ThreadContext.put("region", Regions.getCurrentRegion().getName());
+        ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
+
         getInstance().initializeFromArgs(args);
 
     }
@@ -177,7 +176,7 @@ public class APITestHarness {
     private void initializeFromArgs(String[] args) {
         String controllerBase = null;
         for (String argument : args) {
-            LOG.info("checking arg " + argument);
+            LOG.info("{ \"Message\"=\"checking arg " + argument+ "\"}");
 
             String[] values = argument.split("=");
             if (values[0].equalsIgnoreCase("-tp")) {
@@ -337,14 +336,14 @@ public class APITestHarness {
                     if (!publicIp.equals(HostInfo.UNKNOWN)) {
                         instanceUrl = "http://" + publicIp + ":"
                                 + tankConfig.getAgentConfig().getAgentPort();
-                        LOG.info("MyInstanceURL from hostinfo  = " + instanceUrl);
+                        LOG.info("{ \"Message\"=\"MyInstanceURL from hostinfo  = " + instanceUrl + "\"}");
                     } else {
                         instanceUrl = "http://localhost:" + tankConfig.getAgentConfig().getAgentPort();
                     }
                 }
             }
         }
-        LOG.info("MyInstanceURL = " + instanceUrl);
+        LOG.info("{ \"Message\"=\"MyInstanceURL = " + instanceUrl + "\"}");
         if (capacity < 0) {
             capacity = AmazonUtil.getCapacity();
         }

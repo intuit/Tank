@@ -88,7 +88,7 @@ public class CommandListener implements Container {
                 msg = APITestHarness.getInstance().getStatus().toString();
                 APITestHarness.getInstance().setCommand(WatsAgentCommand.resume_ramp);
             }
-            LOG.info(msg);
+            LOG.info("{ \"Message\"=\"" + msg + "\"}");
             PrintStream body = response.getPrintStream();
 
             long time = System.currentTimeMillis();

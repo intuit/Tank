@@ -279,7 +279,7 @@ public class AgentRunData {
      *            the stopBehavior to set
      */
     public void setStopBehavior(StopBehavior stopBehavior) {
-        LOG.info("Setting stopBehavior to " + stopBehavior);
+        LOG.info("{ \"Message\"=\"Setting stopBehavior to " + stopBehavior + "\"}");
         this.stopBehavior = stopBehavior;
     }
 

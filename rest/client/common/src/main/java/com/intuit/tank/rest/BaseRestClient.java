@@ -69,8 +69,8 @@ public abstract class BaseRestClient {
         }
 //        client.setConnectTimeout(5000);
 //        client.setFollowRedirects(true);
-        LOG.info("client for url " + baseUrl + ": proxy="
-                + (proxyServer != null ? proxyServer + ":" + proxyPort : "none"));
+        LOG.info("{ \"Message\"=\"client for url " + baseUrl + ": proxy="
+                + (proxyServer != null ? proxyServer + ":" + proxyPort : "none") + "\"}");
     }
     
     public void addAuth(String user, String token) {

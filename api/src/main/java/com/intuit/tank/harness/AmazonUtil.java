@@ -52,7 +52,7 @@ public class AmazonUtil {
 
     public static VMRegion getVMRegion() throws IOException {
         String zone = getMetaData(CloudMetaDataType.zone);
-        LOG.info("Running in zone " + zone);
+        LOG.info("{ \"Message\"=\"Running in zone " + zone + "\"}");
         return VMRegion.getRegionFromZone(zone);
     }
 
@@ -79,10 +79,10 @@ public class AmazonUtil {
     public static String getZone() {
         try {
             String zone = getMetaData(CloudMetaDataType.zone);
-            LOG.info("Running in zone " + zone);
+            LOG.info("{ \"Message\"=\"Running in zone " + zone + "\"}");
             return zone;
         } catch (Exception e) {
-            LOG.info("cannot determine zone");
+            LOG.info("{ \"Message\"=\"cannot determine zone\"}");
         }
         return "unknown";
     }

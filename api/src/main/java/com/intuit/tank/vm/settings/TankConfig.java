@@ -61,7 +61,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
 
     static {
         File file = new File(configName);
-        LOG.info("checking file " + file.getAbsolutePath() + ": exists=" + file.exists());
+        LOG.info("{ \"Message\"=\"checking file " + file.getAbsolutePath() + ": exists=" + file.exists()+ "\"}");
         if (!file.exists()) {
             LOG.info("System.getenv('WATS_PROPERTIES') = '" + System.getenv("WATS_PROPERTIES") + "'");
             LOG.info("System.getProperty('WATS_PROPERTIES') = '" + System.getProperty("WATS_PROPERTIES") + "'");
@@ -71,7 +71,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
                 configName = System.getProperty("WATS_PROPERTIES") + "/" + CONFIG_NAME;
             }
         }
-        LOG.info("Tank Configuration location = " + configName);
+        LOG.info("{ \"Message\"=\"Tank Configuration location = " + configName + "\"}");
     }
 
     private String configPath = configName;

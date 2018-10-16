@@ -63,7 +63,7 @@ public class DatabaseResultsReporter implements ResultsReporter {
                 List<Item> items = container.getTpsInfos().stream().map(info -> createItem(jobId, instanceId, info)).collect(Collectors.toList());
                 if (!items.isEmpty()) {
                     String tableName = getTpsTableName(db);
-                    LOG.info("Sending " + items.size() + " to TPS Table " + tableName);
+                    LOG.info("{ \"Message\"=\"Sending " + items.size() + " to TPS Table " + tableName + "\"}");
                     db.addItems(tableName, items, false);
                 }
             } catch (Exception t) {
