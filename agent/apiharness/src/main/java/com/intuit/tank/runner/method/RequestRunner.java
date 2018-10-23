@@ -502,7 +502,7 @@ public class RequestRunner implements Runner {
             return TankConstants.HTTP_CASE_PASS;
         }
         String msg = "Failed http validation: value = " + actualValue;
-        LOG.error(LogUtil.getLogMessage(item.toString() + " " + msg, LogEventType.Validation));
+        LOG.error(LogUtil.getLogMessage(item.toString() + " " + msg, LogEventType.Validation, LoggingProfile.VERBOSE));
         tsc.addError(new ErrorContainer("HTTP_CODE", original, item, msg));
         return TankConstants.HTTP_CASE_FAIL;
     }
@@ -523,7 +523,7 @@ public class RequestRunner implements Runner {
             return TankConstants.HTTP_CASE_PASS;
         }
         String msg = "Failed header validation: header value = " + actualValue;
-        LOG.error(LogUtil.getLogMessage(item.toString() + " " + msg, LogEventType.Validation));
+        LOG.error(LogUtil.getLogMessage(item.toString() + " " + msg, LogEventType.Validation, LoggingProfile.VERBOSE));
         tsc.addError(new ErrorContainer("HEADER", original, item, msg));
         return TankConstants.HTTP_CASE_FAIL;
     }
@@ -569,7 +569,7 @@ public class RequestRunner implements Runner {
             return TankConstants.HTTP_CASE_PASS;
         }
         String msg = "Failed cookie validation: cookie value = " + actualValue;
-        LOG.error(LogUtil.getLogMessage(item.toString() + " " + msg, LogEventType.Validation));
+        LOG.error(LogUtil.getLogMessage(item.toString() + " " + msg, LogEventType.Validation, LoggingProfile.VERBOSE));
         tsc.addError(new ErrorContainer("COOKIE", original, item, msg));
         return TankConstants.HTTP_CASE_FAIL;
     }

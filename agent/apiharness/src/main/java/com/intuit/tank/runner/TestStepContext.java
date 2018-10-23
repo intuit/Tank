@@ -68,7 +68,7 @@ public class TestStepContext {
     }
 
     /**
-     * @param errors
+     * @param error
      *            the errors to set
      */
     public void addError(ErrorContainer error) {
