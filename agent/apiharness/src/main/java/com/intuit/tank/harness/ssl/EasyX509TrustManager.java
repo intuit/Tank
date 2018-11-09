@@ -72,8 +72,8 @@ public class EasyX509TrustManager implements X509TrustManager {
         // return this.standardTrustManager.isClientTrusted(certificates);
         boolean clientTrusted = this.standardTrustManager.isClientTrusted(certificates);
         if (!clientTrusted) {
-            LOG.warn(LogUtil.getLogMessage("Client not natively trusted. Ignoring and Trusting anyway.",
-                    LogEventType.System));
+            LOG.warn("Client not natively trusted. Ignoring and Trusting anyway.",
+                    LogEventType.System);
         }
         return true;
     }

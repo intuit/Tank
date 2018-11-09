@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +30,7 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import javax.annotation.Nonnull;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -300,7 +300,7 @@ public class TankHttpClient5 implements TankHttpClient {
                 try {
                     responseBody = IOUtils.toByteArray(response.getEntity().getContent());
                 } catch (Exception e) {
-                    LOG.warn("could not get response body: " + e);
+                    LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
             }
             waitTime = System.currentTimeMillis() - startTime;

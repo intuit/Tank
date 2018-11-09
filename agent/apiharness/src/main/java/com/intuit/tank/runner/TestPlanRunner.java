@@ -143,7 +143,7 @@ public class TestPlanRunner implements Runnable {
                         continue mainLoop;
                     }
                     if (isCompleted(RunPhase.group, finished)) {
-                        LOG.info("finished or Stop set to group or less, exiting at group " + hdScriptGroup.getName());
+                        LOG.info(LogUtil.getLogMessage("finished or Stop set to group or less, exiting at group " + hdScriptGroup.getName()));
                         return;
                     }
                     scriptGroupLoop++;
