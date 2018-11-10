@@ -24,6 +24,7 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -33,6 +34,7 @@ import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.VMSize;
 import com.intuit.tank.vm.common.TankConstants;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 /**
  * 
@@ -52,7 +54,7 @@ public class AmazonUtil {
 
     public static VMRegion getVMRegion() throws IOException {
         String zone = getMetaData(CloudMetaDataType.zone);
-        LOG.info("{ \"Message\"=\"Running in zone " + zone + "\"}");
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Running in zone " + zone )));
         return VMRegion.getRegionFromZone(zone);
     }
 
@@ -79,10 +81,10 @@ public class AmazonUtil {
     public static String getZone() {
         try {
             String zone = getMetaData(CloudMetaDataType.zone);
-            LOG.info("{ \"Message\"=\"Running in zone " + zone + "\"}");
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message","Running in zone " + zone)));
             return zone;
         } catch (Exception e) {
-            LOG.info("{ \"Message\"=\"cannot determine zone\"}");
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message","cannot determine zone")));
         }
         return "unknown";
     }
@@ -92,7 +94,7 @@ public class AmazonUtil {
         try {
             ret = getMetaData(CloudMetaDataType.public_hostname);
         } catch (Exception e) {
-            LOG.debug("Failed getting public host: " + e);
+            LOG.debug(new ObjectMessage(ImmutableMap.of("Message","Failed getting public host: " + e)));
         }
         if (StringUtils.isBlank(ret)) {
             //LOG.info("getting local_ipv4...");
@@ -120,7 +122,7 @@ public class AmazonUtil {
         try {
             ret = getUserDataAsMap().get(TankConstants.KEY_AWS_SECRET_KEY);
         } catch (IOException e) {
-            LOG.warn("Error getting key: " + e.toString());
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting key: " + e.toString())));
         }
         return ret;
     }
@@ -134,7 +136,7 @@ public class AmazonUtil {
         try {
             ret = getUserDataAsMap().get(TankConstants.KEY_AWS_SECRET_KEY_ID);
         } catch (IOException e) {
-            LOG.warn("Error getting key ID: " + e.toString());
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting key ID: " + e.toString())));
         }
         return ret;
     }
@@ -150,7 +152,7 @@ public class AmazonUtil {
         try {
             ret = getMetaData(CloudMetaDataType.instance_id);
         } catch (IOException e) {
-            LOG.warn("Error getting instance ID: " + e.toString());
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting instance ID: " + e.toString())));
         }
         return ret;
     }
@@ -205,7 +207,7 @@ public class AmazonUtil {
         try {
             ret = getUserDataAsMap().get(TankConstants.KEY_JOB_ID);
         } catch (IOException e) {
-            LOG.warn("Error getting job ID: " + e.toString());
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting job ID: " + e.toString())));
         }
         return ret != null ? ret : "unknown";
     }
@@ -220,7 +222,7 @@ public class AmazonUtil {
         try {
             ret = getUserDataAsMap().get(TankConstants.KEY_PROJECT_NAME);
         } catch (IOException e) {
-            LOG.warn("Error getting Project  Name: " + e.toString());
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting Project  Name: " + e.toString())));
         }
         return ret != null ? ret : "unknown";
     }
@@ -238,7 +240,7 @@ public class AmazonUtil {
                 ret = LoggingProfile.valueOf(lp);
             }
         } catch (Exception e) {
-            LOG.warn("Error getting LoggingProfile: " + e.toString());
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting LoggingProfile: " + e.toString())));
         }
         return ret;
     }
@@ -251,7 +253,7 @@ public class AmazonUtil {
                 ret = Integer.valueOf(lp);
             }
         } catch (Exception e) {
-            LOG.warn("Error getting capacity: " + e.toString());
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting capacity: " + e.toString())));
         }
         return ret;
     }
@@ -269,7 +271,7 @@ public class AmazonUtil {
                 ret = StopBehavior.valueOf(sb);
             }
         } catch (Exception e) {
-            LOG.warn("Error getting StopBehavior: " + e.toString());
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting StopBehavior: " + e.toString())));
         }
         return ret;
     }
@@ -284,7 +286,7 @@ public class AmazonUtil {
         try {
             ret = getUserDataAsMap().get(TankConstants.KEY_USING_BIND_EIP) != null;
         } catch (IOException e) {
-            LOG.warn("Error getting is using EIP: " + e.toString());
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting is using EIP: " + e.toString())));
         }
         return ret;
     }
@@ -299,7 +301,7 @@ public class AmazonUtil {
         try {
             ret = getUserDataAsMap().get(TankConstants.KEY_CONTROLLER_URL);
         } catch (IOException e) {
-            LOG.warn("Error getting controller url: " + e.toString());
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting controller url: " + e.toString())));
         }
         return ret != null ? ret : "http://localhost:8080/";
     }

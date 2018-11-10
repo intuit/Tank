@@ -18,8 +18,10 @@ import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.ObjectMessage;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;
@@ -88,7 +90,7 @@ public class CommandListener implements Container {
                 msg = APITestHarness.getInstance().getStatus().toString();
                 APITestHarness.getInstance().setCommand(WatsAgentCommand.resume_ramp);
             }
-            LOG.info("{ \"Message\"=\"" + msg + "\"}");
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", msg )));
             PrintStream body = response.getPrintStream();
 
             long time = System.currentTimeMillis();

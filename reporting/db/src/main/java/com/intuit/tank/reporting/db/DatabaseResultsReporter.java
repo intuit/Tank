@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -28,6 +29,7 @@ import com.intuit.tank.reporting.databases.TankDatabaseType;
 import com.intuit.tank.results.TankResult;
 import com.intuit.tank.vm.common.util.ReportUtil;
 import com.intuit.tank.vm.settings.TankConfig;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 /**
  * DatabaseResultsReporter
@@ -63,7 +65,7 @@ public class DatabaseResultsReporter implements ResultsReporter {
                 List<Item> items = container.getTpsInfos().stream().map(info -> createItem(jobId, instanceId, info)).collect(Collectors.toList());
                 if (!items.isEmpty()) {
                     String tableName = getTpsTableName(db);
-                    LOG.info("{ \"Message\"=\"Sending " + items.size() + " to TPS Table " + tableName + "\"}");
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Sending " + items.size() + " to TPS Table " + tableName)));
                     db.addItems(tableName, items, false);
                 }
             } catch (Exception t) {

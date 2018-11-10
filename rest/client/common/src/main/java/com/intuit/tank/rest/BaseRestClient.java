@@ -25,6 +25,8 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.google.common.collect.ImmutableMap;
+import org.apache.logging.log4j.message.ObjectMessage;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -69,8 +71,8 @@ public abstract class BaseRestClient {
         }
 //        client.setConnectTimeout(5000);
 //        client.setFollowRedirects(true);
-        LOG.info("{ \"Message\"=\"client for url " + baseUrl + ": proxy="
-                + (proxyServer != null ? proxyServer + ":" + proxyPort : "none") + "\"}");
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "client for url " + baseUrl + ": proxy="
+                + (proxyServer != null ? proxyServer + ":" + proxyPort : "none"))));
     }
     
     public void addAuth(String user, String token) {

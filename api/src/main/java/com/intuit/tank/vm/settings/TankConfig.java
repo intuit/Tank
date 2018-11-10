@@ -18,9 +18,11 @@ import java.io.File;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 /**
  * CnrComConfig configurator for the beans config file.
@@ -61,7 +63,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
 
     static {
         File file = new File(configName);
-        LOG.info("{ \"Message\"=\"checking file " + file.getAbsolutePath() + ": exists=" + file.exists()+ "\"}");
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "checking file " + file.getAbsolutePath() + ": exists=" + file.exists())));
         if (!file.exists()) {
             LOG.info("System.getenv('WATS_PROPERTIES') = '" + System.getenv("WATS_PROPERTIES") + "'");
             LOG.info("System.getProperty('WATS_PROPERTIES') = '" + System.getProperty("WATS_PROPERTIES") + "'");
@@ -71,7 +73,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
                 configName = System.getProperty("WATS_PROPERTIES") + "/" + CONFIG_NAME;
             }
         }
-        LOG.info("{ \"Message\"=\"Tank Configuration location = " + configName + "\"}");
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Tank Configuration location = " + configName)));
     }
 
     private String configPath = configName;

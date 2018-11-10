@@ -31,6 +31,7 @@ import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
 import com.amazonaws.regions.Regions;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -66,6 +67,7 @@ import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 public class APITestHarness {
 
@@ -176,7 +178,7 @@ public class APITestHarness {
     private void initializeFromArgs(String[] args) {
         String controllerBase = null;
         for (String argument : args) {
-            LOG.info("{ \"Message\"=\"checking arg " + argument+ "\"}");
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "checking arg " + argument)));
 
             String[] values = argument.split("=");
             if (values[0].equalsIgnoreCase("-tp")) {
@@ -336,14 +338,14 @@ public class APITestHarness {
                     if (!publicIp.equals(HostInfo.UNKNOWN)) {
                         instanceUrl = "http://" + publicIp + ":"
                                 + tankConfig.getAgentConfig().getAgentPort();
-                        LOG.info("{ \"Message\"=\"MyInstanceURL from hostinfo  = " + instanceUrl + "\"}");
+                        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "MyInstanceURL from hostinfo  = " + instanceUrl)));
                     } else {
                         instanceUrl = "http://localhost:" + tankConfig.getAgentConfig().getAgentPort();
                     }
                 }
             }
         }
-        LOG.info("{ \"Message\"=\"MyInstanceURL = " + instanceUrl + "\"}");
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "MyInstanceURL = " + instanceUrl)));
         if (capacity < 0) {
             capacity = AmazonUtil.getCapacity();
         }
