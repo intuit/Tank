@@ -162,17 +162,16 @@ public class SearchUtils {
      * @return the lucene sort or null if no sort is specified
      */
     public static final Sort createLuceneSort(SearchQuery searchQuery) {
-        Sort ret = null;
         Collection<SortOrder> sorts = searchQuery.getSortOrder();
         if (!sorts.isEmpty()) {
             SortField[] array = new SortField[sorts.size()];
             int i = 0;
             for (SortOrder sortOrder : sorts) {
-                array[i] = new SortField(sortOrder.getField(), SortField.STRING, sortOrder.isDescending());
+                array[i] = new SortField(sortOrder.getField(), SortField.Type.STRING, sortOrder.isDescending());
             }
-            ret = new Sort(array);
+            return new Sort(array);
         }
-        return ret;
+        return null;
     }
 
 }

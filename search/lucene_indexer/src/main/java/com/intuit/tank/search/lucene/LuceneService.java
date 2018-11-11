@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -107,7 +108,6 @@ public class LuceneService {
      */
     private void closeWriter(IndexWriter writer) {
         try {
-            writer.optimize();
             writer.close();
         } catch (Exception e1) {
             e1.printStackTrace();
@@ -118,7 +118,7 @@ public class LuceneService {
     /**
      * Removes the index of the document
      * 
-     * @param doc
+     * @param query
      */
     public void removeDocument(Query query) {
         removeDocuments(Arrays.asList(new Query[] { query }));
@@ -127,7 +127,7 @@ public class LuceneService {
     /**
      * Removes the indexes of the documents.
      * 
-     * @param docs
+     * @param queries
      */
     public void removeDocuments(List<Query> queries) {
         IndexWriter writer = getWriter();
@@ -190,9 +190,6 @@ public class LuceneService {
         IndexSearcher searcher = null;
         try {
             IndexReader reader = getReader();
-            if (!reader.isCurrent()) {
-                reader.reopen();
-            }
             searcher = new IndexSearcher(reader);
         } catch (Exception e) {
             e.printStackTrace();
@@ -208,7 +205,7 @@ public class LuceneService {
      */
     private IndexReader getReader() {
         try {
-            return IndexReader.open(directory);
+            return DirectoryReader.open(directory);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
