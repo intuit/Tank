@@ -53,7 +53,7 @@ public class CommandListener implements Container {
                 Connection connection = new SocketConnection(processor);
                 SocketAddress address = new InetSocketAddress(port);
                 System.out.println("Starting httpserver on port " + port);
-                LOG.info("Starting httpserver on port " + port);
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting httpserver on port " + port)));
                 connection.connect(address);
                 started = true;
             } catch (IOException e) {
