@@ -153,7 +153,7 @@ public class TestPlanRunner implements Runnable {
                 } else {
                     finished = true;
                     if (isCompleted(RunPhase.test, finished)) {
-                        LOG.info("finished or Stop set to test or less, exiting at test...");
+                        LOG.info(LogUtil.getLogMessage("finished or Stop set to test or less, exiting at test..."));
                         return;
                     }
                     i = 0;
