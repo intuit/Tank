@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
  */
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -260,6 +261,11 @@ public class TankHttpClient4 implements TankHttpClient {
             httpclient = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).build();
             proxyOn = false;
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        httpclient.close();
     }
 
     private void sendRequest(BaseRequest request, @Nonnull HttpRequestBase method, String requestBody) {

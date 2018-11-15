@@ -1,7 +1,5 @@
 package com.intuit.tank.http;
 
-import java.util.Map;
-
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.http.json.JsonRequest;
@@ -29,7 +27,7 @@ public class HttpRequestFactory {
         } else if (format.equalsIgnoreCase(ScriptConstants.PLAIN_TEXT_TYPE)) {
             return new PlainTextRequest(httpclient, new TankLogUtil());
         } else {
-            throw new IllegalArgumentException("unknow request format - " + format);
+            throw new IllegalArgumentException("unknown request format - " + format);
         }
     }
 

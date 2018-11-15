@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
  */
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -42,7 +43,6 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpOptions;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.config.CookieSpecs;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
@@ -66,6 +66,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -276,6 +277,11 @@ public class TankHttpClient5 implements TankHttpClient {
         }
     }
 
+    @Override
+    public void close() throws IOException {
+        httpclient.close();
+    }
+
     private void sendRequest(BaseRequest request, @Nonnull ClassicHttpRequest method, String requestBody) {
         String uri = null;
         long waitTime = 0L;
@@ -319,7 +325,7 @@ public class TankHttpClient5 implements TankHttpClient {
                     response.close();
                 }
             } catch (Exception e) {
-                LOG.warn("Could not release connection: " + e, e);
+                LOG.warn(request.getLogUtil().getLogMessage("Could not release connection: " + e), e);
             }
             if (method.getMethod().equalsIgnoreCase("post") && request.getLogUtil().getAgentConfig().getLogPostResponse()) {
                 LOG.info(request.getLogUtil().getLogMessage(
@@ -353,7 +359,7 @@ public class TankHttpClient5 implements TankHttpClient {
                 Thread.sleep(waitTime);
             }
         } catch (InterruptedException e) {
-            LOG.warn("Interrupted", e);
+            LOG.warn(request.getLogUtil().getLogMessage("Interrupted"), e);
         }
     }
 
@@ -402,7 +408,7 @@ public class TankHttpClient5 implements TankHttpClient {
             response.setResponseBody(bResponse);
 
         } catch (Exception ex) {
-            LOG.warn("Unable to get response: " + ex.getMessage());
+            LOG.warn(request.getLogUtil().getLogMessage("Unable to get response: " + ex.getMessage()));
         } finally {
             response.logResponse();
         }

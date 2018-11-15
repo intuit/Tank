@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
  */
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
@@ -240,6 +241,11 @@ public class TankHttpClient3 implements TankHttpClient {
         } else {
             httpclient.getHostConfiguration().setProxyHost(null);
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        httpclient = null;
     }
 
     private void sendRequest(BaseRequest request, @Nonnull HttpMethod method, String requestBody) {

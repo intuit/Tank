@@ -3,6 +3,8 @@ package com.intuit.tank.http;
 import com.intuit.tank.http.AuthCredentials;
 import com.intuit.tank.http.BaseRequest;
 
+import java.io.IOException;
+
 public interface TankHttpClient {
 
     /**
@@ -13,7 +15,7 @@ public interface TankHttpClient {
     /**
      * Execute the post. Use this to force the type of response
      * 
-     * @param newResponse
+     * @param request
      *            The response object to populate
      */
     public void doPut(BaseRequest request);
@@ -21,7 +23,7 @@ public interface TankHttpClient {
     /**
      * Execute the delete request.
      * 
-     * @param response
+     * @param request
      *            The response object to populate
      */
     public void doDelete(BaseRequest request);
@@ -29,13 +31,15 @@ public interface TankHttpClient {
     /**
      * Execute the options request.
      * 
-     * @param response
+     * @param request
      *            The response object to populate
      */
     public void doOptions(BaseRequest request);
     
     /**
      * Execute the POST.
+     *
+     * @param request
      */
     public void doPost(BaseRequest request);
 
@@ -70,5 +74,10 @@ public interface TankHttpClient {
      * @param connectionTimeout
      */
     public void setConnectionTimeout(long connectionTimeout);
+
+    /**
+     *
+     */
+    public void close() throws IOException;
 
 }

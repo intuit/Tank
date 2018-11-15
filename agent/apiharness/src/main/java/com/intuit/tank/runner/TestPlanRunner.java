@@ -127,12 +127,14 @@ public class TestPlanRunner implements Runnable {
                 while (scriptGroupLoop < hdScriptGroup.getLoop()) {
                     List<HDScript> groupSteps = hdScriptGroup.getGroupSteps();
                     if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill) {
+                        httpClient.close();
                         return;
                     }
                     try {
                         runTestGroup(groupSteps, hdScriptGroup);
                     } catch (KillScriptException e) {
                         LOG.info(LogUtil.getLogMessage(e.getMessage()));
+                        httpClient.close();
                         return;
                     } catch (NextScriptGroupException e) {
                         scriptGroupLoop = hdScriptGroup.getLoop();
@@ -144,6 +146,7 @@ public class TestPlanRunner implements Runnable {
                     }
                     if (isCompleted(RunPhase.group, finished)) {
                         LOG.info(LogUtil.getLogMessage("finished or Stop set to group or less, exiting at group " + hdScriptGroup.getName()));
+                        httpClient.close();
                         return;
                     }
                     scriptGroupLoop++;
@@ -154,6 +157,7 @@ public class TestPlanRunner implements Runnable {
                     finished = true;
                     if (isCompleted(RunPhase.test, finished)) {
                         LOG.info(LogUtil.getLogMessage("finished or Stop set to test or less, exiting at test..."));
+                        httpClient.close();
                         return;
                     }
                     i = 0;
@@ -236,14 +240,13 @@ public class TestPlanRunner implements Runnable {
      * @return
      */
     private boolean isCompleted(RunPhase phase, boolean finished) {
-        boolean ret = false;
         if (shouldStop(phase)
                 || (finished && (APITestHarness.getInstance().getAgentRunData().getSimulationTime() <= 0
-                        || APITestHarness.getInstance().hasMetSimulationTime()
-                        || APITestHarness.getInstance().isDebug()))) {
-            ret = true;
+                || APITestHarness.getInstance().hasMetSimulationTime()
+                || APITestHarness.getInstance().isDebug()))) {
+            return true;
         }
-        return ret;
+        return false;
     }
 
     private boolean shouldStop(RunPhase phase) {
