@@ -13,13 +13,13 @@ package com.intuit.tank.search.util;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.search.util.CompositeSearchQuery;
 import com.intuit.tank.search.util.MultiSearchParam;
 import com.intuit.tank.search.util.SearchQuery;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>CompositeSearchQueryTest</code> contains tests for the class

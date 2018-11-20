@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui"
-  xmlns:pe="http://primefaces.org/ui/extensions">
-<f:view contentType="text/html">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
   <h:head profile="http://www.w3.org/2005/10/profile">
     <link rel="icon" 
       type="image/png" 
@@ -16,10 +16,10 @@
     <!-- Allows to use $ instead of jquery -->
     <script type="text/javascript"> $ = jQuery;</script>
 
-    <script type="text/javascript" src="#{request.contextPath}/res/tank.js"></script>
-    <link type="text/css" href="#{request.contextPath}/resources/css/tank.css" rel="stylesheet" />
-    <link type="text/css" href="#{request.contextPath}/resources/css/primefaces-override.css" rel="stylesheet" />
-    <link type="text/css" href="#{request.contextPath}/resources/css/screen.css" rel="stylesheet" />
+    <h:outputScript library="js" name="tank.js" />
+    <h:outputStylesheet library="css" name="tank.css" />
+    <h:outputStylesheet library="css" name="primefaces-override.css" />
+    <h:outputStylesheet library="css" name="screen.css" />
   </h:head>
   <h:body>
     <div id="container">
@@ -29,7 +29,7 @@
           
             <p:toolbarGroup align="left">
               <h:outputLink value="#{request.contextPath}/">
-                <h:graphicImage value="/resources/gfx/TankLogo.svg" style="height:54px; width:151px; padding: 0 20px 0 0" />
+                <h:graphicImage library="gfx" name="TankLogo.svg" style="height:54px; width:151px; padding: 0 20px 0 0" />
               </h:outputLink>
             </p:toolbarGroup>
           </p:toolbar>
@@ -38,12 +38,11 @@
 
       <div id="content" class="content">
         <ui:insert name="content">
-               [Template content will be inserted here]
-            </ui:insert>
+           [Template content will be inserted here]
+        </ui:insert>
       </div>
     </div>
   </h:body>
 
-</f:view>
 </html>
 

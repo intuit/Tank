@@ -21,8 +21,8 @@
 
 package org.owasp.proxy.daemon;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -39,7 +39,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.owasp.proxy.http.BufferedRequest;
 import org.owasp.proxy.http.MessageFormatException;
 import org.owasp.proxy.http.MessageUtils;
@@ -77,7 +77,7 @@ public class BufferingHttpRequestHandlerTest {
     public static void tearDownAfterClass() throws Exception {
         ts.stop();
         Thread.sleep(1000);
-        assertTrue("TraceServer shutdown failed!", ts.isStopped());
+        assertTrue(ts.isStopped(),"TraceServer shutdown failed!");
     }
 
     @Before
@@ -200,7 +200,7 @@ public class BufferingHttpRequestHandlerTest {
         resp = rh.handleRequest(req.getTarget().getAddress(), req, true);
         assertEquals("Expected OK", "200", resp.getStatus());
         InputStream rc = resp.getContent();
-        assertTrue("Content is encorrect!", Arrays.equals(content, toArray(rc)));
+        assertTrue(Arrays.equals(content, toArray(rc)), "Content is encorrect!");
     }
 
     private byte[] toArray(InputStream in) throws IOException {

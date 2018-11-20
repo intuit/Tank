@@ -199,9 +199,7 @@ public class AutomationServiceV1 implements AutomationService {
 					List<ScriptStep> scriptSteps = scriptProcessor
 							.getScriptSteps(new BufferedReader(new InputStreamReader(is)), getFilters(filterIds));
 					List<ScriptStep> newSteps = new ArrayList<>();
-					for (ScriptStep step : scriptSteps) {
-						newSteps.add(step);
-					}
+					newSteps.addAll(scriptSteps);
 					// script.setScriptSteps(newSteps);
 					//
 					// script.setScriptSteps(newSteps);
@@ -270,9 +268,8 @@ public class AutomationServiceV1 implements AutomationService {
 		FormDataBodyPart scriptId = formData.getField("scriptId");
 		FormDataBodyPart newScriptName = formData.getField("scriptName");
 		FormDataBodyPart filePart = formData.getField("file");
-		InputStream is = filePart.getValueAs(InputStream.class);
 		Script script = null;
-		try {
+		try (InputStream is = filePart.getValueAs(InputStream.class)){
 			if ("0".equals(scriptId.getValue())) {
 				script = new Script();
 				script.setName("New");
@@ -290,9 +287,7 @@ public class AutomationServiceV1 implements AutomationService {
 			List<ScriptStep> scriptSteps = scriptProcessor.getScriptSteps(new BufferedReader(new InputStreamReader(is)),
 					new ArrayList<>());
 			List<ScriptStep> newSteps = new ArrayList<>();
-			for (ScriptStep step : scriptSteps) {
-				newSteps.add(step);
-			}
+			newSteps.addAll(scriptSteps);
 			script = new ScriptDao().saveOrUpdate(script);
 			sendMsg(script, ModificationType.UPDATE);
 			responseBuilder.entity(Integer.toString(script.getId()));
@@ -300,8 +295,6 @@ public class AutomationServiceV1 implements AutomationService {
 			LOG.error("Error starting script: " + e, e);
 			responseBuilder = Response.status(Status.INTERNAL_SERVER_ERROR);
 			responseBuilder.entity("An External Script failed with Exception: " + e.toString());
-		} finally {
-			IOUtils.closeQuietly(is);
 		}
 
 		return responseBuilder.build();

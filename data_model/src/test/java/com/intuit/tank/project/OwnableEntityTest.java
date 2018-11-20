@@ -13,9 +13,9 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.project.ColumnPreferences;
 import com.intuit.tank.project.OwnableEntity;

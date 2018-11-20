@@ -26,9 +26,9 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ChangeMonitorInputStreamTest {
 
@@ -48,8 +48,8 @@ public class ChangeMonitorInputStreamTest {
         ChangeMonitorInputStream cmis = new ChangeMonitorInputStream(in);
         in = cmis;
         int read = flush(in);
-        Assert.assertEquals("Read the wrong number of bytes", original.length,
-                read);
+        Assert.assertEquals(original.length,
+                read,"Read the wrong number of bytes");
         compare(original, cmis.getOriginal());
     }
 
@@ -59,11 +59,11 @@ public class ChangeMonitorInputStreamTest {
         ChangeMonitorInputStream cmis = new ChangeMonitorInputStream(in);
         in = cmis.watch(cmis, "No changes");
         int read = flush(in);
-        Assert.assertEquals("Read the wrong number of bytes", original.length,
-                read);
+        Assert.assertEquals(original.length,
+                read,"Read the wrong number of bytes");
         compare(original, cmis.getOriginal());
-        Assert.assertEquals("Unexpectd copy!", 0,
-                cmis.getModifiedStreams().length);
+        Assert.assertEquals(0,
+                cmis.getModifiedStreams().length, "Unexpectd copy!");
     }
 
     @Test
@@ -74,14 +74,14 @@ public class ChangeMonitorInputStreamTest {
         in = new ModuloInputStream(in, 16);
         in = cmis.watch(in, "Modulo 16");
         int read = flush(in);
-        Assert.assertEquals("Read the wrong number of bytes", original.length,
-                read);
-        Assert.assertEquals("missing copy!", 1,
-                cmis.getModifiedStreams().length);
+        Assert.assertEquals(original.length,
+                read, "Read the wrong number of bytes");
+        Assert.assertEquals( 1,
+                cmis.getModifiedStreams().length,"missing copy!");
         byte[] copy = cmis.getModifiedStreams()[0].toByteArray();
         for (int i = 0; i < original.length; i++)
-            Assert.assertEquals("Incorrect modulo at " + i,
-                    (byte) ((original[i] % 16) & 0xFF), copy[i]);
+            Assert.assertEquals(
+                    (byte) ((original[i] % 16) & 0xFF), copy[i], "Incorrect modulo at " + i);
     }
 
     private int flush(InputStream in) throws IOException {
@@ -103,9 +103,9 @@ public class ChangeMonitorInputStreamTest {
     }
 
     private void compare(byte[] src, byte[] dst) {
-        Assert.assertEquals("lengths differ", src.length, dst.length);
+        Assert.assertEquals(src.length, dst.length, "lengths differ");
         for (int i = 0; i < src.length; i++)
-            Assert.assertEquals("Difference at " + i, src[i], dst[i]);
+            Assert.assertEquals(src[i], dst[i],"Difference at " + i);
     }
 
     private static class ModuloInputStream extends FilterInputStream {

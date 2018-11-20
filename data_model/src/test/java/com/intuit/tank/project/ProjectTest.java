@@ -13,13 +13,13 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.Workload;
@@ -39,7 +39,7 @@ public class ProjectTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testProject_1()
         throws Exception {
 
@@ -191,7 +191,7 @@ public class ProjectTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testGetComments_1()
         throws Exception {
         Project fixture = new Project();

@@ -21,8 +21,8 @@
 
 package org.owasp.proxy.http.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.owasp.proxy.http.MutableMessageHeader;
 import org.owasp.proxy.http.MutableResponseHeader;
 import org.owasp.proxy.http.client.HttpClient;
@@ -57,7 +57,7 @@ public class HttpClientTest {
     public static void tearDownAfterClass() throws Exception {
         ts.stop();
         Thread.sleep(1000);
-        assertTrue("TraceServer shutdown failed!", ts.isStopped());
+        assertTrue(ts.isStopped(),"TraceServer shutdown failed!");
     }
 
     @Test
@@ -92,7 +92,7 @@ public class HttpClientTest {
         resp.setHeader(client.getResponseHeader());
         assertEquals("Expected OK", "200", resp.getStatus());
         InputStream rc = client.getResponseContent();
-        assertTrue("Content is encorrect!", Arrays.equals(content, toArray(rc)));
+        assertTrue(Arrays.equals(content, toArray(rc)),"Content is encorrect!");
     }
 
     private byte[] toArray(InputStream in) throws IOException {

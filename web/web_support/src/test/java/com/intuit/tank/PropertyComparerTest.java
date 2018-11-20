@@ -13,11 +13,11 @@ package com.intuit.tank;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.PropertyComparer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>PropertyComparerTest</code> contains tests for the class <code>{@link PropertyComparer}</code>.

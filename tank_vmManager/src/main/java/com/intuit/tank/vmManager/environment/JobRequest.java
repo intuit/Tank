@@ -99,9 +99,8 @@ public class JobRequest implements Runnable {
      */
     private CloudVmStatus createCloudStatus(VMInstanceRequest req, VMInformation info) {
         logger.info("request = " + req + " : info = " + info);
-        CloudVmStatus ret = new CloudVmStatus(info.getInstanceId(), req.getJobId(), "unknown", JobStatus.Starting,
+        return new CloudVmStatus(info.getInstanceId(), req.getJobId(), "unknown", JobStatus.Starting,
                 VMImageType.AGENT, req.getRegion(), VMStatus.starting, new ValidationStatus(), 0, 0, null, null);
-        return ret;
     }
 
     /**

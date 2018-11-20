@@ -136,8 +136,7 @@ public class AuthenticationStep extends TestStep {
 
     @Override
     public String getInfo() {
-        return new StringBuilder().append("Authentication(").append(scheme).append(", ").append(host).append(":").append(port).append("[").append(userName).append(", ").append(realm).append("])")
-                .toString();
+        return "Authentication(" + scheme + ", " + host + ":" + port + "[" + userName + ", " + realm + "])";
     }
 
     /**

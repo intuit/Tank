@@ -20,9 +20,9 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.behavior.Behavior;
 import javax.faces.model.SelectItem;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.primefaces.component.api.DynamicColumn;
 import org.primefaces.component.api.UIColumn;

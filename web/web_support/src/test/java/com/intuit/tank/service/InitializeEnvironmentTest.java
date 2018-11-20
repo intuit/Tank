@@ -13,11 +13,11 @@ package com.intuit.tank.service;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.service.InitializeEnvironment;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>InitializeEnvironmentTest</code> contains tests for the class

@@ -1,5 +1,6 @@
 package com.intuit.tank.http;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -67,8 +68,6 @@ public abstract class BaseRequest {
         return logUtil;
     }
 
-
-
     public BaseResponse getResponse() {
         return response;
     }
@@ -132,7 +131,7 @@ public abstract class BaseRequest {
     /**
      * Execute the post. Use this to force the type of response
      * 
-     * @param newResponse
+     * @param response
      *            The response object to populate
      */
     public void doPut(BaseResponse response) {
@@ -173,6 +172,12 @@ public abstract class BaseRequest {
         httpclient.doPost(this);
 
     }
+    /**
+     * Close httpclient.
+     */
+    public void close() throws IOException {
+        httpclient.close();
+   }
 
     /**
      * Set as value in the request

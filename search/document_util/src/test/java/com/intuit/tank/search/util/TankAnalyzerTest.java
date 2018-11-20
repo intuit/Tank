@@ -18,11 +18,11 @@ import java.io.Reader;
 
 import org.apache.lucene.analysis.ReusableAnalyzerBase;
 import org.apache.lucene.util.Version;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.search.util.TankAnalyzer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>TankAnalyzerTest</code> contains tests for the class <code>{@link TankAnalyzer}</code>.

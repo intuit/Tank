@@ -1,8 +1,8 @@
 package com.intuit.tank.http.xml;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * The class <code>XMLRequestTest</code> contains tests for the class <code>{@link XMLRequest}</code>.

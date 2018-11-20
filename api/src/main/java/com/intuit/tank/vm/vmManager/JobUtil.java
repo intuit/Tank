@@ -60,8 +60,7 @@ public final class JobUtil {
      * @return users
      */
     public static final int calculateTotalVirtualUsers(Collection<? extends RegionRequest> jobRegions) {
-        int result = jobRegions.stream().mapToInt(region -> JobUtil.parseUserString(region.getUsers())).sum();
-        return result;
+        return jobRegions.stream().mapToInt(region -> JobUtil.parseUserString(region.getUsers())).sum();
     }
 
 }

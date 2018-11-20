@@ -13,7 +13,7 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.project.WatsRevisionInfo;
 import com.intuit.tank.project.WatsRevisionListener;

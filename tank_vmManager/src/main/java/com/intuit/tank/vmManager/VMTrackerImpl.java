@@ -73,6 +73,7 @@ public class VMTrackerImpl implements VMTracker {
 
     @Inject
     private Instance<JobInstanceDao> jobDaoInstance;
+
     @Inject
     private Instance<WorkloadDao> workloadDaoInstance;
 
@@ -271,10 +272,9 @@ public class VMTrackerImpl implements VMTracker {
     /**
      * @param status
      * @param cloudVmStatusContainer
-     */
+     **/
     private void addStatusToJobContainer(CloudVmStatus status,
             CloudVmStatusContainer cloudVmStatusContainer) {
-        LOG.info("Adding Status to container");
         cloudVmStatusContainer.getStatuses().remove(status);
         cloudVmStatusContainer.getStatuses().add(status);
         cloudVmStatusContainer.calculateUserDetails();
@@ -307,8 +307,7 @@ public class VMTrackerImpl implements VMTracker {
         if (isFinished) {
             LOG.info("Setting end time on container " + cloudVmStatusContainer.getJobId());
             if (cloudVmStatusContainer.getEndTime() == null) {
-                String jobId = status.getJobId();
-                jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_FINISHED)
+                jobEventProducer.fire(new JobEvent(status.getJobId(), "", JobLifecycleEvent.JOB_FINISHED)
                         .addContextEntry(NOTIFICATIONS_EVENT_EVENT_TIME_KEY,
                                 new SimpleDateFormat(TankConstants.DATE_FORMAT_WITH_TIMEZONE).format(new Date())));
             }
@@ -317,7 +316,6 @@ public class VMTrackerImpl implements VMTracker {
         if (job != null) {
             job.setEndTime(cloudVmStatusContainer.getEndTime());
             JobQueueStatus newStatus = job.getStatus();
-            boolean loadStarted = false;
             if (isFinished) {
                 newStatus = JobQueueStatus.Completed;
                 stopJob(Integer.toString(job.getId()));
@@ -331,21 +329,19 @@ public class VMTrackerImpl implements VMTracker {
                 newStatus = JobQueueStatus.Running;
                 if (job.getStartTime() == null && status.getJobStatus() == JobStatus.Running) {
                     job.setStartTime(status.getStartTime());
-                    loadStarted = true;
+                    jobEventProducer.fire(new JobEvent(Integer.toString(job.getId()), "", JobLifecycleEvent.LOAD_STARTED));
                 }
             }
 
+            LOG.info("Setting Container for job=" + status.getJobId() + " newStatus to " + newStatus);
+            job.setStatus(newStatus);
+            new JobInstanceDao().saveOrUpdate(job);
+
+            // Job StartTime is source of truth for cloudVMStatusContainer StartTime
             if (job.getStartTime() != null && cloudVmStatusContainer.getStartTime() != null) {
                 if (job.getStartTime().before(cloudVmStatusContainer.getStartTime())) {
                     cloudVmStatusContainer.setStartTime(job.getStartTime());
                 }
-            }
-            LOG.info("Setting newStatus to " + newStatus);
-            job.setStatus(newStatus);
-            job = new JobInstanceDao().saveOrUpdate(job);
-
-            if (loadStarted) {
-                jobEventProducer.fire(new JobEvent(Integer.toString(job.getId()), "", JobLifecycleEvent.LOAD_STARTED));
             }
         }
     }

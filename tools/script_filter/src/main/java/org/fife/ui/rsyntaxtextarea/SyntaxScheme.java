@@ -417,7 +417,7 @@ public class SyntaxScheme implements Cloneable {
      */
     public String toCommaSeparatedString() {
 
-        StringBuffer sb = new StringBuffer(VERSION);
+        StringBuilder sb = new StringBuilder(VERSION);
         sb.append(',');
 
         for (int i = 0; i < Token.NUM_TOKEN_TYPES; i++) {
@@ -524,24 +524,19 @@ public class SyntaxScheme implements Cloneable {
                     int index = 0;
                     try {
                         index = field.getInt(scheme);
-                    } catch (IllegalArgumentException e) {
-                        e.printStackTrace();
-                        return;
-                    } catch (IllegalAccessException e) {
+                    } catch (IllegalArgumentException | IllegalAccessException e) {
                         e.printStackTrace();
                         return;
                     }
 
                     String fgStr = attrs.getValue("fg");
                     if (fgStr != null) {
-                        Color fg = stringToColor(fgStr);
-                        scheme.styles[index].foreground = fg;
+                        scheme.styles[index].foreground = stringToColor(fgStr);
                     }
 
                     String bgStr = attrs.getValue("bg");
                     if (bgStr != null) {
-                        Color bg = stringToColor(bgStr);
-                        scheme.styles[index].background = bg;
+                        scheme.styles[index].background = stringToColor(bgStr);
                     }
 
                     boolean styleSpecified = false;
@@ -549,12 +544,12 @@ public class SyntaxScheme implements Cloneable {
                     boolean italic = false;
                     String boldStr = attrs.getValue("bold");
                     if (boldStr != null) {
-                        bold = Boolean.valueOf(boldStr).booleanValue();
+                        bold = Boolean.valueOf(boldStr);
                         styleSpecified = true;
                     }
                     String italicStr = attrs.getValue("italic");
                     if (italicStr != null) {
-                        italic = Boolean.valueOf(italicStr).booleanValue();
+                        italic = Boolean.valueOf(italicStr);
                         styleSpecified = true;
                     }
                     if (styleSpecified) {
@@ -570,8 +565,7 @@ public class SyntaxScheme implements Cloneable {
 
                     String ulineStr = attrs.getValue("underline");
                     if (ulineStr != null) {
-                        boolean uline = Boolean.valueOf(ulineStr).booleanValue();
-                        scheme.styles[index].underline = uline;
+                        scheme.styles[index].underline = Boolean.valueOf(ulineStr);
                     }
 
                 }

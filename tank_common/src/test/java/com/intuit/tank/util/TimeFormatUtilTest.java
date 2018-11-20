@@ -16,9 +16,9 @@ package com.intuit.tank.util;
  * #L%
  */
 
-import org.junit.Assert;
+import org.testng.Assert;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

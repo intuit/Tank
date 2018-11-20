@@ -15,11 +15,11 @@ package com.intuit.tank.script;
 
 import java.util.Date;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.script.ScriptVO;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ScriptVOTest</code> contains tests for the class <code>{@link ScriptVO}</code>.

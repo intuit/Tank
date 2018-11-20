@@ -13,12 +13,12 @@ package com.intuit.tank.http;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.http.HttpResponseFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>HttpResponseFactoryTest</code> contains tests for the class <code>{@link HttpResponseFactory}</code>.

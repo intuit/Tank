@@ -424,7 +424,7 @@ public class ScriptFilterRunner extends JFrame {
      */
     protected void saveScript(File selectedFile) {
         try {
-            FileUtils.writeStringToFile(selectedFile, this.scriptEditorTA.getText());
+            FileUtils.writeStringToFile(selectedFile, this.scriptEditorTA.getText(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error writing script", JOptionPane.ERROR_MESSAGE);
         }
@@ -435,9 +435,7 @@ public class ScriptFilterRunner extends JFrame {
      * 
      */
     protected void saveXml() {
-        Writer fw = null;
-        try {
-            fw = new OutputStreamWriter(new FileOutputStream(xmlFile), "UTF-8");
+        try (Writer fw = new OutputStreamWriter(new FileOutputStream(xmlFile), "UTF-8")) {
             // fw = new FileWriter(xmlFile);
             JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
             Marshaller marshaller = ctx.createMarshaller();
@@ -445,8 +443,6 @@ public class ScriptFilterRunner extends JFrame {
             marshaller.marshal(tankScript, fw);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error writing file", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            IOUtils.closeQuietly(fw);
         }
     }
 
@@ -483,9 +479,8 @@ public class ScriptFilterRunner extends JFrame {
      * @return
      */
     private GridBagConstraints getConstraints(int x, int y, int fill) {
-        GridBagConstraints ret = new GridBagConstraints(x, y, 1, 1, x, .5D, GridBagConstraints.WEST, fill, new Insets(
+        return new GridBagConstraints(x, y, 1, 1, x, .5D, GridBagConstraints.WEST, fill, new Insets(
                 5, 5, 5, 5), 5, 5);
-        return ret;
     }
 
     private void loadTSXml(File selectedFile) {

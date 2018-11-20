@@ -274,8 +274,7 @@ public class SyntaxView extends View implements TabExpander,
     protected int getTabSize() {
         Integer i = (Integer) getDocument().getProperty(
                 PlainDocument.tabSizeAttribute);
-        int size = (i != null) ? i.intValue() : 5;
-        return size;
+        return (i != null) ? i : 5;
     }
 
     /**

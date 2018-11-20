@@ -14,11 +14,10 @@ package com.intuit.tank.search.util;
  */
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.WhitespaceAnalyzer;
 import org.apache.lucene.util.Version;
 
 public class SearchConstants {
-    public static final Version version = Version.LUCENE_34;
+    public static final Version version = Version.LUCENE_4_10_4;
     public static final Analyzer analyzer = new TankAnalyzer(version);
 
 }

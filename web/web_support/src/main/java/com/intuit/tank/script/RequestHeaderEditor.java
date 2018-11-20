@@ -74,7 +74,6 @@ public class RequestHeaderEditor implements Serializable {
     }
 
     public Set<RequestData> getRequestDataSet() {
-        Set<RequestData> reqDataSet = new HashSet<RequestData>(getRequestHeaders());
-        return reqDataSet;
+        return new HashSet<RequestData>(getRequestHeaders());
     }
 }

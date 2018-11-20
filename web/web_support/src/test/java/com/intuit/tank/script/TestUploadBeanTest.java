@@ -13,9 +13,9 @@ package com.intuit.tank.script;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.primefaces.model.DefaultUploadedFile;
 import org.primefaces.model.UploadedFile;

@@ -16,13 +16,13 @@ import java.io.ByteArrayInputStream;
  */
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import javax.annotation.Nonnull;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -51,7 +52,6 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -263,6 +263,11 @@ public class TankHttpClient4 implements TankHttpClient {
         }
     }
 
+    @Override
+    public void close() throws IOException {
+        httpclient.close();
+    }
+
     private void sendRequest(BaseRequest request, @Nonnull HttpRequestBase method, String requestBody) {
         String uri = null;
         long waitTime = 0L;
@@ -287,7 +292,7 @@ public class TankHttpClient4 implements TankHttpClient {
                 try {
                     responseBody = IOUtils.toByteArray(response.getEntity().getContent());
                 } catch (Exception e) {
-                    LOG.warn("could not get response body: " + e);
+                    LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
             }
             waitTime = System.currentTimeMillis() - startTime;

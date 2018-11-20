@@ -15,11 +15,11 @@ package com.intuit.tank.vm.common.util;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.common.util.MethodTimer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>MethodTimerCpTest</code> contains tests for the class <code>{@link MethodTimer}</code>.

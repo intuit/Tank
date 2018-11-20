@@ -65,8 +65,7 @@ public class PostDataEditor implements Serializable {
     }
 
     public Set<RequestData> getRequestDataSet() {
-        Set<RequestData> reqDataSet = new HashSet<RequestData>(getPostData());
-        return reqDataSet;
+        return new HashSet<RequestData>(getPostData());
     }
 
 }

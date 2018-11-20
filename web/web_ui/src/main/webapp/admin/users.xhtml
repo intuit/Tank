@@ -8,14 +8,16 @@
   template="/WEB-INF/templates/tank.xhtml">
 
   <ui:define name="content">
-    <f:viewAction action="#{tsConversationManager.end}" />
+    <f:metadata>
+      <f:viewAction action="#{tsConversationManager.end}" />
+    </f:metadata>
     <h:form id="mainForm">
       <div class="pad10Bottom">
         <ts:toolbar title="User Admin" objectName="Users" reRender=":mainForm:userTableID" toolbarId="toolbar"
           id="mytoolbar" selectionTracker="#{userAdmin}">
           <f:facet name="actions">
             <p:commandLink title="New User" action="#{userEdit.newUser()}" immediate="true" ajax="true">
-              <h:graphicImage value="/resources/gfx/32/user_add.png" width="32" height="32"
+              <h:graphicImage library="gfx" name="32/user_add.png" width="32" height="32"
                 style="padding: 4px 15px 4px 15px;" />
             </p:commandLink>
           </f:facet>
@@ -68,16 +70,16 @@
           <h:panelGroup>
             <p:commandLink title="Delete User #{selectableUser.entity.name}" oncomplete="PF('confirmDelete').show();"
               ajax="true" action="#{userAdmin.setSelectedUser(selectableUser)}" update=":confirmDeleteDialog">
-              <h:graphicImage value="/resources/gfx/16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+              <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
             </p:commandLink>
             <p:commandLink action="#{userEdit.edit(selectableUser.entity)}" title="Edit #{selectableUser.entity.name}"
               ajax="true">
-              <h:graphicImage value="/resources/gfx/16/document_editing.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="padding: 2px;" />
             </p:commandLink>
             <p:commandLink action="#{userAdmin.resetPreferences(selectableUser.entity)}" title="Reset Preferences for #{selectableUser.entity.name}"
               ajax="true">
-              <h:graphicImage value="/resources/gfx/16/refresh.png" width="16px" height="16px"
+              <h:graphicImage library="gfx" name="16/refresh.png" width="16px" height="16px"
                 style="padding: 2px;" />
             </p:commandLink>
           </h:panelGroup>

@@ -13,11 +13,11 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.project.CreateProjectBean;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>CreateProjectBeanTest</code> contains tests for the class <code>{@link CreateProjectBean}</code>.

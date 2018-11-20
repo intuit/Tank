@@ -7,7 +7,7 @@ package com.intuit.tank.search.util;
  * #%L
  * DocumentUtil
  * %%
- * Copyright (C) 2011 - 2015 Intuit Inc.
+ * Copyright (C) 2011 - 2015 Intuit Inc.g
  * %%
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -18,11 +18,11 @@ package com.intuit.tank.search.util;
 
 import java.io.Reader;
 
-import org.apache.lucene.analysis.LowerCaseFilter;
-import org.apache.lucene.analysis.ReusableAnalyzerBase;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.WhitespaceTokenizer;
+import org.apache.lucene.analysis.core.LowerCaseFilter;
+import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.util.Version;
 
 /**
@@ -31,7 +31,7 @@ import org.apache.lucene.util.Version;
  * @author dangleton
  * 
  */
-public class TankAnalyzer extends ReusableAnalyzerBase {
+public class TankAnalyzer extends Analyzer {
 
     private final Version matchVersion;
 

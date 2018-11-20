@@ -55,7 +55,6 @@ public class TPSMonitor {
      * @return the tpsMap
      */
     public TPSInfoContainer getTPSInfo() {
-        TPSInfoContainer ret = null;
         if (isEnabled()) {
             long now = TimeUtil.normalizeToPeriod(period, new Date()).getTime();
             long min = now;
@@ -68,16 +67,8 @@ public class TPSMonitor {
                 if (now > (entryTime + (period * 4))) {
                     min = Math.min(min, entryTime);
                     max = Math.max(max, entryTime);
-                    Map<String, Integer> map = tpsMap.get(counter.time);
-                    if (map == null) {
-                        map = new HashMap<String, Integer>();
-                        tpsMap.put(counter.time, map);
-                    }
-                    Integer integer = map.get(counter.key);
-                    if (integer == null) {
-                        integer = new Integer(0);
-                        map.put(counter.key, integer);
-                    }
+                    Map<String, Integer> map = tpsMap.computeIfAbsent(counter.time, k -> new HashMap<String, Integer>());
+                    Integer integer = map.computeIfAbsent(counter.key, k -> 0);
                     map.put(counter.key, integer + 1);
                     toRemove.add(counter);
                 }
@@ -87,21 +78,21 @@ public class TPSMonitor {
             }
             for (Entry<Long, Map<String, Integer>> entry : tpsMap.entrySet()) {
                 for (Entry<String, Integer> valueEntry : entry.getValue().entrySet()) {
-                    TPSInfo info = new TPSInfo(new Date(entry.getKey()), valueEntry.getKey(), valueEntry.getValue()
-                            .intValue(), period);
-                    infoList.add(info);
+                    infoList.add(
+                            new TPSInfo(new Date(entry.getKey()), valueEntry.getKey(), valueEntry.getValue(), period)
+                    );
                 }
             }
             if (max == 0) { // no data yet
-                ret = new TPSInfoContainer(new Date(min), new Date(min), period, infoList);
+                return new TPSInfoContainer(new Date(min), new Date(min), period, infoList);
             } else {
                 if (minDate == null) {
                     minDate = new Date(min);
                 }
-                ret = new TPSInfoContainer(minDate, new Date(max), period, infoList);
+                return new TPSInfoContainer(minDate, new Date(max), period, infoList);
             }
         }
-        return ret;
+        return null;
     }
 
     public void addToMap(final String loggingKey, final BaseRequest req) {
@@ -109,9 +100,9 @@ public class TPSMonitor {
             // LOG.info("Adding request " + req.getTimeStamp());
             new Thread( () -> {
                 if (req != null && req.getTimeStamp() != null) {
-                    Date targetDate = TimeUtil.normalizeToPeriod(period, req.getTimeStamp());
-                    // LOG.info("Adding normalized " + targetDate);
-                    counters.add(new Counter(loggingKey, targetDate));
+                    counters.add(new Counter(loggingKey,
+                            TimeUtil.normalizeToPeriod(period, req.getTimeStamp()))
+                    );
                 }
             }).start();
         }

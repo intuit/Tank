@@ -164,7 +164,6 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     }
 
     private long getCapacity(HierarchicalConfiguration resultsProviderConfig, String key, long defaultValue) {
-        long ret = defaultValue;
         if (resultsProviderConfig != null) {
             try {
                 String string = resultsProviderConfig.getString(key);
@@ -175,7 +174,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
                 logger.error(e.toString());
             }
         }
-        return ret;
+        return defaultValue;
     }
 
     /**

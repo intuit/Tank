@@ -8,7 +8,9 @@
   xmlns:pe="http://primefaces.org/ui/extensions"
   template="/WEB-INF/templates/tank.xhtml">
   <ui:define name="content">
-  <f:viewAction action="#{tsConversationManager.end}" />
+    <f:metadata>
+      <f:viewAction action="#{tsConversationManager.end}" />
+    </f:metadata>
     <h:form id="mainForm">
 
       <ts:toolbar title="Scripts" objectName="Scripts"
@@ -20,17 +22,14 @@
            <div class="toolbar-ui">
             <p:commandButton value="New Script"
               action="#{scriptCreationBean.createNewScript()}" ajax="true" icon="ui-icon-plus"
-              rendered="#{scriptCreationBean.canCreateScript()}" style="margin: 0 10px 0 20px; border-radius:5px">
+              rendered="#{scriptCreationBean.canCreateScript()}" style="margin: 0 5px 0 0; border-radius:5px">
             </p:commandButton>
             <p:commandButton value="Import Intuit Tank XML"
               oncomplete="PF('xmlUploadDialog').show();"
               immediate="true"
               action="#{tankXmlUploadBean.clearDialog()}"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/document_import.png);
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    vertical-align: top;
-                    border-radius:5px;"
+              icon="ui-icon-document"
+              style="margin: 0 5px 0 5px; border-radius:5px"
               styleClass="icon-button h-space"
               disabled="#{not scriptCreationBean.canCreateScript()}">
             </p:commandButton>

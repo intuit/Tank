@@ -13,11 +13,11 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.harness.functions.MonetaryFunctions;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>MonetaryFunctionsTest</code> contains tests for the class <code>{@link MonetaryFunctions}</code>.

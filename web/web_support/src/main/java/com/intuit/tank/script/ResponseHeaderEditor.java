@@ -53,8 +53,7 @@ public class ResponseHeaderEditor implements Serializable {
     }
 
     public Set<RequestData> getRequestDataSet() {
-        Set<RequestData> reqDataSet = new HashSet<RequestData>(getResponseHeaders());
-        return reqDataSet;
+        return new HashSet<RequestData>(getResponseHeaders());
     }
 
 }

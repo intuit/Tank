@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- This file is not required if you don't need any extra configuration. -->
-<faces-config version="2.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xi="http://www.w3.org/2001/XInclude"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="       http://java.sun.com/xml/ns/javaee       http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd">
+<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+              http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd"
+              version="2.2">
   <!-- Write your navigation rules here. You are encouraged to use CDI for creating @Named managed beans. -->
   <navigation-rule>
     <from-view-id>/scripts/index.xhtml</from-view-id>
@@ -9,6 +12,7 @@
       <from-action>#{scriptCreationBean.createNewScript()}</from-action>
       <from-outcome>success</from-outcome>
       <to-view-id>/scripts/createNewScript.xhtml</to-view-id>
+      <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
@@ -35,6 +39,7 @@
       <from-action>#{scriptEditor.editScript(selectable.entity)}</from-action>
       <from-outcome>success</from-outcome>
       <to-view-id>/scripts/script-edit-view.xhtml</to-view-id>
+      <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
@@ -61,6 +66,7 @@
       <from-action>#{scriptEditor.reapplyFilters()}</from-action>
       <from-outcome>success</from-outcome>
       <to-view-id>/scripts/script-edit-view.xhtml</to-view-id>
+      <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
@@ -69,6 +75,7 @@
       <from-action>#{scriptEditor.reapplyFilters()}</from-action>
       <from-outcome>failure</from-outcome>
       <to-view-id>/scripts/script-edit-view.xhtml</to-view-id>
+      <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>

@@ -280,9 +280,8 @@ public class OwaspReader implements RecordedScriptReader {
             traverse(name, jsonObject, itemList, new RequestDataBuilder(
                     RequestDataType.requestPostData.name()));
         }
-        Set<RequestData> map = new LinkedHashSet<RequestData>(itemList);
 
-        return map;
+        return new LinkedHashSet<RequestData>(itemList);
     }
 
     private static void traverse(String name, JSONObject jsonObject,

@@ -13,11 +13,11 @@ package com.intuit.tank.search.script;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.search.script.ScriptSearchField;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ScriptSearchFieldTest</code> contains tests for the class <code>{@link ScriptSearchField}</code>.

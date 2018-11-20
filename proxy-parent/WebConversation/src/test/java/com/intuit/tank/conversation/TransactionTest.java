@@ -3,14 +3,14 @@ package com.intuit.tank.conversation;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.conversation.Header;
 import com.intuit.tank.conversation.Request;
 import com.intuit.tank.conversation.Response;
 import com.intuit.tank.conversation.Transaction;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>TransactionTest</code> contains tests for the class <code>{@link Transaction}</code>.

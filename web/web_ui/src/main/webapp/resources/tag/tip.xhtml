@@ -1,8 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 
   Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<ui:component xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:f="http://java.sun.com/jsf/core"
-  xmlns:p="http://primefaces.org/ui" xmlns:composite="http://java.sun.com/jsf/composite"
+<ui:component xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:p="http://primefaces.org/ui"
+  xmlns:composite="http://java.sun.com/jsf/composite"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
   <composite:interface>
@@ -11,7 +12,7 @@
   </composite:interface>
 
   <composite:implementation>
-    <h:graphicImage  id="#{cc.attrs.tipId}" value="/resources/gfx/help.png" style="width:16px;height:16px; padding: 0 0 0 15px;vertical-align:middle;"/>
+    <h:graphicImage  id="#{cc.attrs.tipId}" library="gfx" name="help.png" style="width:16px;height:16px; padding: 0 0 0 15px;vertical-align:middle;"/>
     <p:tooltip for="#{cc.attrs.tipId}">
     <div style="width:350px;">
         <h:outputText  value="#{cc.attrs.text}" escape="false"/>

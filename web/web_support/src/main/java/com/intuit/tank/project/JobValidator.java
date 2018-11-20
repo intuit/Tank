@@ -121,17 +121,17 @@ public class JobValidator {
 
     public long getDurationMs(String group) {
         Long duration = expectedDuration.get(group);
-        return duration != null ? duration.longValue() : 0L;
+        return duration != null ? duration : 0L;
     }
 
     public String getDuration(String group) {
         Long duration = expectedDuration.get(group);
-        return TimeUtil.toTimeString(duration != null ? duration.longValue() : 0);
+        return TimeUtil.toTimeString(duration != null ? duration : 0);
     }
 
     public long getExpectedTime(String group) {
         Long duration = expectedDuration.get(group);
-        return duration != null ? duration.longValue() : 0;
+        return duration != null ? duration : 0;
     }
 
     private void putVariable(Map<String, Set<String>> map, String key, String value, String declarer) {
@@ -233,7 +233,7 @@ public class JobValidator {
 
     private void addDuration(String groupName, int loop, long milis) {
         Long val = this.expectedDuration.get(groupName);
-        long l = val != null ? val.longValue() : 0L;
+        long l = val != null ? val : 0L;
         l += milis * loop;
         expectedDuration.put(groupName, l);
     }

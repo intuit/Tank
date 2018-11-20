@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:p="http://primefaces.org/ui"
-  xmlns:pe="http://primefaces.org/ui/extensions" template="/WEB-INF/templates/tank.xhtml">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:ts="http://java.sun.com/jsf/composite/tag"
+  xmlns:p="http://primefaces.org/ui"
+  xmlns:pe="http://primefaces.org/ui/extensions"
+  template="/WEB-INF/templates/tank.xhtml">
   <ui:define name="content">
 
 
@@ -27,11 +31,7 @@
               <h:panelGroup styleClass="formButton pad15Left">
                 <p:commandButton action="#{jobQueueManager.refreshData()}" value="Refresh" onstart="saveScrollPos()"
                   oncomplete="getScrollPos()" update=":mainForm:jobTableId, :mainForm:refreshDiv, :vldFormStatus"
-                  ajax="true"
-                  style="background-image: url(#{request.contextPath}/resources/gfx/16/refresh.png);
-					background-repeat: no-repeat;
-					background-position: 3px 5px;
-					border-radius:5px;"
+                  ajax="true" icon="ui-icon-refresh" style="margin: 0 10px 0 20px; border-radius:5px"
                   styleClass="icon-button h-space" />
               </h:panelGroup>
             </h:panelGroup>
@@ -192,33 +192,33 @@
               <h:outputLink title="View Summary Timing Data" target="_new"
                 rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
                 value="#{request.contextPath}/rest/v1/report-service/timing/summary/html/#{node.id}">
-                <h:graphicImage value="/resources/gfx/16/table_chart.png" width="16" height="16"
+                <h:graphicImage library="gfx" name="16/table_chart.png" width="16" height="16"
                   style="padding: 5px 0; margin-right:5px;" />
               </h:outputLink>
 
               <h:outputLink title="View Periodic Timing Data" target="_new"
                 rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
                 value="#{request.contextPath}/rest/v1/report-service/timing/periodic/html/#{node.id}">
-                <h:graphicImage value="/resources/gfx/16/table_heatmap.png" width="16" height="16"
+                <h:graphicImage library="gfx" name="16/table_heatmap.png" width="16" height="16"
                   style="padding: 5px 0; margin-right:5px;" />
               </h:outputLink>
 
               <h:outputLink title="Download CSV Timing Data"
                 rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
                 value="#{request.contextPath}/rest/v1/report-service/timing/csv/#{node.id}">
-                <h:graphicImage value="/resources/gfx/16/table_excel.png" width="16" height="16"
+                <h:graphicImage library="gfx" name="16/table_excel.png" width="16" height="16"
                   style="padding: 5px 0; margin-right:5px;" />
               </h:outputLink>
 
               <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'job'}"
                 value="#{request.contextPath}/rest/v1/project-service/download/script/#{node.id}">
-                <h:graphicImage value="/resources/gfx/16/script_go.png" width="16" height="16"
+                <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16"
                   style="padding: 5px 0; margin-right:5px;" />
               </h:outputLink>
 
               <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'project'}"
                 value="#{request.contextPath}/rest/v1/project-service/download/script/project/#{node.id}">
-                <h:graphicImage value="/resources/gfx/16/script_go.png" width="16" height="16"
+                <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16"
                   style="padding: 5px 0; margin-right:5px;" />
               </h:outputLink>
             </div>
@@ -592,10 +592,11 @@
 
     <!-- Add scripts that are needed here so the ordering is correct. -->
 
-    <h:outputScript library="primefaces" name="primefaces.js" target="head" />
+    <h:outputScript library="primefaces" name="core.js" target="head" />
+    <h:outputScript library="primefaces" name="components.js" target="head" />
 
-    <h:outputScript library="primefaces" name="charts/charts.js" target="head" />
-    <h:outputStylesheet library="primefaces" name="charts/charts.css" target="head" />
+    <h:outputScript target="head" library="primefaces" name="charts/charts.js" />
+    <h:outputStylesheet target="head" library="primefaces" name="charts/charts.css" />
     <h:outputScript target="head" library="jqplot" name="plugins/jqplot.highlighter.js" />
     <h:outputScript target="head" library="jqplot" name="plugins/jqplot.canvasOverlay.js" />
     <h:outputScript target="head" library="jqplot" name="plugins/jqplot.cursor.js" />

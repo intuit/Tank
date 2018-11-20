@@ -30,7 +30,7 @@ import org.glassfish.jersey.client.ClientResponse;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
-import org.junit.Assert;
+import org.testng.Assert;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

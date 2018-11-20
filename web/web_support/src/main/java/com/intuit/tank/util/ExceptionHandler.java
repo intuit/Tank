@@ -44,10 +44,9 @@ public class ExceptionHandler implements Serializable {
         if (root instanceof ConstraintViolationException) {
             ConstraintViolationException c = (ConstraintViolationException) root;
             for (@SuppressWarnings("rawtypes") ConstraintViolation v : c.getConstraintViolations()) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(WordUtils.capitalize(v.getPropertyPath().iterator().next().getName()));
-                sb.append(' ').append(v.getMessage()).append('.');
-                messages.error(sb.toString());
+                String sb = WordUtils.capitalize(v.getPropertyPath().iterator().next().getName()) +
+                        ' ' + v.getMessage() + '.';
+                messages.error(sb);
             }
         } else if (!StringUtils.isEmpty(root.getMessage())) {
             messages.error(root.getMessage());
@@ -57,7 +56,7 @@ public class ExceptionHandler implements Serializable {
     }
 
     /**
-     * @param status
+     * @param t
      * @return
      */
     private Throwable getRoot(Throwable t) {

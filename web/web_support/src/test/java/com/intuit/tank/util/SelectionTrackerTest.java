@@ -13,9 +13,9 @@ package com.intuit.tank.util;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.DataFile;
 import com.intuit.tank.project.DataFileBrowser;
@@ -27,7 +27,7 @@ import com.intuit.tank.util.SelectionTracker;
  *
  * @generatedBy CodePro at 12/15/14 3:52 PM
  */
-@org.junit.Ignore
+@org.testng.annotations.Ignore
 public class SelectionTrackerTest {
     /**
      * Run the SelectionTracker(Multiselectable<T>) constructor test.

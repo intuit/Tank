@@ -15,7 +15,7 @@ package com.intuit.tank.vm.perfManager;
 
 import java.util.List;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.intuit.tank.vm.agent.messages.AgentAvailability;

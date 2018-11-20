@@ -2,12 +2,12 @@ package com.intuit.tank.conversation;
 
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.conversation.Header;
 import com.intuit.tank.conversation.Response;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ResponseTest</code> contains tests for the class <code>{@link Response}</code>.

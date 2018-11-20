@@ -32,6 +32,10 @@ import com.amazonaws.services.ec2.model.Tag;
 import com.amazonaws.services.ec2.model.Tenancy;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
+import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
+import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
+import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
+import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -63,7 +67,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -73,8 +76,8 @@ import java.util.stream.Collectors;
 
 public class AmazonInstance implements IEnvironmentInstance {
 
-    protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 2;// 2
-                                                                            // minutes
+    protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 2;// 2 minutes
+    private static final int MAX_INSTANCE_BATCH_SIZE = 10;
     private static Logger LOG = LogManager.getLogger(AmazonInstance.class);
 
     private AmazonEC2Async asynchEc2Client;
@@ -169,7 +172,7 @@ public class AmazonInstance implements IEnvironmentInstance {
      */
     @Override
     public List<VMInformation> create() {
-        List<VMInformation> result = null;
+        List<VMInformation> result = new ArrayList<>();
         try {
             VMInstanceRequest instanceRequest = (VMInstanceRequest) request;
             InstanceDescription instanceDescription = instanceRequest.getInstanceDescription();
@@ -178,7 +181,6 @@ public class AmazonInstance implements IEnvironmentInstance {
             }
 
             // Get the required data
-            int number = instanceRequest.getNumberOfInstances();
             if (instanceRequest.getReuseStoppedInstance()) {
                 List<VMInformation> instances = findAllInstancesOfType(this.vmRegion, instanceRequest.getImage());
                 LOG.info("looking for stopped instance with ami-id of " + instanceRequest.getImage());
@@ -189,12 +191,12 @@ public class AmazonInstance implements IEnvironmentInstance {
                         startInstancesRequest.withInstanceIds(vmInfo.getInstanceId());
                         // restart this instance
                         StartInstancesResult startInstances = asynchEc2Client.startInstances(startInstancesRequest);
-                        result = new AmazonDataConverter().processStateChange(startInstances.getStartingInstances());
+                        result.addAll(new AmazonDataConverter().processStateChange(startInstances.getStartingInstances()));
                         break;
                     }
                 }
             }
-            if (result == null) {
+            if (result.isEmpty()) {
                 InstanceType size = AmazonInstance.getInstanceType(instanceRequest.getSize());
                 VmInstanceType vmType = config.getVmManagerConfig().getInstanceType(instanceRequest.getSize());
                 String keyPair = instanceDescription.getKeypair();
@@ -236,40 +238,20 @@ public class AmazonInstance implements IEnvironmentInstance {
                 }
 
                 String userData = buildUserData(instanceRequest.getUserData());
-                Set<Address> availableEips = new HashSet<Address>();
-                if (instanceRequest.isUseEips()) {
-                    synchronized (instanceRequest.getRegion()) {
-                        DescribeAddressesResult describeAddresses = asynchEc2Client.describeAddresses(new DescribeAddressesRequest());
-                        Set<String> reserved = config.getVmManagerConfig().getReservedElasticIps();
-                        for (Address address : describeAddresses.getAddresses()) {
-                        	String elasticIPType = instanceDescription.isVPC() ? "vpc" : "standard";
-                            if (elasticIPType.equalsIgnoreCase(address.getDomain()) && StringUtils.isBlank(address.getInstanceId())) {
-                                String ip = address.getPublicIp();
-                                if (!reserved.contains(ip)) {
-                                    availableEips.add(address);
-                                }
-                            }
-                        }
 
-                    }
-                }
-                List<Address> randomizedIps = new ArrayList<Address>(availableEips);
-                Collections.shuffle(randomizedIps);
-                String image = instanceDescription.getAmi();
-                RunInstancesRequest runInstancesRequest = new RunInstancesRequest(image, number, number);
+                int remaining = instanceRequest.getNumberOfInstances();
+                String image = getAMI(instanceDescription);
+                LOG.info("Requesting " + remaining + " instances in " + vmRegion.getName() + " with AMI=" + image);
+
+                RunInstancesRequest runInstancesRequest = new RunInstancesRequest();
                 Tenancy tenancy = StringUtils.isEmpty(instanceDescription.getTenancy()) ? Tenancy.Default : Tenancy.fromValue(instanceDescription.getTenancy());
-                runInstancesRequest.withInstanceType(size.toString())
+                runInstancesRequest.withImageId(image)
+                                    .withInstanceType(size.toString())
                 					.withKeyName(keyPair)
                 					.withPlacement(new Placement().withTenancy(tenancy))
                 					.withMonitoring(true)
                 					.withUserData(userData);
 
-                // add subnet if defined
-                if (!instanceDescription.getSubnetIds().isEmpty()) {
-                	List<String> list = instanceDescription.getSubnetIds();
-                	int index = ThreadLocalRandom.current().nextInt(list.size());
-                    runInstancesRequest.withSubnetId(list.get(index));
-                }
                 Collection<String> c = instanceDescription.getSecurityGroupIds();
                 if (!c.isEmpty()) {
                 	LOG.info("Security Group IDs " + c.toString());
@@ -285,9 +267,55 @@ public class AmazonInstance implements IEnvironmentInstance {
                 if (!StringUtils.isEmpty(instanceDescription.getZone())) {
                     runInstancesRequest.withPlacement(new Placement().withAvailabilityZone(instanceDescription.getZone()));
                 }
-                RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequest);
-                result = new AmazonDataConverter().processReservation(results.getReservation(), vmRegion);
+                // Loop to request agent instances
+                List<String> subnetIds = instanceDescription.getSubnetIds();
+                int position = ThreadLocalRandom.current().nextInt(subnetIds.size());
+                while ( !subnetIds.isEmpty() && remaining > MAX_INSTANCE_BATCH_SIZE ) {
+                    RunInstancesRequest runInstancesRequestClone = runInstancesRequest.clone();
+                    runInstancesRequestClone.withSubnetId(subnetIds.get(position++));
+                    position = (position == subnetIds.size()) ? 0 : position;
+                    try {
+                        RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequestClone.withMinCount(1)
+                                                                                    .withMaxCount(MAX_INSTANCE_BATCH_SIZE));
+                        result.addAll(new AmazonDataConverter().processReservation(results.getReservation(), vmRegion));
+                        remaining -= results.getReservation().getInstances().size();
+                    } catch (AmazonEC2Exception ae) {
+                        LOG.error("Amazon issue starting instances: count=" + MAX_INSTANCE_BATCH_SIZE + " : " + ae.getMessage(), ae);
+                        subnetIds.remove(runInstancesRequestClone.getSubnetId());
+                    }
+                }
+                if (!subnetIds.isEmpty()) {
+                    runInstancesRequest.withSubnetId(subnetIds.get(position));
+                }
+                try {
+                    RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequest.withMinCount(remaining)
+                                                                                                .withMaxCount(remaining));
+                    result.addAll(new AmazonDataConverter().processReservation(results.getReservation(), vmRegion));
+                } catch (AmazonEC2Exception ae) {
+                    LOG.error("Amazon issue starting instances: count=" + remaining + " : " + ae.getMessage(), ae);
+                }
+
                 if (instanceRequest.isUseEips()) {
+                    Set<Address> availableEips = new HashSet<Address>();
+                    if (instanceRequest.isUseEips()) {
+                        synchronized (instanceRequest.getRegion()) {
+                            DescribeAddressesResult describeAddresses = asynchEc2Client.describeAddresses(new DescribeAddressesRequest());
+                            Set<String> reserved = config.getVmManagerConfig().getReservedElasticIps();
+                            for (Address address : describeAddresses.getAddresses()) {
+                                String elasticIPType = instanceDescription.isVPC() ? "vpc" : "standard";
+                                if (elasticIPType.equalsIgnoreCase(address.getDomain()) && StringUtils.isBlank(address.getInstanceId())) {
+                                    String ip = address.getPublicIp();
+                                    if (!reserved.contains(ip)) {
+                                        availableEips.add(address);
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                    List<Address> randomizedIps = new ArrayList<Address>(availableEips);
+                    Collections.shuffle(randomizedIps);
+
                     synchronized (instanceRequest.getRegion()) {
                         Iterator<Address> iter = randomizedIps.iterator();
                         List<AssociateContainer> bindIps = new ArrayList<AssociateContainer>();
@@ -387,7 +415,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         for (InstanceTag tag : tags) {
             pairs.add(new KeyValuePair(tag.getName(), tag.getValue()));
         }
-        return pairs.toArray(new KeyValuePair[pairs.size()]);
+        return pairs.toArray(new KeyValuePair[0]);
     }
 
     /**
@@ -429,7 +457,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     public List<VMInformation> kill(List<String> instanceIds) {
         List<VMInformation> result = new ArrayList<>();
         try {
-            List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
+            List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[0]));
             List<String> ids = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
             if (!ids.isEmpty()) {
                 TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest(ids);
@@ -501,13 +529,31 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @return The size assigned
      */
     private static InstanceType getInstanceType(String size) {
-        InstanceType output = InstanceType.C42xlarge;
         try {
-            output = InstanceType.fromValue(size);
+            return InstanceType.fromValue(size);
         } catch (Exception e) {
             LOG.warn("Error parsing vminstanceType " + size, e);
         }
-        return output;
+        return InstanceType.C52xlarge;
+    }
+
+    /**
+     * Request the ami parameter from SSM
+     * @param instanceDescription
+     * @return The ami assigned
+     */
+    private String getAMI(InstanceDescription instanceDescription) {
+        String name = instanceDescription.getSSMAmi();
+        if (StringUtils.isNotEmpty(name)) {
+            try {
+                final AWSSimpleSystemsManagement client = AWSSimpleSystemsManagementClientBuilder.defaultClient();
+                GetParameterResult result = client.getParameter(new GetParameterRequest().withName(name));
+                return result.getParameter().getValue();
+            } catch (Exception e) {
+                LOG.error("Error retriveing AMI from SSM with name " + name + ", default to InstanceRequest", e);
+            }
+        }
+        return instanceDescription.getAmi();
     }
 
     @Override
@@ -577,7 +623,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     public List<VMInformation> stopInstances(List<String> instanceIds) {
         List<VMInformation> result = new ArrayList<VMInformation>();
         try {
-            List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
+            List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[0]));
             List<String> ids = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
             if (!ids.isEmpty()) {
                 StopInstancesRequest stopInstancesRequest = new StopInstancesRequest(ids);

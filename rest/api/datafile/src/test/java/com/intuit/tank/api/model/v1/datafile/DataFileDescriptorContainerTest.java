@@ -16,12 +16,12 @@ package com.intuit.tank.api.model.v1.datafile;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptor;
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptorContainer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>DataFileDescriptorContainerTest</code> contains tests for the class <code>{@link DataFileDescriptorContainer}</code>.

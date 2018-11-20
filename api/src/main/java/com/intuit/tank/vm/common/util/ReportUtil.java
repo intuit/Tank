@@ -85,7 +85,7 @@ public class ReportUtil {
         for (Object[] PERCENTILE : PERCENTILES) {
             l.add((String) PERCENTILE[0]);
         }
-        return l.toArray(new String[l.size()]);
+        return l.toArray(new String[0]);
     }
 
     public static final String[] getSummaryData(String key, DescriptiveStatistics stats) {

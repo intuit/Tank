@@ -18,12 +18,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.settings.AgentConfig;
 import com.intuit.tank.vm.settings.Range;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>AgentConfigCpTest</code> contains tests for the class <code>{@link AgentConfig}</code>.

@@ -21,9 +21,9 @@
 
 package org.owasp.proxy.http.dao;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -34,7 +34,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.owasp.proxy.http.MutableBufferedRequest;
 import org.owasp.proxy.http.MutableBufferedResponse;
 import org.owasp.proxy.http.RequestHeader;
@@ -125,8 +125,8 @@ public class JdbcMessageDAOTest {
         assertEquals(request.isSsl(), reqh.isSsl());
         assertEquals(request.getTime(), reqh.getTime());
 
-        assertTrue("Response headers differ", Arrays.equals(response
-                .getHeader(), resph.getHeader()));
+        assertTrue(Arrays.equals(response
+                .getHeader(), resph.getHeader()),"Response headers differ");
         assertEquals(response.getHeaderTime(), resph.getHeaderTime());
         assertEquals(response.getContentTime(), resph.getContentTime());
         byte[] content = dao.loadMessageContent(dao.getMessageContentId(c
@@ -139,7 +139,7 @@ public class JdbcMessageDAOTest {
 
         assertTrue(Arrays.equals(cont, content));
 
-        assertTrue("Delete failed", dao.deleteConversation(id));
+        assertTrue(dao.deleteConversation(id),"Delete failed");
 
         dump();
     }

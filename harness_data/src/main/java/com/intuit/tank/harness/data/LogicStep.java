@@ -98,7 +98,7 @@ public class LogicStep extends TestStep implements FailableStep {
 
     @Override
     public String getInfo() {
-        return new StringBuilder().append("Logic Step: ").append(name).toString();
+        return "Logic Step: " + name;
     }
 
     /**

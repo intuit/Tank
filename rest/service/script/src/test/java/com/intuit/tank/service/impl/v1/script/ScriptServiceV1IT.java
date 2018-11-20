@@ -24,7 +24,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import org.glassfish.jersey.client.ClientResponse;
-import org.junit.Assert;
+import org.testng.Assert;
 
 import org.testng.annotations.BeforeClass;
 import com.intuit.tank.api.model.v1.script.ScriptDescription;

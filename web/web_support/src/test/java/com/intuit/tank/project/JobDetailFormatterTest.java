@@ -17,9 +17,9 @@ import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

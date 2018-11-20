@@ -47,6 +47,13 @@ public class InstanceDescription extends InstanceDescriptionDefaults {
     }
 
     /**
+     * @return the ssm-ami
+     */
+    public String getSSMAmi() {
+        return get("ssm-ami");
+    }
+
+    /**
      * @return the publicIp
      */
     public String getPublicIp() {

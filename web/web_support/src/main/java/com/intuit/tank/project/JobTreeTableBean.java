@@ -154,7 +154,7 @@ public abstract class JobTreeTableBean implements Serializable {
                 JobInstance instance = queue.getJobs().stream().filter(job -> job.getId() == jobInstance.getId()).findFirst().orElse(null);
                 if (instance != null) {
                     queue.getJobs().remove(instance);
-                    queue = new JobQueueDao().saveOrUpdate(queue);
+                    jobQueueDao.saveOrUpdate(queue);
                 }
                 refreshData();
                 messages.info("Job " + jobInstance.getName() + " has been deleted.");

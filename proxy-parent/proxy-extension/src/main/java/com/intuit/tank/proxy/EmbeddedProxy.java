@@ -159,8 +159,7 @@ public class EmbeddedProxy implements TransactionRecordedListener {
 	 * @return
 	 */
 	private ProxySelector getProxySelector() {
-		ProxySelector ps = new TankProxySelector(java.net.Proxy.NO_PROXY);
-		return ps;
+        return new TankProxySelector(java.net.Proxy.NO_PROXY);
 	}
 
 	/**

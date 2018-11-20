@@ -15,11 +15,11 @@ package com.intuit.tank.util;
 
 import java.util.Date;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.util.BuildVersion;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>BuildVersionTest</code> contains tests for the class <code>{@link BuildVersion}</code>.

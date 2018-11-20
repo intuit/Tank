@@ -17,11 +17,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONObject;
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.common.util.JSONBuilder;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>JSONBuilderCpTest</code> contains tests for the class <code>{@link JSONBuilder}</code>.

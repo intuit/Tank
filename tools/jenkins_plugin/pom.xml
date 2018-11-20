@@ -34,20 +34,13 @@
     </licenses>
 
     <properties>
-        <version.tank-proxy>2.2.5</version.tank-proxy>
+        <version.tank-proxy>2.2.6</version.tank-proxy>
         <!-- Baseline Jenkins version you use to build and test the plugin. Users
     must have this version or newer to run. -->
         <jenkins.version>2.97</jenkins.version>
     </properties>
 
     <build>
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-webdav-jackrabbit</artifactId>
-                <version>3.0.0</version>
-            </extension>
-        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

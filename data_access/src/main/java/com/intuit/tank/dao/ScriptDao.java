@@ -71,8 +71,7 @@ public class ScriptDao extends BaseDao<Script> {
      * @inheritDoc
      */
     public Script getScript(Integer id) {
-        Script script = super.findById(id);
-        return script;
+        return super.findById(id);
     }
 
     /**

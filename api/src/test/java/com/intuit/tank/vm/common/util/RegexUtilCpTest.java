@@ -13,11 +13,11 @@ package com.intuit.tank.vm.common.util;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.common.util.RegexUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>RegexUtilCpTest</code> contains tests for the class <code>{@link RegexUtil}</code>.

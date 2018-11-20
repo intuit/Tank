@@ -13,11 +13,11 @@ package com.intuit.tank.api.model.v1.cloud;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.api.model.v1.cloud.VMStatus;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>VMStatusTest</code> contains tests for the class <code>{@link VMStatus}</code>.
@@ -33,7 +33,7 @@ public class VMStatusTest {
      * @generatedBy CodePro at 12/15/14 2:57 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testFromString_1()
         throws Exception {
         String value = "shutting-down";

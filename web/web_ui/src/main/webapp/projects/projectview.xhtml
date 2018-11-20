@@ -20,29 +20,17 @@
           <h:panelGroup styleClass="toolbar-ui" id="projectActions">
           <div class="toolbar-ui">
             <p:commandButton id="tbSaveBtn" value="Save" action="#{projectBean.save()}" 
-                
-              title="Save Changes to Project #{projectBean.project.name}" ajax="true" 
+              title="Save Changes to Project #{projectBean.project.name}" ajax="true"
               update=":mainForm:projectData, :mainForm:messages"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
+              icon="ui-icon-disk"
               styleClass="icon-button h-space" disabled="#{not projectBean.canEditProject()}" />
 
             <p:commandButton id="saveAsBt" value="Save As..." type="button"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/save_as.png);
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
+              icon="ui-icon-disk"
               styleClass="icon-button h-space" onclick="PF('saveAsConfirm').show()"
               disabled="#{not projectBean.canEditProject()}" />
             <p:commandButton id="tbCancelBtn" action="#{projectBean.cancel()}" value="Cancel" immediate="true"
-              ajax="true"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/cancel.png); 
-				    background-repeat: no-repeat;
-				    background-position: 3px 5px;
-				    border-radius:5px;"
-              styleClass="icon-button h-space" />
+              ajax="true" icon="ui-icon-cancel" styleClass="icon-button h-space" />
 			</div>
           </h:panelGroup>
         </f:facet>
@@ -200,13 +188,9 @@
           <h:panelGroup id="listGroup">
             <p:pickList id="scriptShuffleListId" value="#{workloadScripts.scriptSelectionModel}" var="script"
               itemValue="#{script}" itemLabel="#{script.name}" filterMatchMode="contains" showSourceFilter="true"
-              showTargetFilter="true" converter="tsScriptConverter" showTargetControls="false"
-              showSourceControls="false">
+              showTargetFilter="true" converter="tsScriptConverter">
               <f:facet name="sourceCaption">Available</f:facet>
               <f:facet name="targetCaption">Selected</f:facet>
-              <p:column headerText="File">
-                <h:outputText value="#{script}" />
-              </p:column>
             </p:pickList>
           </h:panelGroup>
 
@@ -804,10 +788,11 @@
 
     <!-- Add scripts that are needed here so the ordering is correct. -->
 
-    <h:outputScript library="primefaces" name="primefaces.js" target="head" />
+    <h:outputScript library="primefaces" name="core.js" target="head" />
+    <h:outputScript library="primefaces" name="components.js" target="head" />
 
-    <h:outputScript library="primefaces" name="charts/charts.js" target="head" />
-    <h:outputStylesheet library="primefaces" name="charts/charts.css" target="head" />
+    <h:outputScript target="head" library="primefaces" name="charts/charts.js" />
+    <h:outputStylesheet target="head" library="primefaces" name="charts/charts.css" />
     <h:outputScript target="head" library="jqplot" name="plugins/jqplot.highlighter.js" />
     <h:outputScript target="head" library="jqplot" name="plugins/jqplot.canvasOverlay.js" />
     <h:outputScript target="head" library="jqplot" name="plugins/jqplot.categoryAxisRenderer.js" />

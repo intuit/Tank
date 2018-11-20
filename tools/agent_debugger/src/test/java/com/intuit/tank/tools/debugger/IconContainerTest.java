@@ -16,11 +16,11 @@ package com.intuit.tank.tools.debugger;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.tools.debugger.IconContainer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>IconContainerTest</code> contains tests for the class <code>{@link IconContainer}</code>.

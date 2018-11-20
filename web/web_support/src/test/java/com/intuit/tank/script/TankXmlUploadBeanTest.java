@@ -18,9 +18,9 @@ import java.io.PipedInputStream;
 
 import javax.faces.component.UIComponent;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.extensions.component.dynaform.DynaForm;

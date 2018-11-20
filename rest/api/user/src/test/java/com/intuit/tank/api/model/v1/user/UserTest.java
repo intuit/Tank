@@ -16,11 +16,11 @@ package com.intuit.tank.api.model.v1.user;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.api.model.v1.user.User;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>UserTest</code> contains tests for the class <code>{@link User}</code>.

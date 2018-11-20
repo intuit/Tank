@@ -1,11 +1,11 @@
 package com.intuit.tank.harness.logging;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.harness.MockRequest;
 import com.intuit.tank.harness.data.ClearCookiesStep;
@@ -33,7 +33,7 @@ public class LogEventTest {
      * @generatedBy CodePro at 9/3/14 9:20 PM
      */
     @Test
-    @org.junit.Ignore
+    @org.testng.annotations.Ignore
     public void testLogEvent_1()
             throws Exception {
 

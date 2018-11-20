@@ -62,9 +62,7 @@ public class ConfiguredLanguage {
                     manager.registerEngineName(row[0], fact);
                 }
                 configuredLanguages.add(new ConfiguredLanguage(row[0], row[1], row[2], row[4]));
-                for (String ext : engineByName.getFactory().getExtensions()) {
-                    extensionSet.add(ext);
-                }
+                extensionSet.addAll(engineByName.getFactory().getExtensions());
             } catch (Exception e) {
                 System.out.println("No ScriptEngine for language " + row[0] + " in classpath.");
             }

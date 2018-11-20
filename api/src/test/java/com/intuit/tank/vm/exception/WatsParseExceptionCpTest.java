@@ -13,11 +13,11 @@ package com.intuit.tank.vm.exception;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.exception.WatsParseException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>WatsParseExceptionCpTest</code> contains tests for the class <code>{@link WatsParseException}</code>.

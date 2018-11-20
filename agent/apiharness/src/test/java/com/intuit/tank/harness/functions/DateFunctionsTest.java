@@ -18,9 +18,9 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.junit.Assert;
+import org.testng.Assert;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.harness.functions.FunctionHandler;
 import com.intuit.tank.harness.test.data.Variables;

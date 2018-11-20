@@ -97,8 +97,7 @@ public class TokenMap {
      *            The token to add.
      */
     private void addTokenToBucket(int bucket, TokenMapToken token) {
-        TokenMapToken old = tokenMap[bucket];
-        token.nextToken = old;
+        token.nextToken = tokenMap[bucket];
         tokenMap[bucket] = token;
     }
 

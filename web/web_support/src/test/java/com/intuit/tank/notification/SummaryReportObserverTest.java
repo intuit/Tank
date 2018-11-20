@@ -13,9 +13,9 @@ package com.intuit.tank.notification;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.notification.SummaryReportObserver;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;

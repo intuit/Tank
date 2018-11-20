@@ -277,10 +277,9 @@ public class Socks5Message extends ProxyMessage {
      * Returns string representation of the message.
      */
     public String toString() {
-        String s = "Socks5Message:" + "\n" + "VN   " + version + "\n" + "CMD  "
+        return "Socks5Message:" + "\n" + "VN   " + version + "\n" + "CMD  "
                 + command + "\n" + "ATYP " + addrType + "\n" + "ADDR " + host
                 + "\n" + "PORT " + port + "\n";
-        return s;
     }
 
     /**

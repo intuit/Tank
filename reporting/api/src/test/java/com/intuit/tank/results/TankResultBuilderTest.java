@@ -13,12 +13,12 @@ package com.intuit.tank.results;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.results.TankResult;
 import com.intuit.tank.results.TankResultBuilder;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>TankResultBuilderTest</code> contains tests for the class

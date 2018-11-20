@@ -15,9 +15,9 @@ package com.intuit.tank.script.replace;
 
 import java.util.Collection;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.script.replace.AbstractReplacement;
 import com.intuit.tank.script.replace.ReplacementFactory;

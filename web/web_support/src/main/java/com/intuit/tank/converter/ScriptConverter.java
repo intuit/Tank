@@ -26,6 +26,8 @@ import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.project.Script;
+import org.primefaces.component.picklist.PickList;
+import org.primefaces.model.DualListModel;
 
 /**
  * ListConverter
@@ -43,7 +45,12 @@ public class ScriptConverter implements Converter {
     @Override
     public Object getAsObject(FacesContext facesContext, UIComponent uiComponent, String value) {
         try {
-            return new ScriptDao().getScript(Integer.parseInt(value));
+            DualListModel<Script> model = (DualListModel<Script>) ((PickList) uiComponent).getValue();
+            for (Script script : model.getSource()) {
+                if (Integer.toString(script.getId()).equals(value)) {
+                    return script;
+                }
+            }
         } catch (Exception e) {
             // throw new IllegalArgumentException("Passed in value was not a valid date format in the pattern of " +
             // PATTERN);

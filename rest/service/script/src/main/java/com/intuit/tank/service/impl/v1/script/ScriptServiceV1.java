@@ -398,14 +398,11 @@ public class ScriptServiceV1 implements ScriptService {
         HDWorkload hdWorkload = ConverterUtil.convertScriptToHdWorkload(script);
         final String scriptXML = ConverterUtil.getWorkloadXML(hdWorkload);
         return (OutputStream outputStream) -> {
-            BufferedReader in = null;
             try {
                 IOUtils.write(scriptXML, outputStream, StandardCharsets.UTF_8);
             } catch (IOException e) {
                 LOG.error("Error streaming file: " + e.toString(), e);
                 throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-            } finally {
-                IOUtils.closeQuietly(in);
             }
         };
     }
@@ -433,7 +430,6 @@ public class ScriptServiceV1 implements ScriptService {
                 } catch (Exception e) {
                     LOG.error("Error streaming file: " + e.toString(), e);
                     throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-                } finally {
                 }
             };
             responseBuilder.type(MediaType.APPLICATION_OCTET_STREAM_TYPE).entity(so);

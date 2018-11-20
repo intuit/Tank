@@ -1,6 +1,6 @@
 package com.intuit.tank.api.model.v1.agent;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.intuit.tank.test.JaxbUtil;

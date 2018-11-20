@@ -254,7 +254,6 @@ public class ConverterUtil {
     }
 
     private static TestStep convertClearStep(ScriptStep scriptStep) {
-        ClearCookiesStep sts = new ClearCookiesStep();
         // Set<RequestData> data = scriptStep.getData();
         // for (RequestData requestData : data) {
         // if (ScriptConstants.TIME.equals(requestData.getKey())) {
@@ -262,7 +261,7 @@ public class ConverterUtil {
         // break;
         // }
         // }
-        return sts;
+        return new ClearCookiesStep();
     }
 
     private static TestStep convertTimerStep(ScriptStep scriptStep) {

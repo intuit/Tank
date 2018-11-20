@@ -29,12 +29,12 @@ import java.security.SecureRandom;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
 
-import org.junit.Assert;
+import org.testng.Assert;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.owasp.proxy.io.GzipInputStream;
 
 public class GzipInputStreamTest {
@@ -90,8 +90,8 @@ public class GzipInputStreamTest {
 
     private void compare(byte[] a, int ao, byte[] b, int bo, int len) {
         for (int i = 0; i < len; i++) {
-            Assert.assertEquals("Unexpected input at position " + (ao + i)
-                    + "/" + (bo + i), a[ao + i], b[bo + i]);
+            Assert.assertEquals( a[ao + i], b[bo + i],"Unexpected input at position " + (ao + i)
+                    + "/" + (bo + i));
         }
     }
 }

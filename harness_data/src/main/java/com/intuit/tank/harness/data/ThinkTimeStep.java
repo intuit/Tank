@@ -61,8 +61,8 @@ public class ThinkTimeStep extends TestStep {
 
     @Override
     public String getInfo() {
-        return new StringBuilder().append("ThinkTime(").append(minTime).append(", ")
-                .append(maxTime).append(')').toString();
+        return "ThinkTime(" + minTime + ", " +
+                maxTime + ')';
     }
 
     /**

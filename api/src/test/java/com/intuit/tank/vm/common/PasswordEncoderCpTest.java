@@ -13,11 +13,11 @@ package com.intuit.tank.vm.common;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.common.PasswordEncoder;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>PasswordEncoderCpTest</code> contains tests for the class <code>{@link PasswordEncoder}</code>.

@@ -13,14 +13,14 @@ package com.intuit.tank.reporting.api;
  * #L%
  */
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * The class <code>TPSInfoContainerTest</code> contains tests for the class <code>{@link TPSInfoContainer}</code>.

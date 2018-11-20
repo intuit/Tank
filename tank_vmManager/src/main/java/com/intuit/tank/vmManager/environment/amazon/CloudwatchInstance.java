@@ -190,8 +190,7 @@ public class CloudwatchInstance {
     }
 
     private String getTopicName(String email) {
-        String ret = "AgentEmailTopicFor_" + email.replaceAll("\\W+", "_");
-        return ret;
+        return "AgentEmailTopicFor_" + email.replaceAll("\\W+", "_");
     }
 
     private String getAlarmName(String email, String jobId) {

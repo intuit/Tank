@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;

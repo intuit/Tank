@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.owasp.proxy.util.AsciiString;
 
 public class ChunkedOutputStreamTest {

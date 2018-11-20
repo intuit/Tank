@@ -13,11 +13,11 @@ package com.intuit.tank.vm.vmManager;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.vmManager.VmMessageProcessor;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>VmMessageProcessorCpTest</code> contains tests for the class <code>{@link VmMessageProcessor}</code>.

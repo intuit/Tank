@@ -98,8 +98,8 @@ public class CookieStep extends TestStep {
 
     @Override
     public String getInfo() {
-        return new StringBuilder().append("Set Cookie: domain: ").append(cookieDomain).append("; ").append(cookieName)
-                .append(" = ").append(cookieValue).toString();
+        return "Set Cookie: domain: " + cookieDomain + "; " + cookieName +
+                " = " + cookieValue;
     }
 
     /**

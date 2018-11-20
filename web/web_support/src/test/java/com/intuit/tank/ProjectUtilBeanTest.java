@@ -15,11 +15,11 @@ package com.intuit.tank;
 
 import javax.faces.model.SelectItem;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.ProjectUtilBean;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ProjectUtilBeanTest</code> contains tests for the class <code>{@link ProjectUtilBean}</code>.

@@ -66,8 +66,7 @@ public class QueryStringEditor implements Serializable {
     }
 
     public Set<RequestData> getRequestDataSet() {
-        Set<RequestData> reqDataSet = new HashSet<RequestData>(getQueryStrings());
-        return reqDataSet;
+        return new HashSet<RequestData>(getQueryStrings());
     }
 
 }

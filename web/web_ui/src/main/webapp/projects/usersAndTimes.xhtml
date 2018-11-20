@@ -18,8 +18,10 @@
         <p:inplace label="#{jobRegion.users}" editor="true">
           <h:inputText id="usersTF"
             value="#{jobRegion.users}"
-            styleClass="formInput inputWidthSmall" required="false"
-            requiredMessage="#{jobRegion.region.description} Users cannot be empty." />
+            styleClass="formInput inputWidthSmall" required="true"
+            requiredMessage="#{jobRegion.region.description} Users cannot be empty." >
+            <f:validateLongRange minimum = "0" maximum = "99999999" />
+          </h:inputText>
           <p:ajax event="save" update=":mainForm:totalUsersTF" />
         </p:inplace>
         <ts:tip tipId="UserTip"
@@ -73,8 +75,10 @@
         <p:inplace label="#{usersAndTimes.startUsers}" editor="true">
           <h:inputText id="startUsersTF"
             value="#{usersAndTimes.startUsers}"
-            styleClass="formInput inputWidthSmall" required="false"
-            requiredMessage="Start Users cannot be empty." />
+            styleClass="formInput inputWidthSmall" required="true"
+            requiredMessage="Start Users cannot be empty." >
+            <f:validateLongRange minimum = "0" maximum = "99999999" />
+          </h:inputText>
         </p:inplace>
       </div>
     </div>
@@ -88,8 +92,10 @@
         <p:inplace label="#{usersAndTimes.userIncrement}" editor="true">
           <h:inputText id="userIncrementTF"
             value="#{usersAndTimes.userIncrement}"
-            styleClass="formInput inputWidthSmall" required="false"
-            requiredMessage="User Increment cannot be empty." />
+            styleClass="formInput inputWidthSmall" required="true"
+            requiredMessage="User Increment cannot be empty." >
+            <f:validateLongRange minimum = "1" maximum = "99999999" />
+          </h:inputText>
         </p:inplace>
       </div>
     </div>

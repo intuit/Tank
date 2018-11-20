@@ -1,6 +1,6 @@
 package com.intuit.tank.runner.method;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /*
  * #%L
@@ -14,7 +14,7 @@ import static org.junit.Assert.assertNotNull;
  * http://www.eclipse.org/legal/epl-v10.html
  * #L%
  */
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * The class <code>AgentLoggingOutputLoggerTest</code> contains tests for the class <code>{@link AgentLoggingOutputLogger}</code>.

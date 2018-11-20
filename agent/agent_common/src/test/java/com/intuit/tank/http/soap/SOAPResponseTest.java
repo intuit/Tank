@@ -13,11 +13,11 @@ package com.intuit.tank.http.soap;
  * #L%
  */
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.http.soap.SOAPResponse;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>SOAPResponseTest</code> contains tests for the class <code>{@link SOAPResponse}</code>.

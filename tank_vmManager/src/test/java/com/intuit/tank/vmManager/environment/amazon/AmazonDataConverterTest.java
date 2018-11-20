@@ -16,9 +16,9 @@ package com.intuit.tank.vmManager.environment.amazon;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.*;
+import org.junit.jupiter.api.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.amazonaws.services.ec2.model.InstanceStateChange;
 import com.amazonaws.services.ec2.model.Reservation;

@@ -54,8 +54,7 @@ public class ResponseCookiesEditor implements Serializable {
     }
 
     public Set<RequestData> getRequestDataSet() {
-        Set<RequestData> reqDataSet = new HashSet<RequestData>(getResponseCookies());
-        return reqDataSet;
+        return new HashSet<RequestData>(getResponseCookies());
     }
 
 }
