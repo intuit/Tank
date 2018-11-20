@@ -30,12 +30,15 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
+import com.amazonaws.regions.Regions;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -64,6 +67,7 @@ import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 public class APITestHarness {
 
@@ -153,21 +157,20 @@ public class APITestHarness {
      * @param args
      */
     public static void main(String[] args) {
-        // set ttl on dns to small value
-        try {
-            java.security.Security.setProperty("networkaddress.cache.ttl", "5");
-        } catch (Throwable e1) {
-            LOG.warn(LogUtil.getLogMessage("Error setting dns timeout: " + e1.toString(), LogEventType.System));
-        }
-        try {
-            java.security.Security.setProperty("networkaddress.cache.negative.ttl", "0");
-        } catch (Throwable e1) {
-            LOG.warn(LogUtil.getLogMessage("Error setting dns negative timeout: " + e1.toString(), LogEventType.System));
-        }
+
         if (args.length < 1) {
             usage();
             return;
         }
+
+        HostInfo hostInfo = new HostInfo();
+        ThreadContext.put("jobId", getInstance().getAgentRunData().getJobId());
+        ThreadContext.put("projectName", getInstance().getAgentRunData().getProjectName());
+        ThreadContext.put("instanceId", getInstance().getAgentRunData().getInstanceId());
+        ThreadContext.put("publicIp", hostInfo.getPublicIp());
+        ThreadContext.put("region", Regions.getCurrentRegion().getName());
+        ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
+
         getInstance().initializeFromArgs(args);
 
     }
@@ -175,7 +178,7 @@ public class APITestHarness {
     private void initializeFromArgs(String[] args) {
         String controllerBase = null;
         for (String argument : args) {
-            LOG.info("checking arg " + argument);
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "checking arg " + argument)));
 
             String[] values = argument.split("=");
             if (values[0].equalsIgnoreCase("-tp")) {
@@ -308,6 +311,7 @@ public class APITestHarness {
 
     private void startHttp(String baseUrl) {
         isLocal = false;
+        HostInfo hostInfo = new HostInfo();
         CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
         if (baseUrl == null) {
             baseUrl = AmazonUtil.getControllerBaseUrl();
@@ -329,19 +333,19 @@ public class APITestHarness {
                     }
                 } else {
                     LOG.error("Error getting amazon host. maybe local.");
-                    String publicIp = new HostInfo().getPublicIp();
+                    String publicIp = hostInfo.getPublicIp();
                     
                     if (!publicIp.equals(HostInfo.UNKNOWN)) {
                         instanceUrl = "http://" + publicIp + ":"
                                 + tankConfig.getAgentConfig().getAgentPort();
-                        LOG.info("MyInstanceURL from hostinfo  = " + instanceUrl);
+                        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "MyInstanceURL from hostinfo  = " + instanceUrl)));
                     } else {
                         instanceUrl = "http://localhost:" + tankConfig.getAgentConfig().getAgentPort();
                     }
                 }
             }
         }
-        LOG.info("MyInstanceURL  = " + instanceUrl);
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "MyInstanceURL = " + instanceUrl)));
         if (capacity < 0) {
             capacity = AmazonUtil.getCapacity();
         }
@@ -359,13 +363,19 @@ public class APITestHarness {
         }
 
         LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
-        LOG.info(LogUtil.getLogMessage("Active Profile" + agentRunData.getActiveProfile().getDisplayName()));
+        ThreadContext.put("jobId", agentRunData.getJobId());
+        ThreadContext.put("projectName", agentRunData.getProjectName());
+        ThreadContext.put("instanceId", agentRunData.getInstanceId());
+        ThreadContext.put("publicIp", hostInfo.getPublicIp());
+        ThreadContext.put("region", Regions.getCurrentRegion().getName());
+        ThreadContext.put("httpHost", baseUrl);
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Active Profile" + agentRunData.getActiveProfile().getDisplayName())));
         AgentData data = new AgentData(agentRunData.getJobId(), instanceId, instanceUrl, capacity,
                 region, AmazonUtil.getZone());
         try {
             AgentTestStartData startData = null;
             int count = 0;
-            LOG.info(LogUtil.getLogMessage("Sending AgentData to controller: " + data.toString(), LogEventType.System));
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Sending AgentData to controller: " + data.toString())));
             while (count < 10) {
                 try {
                     startData = client.agentReady(data);
@@ -407,7 +417,7 @@ public class APITestHarness {
      */
     public void writeXmlToFile(String scriptUrl) throws IOException {
         File file = new File("script.xml");
-        LOG.info(LogUtil.getLogMessage("Writing xml to " + file.getAbsolutePath()));
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Writing xml to " + file.getAbsolutePath())));
         int count = 0;
 
         while (count++ < MAX_RETRIES) {
@@ -417,7 +427,7 @@ public class APITestHarness {
                     file = new File("script.xml");
                 }
                 URL url = new URL(scriptUrl);
-                LOG.info("Downloading file from url " + scriptUrl + " to file " + file.getAbsolutePath());
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Downloading file from url " + scriptUrl + " to file " + file.getAbsolutePath())));
                 FileUtils.copyURLToFile(url, file);
                 String scriptXML = FileUtils.readFileToString(file, "UTF-8");
                 List<String> tps = new ArrayList<String>();
@@ -456,9 +466,9 @@ public class APITestHarness {
         while (count++ < MAX_RETRIES) {
             try {
                 URL url = new URL(dataFileRequest.getFileUrl());
-                LOG.info(LogUtil.getLogMessage(
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message",
                         "writing file " + dataFileRequest.getFileName() + " to " + dataFile.getAbsolutePath()
-                                + " from url " + url.toExternalForm(), LogEventType.System));
+                                + " from url " + url.toExternalForm())));
                 FileUtils.copyURLToFile(url, dataFile);
                 if (dataFileRequest.isDefault()
                         && !dataFileRequest.getFileName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
@@ -471,9 +481,9 @@ public class APITestHarness {
                 break;
             } catch (Exception e) {
                 if (count < MAX_RETRIES) {
-                    LOG.warn(LogUtil.getLogMessage("Failed to download CSV file because of: " + e.toString()
+                    LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Failed to download CSV file because of: " + e.toString()
                             + ". Will try "
-                            + (MAX_RETRIES - count) + " more times.", LogEventType.System));
+                            + (MAX_RETRIES - count) + " more times.")));
                     try {
                         Thread.sleep(RETRY_SLEEP);
                     } catch (InterruptedException e1) {
@@ -548,7 +558,7 @@ public class APITestHarness {
                 .append("; agentRunData.getNumUsers()=").append(agentRunData.getNumUsers())
                 .append("; NUM_START_THREADS=").append(agentRunData.getNumStartUsers())
                 .append("; simulationTime=").append(agentRunData.getSimulationTime());
-        LOG.info(LogUtil.getLogMessage("starting test with " + info));
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "starting test with " + info)));
         started = true;
 
         if (agentRunData.getJobId() == null) {
@@ -575,12 +585,12 @@ public class APITestHarness {
                     TestPlanStarter starter = new TestPlanStarter(plan, agentRunData.getNumUsers());
                     total += starter.getNumThreads();
                     testPlans.add(starter);
-                    LOG.info(LogUtil.getLogMessage("Users for Test Plan " + plan.getTestPlanName() + " at "
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Users for Test Plan " + plan.getTestPlanName() + " at "
                             + plan.getUserPercentage()
-                            + "% = " + starter.getNumThreads()));
+                            + "% = " + starter.getNumThreads())));
                 }
             }
-            LOG.info(LogUtil.getLogMessage("Total Users calculated for all test Plans = " + total));
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Total Users calculated for all test Plans = " + total)));
             if (total != agentRunData.getNumUsers()) {
                 int numToAdd = agentRunData.getNumUsers() - total;
                 TestPlanStarter starter = testPlans.get(testPlans.size() - 1);
@@ -603,10 +613,10 @@ public class APITestHarness {
                     tp++;
                 }
             }
-            LOG.info(LogUtil.getLogMessage("Have all testPlan runners configured"));
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Have all testPlan runners configured")));
             // start status thread first only
             if (!isLocal && !isDebug() && NumberUtils.isDigits(agentRunData.getJobId())) {
-                LOG.info(LogUtil.getLogMessage("Starting monitor thread..."));
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting monitor thread...")));
                 CloudVmStatus status = getInitialStatus();
                 monitorThread = new Thread(new APIMonitor(status));
                 monitorThread.setDaemon(true);
@@ -618,14 +628,14 @@ public class APITestHarness {
             // start initial users
             startTime = System.currentTimeMillis();
             DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
-            LOG.info(LogUtil.getLogMessage("Simulation start: " + df.format(new Date(getStartTime()))));
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Simulation start: " + df.format(new Date(getStartTime())))));
             if (agentRunData.getSimulationTime() != 0) {
-                LOG.info(LogUtil.getLogMessage("Scheduled Simulation End : "
-                        + df.format(new Date(getSimulationEndTimeMillis()))));
-                LOG.info(LogUtil.getLogMessage("Max Simulation End : "
-                        + df.format(new Date(getMaxSimulationEndTimeMillis()))));
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Scheduled Simulation End : "
+                        + df.format(new Date(getSimulationEndTimeMillis())))));
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Max Simulation End : "
+                        + df.format(new Date(getMaxSimulationEndTimeMillis())))));
             } else {
-                LOG.info(LogUtil.getLogMessage("Ends at script loops completed with no Max Simulation Time."));
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Ends at script loops completed with no Max Simulation Time.")));
             }
             currentNumThreads = 0;
             if (agentRunData.getNumUsers() > 0) {
@@ -656,14 +666,14 @@ public class APITestHarness {
                     numToCount++;
                 }
                 // wait for them to finish
-                LOG.info(LogUtil.getLogMessage("Ramp Complete..."));
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Ramp Complete...")));
 
                 doneSignal.await();
             }
         } catch (Throwable t) {
             LOG.error("error executing..." + t, t);
         } finally {
-            LOG.info(LogUtil.getLogMessage("Test Complete..."));
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Test Complete...")));
             if (!isDebug() && NumberUtils.isDigits(agentRunData.getJobId())) {
                 if (null != monitorThread) {
                     APIMonitor.setJobStatus(JobStatus.Completed);
@@ -700,7 +710,7 @@ public class APITestHarness {
                     region = AmazonUtil.getVMRegion();
                     secGroups = AmazonUtil.getMetaData(CloudMetaDataType.security_groups);
                 } catch (IOException e) {
-                    LOG.warn(LogUtil.getLogMessage("Error gettting region. using Custom...", LogEventType.System));
+                    LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error gettting region. using Custom...")));
                 }
             }
             status = new CloudVmStatus(instanceId, agentRunData.getJobId(), secGroups, JobStatus.Unknown,
@@ -722,8 +732,7 @@ public class APITestHarness {
         long count = doneSignal.getCount();
         // numCompletedThreads = (int) (agentRunData.getNumUsers() - count);
         if (isDebug() || count < 10) {
-            LOG.info(LogUtil
-                    .getLogMessage("User thread finished... Remaining->" + currentUsers, LogEventType.System));
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining->" + currentUsers)));
         }
     }
 
@@ -777,7 +786,7 @@ public class APITestHarness {
             long currentTime = System.currentTimeMillis();
             if (currentTime > getSimulationEndTimeMillis()) {
                 if (!loggedSimTime) {
-                    LOG.info(LogUtil.getLogMessage("Simulation time met", LogEventType.System));
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Simulation time met")));
                     loggedSimTime = true;
                 }
                 ret = true;
@@ -803,9 +812,9 @@ public class APITestHarness {
         threadGroup.enumerate(threads);
         int activeThreads = (int) Arrays.stream(threads).filter(Objects::nonNull).filter(
                 t -> t.getState() == Thread.State.TIMED_WAITING || t.getState() == Thread.State.WAITING).count();
-        LOG.info(LogUtil.getLogMessage("Have " + activeThreads + " of " + activeCount
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Have " + activeThreads + " of " + activeCount
                 + " active Threads in thread group "
-                + threadGroup.getName(), LogEventType.System));
+                + threadGroup.getName())));
         if (agentRunData.getSimulationTime() != 0 && hasMetSimulationTime() && doneSignal.getCount() != 0) {
             boolean exceededTimeLimit = System.currentTimeMillis() > getMaxSimulationEndTimeMillis();
             if (exceededTimeLimit) {
@@ -831,8 +840,8 @@ public class APITestHarness {
     public void setCommand(WatsAgentCommand newCommand) {
         if (cmd != WatsAgentCommand.stop) {
             cmd = newCommand;
-            LOG.info(LogUtil.getLogMessage("Got new Command: " + newCommand + " with " + currentNumThreads
-                    + " User Threads running.", LogEventType.System));
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Got new Command: " + newCommand + " with " + currentNumThreads
+                    + " User Threads running.")));
             APIMonitor.setJobStatus(cmd == WatsAgentCommand.stop ? JobStatus.Stopped
                     : cmd == WatsAgentCommand.pause ? JobStatus.Paused
                     : cmd == WatsAgentCommand.resume_ramp || cmd == WatsAgentCommand.run ? JobStatus.Running

@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
  */
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
@@ -24,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,7 +55,6 @@ import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.PartSource;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
-import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -88,9 +87,6 @@ public class TankHttpClient3 implements TankHttpClient {
         httpclient.getParams().setBooleanParameter("http.protocol.allow-circular-redirects", true);
         httpclient.getParams().setIntParameter("http.protocol.max-redirects", 100);
         httpclient.setState(new HttpState());
-        @SuppressWarnings("deprecation")
-        Protocol easyhttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 443);
-        Protocol.registerProtocol("https", easyhttps);
     }
 
     public void setConnectionTimeout(long connectionTimeout) {
@@ -247,6 +243,11 @@ public class TankHttpClient3 implements TankHttpClient {
         }
     }
 
+    @Override
+    public void close() throws IOException {
+        httpclient = null;
+    }
+
     private void sendRequest(BaseRequest request, @Nonnull HttpMethod method, String requestBody) {
         String uri = null;
         long waitTime = 0L;
@@ -278,7 +279,7 @@ public class TankHttpClient3 implements TankHttpClient {
                     }
                     responseBody = out.toByteArray();
                 } catch (Exception e) {
-                    LOG.warn("could not get response body: " + e);
+                    LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
             }
             waitTime = System.currentTimeMillis() - startTime;

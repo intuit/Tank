@@ -13,12 +13,14 @@ package com.intuit.tank.harness;
  * #L%
  */
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.common.TankConstants;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 public class AgentRunData {
     private static final Logger LOG = LogManager.getLogger(AgentRunData.class);
@@ -71,14 +73,14 @@ public class AgentRunData {
     }
 
     /**
-     * @return the numStartThreads
+     * @return the numStartUsers
      */
     public int getNumStartUsers() {
         return numStartUsers;
     }
 
     /**
-     * @param numStartThreads
+     * @param numStartUsers
      *            the numStartThreads to set
      */
     public void setNumStartUsers(int numStartUsers) {
@@ -279,7 +281,7 @@ public class AgentRunData {
      *            the stopBehavior to set
      */
     public void setStopBehavior(StopBehavior stopBehavior) {
-        LOG.info("Setting stopBehavior to " + stopBehavior);
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Setting stopBehavior to " + stopBehavior)));
         this.stopBehavior = stopBehavior;
     }
 

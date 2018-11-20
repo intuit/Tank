@@ -54,7 +54,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 
 public class TestPlanRunner implements Runnable {
 
-    static Logger LOG = LogManager.getLogger(TestPlanRunner.class);
+    private static Logger LOG = LogManager.getLogger(TestPlanRunner.class);
     private Variables variables;
     private TimerMap timerMap;
     private String uniqueName;
@@ -65,11 +65,6 @@ public class TestPlanRunner implements Runnable {
     private BaseResponse previousResponse = null;
     private boolean finished = false;
     private Map<String, String> headerMap;
-
-    // SSL values
-    long lastSslHandshake = 0;
-    // SSLContext sslContext = null;
-    long sslTimeout = 90000;
 
     public TestPlanRunner(HDTestPlan testPlan, int threadNumber) {
         headerMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
@@ -132,12 +127,14 @@ public class TestPlanRunner implements Runnable {
                 while (scriptGroupLoop < hdScriptGroup.getLoop()) {
                     List<HDScript> groupSteps = hdScriptGroup.getGroupSteps();
                     if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill) {
+                        httpClient.close();
                         return;
                     }
                     try {
                         runTestGroup(groupSteps, hdScriptGroup);
                     } catch (KillScriptException e) {
                         LOG.info(LogUtil.getLogMessage(e.getMessage()));
+                        httpClient.close();
                         return;
                     } catch (NextScriptGroupException e) {
                         scriptGroupLoop = hdScriptGroup.getLoop();
@@ -148,7 +145,8 @@ public class TestPlanRunner implements Runnable {
                         continue mainLoop;
                     }
                     if (isCompleted(RunPhase.group, finished)) {
-                        LOG.info("finished or Stop set to group or less, exiting at group " + hdScriptGroup.getName());
+                        LOG.info(LogUtil.getLogMessage("finished or Stop set to group or less, exiting at group " + hdScriptGroup.getName()));
+                        httpClient.close();
                         return;
                     }
                     scriptGroupLoop++;
@@ -158,7 +156,8 @@ public class TestPlanRunner implements Runnable {
                 } else {
                     finished = true;
                     if (isCompleted(RunPhase.test, finished)) {
-                        LOG.info("finished or Stop set to test or less, exiting at test...");
+                        LOG.info(LogUtil.getLogMessage("finished or Stop set to test or less, exiting at test..."));
+                        httpClient.close();
                         return;
                     }
                     i = 0;
@@ -235,19 +234,19 @@ public class TestPlanRunner implements Runnable {
     /**
      * Check to see if the thread/virtual user should continue for another loop
      * 
-     * @param lastLoop
+     * @param phase
+     * @param finished
      * 
      * @return
      */
     private boolean isCompleted(RunPhase phase, boolean finished) {
-        boolean ret = false;
         if (shouldStop(phase)
                 || (finished && (APITestHarness.getInstance().getAgentRunData().getSimulationTime() <= 0
-                        || APITestHarness.getInstance().hasMetSimulationTime()
-                        || APITestHarness.getInstance().isDebug()))) {
-            ret = true;
+                || APITestHarness.getInstance().hasMetSimulationTime()
+                || APITestHarness.getInstance().isDebug()))) {
+            return true;
         }
-        return ret;
+        return false;
     }
 
     private boolean shouldStop(RunPhase phase) {
