@@ -222,7 +222,7 @@ public class TestPlanRunner implements Runnable {
                     APITestHarness.getInstance().getUserTracker().remove(hdscript.getName());
                 }
                 if (shouldStop(RunPhase.script)) {
-                    LOG.info("Stop set to script or less, exiting at script " + hdscript.getName());
+                    LOG.info(LogUtil.getLogMessage("Stop set to script or less, exiting at script " + hdscript.getName()));
                     return;
                 }
             }
@@ -253,9 +253,9 @@ public class TestPlanRunner implements Runnable {
         boolean ret = false;
         if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.stop) {
             ret = phase.ordinal() >= APITestHarness.getInstance().getAgentRunData().getStopBehavior().ordinal();
-            LOG.info("shouldStop: stopBehavior="
+            LOG.info(LogUtil.getLogMessage("shouldStop: stopBehavior="
                     + APITestHarness.getInstance().getAgentRunData().getStopBehavior().name() + " : phase="
-                    + phase.name());
+                    + phase.name()));
         }
         return ret;
     }
@@ -383,7 +383,7 @@ public class TestPlanRunner implements Runnable {
                 }
             }
             if (shouldStop(RunPhase.step)) {
-                LOG.info("Stop set to step, exiting at step " + testStep.getStepIndex());
+                LOG.info(LogUtil.getLogMessage("Stop set to step, exiting at step " + testStep.getStepIndex()));
                 return;
             }
         }
@@ -399,7 +399,7 @@ public class TestPlanRunner implements Runnable {
             }
             return ret;
         } catch (Exception e) {
-            LOG.error("TankHttpClient specified incorrectly: " + e, e);
+            LOG.error(LogUtil.getLogMessage("TankHttpClient specified incorrectly: " + e),e);
             throw new RuntimeException(e);
         }
     }
