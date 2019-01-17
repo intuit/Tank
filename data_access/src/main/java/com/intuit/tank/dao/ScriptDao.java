@@ -131,7 +131,7 @@ public class ScriptDao extends BaseDao<Script> {
 
     /**
      * 
-     * @param projectId
+     * @param productId
      * @return
      */
     public List<Script> getScriptsForProductId(int productId) {

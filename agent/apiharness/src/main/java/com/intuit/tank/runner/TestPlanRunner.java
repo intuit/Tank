@@ -240,24 +240,17 @@ public class TestPlanRunner implements Runnable {
      * @return
      */
     private boolean isCompleted(RunPhase phase, boolean finished) {
-        if (shouldStop(phase)
+        return (shouldStop(phase)
                 || (finished && (APITestHarness.getInstance().getAgentRunData().getSimulationTime() <= 0
                 || APITestHarness.getInstance().hasMetSimulationTime()
-                || APITestHarness.getInstance().isDebug()))) {
-            return true;
-        }
-        return false;
+                || APITestHarness.getInstance().isDebug())));
     }
 
     private boolean shouldStop(RunPhase phase) {
-        boolean ret = false;
         if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.stop) {
-            ret = phase.ordinal() >= APITestHarness.getInstance().getAgentRunData().getStopBehavior().ordinal();
-            LOG.info(LogUtil.getLogMessage("shouldStop: stopBehavior="
-                    + APITestHarness.getInstance().getAgentRunData().getStopBehavior().name() + " : phase="
-                    + phase.name()));
+            return phase.ordinal() >= APITestHarness.getInstance().getAgentRunData().getStopBehavior().ordinal();
         }
-        return ret;
+        return false;
     }
 
     private boolean checkGotoGroupUseCase(HDScriptUseCase hdScriptUseCase, String gotoGroup) {
@@ -317,10 +310,6 @@ public class TestPlanRunner implements Runnable {
             }
 
             TestStepRunner tsr = new TestStepRunner(tsc);
-            if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.stop) {
-                LOG.info(LogUtil.getLogMessage("Executing step after stop command " + tsc.getTestStep(),
-                        LogEventType.Script));
-            }
             flowController.startStep(tsc);
             String validation = TankConstants.HTTP_CASE_FAIL;
             try {
