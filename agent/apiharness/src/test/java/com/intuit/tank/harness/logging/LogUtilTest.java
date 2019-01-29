@@ -13,6 +13,7 @@ package com.intuit.tank.harness.logging;
  * #L%
  */
 
+import org.apache.logging.log4j.message.ObjectMessage;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -62,7 +63,7 @@ public class LogUtilTest {
             throws Exception {
         String msg = "";
 
-        Map<String,String> result = LogUtil.getLogMessage(msg);
+        ObjectMessage result = LogUtil.getLogMessage(msg);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.logging.LogUtil
@@ -82,7 +83,7 @@ public class LogUtilTest {
         String msg = "";
         LogEventType type = null;
 
-        Map<String,String> result = LogUtil.getLogMessage(msg, type);
+        ObjectMessage result = LogUtil.getLogMessage(msg, type);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.logging.LogUtil
@@ -102,7 +103,7 @@ public class LogUtilTest {
         String msg = "";
         LogEventType type = LogEventType.Http;
 
-        Map<String,String> result = LogUtil.getLogMessage(msg, type);
+        ObjectMessage result = LogUtil.getLogMessage(msg, type);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.logging.LogUtil
@@ -123,7 +124,7 @@ public class LogUtilTest {
         LogEventType type = LogEventType.Http;
         LoggingProfile profile = LoggingProfile.STANDARD;
 
-        Map<String,String> result = LogUtil.getLogMessage(msg, type, profile);
+        ObjectMessage result = LogUtil.getLogMessage(msg, type, profile);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.logging.LogUtil
@@ -144,7 +145,7 @@ public class LogUtilTest {
         LogEventType type = LogEventType.Http;
         LoggingProfile profile = null;
 
-        Map<String,String> result = LogUtil.getLogMessage(msg, type, profile);
+        ObjectMessage result = LogUtil.getLogMessage(msg, type, profile);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.logging.LogUtil
