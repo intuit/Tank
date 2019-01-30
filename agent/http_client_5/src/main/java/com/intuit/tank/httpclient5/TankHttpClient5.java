@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -303,9 +304,9 @@ public class TankHttpClient5 implements TankHttpClient {
             byte[] responseBody = new byte[0];
             // check for no content headers
             if (response.getCode() != 203 && response.getCode() != 202 && response.getCode() != 204) {
-                try {
-                    responseBody = IOUtils.toByteArray(response.getEntity().getContent());
-                } catch (Exception e) {
+                try ( InputStream is = response.getEntity().getContent() ) {
+                    responseBody = IOUtils.toByteArray(is);
+                } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
             }
@@ -396,12 +397,11 @@ public class TankHttpClient5 implements TankHttpClient {
             String contentEncode = response.getHttpHeader("Content-Encoding");
             if (BaseResponse.isDataType(contentType) && contentEncode != null && contentEncode.toLowerCase().contains("gzip")) {
                 // decode gzip for data types
-                try {
-                    GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(bResponse));
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                try (   GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(bResponse));
+                        ByteArrayOutputStream out = new ByteArrayOutputStream() ) {
                     IOUtils.copy(in, out);
                     bResponse = out.toByteArray();
-                } catch (Exception e) {
+                } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("cannot decode gzip stream: " + e, LogEventType.System));
                 }
             }
