@@ -24,6 +24,7 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import com.amazonaws.regions.Regions;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +51,10 @@ public class AmazonUtil {
     private static final String USER_DATA = "/user-data";
     private static final String META_DATA = "/meta-data";
 
-    // private static Logger logger = LogManager.getLogger(AmazonUtil.class);
+
+    public static String getRegion() {
+        return Regions.getCurrentRegion().getName();
+    }
 
     public static VMRegion getVMRegion() throws IOException {
         String zone = getMetaData(CloudMetaDataType.zone);
@@ -64,13 +68,12 @@ public class AmazonUtil {
      * @return
      */
     public static boolean isInAmazon() {
-        boolean ret = true;
         try {
             getMetaData(CloudMetaDataType.zone);
-        } catch (Exception e) {
-            ret = false;
+        } catch (IOException e) {
+            return false;
         }
-        return ret;
+        return true;
     }
 
     /**

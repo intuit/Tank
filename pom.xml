@@ -28,9 +28,9 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>4.2.21.Final</version.hibernate>
-    <version-aws-sdk>1.11.365</version-aws-sdk>
+    <version-aws-sdk>1.11.490</version-aws-sdk>
 
-    <version-tomcat>9.0.10</version-tomcat>
+    <version-tomcat>9.0.14</version-tomcat>
 
     <weld-version>3.0.5.Final</weld-version>
     <cdi-version>2.0</cdi-version>
