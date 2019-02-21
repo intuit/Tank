@@ -43,7 +43,6 @@ import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.http.TankHttpClient;
-import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.runner.method.TestStepRunner;
 import com.intuit.tank.runner.method.TimerMap;
 import com.intuit.tank.script.ScriptConstants;

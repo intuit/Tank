@@ -25,7 +25,6 @@ package org.fife.ui.rtextarea;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.datatransfer.*;
-import java.awt.event.ActionEvent;
 import java.io.*;
 import javax.swing.*;
 import javax.swing.plaf.*;

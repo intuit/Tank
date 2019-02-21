@@ -271,7 +271,7 @@ public class TankHttpClient4Test {
     /**
      * Returns a string's base64 encoding
      * 
-     * @param toEncode
+     * @param bytes
      * @return base64 string
      */
     public String toBase64(byte[] bytes) {

@@ -16,7 +16,6 @@ package com.intuit.tank.proxy.settings.ui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;

@@ -19,8 +19,6 @@ package com.intuit.tank.dao;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.hibernate.HibernateException;
-
 import com.intuit.tank.project.User;
 import com.intuit.tank.vm.common.PasswordEncoder;
 

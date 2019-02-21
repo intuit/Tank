@@ -33,7 +33,6 @@ import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.Security;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.ConsoleHandler;

@@ -38,7 +38,6 @@ import com.intuit.tank.project.ScriptFilterAction;
 import com.intuit.tank.project.ScriptFilterCondition;
 import com.intuit.tank.util.ExceptionHandler;
 import com.intuit.tank.util.ScriptFilterType;
-import com.intuit.tank.util.TsConversationManager;
 import com.intuit.tank.vm.settings.AccessRight;
 
 @Named

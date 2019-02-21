@@ -27,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.FileUtils;

@@ -17,7 +17,6 @@ package com.intuit.tank.service;
  */
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
