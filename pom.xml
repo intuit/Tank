@@ -43,9 +43,9 @@
     <version.primefaces>6.1</version.primefaces>
     <version.primefaces-ext>6.1.1</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
-    <version.surefire>2.22.0</version.surefire>
+    <version.surefire>3.0.0-M3</version.surefire>
     <version.jersey>2.27</version.jersey>
-    <version.arquillian>1.4.0.Final</version.arquillian>
+    <version.arquillian>1.4.1.Final</version.arquillian>
     <version.httpclient>4.5.6</version.httpclient>
     <version.httpclient5>5.0-beta2</version.httpclient5>
 
@@ -281,6 +281,13 @@
     <dependency>
       <groupId>org.jboss.arquillian.testng</groupId>
       <artifactId>arquillian-testng-container</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.arquillian.container</groupId>
+      <artifactId>arquillian-tomcat-embedded-8</artifactId>
+      <version>1.1.0.Final</version>
       <scope>test</scope>
     </dependency>
 
@@ -1100,7 +1107,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-
       </plugin>
 
       <plugin>
@@ -1151,10 +1157,7 @@
           </dependency>
         </dependencies>
       </plugin>
-
     </plugins>
-
-
   </build>
 
 
@@ -1190,9 +1193,6 @@
       </plugin>
     </plugins>
   </reporting>
-
-
-
 
   <repositories>
 

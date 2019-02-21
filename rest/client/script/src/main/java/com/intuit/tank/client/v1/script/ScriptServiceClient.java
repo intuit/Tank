@@ -19,6 +19,7 @@ package com.intuit.tank.client.v1.script;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -181,14 +182,10 @@ public class ScriptServiceClient extends BaseRestClient {
      * @inheritDoc
      */
     public String updateTankScript(File f) throws RestServiceException {
-        InputStream in = null;
-        try {
-            in = new FileInputStream(f);
+        try ( InputStream in = new FileInputStream(f) ) {
             return updateTankScript(in);
-        } catch (FileNotFoundException e) {
+        } catch (IOException  e) {
             throw new IllegalArgumentException(e.getMessage());
-        } finally {
-            IOUtils.closeQuietly(in);
         }
     }
 

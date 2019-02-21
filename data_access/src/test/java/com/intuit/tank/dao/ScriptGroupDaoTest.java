@@ -19,6 +19,7 @@ package com.intuit.tank.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 
 import org.apache.logging.log4j.Level;
@@ -105,6 +106,8 @@ public class ScriptGroupDaoTest {
         } catch (ConstraintViolationException e) {
             // expected validation
             DaoTestUtil.checkConstraintViolation(e, property, messageContains);
+        } catch (PersistenceException e) {
+            Assert.assertTrue(e.getCause().getCause().getMessage().startsWith("Value too long for column "));
         }
     }
 

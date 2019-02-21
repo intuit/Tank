@@ -116,20 +116,16 @@ public class AmazonS3 {
      */
     public InputStream getFile(String bucketName, String path) {
         InputStream ret = null;
-        S3ObjectInputStream objectContent = null;
-        try {
-            S3Object object = s3Client.getObject(bucketName, path);
-            if (object != null) {
-                ByteArrayOutputStream temp = new ByteArrayOutputStream();
-                objectContent = object.getObjectContent();
+        S3Object object = s3Client.getObject(bucketName, path);
+        if (object != null) {
+            try ( S3ObjectInputStream objectContent = object.getObjectContent();
+                  ByteArrayOutputStream temp = new ByteArrayOutputStream()){
                 IOUtils.copy(objectContent, temp);
                 ret = new ByteArrayInputStream(temp.toByteArray());
+            } catch (Exception e) {
+                LOG.error("Error getting File: " + e, e);
+                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
-            LOG.error("Error getting File: " + e, e);
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(objectContent);
         }
         return ret;
     }

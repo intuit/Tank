@@ -37,6 +37,8 @@ import com.intuit.tank.vm.api.enumerated.VMSize;
 import com.intuit.tank.vm.common.TankConstants;
 import org.apache.logging.log4j.message.ObjectMessage;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * 
  * AmazonUtil
@@ -336,7 +338,9 @@ public class AmazonUtil {
                     s = r.readLine();
                 }
             } finally {
-                IOUtils.closeQuietly(is);
+                try {
+                    is.close();
+                } catch (IOException e) {}
             }
         }
         return result;
@@ -345,9 +349,11 @@ public class AmazonUtil {
     private static String convertStreamToString(InputStream is) throws IOException {
         if (is != null) {
             try {
-                return IOUtils.toString(is);
+                return IOUtils.toString(is, UTF_8);
             } finally {
-                IOUtils.closeQuietly(is);
+                try {
+                    is.close();
+                } catch (IOException e) {}
             }
         } else {
             return "";

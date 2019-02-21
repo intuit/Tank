@@ -84,12 +84,10 @@ public class PanelBuilder {
 
     private static Headers getHeaders(String serviceUrl) {
         if (StringUtils.isNotBlank(serviceUrl)) {
-            InputStream settingsStream = null;
-            try {
+            try ( InputStream settingsStream = new URL(serviceUrl + HEADERS_PATH).openStream() ) {
                 URL url = new URL(serviceUrl + HEADERS_PATH);
                 LOG.info("Starting up: making call to tank service url to get settings.xml "
                         + url.toExternalForm());
-                settingsStream = url.openStream();
                 
             	//Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
             	SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -104,8 +102,6 @@ public class PanelBuilder {
                 return (Headers) ctx.createUnmarshaller().unmarshal(xmlSource);
             } catch (Exception e) {
                 LOG.error("Error gettting headers: " + e, e);
-            } finally {
-                IOUtils.closeQuietly(settingsStream);
             }
         }
         return null;
