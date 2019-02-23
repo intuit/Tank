@@ -49,12 +49,9 @@ public class ResponseContentParser {
     }
 
     public static String extractCondition(String conditionStr) {
-        String ret;
         if (conditionStr.length() > 1 && conditionStr.charAt(0) == '=' && conditionStr.charAt(1) != '=') {
-            ret = "=";
-        } else {
-            ret = Arrays.stream(ValidationType.values()).filter(type -> conditionStr.startsWith(type.getValue())).findFirst().map(ValidationType::getValue).orElse("");
+            return "=";
         }
-        return ret;
+        return Arrays.stream(ValidationType.values()).filter(type -> conditionStr.startsWith(type.getValue())).findFirst().map(ValidationType::getValue).orElse("");
     }
 }
