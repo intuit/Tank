@@ -39,7 +39,7 @@ public class ClearCookiesRunnerTest {
     @Test
     public void testClearCookiesRunner_1()
         throws Exception {
-        TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient()));
+        TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient"));
 
         ClearCookiesRunner result = new ClearCookiesRunner(tsc);
 
@@ -60,7 +60,7 @@ public class ClearCookiesRunnerTest {
     @Test
     public void testExecute_1()
         throws Exception {
-        ClearCookiesRunner fixture = new ClearCookiesRunner(new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient())));
+        ClearCookiesRunner fixture = new ClearCookiesRunner(new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient")));
 
         String result = fixture.execute();
 

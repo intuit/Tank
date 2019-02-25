@@ -39,7 +39,7 @@ public class TimerRunnerTest {
     @Test
     public void testTimerRunner_1()
         throws Exception {
-        TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient()));
+        TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient"));
 
         TimerRunner result = new TimerRunner(tsc);
 

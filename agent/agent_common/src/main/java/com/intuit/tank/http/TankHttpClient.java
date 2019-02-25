@@ -1,11 +1,8 @@
 package com.intuit.tank.http;
 
-import com.intuit.tank.http.AuthCredentials;
-import com.intuit.tank.http.BaseRequest;
-
 import java.io.IOException;
 
-public interface TankHttpClient {
+public interface TankHttpClient extends AutoCloseable {
 
     /**
      * Execute the GET. Use this to base the response off of the content type

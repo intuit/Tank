@@ -13,6 +13,7 @@ package com.intuit.tank.runner;
  * #L%
  */
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -60,6 +61,7 @@ public class TestPlanRunner implements Runnable {
     private HDTestPlan testPlan;
     private int threadNumber;
     private TankHttpClient httpClient;
+    private String httpClientClass;
     private BaseRequest previousRequest = null;
     private BaseResponse previousResponse = null;
     private boolean finished = false;
@@ -69,14 +71,16 @@ public class TestPlanRunner implements Runnable {
         headerMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
         this.testPlan = testPlan;
         this.threadNumber = threadNumber;
-        setHttpClient(initHttpClient());
+        this.httpClientClass = APITestHarness.getInstance().getTankHttpClientClass();
+        setHttpClient(initHttpClient(httpClientClass));
     }
     
-    public TestPlanRunner(HDTestPlan testPlan, int threadNumber, TankHttpClient client) {
+    public TestPlanRunner(HDTestPlan testPlan, int threadNumber, String httpClientClass) {
         headerMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
         this.testPlan = testPlan;
         this.threadNumber = threadNumber;
-        this.httpClient = client;
+        this.httpClientClass = httpClientClass;
+        setHttpClient(initHttpClient(httpClientClass));
     }
 
     /**
@@ -126,14 +130,12 @@ public class TestPlanRunner implements Runnable {
                 while (scriptGroupLoop < hdScriptGroup.getLoop()) {
                     List<HDScript> groupSteps = hdScriptGroup.getGroupSteps();
                     if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill) {
-                        httpClient.close();
                         return;
                     }
                     try {
                         runTestGroup(groupSteps, hdScriptGroup);
                     } catch (KillScriptException e) {
                         LOG.info(LogUtil.getLogMessage(e.getMessage()));
-                        httpClient.close();
                         return;
                     } catch (NextScriptGroupException e) {
                         scriptGroupLoop = hdScriptGroup.getLoop();
@@ -145,7 +147,6 @@ public class TestPlanRunner implements Runnable {
                     }
                     if (isCompleted(RunPhase.group, finished)) {
                         LOG.info(LogUtil.getLogMessage("finished or Stop set to group or less, exiting at group " + hdScriptGroup.getName()));
-                        httpClient.close();
                         return;
                     }
                     scriptGroupLoop++;
@@ -156,7 +157,6 @@ public class TestPlanRunner implements Runnable {
                     finished = true;
                     if (isCompleted(RunPhase.test, finished)) {
                         LOG.info(LogUtil.getLogMessage("finished or Stop set to test or less, exiting at test..."));
-                        httpClient.close();
                         return;
                     }
                     i = 0;
@@ -172,6 +172,11 @@ public class TestPlanRunner implements Runnable {
         } finally {
             APITestHarness.getInstance().threadComplete();
             LOG.info(LogUtil.getLogMessage(mt.getNaturalTimeMessage() + " Test complete. Exiting..."));
+            try {
+                httpClient.close();
+            } catch (IOException e) {
+                LOG.info(LogUtil.getLogMessage(mt.getNaturalTimeMessage() + " Unable to close httpClient..."));
+            }
         }
     }
 
@@ -377,10 +382,10 @@ public class TestPlanRunner implements Runnable {
         }
     }
 
-    public TankHttpClient initHttpClient() {
+    public TankHttpClient initHttpClient(String httpClientClass) {
         try {
             //get the client from a factory and set it here.
-            TankHttpClient ret = (TankHttpClient) Class.forName(APITestHarness.getInstance().getTankHttpClientClass()).newInstance();
+            TankHttpClient ret = (TankHttpClient) Class.forName(httpClientClass).newInstance();
             Long connectionTimeout = APITestHarness.getInstance().getTankConfig().getAgentConfig().getConnectionTimeout();
             if (connectionTimeout != null) {
                 ret.setConnectionTimeout(connectionTimeout);

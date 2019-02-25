@@ -39,7 +39,7 @@ public class TestStepRunnerTest {
     @Test
     public void testTestStepRunner_1()
         throws Exception {
-        TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient()));
+        TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient"));
 
         TestStepRunner result = new TestStepRunner(tsc);
 
@@ -72,7 +72,7 @@ public class TestStepRunnerTest {
     @Test
     public void testExecute_1()
         throws Exception {
-        TestStepRunner fixture = new TestStepRunner(new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient())));
+        TestStepRunner fixture = new TestStepRunner(new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient")));
         fixture.lastSslHandshake = 1L;
         fixture.sslTimeout = 1L;
 
@@ -111,7 +111,7 @@ public class TestStepRunnerTest {
     @Test
     public void testExecute_2()
         throws Exception {
-        TestStepRunner fixture = new TestStepRunner(new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient())));
+        TestStepRunner fixture = new TestStepRunner(new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient")));
         fixture.lastSslHandshake = 1L;
         fixture.sslTimeout = 1L;
 
@@ -150,7 +150,7 @@ public class TestStepRunnerTest {
     @Test
     public void testExecute_3()
         throws Exception {
-        TestStepRunner fixture = new TestStepRunner(new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient())));
+        TestStepRunner fixture = new TestStepRunner(new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient")));
         fixture.lastSslHandshake = 1L;
         fixture.sslTimeout = 1L;
 
