@@ -18,8 +18,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import com.intuit.tank.script.RequestDataPhase;
 
 @XmlType(name = "validation", propOrder = { "condition", "phase" }, namespace = HarnessDataNamespace.NAMESPACE_V1)

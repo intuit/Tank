@@ -40,7 +40,7 @@ public class SetCookieRunnerTest {
     public void testSetCookieRunner_1()
             throws Exception {
         TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(),
-                new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient()));
+                new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient"));
 
         SetCookieRunner result = new SetCookieRunner(tsc);
 

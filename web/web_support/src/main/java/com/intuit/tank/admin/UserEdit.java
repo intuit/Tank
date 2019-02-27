@@ -17,7 +17,6 @@ package com.intuit.tank.admin;
  */
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,7 +40,6 @@ import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.Group;
 import com.intuit.tank.project.User;
 import com.intuit.tank.qualifier.Modified;
-import com.intuit.tank.util.TsConversationManager;
 import com.intuit.tank.vm.common.PasswordEncoder;
 import com.intuit.tank.vm.settings.TankConfig;
 

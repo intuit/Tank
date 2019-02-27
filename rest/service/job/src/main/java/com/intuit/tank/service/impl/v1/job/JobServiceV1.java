@@ -17,7 +17,6 @@ package com.intuit.tank.service.impl.v1.job;
  */
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 

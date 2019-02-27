@@ -16,6 +16,7 @@ package com.intuit.tank.tools.script;
  * #L%
  */
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
@@ -24,8 +25,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
-
-import org.apache.commons.io.IOUtils;
 
 /**
  * ScriptRunner
@@ -68,10 +67,8 @@ public class ScriptRunner {
      */
     public ScriptIOBean runScript(@Nullable String scriptName, @Nonnull String script, @Nonnull ScriptEngine engine,
             @Nonnull Map<String, Object> inputs, OutputLogger output) throws ScriptException {
-        Reader reader = null;
         ScriptIOBean ioBean = null;
-        try {
-            reader = new StringReader(script);
+        try ( Reader reader =  new StringReader(script) ){
             ioBean = new ScriptIOBean(inputs, output);
             engine.put("ioBean", ioBean);
             ioBean.println("Starting test...");
@@ -79,8 +76,8 @@ public class ScriptRunner {
             ioBean.println("Finished test...");
         } catch (ScriptException e) {
             throw new ScriptException(e.getMessage(), scriptName, e.getLineNumber(), e.getColumnNumber());
-        } finally {
-            IOUtils.closeQuietly(reader);
+        } catch (IOException e) {
+            throw new ScriptException(e.getMessage(), scriptName, 0, 0);
         }
         return ioBean;
     }

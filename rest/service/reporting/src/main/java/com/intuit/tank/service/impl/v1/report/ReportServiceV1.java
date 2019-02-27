@@ -174,14 +174,10 @@ public class ReportServiceV1 implements ReportService {
         final FileData fd = new FileData("", fileName);
         if (fileStorage.exists(fd)) {
             StreamingOutput streamingOutput = outputStream -> {
-                InputStream in = null;
-                in = new GZIPInputStream(fileStorage.readFileData(fd));
-                try {
+                try ( InputStream in = new GZIPInputStream(fileStorage.readFileData(fd)) ) {
                     IOUtils.copy(in, outputStream);
                 } catch (RuntimeException e) {
                     throw e;
-                } finally {
-                    IOUtils.closeQuietly(in);
                 }
             };
             String filename = "timing_" + tankConfig.getInstanceName() + "_" + jobId + ".csv";
@@ -215,8 +211,7 @@ public class ReportServiceV1 implements ReportService {
             List<PeriodicData> data = dao.findByJobId(Integer.parseInt(jobId), minDate, maxDate);
             LOG.info("found " + data.size() + " entries for job " + jobId + " for dates " + minDate + " - " + maxDate);
             if (!data.isEmpty()) {
-                CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream));
-                try {
+                try ( CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream)) ){
                     String[] headers = ReportUtil.BUCKET_HEADERS;
                     csvWriter.writeNext(headers);
                     int count = 0;
@@ -234,8 +229,6 @@ public class ReportServiceV1 implements ReportService {
                     csvWriter.flush();
                 } catch (RuntimeException e) {
                     throw e;
-                } finally {
-                    csvWriter.close();
                 }
             }
         };
@@ -312,8 +305,7 @@ public class ReportServiceV1 implements ReportService {
             List<SummaryData> data = new SummaryDataDao().findByJobId(Integer.parseInt(jobId));
 
             if (!data.isEmpty()) {
-                CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream));
-                try {
+                try ( CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(outputStream)) ) {
                     String[] headers = ReportUtil.getSummaryHeaders();
                     csvWriter.writeNext(headers);
                     for (SummaryData item : data) {
@@ -323,8 +315,6 @@ public class ReportServiceV1 implements ReportService {
                     }
                 } catch (RuntimeException e) {
                     throw e;
-                } finally {
-                    csvWriter.close();
                 }
             }
         };

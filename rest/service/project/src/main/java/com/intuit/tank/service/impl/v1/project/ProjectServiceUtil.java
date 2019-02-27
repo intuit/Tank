@@ -32,7 +32,6 @@ import com.intuit.tank.perfManager.workLoads.util.WorkloadScriptUtil;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Project;
-import com.intuit.tank.project.ProjectDTO;
 import com.intuit.tank.project.Workload;
 
 /**

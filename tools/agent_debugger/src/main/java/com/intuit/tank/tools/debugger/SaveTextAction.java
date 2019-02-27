@@ -22,8 +22,6 @@ import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import org.apache.commons.io.IOUtils;
-
 import com.intuit.tank.tools.debugger.ActionProducer.IconSize;
 
 public class SaveTextAction extends AbstractAction {

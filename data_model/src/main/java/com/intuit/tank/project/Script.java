@@ -24,7 +24,6 @@ import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.envers.Audited;
@@ -62,42 +61,16 @@ public class Script extends OwnableEntity implements Comparable<Script> {
     @Column(name = "serial_step_id")
     private Integer serializedScriptStepId;
 
-    // public void serialize() {
-    // ObjectOutputStream s = null;
-    // try {
-    // // if (steps.size() > 0) {
-    // ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    // s = new ObjectOutputStream(bos);
-    // s.writeObject(steps);
-    // serializedScriptStep = new SerializedScriptStep(bos.toByteArray());
-    // // }
-    // } catch (IOException e) {
-    // throw new RecoverableException(e);
-    // } finally {
-    // IOUtils.closeQuietly(s);
-    // }
-    // }
-    //
-    // @PostLoad
-    // protected void deserialize() {
-    // steps = deserializeBlob(serializedScriptStep);
-    // }
-
     @SuppressWarnings("unchecked")
     public static List<ScriptStep> deserializeBlob(SerializedScriptStep serializedScriptStep) {
-        List<ScriptStep> result = null;
-        ObjectInputStream s = null;
-        try {
-            if (serializedScriptStep != null && serializedScriptStep.getSerialzedBlob() != null) {
-                s = new ObjectInputStream(serializedScriptStep.getSerialzedBlob().getBinaryStream());
-                result = (List<ScriptStep>) s.readObject();
+        if (serializedScriptStep != null && serializedScriptStep.getSerialzedBlob() != null) {
+            try ( ObjectInputStream os = new ObjectInputStream(serializedScriptStep.getSerialzedBlob().getBinaryStream()) ) {
+                return (List<ScriptStep>) os.readObject();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(s);
         }
-        return result;
+        return null;
     }
 
     // /**

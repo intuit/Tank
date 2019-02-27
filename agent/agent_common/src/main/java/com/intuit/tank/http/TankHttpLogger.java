@@ -1,7 +1,5 @@
 package com.intuit.tank.http;
 
-import java.util.Map;
-
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.settings.AgentConfig;

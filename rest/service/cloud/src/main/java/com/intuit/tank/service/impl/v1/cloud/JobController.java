@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.Iterator;
 import java.util.stream.Collectors;
 
 import javax.enterprise.event.Event;
@@ -46,7 +45,6 @@ import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.event.JobEvent;
 import com.intuit.tank.vm.perfManager.AgentChannel;
 import com.intuit.tank.vm.settings.TankConfig;
-import com.intuit.tank.vm.vmManager.VMChannel;
 import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 
 /**

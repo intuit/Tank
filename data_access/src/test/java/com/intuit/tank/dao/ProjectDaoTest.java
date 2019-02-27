@@ -19,12 +19,14 @@ package com.intuit.tank.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
+import org.hibernate.PropertyValueException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -119,6 +121,12 @@ public class ProjectDaoTest {
         } catch (ConstraintViolationException e) {
             // expected validation
             DaoTestUtil.checkConstraintViolation(e, property, messageContains);
+        } catch (PersistenceException e) {
+            if (e.getCause() instanceof PropertyValueException) {
+                Assert.assertTrue(e.getCause().getMessage().startsWith("not-null property references a null or transient value"));
+                return;
+            }
+            Assert.assertTrue(e.getCause().getCause().getMessage().startsWith("Value too long for column "));
         }
     }
 

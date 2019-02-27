@@ -20,11 +20,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -258,13 +256,10 @@ public class DataFileServiceV1 implements DataFileService {
         final FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getDataFileStorageDir(), false);
         final FileData fd = DataFileUtil.getFileData(dataFile);
         return outputStream -> {
-            BufferedReader in = null;
-            // Get the object of DataInputStream
-            PrintWriter out = null;
-            try {
+
+            try (   BufferedReader in = new BufferedReader(new InputStreamReader(fileStorage.readFileData(fd), StandardCharsets.UTF_8));
+                    PrintWriter out = new PrintWriter(outputStream) ) {
                 int nl = numLines;
-                in = new BufferedReader(new InputStreamReader(fileStorage.readFileData(fd), StandardCharsets.UTF_8));
-                out = new PrintWriter(outputStream);
                 if (!fd.getFileName().toLowerCase().endsWith(".csv")) {
                     nl = -1;
                 }
@@ -281,9 +276,6 @@ public class DataFileServiceV1 implements DataFileService {
             } catch (IOException e) {
                 LOG.error("Error streaming file: " + e.toString(), e);
                 throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-            } finally {
-                IOUtils.closeQuietly(out);
-                IOUtils.closeQuietly(in);
             }
         };
     }

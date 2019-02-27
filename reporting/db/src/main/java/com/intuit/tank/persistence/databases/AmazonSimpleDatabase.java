@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.services.simpledb.AmazonSimpleDBClientBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +25,6 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpledb.AmazonSimpleDB;
-import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
 import com.amazonaws.services.simpledb.model.Attribute;
 import com.amazonaws.services.simpledb.model.BatchPutAttributesRequest;
 import com.amazonaws.services.simpledb.model.CreateDomainRequest;
@@ -403,9 +404,9 @@ public class AmazonSimpleDatabase implements IDatabase {
         }
         if (StringUtils.isNotBlank(creds.getKeyId()) && StringUtils.isNotBlank(creds.getKey())) {
             AWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
-            this.db = new AmazonSimpleDBClient(credentials, config);
+            this.db = AmazonSimpleDBClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
         } else {
-            this.db = new AmazonSimpleDBClient(config);
+            this.db = AmazonSimpleDBClientBuilder.standard().withClientConfiguration(config).build();
         }
     }
 

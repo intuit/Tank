@@ -51,7 +51,7 @@ public class TestStepContextTest {
         String testPlanName = "";
         String uniqueName = "";
         TimerMap timerMap = new TimerMap();
-        TestPlanRunner parent = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner parent = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         parent.setHttpClient(null);
 
         TestStepContext result = new TestStepContext(testStep, variables, testPlanName, uniqueName, timerMap, parent);
@@ -73,7 +73,7 @@ public class TestStepContextTest {
     @Test
     public void testAddError_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -99,7 +99,7 @@ public class TestStepContextTest {
     @Test
     public void testGetErrors_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -127,7 +127,7 @@ public class TestStepContextTest {
     @Test
     public void testGetParent_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -153,7 +153,7 @@ public class TestStepContextTest {
     @Test
     public void testGetRequest_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -179,7 +179,7 @@ public class TestStepContextTest {
     @Test
     public void testGetResponse_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -205,7 +205,7 @@ public class TestStepContextTest {
     @Test
     public void testGetResult_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -231,7 +231,7 @@ public class TestStepContextTest {
     @Test
     public void testGetTestPlanName_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -257,7 +257,7 @@ public class TestStepContextTest {
     @Test
     public void testGetTestStep_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -283,7 +283,7 @@ public class TestStepContextTest {
     @Test
     public void testGetTimerMap_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -309,7 +309,7 @@ public class TestStepContextTest {
     @Test
     public void testGetUniqueName_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -335,7 +335,7 @@ public class TestStepContextTest {
     @Test
     public void testGetVariables_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -362,7 +362,7 @@ public class TestStepContextTest {
     @Test
     public void testSetRequest_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -388,7 +388,7 @@ public class TestStepContextTest {
     @Test
     public void testSetResponse_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -414,7 +414,7 @@ public class TestStepContextTest {
     @Test
     public void testSetResult_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -440,7 +440,7 @@ public class TestStepContextTest {
     @Test
     public void testSetTestPlanName_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -466,7 +466,7 @@ public class TestStepContextTest {
     @Test
     public void testSetTestStep_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));
@@ -492,7 +492,7 @@ public class TestStepContextTest {
     @Test
     public void testSetVariables_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext fixture = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
         fixture.setRequest(new BinaryRequest(null, null));

@@ -64,7 +64,6 @@ import com.intuit.tank.conversation.Request;
 import com.intuit.tank.conversation.Response;
 import com.intuit.tank.conversation.Transaction;
 import com.intuit.tank.entity.Application;
-import com.intuit.tank.util.HeaderParser;
 
 public class BufferingHttpRequestHandler implements HttpRequestHandler {
 

@@ -18,22 +18,13 @@ package com.intuit.tank.api.model.v1.automation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import com.intuit.tank.api.model.v1.automation.adapter.XmlGenericMapAdapter;
-import com.intuit.tank.harness.StopBehavior;
-import com.intuit.tank.vm.api.enumerated.Location;
 
 /**
  * 

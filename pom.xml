@@ -28,24 +28,24 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>4.2.21.Final</version.hibernate>
-    <version-aws-sdk>1.11.365</version-aws-sdk>
+    <version-aws-sdk>1.11.490</version-aws-sdk>
 
-    <version-tomcat>9.0.10</version-tomcat>
+    <version-tomcat>9.0.14</version-tomcat>
 
-    <weld-version>3.0.5.Final</weld-version>
+    <weld-version>3.1.0.Final</weld-version>
     <cdi-version>2.0</cdi-version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
-    <version.enunciate>2.10.1</version.enunciate>
+    <version.enunciate>2.11.1</version.enunciate>
 
     <version.mojarra>2.2.18</version.mojarra>
     <version.jsf-api>2.2.18</version.jsf-api>
     <version.primefaces>6.1</version.primefaces>
     <version.primefaces-ext>6.1.1</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
-    <version.surefire>2.22.0</version.surefire>
-    <version.jersey>2.27</version.jersey>
-    <version.arquillian>1.4.0.Final</version.arquillian>
+    <version.surefire>3.0.0-M3</version.surefire>
+    <version.jersey>2.28</version.jersey>
+    <version.arquillian>1.4.1.Final</version.arquillian>
     <version.httpclient>4.5.6</version.httpclient>
     <version.httpclient5>5.0-beta2</version.httpclient5>
 
@@ -201,7 +201,7 @@
           <dependency>
             <groupId>xalan</groupId>
             <artifactId>xalan</artifactId>
-            <version>2.7.1</version>
+            <version>2.7.2</version>
             <scope>provided</scope>
           </dependency>
           <dependency>
@@ -281,6 +281,13 @@
     <dependency>
       <groupId>org.jboss.arquillian.testng</groupId>
       <artifactId>arquillian-testng-container</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.arquillian.container</groupId>
+      <artifactId>arquillian-tomcat-embedded-8</artifactId>
+      <version>1.1.0.Final</version>
       <scope>test</scope>
     </dependency>
 
@@ -387,7 +394,7 @@
       <dependency>
         <groupId>javax.servlet.jsp</groupId>
         <artifactId>javax.servlet.jsp-api</artifactId>
-        <version>2.3.1</version>
+        <version>2.3.3</version>
         <scope>test</scope>
       </dependency>
 
@@ -430,7 +437,7 @@
       <dependency>
         <groupId>com.itextpdf</groupId>
         <artifactId>itextpdf</artifactId>
-        <version>5.5.12</version>
+        <version>5.5.13</version>
       </dependency>
 
       <dependency>
@@ -475,7 +482,7 @@
       <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
-        <version>1.4.196</version>
+        <version>1.4.197</version>
       </dependency>
 
       <dependency>
@@ -988,7 +995,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.1.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -998,7 +1005,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>2.9</version>
+          <version>3.0.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1013,6 +1020,13 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>cobertura-maven-plugin</artifactId>
           <version>2.7</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.ow2.asm</groupId>
+              <artifactId>asm</artifactId>
+              <version>7.0</version>
+            </dependency>
+          </dependencies>
           <configuration>
             <aggregate>true</aggregate>
             <formats>
@@ -1043,7 +1057,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
-          <version>2.5</version>
+          <version>2.7</version>
         </plugin>
 
       </plugins>
@@ -1100,7 +1114,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-
       </plugin>
 
       <plugin>
@@ -1111,7 +1124,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.1</version>
         <configuration>
           <archive>
             <manifest>
@@ -1151,10 +1164,7 @@
           </dependency>
         </dependencies>
       </plugin>
-
     </plugins>
-
-
   </build>
 
 
@@ -1190,9 +1200,6 @@
       </plugin>
     </plugins>
   </reporting>
-
-
-
 
   <repositories>
 

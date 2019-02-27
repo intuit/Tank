@@ -16,7 +16,6 @@ package com.intuit.tank.service.util;
  * #L%
  */
 
-import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;

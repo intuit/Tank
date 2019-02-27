@@ -17,7 +17,6 @@ package com.intuit.tank.harness.logging;
  */
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

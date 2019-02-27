@@ -1,7 +1,6 @@
 package com.intuit.tank.conversation;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
 import javax.xml.bind.annotation.XmlAccessType;

@@ -40,7 +40,6 @@ import com.intuit.tank.proxy.config.ProxyConfiguration;
 import com.intuit.tank.proxy.config.TransactionPart;
 import com.intuit.tank.proxy.table.TransactionRecordedListener;
 import com.intuit.tank.util.HeaderParser;
-import com.intuit.tank.util.HeaderParser.HeaderType;
 
 public final class Application {
 

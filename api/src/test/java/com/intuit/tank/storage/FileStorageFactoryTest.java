@@ -48,10 +48,11 @@ public class FileStorageFactoryTest {
         String fromFile = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
         Assert.assertEquals(s, fromFile);
 
-        InputStream in = storage.readFileData(fd);
-        String fromService = IOUtils.toString(in, StandardCharsets.UTF_8);
-        IOUtils.closeQuietly(in);
-        Assert.assertEquals(s, fromService);
+        try (InputStream in = storage.readFileData(fd) ) {
+            String fromService = IOUtils.toString(in, StandardCharsets.UTF_8);
+            Assert.assertEquals(s, fromService);
+        }
+
         Assert.assertTrue(storage.exists(fd));
         storage.delete(fd);
         Assert.assertTrue(!storage.exists(fd));
@@ -70,15 +71,15 @@ public class FileStorageFactoryTest {
         storage.storeFileData(fd, bis);
 
         File file = getFile(f.getAbsolutePath(), fd);
-        InputStream in = new GZIPInputStream(new FileInputStream(file));
-        String fromFile = IOUtils.toString(in, StandardCharsets.UTF_8);
-        Assert.assertEquals(s, fromFile);
-        IOUtils.closeQuietly(in);
+        try ( InputStream in = new GZIPInputStream(new FileInputStream(file)) ) {
+            String fromFile = IOUtils.toString(in, StandardCharsets.UTF_8);
+            Assert.assertEquals(s, fromFile);
+        }
 
-        in = storage.readFileData(fd);
-        String fromService = IOUtils.toString(in);
-        IOUtils.closeQuietly(in);
-        Assert.assertEquals(s, fromService);
+        try ( InputStream in = storage.readFileData(fd) ) {
+            String fromService = IOUtils.toString(in);
+            Assert.assertEquals(s, fromService);
+        }
         Assert.assertTrue(storage.exists(fd));
         storage.delete(fd);
         Assert.assertTrue(!storage.exists(fd));
@@ -99,10 +100,10 @@ public class FileStorageFactoryTest {
         FileData fd = new FileData("", "test.txt");
         storage.storeFileData(fd, bis);
 
-        InputStream in = storage.readFileData(fd);
-        String fromService = IOUtils.toString(in, StandardCharsets.UTF_8);
-        IOUtils.closeQuietly(in);
-        Assert.assertEquals(s, fromService);
+        try ( InputStream in = storage.readFileData(fd) ) {
+            String fromService = IOUtils.toString(in, StandardCharsets.UTF_8);
+            Assert.assertEquals(s, fromService);
+        }
         Assert.assertTrue(storage.exists(fd));
         storage.delete(fd);
         Assert.assertTrue(!storage.exists(fd));
@@ -122,10 +123,10 @@ public class FileStorageFactoryTest {
         FileData fd = new FileData("", "test.gz");
         storage.storeFileData(fd, bis);
 
-        InputStream in = storage.readFileData(fd);
-        String fromService = IOUtils.toString(in, StandardCharsets.UTF_8);
-        IOUtils.closeQuietly(in);
-        Assert.assertEquals(s, fromService);
+        try ( InputStream in = storage.readFileData(fd) ) {
+            String fromService = IOUtils.toString(in, StandardCharsets.UTF_8);
+            Assert.assertEquals(s, fromService);
+        }
         Assert.assertTrue(storage.exists(fd));
         storage.delete(fd);
         Assert.assertTrue(!storage.exists(fd));

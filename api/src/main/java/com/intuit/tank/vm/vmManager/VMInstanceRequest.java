@@ -26,7 +26,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMProvider;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
-import com.intuit.tank.vm.api.enumerated.VMSize;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.InstanceDescription;
 import com.intuit.tank.vm.settings.TankConfig;

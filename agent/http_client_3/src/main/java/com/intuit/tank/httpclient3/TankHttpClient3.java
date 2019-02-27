@@ -269,16 +269,9 @@ public class TankHttpClient3 implements TankHttpClient {
             byte[] responseBody = new byte[0];
             // check for no content headers
             if (method.getStatusCode() != 203 && method.getStatusCode() != 202 && method.getStatusCode() != 204) {
-                try {
-                    InputStream httpInputStream = method.getResponseBodyAsStream();
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    int curByte = httpInputStream.read();
-                    while (curByte >= 0) {
-                        out.write(curByte);
-                        curByte = httpInputStream.read();
-                    }
-                    responseBody = out.toByteArray();
-                } catch (Exception e) {
+                try ( InputStream is = method.getResponseBodyAsStream() ) {
+                    responseBody = IOUtils.toByteArray(is);
+                } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
             }
@@ -367,12 +360,11 @@ public class TankHttpClient3 implements TankHttpClient {
             String contentEncode = response.getHttpHeader("Content-Encoding");
             if (BaseResponse.isDataType(contentType) && contentEncode != null && contentEncode.toLowerCase().contains("gzip")) {
                 // decode gzip for data types
-                try {
-                    GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(bResponse));
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                try (   GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(bResponse));
+                        ByteArrayOutputStream out = new ByteArrayOutputStream() ) {
                     IOUtils.copy(in, out);
                     bResponse = out.toByteArray();
-                } catch (Exception e) {
+                } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("cannot decode gzip stream: " + e, LogEventType.System));
                 }
             }
