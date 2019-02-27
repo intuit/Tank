@@ -286,19 +286,17 @@ public class TankHttpClient5 implements TankHttpClient {
     private void sendRequest(BaseRequest request, @Nonnull ClassicHttpRequest method, String requestBody) {
         String uri = null;
         long waitTime = 0L;
-        CloseableHttpResponse response = null;
-        try {
-            uri = method.getRequestUri();
-            LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
-            List<String> cookies = new ArrayList<String>();
-            if (context.getCookieStore().getCookies() != null) {
-                cookies = context.getCookieStore().getCookies().stream().map(cookie -> "REQUEST COOKIE: " + cookie.toString()).collect(Collectors.toList());
-            }
-            request.logRequest(uri, requestBody, method.getMethod(), request.getHeaderInformation(), cookies, false);
-            setHeaders(request, method, request.getHeaderInformation());
-            long startTime = System.currentTimeMillis();
-            request.setTimestamp(new Date(startTime));
-            response = httpclient.execute(method, context);
+        uri = method.getRequestUri();
+        LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
+        List<String> cookies = new ArrayList<String>();
+        if (context.getCookieStore().getCookies() != null) {
+            cookies = context.getCookieStore().getCookies().stream().map(cookie -> "REQUEST COOKIE: " + cookie.toString()).collect(Collectors.toList());
+        }
+        request.logRequest(uri, requestBody, method.getMethod(), request.getHeaderInformation(), cookies, false);
+        setHeaders(request, method, request.getHeaderInformation());
+        long startTime = System.currentTimeMillis();
+        request.setTimestamp(new Date(startTime));
+        try ( CloseableHttpResponse response = httpclient.execute(method, context) ) {
 
             // read response body
             byte[] responseBody = new byte[0];
@@ -320,19 +318,6 @@ public class TankHttpClient5 implements TankHttpClient {
         } catch (Exception ex) {
             LOG.error(request.getLogUtil().getLogMessage("Could not do " + method.getMethod() + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO), ex);
             throw new RuntimeException(ex);
-        } finally {
-            try {
-                if (response != null) {
-                    response.close();
-                }
-            } catch (Exception e) {
-                LOG.warn(request.getLogUtil().getLogMessage("Could not release connection: " + e), e);
-            }
-            if (method.getMethod().equalsIgnoreCase("post") && request.getLogUtil().getAgentConfig().getLogPostResponse()) {
-                LOG.info(request.getLogUtil().getLogMessage(
-                        "Response from POST to " + request.getRequestUrl() + " got status code " + request.getResponse().getHttpCode() + " BODY { " + request.getResponse().getBody() + " }",
-                        LogEventType.Informational));
-            }
         }
         if (waitTime != 0) {
             doWaitDueToLongResponse(request, waitTime, uri);
