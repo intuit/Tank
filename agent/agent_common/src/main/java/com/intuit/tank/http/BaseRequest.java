@@ -172,12 +172,6 @@ public abstract class BaseRequest {
         httpclient.doPost(this);
 
     }
-    /**
-     * Close httpclient.
-     */
-    public void close() throws IOException {
-        httpclient.close();
-   }
 
     /**
      * Set as value in the request

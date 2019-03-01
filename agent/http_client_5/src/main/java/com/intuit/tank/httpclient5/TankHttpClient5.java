@@ -49,12 +49,11 @@ import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
-import org.apache.hc.client5.http.impl.routing.DefaultProxyRoutePlanner;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
@@ -86,48 +85,39 @@ public class TankHttpClient5 implements TankHttpClient {
 
     static Logger LOG = LogManager.getLogger(TankHttpClient5.class);
 
-    private CloseableHttpClient httpclient;
+    private HttpClientBuilder httpclient;
+    private RequestConfig.Builder requestConfig;
     private HttpClientContext context;
-    private RequestConfig requestConfig;
-    private SSLConnectionSocketFactory sslsf;
-    private HttpClientConnectionManager cm;
-    private boolean proxyOn = false;
 
     /**
      * no-arg constructor for client
      */
     public TankHttpClient5() {
-        sslsf = new SSLConnectionSocketFactory(SSLContexts.createDefault(), NoopHostnameVerifier.INSTANCE);
-        cm = PoolingHttpClientConnectionManagerBuilder.create()
+        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(SSLContexts.createDefault(), NoopHostnameVerifier.INSTANCE);
+        HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
                 .setSSLSocketFactory(sslsf)
                 .build();
-        
-        httpclient = HttpClients.custom().setConnectionManager(cm).build();
+        httpclient = HttpClients.custom().setConnectionManager(cm);
+
         requestConfig = RequestConfig.custom()
         		.setConnectTimeout(30, TimeUnit.SECONDS)
         		.setCircularRedirectsAllowed(true)
         		.setAuthenticationEnabled(true)
         		.setRedirectsEnabled(true)
         		.setCookieSpec(CookieSpecs.STANDARD)
-                .setMaxRedirects(100).build();
+                .setMaxRedirects(100);
 
         // Make sure the same context is used to execute logically related
         // requests
         context = HttpClientContext.create();
         context.setCredentialsProvider(new BasicCredentialsProvider());
         context.setCookieStore(new BasicCookieStore());
-        context.setRequestConfig(requestConfig);
+        context.setRequestConfig(requestConfig.build());
     }
 
     public void setConnectionTimeout(long connectionTimeout) {
-        requestConfig = RequestConfig.custom()
-        		.setConnectTimeout((int) connectionTimeout, TimeUnit.MILLISECONDS)
-        		.setCircularRedirectsAllowed(true)
-        		.setAuthenticationEnabled(true)
-                .setRedirectsEnabled(true)
-                .setCookieSpec(CookieSpecs.STANDARD)
-                .setMaxRedirects(100).build();
-        context.setRequestConfig(requestConfig);
+        requestConfig.setConnectTimeout((int) connectionTimeout, TimeUnit.MILLISECONDS);
+        context.setRequestConfig(requestConfig.build());
     }
 
     /*
@@ -268,19 +258,13 @@ public class TankHttpClient5 implements TankHttpClient {
     @Override
     public void setProxy(String proxyhost, int proxyport) {
         if (StringUtils.isNotBlank(proxyhost)) {
+            RequestConfig.Builder clone = RequestConfig.copy(requestConfig.build());
             HttpHost proxy = new HttpHost(proxyhost, proxyport);
-            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-            httpclient = HttpClients.custom().setConnectionManager(cm).setRoutePlanner(routePlanner).build();
-            proxyOn = true;
-        } else if (proxyOn){
-            httpclient = HttpClients.custom().setConnectionManager(cm).build();
-            proxyOn = false;
+            clone.setProxy(proxy);
+            context.setRequestConfig(clone.build());
+        } else {
+            context.setRequestConfig(requestConfig.build());
         }
-    }
-
-    @Override
-    public void close() throws IOException {
-        httpclient.close();
     }
 
     private void sendRequest(BaseRequest request, @Nonnull ClassicHttpRequest method, String requestBody) {
@@ -296,7 +280,7 @@ public class TankHttpClient5 implements TankHttpClient {
         setHeaders(request, method, request.getHeaderInformation());
         long startTime = System.currentTimeMillis();
         request.setTimestamp(new Date(startTime));
-        try ( CloseableHttpResponse response = httpclient.execute(method, context) ) {
+        try ( CloseableHttpResponse response = httpclient.build().execute(method, context) ) {
 
             // read response body
             byte[] responseBody = new byte[0];
@@ -420,7 +404,6 @@ public class TankHttpClient5 implements TankHttpClient {
         }
     }
 
-
     private HttpEntity buildParts(BaseRequest request) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         for (PartHolder h : TankHttpUtil.getPartsFromBody(request)) {
@@ -440,6 +423,4 @@ public class TankHttpClient5 implements TankHttpClient {
         }
         return builder.build();
     }
-    
-
 }

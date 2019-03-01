@@ -243,11 +243,6 @@ public class TankHttpClient3 implements TankHttpClient {
         }
     }
 
-    @Override
-    public void close() throws IOException {
-        httpclient = null;
-    }
-
     private void sendRequest(BaseRequest request, @Nonnull HttpMethod method, String requestBody) {
         String uri = null;
         long waitTime = 0L;

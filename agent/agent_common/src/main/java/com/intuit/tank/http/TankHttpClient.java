@@ -2,7 +2,7 @@ package com.intuit.tank.http;
 
 import java.io.IOException;
 
-public interface TankHttpClient extends AutoCloseable {
+public interface TankHttpClient {
 
     /**
      * Execute the GET. Use this to base the response off of the content type
@@ -71,10 +71,4 @@ public interface TankHttpClient extends AutoCloseable {
      * @param connectionTimeout
      */
     public void setConnectionTimeout(long connectionTimeout);
-
-    /**
-     *
-     */
-    public void close() throws IOException;
-
 }

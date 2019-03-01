@@ -84,12 +84,4 @@ public class TestHttpClient implements TankHttpClient {
     @Override
     public void setConnectionTimeout(long connectionTimeout) {
     }
-
-    /* (non-Javadoc)
-     * @see com.intuit.tank.http.TankHttpClient#close()
-     */
-    @Override
-    public void close() {
-    }
-
 }
