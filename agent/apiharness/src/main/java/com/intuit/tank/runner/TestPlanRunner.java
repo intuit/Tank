@@ -171,6 +171,7 @@ public class TestPlanRunner implements Runnable {
         } finally {
             APITestHarness.getInstance().threadComplete();
             LOG.info(LogUtil.getLogMessage(mt.getNaturalTimeMessage() + " Test complete. Exiting..."));
+            closeHttClient();
         }
     }
 
@@ -379,15 +380,19 @@ public class TestPlanRunner implements Runnable {
     public TankHttpClient initHttpClient(String httpClientClass) {
         try {
             //get the client from a factory and set it here.
-            TankHttpClient ret = (TankHttpClient) Class.forName(httpClientClass).newInstance();
+            TankHttpClient httpclient = (TankHttpClient) Class.forName(httpClientClass).newInstance();
             Long connectionTimeout = APITestHarness.getInstance().getTankConfig().getAgentConfig().getConnectionTimeout();
             if (connectionTimeout != null) {
-                ret.setConnectionTimeout(connectionTimeout);
+                httpclient.setConnectionTimeout(connectionTimeout);
             }
-            return ret;
+            return httpclient;
         } catch (Exception e) {
             LOG.error(LogUtil.getLogMessage("TankHttpClient specified incorrectly: " + e),e);
             throw new RuntimeException(e);
         }
+    }
+
+    private void closeHttClient() {
+        getHttpClient().close();
     }
 }

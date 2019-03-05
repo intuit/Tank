@@ -92,8 +92,6 @@ public class TankHttpClient3 implements TankHttpClient {
     public void setConnectionTimeout(long connectionTimeout) {
         httpclient.getParams().setConnectionManagerTimeout(connectionTimeout);
     }
-    
-    
 
     /*
      * (non-Javadoc)
@@ -416,6 +414,8 @@ public class TankHttpClient3 implements TankHttpClient {
         return parts;
     }
 
-   
-
+    @Override
+    public void close() {
+        httpclient = null;
+    }
 }

@@ -566,7 +566,6 @@ public class APITestHarness {
             agentRunData.setJobId(jobId);
         }
 
-        TestPlanRunner[] sessions = new TestPlanRunner[agentRunData.getNumUsers()];
         sessionThreads = new Thread[agentRunData.getNumUsers()];
         Thread monitorThread = null;
         doneSignal = new CountDownLatch(agentRunData.getNumUsers());
@@ -603,11 +602,11 @@ public class APITestHarness {
             int tp = 0;
             for (TestPlanStarter starter : testPlans) {
                 for (int i = 0; i < starter.getNumThreads(); i++) {
-                    sessions[tp] = new TestPlanRunner(starter.getPlan(), tp);
-                    sessionThreads[tp] = new Thread(threadGroup, sessions[tp], "AGENT");
+                    TestPlanRunner session = new TestPlanRunner(starter.getPlan(), tp);
+                    sessionThreads[tp] = new Thread(threadGroup, session, "AGENT");
                     sessionThreads[tp].setDaemon(true);// system won't shut down normally until all user threads stop
                     starter.addThread(sessionThreads[tp]);
-                    sessions[tp].setUniqueName(
+                    session.setUniqueName(
                             sessionThreads[tp].getThreadGroup().getName() + "-" +
                                     sessionThreads[tp].getId());
                     tp++;
@@ -680,12 +679,6 @@ public class APITestHarness {
                     APIMonitor.setDoMonitor(false);
                 }
                 sendBatchToDB(false);
-                // sleep for 60 seconds to let wily agent clear any data
-                try {
-                    Thread.sleep(60000);
-                } catch (InterruptedException e) {
-                    // nothing to do
-                }
             }
         }
         flowControllerTemplate.endTest();

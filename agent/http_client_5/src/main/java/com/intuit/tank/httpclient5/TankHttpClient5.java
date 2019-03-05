@@ -49,8 +49,8 @@ import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
@@ -66,6 +66,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,11 +84,10 @@ import com.intuit.tank.vm.settings.AgentConfig;
 
 public class TankHttpClient5 implements TankHttpClient {
 
-    static Logger LOG = LogManager.getLogger(TankHttpClient5.class);
+    private static final Logger LOG = LogManager.getLogger(TankHttpClient5.class);
 
-    private HttpClientBuilder httpclient;
-    private RequestConfig.Builder requestConfig;
-    private HttpClientContext context;
+    private static CloseableHttpClient httpclient;
+    private static HttpClientContext context;
 
     /**
      * no-arg constructor for client
@@ -97,27 +97,33 @@ public class TankHttpClient5 implements TankHttpClient {
         HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
                 .setSSLSocketFactory(sslsf)
                 .build();
-        httpclient = HttpClients.custom().setConnectionManager(cm);
+        httpclient = HttpClients.custom()
+                .setConnectionManager(cm)
+                .evictExpiredConnections()
+                .evictIdleConnections(TimeValue.ofMinutes(1L))
+                .build();
 
-        requestConfig = RequestConfig.custom()
+        RequestConfig requestConfig = RequestConfig.custom()
         		.setConnectTimeout(30, TimeUnit.SECONDS)
         		.setCircularRedirectsAllowed(true)
         		.setAuthenticationEnabled(true)
         		.setRedirectsEnabled(true)
         		.setCookieSpec(CookieSpecs.STANDARD)
-                .setMaxRedirects(100);
+                .setMaxRedirects(100)
+                .build();
 
         // Make sure the same context is used to execute logically related
         // requests
         context = HttpClientContext.create();
         context.setCredentialsProvider(new BasicCredentialsProvider());
         context.setCookieStore(new BasicCookieStore());
-        context.setRequestConfig(requestConfig.build());
+        context.setRequestConfig(requestConfig);
     }
 
     public void setConnectionTimeout(long connectionTimeout) {
-        requestConfig.setConnectTimeout((int) connectionTimeout, TimeUnit.MILLISECONDS);
-        context.setRequestConfig(requestConfig.build());
+        RequestConfig requestConfig =
+                context.getRequestConfig().custom().setConnectTimeout((int) connectionTimeout, TimeUnit.MILLISECONDS).build();
+        context.setRequestConfig(requestConfig);
     }
 
     /*
@@ -258,12 +264,12 @@ public class TankHttpClient5 implements TankHttpClient {
     @Override
     public void setProxy(String proxyhost, int proxyport) {
         if (StringUtils.isNotBlank(proxyhost)) {
-            RequestConfig.Builder clone = RequestConfig.copy(requestConfig.build());
             HttpHost proxy = new HttpHost(proxyhost, proxyport);
-            clone.setProxy(proxy);
-            context.setRequestConfig(clone.build());
+            RequestConfig requestConfig =
+                    context.getRequestConfig().custom().setProxy(proxy).build();
+            context.setRequestConfig(requestConfig);
         } else {
-            context.setRequestConfig(requestConfig.build());
+            context.setRequestConfig(context.getRequestConfig().custom().build());
         }
     }
 
@@ -280,7 +286,7 @@ public class TankHttpClient5 implements TankHttpClient {
         setHeaders(request, method, request.getHeaderInformation());
         long startTime = System.currentTimeMillis();
         request.setTimestamp(new Date(startTime));
-        try ( CloseableHttpResponse response = httpclient.build().execute(method, context) ) {
+        try ( CloseableHttpResponse response = httpclient.execute(method, context) ) {
 
             // read response body
             byte[] responseBody = new byte[0];
@@ -422,5 +428,16 @@ public class TankHttpClient5 implements TankHttpClient {
             }
         }
         return builder.build();
+    }
+
+    @Override
+    public void close() {
+        try {
+            httpclient.close();
+        } catch (IOException e) {
+        } finally {
+            httpclient = null;
+            context = null;
+        }
     }
 }
