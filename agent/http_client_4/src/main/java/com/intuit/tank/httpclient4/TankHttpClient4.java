@@ -257,7 +257,9 @@ public class TankHttpClient4 implements TankHttpClient {
                     context.getRequestConfig().custom().setProxy(proxy).build();
             context.setRequestConfig(requestConfig);
         } else {
-            context.setRequestConfig(context.getRequestConfig().custom().build());
+            RequestConfig requestConfig =
+                    context.getRequestConfig().custom().setProxy(null).build();
+            context.setRequestConfig(requestConfig);
         }
     }
 
