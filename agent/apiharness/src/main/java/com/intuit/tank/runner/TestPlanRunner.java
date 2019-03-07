@@ -13,7 +13,6 @@ package com.intuit.tank.runner;
  * #L%
  */
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -54,7 +53,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 
 public class TestPlanRunner implements Runnable {
 
-    private static Logger LOG = LogManager.getLogger(TestPlanRunner.class);
+    private static final Logger LOG = LogManager.getLogger(TestPlanRunner.class);
     private Variables variables;
     private TimerMap timerMap;
     private String uniqueName;
@@ -72,7 +71,6 @@ public class TestPlanRunner implements Runnable {
         this.testPlan = testPlan;
         this.threadNumber = threadNumber;
         this.httpClientClass = APITestHarness.getInstance().getTankHttpClientClass();
-        setHttpClient(initHttpClient(httpClientClass));
     }
     
     public TestPlanRunner(HDTestPlan testPlan, int threadNumber, String httpClientClass) {
@@ -80,7 +78,6 @@ public class TestPlanRunner implements Runnable {
         this.testPlan = testPlan;
         this.threadNumber = threadNumber;
         this.httpClientClass = httpClientClass;
-        setHttpClient(initHttpClient(httpClientClass));
     }
 
     /**
@@ -103,6 +100,8 @@ public class TestPlanRunner implements Runnable {
     }
 
     public void run() {
+        setHttpClient(initHttpClient(httpClientClass));
+
         MethodTimer mt = new MethodTimer(LOG, getClass(), "runTestPlan(" + testPlan.getTestPlanName() + ")");
         LogEvent logEvent = LogUtil.getLogEvent();
         variables = new Variables();
@@ -171,7 +170,7 @@ public class TestPlanRunner implements Runnable {
         } finally {
             APITestHarness.getInstance().threadComplete();
             LOG.info(LogUtil.getLogMessage(mt.getNaturalTimeMessage() + " Test complete. Exiting..."));
-            closeHttClient();
+            closeHttpClient();
         }
     }
 
@@ -392,7 +391,7 @@ public class TestPlanRunner implements Runnable {
         }
     }
 
-    private void closeHttClient() {
-        getHttpClient().close();
+    private void closeHttpClient() {
+        httpClient.close();
     }
 }

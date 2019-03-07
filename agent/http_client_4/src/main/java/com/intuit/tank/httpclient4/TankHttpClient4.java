@@ -59,10 +59,12 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -91,6 +93,8 @@ public class TankHttpClient4 implements TankHttpClient {
     public TankHttpClient4() {
         httpclient = HttpClients.custom()
                 .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                .setConnectionReuseStrategy(new DefaultConnectionReuseStrategy())
+                .setConnectionManager(new PoolingHttpClientConnectionManager())
                 .evictExpiredConnections()
                 .evictIdleConnections(1L, TimeUnit.MINUTES)
                 .build();
