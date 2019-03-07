@@ -599,9 +599,8 @@ public class APITestHarness {
             }
 
             // create threads
-            int tp = 0;
             for (TestPlanStarter starter : testPlans) {
-                for (int i = 0; i < starter.getNumThreads(); i++) {
+                for (int tp = 0; tp < sessionThreads.length; tp++) {
                     TestPlanRunner session = new TestPlanRunner(starter.getPlan(), tp);
                     sessionThreads[tp] = new Thread(threadGroup, session, "AGENT");
                     sessionThreads[tp].setDaemon(true);// system won't shut down normally until all user threads stop
@@ -609,7 +608,6 @@ public class APITestHarness {
                     session.setUniqueName(
                             sessionThreads[tp].getThreadGroup().getName() + "-" +
                                     sessionThreads[tp].getId());
-                    tp++;
                 }
             }
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Have all testPlan runners configured")));
