@@ -84,8 +84,8 @@ public class TankHttpClient4 implements TankHttpClient {
 
     private static final Logger LOG = LogManager.getLogger(TankHttpClient4.class);
 
-    private static CloseableHttpClient httpclient;
-    private static HttpClientContext context;
+    private CloseableHttpClient httpclient;
+    private HttpClientContext context;
 
     /**
      * no-arg constructor for client
@@ -93,10 +93,6 @@ public class TankHttpClient4 implements TankHttpClient {
     public TankHttpClient4() {
         httpclient = HttpClients.custom()
                 .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                .setConnectionReuseStrategy(new DefaultConnectionReuseStrategy())
-                .setConnectionManager(new PoolingHttpClientConnectionManager())
-                .evictExpiredConnections()
-                .evictIdleConnections(1L, TimeUnit.MINUTES)
                 .build();
         RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(30000)
         		.setConnectTimeout(30000)

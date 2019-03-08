@@ -86,8 +86,8 @@ public class TankHttpClient5 implements TankHttpClient {
 
     private static final Logger LOG = LogManager.getLogger(TankHttpClient5.class);
 
-    private static CloseableHttpClient httpclient;
-    private static HttpClientContext context;
+    private CloseableHttpClient httpclient;
+    private HttpClientContext context;
 
     /**
      * no-arg constructor for client
@@ -99,8 +99,6 @@ public class TankHttpClient5 implements TankHttpClient {
                 .build();
         httpclient = HttpClients.custom()
                 .setConnectionManager(cm)
-                .evictExpiredConnections()
-                .evictIdleConnections(TimeValue.ofMinutes(1L))
                 .build();
 
         RequestConfig requestConfig = RequestConfig.custom()
