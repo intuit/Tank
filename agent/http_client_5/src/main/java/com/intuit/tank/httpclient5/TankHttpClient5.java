@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
+import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,7 +67,6 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.ssl.SSLContexts;
-import org.apache.hc.core5.util.TimeValue;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -93,16 +93,9 @@ public class TankHttpClient5 implements TankHttpClient {
      * no-arg constructor for client
      */
     public TankHttpClient5() {
-        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(SSLContexts.createDefault(), NoopHostnameVerifier.INSTANCE);
-        HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
-                .setSSLSocketFactory(sslsf)
-                .build();
-        httpclient = HttpClients.custom()
-                .setConnectionManager(cm)
-                .build();
-
         RequestConfig requestConfig = RequestConfig.custom()
-        		.setConnectTimeout(30, TimeUnit.SECONDS)
+                .setConnectionRequestTimeout(30L, TimeUnit.SECONDS)
+        		.setConnectTimeout(30L, TimeUnit.SECONDS)
         		.setCircularRedirectsAllowed(true)
         		.setAuthenticationEnabled(true)
         		.setRedirectsEnabled(true)
@@ -116,6 +109,27 @@ public class TankHttpClient5 implements TankHttpClient {
         context.setCredentialsProvider(new BasicCredentialsProvider());
         context.setCookieStore(new BasicCookieStore());
         context.setRequestConfig(requestConfig);
+    }
+
+    public Object createHttpClient() {
+        // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
+        SSLConnectionSocketFactory sslsf =
+                new SSLConnectionSocketFactory(SSLContexts.createDefault(), NoopHostnameVerifier.INSTANCE);
+        HttpClientConnectionManager cm =
+                PoolingHttpClientConnectionManagerBuilder.create()
+                        .setSSLSocketFactory(sslsf)
+                        .setMaxConnPerRoute(1024)
+                        .setMaxConnTotal(2048)
+                        .build();
+        return HttpClients.custom().setConnectionManager(cm).build();
+    }
+
+    public void setHttpClient(Object httpClient) {
+        if (httpClient instanceof CloseableHttpClient) {
+            this.httpclient = (CloseableHttpClient) httpClient;
+        } else {
+            this.httpclient = (CloseableHttpClient) createHttpClient();
+        }
     }
 
     public void setConnectionTimeout(long connectionTimeout) {
@@ -276,7 +290,9 @@ public class TankHttpClient5 implements TankHttpClient {
     private void sendRequest(BaseRequest request, @Nonnull ClassicHttpRequest method, String requestBody) {
         String uri = null;
         long waitTime = 0L;
-        uri = method.getRequestUri();
+        try {
+            uri = method.getUri().toString();
+        } catch (URISyntaxException e) {}
         LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
         List<String> cookies = new ArrayList<String>();
         if (context.getCookieStore().getCookies() != null) {
@@ -299,7 +315,7 @@ public class TankHttpClient5 implements TankHttpClient {
                 }
             }
             waitTime = System.currentTimeMillis() - startTime;
-            processResponse(responseBody, waitTime, request, response.getReasonPhrase(), response.getCode(), response.getAllHeaders());
+            processResponse(responseBody, waitTime, request, response.getReasonPhrase(), response.getCode(), response.getHeaders());
             
         } catch (UnknownHostException uhex) {
             LOG.error(request.getLogUtil().getLogMessage("UnknownHostException to url: " + uri + " |  error: " + uhex.toString(), LogEventType.IO), uhex);
@@ -428,16 +444,5 @@ public class TankHttpClient5 implements TankHttpClient {
             }
         }
         return builder.build();
-    }
-
-    @Override
-    public void close() {
-        try {
-            httpclient.close();
-        } catch (IOException e) {
-        } finally {
-            httpclient = null;
-            context = null;
-        }
     }
 }

@@ -43,7 +43,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -59,12 +58,11 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultClientConnectionReuseStrategy;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -91,10 +89,8 @@ public class TankHttpClient4 implements TankHttpClient {
      * no-arg constructor for client
      */
     public TankHttpClient4() {
-        httpclient = HttpClients.custom()
-                .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                .build();
-        RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(30000)
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setSocketTimeout(30000)
         		.setConnectTimeout(30000)
         		.setCircularRedirectsAllowed(true)
         		.setAuthenticationEnabled(true)
@@ -109,6 +105,25 @@ public class TankHttpClient4 implements TankHttpClient {
         context.setCredentialsProvider(new BasicCredentialsProvider());
         context.setCookieStore(new BasicCookieStore());
         context.setRequestConfig(requestConfig);
+    }
+
+    public Object createHttpClient() {
+        // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
+        return HttpClients.custom()
+                .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                .evictIdleConnections(1L, TimeUnit.MINUTES)
+                .evictExpiredConnections()
+                .setMaxConnPerRoute(1024)
+                .setMaxConnTotal(2048)
+                .build();
+    }
+
+    public void setHttpClient(Object httpClient) {
+        if (httpClient instanceof CloseableHttpClient) {
+            this.httpclient = (CloseableHttpClient) httpClient;
+        } else {
+            this.httpclient = (CloseableHttpClient) createHttpClient();
+        }
     }
 
     public void setConnectionTimeout(long connectionTimeout) {
@@ -430,16 +445,5 @@ public class TankHttpClient4 implements TankHttpClient {
             }
         }
         return builder.build();
-    }
-
-    @Override
-    public void close() {
-        try {
-            httpclient.close();
-        } catch (IOException e) {
-        } finally {
-            httpclient = null;
-            context = null;
-        }
     }
 }

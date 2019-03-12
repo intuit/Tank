@@ -28,7 +28,7 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>4.2.21.Final</version.hibernate>
-    <version-aws-sdk>1.11.490</version-aws-sdk>
+    <version-aws-sdk>1.11.516</version-aws-sdk>
 
     <version-tomcat>9.0.14</version-tomcat>
 
@@ -694,38 +694,10 @@
       </dependency>
       <dependency>
         <groupId>com.amazonaws</groupId>
-        <artifactId>aws-java-sdk-ec2</artifactId>
+        <artifactId>aws-java-sdk-bom</artifactId>
         <version>${version-aws-sdk}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.amazonaws</groupId>
-        <artifactId>aws-java-sdk-s3</artifactId>
-        <version>${version-aws-sdk}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.amazonaws</groupId>
-        <artifactId>aws-java-sdk-cloudwatch</artifactId>
-        <version>${version-aws-sdk}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.amazonaws</groupId>
-        <artifactId>aws-java-sdk-sns</artifactId>
-        <version>${version-aws-sdk}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.amazonaws</groupId>
-        <artifactId>aws-java-sdk-dynamodb</artifactId>
-        <version>${version-aws-sdk}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.amazonaws</groupId>
-        <artifactId>aws-java-sdk-simpledb</artifactId>
-        <version>${version-aws-sdk}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.amazonaws</groupId>
-        <artifactId>aws-java-sdk-ssm</artifactId>
-        <version>${version-aws-sdk}</version>
+        <scope>import</scope>
+        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>commons-discovery</groupId>

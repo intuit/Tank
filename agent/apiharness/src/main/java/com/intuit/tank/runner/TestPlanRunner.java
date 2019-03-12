@@ -59,21 +59,23 @@ public class TestPlanRunner implements Runnable {
     private String uniqueName;
     private HDTestPlan testPlan;
     private int threadNumber;
-    private TankHttpClient httpClient;
+    private Object httpClient;
+    private TankHttpClient tankHttpClient;
     private String httpClientClass;
     private BaseRequest previousRequest = null;
     private BaseResponse previousResponse = null;
     private boolean finished = false;
     private Map<String, String> headerMap;
 
-    public TestPlanRunner(HDTestPlan testPlan, int threadNumber) {
+    public TestPlanRunner(Object httpClient, HDTestPlan testPlan, int threadNumber, String httpClientClass) {
         headerMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
         this.testPlan = testPlan;
         this.threadNumber = threadNumber;
-        this.httpClientClass = APITestHarness.getInstance().getTankHttpClientClass();
+        this.httpClientClass = httpClientClass;
+        this.httpClient = httpClient;
     }
     
-    public TestPlanRunner(HDTestPlan testPlan, int threadNumber, String httpClientClass) {
+    public TestPlanRunner( HDTestPlan testPlan, int threadNumber, String httpClientClass) {
         headerMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
         this.testPlan = testPlan;
         this.threadNumber = threadNumber;
@@ -88,11 +90,11 @@ public class TestPlanRunner implements Runnable {
     }
 
     public void setHttpClient(TankHttpClient httpClient) {
-        this.httpClient = httpClient;
+        this.tankHttpClient = httpClient;
     }
 
     public TankHttpClient getHttpClient() {
-        return this.httpClient;
+        return this.tankHttpClient;
     }
 
     public void setUniqueName(String name) {
@@ -100,7 +102,8 @@ public class TestPlanRunner implements Runnable {
     }
 
     public void run() {
-        setHttpClient(initHttpClient(httpClientClass));
+        tankHttpClient = initHttpClient();
+        tankHttpClient.setHttpClient(httpClient);
 
         MethodTimer mt = new MethodTimer(LOG, getClass(), "runTestPlan(" + testPlan.getTestPlanName() + ")");
         LogEvent logEvent = LogUtil.getLogEvent();
@@ -170,7 +173,6 @@ public class TestPlanRunner implements Runnable {
         } finally {
             APITestHarness.getInstance().threadComplete();
             LOG.info(LogUtil.getLogMessage(mt.getNaturalTimeMessage() + " Test complete. Exiting..."));
-            closeHttpClient();
         }
     }
 
@@ -376,22 +378,18 @@ public class TestPlanRunner implements Runnable {
         }
     }
 
-    public TankHttpClient initHttpClient(String httpClientClass) {
+    public TankHttpClient initHttpClient() {
         try {
             //get the client from a factory and set it here.
-            TankHttpClient httpclient = (TankHttpClient) Class.forName(httpClientClass).newInstance();
+            TankHttpClient tankhttpclient = (TankHttpClient) Class.forName(httpClientClass).newInstance();
             Long connectionTimeout = APITestHarness.getInstance().getTankConfig().getAgentConfig().getConnectionTimeout();
             if (connectionTimeout != null) {
-                httpclient.setConnectionTimeout(connectionTimeout);
+                tankhttpclient.setConnectionTimeout(connectionTimeout);
             }
-            return httpclient;
+            return tankhttpclient;
         } catch (Exception e) {
             LOG.error(LogUtil.getLogMessage("TankHttpClient specified incorrectly: " + e),e);
             throw new RuntimeException(e);
         }
-    }
-
-    private void closeHttpClient() {
-        httpClient.close();
     }
 }

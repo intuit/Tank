@@ -73,7 +73,7 @@ import com.intuit.tank.vm.settings.AgentConfig;
 
 public class TankHttpClient3 implements TankHttpClient {
 
-    static Logger LOG = LogManager.getLogger(TankHttpClient3.class);
+    private static final Logger LOG = LogManager.getLogger(TankHttpClient3.class);
 
     private HttpClient httpclient;
 
@@ -88,6 +88,10 @@ public class TankHttpClient3 implements TankHttpClient {
         httpclient.getParams().setIntParameter("http.protocol.max-redirects", 100);
         httpclient.setState(new HttpState());
     }
+
+    public Object createHttpClient() { return null; }
+
+    public void setHttpClient(Object httpClient) {}
 
     public void setConnectionTimeout(long connectionTimeout) {
         httpclient.getParams().setConnectionManagerTimeout(connectionTimeout);
@@ -412,10 +416,5 @@ public class TankHttpClient3 implements TankHttpClient {
             }
         }
         return parts;
-    }
-
-    @Override
-    public void close() {
-        httpclient = null;
     }
 }

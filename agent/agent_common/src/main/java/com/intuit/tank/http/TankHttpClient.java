@@ -1,7 +1,5 @@
 package com.intuit.tank.http;
 
-import java.io.IOException;
-
 public interface TankHttpClient {
 
     /**
@@ -75,5 +73,11 @@ public interface TankHttpClient {
     /**
      *
      */
-    public void close();
+    public Object createHttpClient();
+
+    /**
+     *
+     * @param httpClient
+     */
+    public void setHttpClient(Object httpClient);
 }

@@ -32,6 +32,7 @@ import java.util.concurrent.CountDownLatch;
 
 import com.amazonaws.regions.Regions;
 import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.http.TankHttpClient;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -172,7 +173,6 @@ public class APITestHarness {
         ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
 
         getInstance().initializeFromArgs(args);
-
     }
 
     private void initializeFromArgs(String[] args) {
@@ -598,10 +598,11 @@ public class APITestHarness {
                 starter.setNumThreads(starter.getNumThreads() + numToAdd);
             }
 
+            Object httpClient = ((TankHttpClient) Class.forName(tankHttpClientClass).newInstance()).createHttpClient();
             // create threads
             for (TestPlanStarter starter : testPlans) {
                 for (int tp = 0; tp < sessionThreads.length; tp++) {
-                    TestPlanRunner session = new TestPlanRunner(starter.getPlan(), tp);
+                    TestPlanRunner session = new TestPlanRunner(httpClient, starter.getPlan(), tp, tankHttpClientClass);
                     sessionThreads[tp] = new Thread(threadGroup, session, "AGENT");
                     sessionThreads[tp].setDaemon(true);// system won't shut down normally until all user threads stop
                     starter.addThread(sessionThreads[tp]);
@@ -947,7 +948,4 @@ public class APITestHarness {
     public void setTankHttpClientClass(String tankHttpClientClass) {
         this.tankHttpClientClass = tankHttpClientClass;
     }
-    
-    
-
 }
