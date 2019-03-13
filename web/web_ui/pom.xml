@@ -250,6 +250,11 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-xray-recorder-sdk-core</artifactId>
+    </dependency>
+
     <!-- enunciate dependencies -->
     <dependency>
 	  <groupId>com.webcohesion.enunciate</groupId>

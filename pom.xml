@@ -699,6 +699,14 @@
         <scope>import</scope>
         <type>pom</type>
       </dependency>
+      <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-xray-recorder-sdk-bom -->
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-xray-recorder-sdk-bom</artifactId>
+        <version>2.2.1</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
       <dependency>
         <groupId>commons-discovery</groupId>
         <artifactId>commons-discovery</artifactId>
