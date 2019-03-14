@@ -91,7 +91,11 @@
     <filter-name>AWSXRayServletFilter</filter-name>
     <filter-class>com.amazonaws.xray.javax.servlet.AWSXRayServletFilter</filter-class>
     <init-param>
-      <param-name>fixedName</param-name>
+      <param-name>dynamicNamingRecognizedHosts</param-name>
+      <param-value>*.perf.a.intuit.com</param-value>
+    </init-param>
+    <init-param>
+      <param-name>dynamicNamingFallbackName</param-name>
       <param-value>Tank</param-value>
     </init-param>
   </filter>
