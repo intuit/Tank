@@ -260,9 +260,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.intuit.tank</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>test-support</artifactId>
-      <version>2.0</version>
+      <version>2.2.6</version>
       <scope>test</scope>
     </dependency>
 
@@ -948,9 +948,9 @@
           <version>3.0.0</version>
           <dependencies>
             <dependency>
-              <groupId>com.intuit.tank</groupId>
+              <groupId>${project.groupId}</groupId>
               <artifactId>test-support</artifactId>
-              <version>2.0</version>
+              <version>2.2.6</version>
             </dependency>
           </dependencies>
           <configuration>
