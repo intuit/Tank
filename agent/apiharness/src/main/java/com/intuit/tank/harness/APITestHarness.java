@@ -684,7 +684,7 @@ public class APITestHarness {
         // System.exit(0);
     }
 
-    public TPSMonitor getTPMonitor() {
+    public TPSMonitor getTPSMonitor() {
         return tpsMonitor;
     }
 

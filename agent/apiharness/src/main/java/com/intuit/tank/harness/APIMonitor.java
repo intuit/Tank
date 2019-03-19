@@ -58,7 +58,7 @@ public class APIMonitor implements Runnable {
             try {
                 CloudVmStatus newStatus = createStatus(APITestHarness.getInstance().getStatus());
                 newStatus.setUserDetails(APITestHarness.getInstance().getUserTracker().getSnapshot());
-                TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPMonitor().getTPSInfo();
+                TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPSMonitor().getTPSInfo();
                 if (tpsInfo != null) {
                     newStatus.setTotalTps(tpsInfo.getTotalTps());
                     sendTps(tpsInfo);
@@ -76,8 +76,8 @@ public class APIMonitor implements Runnable {
 
     private void sendTps(final TPSInfoContainer tpsInfo) {
         APITestHarness.getInstance().getResultsReporter()
-                .sendTpsResults(APITestHarness.getInstance().getAgentRunData().getJobId(), APITestHarness
-                        .getInstance().getAgentRunData().getInstanceId(), tpsInfo, true);
+                .sendTpsResults(APITestHarness.getInstance().getAgentRunData().getJobId(),
+                        APITestHarness.getInstance().getAgentRunData().getInstanceId(), tpsInfo, true);
 
     }
 
