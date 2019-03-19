@@ -60,9 +60,8 @@ public class TPSMonitor {
             long min = now;
             long max = 0;
             Map<Long, Map<String, Integer>> tpsMap = new ConcurrentHashMap<Long, Map<String, Integer>>();
-            List<Counter> toRemove = new ArrayList<TPSMonitor.Counter>();
-            List<Counter> subList = new ArrayList<TPSMonitor.Counter>(counters);
-            for (Counter counter : subList) {
+            List<Counter> snapshot = new ArrayList<TPSMonitor.Counter>(counters);
+            for (Counter counter : snapshot) {
                 long entryTime = counter.time;
                 if (now > (entryTime + (period * 4))) {
                     min = Math.min(min, entryTime);
@@ -70,12 +69,10 @@ public class TPSMonitor {
                     Map<String, Integer> map = tpsMap.computeIfAbsent(counter.time, k -> new HashMap<String, Integer>());
                     Integer integer = map.computeIfAbsent(counter.key, k -> 0);
                     map.put(counter.key, integer + 1);
-                    toRemove.add(counter);
                 }
             }
-            if (!toRemove.isEmpty()) {
-                counters.removeAll(toRemove);
-            }
+            counters.removeAll(snapshot);
+
             for (Entry<Long, Map<String, Integer>> entry : tpsMap.entrySet()) {
                 for (Entry<String, Integer> valueEntry : entry.getValue().entrySet()) {
                     infoList.add(
