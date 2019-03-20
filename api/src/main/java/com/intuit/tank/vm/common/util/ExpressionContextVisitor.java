@@ -16,7 +16,7 @@ package com.intuit.tank.vm.common.util;
  * #L%
  */
 
-import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl3.JexlContext;
 
 /**
  * ExpressionContextVisitor

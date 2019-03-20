@@ -17,7 +17,7 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
-import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl3.JexlContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
