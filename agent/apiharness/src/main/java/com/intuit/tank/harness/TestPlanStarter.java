@@ -32,7 +32,7 @@ public class TestPlanStarter implements Runnable {
     private Stack<Thread> runners = new Stack<Thread>();
     private int threadsStarted;
 
-    private boolean done;
+    private boolean done = false;
 
     public TestPlanStarter(HDTestPlan plan, int numThreads) {
         super();

@@ -95,7 +95,7 @@ public class APITestHarness {
     private boolean isLocal = true;
     private boolean started = false;
     private WatsAgentCommand cmd = WatsAgentCommand.run;
-    private Thread[] sessionThreads;
+    private ArrayList<Thread> sessionThreads;
     private CountDownLatch doneSignal;
     private boolean loggedSimTime;
     private int currentUsers = 0;
@@ -566,7 +566,7 @@ public class APITestHarness {
             agentRunData.setJobId(jobId);
         }
 
-        sessionThreads = new Thread[agentRunData.getNumUsers()];
+        sessionThreads = new ArrayList<>();
         Thread monitorThread = null;
         doneSignal = new CountDownLatch(agentRunData.getNumUsers());
         try {
@@ -601,14 +601,15 @@ public class APITestHarness {
             Object httpClient = ((TankHttpClient) Class.forName(tankHttpClientClass).newInstance()).createHttpClient();
             // create threads
             for (TestPlanStarter starter : testPlans) {
-                for (int tp = 0; tp < sessionThreads.length; tp++) {
+                for (int tp = 0; tp < agentRunData.getNumUsers(); tp++) {
                     TestPlanRunner session = new TestPlanRunner(httpClient, starter.getPlan(), tp, tankHttpClientClass);
-                    sessionThreads[tp] = new Thread(threadGroup, session, "AGENT");
-                    sessionThreads[tp].setDaemon(true);// system won't shut down normally until all user threads stop
-                    starter.addThread(sessionThreads[tp]);
+                    Thread thread = new Thread(threadGroup, session, "AGENT");
+                    thread.setDaemon(true);// system won't shut down normally until all user threads stop
+                    starter.addThread(thread);
                     session.setUniqueName(
-                            sessionThreads[tp].getThreadGroup().getName() + "-" +
-                                    sessionThreads[tp].getId());
+                            thread.getThreadGroup().getName() + "-" +
+                                    thread.getId());
+                    sessionThreads.add(tp, thread);
                 }
             }
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Have all testPlan runners configured")));
@@ -653,9 +654,7 @@ public class APITestHarness {
                         done = done && starter.isDone();
                     }
                     ramping = !done;
-                    if (ramping) {
-                        Thread.sleep(5000);
-                    }
+                    Thread.sleep(5000);
                 }
                 // if we broke early, fix our countdown latch
                 int numToCount = testPlans.stream().mapToInt(TestPlanStarter::getThreadsStarted).sum();
@@ -718,10 +717,11 @@ public class APITestHarness {
         return status;
     }
 
-    synchronized public void threadComplete() {
+    synchronized public void threadComplete(int threadNumber) {
         currentUsers--;
         doneSignal.countDown();
         long count = doneSignal.getCount();
+        sessionThreads.remove(threadNumber);
         // numCompletedThreads = (int) (agentRunData.getNumUsers() - count);
         if (isDebug() || count < 10) {
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining->" + currentUsers)));

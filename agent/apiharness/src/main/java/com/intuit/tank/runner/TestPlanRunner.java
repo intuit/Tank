@@ -171,7 +171,7 @@ public class TestPlanRunner implements Runnable {
         } catch (Throwable e) {
             LOG.error(LogUtil.getLogMessage("Unexpected exception in test: " + e.toString()), e);
         } finally {
-            APITestHarness.getInstance().threadComplete();
+            APITestHarness.getInstance().threadComplete(threadNumber);
             LOG.info(LogUtil.getLogMessage(mt.getNaturalTimeMessage() + " Test complete. Exiting..."));
         }
     }
