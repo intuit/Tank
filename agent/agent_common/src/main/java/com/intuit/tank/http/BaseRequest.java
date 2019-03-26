@@ -58,9 +58,7 @@ public abstract class BaseRequest {
         this.httpclient = httpclient;
         this.logUtil = logUtil;
     }
-    
-    
-    
+
     /**
      * @return the logUtil
      */

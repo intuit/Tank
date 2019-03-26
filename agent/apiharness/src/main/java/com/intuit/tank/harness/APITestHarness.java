@@ -169,7 +169,7 @@ public class APITestHarness {
         ThreadContext.put("projectName", getInstance().getAgentRunData().getProjectName());
         ThreadContext.put("instanceId", getInstance().getAgentRunData().getInstanceId());
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("region", Regions.getCurrentRegion().getName());
+        ThreadContext.put("region", AmazonUtil.getVMRegion().getRegion());
         ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
 
         getInstance().initializeFromArgs(args);
@@ -248,12 +248,11 @@ public class APITestHarness {
                 agentRunData.setSimulationTime(Integer.parseInt(values[1]) * 60000);
                 continue;
             }
-
         }
         if (instanceId == null) {
             try {
                 instanceId = AmazonUtil.getInstanceId();
-                if (instanceId == null) {
+                if (StringUtils.isEmpty(instanceId)) {
                     instanceId = getLocalInstanceId();
                 }
             } catch (Exception e) {
@@ -302,9 +301,9 @@ public class APITestHarness {
         System.out.println("-ramp=<time>:  The time (min) to get to the ideal concurrent users specified");
         System.out.println("-time=<time>:  The time (min) of the simulation");
         System.out.println("-users=<# of total users>:  The number of total users to run concurrently");
-        System.out
-                .println("-start=<# of users to start with>:  The number of users to run concurrently when test begins");
+        System.out.println("-start=<# of users to start with>:  The number of users to run concurrently when test begins");
         System.out.println("-http=<controller_base_url>:  The url of the controller to get test info from");
+        System.out.println("-jobId=<job_id>: The jobId of the controller to get test info from");
         System.out.println("-d:  Turns debug on to step through each request");
         System.out.println("-t:  Turns trace on to print each request");
     }
@@ -351,16 +350,10 @@ public class APITestHarness {
         }
         VMRegion region = VMRegion.STANDALONE;
         if (AmazonUtil.isInAmazon()) {
-            try {
-                region = AmazonUtil.getVMRegion();
-            } catch (IOException e) {
-                LOG.warn(LogUtil.getLogMessage("Error getting region. using CUSTOM...", LogEventType.System));
-            }
+            region = AmazonUtil.getVMRegion();
         }
-        if (agentRunData.getJobId() == null) {
-            agentRunData.setJobId(AmazonUtil.getJobId());
-            agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
-        }
+        agentRunData.setJobId(AmazonUtil.getJobId());
+        agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
 
         LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
         ThreadContext.put("jobId", agentRunData.getJobId());
@@ -614,10 +607,10 @@ public class APITestHarness {
             }
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Have all testPlan runners configured")));
             // start status thread first only
-            if (!isLocal && !isDebug() && NumberUtils.isDigits(agentRunData.getJobId())) {
+            if (!isDebug()) {
                 LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting monitor thread...")));
                 CloudVmStatus status = getInitialStatus();
-                monitorThread = new Thread(new APIMonitor(status));
+                monitorThread = new Thread(new APIMonitor(isLocal, status));
                 monitorThread.setDaemon(true);
                 monitorThread.setPriority(Thread.NORM_PRIORITY - 2);
                 monitorThread.start();
@@ -671,7 +664,7 @@ public class APITestHarness {
             LOG.error("error executing..." + t, t);
         } finally {
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Test Complete...")));
-            if (!isDebug() && NumberUtils.isDigits(agentRunData.getJobId())) {
+            if (!isDebug()) {
                 if (null != monitorThread) {
                     APIMonitor.setJobStatus(JobStatus.Completed);
                     APIMonitor.setDoMonitor(false);
