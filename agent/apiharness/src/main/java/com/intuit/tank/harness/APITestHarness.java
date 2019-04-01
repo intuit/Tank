@@ -710,11 +710,10 @@ public class APITestHarness {
         return status;
     }
 
-    synchronized public void threadComplete(int threadNumber) {
+    synchronized public void threadComplete() {
         currentUsers--;
         doneSignal.countDown();
         long count = doneSignal.getCount();
-        sessionThreads.remove(threadNumber);
         // numCompletedThreads = (int) (agentRunData.getNumUsers() - count);
         if (isDebug() || count < 10) {
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining->" + currentUsers)));
