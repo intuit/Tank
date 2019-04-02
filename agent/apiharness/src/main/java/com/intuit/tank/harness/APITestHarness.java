@@ -35,7 +35,6 @@ import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.http.TankHttpClient;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -602,7 +601,7 @@ public class APITestHarness {
                     session.setUniqueName(
                             thread.getThreadGroup().getName() + "-" +
                                     thread.getId());
-                    sessionThreads.add(tp, thread);
+                    sessionThreads.add(thread);
                 }
             }
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Have all testPlan runners configured")));
@@ -806,16 +805,16 @@ public class APITestHarness {
                         + doneSignal.getCount() + " threads not reporting done."));
                 for (Thread t : sessionThreads) {
                     if (t.isAlive()) {
-                        if (exceededTimeLimit) {
-                            LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
-                                    + " is still running with a State of " + t.getState().name(), LogEventType.System));
-                            t.interrupt();
-                            doneSignal.countDown();
-                        }
+                        LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
+                                + " is still running with a State of " + t.getState().name(), LogEventType.System));
+                        t.interrupt();
+                        doneSignal.countDown();
                     }
                 }
             }
         }
+        // Clean up TestPlanRunner Threads that are Thread.State.TERMINATED
+        sessionThreads.removeIf(t -> t.getState().equals(Thread.State.TERMINATED));
     }
 
     /**
