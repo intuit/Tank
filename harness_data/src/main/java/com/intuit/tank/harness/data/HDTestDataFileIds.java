@@ -68,8 +68,7 @@ public class HDTestDataFileIds {
     public HDTestDataFileIds(boolean allowOverride, Set<Integer> ids) {
         super();
         this.allowOverride = allowOverride;
-        List<Integer> lids = new ArrayList<Integer>();
-        lids.addAll(ids);
+        List<Integer> lids = new ArrayList<Integer>(ids);
         setDataFiles(lids);
     }
 

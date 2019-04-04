@@ -275,15 +275,11 @@ public class ScriptFilterCreationBean implements Serializable {
     }
 
     public List<ScriptFilterCondition> getConditions() {
-        List<ScriptFilterCondition> conditions = new ArrayList<ScriptFilterCondition>();
-        conditions.addAll(filter.getConditions());
-        return conditions;
+        return new ArrayList<ScriptFilterCondition>(filter.getConditions());
     }
 
     public List<ScriptFilterAction> getActions() {
-        List<ScriptFilterAction> actions = new ArrayList<ScriptFilterAction>();
-        actions.addAll(filter.getActions());
-        return actions;
+        return new ArrayList<ScriptFilterAction>(filter.getActions());
     }
 
     /**

@@ -198,8 +198,7 @@ public class AutomationServiceV1 implements AutomationService {
 					script.setCreator(TankConstants.TANK_USER_SYSTEM);
 					List<ScriptStep> scriptSteps = scriptProcessor
 							.getScriptSteps(new BufferedReader(new InputStreamReader(is)), getFilters(filterIds));
-					List<ScriptStep> newSteps = new ArrayList<>();
-					newSteps.addAll(scriptSteps);
+					List<ScriptStep> newSteps = new ArrayList<>(scriptSteps);
 					// script.setScriptSteps(newSteps);
 					//
 					// script.setScriptSteps(newSteps);
@@ -286,8 +285,7 @@ public class AutomationServiceV1 implements AutomationService {
 			}
 			List<ScriptStep> scriptSteps = scriptProcessor.getScriptSteps(new BufferedReader(new InputStreamReader(is)),
 					new ArrayList<>());
-			List<ScriptStep> newSteps = new ArrayList<>();
-			newSteps.addAll(scriptSteps);
+			List<ScriptStep> newSteps = new ArrayList<>(scriptSteps);
 			script = new ScriptDao().saveOrUpdate(script);
 			sendMsg(script, ModificationType.UPDATE);
 			responseBuilder.entity(Integer.toString(script.getId()));
@@ -309,8 +307,7 @@ public class AutomationServiceV1 implements AutomationService {
 		if (StringUtils.isNotEmpty(request.getScriptId())) {
 			LOG.info(request.toString());
 			Script script = new ScriptDao().findById(Integer.parseInt(request.getScriptId()));
-			List<Integer> filterIds = new ArrayList<>();
-			filterIds.addAll(request.getFilterIds());
+			List<Integer> filterIds = new ArrayList<>(request.getFilterIds());
 			FilterGroupDao dao = new FilterGroupDao();
 			for (Integer id : request.getFilterGroupIds()) {
 				ScriptFilterGroup group = dao.findById(id);
@@ -639,8 +636,7 @@ public class AutomationServiceV1 implements AutomationService {
 	 * @return
 	 */
 	private List<Integer> getFilterList(AutomationRequest request) {
-		Set<Integer> ret = new HashSet<>();
-		ret.addAll(request.getFilterIds());
+		Set<Integer> ret = new HashSet<>(request.getFilterIds());
 		FilterGroupDao dao = new FilterGroupDao();
 		for (Integer id : request.getFilterGroupIds()) {
 			ScriptFilterGroup group = dao.findById(id);

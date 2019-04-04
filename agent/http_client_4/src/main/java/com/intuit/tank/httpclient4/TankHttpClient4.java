@@ -61,7 +61,6 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultClientConnectionReuseStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.logging.log4j.LogManager;
@@ -279,9 +278,8 @@ public class TankHttpClient4 implements TankHttpClient {
     }
 
     private void sendRequest(BaseRequest request, @Nonnull HttpRequestBase method, String requestBody) {
-        String uri = null;
         long waitTime = 0L;
-        uri = method.getURI().toString();
+        String uri = method.getURI().toString();
         LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
         List<String> cookies = new ArrayList<String>();
         if (context.getCookieStore().getCookies() != null) {
@@ -432,9 +430,9 @@ public class TankHttpClient4 implements TankHttpClient {
         for (PartHolder h : TankHttpUtil.getPartsFromBody(request)) {
             if (h.getFileName() == null) {
                 if (h.isContentTypeSet()) {
-                    builder.addTextBody(h.getPartName(), new String(h.getBodyAsString()), ContentType.create(h.getContentType()));
+                    builder.addTextBody(h.getPartName(), h.getBodyAsString(), ContentType.create(h.getContentType()));
                 } else {
-                    builder.addTextBody(h.getPartName(), new String(h.getBodyAsString()));
+                    builder.addTextBody(h.getPartName(), h.getBodyAsString());
                 }
             } else {
                 if (h.isContentTypeSet()) {

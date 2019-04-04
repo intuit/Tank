@@ -860,13 +860,13 @@ public class APITestHarness {
 
     private void sendBatchToDB(boolean asynch) {
         if (results.size() > 1 && logTiming) {
-            final List<TankResult> l = new ArrayList<TankResult>();
+            final List<TankResult> list;
             synchronized (results) {
-                l.addAll(results);
+                list = new ArrayList<TankResult>(results);
                 results.clear();
             }
             resultsReporter
-                    .sendTimingResults(getAgentRunData().getJobId(), getAgentRunData().getInstanceId(), l, false);
+                    .sendTimingResults(getAgentRunData().getJobId(), getAgentRunData().getInstanceId(), list, false);
         }
     }
 
