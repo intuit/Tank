@@ -258,6 +258,11 @@
 
     <dependency>
       <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-cloudwatchmetrics</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.amazonaws</groupId>
       <artifactId>aws-xray-recorder-sdk-core</artifactId>
     </dependency>
 
