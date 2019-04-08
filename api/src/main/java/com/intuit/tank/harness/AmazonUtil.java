@@ -24,7 +24,6 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import com.amazonaws.regions.Regions;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,15 +52,15 @@ public class AmazonUtil {
     private static final String USER_DATA = "/user-data";
     private static final String META_DATA = "/meta-data";
 
-
-    public static String getRegion() {
-        return Regions.getCurrentRegion().getName();
-    }
-
-    public static VMRegion getVMRegion() throws IOException {
-        String zone = getMetaData(CloudMetaDataType.zone);
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Running in zone " + zone )));
-        return VMRegion.getRegionFromZone(zone);
+    public static VMRegion getVMRegion() {
+        try {
+            String zone = getMetaData(CloudMetaDataType.zone);
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Running in zone " + zone)));
+            return VMRegion.getRegionFromZone(zone);
+        } catch (IOException ioe) {
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message","Error getting region. using CUSTOM...")));
+        }
+        return VMRegion.STANDALONE;
     }
 
     /**
@@ -153,13 +152,12 @@ public class AmazonUtil {
      */
     @Nonnull
     public static String getInstanceId() {
-        String ret = null;
         try {
-            ret = getMetaData(CloudMetaDataType.instance_id);
+            return getMetaData(CloudMetaDataType.instance_id);
         } catch (IOException e) {
             LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting instance ID: " + e.toString())));
         }
-        return ret;
+        return "";
     }
 
     /**

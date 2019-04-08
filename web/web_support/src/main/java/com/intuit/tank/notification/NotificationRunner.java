@@ -69,8 +69,7 @@ public class NotificationRunner implements Runnable {
     @Override
     public void run() {
         if (NumberUtils.isDigits(jobEvent.getJobId())) {
-            int id = Integer.parseInt(jobEvent.getJobId());
-            JobInstance job = new JobInstanceDao().findById(id);
+            JobInstance job = new JobInstanceDao().findById(Integer.valueOf(jobEvent.getJobId()));
             if (job != null) {
                 Set<? extends Notification> notifications = getNotifications(job);
                 for (Notification n : notifications) {
@@ -104,7 +103,7 @@ public class NotificationRunner implements Runnable {
     }
 
     /**
-     * @param event2
+     * @param lifecycleEvent
      * @return
      */
     private String getSubject(JobLifecycleEvent lifecycleEvent) {
@@ -112,7 +111,7 @@ public class NotificationRunner implements Runnable {
     }
 
     /**
-     * @param event2
+     * @param lifecycleEvent
      * @return
      */
     private String getBody(JobLifecycleEvent lifecycleEvent) {

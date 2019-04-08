@@ -13,7 +13,6 @@ package com.intuit.tank.runner;
  * #L%
  */
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -54,33 +53,33 @@ import com.intuit.tank.vm.settings.TankConfig;
 
 public class TestPlanRunner implements Runnable {
 
-    private static Logger LOG = LogManager.getLogger(TestPlanRunner.class);
+    private static final Logger LOG = LogManager.getLogger(TestPlanRunner.class);
     private Variables variables;
     private TimerMap timerMap;
     private String uniqueName;
     private HDTestPlan testPlan;
     private int threadNumber;
-    private TankHttpClient httpClient;
+    private Object httpClient;
+    private TankHttpClient tankHttpClient;
     private String httpClientClass;
     private BaseRequest previousRequest = null;
     private BaseResponse previousResponse = null;
     private boolean finished = false;
     private Map<String, String> headerMap;
 
-    public TestPlanRunner(HDTestPlan testPlan, int threadNumber) {
-        headerMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
-        this.testPlan = testPlan;
-        this.threadNumber = threadNumber;
-        this.httpClientClass = APITestHarness.getInstance().getTankHttpClientClass();
-        setHttpClient(initHttpClient(httpClientClass));
-    }
-    
-    public TestPlanRunner(HDTestPlan testPlan, int threadNumber, String httpClientClass) {
+    public TestPlanRunner(Object httpClient, HDTestPlan testPlan, int threadNumber, String httpClientClass) {
         headerMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
         this.testPlan = testPlan;
         this.threadNumber = threadNumber;
         this.httpClientClass = httpClientClass;
-        setHttpClient(initHttpClient(httpClientClass));
+        this.httpClient = httpClient;
+    }
+    
+    public TestPlanRunner( HDTestPlan testPlan, int threadNumber, String httpClientClass) {
+        headerMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
+        this.testPlan = testPlan;
+        this.threadNumber = threadNumber;
+        this.httpClientClass = httpClientClass;
     }
 
     /**
@@ -91,11 +90,11 @@ public class TestPlanRunner implements Runnable {
     }
 
     public void setHttpClient(TankHttpClient httpClient) {
-        this.httpClient = httpClient;
+        this.tankHttpClient = httpClient;
     }
 
     public TankHttpClient getHttpClient() {
-        return this.httpClient;
+        return this.tankHttpClient;
     }
 
     public void setUniqueName(String name) {
@@ -103,6 +102,9 @@ public class TestPlanRunner implements Runnable {
     }
 
     public void run() {
+        tankHttpClient = initHttpClient();
+        tankHttpClient.setHttpClient(httpClient);
+
         MethodTimer mt = new MethodTimer(LOG, getClass(), "runTestPlan(" + testPlan.getTestPlanName() + ")");
         LogEvent logEvent = LogUtil.getLogEvent();
         variables = new Variables();
@@ -168,15 +170,9 @@ public class TestPlanRunner implements Runnable {
             }
         } catch (Throwable e) {
             LOG.error(LogUtil.getLogMessage("Unexpected exception in test: " + e.toString()), e);
-
         } finally {
             APITestHarness.getInstance().threadComplete();
             LOG.info(LogUtil.getLogMessage(mt.getNaturalTimeMessage() + " Test complete. Exiting..."));
-            try {
-                httpClient.close();
-            } catch (IOException e) {
-                LOG.info(LogUtil.getLogMessage(mt.getNaturalTimeMessage() + " Unable to close httpClient..."));
-            }
         }
     }
 
@@ -382,15 +378,15 @@ public class TestPlanRunner implements Runnable {
         }
     }
 
-    public TankHttpClient initHttpClient(String httpClientClass) {
+    public TankHttpClient initHttpClient() {
         try {
             //get the client from a factory and set it here.
-            TankHttpClient ret = (TankHttpClient) Class.forName(httpClientClass).newInstance();
+            TankHttpClient tankhttpclient = (TankHttpClient) Class.forName(httpClientClass).newInstance();
             Long connectionTimeout = APITestHarness.getInstance().getTankConfig().getAgentConfig().getConnectionTimeout();
             if (connectionTimeout != null) {
-                ret.setConnectionTimeout(connectionTimeout);
+                tankhttpclient.setConnectionTimeout(connectionTimeout);
             }
-            return ret;
+            return tankhttpclient;
         } catch (Exception e) {
             LOG.error(LogUtil.getLogMessage("TankHttpClient specified incorrectly: " + e),e);
             throw new RuntimeException(e);

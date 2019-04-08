@@ -145,7 +145,7 @@ public class ProjectServiceV1 implements ProjectService {
         File f = ProjectDaoUtil.getScriptFile(jobId);
         if (!f.exists()) {
             if (NumberUtils.isCreatable(jobId)) {
-                JobInstance job = new JobInstanceDao().findById(Integer.parseInt(jobId));
+                JobInstance job = new JobInstanceDao().findById(Integer.valueOf(jobId));
                 if (job == null) {
                     throw new RuntimeException("Cannot find Job with id of " + jobId);
                 }

@@ -13,7 +13,7 @@ package com.intuit.tank.vm.common.util;
  * #L%
  */
 
-import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl3.JexlContext;
 import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.common.util.ExpressionContextVisitor;

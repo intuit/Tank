@@ -73,7 +73,7 @@ import com.intuit.tank.vm.settings.AgentConfig;
 
 public class TankHttpClient3 implements TankHttpClient {
 
-    static Logger LOG = LogManager.getLogger(TankHttpClient3.class);
+    private static final Logger LOG = LogManager.getLogger(TankHttpClient3.class);
 
     private HttpClient httpclient;
 
@@ -89,11 +89,13 @@ public class TankHttpClient3 implements TankHttpClient {
         httpclient.setState(new HttpState());
     }
 
+    public Object createHttpClient() { return null; }
+
+    public void setHttpClient(Object httpClient) {}
+
     public void setConnectionTimeout(long connectionTimeout) {
         httpclient.getParams().setConnectionManagerTimeout(connectionTimeout);
     }
-    
-    
 
     /*
      * (non-Javadoc)
@@ -241,11 +243,6 @@ public class TankHttpClient3 implements TankHttpClient {
         } else {
             httpclient.getHostConfiguration().setProxyHost(null);
         }
-    }
-
-    @Override
-    public void close() throws IOException {
-        httpclient = null;
     }
 
     private void sendRequest(BaseRequest request, @Nonnull HttpMethod method, String requestBody) {
@@ -420,7 +417,4 @@ public class TankHttpClient3 implements TankHttpClient {
         }
         return parts;
     }
-
-   
-
 }

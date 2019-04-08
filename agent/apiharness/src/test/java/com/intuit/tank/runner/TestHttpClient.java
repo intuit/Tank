@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.intuit.tank.runner;
 
 import com.intuit.tank.http.AuthCredentials;
@@ -86,10 +83,16 @@ public class TestHttpClient implements TankHttpClient {
     }
 
     /* (non-Javadoc)
-     * @see com.intuit.tank.http.TankHttpClient#close()
+     * @see com.intuit.tank.http.TankHttpClient#createHttpClient()
      */
     @Override
-    public void close() {
+    public Object createHttpClient() {
+        return null;
     }
 
+    /* (non-Javadoc)
+     * @see com.intuit.tank.http.TankHttpClient#setHttpClient(Object)
+     */
+    @Override
+    public void setHttpClient(Object httpClient) {}
 }

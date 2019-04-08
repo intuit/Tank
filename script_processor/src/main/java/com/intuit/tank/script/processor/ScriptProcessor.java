@@ -152,8 +152,7 @@ public class ScriptProcessor implements Runnable, Serializable {
 
     public void setScriptSteps(Script script, List<ScriptStep> steps) {
         LOG.debug("script " + script.getName() + " has " + steps.size() + " steps");
-        List<ScriptStep> newSteps = new ArrayList<ScriptStep>();
-        newSteps.addAll(steps);
+        List<ScriptStep> newSteps = new ArrayList<ScriptStep>(steps);
         script.getScriptSteps().clear();
         script.getScriptSteps().addAll(newSteps);
     }

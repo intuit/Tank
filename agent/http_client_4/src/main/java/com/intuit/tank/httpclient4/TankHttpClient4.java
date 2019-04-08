@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -61,7 +62,6 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -79,25 +79,24 @@ import com.intuit.tank.vm.settings.AgentConfig;
 
 public class TankHttpClient4 implements TankHttpClient {
 
-    static Logger LOG = LogManager.getLogger(TankHttpClient4.class);
+    private static final Logger LOG = LogManager.getLogger(TankHttpClient4.class);
 
     private CloseableHttpClient httpclient;
     private HttpClientContext context;
-    private RequestConfig requestConfig;
-    private boolean proxyOn = false;
 
     /**
      * no-arg constructor for client
      */
     public TankHttpClient4() {
-        httpclient = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).build();
-        requestConfig = RequestConfig.custom().setSocketTimeout(30000)
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setSocketTimeout(30000)
         		.setConnectTimeout(30000)
         		.setCircularRedirectsAllowed(true)
         		.setAuthenticationEnabled(true)
         		.setRedirectsEnabled(true)
         		.setCookieSpec(CookieSpecs.STANDARD)
-                .setMaxRedirects(100).build();
+                .setMaxRedirects(100)
+                .build();
 
         // Make sure the same context is used to execute logically related
         // requests
@@ -107,14 +106,28 @@ public class TankHttpClient4 implements TankHttpClient {
         context.setRequestConfig(requestConfig);
     }
 
+    public Object createHttpClient() {
+        // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
+        return HttpClients.custom()
+                .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                .evictIdleConnections(1L, TimeUnit.MINUTES)
+                .evictExpiredConnections()
+                .setMaxConnPerRoute(1024)
+                .setMaxConnTotal(2048)
+                .build();
+    }
+
+    public void setHttpClient(Object httpClient) {
+        if (httpClient instanceof CloseableHttpClient) {
+            this.httpclient = (CloseableHttpClient) httpClient;
+        } else {
+            this.httpclient = (CloseableHttpClient) createHttpClient();
+        }
+    }
+
     public void setConnectionTimeout(long connectionTimeout) {
-        requestConfig = RequestConfig.custom().setSocketTimeout(30000)
-        		.setConnectTimeout((int) connectionTimeout)
-        		.setCircularRedirectsAllowed(true)
-        		.setAuthenticationEnabled(true)
-                .setRedirectsEnabled(true)
-                .setCookieSpec(CookieSpecs.STANDARD)
-                .setMaxRedirects(100).build();
+        RequestConfig requestConfig =
+                context.getRequestConfig().custom().setConnectTimeout((int) connectionTimeout).build();
         context.setRequestConfig(requestConfig);
     }
 
@@ -226,7 +239,6 @@ public class TankHttpClient4 implements TankHttpClient {
         } else {
             context.getCredentialsProvider().setCredentials(scope, new UsernamePasswordCredentials(creds.getUserName(), creds.getPassword()));
         }
-
     }
 
     /*
@@ -255,24 +267,19 @@ public class TankHttpClient4 implements TankHttpClient {
     public void setProxy(String proxyhost, int proxyport) {
         if (StringUtils.isNotBlank(proxyhost)) {
             HttpHost proxy = new HttpHost(proxyhost, proxyport);
-            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-            httpclient = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).setRoutePlanner(routePlanner).build();
-            proxyOn = true;
-        } else if (proxyOn){
-            httpclient = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).build();
-            proxyOn = false;
+            RequestConfig requestConfig =
+                    context.getRequestConfig().custom().setProxy(proxy).build();
+            context.setRequestConfig(requestConfig);
+        } else {
+            RequestConfig requestConfig =
+                    context.getRequestConfig().custom().setProxy(null).build();
+            context.setRequestConfig(requestConfig);
         }
     }
 
-    @Override
-    public void close() throws IOException {
-        httpclient.close();
-    }
-
     private void sendRequest(BaseRequest request, @Nonnull HttpRequestBase method, String requestBody) {
-        String uri = null;
         long waitTime = 0L;
-        uri = method.getURI().toString();
+        String uri = method.getURI().toString();
         LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
         List<String> cookies = new ArrayList<String>();
         if (context.getCookieStore().getCookies() != null) {
@@ -423,9 +430,9 @@ public class TankHttpClient4 implements TankHttpClient {
         for (PartHolder h : TankHttpUtil.getPartsFromBody(request)) {
             if (h.getFileName() == null) {
                 if (h.isContentTypeSet()) {
-                    builder.addTextBody(h.getPartName(), new String(h.getBodyAsString()), ContentType.create(h.getContentType()));
+                    builder.addTextBody(h.getPartName(), h.getBodyAsString(), ContentType.create(h.getContentType()));
                 } else {
-                    builder.addTextBody(h.getPartName(), new String(h.getBodyAsString()));
+                    builder.addTextBody(h.getPartName(), h.getBodyAsString());
                 }
             } else {
                 if (h.isContentTypeSet()) {
@@ -437,6 +444,4 @@ public class TankHttpClient4 implements TankHttpClient {
         }
         return builder.build();
     }
-    
-
 }

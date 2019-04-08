@@ -1,8 +1,6 @@
 package com.intuit.tank.http;
 
-import java.io.IOException;
-
-public interface TankHttpClient extends AutoCloseable {
+public interface TankHttpClient {
 
     /**
      * Execute the GET. Use this to base the response off of the content type
@@ -75,6 +73,11 @@ public interface TankHttpClient extends AutoCloseable {
     /**
      *
      */
-    public void close() throws IOException;
+    public Object createHttpClient();
 
+    /**
+     *
+     * @param httpClient
+     */
+    public void setHttpClient(Object httpClient);
 }

@@ -85,16 +85,10 @@ public class TankXmlUploadBean implements Serializable {
         if (item != null) {
             try {
                 UploadedFileIterator uploadedFileIterator = new UploadedFileIterator(item, "xml");
-                StringBuilder sb = new StringBuilder();
                 FileInputStreamWrapper w = uploadedFileIterator.getNext();
                 while (w != null) {
                     processScript(w.getInputStream(), w.getFileName());
-                    if (sb.length() != 0) {
-                        sb.append(", ");
-                    }
-                    sb.append(w.getFileName());
                     w = uploadedFileIterator.getNext();
-
                 }
             } catch (Exception e) {
                 LOG.error("Error extracting zip file: " + e.toString());

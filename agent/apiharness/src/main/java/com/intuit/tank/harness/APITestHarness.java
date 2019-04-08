@@ -32,9 +32,9 @@ import java.util.concurrent.CountDownLatch;
 
 import com.amazonaws.regions.Regions;
 import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.http.TankHttpClient;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -94,7 +94,7 @@ public class APITestHarness {
     private boolean isLocal = true;
     private boolean started = false;
     private WatsAgentCommand cmd = WatsAgentCommand.run;
-    private Thread[] sessionThreads;
+    private ArrayList<Thread> sessionThreads;
     private CountDownLatch doneSignal;
     private boolean loggedSimTime;
     private int currentUsers = 0;
@@ -168,11 +168,10 @@ public class APITestHarness {
         ThreadContext.put("projectName", getInstance().getAgentRunData().getProjectName());
         ThreadContext.put("instanceId", getInstance().getAgentRunData().getInstanceId());
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("region", Regions.getCurrentRegion().getName());
+        ThreadContext.put("region", AmazonUtil.getVMRegion().getRegion());
         ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
 
         getInstance().initializeFromArgs(args);
-
     }
 
     private void initializeFromArgs(String[] args) {
@@ -248,12 +247,11 @@ public class APITestHarness {
                 agentRunData.setSimulationTime(Integer.parseInt(values[1]) * 60000);
                 continue;
             }
-
         }
         if (instanceId == null) {
             try {
                 instanceId = AmazonUtil.getInstanceId();
-                if (instanceId == null) {
+                if (StringUtils.isEmpty(instanceId)) {
                     instanceId = getLocalInstanceId();
                 }
             } catch (Exception e) {
@@ -302,9 +300,9 @@ public class APITestHarness {
         System.out.println("-ramp=<time>:  The time (min) to get to the ideal concurrent users specified");
         System.out.println("-time=<time>:  The time (min) of the simulation");
         System.out.println("-users=<# of total users>:  The number of total users to run concurrently");
-        System.out
-                .println("-start=<# of users to start with>:  The number of users to run concurrently when test begins");
+        System.out.println("-start=<# of users to start with>:  The number of users to run concurrently when test begins");
         System.out.println("-http=<controller_base_url>:  The url of the controller to get test info from");
+        System.out.println("-jobId=<job_id>: The jobId of the controller to get test info from");
         System.out.println("-d:  Turns debug on to step through each request");
         System.out.println("-t:  Turns trace on to print each request");
     }
@@ -351,16 +349,10 @@ public class APITestHarness {
         }
         VMRegion region = VMRegion.STANDALONE;
         if (AmazonUtil.isInAmazon()) {
-            try {
-                region = AmazonUtil.getVMRegion();
-            } catch (IOException e) {
-                LOG.warn(LogUtil.getLogMessage("Error getting region. using CUSTOM...", LogEventType.System));
-            }
+            region = AmazonUtil.getVMRegion();
         }
-        if (agentRunData.getJobId() == null) {
-            agentRunData.setJobId(AmazonUtil.getJobId());
-            agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
-        }
+        agentRunData.setJobId(AmazonUtil.getJobId());
+        agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
 
         LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
         ThreadContext.put("jobId", agentRunData.getJobId());
@@ -566,8 +558,7 @@ public class APITestHarness {
             agentRunData.setJobId(jobId);
         }
 
-        TestPlanRunner[] sessions = new TestPlanRunner[agentRunData.getNumUsers()];
-        sessionThreads = new Thread[agentRunData.getNumUsers()];
+        sessionThreads = new ArrayList<>();
         Thread monitorThread = null;
         doneSignal = new CountDownLatch(agentRunData.getNumUsers());
         try {
@@ -599,26 +590,26 @@ public class APITestHarness {
                 starter.setNumThreads(starter.getNumThreads() + numToAdd);
             }
 
+            Object httpClient = ((TankHttpClient) Class.forName(tankHttpClientClass).newInstance()).createHttpClient();
             // create threads
-            int tp = 0;
             for (TestPlanStarter starter : testPlans) {
-                for (int i = 0; i < starter.getNumThreads(); i++) {
-                    sessions[tp] = new TestPlanRunner(starter.getPlan(), tp);
-                    sessionThreads[tp] = new Thread(threadGroup, sessions[tp], "AGENT");
-                    sessionThreads[tp].setDaemon(true);// system won't shut down normally until all user threads stop
-                    starter.addThread(sessionThreads[tp]);
-                    sessions[tp].setUniqueName(
-                            sessionThreads[tp].getThreadGroup().getName() + "-" +
-                                    sessionThreads[tp].getId());
-                    tp++;
+                for (int tp = 0; tp < agentRunData.getNumUsers(); tp++) {
+                    TestPlanRunner session = new TestPlanRunner(httpClient, starter.getPlan(), tp, tankHttpClientClass);
+                    Thread thread = new Thread(threadGroup, session, "AGENT");
+                    thread.setDaemon(true);// system won't shut down normally until all user threads stop
+                    starter.addThread(thread);
+                    session.setUniqueName(
+                            thread.getThreadGroup().getName() + "-" +
+                                    thread.getId());
+                    sessionThreads.add(thread);
                 }
             }
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Have all testPlan runners configured")));
             // start status thread first only
-            if (!isLocal && !isDebug() && NumberUtils.isDigits(agentRunData.getJobId())) {
+            if (!isDebug()) {
                 LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting monitor thread...")));
                 CloudVmStatus status = getInitialStatus();
-                monitorThread = new Thread(new APIMonitor(status));
+                monitorThread = new Thread(new APIMonitor(isLocal, status));
                 monitorThread.setDaemon(true);
                 monitorThread.setPriority(Thread.NORM_PRIORITY - 2);
                 monitorThread.start();
@@ -655,9 +646,7 @@ public class APITestHarness {
                         done = done && starter.isDone();
                     }
                     ramping = !done;
-                    if (ramping) {
-                        Thread.sleep(5000);
-                    }
+                    Thread.sleep(5000);
                 }
                 // if we broke early, fix our countdown latch
                 int numToCount = testPlans.stream().mapToInt(TestPlanStarter::getThreadsStarted).sum();
@@ -674,25 +663,19 @@ public class APITestHarness {
             LOG.error("error executing..." + t, t);
         } finally {
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Test Complete...")));
-            if (!isDebug() && NumberUtils.isDigits(agentRunData.getJobId())) {
+            if (!isDebug()) {
                 if (null != monitorThread) {
                     APIMonitor.setJobStatus(JobStatus.Completed);
                     APIMonitor.setDoMonitor(false);
                 }
                 sendBatchToDB(false);
-                // sleep for 60 seconds to let wily agent clear any data
-                try {
-                    Thread.sleep(60000);
-                } catch (InterruptedException e) {
-                    // nothing to do
-                }
             }
         }
         flowControllerTemplate.endTest();
         // System.exit(0);
     }
 
-    public TPSMonitor getTPMonitor() {
+    public TPSMonitor getTPSMonitor() {
         return tpsMonitor;
     }
 
@@ -822,16 +805,16 @@ public class APITestHarness {
                         + doneSignal.getCount() + " threads not reporting done."));
                 for (Thread t : sessionThreads) {
                     if (t.isAlive()) {
-                        if (exceededTimeLimit) {
-                            LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
-                                    + " is still running with a State of " + t.getState().name(), LogEventType.System));
-                            t.interrupt();
-                            doneSignal.countDown();
-                        }
+                        LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
+                                + " is still running with a State of " + t.getState().name(), LogEventType.System));
+                        t.interrupt();
+                        doneSignal.countDown();
                     }
                 }
             }
         }
+        // Clean up TestPlanRunner Threads that are Thread.State.TERMINATED
+        sessionThreads.removeIf(t -> t.getState().equals(Thread.State.TERMINATED));
     }
 
     /**
@@ -877,13 +860,13 @@ public class APITestHarness {
 
     private void sendBatchToDB(boolean asynch) {
         if (results.size() > 1 && logTiming) {
-            final List<TankResult> l = new ArrayList<TankResult>();
+            final List<TankResult> list;
             synchronized (results) {
-                l.addAll(results);
+                list = new ArrayList<TankResult>(results);
                 results.clear();
             }
             resultsReporter
-                    .sendTimingResults(getAgentRunData().getJobId(), getAgentRunData().getInstanceId(), l, false);
+                    .sendTimingResults(getAgentRunData().getJobId(), getAgentRunData().getInstanceId(), list, false);
         }
     }
 
@@ -956,7 +939,4 @@ public class APITestHarness {
     public void setTankHttpClientClass(String tankHttpClientClass) {
         this.tankHttpClientClass = tankHttpClientClass;
     }
-    
-    
-
 }

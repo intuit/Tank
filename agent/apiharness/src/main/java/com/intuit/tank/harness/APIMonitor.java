@@ -15,6 +15,7 @@ package com.intuit.tank.harness;
 
 import java.util.Date;
 
+import com.intuit.tank.vm.api.enumerated.VMRegion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,15 +40,17 @@ public class APIMonitor implements Runnable {
     private static CloudServiceClient client;
     private static CloudVmStatus status;
     private long reportInterval = APIMonitor.MIN_REPORT_TIME;
+    private boolean isLocal;
 
-    public APIMonitor(CloudVmStatus vmStatus) {
+    public APIMonitor(Boolean isLocal, CloudVmStatus vmStatus) {
+        this.isLocal = isLocal;
         status = vmStatus;
         try {
             client = new CloudServiceClient(APITestHarness.getInstance().getTankConfig().getControllerBase());
             reportInterval = Math.max(APITestHarness.getInstance().getTankConfig().getAgentConfig()
                     .getStatusReportIntervalMilis(reportInterval), MIN_REPORT_TIME);
         } catch (Exception e) {
-            LOG.error("Error initializing monitor: " + e, e);
+            LOG.error(LogUtil.getLogMessage("Error initializing monitor: " + e.getMessage()), e);
         }
     }
 
@@ -58,12 +61,12 @@ public class APIMonitor implements Runnable {
             try {
                 CloudVmStatus newStatus = createStatus(APITestHarness.getInstance().getStatus());
                 newStatus.setUserDetails(APITestHarness.getInstance().getUserTracker().getSnapshot());
-                TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPMonitor().getTPSInfo();
+                TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPSMonitor().getTPSInfo();
                 if (tpsInfo != null) {
                     newStatus.setTotalTps(tpsInfo.getTotalTps());
                     sendTps(tpsInfo);
                 }
-                client.setVmStatus(newStatus.getInstanceId(), newStatus);
+                if (!isLocal) client.setVmStatus(newStatus.getInstanceId(), newStatus);
                 APITestHarness.getInstance().checkAgentThreads();
                 Thread.sleep(reportInterval);
             } catch (Exception t) {
@@ -76,8 +79,8 @@ public class APIMonitor implements Runnable {
 
     private void sendTps(final TPSInfoContainer tpsInfo) {
         APITestHarness.getInstance().getResultsReporter()
-                .sendTpsResults(APITestHarness.getInstance().getAgentRunData().getJobId(), APITestHarness
-                        .getInstance().getAgentRunData().getInstanceId(), tpsInfo, true);
+                .sendTpsResults(APITestHarness.getInstance().getAgentRunData().getJobId(),
+                        APITestHarness.getInstance().getAgentRunData().getInstanceId(), tpsInfo, true);
 
     }
 

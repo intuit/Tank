@@ -20,13 +20,13 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.intuit.tank</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>pressgang-xslt-ns</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.intuit.tank</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>tank-common-jdocbook-style</artifactId>
       <version>${project.version}</version>
       <type>pom</type>

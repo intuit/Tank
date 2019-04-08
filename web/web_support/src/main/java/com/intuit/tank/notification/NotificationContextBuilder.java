@@ -97,7 +97,7 @@ public class NotificationContextBuilder {
     public NotificationContextBuilder(JobEvent e, VMTracker tracker) {
         // build context
         this.vmTracker = tracker;
-        JobInstance jobInstance = new JobInstanceDao().findById(Integer.parseInt(e.getJobId()));
+        JobInstance jobInstance = new JobInstanceDao().findById(Integer.valueOf(e.getJobId()));
         Workload workload = new WorkloadDao().findById(jobInstance.getWorkloadId());
         CloudVmStatusContainer container = vmTracker.getVmStatusForJob(e.getJobId());
         this.jobInstance = jobInstance;

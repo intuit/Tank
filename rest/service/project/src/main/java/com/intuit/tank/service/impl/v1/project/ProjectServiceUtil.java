@@ -76,7 +76,7 @@ public class ProjectServiceUtil {
         if (!f.exists()) {
             if (NumberUtils.isCreatable(jobId)) {
                 try {
-                    String scriptString = getScriptString(new JobInstanceDao().findById(Integer.parseInt(jobId)));
+                    String scriptString = getScriptString(new JobInstanceDao().findById(Integer.valueOf(jobId)));
                     ProjectDaoUtil.storeScriptFile(jobId, scriptString);
                 } catch (Exception e) {
                     LOG.error("Erorr writing file: " + e, e);

@@ -88,12 +88,12 @@ public class DatabaseResultsReporter implements ResultsReporter {
     public void sendTimingResults(String jobId, String instanceId, List<TankResult> results, boolean async) {
         String tableName = getTimingTableName(db, jobId);
         if (results.size() != 0 && tableName != null) {
-            final List<TankResult> l = new ArrayList<TankResult>();
+            final List<TankResult> list;
             synchronized (results) {
-                l.addAll(results);
+                list = new ArrayList<TankResult>(results);
                 results.clear();
             }
-            DataBaseFactory.getDatabase().addTimingResults(tableName, l, async);
+            DataBaseFactory.getDatabase().addTimingResults(tableName, list, async);
         }
 
     }
