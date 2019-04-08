@@ -24,7 +24,6 @@ import javax.faces.convert.FacesConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.project.Script;
 import org.primefaces.component.picklist.PickList;
 import org.primefaces.model.DualListModel;

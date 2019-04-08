@@ -30,7 +30,6 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -72,23 +71,20 @@ public class MetricsCalculator {
     };
 
     /**
-     * @param object2
+     * @param jobId
      * @param start
+     * @param end
      * @inheritDoc
      */
     public void retrieveAndCalculateTimingData(@Nonnull String jobId, Date start, Date end) {
         MethodTimer mt = new MethodTimer(LOG, this.getClass(), "retrieveAndCalculateSummaryTimingCsv");
         int period = 15;
-        Writer csvFile = null;
-        CSVWriter csvWriter = null;
-        InputStream is = null;
-        try {
+        int count = 0;
+        try ( Writer csvFile = new OutputStreamWriter(
+                new GZIPOutputStream(
+                        new FileOutputStream(File.createTempFile("timing", ".csv.gz"))));
+              CSVWriter csvWriter = new CSVWriter(csvFile) ){
             ResultsReader resultsReader = ReportingFactory.getResultsReader();
-            String fileName = "timing_" + new TankConfig().getInstanceName() + "_" + jobId + ".csv.gz";
-            File f = File.createTempFile("timing", ".csv.gz");
-            csvFile = new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(f)));
-            csvWriter = new CSVWriter(csvFile);
-            int count = 0;
             Object nextToken = null;
             csvWriter.writeNext(FIELDS);
             do {
@@ -115,17 +111,16 @@ public class MetricsCalculator {
                         DescriptiveStatistics bucketStats = getBucketStats(result.getRequestName(), period, periodDate);
                         bucketStats.addValue(d);
                     }
-
                 }
                 nextToken = results.getNextToken();
             } while (nextToken != null);
-            csvWriter.flush();
-            csvWriter.close();
-            csvWriter = null;
-            IOUtils.closeQuietly(csvFile);
+        } catch (IOException e) {
+            LOG.warn("Error closing csv file: " + e);
+        }
+        try ( InputStream is = new FileInputStream(File.createTempFile("timing", ".csv.gz")) ) {
+            String fileName = "timing_" + new TankConfig().getInstanceName() + "_" + jobId + ".csv.gz";
             FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getTimingDir(), false);
             FileData fd = new FileData("",fileName);
-            is = new FileInputStream(f);
             fileStorage.storeFileData(fd, is);
             mt.endAndLog();
             LOG.info("Processed " + count + " total items for job " + jobId);
@@ -134,17 +129,6 @@ public class MetricsCalculator {
                 throw (RuntimeException) e;
             }
             throw new RuntimeException(e);
-        } finally {
-            if (csvWriter != null) {
-                try {
-                    csvWriter.close();
-                } catch (IOException e) {
-                    // swallow
-                    LOG.warn("Error closing csv file: " + e);
-                }
-            }
-            IOUtils.closeQuietly(csvFile);
-            IOUtils.closeQuietly(is);
         }
     }
 

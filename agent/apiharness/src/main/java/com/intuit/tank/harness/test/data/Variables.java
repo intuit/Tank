@@ -19,10 +19,11 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.JexlEngine;
-import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,19 +48,14 @@ public class Variables {
 
     public static final String RETRY_KEY = "_retry_enabled_";
 
-    static Logger LOG = LogManager.getLogger(Variables.class);
+    private static final Logger LOG = LogManager.getLogger(Variables.class);
 
     private HashMap<String, VariableValue> variables = null;
     private boolean doLog = false;
-    private static JexlEngine jexl = new JexlEngine();
+    private static JexlEngine jexl = new JexlBuilder().cache(1024).silent(true).strict(false).create();
 
     private static final Pattern p = Pattern.compile(TankConstants.EXPRESSION_REGEX);
 
-    static {
-        jexl.setCache(1024);
-        jexl.setLenient(true);
-        jexl.setSilent(true);
-    }
     private JexlContext context;
 
     /**
@@ -104,7 +100,7 @@ public class Variables {
 	            while (m.find()) { // find next match, very costly
 	                String match = m.group();
 	                String group = m.group(1);
-	                Expression expression = jexl.createExpression(group);
+                    JexlExpression expression = jexl.createExpression(group);
 	                String result = (String) expression.evaluate(context);
 	                if (result == null && (group.contains("getCSVData") || group.contains("getFile"))) {
 	                    APITestHarness.getInstance().addKill();

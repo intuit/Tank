@@ -60,33 +60,24 @@ public class AgentStartup implements Runnable {
             URL url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SETTINGS);
             logger.info("Starting up: making call to tank service url to get settings.xml "
                     + url.toExternalForm());
-            InputStream settingsStream = url.openStream();
-            try {
+            try ( InputStream settingsStream = url.openStream() ) {
                 String settings = IOUtils.toString(settingsStream, StandardCharsets.UTF_8);
                 FileUtils.writeStringToFile(new File("settings.xml"), settings, StandardCharsets.UTF_8);
                 logger.info("got settings file...");
-            } finally {
-                IOUtils.closeQuietly(settingsStream);
             }
             url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
             logger.info("Making call to tank service url to get support files " + url.toExternalForm());
-            ZipInputStream zip = new ZipInputStream(url.openStream());
-            try {
+            try ( ZipInputStream zip = new ZipInputStream(url.openStream()) ){
                 ZipEntry entry = zip.getNextEntry();
                 while (entry != null) {
                     String name = entry.getName();
                     logger.info("Got file from controller: " + name);
                     File f = new File(name);
-                    FileOutputStream fout = FileUtils.openOutputStream(f);
-                    try {
+                    try ( FileOutputStream fout = FileUtils.openOutputStream(f) ) {
                         IOUtils.copy(zip, fout);
-                    } finally {
-                        IOUtils.closeQuietly(fout);
                     }
                     entry = zip.getNextEntry();
                 }
-            } finally {
-                IOUtils.closeQuietly(zip);
             }
             // now start the harness
             String jvmArgs = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_JVM_ARGS);

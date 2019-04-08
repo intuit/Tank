@@ -36,6 +36,8 @@ import com.intuit.tank.vm.api.enumerated.VMSize;
 import com.intuit.tank.vm.common.TankConstants;
 import org.apache.logging.log4j.message.ObjectMessage;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * 
  * AmazonUtil
@@ -50,12 +52,15 @@ public class AmazonUtil {
     private static final String USER_DATA = "/user-data";
     private static final String META_DATA = "/meta-data";
 
-    // private static Logger logger = LogManager.getLogger(AmazonUtil.class);
-
-    public static VMRegion getVMRegion() throws IOException {
-        String zone = getMetaData(CloudMetaDataType.zone);
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Running in zone " + zone )));
-        return VMRegion.getRegionFromZone(zone);
+    public static VMRegion getVMRegion() {
+        try {
+            String zone = getMetaData(CloudMetaDataType.zone);
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Running in zone " + zone)));
+            return VMRegion.getRegionFromZone(zone);
+        } catch (IOException ioe) {
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message","Error getting region. using CUSTOM...")));
+        }
+        return VMRegion.STANDALONE;
     }
 
     /**
@@ -64,13 +69,12 @@ public class AmazonUtil {
      * @return
      */
     public static boolean isInAmazon() {
-        boolean ret = true;
         try {
             getMetaData(CloudMetaDataType.zone);
-        } catch (Exception e) {
-            ret = false;
+        } catch (IOException e) {
+            return false;
         }
-        return ret;
+        return true;
     }
 
     /**
@@ -148,13 +152,12 @@ public class AmazonUtil {
      */
     @Nonnull
     public static String getInstanceId() {
-        String ret = null;
         try {
-            ret = getMetaData(CloudMetaDataType.instance_id);
+            return getMetaData(CloudMetaDataType.instance_id);
         } catch (IOException e) {
             LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting instance ID: " + e.toString())));
         }
-        return ret;
+        return "";
     }
 
     /**
@@ -333,7 +336,9 @@ public class AmazonUtil {
                     s = r.readLine();
                 }
             } finally {
-                IOUtils.closeQuietly(is);
+                try {
+                    is.close();
+                } catch (IOException e) {}
             }
         }
         return result;
@@ -342,9 +347,11 @@ public class AmazonUtil {
     private static String convertStreamToString(InputStream is) throws IOException {
         if (is != null) {
             try {
-                return IOUtils.toString(is);
+                return IOUtils.toString(is, UTF_8);
             } finally {
-                IOUtils.closeQuietly(is);
+                try {
+                    is.close();
+                } catch (IOException e) {}
             }
         } else {
             return "";

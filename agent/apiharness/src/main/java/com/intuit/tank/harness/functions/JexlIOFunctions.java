@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl3.JexlContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -73,7 +73,7 @@ public class JexlIOFunctions implements ExpressionContextVisitor {
 
     /**
      * 
-     * @param colIndex
+     * @param ocolIndex
      * @param loop
      * @return
      * @throws CheckedKillScriptException

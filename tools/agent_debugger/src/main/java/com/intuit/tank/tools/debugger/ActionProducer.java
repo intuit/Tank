@@ -26,7 +26,6 @@ import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -448,24 +447,15 @@ public class ActionProducer {
         cb.setEditable(true);
         Properties props = new Properties();
         File f = new File(DEBUGGER_PROPERTIES);
-        InputStream in = null;
-        try {
-            if (f.exists()) {
-                in = new FileInputStream(f);
+        if (!f.exists()) { // load default
+            try (   InputStream in = ActionProducer.class.getClassLoader().getResourceAsStream(DEBUGGER_PROPERTIES);
+                    OutputStream out = new FileOutputStream(f) ) {
+                IOUtils.copy(in, out);
+            } catch (Exception e) {
+                LOG.error("Cannot write properties: " + e, e);
             }
-            if (in == null) { // load default
-                in = ActionProducer.class.getClassLoader().getResourceAsStream(DEBUGGER_PROPERTIES);
-                OutputStream out = new FileOutputStream(f);
-                try {
-                    IOUtils.copy(in, out);
-                } catch (Exception e) {
-                    LOG.error("Cannot write properties: " + e, e);
-                } finally {
-                    IOUtils.closeQuietly(in);
-                    IOUtils.closeQuietly(out);
-                }
-                in = new FileInputStream(f);
-            }
+        }
+        try ( InputStream in = new FileInputStream(f) ) {
             props.load(in);
             for (Object o : props.keySet()) {
                 String key = (String) o;
@@ -477,8 +467,6 @@ public class ActionProducer {
             }
         } catch (Exception e) {
             LOG.error("Cannot read properties: " + e, e);
-        } finally {
-            IOUtils.closeQuietly(in);
         }
         return cb;
     }

@@ -50,8 +50,9 @@ public class Messages {
     	List<FacesMessage> fm = FacesContext.getCurrentInstance().getMessageList();
     	return fm.isEmpty();
     }
-    
+
     public void clear() {
-    	FacesContext.getCurrentInstance().getMessageList().clear();
+        //Removed because it throws a UnsupportedOperationException on an unmodifiable list
+    	//FacesContext.getCurrentInstance().getMessageList().clear();
     }
 }

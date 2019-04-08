@@ -13,11 +13,11 @@ package com.intuit.tank.harness.logging;
  * #L%
  */
 
-import com.amazonaws.regions.Regions;
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.AmazonUtil;
 import com.intuit.tank.harness.HostInfo;
 import com.intuit.tank.logging.SourceType;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
 import org.apache.logging.log4j.ThreadContext;
 
 /**
@@ -42,7 +42,7 @@ public class ThreadLocalLogEvent extends ThreadLocal<LogEvent> {
         ThreadContext.put("projectName", APITestHarness.getInstance().getAgentRunData().getProjectName());
         ThreadContext.put("instanceId", APITestHarness.getInstance().getAgentRunData().getInstanceId());
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("region", Regions.getCurrentRegion().getName());
+        ThreadContext.put("region", AmazonUtil.getVMRegion().getRegion());
         ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
 
         return logEvent;

@@ -27,7 +27,7 @@ public class VariableRunnerTest {
     @Test
     public void testVariableRunner_1()
         throws Exception {
-        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, new TestHttpClient());
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext tsc = new TestStepContext(new VariableStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
 

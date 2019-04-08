@@ -1,10 +1,5 @@
 package com.intuit.tank.http;
 
-import com.intuit.tank.http.AuthCredentials;
-import com.intuit.tank.http.BaseRequest;
-
-import java.io.IOException;
-
 public interface TankHttpClient {
 
     /**
@@ -78,6 +73,11 @@ public interface TankHttpClient {
     /**
      *
      */
-    public void close() throws IOException;
+    public Object createHttpClient();
 
+    /**
+     *
+     * @param httpClient
+     */
+    public void setHttpClient(Object httpClient);
 }

@@ -31,7 +31,7 @@ public class AgentRunData {
     private int userInterval = 1;
     private String testPlans = "";
     private String instanceId;
-    private String jobId = null;
+    private String jobId = "0";
     private String machineName = "invalid";
     private String reportingMode = TankConstants.RESULTS_NONE;
     private long simulationTime = 0;

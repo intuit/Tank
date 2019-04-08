@@ -48,7 +48,6 @@ public class JobRequest implements Runnable {
 
     @Override
     public void run() {
-        List<VMInformation> response = new ArrayList<VMInformation>();
         try {
             IEnvironmentInstance instance = null;
             VMInstanceRequest instanceRequest = this.populateAmazonRequest();
@@ -60,7 +59,7 @@ public class JobRequest implements Runnable {
                     machines));
             instanceRequest.setSize(request.getVmInstanceType());
             instance = this.getEnvironment(instanceRequest);
-            response.addAll(instance.create());
+            List<VMInformation> response = new ArrayList<VMInformation>(instance.create());
             persistInstances(instanceRequest, response);
         } catch (Exception ex) {
             logger.error("Error : " + ex, ex);

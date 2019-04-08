@@ -17,9 +17,8 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
-import org.apache.commons.jexl2.JexlContext;
-
 import com.intuit.tank.vm.common.util.ExpressionContextVisitor;
+import org.apache.commons.jexl3.JexlContext;
 
 /**
  * JexlTaxFunctions functions useful for tax info.
@@ -35,7 +34,7 @@ public class JexlTaxFunctions implements ExpressionContextVisitor {
     /**
      * Returns a valid SSN based on the starting SSN given
      * 
-     * @param startSsn
+     * @param ostartSsn
      * @return a valid SSN
      */
     public String getSsn(Object ostartSsn) {

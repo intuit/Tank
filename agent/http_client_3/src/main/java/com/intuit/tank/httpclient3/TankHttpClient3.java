@@ -73,7 +73,7 @@ import com.intuit.tank.vm.settings.AgentConfig;
 
 public class TankHttpClient3 implements TankHttpClient {
 
-    static Logger LOG = LogManager.getLogger(TankHttpClient3.class);
+    private static final Logger LOG = LogManager.getLogger(TankHttpClient3.class);
 
     private HttpClient httpclient;
 
@@ -89,11 +89,13 @@ public class TankHttpClient3 implements TankHttpClient {
         httpclient.setState(new HttpState());
     }
 
+    public Object createHttpClient() { return null; }
+
+    public void setHttpClient(Object httpClient) {}
+
     public void setConnectionTimeout(long connectionTimeout) {
         httpclient.getParams().setConnectionManagerTimeout(connectionTimeout);
     }
-    
-    
 
     /*
      * (non-Javadoc)
@@ -243,11 +245,6 @@ public class TankHttpClient3 implements TankHttpClient {
         }
     }
 
-    @Override
-    public void close() throws IOException {
-        httpclient = null;
-    }
-
     private void sendRequest(BaseRequest request, @Nonnull HttpMethod method, String requestBody) {
         String uri = null;
         long waitTime = 0L;
@@ -269,16 +266,9 @@ public class TankHttpClient3 implements TankHttpClient {
             byte[] responseBody = new byte[0];
             // check for no content headers
             if (method.getStatusCode() != 203 && method.getStatusCode() != 202 && method.getStatusCode() != 204) {
-                try {
-                    InputStream httpInputStream = method.getResponseBodyAsStream();
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    int curByte = httpInputStream.read();
-                    while (curByte >= 0) {
-                        out.write(curByte);
-                        curByte = httpInputStream.read();
-                    }
-                    responseBody = out.toByteArray();
-                } catch (Exception e) {
+                try ( InputStream is = method.getResponseBodyAsStream() ) {
+                    responseBody = IOUtils.toByteArray(is);
+                } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
             }
@@ -367,12 +357,11 @@ public class TankHttpClient3 implements TankHttpClient {
             String contentEncode = response.getHttpHeader("Content-Encoding");
             if (BaseResponse.isDataType(contentType) && contentEncode != null && contentEncode.toLowerCase().contains("gzip")) {
                 // decode gzip for data types
-                try {
-                    GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(bResponse));
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                try (   GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(bResponse));
+                        ByteArrayOutputStream out = new ByteArrayOutputStream() ) {
                     IOUtils.copy(in, out);
                     bResponse = out.toByteArray();
-                } catch (Exception e) {
+                } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("cannot decode gzip stream: " + e, LogEventType.System));
                 }
             }
@@ -428,7 +417,4 @@ public class TankHttpClient3 implements TankHttpClient {
         }
         return parts;
     }
-
-   
-
 }

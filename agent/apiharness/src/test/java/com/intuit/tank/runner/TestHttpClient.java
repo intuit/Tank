@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.intuit.tank.runner;
 
 import com.intuit.tank.http.AuthCredentials;
@@ -85,4 +82,17 @@ public class TestHttpClient implements TankHttpClient {
     public void setConnectionTimeout(long connectionTimeout) {
     }
 
+    /* (non-Javadoc)
+     * @see com.intuit.tank.http.TankHttpClient#createHttpClient()
+     */
+    @Override
+    public Object createHttpClient() {
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see com.intuit.tank.http.TankHttpClient#setHttpClient(Object)
+     */
+    @Override
+    public void setHttpClient(Object httpClient) {}
 }

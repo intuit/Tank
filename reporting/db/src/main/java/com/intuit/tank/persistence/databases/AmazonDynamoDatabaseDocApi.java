@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -37,11 +39,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
@@ -100,16 +100,15 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     private static Logger logger = LogManager.getLogger(AmazonDynamoDatabaseDocApi.class);
 
     /**
-     * 
-     * @param dynamoDb
+     *
      */
     public AmazonDynamoDatabaseDocApi() {
         CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
         if (creds != null && StringUtils.isNotBlank(creds.getKeyId())) {
             AWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
-            this.dynamoDb = new AmazonDynamoDBClient(credentials, new ClientConfiguration());
+            this.dynamoDb = AmazonDynamoDBClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
         } else {
-            this.dynamoDb = new AmazonDynamoDBClient(new ClientConfiguration());
+            this.dynamoDb = AmazonDynamoDBClientBuilder.defaultClient();
         }
 
         

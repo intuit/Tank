@@ -38,7 +38,6 @@ import com.intuit.tank.project.ScriptFilterAction;
 import com.intuit.tank.project.ScriptFilterCondition;
 import com.intuit.tank.util.ExceptionHandler;
 import com.intuit.tank.util.ScriptFilterType;
-import com.intuit.tank.util.TsConversationManager;
 import com.intuit.tank.vm.settings.AccessRight;
 
 @Named
@@ -276,15 +275,11 @@ public class ScriptFilterCreationBean implements Serializable {
     }
 
     public List<ScriptFilterCondition> getConditions() {
-        List<ScriptFilterCondition> conditions = new ArrayList<ScriptFilterCondition>();
-        conditions.addAll(filter.getConditions());
-        return conditions;
+        return new ArrayList<ScriptFilterCondition>(filter.getConditions());
     }
 
     public List<ScriptFilterAction> getActions() {
-        List<ScriptFilterAction> actions = new ArrayList<ScriptFilterAction>();
-        actions.addAll(filter.getActions());
-        return actions;
+        return new ArrayList<ScriptFilterAction>(filter.getActions());
     }
 
     /**

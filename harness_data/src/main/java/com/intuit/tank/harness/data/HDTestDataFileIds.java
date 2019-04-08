@@ -18,8 +18,6 @@ package com.intuit.tank.harness.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -70,8 +68,7 @@ public class HDTestDataFileIds {
     public HDTestDataFileIds(boolean allowOverride, Set<Integer> ids) {
         super();
         this.allowOverride = allowOverride;
-        List<Integer> lids = new ArrayList<Integer>();
-        lids.addAll(ids);
+        List<Integer> lids = new ArrayList<Integer>(ids);
         setDataFiles(lids);
     }
 

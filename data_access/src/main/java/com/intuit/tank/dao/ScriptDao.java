@@ -48,7 +48,7 @@ public class ScriptDao extends BaseDao<Script> {
     private static final Logger LOG = LogManager.getLogger(ScriptDao.class);
 
     /**
-     * @param entityClass
+     * @inheritDoc
      */
     public ScriptDao() {
         super();
@@ -56,6 +56,7 @@ public class ScriptDao extends BaseDao<Script> {
     }
 
     /**
+     * @param id
      * @inheritDoc
      */
     @Override
@@ -131,7 +132,7 @@ public class ScriptDao extends BaseDao<Script> {
 
     /**
      * 
-     * @param projectId
+     * @param productId
      * @return
      */
     public List<Script> getScriptsForProductId(int productId) {
@@ -199,18 +200,14 @@ public class ScriptDao extends BaseDao<Script> {
     }
 
     public SerializedScriptStep serialize(List<ScriptStep> steps) {
-        ObjectOutputStream s = null;
-        try {
+        try (   ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                ObjectOutputStream s = new ObjectOutputStream(bos) ) {
             // if (steps.size() > 0) {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            s = new ObjectOutputStream(bos);
             s.writeObject(steps);
             return new SerializedScriptStep(bos.toByteArray());
             // }
         } catch (IOException e) {
             throw new AnnotationException(e.toString());
-        } finally {
-            IOUtils.closeQuietly(s);
         }
     }
 

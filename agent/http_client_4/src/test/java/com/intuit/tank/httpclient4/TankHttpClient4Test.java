@@ -256,6 +256,7 @@ public class TankHttpClient4Test {
     private BaseRequest getRequest(TankHttpClient client, String url) {
         try {
             URL u = new URL(url);
+            client.setHttpClient(null);
             BaseRequest request = new MockBaseRequest(client);
             request.setHost(u.getHost());
             request.setPath(u.getPath());
@@ -271,7 +272,7 @@ public class TankHttpClient4Test {
     /**
      * Returns a string's base64 encoding
      * 
-     * @param toEncode
+     * @param bytes
      * @return base64 string
      */
     public String toBase64(byte[] bytes) {

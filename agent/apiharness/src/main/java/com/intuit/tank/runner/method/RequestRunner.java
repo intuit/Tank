@@ -188,9 +188,9 @@ public class RequestRunner implements Runner {
                     LogUtil.getLogMessage("Unexpected Exception executing request: " + e.toString(), LogEventType.IO),
                     e);
         }
-        if (APITestHarness.getInstance().getTPMonitor().isEnabled()) {
+        if (APITestHarness.getInstance().getTPSMonitor().isEnabled()) {
             if (!StringUtils.isEmpty(loggingKey)) {
-                APITestHarness.getInstance().getTPMonitor().addToMap(loggingKey, baseRequest);
+                APITestHarness.getInstance().getTPSMonitor().addToMap(loggingKey, baseRequest);
             }
         }
         validation = processValidations(variables, "", baseResponse);

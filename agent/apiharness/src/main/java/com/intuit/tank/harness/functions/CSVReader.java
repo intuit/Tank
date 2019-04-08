@@ -17,13 +17,13 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -57,24 +57,22 @@ public class CSVReader {
 
     private void readCSV(String fileName) {
 
-        DataInputStream in = null;
+        lines = new ArrayList<String[]>();
+        // Open the file that is the first
+        // command line parameter
+        String datafileDir = "src/test/resources";
         try {
-            lines = new ArrayList<String[]>();
-            // Open the file that is the first
-            // command line parameter
-            String datafileDir = "src/test/resources";
-            try {
-                datafileDir = APITestHarness.getInstance().getTankConfig().getAgentConfig()
-                        .getAgentDataFileStorageDir();
-            } catch (Exception e) {
-                LOG.warn("Cannot read config. Using datafileDir of " + datafileDir);
-            }
-            File csvFile = new File(datafileDir, fileName);
-            LOG.debug(LogUtil.getLogMessage("READING CSV FILE: " + csvFile.getAbsolutePath()));
-            FileInputStream fstream = new FileInputStream(csvFile);
-            // Get the object of DataInputStream
-            in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            datafileDir = APITestHarness.getInstance().getTankConfig().getAgentConfig()
+                    .getAgentDataFileStorageDir();
+        } catch (Exception e) {
+            LOG.warn("Cannot read config. Using datafileDir of " + datafileDir);
+        }
+        File csvFile = new File(datafileDir, fileName);
+        LOG.debug(LogUtil.getLogMessage("READING CSV FILE: " + csvFile.getAbsolutePath()));
+        try ( BufferedReader br = new BufferedReader(
+                new InputStreamReader(
+                        new DataInputStream(
+                                new FileInputStream(csvFile)))) ) {
 
             String strLine;
             // Read File Line By Line
@@ -84,11 +82,8 @@ public class CSVReader {
             LOG.debug(LogUtil.getLogMessage("CSV file " + csvFile.getAbsolutePath() + " has " + lines.size()
                     + " lines."));
 
-        } catch (Exception e) {// Catch exception if any
+        } catch (IOException e) {// Catch exception if any
             LOG.error(LogUtil.getLogMessage("Error reading CSV file: " + e.toString()), e);
-        } finally {
-            // Close the input stream
-            IOUtils.closeQuietly(in);
         }
 
     }

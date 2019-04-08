@@ -16,9 +16,6 @@ package com.intuit.tank.tools.script;
  * #L%
  */
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 /**
  * LoggingOutputLogger
  * 

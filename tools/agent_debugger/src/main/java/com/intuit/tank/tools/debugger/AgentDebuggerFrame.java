@@ -21,12 +21,10 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
-import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -822,14 +820,10 @@ public class AgentDebuggerFrame extends JFrame {
 
     private void saveDataFile(DataFileClient client, DataFileDescriptor dataFileDescriptor, boolean isDefault) {
         File dataFile = new File(workingDir, dataFileDescriptor.getName());
-        FileOutputStream fos = null;
-        InputStream is = null;
-        try {
-            LOG.info("writing file " + dataFileDescriptor.getName() + " to " + dataFile.getAbsolutePath());
-            is = client.getDataFileDataStream(dataFileDescriptor.getId());
-            fos = new FileOutputStream(dataFile);
+        LOG.info("writing file " + dataFileDescriptor.getName() + " to " + dataFile.getAbsolutePath());
+        try (   FileOutputStream fos = new FileOutputStream(dataFile);
+                InputStream is = client.getDataFileDataStream(dataFileDescriptor.getId()) ) {
             IOUtils.copy(is, fos);
-            IOUtils.closeQuietly(fos);
             if (isDefault && !dataFileDescriptor.getName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
                 File defaultFile = new File(workingDir, TankConstants.DEFAULT_CSV_FILE_NAME);
                 FileUtils.copyFile(dataFile, defaultFile);
@@ -837,9 +831,6 @@ public class AgentDebuggerFrame extends JFrame {
         } catch (Exception e) {
             LOG.error("Error downloading csv file: " + e, e);
             throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(is);
-            IOUtils.closeQuietly(fos);
         }
 
     }

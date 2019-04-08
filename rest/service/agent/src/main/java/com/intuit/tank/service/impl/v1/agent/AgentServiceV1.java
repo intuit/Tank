@@ -161,7 +161,7 @@ public class AgentServiceV1 implements AgentService {
             zip.putNextEntry(new ZipEntry(name));
             IOUtils.copy(in, zip);
         } finally {
-            IOUtils.closeQuietly(in);
+            in.close();
         }
     }
 

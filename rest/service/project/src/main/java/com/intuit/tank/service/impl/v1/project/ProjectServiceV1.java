@@ -22,7 +22,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -146,7 +145,7 @@ public class ProjectServiceV1 implements ProjectService {
         File f = ProjectDaoUtil.getScriptFile(jobId);
         if (!f.exists()) {
             if (NumberUtils.isCreatable(jobId)) {
-                JobInstance job = new JobInstanceDao().findById(Integer.parseInt(jobId));
+                JobInstance job = new JobInstanceDao().findById(Integer.valueOf(jobId));
                 if (job == null) {
                     throw new RuntimeException("Cannot find Job with id of " + jobId);
                 }
@@ -159,16 +158,12 @@ public class ProjectServiceV1 implements ProjectService {
         }
         final File file = f;
         return (OutputStream outputStream) -> {
-            BufferedReader in = null;
             // Get the object of DataInputStream
-            try {
-                in = new BufferedReader(new FileReader(file));
+            try ( BufferedReader in = new BufferedReader(new FileReader(file)) ) {
                 IOUtils.copy(in, outputStream, StandardCharsets.UTF_8);
             } catch (IOException e) {
                 LOG.error("Error streaming file: " + e.toString(), e);
                 throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-            } finally {
-                IOUtils.closeQuietly(in);
             }
         };
     }
@@ -190,7 +185,6 @@ public class ProjectServiceV1 implements ProjectService {
             } catch (IOException e) {
                 LOG.error("Error streaming file: " + e.toString(), e);
                 throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-            } finally {
             }
         };
     }

@@ -20,8 +20,7 @@ package com.intuit.tank.harness.functions;
 import java.util.Arrays;
 import java.util.Random;
 
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.jexl3.JexlContext;
 
 import com.intuit.tank.vm.common.util.ExpressionContextVisitor;
 

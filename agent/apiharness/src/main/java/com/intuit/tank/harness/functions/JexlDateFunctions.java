@@ -23,7 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -101,7 +101,7 @@ public class JexlDateFunctions implements ExpressionContextVisitor {
     /**
      * Get the date x days from now.
      * 
-     * @param days
+     * @param odays
      *            The number of days to add (negative number to remove)
      * @param format
      *            The format of the response (MM-dd-yyyy, MMddyyyy, etc)

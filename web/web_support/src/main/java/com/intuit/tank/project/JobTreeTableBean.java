@@ -147,7 +147,7 @@ public abstract class JobTreeTableBean implements Serializable {
     public void deleteJobInstance(JobNodeBean bean) {
         if (bean.isDeleteable()) {
             try {
-                JobInstance jobInstance = new JobInstanceDao().findById(Integer.parseInt(bean.getId()));
+                JobInstance jobInstance = new JobInstanceDao().findById(Integer.valueOf(bean.getId()));
                 JobQueueDao jobQueueDao = new JobQueueDao();
                 Workload workload = new WorkloadDao().findById(jobInstance.getWorkloadId());
                 JobQueue queue = jobQueueDao.findOrCreateForProjectId(workload.getProject().getId());

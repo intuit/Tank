@@ -25,7 +25,6 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 public class FilterComboBox extends JComboBox {
     private static final long serialVersionUID = 1L;

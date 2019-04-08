@@ -15,7 +15,6 @@ package com.intuit.tank.project;
 
 import java.util.Date;
 
-import org.primefaces.model.chart.CartesianChartModel;
 import org.primefaces.model.chart.LineChartModel;
 
 public class TrackingCartesianChartModel extends LineChartModel {

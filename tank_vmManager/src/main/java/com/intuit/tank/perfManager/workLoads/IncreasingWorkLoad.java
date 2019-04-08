@@ -14,24 +14,18 @@ package com.intuit.tank.perfManager.workLoads;
  */
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.harness.AmazonUtil;
 import com.intuit.tank.vm.agent.messages.AgentMngrAPIRequest;
-import com.intuit.tank.vm.api.enumerated.VMProvider;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.perfManager.RequestAgents;
 import com.intuit.tank.vm.scheduleManager.AgentDispatcher;
-import com.intuit.tank.vm.settings.ReportingInstance;
-import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.vmManager.JobRequest;
 import com.intuit.tank.vm.vmManager.JobUtil;
 import com.intuit.tank.vm.vmManager.RegionRequest;
 import com.intuit.tank.vm.vmManager.VMChannel;
-import com.intuit.tank.vm.vmManager.VMInstanceRequest;
 
 public class IncreasingWorkLoad implements Runnable {
 
