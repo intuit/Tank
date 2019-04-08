@@ -91,7 +91,7 @@ public class CommandListener implements Container {
             long time = System.currentTimeMillis();
             response.setCode(code);
             response.setContentType("text/plain");
-            response.setDescription("Intuit Tank Agent/2.2.6");
+            response.setDescription("Intuit Tank Agent/2.3.0");
             response.setDate("Date", time);
             response.setDate("Last-Modified", time);
 
