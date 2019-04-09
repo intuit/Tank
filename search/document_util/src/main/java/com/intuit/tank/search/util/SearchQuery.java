@@ -17,8 +17,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 
-import org.apache.lucene.search.Filter;
-
 /**
  * SearchQuery encapsulates a search query.
  */
@@ -26,7 +24,6 @@ public class SearchQuery {
 
     private Collection<SortOrder> sortOrder;
     private Collection<SearchParam> searchParams;
-    private Filter filter;
     private int startIndex;
     private int numItems = -1;
 
@@ -57,13 +54,6 @@ public class SearchQuery {
      */
     public static QueryBuilder getBuilder(SearchQuery queryToCopy) {
         return new QueryBuilder(queryToCopy);
-    }
-
-    /**
-     * @return the filter
-     */
-    public Filter getFilter() {
-        return filter;
     }
 
     /**
@@ -195,17 +185,6 @@ public class SearchQuery {
          */
         public QueryBuilder addSort(SortOrder sort) {
             query.sortOrder.add(sort);
-            return this;
-        }
-
-        /**
-         * 
-         * @param filter
-         *            the filter to set
-         * @return the builder
-         */
-        public QueryBuilder setFilter(Filter filter) {
-            query.filter = filter;
             return this;
         }
 

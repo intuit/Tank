@@ -51,17 +51,16 @@ public class FieldSearchParam implements SearchParam {
      * {@inheritDoc}
      */
     public Query getLuceneQuery() {
-        QueryParser qp = new QueryParser(SearchConstants.version, fieldName, SearchConstants.analyzer);
+        QueryParser queryParser = new QueryParser(fieldName, SearchConstants.analyzer);
         if (value.startsWith("*")) {
-            qp.setAllowLeadingWildcard(true);
+            queryParser.setAllowLeadingWildcard(true);
         }
-        Query parse = null;
         try {
-            parse = qp.parse(value);
+            return queryParser.parse(value);
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        return parse;
+        return null;
         // return new TermQuery(new Term(fieldName, value));
     }
 

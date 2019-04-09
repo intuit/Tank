@@ -23,6 +23,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 
@@ -59,9 +63,9 @@ public class ScriptSearchService {
             sb.append(script.getId()).append(separator);
             sb.append(steps.getUuid()).append(separator);
             addField(document, ScriptSearchField.scriptId, String.valueOf(script.getId()), Field.Store.YES,
-                    Field.Index.NOT_ANALYZED);
+                    "Field.Index.NOT_ANALYZED");
             addField(document, ScriptSearchField.uuid, String.valueOf(steps.getUuid()), Field.Store.YES,
-                    Field.Index.NO);
+                    "Field.Index.NO");
             switch (steps.getType()) {
                 case "request":
                     updateRequestDocument(steps, sb, document);
@@ -79,7 +83,7 @@ public class ScriptSearchService {
             documents.add(document);
         }
         mt.markAndLog("create documents");
-        QueryParser parser = new QueryParser(SearchConstants.version, ScriptSearchField.scriptId.getValue(),
+        QueryParser parser = new QueryParser(ScriptSearchField.scriptId.getValue(),
                 SearchConstants.analyzer);
         Query query;
         try {
@@ -107,13 +111,13 @@ public class ScriptSearchService {
             sleepTimeValue = value;
         }
         addField(document, ScriptSearchField.type, steps.getType(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.sleepTime, sleepTimeValue, Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.data, sb.toString(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.search, sb.toString(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
     }
 
     private void updateVariableDocument(ScriptStep steps, StringBuilder sb, Document document) {
@@ -130,15 +134,15 @@ public class ScriptSearchService {
             keyValue = key;
         }
         addField(document, ScriptSearchField.type, steps.getType(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.variableKey, keyValue, Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.variableValue, variableValue, Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.data, sb.toString(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.search, sb.toString(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
 
     }
 
@@ -165,15 +169,15 @@ public class ScriptSearchService {
             }
         }
         addField(document, ScriptSearchField.type, steps.getType(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.minTime, minTimeValue, Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.maxTime, maxTimeValue, Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.data, sb.toString(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.search, sb.toString(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
 
     }
 
@@ -209,53 +213,63 @@ public class ScriptSearchService {
         sb.append(respData).append(separator);
 
         addField(document, ScriptSearchField.url, steps.getUrl(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.simplePath, steps.getSimplePath(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.label, steps.getLabel(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.method, steps.getMethod(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.protocol, steps.getProtocol(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.comments, steps.getComments(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.hostName, steps.getHostname(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.mimeType, steps.getMimetype(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.loggingKey, steps.getLoggingKey(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.name, steps.getName(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.onFail, steps.getOnFail(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.type, steps.getType(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.scriptGroupName, steps.getScriptGroupName(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.requestHeaders, reqHeader, Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.responseHeaders, respHeader, Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.requestCookies, reqCookies, Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.responseCookies, respCookies, Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.postDatas, postData, Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.queryString, queryString, Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.responseContent, respData, Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
         addField(document, ScriptSearchField.search, sb.toString(), Field.Store.NO,
-                Field.Index.ANALYZED);
+                "Field.Index.ANALYZED");
     }
 
     private static void addField(Document document, ScriptSearchField searchField, String value, Field.Store store,
-            Field.Index ind) {
+            String index) {
         if (value != null) {
-            document.add(new Field(searchField.getValue(), value, store, ind));
+            if (index.equals("Field.Index.ANALYZED")) {
+                document.add(new TextField(searchField.getValue(), value, store));
+            } else if (index.equals("Field.Index.NOT_ANALYZED")) {
+                FieldType ft = new FieldType(StringField.TYPE_STORED);
+                ft.setOmitNorms(false);
+                document.add(new Field(searchField.getValue(), value, ft));
+            } else if (index.equals("Field.Index.NO")) {
+                FieldType ft = new FieldType(StringField.TYPE_STORED);
+                ft.setIndexOptions(IndexOptions.NONE);
+                document.add(new Field(searchField.getValue(), value, ft));
+            }
         }
     }
 
@@ -292,7 +306,7 @@ public class ScriptSearchService {
     }
 
     public List<String> search(int scriptId) {
-        QueryParser qp = new QueryParser(SearchConstants.version, ScriptSearchField.scriptId.getValue(),
+        QueryParser qp = new QueryParser(ScriptSearchField.scriptId.getValue(),
                 SearchConstants.analyzer);
         Query parse;
         try {

@@ -48,6 +48,7 @@
     <version.arquillian>1.4.1.Final</version.arquillian>
     <version.httpclient>4.5.7</version.httpclient>
     <version.httpclient5>5.0-beta2</version.httpclient5>
+    <version.lucene>8.0.0</version.lucene>
 
     <version.groovy>2.4.9</version.groovy>
     <version.spock>1.1-groovy-2.4</version.spock>
@@ -740,17 +741,17 @@
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-core</artifactId>
-        <version>4.10.4</version>
+        <version>${version.lucene}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-analyzers-common</artifactId>
-        <version>4.10.4</version>
+        <version>${version.lucene}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-queryparser</artifactId>
-        <version>4.10.4</version>
+        <version>${version.lucene}</version>
       </dependency>
       <dependency>
         <groupId>jaxen</groupId>

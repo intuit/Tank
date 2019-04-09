@@ -16,8 +16,6 @@ package com.intuit.tank.search.util;
 import org.apache.lucene.search.Query;
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.search.util.MustNotFieldSearchParam;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -135,7 +133,7 @@ public class MustNotFieldSearchParamTest {
 
         assertNotNull(result);
         assertEquals("-", result.toString());
-        assertEquals(1.0f, result.getBoost(), 1.0f);
+        //assertEquals(1.0f, result.getBoost(), 1.0f);
     }
 
     /**
