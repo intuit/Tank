@@ -119,7 +119,7 @@ public class JobController {
     public Set<CloudVmStatusContainer> killAllJobs() {
     	Set<CloudVmStatusContainer> jobs = vmTracker.getAllJobs();
         for (CloudVmStatusContainer job : jobs) {
-            String jobId = (job).getJobId();
+            String jobId = job.getJobId();
             killJob(jobId, true);
         }
     	return jobs;
@@ -139,7 +139,7 @@ public class JobController {
         if (!vmTracker.isDevMode()) {
             for (VMRegion region : new TankConfig().getVmManagerConfig().getRegions()) {
                 AmazonInstance amzInstance = new AmazonInstance(null, region);
-                amzInstance.kill(instanceIds);
+                amzInstance.killInstances(instanceIds);
             }
         }
         String jobId = null;

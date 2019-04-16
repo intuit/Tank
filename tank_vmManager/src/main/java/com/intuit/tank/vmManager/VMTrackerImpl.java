@@ -127,7 +127,7 @@ public class VMTrackerImpl implements VMTracker {
                 		&& (status.getJobStatus() == JobStatus.Completed)
                 		&& !isDevMode()) {
 	                        AmazonInstance amzInstance = new AmazonInstance(null, status.getVmRegion());
-	                        amzInstance.kill(Arrays.asList(new String[] { status.getInstanceId() }));
+	                        amzInstance.killInstances(Arrays.asList(new String[] { status.getInstanceId() }));
                 }
             }
             String jobId = status.getJobId();
