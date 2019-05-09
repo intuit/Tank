@@ -16,10 +16,9 @@ package com.intuit.tank.search.util;
 import java.io.PipedReader;
 import java.io.Reader;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.util.Version;
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.search.util.TankAnalyzer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,7 +38,7 @@ public class TankAnalyzerTest {
     @Test
     public void testTAnkAnalyzer_1()
             throws Exception {
-        Version matchVersion = Version.LUCENE_4_10_4;
+        Version matchVersion = Version.LUCENE_8_0_0;
 
         TankAnalyzer result = new TankAnalyzer(matchVersion);
 
@@ -57,12 +56,10 @@ public class TankAnalyzerTest {
     @Test
     public void testCreateComponents_1()
             throws Exception {
-        TankAnalyzer fixture = new TankAnalyzer(Version.LUCENE_4_10_4);
+        TankAnalyzer fixture = new TankAnalyzer(Version.LUCENE_8_0_0);
         String fieldName = "";
-        Reader reader = new PipedReader();
 
-        org.apache.lucene.analysis.Analyzer.TokenStreamComponents result = fixture.createComponents(
-                fieldName, reader);
+        Analyzer.TokenStreamComponents result = fixture.createComponents(fieldName);
 
         assertNotNull(result);
     }

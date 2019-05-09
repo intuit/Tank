@@ -44,10 +44,9 @@ public class TankAnalyzer extends Analyzer {
     }
 
     @Override
-    protected TokenStreamComponents createComponents(final String fieldName,
-            final Reader reader) {
-        final Tokenizer src = new WhitespaceTokenizer(matchVersion, reader);
-        TokenStream tok = new LowerCaseFilter(matchVersion, src);
+    protected TokenStreamComponents createComponents(String s) {
+        final Tokenizer src = new WhitespaceTokenizer();
+        TokenStream tok = new LowerCaseFilter(src);
         return new TokenStreamComponents(src, tok);
     }
 }

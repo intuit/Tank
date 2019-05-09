@@ -52,9 +52,9 @@ public class MustNotFieldSearchParam implements SearchParam {
      * {@inheritDoc}
      */
     public Query getLuceneQuery() {
-        BooleanQuery booleanQuery = new BooleanQuery();
-        booleanQuery.add(new TermQuery(new Term(fieldName, value)), Occur.MUST_NOT);
-        return booleanQuery;
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.add(new TermQuery(new Term(fieldName, value)), Occur.MUST_NOT);
+        return builder.build();
     }
 
     /**

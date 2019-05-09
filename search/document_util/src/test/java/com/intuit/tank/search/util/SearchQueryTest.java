@@ -18,23 +18,12 @@ package com.intuit.tank.search.util;
 
 import java.util.Collection;
 
-import org.apache.lucene.search.Filter;
-
 import org.testng.Assert;
 
 import org.apache.lucene.search.Query;
-import org.junit.jupiter.api.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 import org.testng.annotations.Test;
 
-import com.intuit.tank.search.util.FieldSearchParam;
-import com.intuit.tank.search.util.MultiSearchParam;
-import com.intuit.tank.search.util.MustNotFieldSearchParam;
-import com.intuit.tank.search.util.SearchParam;
-import com.intuit.tank.search.util.SearchQuery;
-import com.intuit.tank.search.util.SearchUtils;
 import com.intuit.tank.search.util.MultiSearchParam.Operator;
 import com.intuit.tank.search.util.SearchQuery.QueryBuilder;
 import com.intuit.tank.test.TestGroups;

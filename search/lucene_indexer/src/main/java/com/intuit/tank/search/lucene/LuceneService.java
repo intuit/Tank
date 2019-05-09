@@ -15,6 +15,7 @@ package com.intuit.tank.search.lucene;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +51,7 @@ public class LuceneService {
      * @throws IOException
      */
     public LuceneService() throws IOException {
-        this(new SimpleFSDirectory(new File("./searchDirectory")));
+        this(new SimpleFSDirectory(Paths.get("./searchDirectory")));
     }
 
     /**
@@ -218,16 +219,12 @@ public class LuceneService {
      * @return
      */
     private IndexWriter getWriter() {
-        IndexWriter writer = null;
         try {
-
-            IndexWriterConfig iwc = new IndexWriterConfig(SearchConstants.version, SearchConstants.analyzer);
-            IndexWriter.unlock(directory);
-            writer = new IndexWriter(directory, iwc);
+            IndexWriterConfig iwc = new IndexWriterConfig(SearchConstants.analyzer);
+            return new IndexWriter(directory, iwc);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-        return writer;
     }
 }
