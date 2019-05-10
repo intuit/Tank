@@ -32,6 +32,7 @@ import java.util.concurrent.CountDownLatch;
 
 import com.amazonaws.regions.Regions;
 import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.http.TankHttpClient;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
@@ -532,11 +533,12 @@ public class APITestHarness {
             }
             agentRunData.setProjectName(hdWorkload.getName());
             agentRunData.setTankhttpClientClass(tankHttpClientClass);
+            Object httpClient = ((TankHttpClient) Class.forName(tankHttpClientClass).newInstance()).createHttpClient();
             List<TestPlanStarter> testPlans = new ArrayList<TestPlanStarter>();
             for (HDTestPlan plan : hdWorkload.getPlans()) {
                 if (plan.getUserPercentage() > 0) {
                     plan.setVariables(hdWorkload.getVariables());
-                    TestPlanStarter starter = new TestPlanStarter(plan, agentRunData.getNumUsers(), tankHttpClientClass, threadGroup);
+                    TestPlanStarter starter = new TestPlanStarter(httpClient, plan, agentRunData.getNumUsers(), tankHttpClientClass, threadGroup);
                     testPlans.add(starter);
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Users for Test Plan " + plan.getTestPlanName() + " at "
                             + plan.getUserPercentage()

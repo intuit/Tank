@@ -13,7 +13,6 @@ package com.intuit.tank.harness;
  * #L%
  */
 
-import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.runner.TestPlanRunner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,6 +26,7 @@ public class TestPlanStarter implements Runnable {
 
     private static final Logger LOG = LogManager.getLogger(TestPlanStarter.class);
 
+    private Object httpClient;
     private HDTestPlan plan;
     private int numThreads;
     private ThreadGroup threadGroup;
@@ -35,8 +35,9 @@ public class TestPlanStarter implements Runnable {
 
     private boolean done = false;
 
-    public TestPlanStarter(HDTestPlan plan, int numThreads, String tankHttpClientClass, ThreadGroup threadGroup) {
+    public TestPlanStarter(Object httpClient, HDTestPlan plan, int numThreads, String tankHttpClientClass, ThreadGroup threadGroup) {
         super();
+        this.httpClient = httpClient;
         this.plan = plan;
         this.threadGroup = threadGroup;
         this.tankHttpClientClass = tankHttpClientClass;
@@ -44,13 +45,6 @@ public class TestPlanStarter implements Runnable {
     }
 
     public void run() {
-        Object httpClient;
-        try {
-            httpClient = ((TankHttpClient) Class.forName(tankHttpClientClass).newInstance()).createHttpClient();
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-
         // start initial users
         int numInitialUsers = APITestHarness.getInstance().getAgentRunData().getNumStartUsers();
         if (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
