@@ -13,8 +13,8 @@ package com.intuit.tank.harness;
  * #L%
  */
 
-import java.util.Stack;
-
+import com.intuit.tank.http.TankHttpClient;
+import com.intuit.tank.runner.TestPlanRunner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,26 +29,37 @@ public class TestPlanStarter implements Runnable {
 
     private HDTestPlan plan;
     private int numThreads;
-    private Stack<Thread> runners = new Stack<Thread>();
-    private int threadsStarted;
+    private ThreadGroup threadGroup;
+    private String tankHttpClientClass;
+    private int threadsStarted = 0;
 
     private boolean done = false;
 
-    public TestPlanStarter(HDTestPlan plan, int numThreads) {
+    public TestPlanStarter(HDTestPlan plan, int numThreads, String tankHttpClientClass, ThreadGroup threadGroup) {
         super();
         this.plan = plan;
+        this.threadGroup = threadGroup;
+        this.tankHttpClientClass = tankHttpClientClass;
         this.numThreads = (int) Math.floor(numThreads * (plan.getUserPercentage() / 100D));
     }
 
     public void run() {
+        Object httpClient;
+        try {
+            httpClient = ((TankHttpClient) Class.forName(tankHttpClientClass).newInstance()).createHttpClient();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
         // start initial users
-        int numStartUsers = APITestHarness.getInstance().getAgentRunData().getNumStartUsers();
-        if (threadsStarted < numStartUsers && threadsStarted < numThreads) {
-            LOG.info(LogUtil.getLogMessage("Starting initial " + numStartUsers + " users for plan "
+        int numInitialUsers = APITestHarness.getInstance().getAgentRunData().getNumStartUsers();
+        if (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
+            LOG.info(LogUtil.getLogMessage("Starting initial " + numInitialUsers + " users for plan "
                     + plan.getTestPlanName() + "..."));
-            while (threadsStarted < numStartUsers && threadsStarted < numThreads && !runners.isEmpty()) {
-                runners.pop().start();
-                APITestHarness.getInstance().threadStarted();
+            while (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
+                Thread thread = createThread(httpClient, threadsStarted);
+                APITestHarness.getInstance().threadStarted(thread);
+                thread.start();
                 threadsStarted++;
             }
         }
@@ -56,8 +67,8 @@ public class TestPlanStarter implements Runnable {
         // start rest of users sleeping between each interval
         LOG.info(LogUtil.getLogMessage("Starting ramp of additional " + (numThreads - threadsStarted)
                 + " users for plan " + plan.getTestPlanName() + "..."));
-        while (threadsStarted < numThreads && !runners.isEmpty()) {
-            if ((threadsStarted - numStartUsers) % APITestHarness.getInstance().getAgentRunData().getUserInterval() == 0) {
+        while (threadsStarted < numThreads) {
+            if ((threadsStarted - numInitialUsers) % APITestHarness.getInstance().getAgentRunData().getUserInterval() == 0) {
                 waitForRampTime();
             }
             while (APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause_ramp
@@ -77,8 +88,9 @@ public class TestPlanStarter implements Runnable {
             		|| APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill) {
                 break;
             }
-            runners.pop().start();
-            APITestHarness.getInstance().threadStarted();
+            Thread thread = createThread(httpClient, threadsStarted);
+            thread.start();
+            APITestHarness.getInstance().threadStarted(thread);
             threadsStarted++;
         }
         done = true;
@@ -96,16 +108,8 @@ public class TestPlanStarter implements Runnable {
         return numThreads;
     }
 
-    public void setNumThreads(int numThreads) {
-        this.numThreads = numThreads;
-    }
-
     public boolean isDone() {
         return done;
-    }
-
-    public void addThread(Thread t) {
-        runners.add(t);
     }
 
     private void waitForRampTime() {
@@ -129,4 +133,13 @@ public class TestPlanStarter implements Runnable {
         }
     }
 
+    private Thread createThread(Object httpClient, int threadNumber) {
+        TestPlanRunner session = new TestPlanRunner(httpClient, plan, threadNumber, tankHttpClientClass);
+        Thread thread = new Thread(threadGroup, session, "AGENT");
+        thread.setDaemon(true);// system won't shut down normally until all user threads stop
+        session.setUniqueName(
+                thread.getThreadGroup().getName() + "-" +
+                        thread.getId());
+        return thread;
+    }
 }

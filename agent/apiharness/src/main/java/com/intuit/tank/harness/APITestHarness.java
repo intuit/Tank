@@ -32,7 +32,6 @@ import java.util.concurrent.CountDownLatch;
 
 import com.amazonaws.regions.Regions;
 import com.google.common.collect.ImmutableMap;
-import com.intuit.tank.http.TankHttpClient;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
@@ -56,7 +55,6 @@ import com.intuit.tank.reporting.api.DummyResultsReporter;
 import com.intuit.tank.reporting.api.ResultsReporter;
 import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.results.TankResult;
-import com.intuit.tank.runner.TestPlanRunner;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.DataFileRequest;
@@ -112,25 +110,6 @@ public class APITestHarness {
     private Date send = new Date();
     private int interval = 15; // SECONDS
 
-    static {
-        try {
-            java.security.Security.setProperty("networkaddress.cache.ttl", "5");
-        } catch (Throwable e1) {
-            LOG.warn(LogUtil.getLogMessage("Error setting dns timeout: " + e1.toString(), LogEventType.System));
-        }
-        try {
-            java.security.Security.setProperty("networkaddress.cache.negative.ttl", "0");
-        } catch (Throwable e1) {
-            LOG.warn(LogUtil.getLogMessage("Error setting dns negative timeout: " + e1.toString(), LogEventType.System));
-        }
-        try {
-            System.setProperty("jdk.certpath.disabledAlgorithms", "");
-        } catch (Throwable e1) {
-            System.err.println("Error setting property jdk.certpath.disabledAlgorithms: " + e1.toString());
-            e1.printStackTrace();
-        }
-    }
-
     /**
      * 
      * @return
@@ -185,13 +164,10 @@ public class APITestHarness {
                 if (!AgentUtil.validateTestPlans(testPlans)) {
                     return;
                 }
-                continue;
             } else if (values[0].equalsIgnoreCase("-ramp")) {
                 agentRunData.setRampTime(Long.parseLong(values[1]) * 60000);
-                continue;
             } else if (values[0].equalsIgnoreCase("-client")) {
                 tankHttpClientClass = StringUtils.trim(values[1]);
-                continue;
             } else if (values[0].equalsIgnoreCase("-d")) {
                 LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
                 Configuration config = ctx.getConfiguration();
@@ -203,7 +179,6 @@ public class APITestHarness {
                 DEBUG = true;
                 agentRunData.setActiveProfile(LoggingProfile.VERBOSE);
                 setFlowControllerTemplate(new DebugFlowController());
-                continue;
             } else if (values[0].equalsIgnoreCase("-t")) {
                 LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
                 Configuration config = ctx.getConfiguration();
@@ -215,37 +190,26 @@ public class APITestHarness {
                 DEBUG = true;
                 agentRunData.setActiveProfile(LoggingProfile.VERBOSE);
                 setFlowControllerTemplate(new TraceFlowController());
-                continue;
             } else if (values[0].equalsIgnoreCase("-local")) {
                 isLocal = true;
-                continue;
             } else if (values[0].equalsIgnoreCase("-instanceId")) {
                 instanceId = values[1];
-                continue;
             } else if (values[0].equalsIgnoreCase("-logging")) {
                 agentRunData.setActiveProfile(LoggingProfile.fromString(values[1]));
-                continue;
             } else if (values[0].equalsIgnoreCase("-users")) {
                 agentRunData.setNumUsers(Integer.parseInt(values[1]));
-                continue;
             } else if (values[0].equalsIgnoreCase("-capacity")) {
                 capacity = Integer.parseInt(values[1]);
-                continue;
             } else if (values[0].equalsIgnoreCase("-start")) {
                 agentRunData.setNumStartUsers(Integer.parseInt(values[1]));
-                continue;
             } else if (values[0].equalsIgnoreCase("-jobId")) {
                 agentRunData.setJobId(values[1]);
-                continue;
             } else if (values[0].equalsIgnoreCase("-stopBehavior")) {
                 agentRunData.setStopBehavior(StopBehavior.fromString(values[1]));
-                continue;
             } else if (values[0].equalsIgnoreCase("-http")) {
                 controllerBase = (values.length > 1 ? values[1] : null);
-                continue;
             } else if (values[0].equalsIgnoreCase("-time")) {
                 agentRunData.setSimulationTime(Integer.parseInt(values[1]) * 60000);
-                continue;
             }
         }
         if (instanceId == null) {
@@ -546,10 +510,10 @@ public class APITestHarness {
             return;
         }
         tpsMonitor = new TPSMonitor(tankConfig.getAgentConfig().getTPSPeriod());
-        StringBuilder info = new StringBuilder().append(" RAMP_TIME=").append(agentRunData.getRampTime())
-                .append("; agentRunData.getNumUsers()=").append(agentRunData.getNumUsers())
-                .append("; NUM_START_THREADS=").append(agentRunData.getNumStartUsers())
-                .append("; simulationTime=").append(agentRunData.getSimulationTime());
+        String info = " RAMP_TIME=" + agentRunData.getRampTime() +
+                "; agentRunData.getNumUsers()=" + agentRunData.getNumUsers() +
+                "; NUM_START_THREADS=" + agentRunData.getNumStartUsers() +
+                "; simulationTime=" + agentRunData.getSimulationTime();
         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "starting test with " + info)));
         started = true;
 
@@ -569,41 +533,17 @@ public class APITestHarness {
             agentRunData.setProjectName(hdWorkload.getName());
             agentRunData.setTankhttpClientClass(tankHttpClientClass);
             List<TestPlanStarter> testPlans = new ArrayList<TestPlanStarter>();
-            int total = 0;
             for (HDTestPlan plan : hdWorkload.getPlans()) {
                 if (plan.getUserPercentage() > 0) {
                     plan.setVariables(hdWorkload.getVariables());
-                    TestPlanStarter starter = new TestPlanStarter(plan, agentRunData.getNumUsers());
-                    total += starter.getNumThreads();
+                    TestPlanStarter starter = new TestPlanStarter(plan, agentRunData.getNumUsers(), tankHttpClientClass, threadGroup);
                     testPlans.add(starter);
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Users for Test Plan " + plan.getTestPlanName() + " at "
                             + plan.getUserPercentage()
                             + "% = " + starter.getNumThreads())));
                 }
             }
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Total Users calculated for all test Plans = " + total)));
-            if (total != agentRunData.getNumUsers()) {
-                int numToAdd = agentRunData.getNumUsers() - total;
-                TestPlanStarter starter = testPlans.get(testPlans.size() - 1);
-                LOG.info(LogUtil.getLogMessage("adding " + numToAdd + " threads to testPlan "
-                        + starter.getPlan().getTestPlanName()));
-                starter.setNumThreads(starter.getNumThreads() + numToAdd);
-            }
 
-            Object httpClient = ((TankHttpClient) Class.forName(tankHttpClientClass).newInstance()).createHttpClient();
-            // create threads
-            for (TestPlanStarter starter : testPlans) {
-                for (int tp = 0; tp < agentRunData.getNumUsers(); tp++) {
-                    TestPlanRunner session = new TestPlanRunner(httpClient, starter.getPlan(), tp, tankHttpClientClass);
-                    Thread thread = new Thread(threadGroup, session, "AGENT");
-                    thread.setDaemon(true);// system won't shut down normally until all user threads stop
-                    starter.addThread(thread);
-                    session.setUniqueName(
-                            thread.getThreadGroup().getName() + "-" +
-                                    thread.getId());
-                    sessionThreads.add(thread);
-                }
-            }
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Have all testPlan runners configured")));
             // start status thread first only
             if (!isDebug()) {
@@ -736,7 +676,8 @@ public class APITestHarness {
                 currentUsers, agentRunData.getNumUsers(), ramp);
     }
 
-    public synchronized void threadStarted() {
+    public synchronized void threadStarted(Thread thread) {
+        sessionThreads.add(thread);
         currentNumThreads++;
         currentUsers++;
     }
