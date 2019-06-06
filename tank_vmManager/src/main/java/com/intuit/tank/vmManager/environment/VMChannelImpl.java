@@ -56,7 +56,7 @@ public class VMChannelImpl implements VMChannel {
     public void terminateInstances(@Nonnull List<String> instanceIds) {
         for (VMRegion region : new TankConfig().getVmManagerConfig().getRegions()) {
             AmazonInstance amazonInstance = new AmazonInstance(null, region);
-            amazonInstance.kill(instanceIds);
+            amazonInstance.killInstances(instanceIds);
         }
     }
 

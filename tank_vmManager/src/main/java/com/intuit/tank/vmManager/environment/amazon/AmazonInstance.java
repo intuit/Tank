@@ -4,6 +4,7 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.handlers.AsyncHandler;
 import com.amazonaws.services.ec2.AmazonEC2Async;
 import com.amazonaws.services.ec2.AmazonEC2AsyncClientBuilder;
 import com.amazonaws.services.ec2.model.Address;
@@ -363,18 +364,22 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public void tagInstance(final List<String> instanceIds, KeyValuePair... tag) {
         if (tag.length != 0) {
-            final List<Tag> tags = Arrays.stream(tag).map(pair -> new Tag(pair.getKey(), pair.getValue())).collect(Collectors.toList());
+            final List<Tag> tags = Arrays.stream(tag)
+                    .map(pair -> new Tag(pair.getKey(), pair.getValue())).collect(Collectors.toList());
 
             new Thread( () -> {
                 int count = 0;
                 try {
                     while (++count <= 5 && !instanceIds.isEmpty()) {
                         Thread.sleep(5000);
-                        CreateTagsRequest createTagsRequest = new CreateTagsRequest().withResources(instanceIds).withTags(tags);
+                        CreateTagsRequest createTagsRequest
+                                = new CreateTagsRequest().withResources(instanceIds).withTags(tags);
                         asynchEc2Client.createTagsAsync(createTagsRequest);
                         Thread.sleep(1000);
 
-                        Future<DescribeInstancesResult> describeInstances = asynchEc2Client.describeInstancesAsync(new DescribeInstancesRequest().withInstanceIds(instanceIds));
+                        Future<DescribeInstancesResult> describeInstances
+                                = asynchEc2Client.describeInstancesAsync(
+                                        new DescribeInstancesRequest().withInstanceIds(instanceIds));
                         for (Reservation r : describeInstances.get().getReservations()) {
                             for (Instance i : r.getInstances()) {
                                 if (i.getTags() != null && !i.getTags().isEmpty()) {
@@ -435,40 +440,30 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     @Override
     public List<VMInformation> kill() {
-        List<VMInformation> result;
-        try {
-            VMKillRequest killRequest = (VMKillRequest) request;
-            TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest(killRequest.getInstances());
-            TerminateInstancesResult terminateInstances = asynchEc2Client.terminateInstances(terminateInstancesRequest);
-            result = new AmazonDataConverter().processStateChange(terminateInstances.getTerminatingInstances());
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage());
-            throw new RuntimeException(ex);
-        }
-        return result;
-    }
-
-    public void killInstances(List<VMInformation> instances) {
-        List<String> instanceIds = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
-        asynchEc2Client.terminateInstances(new TerminateInstancesRequest(instanceIds));
+        VMKillRequest killRequest = (VMKillRequest) request;
+        TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest(killRequest.getInstances());
+        TerminateInstancesResult terminateInstances = asynchEc2Client.terminateInstances(terminateInstancesRequest);
+        return new AmazonDataConverter().processStateChange(terminateInstances.getTerminatingInstances());
     }
 
     @Override
-    public List<VMInformation> kill(List<String> instanceIds) {
-        List<VMInformation> result = new ArrayList<>();
-        try {
-            List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[0]));
-            List<String> ids = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
-            if (!ids.isEmpty()) {
-                TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest(ids);
-                TerminateInstancesResult terminateInstances = asynchEc2Client.terminateInstances(terminateInstancesRequest);
-                result = new AmazonDataConverter().processStateChange(terminateInstances.getTerminatingInstances());
-            }
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new RuntimeException(ex);
-        }
-        return result;
+    public void killInstances(List<String> instanceIds) {
+        asynchEc2Client.terminateInstancesAsync(
+                new TerminateInstancesRequest(instanceIds),
+                new AsyncHandler<TerminateInstancesRequest, TerminateInstancesResult>() {
+                    @Override
+                    public void onError(Exception exception) {
+                        LOG.warn("something went wrong killing the instances {}",
+                                exception.getLocalizedMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(TerminateInstancesRequest request, TerminateInstancesResult result) {
+                        LOG.trace("instances killed successfully {}",
+                                result.getTerminatingInstances());
+                    }
+                });
+        //return new AmazonDataConverter().processStateChange(terminateInstances.getTerminatingInstances());
     }
 
     /**
@@ -483,7 +478,8 @@ public class AmazonInstance implements IEnvironmentInstance {
             for (Reservation res : instances.getReservations()) {
                 if (res.getInstances() != null) {
                     for (com.amazonaws.services.ec2.model.Instance inst : res.getInstances()) {
-                        if ((inst.getState().getName().equalsIgnoreCase("running") || inst.getState().getName().equalsIgnoreCase("pending"))
+                        if ((inst.getState().getName().equalsIgnoreCase("running")
+                                || inst.getState().getName().equalsIgnoreCase("pending"))
                                 && inst.getImageId().equals(instanceForRegionAndType.getAmi())) {
                             ret.add(new AmazonDataConverter().instanceToVmInformation(res, inst, region));
                         }
@@ -579,7 +575,8 @@ public class AmazonInstance implements IEnvironmentInstance {
                                                                 .withAllocationId(address.getAllocationId()));
                         }
                         Thread.sleep((new Random().nextInt(10) + 10) * 100L);
-                        Future<DescribeInstancesResult> describeInstances = asynchEc2Client.describeInstancesAsync(new DescribeInstancesRequest().withInstanceIds(instanceId));
+                        Future<DescribeInstancesResult> describeInstances
+                                = asynchEc2Client.describeInstancesAsync(new DescribeInstancesRequest().withInstanceIds(instanceId));
                         for (Reservation r : describeInstances.get().getReservations()) {
                             for (Instance i : r.getInstances()) {
                                 if (address.getPublicIp().equals(i.getPublicIpAddress())) {
@@ -612,7 +609,8 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     @Override
     public void reboot(List<VMInformation> instances) {
-        List<String> instanceIds = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
+        List<String> instanceIds = instances.stream()
+                .map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
         asynchEc2Client.rebootInstancesAsync(new RebootInstancesRequest(instanceIds));
         // ec2Interface.rebootInstances(instanceIds);
     }
@@ -620,22 +618,23 @@ public class AmazonInstance implements IEnvironmentInstance {
     /**
      * @param instanceIds
      */
-    public List<VMInformation> stopInstances(List<String> instanceIds) {
-        List<VMInformation> result = new ArrayList<VMInformation>();
-        try {
-            List<VMInformation> instances = describeInstances(instanceIds.toArray(new String[0]));
-            List<String> ids = instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
-            if (!ids.isEmpty()) {
-                StopInstancesRequest stopInstancesRequest = new StopInstancesRequest(ids);
-                StopInstancesResult stopResult = asynchEc2Client.stopInstances(stopInstancesRequest);
-                List<InstanceStateChange> stoppingInstances = stopResult.getStoppingInstances();
-                result = new AmazonDataConverter().processStateChange(stoppingInstances);
-            }
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new RuntimeException(ex);
-        }
-        return result;
+    public void stopInstances(List<String> instanceIds) {
+        asynchEc2Client.stopInstancesAsync(
+                new StopInstancesRequest(instanceIds),
+                new AsyncHandler<StopInstancesRequest, StopInstancesResult>() {
+                    @Override
+                    public void onError(Exception exception) {
+                        LOG.warn("something went wrong stopping the instances {}",
+                                exception.getLocalizedMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(StopInstancesRequest request, StopInstancesResult result) {
+                        LOG.trace("instances stopped successfully {}",
+                                result.getStoppingInstances());
+                    }
+                });
+        //return new AmazonDataConverter().processStateChange(stoppingInstances);
     }
 
     /**
@@ -643,8 +642,8 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @return
      */
     private String buildUserData(@Nonnull Map<String, String> userDataMap) {
-        String sb = userDataMap.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining("\n"));
-
+        String sb = userDataMap.entrySet().stream()
+                .map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining("\n"));
         return Base64.encodeBase64String(sb.getBytes());
     }
 
