@@ -83,7 +83,7 @@ public class APITestHarness {
     private String testPlans = "";
     private String instanceId;
     private List<String> testPlanXmls = null;
-    private ThreadGroup threadGroup = new ThreadGroup("Test Runner Group");
+    private ArrayList<ThreadGroup> threadGroupArray = new ArrayList<>();
     private int currentNumThreads = 0;
     private long startTime = 0;
     private int capacity = -1;
@@ -93,7 +93,7 @@ public class APITestHarness {
     private boolean isLocal = true;
     private boolean started = false;
     private WatsAgentCommand cmd = WatsAgentCommand.run;
-    private ArrayList<Thread> sessionThreads;
+    private ArrayList<Thread> sessionThreads = new ArrayList<>();
     private CountDownLatch doneSignal;
     private boolean loggedSimTime;
     private int currentUsers = 0;
@@ -523,7 +523,6 @@ public class APITestHarness {
             agentRunData.setJobId(jobId);
         }
 
-        sessionThreads = new ArrayList<>();
         Thread monitorThread = null;
         doneSignal = new CountDownLatch(agentRunData.getNumUsers());
         try {
@@ -538,6 +537,8 @@ public class APITestHarness {
             for (HDTestPlan plan : hdWorkload.getPlans()) {
                 if (plan.getUserPercentage() > 0) {
                     plan.setVariables(hdWorkload.getVariables());
+                    ThreadGroup threadGroup = new ThreadGroup("Test Plan Runner Group");
+                    threadGroupArray.add(threadGroup);
                     TestPlanStarter starter = new TestPlanStarter(httpClient, plan, agentRunData.getNumUsers(), tankHttpClientClass, threadGroup);
                     testPlans.add(starter);
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Users for Test Plan " + plan.getTestPlanName() + " at "
@@ -651,7 +652,7 @@ public class APITestHarness {
         return status;
     }
 
-    synchronized public void threadComplete() {
+    public synchronized void threadComplete() {
         currentUsers--;
         doneSignal.countDown();
         long count = doneSignal.getCount();
@@ -733,14 +734,16 @@ public class APITestHarness {
      * check the agent threads if simulation time has been met.
      */
     public void checkAgentThreads() {
-        int activeCount = threadGroup.activeCount();
-        Thread[] threads = new Thread[activeCount];
-        threadGroup.enumerate(threads);
-        int activeThreads = (int) Arrays.stream(threads).filter(Objects::nonNull).filter(
-                t -> t.getState() == Thread.State.TIMED_WAITING || t.getState() == Thread.State.WAITING).count();
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Have " + activeThreads + " of " + activeCount
-                + " active Threads in thread group "
-                + threadGroup.getName())));
+        for (ThreadGroup threadGroup : threadGroupArray) {
+            int activeCount = threadGroup.activeCount();
+            Thread[] threads = new Thread[activeCount];
+            threadGroup.enumerate(threads);
+            int activeThreads = (int) Arrays.stream(threads).filter(Objects::nonNull).filter(
+                    t -> t.getState() == Thread.State.TIMED_WAITING || t.getState() == Thread.State.WAITING).count();
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Have " + activeThreads + " of " + activeCount
+                    + " active Threads in thread group "
+                    + threadGroup.getName())));
+        }
         if (agentRunData.getSimulationTime() != 0 && hasMetSimulationTime() && doneSignal.getCount() != 0) {
             boolean exceededTimeLimit = System.currentTimeMillis() > getMaxSimulationEndTimeMillis();
             if (exceededTimeLimit) {
