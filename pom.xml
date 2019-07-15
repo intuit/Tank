@@ -32,8 +32,9 @@
 
     <version-tomcat>9.0.19</version-tomcat>
 
-    <weld-version>3.1.0.Final</weld-version>
-    <cdi-version>2.0</cdi-version>
+    <weld.version>3.1.1.Final</weld.version>
+    <cdi.version>2.0</cdi.version>
+    <jaxb.version>2.3.1</jaxb.version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
     <version.enunciate>2.11.1</version.enunciate>
@@ -805,22 +806,30 @@
         <artifactId>jsr173</artifactId>
         <version>1.0</version>
       </dependency>
+      <!-- API -->
       <dependency>
         <groupId>javax.xml.bind</groupId>
         <artifactId>jaxb-api</artifactId>
-        <version>2.3.1</version>
+        <version>${jaxb.version}</version>
+      </dependency>
+
+      <!-- Runtime -->
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>${jaxb.version}</version>
       </dependency>
       <dependency>
         <groupId>javax.enterprise</groupId>
         <artifactId>cdi-api</artifactId>
-        <version>${cdi-version}</version>
+        <version>${cdi.version}</version>
         <scope>provided</scope>
       </dependency>
 
       <dependency>
         <groupId>org.jboss.weld.servlet</groupId>
         <artifactId>weld-servlet-shaded</artifactId>
-        <version>${weld-version}</version>
+        <version>${weld.version}</version>
         <scope>runtime</scope>
       </dependency>
       <dependency>
