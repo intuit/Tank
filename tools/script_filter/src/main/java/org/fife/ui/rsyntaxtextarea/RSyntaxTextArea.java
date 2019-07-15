@@ -23,16 +23,7 @@
  */
 package org.fife.ui.rsyntaxtextarea;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -525,7 +516,7 @@ public class RSyntaxTextArea extends RTextArea implements SyntaxConstants {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
             try {
-                sm.checkSystemClipboardAccess();
+                sm.checkPermission(new AWTPermission("accessClipboard"));
             } catch (SecurityException se) {
                 UIManager.getLookAndFeel().provideErrorFeedback(null);
                 return;

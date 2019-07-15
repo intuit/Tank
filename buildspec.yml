@@ -5,6 +5,9 @@ env:
     MAVEN_OPTS: "-Xms1g -Xmx2g"
 
 phases:
+  install:
+    runtime-versions:
+      java: openjdk11
   build:
     commands:
       - mvn clean install -P release -Dmaven.test.skip=true

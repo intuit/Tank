@@ -181,7 +181,12 @@ class IconRowHeader extends AbstractGutterComponent implements MouseListener {
         List retVal = new ArrayList(1);
 
         if (trackingIcons != null) {
-            retVal = IntStream.range(0, trackingIcons.size()).mapToObj(this::getTrackingIcon).filter(ti -> ti.getIcon() == bookmarkIcon).collect(Collectors.toCollection(() -> new ArrayList(1)));
+            for (int i = 0; i < trackingIcons.size(); i++) {
+                GutterIconImpl ti = getTrackingIcon(i);
+                if (ti.getIcon() == bookmarkIcon) {
+                    retVal.add(ti);
+                }
+            }
         }
 
         GutterIconInfo[] array = new GutterIconInfo[retVal.size()];
