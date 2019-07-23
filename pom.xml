@@ -28,12 +28,13 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>4.2.21.Final</version.hibernate>
-    <version-aws-sdk>1.11.516</version-aws-sdk>
+    <version-aws-sdk>1.11.591</version-aws-sdk>
 
     <version-tomcat>9.0.19</version-tomcat>
 
-    <weld-version>3.1.0.Final</weld-version>
-    <cdi-version>2.0</cdi-version>
+    <weld.version>3.1.1.Final</weld.version>
+    <cdi.version>2.0</cdi.version>
+    <jaxb.version>2.3.1</jaxb.version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
     <version.enunciate>2.11.1</version.enunciate>
@@ -43,10 +44,10 @@
     <version.primefaces>7.0</version.primefaces>
     <version.primefaces-ext>7.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
-    <version.surefire>3.0.0-M3</version.surefire>
-    <version.jersey>2.28</version.jersey>
+    <version.surefire>2.22.2</version.surefire>
+    <version.jersey>2.29</version.jersey>
     <version.arquillian>1.4.1.Final</version.arquillian>
-    <version.httpclient>4.5.7</version.httpclient>
+    <version.httpclient>4.5.9</version.httpclient>
     <version.httpclient5>5.0-beta2</version.httpclient5>
     <version.lucene>8.0.0</version.lucene>
 
@@ -54,7 +55,7 @@
     <version.spock>1.1-groovy-2.4</version.spock>
 
     <!-- maven-compiler-plugin -->
-    <version.compiler.plugin>3.8.0</version.compiler.plugin>
+    <version.compiler.plugin>3.8.1</version.compiler.plugin>
     <maven.compiler.target>8</maven.compiler.target>
     <maven.compiler.source>8</maven.compiler.source>
   </properties>
@@ -113,16 +114,52 @@
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
+
       <build>
         <plugins>
           <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>cobertura-maven-plugin</artifactId>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>default-prepare-agent</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>default-report</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>default-aggregate</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>report-aggregate</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>default-check</id>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <configuration>
+                  <excludes>
+                    <exclude>org/**/*.class</exclude>
+                    <exclude>**/trial/**/*.class</exclude>
+                    <exclude>**/tools/**/*.class</exclude>
+                    <exclude>**/proxy/**/*.class</exclude>
+                  </excludes>
+                  <rules/>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
-      <dependencies>
-      </dependencies>
     </profile>
 
     <profile>
@@ -769,22 +806,30 @@
         <artifactId>jsr173</artifactId>
         <version>1.0</version>
       </dependency>
+      <!-- API -->
       <dependency>
         <groupId>javax.xml.bind</groupId>
         <artifactId>jaxb-api</artifactId>
-        <version>2.3.1</version>
+        <version>${jaxb.version}</version>
+      </dependency>
+
+      <!-- Runtime -->
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>${jaxb.version}</version>
       </dependency>
       <dependency>
         <groupId>javax.enterprise</groupId>
         <artifactId>cdi-api</artifactId>
-        <version>${cdi-version}</version>
+        <version>${cdi.version}</version>
         <scope>provided</scope>
       </dependency>
 
       <dependency>
         <groupId>org.jboss.weld.servlet</groupId>
         <artifactId>weld-servlet-shaded</artifactId>
-        <version>${weld-version}</version>
+        <version>${weld.version}</version>
         <scope>runtime</scope>
       </dependency>
       <dependency>
@@ -850,7 +895,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>license-maven-plugin</artifactId>
-          <version>1.16</version>
+          <version>2.0.0</version>
         </plugin>
 
         <plugin>
@@ -868,7 +913,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>3.2.2</version>
+          <version>3.2.3</version>
         </plugin>
 
         <plugin>
@@ -896,6 +941,12 @@
             <storepass>${cert.store.password}</storepass>
             <keypass>${cert.password}</keypass>
           </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${version.surefire}</version>
         </plugin>
 
         <plugin>
@@ -1003,43 +1054,10 @@
           </configuration>
         </plugin>
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>cobertura-maven-plugin</artifactId>
-          <version>2.7</version>
-          <dependencies>
-            <dependency>
-              <groupId>org.ow2.asm</groupId>
-              <artifactId>asm</artifactId>
-              <version>7.0</version>
-            </dependency>
-          </dependencies>
-          <configuration>
-            <aggregate>true</aggregate>
-            <formats>
-              <format>html</format>
-              <format>xml</format>
-            </formats>
-            <instrumentation>
-              <ignores>
-                <ignore>org.fife.**</ignore>
-              </ignores>
-              <excludes>
-                <exclude>org/**/*.class</exclude>
-                <exclude>**/trial/**/*.class</exclude>
-                <exclude>**/tools/**/*.class</exclude>
-                <exclude>**/proxy/**/*.class</exclude>
-              </excludes>
-            </instrumentation>
-          </configuration>
-          <executions>
-            <execution>
-              <goals>
-                <goal>clean</goal>
-              </goals>
-            </execution>
-          </executions>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.4</version>
         </plugin>
-
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
@@ -1134,8 +1152,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${version.surefire}</version>
         <configuration>
+          <!-- Sets the VM argument line used when unit tests are run. -->
+          <argLine>${argLine}</argLine>
           <excludedGroups>manual,integration,experimental</excludedGroups>
           <includes>
             <include>**/*Test.java</include>

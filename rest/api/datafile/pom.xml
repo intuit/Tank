@@ -15,4 +15,19 @@
   <packaging>jar</packaging>
   <name>Datafile Rest API</name>
 
+  <dependencies>
+    <!-- jaxb dependencies added because java 11 dropped inclusion -->
+    <!-- API -->
+    <dependency>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+    </dependency>
+
+    <!-- Runtime -->
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+    </dependency>
+  </dependencies>
+
 </project>
