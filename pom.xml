@@ -1155,8 +1155,6 @@
         <configuration>
           <!-- Sets the VM argument line used when unit tests are run. -->
           <argLine>${argLine}</argLine>
-          <!-- Skips unit tests if the value of skip.unit.tests property is true -->
-          <skipTests>${skip.unit.tests}</skipTests>
           <excludedGroups>manual,integration,experimental</excludedGroups>
           <includes>
             <include>**/*Test.java</include>
