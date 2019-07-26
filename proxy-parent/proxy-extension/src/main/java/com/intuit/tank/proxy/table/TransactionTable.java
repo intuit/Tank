@@ -171,7 +171,7 @@ public class TransactionTable extends JTable {
             try {
                 while ((line = br.readLine()) != null) {
                     int width = SwingUtilities.computeStringWidth(metrics, line);
-                    maxWidth = (maxWidth < width) ? width : maxWidth;
+                    maxWidth = Math.max(maxWidth, width);
                     v.addElement(line);
                 }
             } catch (IOException ex) {

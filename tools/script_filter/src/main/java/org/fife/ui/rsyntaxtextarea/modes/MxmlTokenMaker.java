@@ -2360,190 +2360,185 @@ public class MxmlTokenMaker extends AbstractMarkupTokenMaker {
                 addToken(Token.IDENTIFIER);
             }
             case 59:
-                break;
+                case 116:
+                case 115:
+                case 114:
+                case 113:
+                case 112:
+                case 111:
+                case 110:
+                case 109:
+                case 108:
+                case 107:
+                case 106:
+                case 105:
+                case 104:
+                case 103:
+                case 102:
+                case 101:
+                case 100:
+                case 99:
+                case 98:
+                case 97:
+                case 96:
+                case 95:
+                case 94:
+                case 93:
+                case 92:
+                case 91:
+                case 90:
+                case 89:
+                case 88:
+                case 87:
+                case 86:
+                case 85:
+                case 84:
+                case 83:
+                case 82:
+                case 81:
+                case 80:
+                case 79:
+                case 78:
+                case 77:
+                case 76:
+                case 75:
+                case 74:
+                case 73:
+                case 72:
+                case 71:
+                case 70:
+                case 69:
+                case 68:
+                case 67:
+                case 66:
+                case 65:
+                case 64:
+                case 63:
+                case 62:
+                case 61:
+                case 60:
+                    break;
             case 22: {
                 yybegin(INTAG_SCRIPT);
                 addToken(start, zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 60:
-                break;
-            case 53: {
+                case 53: {
                 addToken(Token.LITERAL_BOOLEAN);
             }
-            case 61:
-                break;
-            case 31: {
+                case 31: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_EOL);
                 addEndToken(INTERNAL_IN_AS);
                 return firstToken;
             }
-            case 62:
-                break;
-            case 39: {
+                case 39: {
                 addToken(Token.ERROR_CHAR);
             }
-            case 63:
-                break;
-            case 36: {
+                case 36: {
                 addToken(Token.ERROR_NUMBER_FORMAT);
             }
-            case 64:
-                break;
-            case 26: {
+                case 26: {
                 addEndToken(INTERNAL_IN_AS);
                 return firstToken;
             }
-            case 65:
-                break;
-            case 20: {
+                case 20: {
                 start = zzMarkedPos - 1;
                 yybegin(INATTR_SINGLE_SCRIPT);
             }
-            case 66:
-                break;
-            case 13: {
+                case 13: {
                 yybegin(YYINITIAL);
                 addToken(Token.MARKUP_TAG_DELIMITER);
             }
-            case 67:
-                break;
-            case 28: {
+                case 28: {
                 addToken(Token.ERROR_CHAR);
                 addNullToken();
                 return firstToken;
             }
-            case 68:
-                break;
-            case 40: {
+                case 40: {
                 addToken(Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 69:
-                break;
-            case 54: {
+                case 54: {
                 addToken(Token.FUNCTION);
             }
-            case 70:
-                break;
-            case 45: {
+                case 45: {
                 int count = yylength();
                 addToken(zzStartRead, zzStartRead + 1, Token.MARKUP_TAG_DELIMITER);
                 addToken(zzMarkedPos - (count - 2), zzMarkedPos - 1, Token.MARKUP_TAG_NAME);
                 yybegin(INTAG);
             }
-            case 71:
-                break;
-            case 33: {
+                case 33: {
                 start = zzMarkedPos - 2;
                 yybegin(DTD);
             }
-            case 72:
-                break;
-            case 57: {
+                case 57: {
                 addToken(Token.DATA_TYPE);
                 start = zzMarkedPos;
                 yybegin(CDATA);
             }
-            case 73:
-                break;
-            case 29: {
+                case 29: {
                 addToken(Token.ERROR_STRING_DOUBLE);
                 addNullToken();
                 return firstToken;
             }
-            case 74:
-                break;
-            case 48: {
+                case 48: {
                 addToken(Token.DATA_TYPE);
             }
-            case 75:
-                break;
-            case 24: {
+                case 24: {
                 addToken(Token.ERROR_IDENTIFIER);
             }
-            case 76:
-                break;
-            case 10: {
+                case 10: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead, Token.FUNCTION);
             }
-            case 77:
-                break;
-            case 18: {
+                case 18: {
                 yybegin(INTAG);
                 addToken(start, zzStartRead, Token.LITERAL_CHAR);
             }
-            case 78:
-                break;
-            case 4: {
+                case 4: {
                 addToken(Token.MARKUP_TAG_DELIMITER);
                 yybegin(INTAG);
             }
-            case 79:
-                break;
-            case 30: {
+                case 30: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                 addEndToken(INTERNAL_IN_AS_MLC);
                 return firstToken;
             }
-            case 80:
-                break;
-            case 35: {
+                case 35: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead + 1, Token.PREPROCESSOR);
             }
-            case 81:
-                break;
-            case 49: {
+                case 49: {
                 addToken(Token.LITERAL_CHAR);
             }
-            case 82:
-                break;
-            case 34: {
+                case 34: {
                 start = zzMarkedPos - 2;
                 yybegin(PI);
             }
-            case 83:
-                break;
-            case 15: {
+                case 15: {
                 start = zzMarkedPos - 1;
                 yybegin(INATTR_DOUBLE);
             }
-            case 84:
-                break;
-            case 44: {
+                case 44: {
                 yybegin(AS);
                 addToken(start, zzStartRead + 1, Token.COMMENT_MULTILINE);
             }
-            case 85:
-                break;
-            case 38: {
+                case 38: {
                 addToken(Token.LITERAL_NUMBER_HEXADECIMAL);
             }
-            case 86:
-                break;
-            case 21: {
+                case 21: {
                 start = zzMarkedPos - 1;
                 yybegin(INATTR_DOUBLE_SCRIPT);
             }
-            case 87:
-                break;
-            case 43: {
+                case 43: {
                 start = zzMarkedPos - 2;
                 yybegin(AS_MLC);
             }
-            case 88:
-                break;
-            case 16: {
+                case 16: {
                 addToken(Token.MARKUP_TAG_DELIMITER); /* Not valid but we'll still accept it */
             }
-            case 89:
-                break;
-            case 5: {
+                case 5: {
                 addToken(Token.WHITESPACE);
             }
-            case 90:
-                break;
-            case 32: {
+                case 32: {
                 int count = yylength();
                 String tag = yytext(); // Get before addToken calls
                 addToken(zzStartRead, zzStartRead, Token.MARKUP_TAG_DELIMITER);
@@ -2555,139 +2550,93 @@ public class MxmlTokenMaker extends AbstractMarkupTokenMaker {
                     yybegin(INTAG);
                 }
             }
-            case 91:
-                break;
-            case 6: {
+                case 6: {
                 addToken(Token.DATA_TYPE);
             }
-            case 92:
-                break;
-            case 25: {
+                case 25: {
                 addToken(Token.LITERAL_NUMBER_DECIMAL_INT);
             }
-            case 93:
-                break;
-            case 14: {
+                case 14: {
                 start = zzMarkedPos - 1;
                 yybegin(INATTR_SINGLE);
             }
-            case 94:
-                break;
-            case 11: {
+                case 11: {
                 addToken(Token.MARKUP_TAG_ATTRIBUTE);
             }
-            case 95:
-                break;
-            case 17: {
+                case 17: {
                 yybegin(INTAG);
                 addToken(start, zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 96:
-                break;
-            case 47: {
+                case 47: {
                 int temp = zzStartRead;
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead - 1, Token.VARIABLE);
                 addToken(temp, zzMarkedPos - 1, Token.DATA_TYPE);
             }
-            case 97:
-                break;
-            case 23: {
+                case 23: {
                 yybegin(INTAG_SCRIPT);
                 addToken(start, zzStartRead, Token.LITERAL_CHAR);
             }
-            case 98:
-                break;
-            case 42: {
+                case 42: {
                 start = zzMarkedPos - 2;
                 yybegin(AS_EOL_COMMENT);
             }
-            case 99:
-                break;
-            case 9: {
+                case 9: {
                 addToken(start, zzStartRead - 1, Token.FUNCTION);
                 return firstToken;
             }
-            case 100:
-                break;
-            case 51: {
+                case 51: {
                 start = zzMarkedPos - 4;
                 yybegin(COMMENT);
             }
-            case 101:
-                break;
-            case 41: {
+                case 41: {
                 addToken(Token.RESERVED_WORD);
             }
-            case 102:
-                break;
-            case 55: {
+                case 55: {
                 int temp = zzStartRead;
                 addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                 addHyperlinkToken(temp, zzMarkedPos - 1, Token.COMMENT_MULTILINE);
                 start = zzMarkedPos;
             }
-            case 103:
-                break;
-            case 46: {
+                case 46: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead + 2, Token.COMMENT_MULTILINE);
             }
-            case 104:
-                break;
-            case 27: {
+                case 27: {
                 addToken(Token.SEPARATOR);
             }
-            case 105:
-                break;
-            case 3: {
+                case 3: {
                 addNullToken();
                 return firstToken;
             }
-            case 106:
-                break;
-            case 7: {
+                case 7: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                 return firstToken;
             }
-            case 107:
-                break;
-            case 19: {
+                case 19: {
                 yybegin(AS);
                 addToken(Token.MARKUP_TAG_DELIMITER);
             }
-            case 108:
-                break;
-            case 12: {
+                case 12: {
                 addToken(Token.OPERATOR);
             }
-            case 109:
-                break;
-            case 37: {
+                case 37: {
                 addToken(Token.LITERAL_NUMBER_FLOAT);
             }
-            case 110:
-                break;
-            case 56: {
+                case 56: {
                 int temp = zzStartRead;
                 addToken(start, zzStartRead - 1, Token.COMMENT_EOL);
                 addHyperlinkToken(temp, zzMarkedPos - 1, Token.COMMENT_EOL);
                 start = zzMarkedPos;
             }
-            case 111:
-                break;
-            case 52: {
+                case 52: {
                 addToken(Token.COMMENT_MULTILINE);
             }
-            case 112:
-                break;
-            case 8: {
+                case 8: {
                 addToken(start, zzStartRead - 1, Token.PREPROCESSOR);
                 return firstToken;
             }
-            case 113:
-                break;
-            case 58: {
+                case 58: {
                 int origStart = zzStartRead;
                 String text = yytext();
                 int tagNameEnd = text.length() - 2; // "-1" is '>'
@@ -2703,18 +2652,12 @@ public class MxmlTokenMaker extends AbstractMarkupTokenMaker {
                 }
                 addToken(zzMarkedPos - 1, zzMarkedPos - 1, Token.MARKUP_TAG_DELIMITER);
             }
-            case 114:
-                break;
-            case 50: {
+                case 50: {
                 addToken(Token.ERROR_STRING_DOUBLE);
             }
-            case 115:
-                break;
-            case 1: {
+                case 1: {
             }
-            case 116:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {
@@ -2724,89 +2667,76 @@ public class MxmlTokenMaker extends AbstractMarkupTokenMaker {
                         return firstToken;
                     }
                     case 615:
-                        break;
+                        case 628:
+                        case 627:
+                        case 626:
+                        case 625:
+                        case 624:
+                        case 623:
+                        case 622:
+                        case 621:
+                        case 620:
+                        case 619:
+                        case 618:
+                        case 617:
+                        case 616:
+                            break;
                     case AS_MLC: {
                         addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                         addEndToken(INTERNAL_IN_AS_MLC);
                         return firstToken;
                     }
-                    case 616:
-                        break;
-                    case INTAG_SCRIPT: {
+                        case INTAG_SCRIPT: {
                         addToken(start, zzStartRead - 1, INTERNAL_INTAG_SCRIPT);
                         return firstToken;
                     }
-                    case 617:
-                        break;
-                    case INATTR_DOUBLE_SCRIPT: {
+                        case INATTR_DOUBLE_SCRIPT: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                         addEndToken(INTERNAL_ATTR_DOUBLE_QUOTE_SCRIPT);
                         return firstToken;
                     }
-                    case 618:
-                        break;
-                    case CDATA: {
+                        case CDATA: {
                         addToken(start, zzStartRead - 1, Token.VARIABLE);
                         return firstToken;
                     }
-                    case 619:
-                        break;
-                    case INATTR_SINGLE_SCRIPT: {
+                        case INATTR_SINGLE_SCRIPT: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                         addEndToken(INTERNAL_ATTR_SINGLE_QUOTE_SCRIPT);
                         return firstToken;
                     }
-                    case 620:
-                        break;
-                    case DTD: {
+                        case DTD: {
                         addToken(start, zzStartRead - 1, Token.FUNCTION);
                         return firstToken;
                     }
-                    case 621:
-                        break;
-                    case INATTR_SINGLE: {
+                        case INATTR_SINGLE: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_CHAR);
                         return firstToken;
                     }
-                    case 622:
-                        break;
-                    case INATTR_DOUBLE: {
+                        case INATTR_DOUBLE: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                         return firstToken;
                     }
-                    case 623:
-                        break;
-                    case YYINITIAL: {
+                        case YYINITIAL: {
                         addNullToken();
                         return firstToken;
                     }
-                    case 624:
-                        break;
-                    case AS: {
+                        case AS: {
                         addEndToken(INTERNAL_IN_AS);
                         return firstToken;
                     }
-                    case 625:
-                        break;
-                    case INTAG: {
+                        case INTAG: {
                         addToken(start, zzStartRead - 1, INTERNAL_INTAG);
                         return firstToken;
                     }
-                    case 626:
-                        break;
-                    case COMMENT: {
+                        case COMMENT: {
                         addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                         return firstToken;
                     }
-                    case 627:
-                        break;
-                    case PI: {
+                        case PI: {
                         addToken(start, zzStartRead - 1, Token.PREPROCESSOR);
                         return firstToken;
                     }
-                    case 628:
-                        break;
-                    default:
+                        default:
                         return null;
                     }
                 }

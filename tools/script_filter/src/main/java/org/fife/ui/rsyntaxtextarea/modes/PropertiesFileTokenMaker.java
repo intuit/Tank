@@ -602,48 +602,41 @@ public class PropertiesFileTokenMaker extends AbstractJFlexTokenMaker implements
                 return firstToken;
             }
             case 9:
-                break;
+                case 16:
+                case 15:
+                case 14:
+                case 13:
+                case 12:
+                case 11:
+                case 10:
+                    break;
             case 2: {
                 start = zzMarkedPos;
                 addToken(Token.OPERATOR);
                 yybegin(VALUE);
             }
-            case 10:
-                break;
-            case 8: {
+                case 8: {
                 int temp = zzStartRead;
                 addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                 addToken(temp, zzMarkedPos - 1, Token.VARIABLE);
                 start = zzMarkedPos;
             }
-            case 11:
-                break;
-            case 3: {
+                case 3: {
                 addToken(Token.WHITESPACE);
             }
-            case 12:
-                break;
-            case 6: {
+                case 6: {
                 addToken(start, zzMarkedPos - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                 start = zzMarkedPos;
             }
-            case 13:
-                break;
-            case 1: {
+                case 1: {
                 addToken(Token.RESERVED_WORD);
             }
-            case 14:
-                break;
-            case 5: {
+                case 5: {
             }
-            case 15:
-                break;
-            case 4: {
+                case 4: {
                 addToken(Token.COMMENT_EOL);
             }
-            case 16:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {
@@ -652,15 +645,14 @@ public class PropertiesFileTokenMaker extends AbstractJFlexTokenMaker implements
                         return firstToken;
                     }
                     case 14:
-                        break;
+                        case 15:
+                            break;
                     case VALUE: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                         addNullToken();
                         return firstToken;
                     }
-                    case 15:
-                        break;
-                    default:
+                        default:
                         return null;
                     }
                 }

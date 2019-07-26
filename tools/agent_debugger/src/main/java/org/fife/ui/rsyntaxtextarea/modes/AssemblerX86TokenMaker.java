@@ -1780,83 +1780,69 @@ public class AssemblerX86TokenMaker extends AbstractJFlexTokenMaker implements T
                 addToken(Token.RESERVED_WORD);
             }
             case 16:
-                break;
+                case 30:
+                case 29:
+                case 28:
+                case 27:
+                case 26:
+                case 25:
+                case 24:
+                case 23:
+                case 22:
+                case 21:
+                case 20:
+                case 19:
+                case 18:
+                case 17:
+                    break;
             case 1: {
                 addToken(Token.IDENTIFIER);
             }
-            case 17:
-                break;
-            case 12: {
+                case 12: {
                 addToken(Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 18:
-                break;
-            case 9: {
+                case 9: {
                 addToken(Token.FUNCTION);
             }
-            case 19:
-                break;
-            case 5: {
+                case 5: {
                 addToken(Token.COMMENT_EOL);
                 addNullToken();
                 return firstToken;
             }
-            case 20:
-                break;
-            case 14: {
+                case 14: {
                 addToken(Token.VARIABLE);
             }
-            case 21:
-                break;
-            case 7: {
+                case 7: {
                 addToken(Token.WHITESPACE);
             }
-            case 22:
-                break;
-            case 10: {
+                case 10: {
                 addToken(Token.PREPROCESSOR);
             }
-            case 23:
-                break;
-            case 15: {
+                case 15: {
                 addToken(Token.DATA_TYPE);
             }
-            case 24:
-                break;
-            case 4: {
+                case 4: {
                 addToken(Token.ERROR_CHAR); /* addNullToken(); return firstToken; */
             }
-            case 25:
-                break;
-            case 8: {
+                case 8: {
                 addToken(Token.OPERATOR);
             }
-            case 26:
-                break;
-            case 2: {
+                case 2: {
                 addToken(Token.LITERAL_NUMBER_DECIMAL_INT);
             }
-            case 27:
-                break;
-            case 13: {
+                case 13: {
                 addToken(Token.LITERAL_CHAR);
             }
-            case 28:
-                break;
-            case 3: {
+                case 3: {
                 addToken(Token.ERROR_STRING_DOUBLE);
                 addNullToken();
                 return firstToken;
             }
-            case 29:
-                break;
-            case 6: {
+                case 6: {
                 addNullToken();
                 return firstToken;
             }
-            case 30:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {

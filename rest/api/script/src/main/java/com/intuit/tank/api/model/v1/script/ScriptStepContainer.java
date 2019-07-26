@@ -173,7 +173,7 @@ public class ScriptStepContainer implements Serializable {
 
         @SuppressWarnings("unchecked")
         public GeneratorT withNumRemaining(int aValue) {
-            instance.numRemaining = aValue < 0 ? 0 : aValue;
+            instance.numRemaining = Math.max(aValue, 0);
             return (GeneratorT) this;
         }
     }

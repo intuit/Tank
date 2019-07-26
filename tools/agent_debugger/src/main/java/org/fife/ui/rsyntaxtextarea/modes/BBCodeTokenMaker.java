@@ -654,56 +654,47 @@ public class BBCodeTokenMaker extends AbstractMarkupTokenMaker {
                 addToken(Token.IDENTIFIER);
             }
             case 11:
-                break;
+                case 20:
+                case 19:
+                case 18:
+                case 17:
+                case 16:
+                case 15:
+                case 14:
+                case 13:
+                case 12:
+                    break;
             case 9: {
                 addToken(Token.MARKUP_TAG_DELIMITER);
             }
-            case 12:
-                break;
-            case 2: {
+                case 2: {
                 addToken(Token.WHITESPACE);
             }
-            case 13:
-                break;
-            case 10: {
+                case 10: {
                 addToken(Token.OPERATOR);
             }
-            case 14:
-                break;
-            case 8: {
+                case 8: {
                 addToken(Token.MARKUP_TAG_NAME);
             }
-            case 15:
-                break;
-            case 4: {
+                case 4: {
                 addToken(Token.MARKUP_TAG_DELIMITER);
                 yybegin(INTAG);
             }
-            case 16:
-                break;
-            case 6: {
+                case 6: {
                 addToken(Token.IDENTIFIER); /* Unhandled chars, not likely */
             }
-            case 17:
-                break;
-            case 5: {
+                case 5: {
                 addToken(Token.MARKUP_TAG_ATTRIBUTE);
             }
-            case 18:
-                break;
-            case 3: {
+                case 3: {
                 addNullToken();
                 return firstToken;
             }
-            case 19:
-                break;
-            case 7: {
+                case 7: {
                 yybegin(YYINITIAL);
                 addToken(Token.MARKUP_TAG_DELIMITER);
             }
-            case 20:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {
@@ -712,14 +703,13 @@ public class BBCodeTokenMaker extends AbstractMarkupTokenMaker {
                         return firstToken;
                     }
                     case 42:
-                        break;
+                        case 43:
+                            break;
                     case YYINITIAL: {
                         addNullToken();
                         return firstToken;
                     }
-                    case 43:
-                        break;
-                    default:
+                        default:
                         return null;
                     }
                 }

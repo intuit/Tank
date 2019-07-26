@@ -1001,124 +1001,103 @@ public class SQLTokenMaker extends AbstractJFlexTokenMaker {
                 addToken(Token.PREPROCESSOR);
             }
             case 23:
-                break;
+                case 44:
+                case 43:
+                case 42:
+                case 41:
+                case 40:
+                case 39:
+                case 38:
+                case 37:
+                case 36:
+                case 35:
+                case 34:
+                case 33:
+                case 32:
+                case 31:
+                case 30:
+                case 29:
+                case 28:
+                case 27:
+                case 26:
+                case 25:
+                case 24:
+                    break;
             case 2: {
                 addNullToken();
                 return firstToken;
             }
-            case 24:
-                break;
-            case 21: {
+                case 21: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead + 1, Token.COMMENT_MULTILINE);
             }
-            case 25:
-                break;
-            case 18: {
+                case 18: {
                 start = zzMarkedPos - 2;
                 yybegin(MLC);
             }
-            case 26:
-                break;
-            case 4: {
+                case 4: {
                 addToken(Token.WHITESPACE);
             }
-            case 27:
-                break;
-            case 14: {
+                case 14: {
                 addToken(start, zzStartRead - 1, Token.LITERAL_CHAR);
                 return firstToken;
             }
-            case 28:
-                break;
-            case 9: {
+                case 9: {
                 start = zzMarkedPos - 1;
                 yybegin(CHAR);
             }
-            case 29:
-                break;
-            case 7: {
+                case 7: {
                 addToken(Token.LITERAL_NUMBER_FLOAT);
             }
-            case 30:
-                break;
-            case 19: {
+                case 19: {
                 addToken(Token.RESERVED_WORD);
             }
-            case 31:
-                break;
-            case 6: {
+                case 6: {
                 addToken(Token.SEPARATOR);
             }
-            case 32:
-                break;
-            case 15: {
+                case 15: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead, Token.LITERAL_CHAR);
             }
-            case 33:
-                break;
-            case 1: {
+                case 1: {
                 addToken(Token.IDENTIFIER);
             }
-            case 34:
-                break;
-            case 22: {
+                case 22: {
                 addToken(Token.FUNCTION);
             }
-            case 35:
-                break;
-            case 12: {
+                case 12: {
                 addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                 return firstToken;
             }
-            case 36:
-                break;
-            case 17: {
+                case 17: {
                 addToken(Token.COMMENT_EOL);
             }
-            case 37:
-                break;
-            case 8: {
+                case 8: {
                 start = zzMarkedPos - 1;
                 yybegin(STRING);
             }
-            case 38:
-                break;
-            case 3: {
+                case 3: {
                 addToken(Token.LITERAL_NUMBER_DECIMAL_INT);
             }
-            case 39:
-                break;
-            case 5: {
+                case 5: {
                 addToken(Token.OPERATOR);
             }
-            case 40:
-                break;
-            case 13: {
+                case 13: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 41:
-                break;
-            case 10: {
+                case 10: {
                 addToken(Token.ERROR_IDENTIFIER);
                 addNullToken();
                 return firstToken;
             }
-            case 42:
-                break;
-            case 11: {
+                case 11: {
             }
-            case 43:
-                break;
-            case 16: {
+                case 16: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                 return firstToken;
             }
-            case 44:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {
@@ -1127,26 +1106,23 @@ public class SQLTokenMaker extends AbstractJFlexTokenMaker {
                         return firstToken;
                     }
                     case 355:
-                        break;
+                        case 358:
+                        case 357:
+                        case 356:
+                            break;
                     case YYINITIAL: {
                         addNullToken();
                         return firstToken;
                     }
-                    case 356:
-                        break;
-                    case MLC: {
+                        case MLC: {
                         addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                         return firstToken;
                     }
-                    case 357:
-                        break;
-                    case CHAR: {
+                        case CHAR: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_CHAR);
                         return firstToken;
                     }
-                    case 358:
-                        break;
-                    default:
+                        default:
                         return null;
                     }
                 }

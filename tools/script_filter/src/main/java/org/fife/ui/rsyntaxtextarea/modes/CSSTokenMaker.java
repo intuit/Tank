@@ -686,120 +686,100 @@ public class CSSTokenMaker extends AbstractJFlexTokenMaker implements TokenMaker
                 yybegin(CHAR_LITERAL);
             }
             case 22:
-                break;
+                case 42:
+                case 41:
+                case 40:
+                case 39:
+                case 38:
+                case 37:
+                case 36:
+                case 35:
+                case 34:
+                case 33:
+                case 32:
+                case 31:
+                case 30:
+                case 29:
+                case 28:
+                case 27:
+                case 26:
+                case 25:
+                case 24:
+                case 23:
+                    break;
             case 20: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead + 2, Token.COMMENT_DOCUMENTATION);
             }
-            case 23:
-                break;
-            case 19: {
+                case 19: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead + 1, Token.COMMENT_MULTILINE);
             }
-            case 24:
-                break;
-            case 11: {
+                case 11: {
                 addToken(start, zzStartRead - 1, Token.ERROR_CHAR);
                 addNullToken();
                 return firstToken;
             }
-            case 25:
-                break;
-            case 21: {
+                case 21: {
                 start = zzMarkedPos - 4;
                 yybegin(CD_COMMENT);
             }
-            case 26:
-                break;
-            case 3: {
+                case 3: {
                 addToken(Token.WHITESPACE);
             }
-            case 27:
-                break;
-            case 10: {
+                case 10: {
                 addToken(start, zzStartRead, Token.LITERAL_CHAR);
                 yybegin(YYINITIAL);
             }
-            case 28:
-                break;
-            case 4: {
+                case 4: {
                 addToken(Token.SEPARATOR);
             }
-            case 29:
-                break;
-            case 16: {
+                case 16: {
                 addToken(Token.VARIABLE);
             }
-            case 30:
-                break;
-            case 1: {
+                case 1: {
                 addToken(Token.IDENTIFIER);
             }
-            case 31:
-                break;
-            case 8: {
+                case 8: {
                 addToken(start, zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE);
                 yybegin(YYINITIAL);
             }
-            case 32:
-                break;
-            case 14: {
+                case 14: {
                 addToken(Token.FUNCTION);
             }
-            case 33:
-                break;
-            case 15: {
+                case 15: {
                 addToken(Token.DATA_TYPE);
             }
-            case 34:
-                break;
-            case 12: {
+                case 12: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_DOCUMENTATION);
                 return firstToken;
             }
-            case 35:
-                break;
-            case 17: {
+                case 17: {
                 start = zzMarkedPos - 2;
                 yybegin(C_STYLE_COMMENT);
             }
-            case 36:
-                break;
-            case 5: {
+                case 5: {
                 start = zzMarkedPos - 1;
                 yybegin(STRING);
             }
-            case 37:
-                break;
-            case 18: {
+                case 18: {
                 addToken(Token.OPERATOR);
             }
-            case 38:
-                break;
-            case 2: {
+                case 2: {
                 addToken(Token.LITERAL_NUMBER_DECIMAL_INT);
             }
-            case 39:
-                break;
-            case 7: {
+                case 7: {
             }
-            case 40:
-                break;
-            case 13: {
+                case 13: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                 return firstToken;
             }
-            case 41:
-                break;
-            case 9: {
+                case 9: {
                 addToken(start, zzStartRead - 1, Token.ERROR_STRING_DOUBLE);
                 addNullToken();
                 return firstToken;
             }
-            case 42:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {
@@ -808,32 +788,28 @@ public class CSSTokenMaker extends AbstractJFlexTokenMaker implements TokenMaker
                         return firstToken;
                     }
                     case 84:
-                        break;
+                        case 88:
+                        case 87:
+                        case 86:
+                        case 85:
+                            break;
                     case STRING: {
                         addToken(start, zzStartRead - 1, Token.ERROR_STRING_DOUBLE);
                         return firstToken;
                     }
-                    case 85:
-                        break;
-                    case CHAR_LITERAL: {
+                        case CHAR_LITERAL: {
                         addToken(start, zzStartRead - 1, Token.ERROR_CHAR);
                         return firstToken;
                     }
-                    case 86:
-                        break;
-                    case YYINITIAL: {
+                        case YYINITIAL: {
                         addNullToken();
                         return firstToken;
                     }
-                    case 87:
-                        break;
-                    case C_STYLE_COMMENT: {
+                        case C_STYLE_COMMENT: {
                         addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                         return firstToken;
                     }
-                    case 88:
-                        break;
-                    default:
+                        default:
                         return null;
                     }
                 }

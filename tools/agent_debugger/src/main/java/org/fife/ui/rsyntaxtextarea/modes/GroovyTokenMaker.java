@@ -3006,241 +3006,200 @@ public class GroovyTokenMaker extends AbstractJFlexCTokenMaker {
                 addToken(Token.IDENTIFIER);
             }
             case 43:
-                break;
+                case 84:
+                case 83:
+                case 82:
+                case 81:
+                case 80:
+                case 79:
+                case 78:
+                case 77:
+                case 76:
+                case 75:
+                case 74:
+                case 73:
+                case 72:
+                case 71:
+                case 70:
+                case 69:
+                case 68:
+                case 67:
+                case 66:
+                case 65:
+                case 64:
+                case 63:
+                case 62:
+                case 61:
+                case 60:
+                case 59:
+                case 58:
+                case 57:
+                case 56:
+                case 55:
+                case 54:
+                case 53:
+                case 52:
+                case 51:
+                case 50:
+                case 49:
+                case 48:
+                case 47:
+                case 46:
+                case 45:
+                case 44:
+                    break;
             case 39: {
                 addToken(Token.LITERAL_BOOLEAN);
             }
-            case 44:
-                break;
-            case 33: {
+                case 33: {
                 start = zzMarkedPos - 3;
                 yybegin(MULTILINE_STRING_DOUBLE);
             }
-            case 45:
-                break;
-            case 13: {
+                case 13: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_DOCUMENTATION);
                 return firstToken;
             }
-            case 46:
-                break;
-            case 31: {
+                case 31: {
                 addToken(Token.ERROR_CHAR);
             }
-            case 47:
-                break;
-            case 18: {
+                case 18: {
                 addToken(Token.ERROR_NUMBER_FORMAT);
             }
-            case 48:
-                break;
-            case 5: {
+                case 5: {
                 addToken(Token.ERROR_CHAR);
                 addNullToken();
                 return firstToken;
             }
-            case 49:
-                break;
-            case 22: {
+                case 22: {
                 addToken(Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 50:
-                break;
-            case 26: {
+                case 26: {
                 addToken(Token.FUNCTION);
             }
-            case 51:
-                break;
-            case 7: {
+                case 7: {
                 addToken(Token.ERROR_STRING_DOUBLE);
                 addNullToken();
                 return firstToken;
             }
-            case 52:
-                break;
-            case 30: {
+                case 30: {
                 start = zzMarkedPos - 3;
                 yybegin(MULTILINE_STRING_SINGLE);
             }
-            case 53:
-                break;
-            case 2: {
+                case 2: {
                 addToken(Token.ERROR_IDENTIFIER);
             }
-            case 54:
-                break;
-            case 23: {
+                case 23: {
                 addToken(Token.COMMENT_EOL);
                 addNullToken();
                 return firstToken;
             }
-            case 55:
-                break;
-            case 37: {
+                case 37: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead + 2, Token.LITERAL_CHAR);
             }
-            case 56:
-                break;
-            case 42: {
+                case 42: {
                 int temp = zzStartRead;
                 addToken(start, zzStartRead - 1, Token.COMMENT_DOCUMENTATION);
                 addToken(temp, zzMarkedPos - 1, Token.VARIABLE);
                 start = zzMarkedPos;
             }
-            case 57:
-                break;
-            case 29: {
+                case 29: {
                 int temp = zzStartRead;
                 addToken(start, zzStartRead - 1, Token.COMMENT_DOCUMENTATION);
                 addToken(temp, zzMarkedPos - 1, Token.PREPROCESSOR);
                 start = zzMarkedPos;
             }
-            case 58:
-                break;
-            case 11: {
+                case 11: {
                 addToken(Token.VARIABLE); /* FIXME: Add token type to Token? */
             }
-            case 59:
-                break;
-            case 41: {
+                case 41: {
                 int temp = zzStartRead;
                 addToken(start, zzStartRead - 1, Token.COMMENT_DOCUMENTATION);
                 addHyperlinkToken(temp, zzMarkedPos - 1, Token.COMMENT_DOCUMENTATION);
                 start = zzMarkedPos;
             }
-            case 60:
-                break;
-            case 15: { /* Skip escaped chars, handles case: '\"""'. */
+                case 15: { /* Skip escaped chars, handles case: '\"""'. */
             }
-            case 61:
-                break;
-            case 21: {
+                case 21: {
                 addToken(Token.LITERAL_CHAR);
             }
-            case 62:
-                break;
-            case 36: {
+                case 36: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead + 2, Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 63:
-                break;
-            case 20: {
+                case 20: {
                 addToken(Token.LITERAL_NUMBER_HEXADECIMAL);
             }
-            case 64:
-                break;
-            case 24: {
+                case 24: {
                 start = zzMarkedPos - 2;
                 yybegin(MLC);
             }
-            case 65:
-                break;
-            case 8: {
+                case 8: {
                 addToken(Token.WHITESPACE);
             }
-            case 66:
-                break;
-            case 28: {
+                case 28: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead + 1, Token.COMMENT_DOCUMENTATION);
             }
-            case 67:
-                break;
-            case 35: {
+                case 35: {
                 addToken(Token.DATA_TYPE);
             }
-            case 68:
-                break;
-            case 27: {
+                case 27: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead + 1, Token.COMMENT_MULTILINE);
             }
-            case 69:
-                break;
-            case 4: {
+                case 4: {
                 addToken(Token.LITERAL_NUMBER_DECIMAL_INT);
             }
-            case 70:
-                break;
-            case 17: { /* Skip escaped chars, handles case: "\'''". */
+                case 17: { /* Skip escaped chars, handles case: "\'''". */
             }
-            case 71:
-                break;
-            case 34: {
+                case 34: {
                 start = zzMarkedPos - 3;
                 yybegin(DOCCOMMENT);
             }
-            case 72:
-                break;
-            case 25: {
+                case 25: {
                 addToken(Token.RESERVED_WORD);
             }
-            case 73:
-                break;
-            case 40: {
+                case 40: {
                 int temp = zzStartRead;
                 addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                 addHyperlinkToken(temp, zzMarkedPos - 1, Token.COMMENT_MULTILINE);
                 start = zzMarkedPos;
             }
-            case 74:
-                break;
-            case 10: {
+                case 10: {
                 addToken(Token.SEPARATOR);
             }
-            case 75:
-                break;
-            case 6: {
+                case 6: {
                 addNullToken();
                 return firstToken;
             }
-            case 76:
-                break;
-            case 12: {
+                case 12: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                 return firstToken;
             }
-            case 77:
-                break;
-            case 9: {
+                case 9: {
                 addToken(Token.OPERATOR);
             }
-            case 78:
-                break;
-            case 16: {
+                case 16: {
                 addToken(start, zzStartRead - 1, Token.LITERAL_CHAR);
                 return firstToken;
             }
-            case 79:
-                break;
-            case 19: {
+                case 19: {
                 addToken(Token.LITERAL_NUMBER_FLOAT);
             }
-            case 80:
-                break;
-            case 38: {
+                case 38: {
                 addToken(Token.COMMENT_MULTILINE);
             }
-            case 81:
-                break;
-            case 1: {
+                case 1: {
             }
-            case 82:
-                break;
-            case 14: {
+                case 14: {
                 addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                 return firstToken;
             }
-            case 83:
-                break;
-            case 32: {
+                case 32: {
                 addToken(Token.ERROR_STRING_DOUBLE);
             }
-            case 84:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {
@@ -3249,33 +3208,29 @@ public class GroovyTokenMaker extends AbstractJFlexCTokenMaker {
                         return firstToken;
                     }
                     case 1100:
-                        break;
+                        case 1104:
+                        case 1103:
+                        case 1102:
+                        case 1101:
+                            break;
                     case DOCCOMMENT: {
                         yybegin(YYINITIAL);
                         addToken(start, zzEndRead, Token.COMMENT_DOCUMENTATION);
                         return firstToken;
                     }
-                    case 1101:
-                        break;
-                    case YYINITIAL: {
+                        case YYINITIAL: {
                         addNullToken();
                         return firstToken;
                     }
-                    case 1102:
-                        break;
-                    case MLC: {
+                        case MLC: {
                         addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                         return firstToken;
                     }
-                    case 1103:
-                        break;
-                    case MULTILINE_STRING_SINGLE: {
+                        case MULTILINE_STRING_SINGLE: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_CHAR);
                         return firstToken;
                     }
-                    case 1104:
-                        break;
-                    default:
+                        default:
                         return null;
                     }
                 }

@@ -995,78 +995,65 @@ public class TclTokenMaker extends AbstractJFlexCTokenMaker {
                 addToken(Token.RESERVED_WORD);
             }
             case 15:
-                break;
+                case 28:
+                case 27:
+                case 26:
+                case 25:
+                case 24:
+                case 23:
+                case 22:
+                case 21:
+                case 20:
+                case 19:
+                case 18:
+                case 17:
+                case 16:
+                    break;
             case 2: {
                 addToken(Token.IDENTIFIER);
             }
-            case 16:
-                break;
-            case 13: {
+                case 13: {
                 addToken(Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 17:
-                break;
-            case 11: {
+                case 11: {
                 addToken(Token.LITERAL_NUMBER_FLOAT);
             }
-            case 18:
-                break;
-            case 4: {
+                case 4: {
                 addToken(Token.COMMENT_EOL);
                 addNullToken();
                 return firstToken;
             }
-            case 19:
-                break;
-            case 6: {
+                case 6: {
                 addToken(Token.WHITESPACE);
             }
-            case 20:
-                break;
-            case 10: {
+                case 10: {
                 addToken(Token.ERROR_NUMBER_FORMAT);
             }
-            case 21:
-                break;
-            case 1: {
+                case 1: {
                 addToken(Token.ERROR_IDENTIFIER);
             }
-            case 22:
-                break;
-            case 12: {
+                case 12: {
                 addToken(Token.LITERAL_NUMBER_HEXADECIMAL);
             }
-            case 23:
-                break;
-            case 8: {
+                case 8: {
                 addToken(Token.OPERATOR);
             }
-            case 24:
-                break;
-            case 3: {
+                case 3: {
                 addToken(Token.LITERAL_NUMBER_DECIMAL_INT);
             }
-            case 25:
-                break;
-            case 7: {
+                case 7: {
                 addToken(Token.ERROR_STRING_DOUBLE);
                 addNullToken();
                 return firstToken;
             }
-            case 26:
-                break;
-            case 5: {
+                case 5: {
                 addNullToken();
                 return firstToken;
             }
-            case 27:
-                break;
-            case 9: {
+                case 9: {
                 addToken(Token.SEPARATOR);
             }
-            case 28:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {

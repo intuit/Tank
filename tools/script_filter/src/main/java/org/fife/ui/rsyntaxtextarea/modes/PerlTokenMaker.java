@@ -1686,80 +1686,100 @@ public class PerlTokenMaker extends AbstractJFlexCTokenMaker {
                 addToken(Token.IDENTIFIER);
             }
             case 44:
-                break;
+                case 86:
+                case 85:
+                case 84:
+                case 83:
+                case 82:
+                case 81:
+                case 80:
+                case 79:
+                case 78:
+                case 77:
+                case 76:
+                case 75:
+                case 74:
+                case 73:
+                case 72:
+                case 71:
+                case 70:
+                case 69:
+                case 68:
+                case 67:
+                case 66:
+                case 65:
+                case 64:
+                case 63:
+                case 62:
+                case 61:
+                case 60:
+                case 59:
+                case 58:
+                case 57:
+                case 56:
+                case 55:
+                case 54:
+                case 53:
+                case 52:
+                case 51:
+                case 50:
+                case 49:
+                case 48:
+                case 47:
+                case 46:
+                case 45:
+                    break;
             case 34: {
                 int temp = zzStartRead;
                 addToken(start, zzStartRead - 1, Token.LITERAL_BACKQUOTE);
                 addToken(temp, zzMarkedPos - 1, Token.VARIABLE);
                 start = zzMarkedPos;
             }
-            case 45:
-                break;
-            case 39: {
+                case 39: {
                 if (start == zzStartRead) {
                     addToken(Token.COMMENT_DOCUMENTATION);
                     yybegin(YYINITIAL);
                 }
             }
-            case 46:
-                break;
-            case 26: {
+                case 26: {
                 addToken(Token.ERROR_NUMBER_FORMAT);
             }
-            case 47:
-                break;
-            case 11: {
+                case 11: {
                 start = zzMarkedPos - 1;
                 yybegin(STRING);
             }
-            case 48:
-                break;
-            case 36: {
+                case 36: {
                 if (start == zzStartRead) {
                     addToken(Token.PREPROCESSOR);
                     addNullToken();
                     return firstToken;
                 }
             }
-            case 49:
-                break;
-            case 32: {
+                case 32: {
                 addToken(Token.FUNCTION);
             }
-            case 50:
-                break;
-            case 30: {
+                case 30: {
                 addToken(Token.VARIABLE);
             }
-            case 51:
-                break;
-            case 1: {
+                case 1: {
                 addToken(Token.ERROR_IDENTIFIER);
             }
-            case 52:
-                break;
-            case 24: {
+                case 24: {
                 addToken(start, zzStartRead - 1, Token.PREPROCESSOR);
                 addEndToken(INTERNAL_HEREDOC_EOT_SINGLE_QUOTED);
                 return firstToken;
             }
-            case 53:
-                break;
-            case 4: {
+                case 4: {
                 addToken(Token.COMMENT_EOL);
                 addNullToken();
                 return firstToken;
             }
-            case 54:
-                break;
-            case 29: {
+                case 29: {
                 addToken(Token.PREPROCESSOR);
                 addNullToken();
                 return firstToken;
             }
-            case 55:
-                break;
-            case 38: {
+                case 38: {
                 if (start == zzStartRead) {
                     int temp = zzStartRead;
                     addToken(start, zzStartRead - 1, Token.COMMENT_DOCUMENTATION);
@@ -1767,185 +1787,123 @@ public class PerlTokenMaker extends AbstractJFlexCTokenMaker {
                     start = zzMarkedPos;
                 }
             }
-            case 56:
-                break;
-            case 42: {
+                case 42: {
                 start = zzStartRead;
                 yybegin(HEREDOC_EOF_SINGLE_QUOTED);
             }
-            case 57:
-                break;
-            case 43: {
+                case 43: {
                 start = zzStartRead;
                 yybegin(HEREDOC_EOT_SINGLE_QUOTED);
             }
-            case 58:
-                break;
-            case 40: {
+                case 40: {
                 start = zzStartRead;
                 yybegin(HEREDOC_EOF_UNQUOTED);
             }
-            case 59:
-                break;
-            case 13: { /* Skip escaped chars. */
+                case 13: { /* Skip escaped chars. */
             }
-            case 60:
-                break;
-            case 18: {
+                case 18: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead, Token.LITERAL_CHAR);
             }
-            case 61:
-                break;
-            case 28: {
+                case 28: {
                 addToken(Token.LITERAL_NUMBER_HEXADECIMAL);
             }
-            case 62:
-                break;
-            case 21: {
+                case 21: {
                 addToken(start, zzStartRead - 1, Token.PREPROCESSOR);
                 addEndToken(INTERNAL_HEREDOC_EOF_UNQUOTED);
                 return firstToken;
             }
-            case 63:
-                break;
-            case 6: {
+                case 6: {
                 addToken(Token.WHITESPACE);
             }
-            case 64:
-                break;
-            case 10: {
+                case 10: {
                 start = zzMarkedPos - 1;
                 yybegin(CHAR_LITERAL);
             }
-            case 65:
-                break;
-            case 3: {
+                case 3: {
                 addToken(Token.LITERAL_NUMBER_DECIMAL_INT);
             }
-            case 66:
-                break;
-            case 33: {
+                case 33: {
                 int temp = zzStartRead;
                 addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                 addToken(temp, zzMarkedPos - 1, Token.VARIABLE);
                 start = zzMarkedPos;
             }
-            case 67:
-                break;
-            case 20: {
+                case 20: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead, Token.LITERAL_BACKQUOTE);
             }
-            case 68:
-                break;
-            case 15: {
+                case 15: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 69:
-                break;
-            case 16: { /* Skip escaped single quotes only, but this should still work. */
+                case 16: { /* Skip escaped single quotes only, but this should still work. */
             }
-            case 70:
-                break;
-            case 23: {
+                case 23: {
                 addToken(start, zzStartRead - 1, Token.PREPROCESSOR);
                 addEndToken(INTERNAL_HEREDOC_EOT_UNQUOTED);
                 return firstToken;
             }
-            case 71:
-                break;
-            case 35: {
+                case 35: {
                 int temp = zzStartRead;
                 addToken(start, zzStartRead - 1, Token.PREPROCESSOR);
                 addToken(temp, zzMarkedPos - 1, Token.VARIABLE);
                 start = zzMarkedPos;
             }
-            case 72:
-                break;
-            case 37: {
+                case 37: {
                 addToken(Token.COMMENT_EOL);
                 start = zzMarkedPos;
                 yybegin(POD);
             }
-            case 73:
-                break;
-            case 31: {
+                case 31: {
                 addToken(Token.RESERVED_WORD);
             }
-            case 74:
-                break;
-            case 19: {
+                case 19: {
                 addToken(start, zzStartRead - 1, Token.LITERAL_BACKQUOTE);
                 return firstToken;
             }
-            case 75:
-                break;
-            case 8: {
+                case 8: {
                 addToken(Token.SEPARATOR);
             }
-            case 76:
-                break;
-            case 5: {
+                case 5: {
                 addNullToken();
                 return firstToken;
             }
-            case 77:
-                break;
-            case 7: {
+                case 7: {
                 addToken(Token.OPERATOR);
             }
-            case 78:
-                break;
-            case 17: {
+                case 17: {
                 addToken(start, zzStartRead - 1, Token.LITERAL_CHAR);
                 return firstToken;
             }
-            case 79:
-                break;
-            case 25: {
+                case 25: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_DOCUMENTATION);
                 addEndToken(INTERNAL_POD);
                 return firstToken;
             }
-            case 80:
-                break;
-            case 27: {
+                case 27: {
                 addToken(Token.LITERAL_NUMBER_FLOAT);
             }
-            case 81:
-                break;
-            case 41: {
+                case 41: {
                 start = zzStartRead;
                 yybegin(HEREDOC_EOT_UNQUOTED);
             }
-            case 82:
-                break;
-            case 9: {
+                case 9: {
                 start = zzMarkedPos - 1;
                 yybegin(BACKTICKS);
             }
-            case 83:
-                break;
-            case 12: {
+                case 12: {
             }
-            case 84:
-                break;
-            case 14: {
+                case 14: {
                 addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                 return firstToken;
             }
-            case 85:
-                break;
-            case 22: {
+                case 22: {
                 addToken(start, zzStartRead - 1, Token.PREPROCESSOR);
                 addEndToken(INTERNAL_HEREDOC_EOF_SINGLE_QUOTED);
                 return firstToken;
             }
-            case 86:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {
@@ -1955,60 +1913,52 @@ public class PerlTokenMaker extends AbstractJFlexCTokenMaker {
                         return firstToken;
                     }
                     case 574:
-                        break;
+                        case 582:
+                        case 581:
+                        case 580:
+                        case 579:
+                        case 578:
+                        case 577:
+                        case 576:
+                        case 575:
+                            break;
                     case HEREDOC_EOT_SINGLE_QUOTED: {
                         addToken(start, zzStartRead - 1, Token.PREPROCESSOR);
                         addEndToken(INTERNAL_HEREDOC_EOT_SINGLE_QUOTED);
                         return firstToken;
                     }
-                    case 575:
-                        break;
-                    case HEREDOC_EOT_UNQUOTED: {
+                        case HEREDOC_EOT_UNQUOTED: {
                         addToken(start, zzStartRead - 1, Token.PREPROCESSOR);
                         addEndToken(INTERNAL_HEREDOC_EOT_UNQUOTED);
                         return firstToken;
                     }
-                    case 576:
-                        break;
-                    case STRING: {
+                        case STRING: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                         return firstToken;
                     }
-                    case 577:
-                        break;
-                    case BACKTICKS: {
+                        case BACKTICKS: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_BACKQUOTE);
                         return firstToken;
                     }
-                    case 578:
-                        break;
-                    case YYINITIAL: {
+                        case YYINITIAL: {
                         addNullToken();
                         return firstToken;
                     }
-                    case 579:
-                        break;
-                    case HEREDOC_EOF_UNQUOTED: {
+                        case HEREDOC_EOF_UNQUOTED: {
                         addToken(start, zzStartRead - 1, Token.PREPROCESSOR);
                         addEndToken(INTERNAL_HEREDOC_EOF_UNQUOTED);
                         return firstToken;
                     }
-                    case 580:
-                        break;
-                    case CHAR_LITERAL: {
+                        case CHAR_LITERAL: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_CHAR);
                         return firstToken;
                     }
-                    case 581:
-                        break;
-                    case POD: {
+                        case POD: {
                         addToken(start, zzStartRead - 1, Token.COMMENT_DOCUMENTATION);
                         addEndToken(INTERNAL_POD);
                         return firstToken;
                     }
-                    case 582:
-                        break;
-                    default:
+                        default:
                         return null;
                     }
                 }

@@ -704,163 +704,137 @@ public class XMLTokenMaker extends AbstractMarkupTokenMaker {
                 return firstToken;
             }
             case 28:
-                break;
+                case 54:
+                case 53:
+                case 52:
+                case 51:
+                case 50:
+                case 49:
+                case 48:
+                case 47:
+                case 46:
+                case 45:
+                case 44:
+                case 43:
+                case 42:
+                case 41:
+                case 40:
+                case 39:
+                case 38:
+                case 37:
+                case 36:
+                case 35:
+                case 34:
+                case 33:
+                case 32:
+                case 31:
+                case 30:
+                case 29:
+                    break;
             case 4: {
                 addToken(Token.MARKUP_TAG_DELIMITER);
                 yybegin(INTAG);
             }
-            case 29:
-                break;
-            case 23: {
+                case 23: {
                 int count = yylength();
                 addToken(zzStartRead, zzStartRead + 1, Token.MARKUP_TAG_DELIMITER);
                 addToken(zzMarkedPos - (count - 2), zzMarkedPos - 1, Token.MARKUP_TAG_NAME);
                 yybegin(INTAG);
             }
-            case 30:
-                break;
-            case 17: {
+                case 17: {
                 yybegin(INTAG);
                 addToken(start, zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 31:
-                break;
-            case 10: {
+                case 10: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead, Token.FUNCTION);
             }
-            case 32:
-                break;
-            case 24: {
+                case 24: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead + 2, Token.COMMENT_MULTILINE);
             }
-            case 33:
-                break;
-            case 14: {
+                case 14: {
                 addToken(Token.MARKUP_TAG_DELIMITER); /* Not valid but we'll still accept it */
             }
-            case 34:
-                break;
-            case 5: {
+                case 5: {
                 addToken(Token.WHITESPACE);
             }
-            case 35:
-                break;
-            case 9: {
+                case 9: {
                 addToken(start, zzStartRead - 1, Token.FUNCTION);
                 return firstToken;
             }
-            case 36:
-                break;
-            case 20: {
+                case 20: {
                 start = zzMarkedPos - 2;
                 yybegin(DTD);
             }
-            case 37:
-                break;
-            case 2: {
+                case 2: {
                 addToken(Token.IDENTIFIER);
             }
-            case 38:
-                break;
-            case 27: {
+                case 27: {
                 addToken(Token.DATA_TYPE);
                 start = zzMarkedPos;
                 yybegin(CDATA);
             }
-            case 39:
-                break;
-            case 6: {
+                case 6: {
                 addToken(Token.DATA_TYPE);
             }
-            case 40:
-                break;
-            case 19: {
+                case 19: {
                 int count = yylength();
                 addToken(zzStartRead, zzStartRead, Token.MARKUP_TAG_DELIMITER);
                 addToken(zzMarkedPos - (count - 1), zzMarkedPos - 1, Token.MARKUP_TAG_NAME);
                 yybegin(INTAG);
             }
-            case 41:
-                break;
-            case 26: {
+                case 26: {
                 start = zzMarkedPos - 4;
                 yybegin(COMMENT);
             }
-            case 42:
-                break;
-            case 25: {
+                case 25: {
                 int temp = zzStartRead;
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead - 1, Token.VARIABLE);
                 addToken(temp, zzMarkedPos - 1, Token.DATA_TYPE);
             }
-            case 43:
-                break;
-            case 21: {
+                case 21: {
                 start = zzMarkedPos - 2;
                 yybegin(PI);
             }
-            case 44:
-                break;
-            case 16: {
+                case 16: {
                 start = zzMarkedPos - 1;
                 yybegin(INATTR_DOUBLE);
             }
-            case 45:
-                break;
-            case 13: {
+                case 13: {
                 yybegin(YYINITIAL);
                 addToken(Token.MARKUP_TAG_DELIMITER);
             }
-            case 46:
-                break;
-            case 12: {
+                case 12: {
                 start = zzMarkedPos - 1;
                 yybegin(INATTR_SINGLE);
             }
-            case 47:
-                break;
-            case 8: {
+                case 8: {
                 addToken(start, zzStartRead - 1, Token.PREPROCESSOR);
                 return firstToken;
             }
-            case 48:
-                break;
-            case 18: {
+                case 18: {
                 yybegin(INTAG);
                 addToken(start, zzStartRead, Token.LITERAL_CHAR);
             }
-            case 49:
-                break;
-            case 22: {
+                case 22: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead + 1, Token.PREPROCESSOR);
             }
-            case 50:
-                break;
-            case 15: {
+                case 15: {
                 addToken(Token.OPERATOR);
             }
-            case 51:
-                break;
-            case 11: {
+                case 11: {
                 addToken(Token.MARKUP_TAG_ATTRIBUTE);
             }
-            case 52:
-                break;
-            case 1: {
+                case 1: {
             }
-            case 53:
-                break;
-            case 7: {
+                case 7: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                 return firstToken;
             }
-            case 54:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {
@@ -869,50 +843,43 @@ public class XMLTokenMaker extends AbstractMarkupTokenMaker {
                         return firstToken;
                     }
                     case 57:
-                        break;
+                        case 64:
+                        case 63:
+                        case 62:
+                        case 61:
+                        case 60:
+                        case 59:
+                        case 58:
+                            break;
                     case DTD: {
                         addToken(start, zzStartRead - 1, Token.FUNCTION);
                         return firstToken;
                     }
-                    case 58:
-                        break;
-                    case INATTR_DOUBLE: {
+                        case INATTR_DOUBLE: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                         return firstToken;
                     }
-                    case 59:
-                        break;
-                    case YYINITIAL: {
+                        case YYINITIAL: {
                         addNullToken();
                         return firstToken;
                     }
-                    case 60:
-                        break;
-                    case COMMENT: {
+                        case COMMENT: {
                         addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                         return firstToken;
                     }
-                    case 61:
-                        break;
-                    case CDATA: {
+                        case CDATA: {
                         addToken(start, zzStartRead - 1, Token.VARIABLE);
                         return firstToken;
                     }
-                    case 62:
-                        break;
-                    case INATTR_SINGLE: {
+                        case INATTR_SINGLE: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_CHAR);
                         return firstToken;
                     }
-                    case 63:
-                        break;
-                    case PI: {
+                        case PI: {
                         addToken(start, zzStartRead - 1, Token.PREPROCESSOR);
                         return firstToken;
                     }
-                    case 64:
-                        break;
-                    default:
+                        default:
                         return null;
                     }
                 }

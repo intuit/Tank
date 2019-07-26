@@ -598,24 +598,21 @@ public class PlainTextTokenMaker extends AbstractJFlexTokenMaker {
                 addToken(Token.WHITESPACE, false);
             }
             case 5:
-                break;
+                case 8:
+                case 7:
+                case 6:
+                    break;
             case 2: {
                 addNullToken();
                 return firstToken;
             }
-            case 6:
-                break;
-            case 4: {
+                case 4: {
                 addToken(Token.IDENTIFIER, true);
             }
-            case 7:
-                break;
-            case 1: {
+                case 1: {
                 addToken(Token.IDENTIFIER, false);
             }
-            case 8:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {

@@ -1450,197 +1450,164 @@ public class DelphiTokenMaker extends AbstractJFlexTokenMaker {
                 return firstToken;
             }
             case 35:
-                break;
+                case 68:
+                case 67:
+                case 66:
+                case 65:
+                case 64:
+                case 63:
+                case 62:
+                case 61:
+                case 60:
+                case 59:
+                case 58:
+                case 57:
+                case 56:
+                case 55:
+                case 54:
+                case 53:
+                case 52:
+                case 51:
+                case 50:
+                case 49:
+                case 48:
+                case 47:
+                case 46:
+                case 45:
+                case 44:
+                case 43:
+                case 42:
+                case 41:
+                case 40:
+                case 39:
+                case 38:
+                case 37:
+                case 36:
+                    break;
             case 4: {
                 addToken(Token.PREPROCESSOR);
             }
-            case 36:
-                break;
-            case 5: {
+                case 5: {
                 addNullToken();
                 return firstToken;
             }
-            case 37:
-                break;
-            case 27: {
+                case 27: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead + 1, Token.COMMENT_MULTILINE);
             }
-            case 38:
-                break;
-            case 6: {
+                case 6: {
                 addToken(Token.WHITESPACE);
             }
-            case 39:
-                break;
-            case 21: {
+                case 21: {
                 addToken(Token.LITERAL_NUMBER_HEXADECIMAL);
             }
-            case 40:
-                break;
-            case 20: {
+                case 20: {
                 addToken(Token.LITERAL_NUMBER_FLOAT);
             }
-            case 41:
-                break;
-            case 26: {
+                case 26: {
                 addToken(Token.RESERVED_WORD);
             }
-            case 42:
-                break;
-            case 16: {
+                case 16: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead, Token.PREPROCESSOR);
             }
-            case 43:
-                break;
-            case 9: {
+                case 9: {
                 addToken(Token.SEPARATOR);
             }
-            case 44:
-                break;
-            case 17: {
+                case 17: {
                 addToken(start, zzStartRead - 1, Token.PREPROCESSOR);
                 addEndToken(INTERNAL_COMPILER_DIRECTIVE2);
                 return firstToken;
             }
-            case 45:
-                break;
-            case 2: {
+                case 2: {
                 addToken(Token.IDENTIFIER);
             }
-            case 46:
-                break;
-            case 18: {
+                case 18: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_EOL);
                 addNullToken();
                 return firstToken;
             }
-            case 47:
-                break;
-            case 25: {
+                case 25: {
                 start = zzMarkedPos - 2;
                 yybegin(EOL_COMMENT);
             }
-            case 48:
-                break;
-            case 30: {
+                case 30: {
                 addToken(Token.FUNCTION);
             }
-            case 49:
-                break;
-            case 7: {
+                case 7: {
                 addToken(Token.ERROR_STRING_DOUBLE);
                 addNullToken();
                 return firstToken;
             }
-            case 50:
-                break;
-            case 14: {
+                case 14: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                 addEndToken(INTERNAL_MLC2);
                 return firstToken;
             }
-            case 51:
-                break;
-            case 32: {
+                case 32: {
                 addToken(Token.DATA_TYPE);
             }
-            case 52:
-                break;
-            case 1: {
+                case 1: {
                 addToken(Token.ERROR_IDENTIFIER);
             }
-            case 53:
-                break;
-            case 31: {
+                case 31: {
                 addToken(Token.LITERAL_BOOLEAN);
             }
-            case 54:
-                break;
-            case 22: {
+                case 22: {
                 addToken(Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 55:
-                break;
-            case 34: {
+                case 34: {
                 int temp = zzStartRead;
                 addToken(start, zzStartRead - 1, Token.COMMENT_EOL);
                 addHyperlinkToken(temp, zzMarkedPos - 1, Token.COMMENT_EOL);
                 start = zzMarkedPos;
             }
-            case 56:
-                break;
-            case 29: {
+                case 29: {
                 start = zzMarkedPos - 3;
                 yybegin(COMPILER_DIRECTIVE2);
             }
-            case 57:
-                break;
-            case 24: {
+                case 24: {
                 start = zzMarkedPos - 2;
                 yybegin(MLC2);
             }
-            case 58:
-                break;
-            case 33: {
+                case 33: {
                 int temp = zzStartRead;
                 addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                 addHyperlinkToken(temp, zzMarkedPos - 1, Token.COMMENT_MULTILINE);
                 start = zzMarkedPos;
             }
-            case 59:
-                break;
-            case 19: {
+                case 19: {
                 addToken(Token.ERROR_NUMBER_FORMAT);
             }
-            case 60:
-                break;
-            case 28: {
+                case 28: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead + 1, Token.PREPROCESSOR);
             }
-            case 61:
-                break;
-            case 13: {
+                case 13: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead, Token.COMMENT_MULTILINE);
             }
-            case 62:
-                break;
-            case 3: {
+                case 3: {
                 addToken(Token.LITERAL_NUMBER_DECIMAL_INT);
             }
-            case 63:
-                break;
-            case 10: {
+                case 10: {
                 addToken(Token.OPERATOR);
             }
-            case 64:
-                break;
-            case 8: {
+                case 8: {
                 start = zzMarkedPos - 1;
                 yybegin(MLC);
             }
-            case 65:
-                break;
-            case 23: {
+                case 23: {
                 start = zzMarkedPos - 2;
                 yybegin(COMPILER_DIRECTIVE);
             }
-            case 66:
-                break;
-            case 11: {
+                case 11: {
             }
-            case 67:
-                break;
-            case 12: {
+                case 12: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                 return firstToken;
             }
-            case 68:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {
@@ -1650,41 +1617,36 @@ public class DelphiTokenMaker extends AbstractJFlexTokenMaker {
                         return firstToken;
                     }
                     case 438:
-                        break;
+                        case 443:
+                        case 442:
+                        case 441:
+                        case 440:
+                        case 439:
+                            break;
                     case EOL_COMMENT: {
                         addToken(start, zzStartRead - 1, Token.COMMENT_EOL);
                         addNullToken();
                         return firstToken;
                     }
-                    case 439:
-                        break;
-                    case YYINITIAL: {
+                        case YYINITIAL: {
                         addNullToken();
                         return firstToken;
                     }
-                    case 440:
-                        break;
-                    case COMPILER_DIRECTIVE2: {
+                        case COMPILER_DIRECTIVE2: {
                         addToken(start, zzStartRead - 1, Token.PREPROCESSOR);
                         addEndToken(INTERNAL_COMPILER_DIRECTIVE2);
                         return firstToken;
                     }
-                    case 441:
-                        break;
-                    case MLC: {
+                        case MLC: {
                         addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                         return firstToken;
                     }
-                    case 442:
-                        break;
-                    case MLC2: {
+                        case MLC2: {
                         addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                         addEndToken(INTERNAL_MLC2);
                         return firstToken;
                     }
-                    case 443:
-                        break;
-                    default:
+                        default:
                         return null;
                     }
                 }

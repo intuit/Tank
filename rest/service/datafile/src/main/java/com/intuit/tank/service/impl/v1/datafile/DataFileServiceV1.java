@@ -262,7 +262,7 @@ public class DataFileServiceV1 implements DataFileService {
                 // Read File Line By Line
                 String strLine;
                 int lineNum = 0;
-                int os = offset < 0 ? 0 : offset;
+                int os = Math.max(offset, 0);
                 while ((strLine = in.readLine()) != null && (nl < 0 || lineNum < (os + numLines))) {
                     if (numLines < 0 || lineNum >= os) {
                         out.println(strLine);

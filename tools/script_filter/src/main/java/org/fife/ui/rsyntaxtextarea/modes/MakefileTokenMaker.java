@@ -740,19 +740,35 @@ public class MakefileTokenMaker extends AbstractJFlexTokenMaker {
                 addToken(Token.PREPROCESSOR);
             }
             case 22:
-                break;
+                case 42:
+                case 41:
+                case 40:
+                case 39:
+                case 38:
+                case 37:
+                case 36:
+                case 35:
+                case 34:
+                case 33:
+                case 32:
+                case 31:
+                case 30:
+                case 29:
+                case 28:
+                case 27:
+                case 26:
+                case 25:
+                case 24:
+                case 23:
+                    break;
             case 3: {
                 addNullToken();
                 return firstToken;
             }
-            case 23:
-                break;
-            case 16: {
+                case 16: {
                 addToken(Token.LITERAL_CHAR);
             }
-            case 24:
-                break;
-            case 15: {
+                case 15: {
                 if (varDepths == null) {
                     varDepths = new Stack();
                 } else {
@@ -762,9 +778,7 @@ public class MakefileTokenMaker extends AbstractJFlexTokenMaker {
                 start = zzMarkedPos - 2;
                 yybegin(VAR);
             }
-            case 25:
-                break;
-            case 12: {
+                case 12: {
                 if (!varDepths.empty() && varDepths.peek() == Boolean.TRUE) {
                     varDepths.pop();
                     if (varDepths.empty()) {
@@ -773,9 +787,7 @@ public class MakefileTokenMaker extends AbstractJFlexTokenMaker {
                     }
                 }
             }
-            case 26:
-                break;
-            case 11: {
+                case 11: {
                 if (!varDepths.empty() && varDepths.peek() == Boolean.FALSE) {
                     varDepths.pop();
                     if (varDepths.empty()) {
@@ -784,53 +796,35 @@ public class MakefileTokenMaker extends AbstractJFlexTokenMaker {
                     }
                 }
             }
-            case 27:
-                break;
-            case 4: {
+                case 4: {
                 addToken(Token.WHITESPACE);
             }
-            case 28:
-                break;
-            case 21: {
+                case 21: {
                 addToken(Token.RESERVED_WORD);
             }
-            case 29:
-                break;
-            case 20: {
+                case 20: {
                 varDepths.push(Boolean.FALSE);
             }
-            case 30:
-                break;
-            case 18: {
+                case 18: {
                 addToken(Token.LITERAL_BACKQUOTE);
             }
-            case 31:
-                break;
-            case 19: {
+                case 19: {
                 varDepths.push(Boolean.TRUE);
             }
-            case 32:
-                break;
-            case 1: {
+                case 1: {
                 addToken(Token.IDENTIFIER);
             }
-            case 33:
-                break;
-            case 5: {
+                case 5: {
                 addToken(Token.ERROR_CHAR);
                 addNullToken();
                 return firstToken;
             }
-            case 34:
-                break;
-            case 6: {
+                case 6: {
                 addToken(Token.ERROR_STRING_DOUBLE);
                 addNullToken();
                 return firstToken;
             }
-            case 35:
-                break;
-            case 10: {
+                case 10: {
                 int temp1 = zzStartRead;
                 int temp2 = zzMarkedPos;
                 addToken(start, zzStartRead - 1, Token.VARIABLE);
@@ -838,14 +832,10 @@ public class MakefileTokenMaker extends AbstractJFlexTokenMaker {
                 addNullToken();
                 return firstToken;
             }
-            case 36:
-                break;
-            case 17: {
+                case 17: {
                 addToken(Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 37:
-                break;
-            case 14: {
+                case 14: {
                 if (varDepths == null) {
                     varDepths = new Stack();
                 } else {
@@ -855,30 +845,20 @@ public class MakefileTokenMaker extends AbstractJFlexTokenMaker {
                 start = zzMarkedPos - 2;
                 yybegin(VAR);
             }
-            case 38:
-                break;
-            case 7: {
+                case 7: {
                 addToken(Token.COMMENT_EOL);
                 addNullToken();
                 return firstToken;
             }
-            case 39:
-                break;
-            case 2: {
+                case 2: {
                 addToken(Token.LITERAL_NUMBER_DECIMAL_INT);
             }
-            case 40:
-                break;
-            case 8: {
+                case 8: {
                 addToken(Token.OPERATOR);
             }
-            case 41:
-                break;
-            case 9: {
+                case 9: {
             }
-            case 42:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {
@@ -888,14 +868,13 @@ public class MakefileTokenMaker extends AbstractJFlexTokenMaker {
                         return firstToken;
                     }
                     case 130:
-                        break;
+                        case 131:
+                            break;
                     case YYINITIAL: {
                         addNullToken();
                         return firstToken;
                     }
-                    case 131:
-                        break;
-                    default:
+                        default:
                         return null;
                     }
                 }

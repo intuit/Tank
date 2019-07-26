@@ -122,7 +122,7 @@ public class TablePreferences implements Serializable {
     public int getMaxTotalSize(int max) {
         int ret = colSizeMap.values().stream().filter(ColumnPreferences::isVisible).mapToInt(prefs -> prefs.getSize() + 20).sum();
         ret += 40;
-        return ret > max ? max : ret;
+        return Math.min(ret, max);
     }
 
     /**

@@ -892,35 +892,40 @@ public class FortranTokenMaker extends AbstractJFlexTokenMaker implements TokenM
                 addToken(Token.RESERVED_WORD);
             }
             case 17:
-                break;
+                case 32:
+                case 31:
+                case 30:
+                case 29:
+                case 28:
+                case 27:
+                case 26:
+                case 25:
+                case 24:
+                case 23:
+                case 22:
+                case 21:
+                case 20:
+                case 19:
+                case 18:
+                    break;
             case 2: {
                 addToken(Token.IDENTIFIER);
             }
-            case 18:
-                break;
-            case 4: {
+                case 4: {
                 addToken(Token.WHITESPACE);
             }
-            case 19:
-                break;
-            case 11: {
+                case 11: {
                 addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                 return firstToken;
             }
-            case 20:
-                break;
-            case 13: {
+                case 13: {
                 addToken(start, zzStartRead - 1, Token.LITERAL_CHAR);
                 return firstToken;
             }
-            case 21:
-                break;
-            case 10: {
+                case 10: {
                 addToken(Token.OPERATOR);
             }
-            case 22:
-                break;
-            case 5: { // Since we change zzStartRead, we have the unfortunate
+                case 5: { // Since we change zzStartRead, we have the unfortunate
                       // side-effect of not being able to use the '^' operator.
                       // So we must check whether we're really at the beginning
                       // of the line ourselves...
@@ -933,27 +938,19 @@ public class FortranTokenMaker extends AbstractJFlexTokenMaker implements TokenM
                     addToken(Token.IDENTIFIER);
                 }
             }
-            case 23:
-                break;
-            case 16: {
+                case 16: {
                 addToken(Token.LITERAL_BOOLEAN);
             }
-            case 24:
-                break;
-            case 8: {
+                case 8: {
                 start = zzMarkedPos - 1;
                 yybegin(STRING);
             }
-            case 25:
-                break;
-            case 7: {
+                case 7: {
                 addToken(zzStartRead, zzEndRead, Token.COMMENT_EOL);
                 addNullToken();
                 return firstToken;
             }
-            case 26:
-                break;
-            case 6: { // Since we change zzStartRead, we have the unfortunate
+                case 6: { // Since we change zzStartRead, we have the unfortunate
                       // side-effect of not being able to use the '^' operator.
                       // So we must check whether we're really at the beginning
                       // of the line ourselves...
@@ -966,37 +963,25 @@ public class FortranTokenMaker extends AbstractJFlexTokenMaker implements TokenM
                     addToken(Token.IDENTIFIER);
                 }
             }
-            case 27:
-                break;
-            case 9: {
+                case 9: {
                 start = zzMarkedPos - 1;
                 yybegin(CHAR);
             }
-            case 28:
-                break;
-            case 14: {
+                case 14: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead, Token.LITERAL_CHAR);
             }
-            case 29:
-                break;
-            case 12: {
+                case 12: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 30:
-                break;
-            case 3: {
+                case 3: {
                 addNullToken();
                 return firstToken;
             }
-            case 31:
-                break;
-            case 1: {
+                case 1: {
             }
-            case 32:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {
@@ -1005,20 +990,18 @@ public class FortranTokenMaker extends AbstractJFlexTokenMaker implements TokenM
                         return firstToken;
                     }
                     case 258:
-                        break;
+                        case 260:
+                        case 259:
+                            break;
                     case YYINITIAL: {
                         addNullToken();
                         return firstToken;
                     }
-                    case 259:
-                        break;
-                    case CHAR: {
+                        case CHAR: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_CHAR);
                         return firstToken;
                     }
-                    case 260:
-                        break;
-                    default:
+                        default:
                         return null;
                     }
                 }

@@ -17757,525 +17757,437 @@ public class PHPTokenMaker extends AbstractMarkupTokenMaker {
                 addToken(Token.IDENTIFIER);
             }
             case 72:
-                break;
+                case 142:
+                case 141:
+                case 140:
+                case 139:
+                case 138:
+                case 137:
+                case 136:
+                case 135:
+                case 134:
+                case 133:
+                case 132:
+                case 131:
+                case 130:
+                case 129:
+                case 128:
+                case 127:
+                case 126:
+                case 125:
+                case 124:
+                case 123:
+                case 122:
+                case 121:
+                case 120:
+                case 119:
+                case 118:
+                case 117:
+                case 116:
+                case 115:
+                case 114:
+                case 113:
+                case 112:
+                case 111:
+                case 110:
+                case 109:
+                case 108:
+                case 107:
+                case 106:
+                case 105:
+                case 104:
+                case 103:
+                case 102:
+                case 101:
+                case 100:
+                case 99:
+                case 98:
+                case 97:
+                case 96:
+                case 95:
+                case 94:
+                case 93:
+                case 92:
+                case 91:
+                case 90:
+                case 89:
+                case 88:
+                case 87:
+                case 86:
+                case 85:
+                case 84:
+                case 83:
+                case 82:
+                case 81:
+                case 80:
+                case 79:
+                case 78:
+                case 77:
+                case 76:
+                case 75:
+                case 74:
+                case 73:
+                    break;
             case 24: {
                 yybegin(INTAG_SCRIPT);
                 addToken(start, zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 73:
-                break;
-            case 69: {
+                case 69: {
                 addToken(Token.LITERAL_BOOLEAN);
             }
-            case 74:
-                break;
-            case 53: {
+                case 53: {
                 addToken(Token.ERROR_CHAR);
             }
-            case 75:
-                break;
-            case 50: {
+                case 50: {
                 addToken(Token.ERROR_NUMBER_FORMAT);
             }
-            case 76:
-                break;
-            case 44: {
+                case 44: {
                 int count = yylength();
                 addToken(zzStartRead, zzStartRead, Token.MARKUP_TAG_DELIMITER);
                 zzMarkedPos -= (count - 1); // yypushback(count-1);
                 yybegin(INTAG_CHECK_TAG_NAME);
             }
-            case 77:
-                break;
-            case 22: {
+                case 22: {
                 start = zzMarkedPos - 1;
                 yybegin(INATTR_SINGLE_SCRIPT);
             }
-            case 78:
-                break;
-            case 13: {
+                case 13: {
                 yybegin(YYINITIAL);
                 addToken(Token.MARKUP_TAG_DELIMITER);
             }
-            case 79:
-                break;
-            case 8: {
+                case 8: {
                 addToken(start, zzStartRead - 1, Token.VARIABLE);
                 return firstToken;
             }
-            case 80:
-                break;
-            case 54: {
+                case 54: {
                 addToken(Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 81:
-                break;
-            case 32: {
+                case 32: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                 addEndToken(INTERNAL_IN_JS_MLC);
                 return firstToken;
             }
-            case 82:
-                break;
-            case 34: {
+                case 34: {
                 start = zzMarkedPos - 1;
                 yybegin(PHP_CHAR);
             }
-            case 83:
-                break;
-            case 60: {
+                case 60: {
                 addToken(Token.FUNCTION);
             }
-            case 84:
-                break;
-            case 35: {
+                case 35: {
                 start = zzMarkedPos - 1;
                 yybegin(PHP_STRING);
             }
-            case 85:
-                break;
-            case 48: {
+                case 48: {
                 addToken(Token.COMMENT_EOL);
                 addEndToken(INTERNAL_IN_JS);
                 return firstToken;
             }
-            case 86:
-                break;
-            case 45: {
+                case 45: {
                 start = zzMarkedPos - 2;
                 yybegin(DTD);
             }
-            case 87:
-                break;
-            case 27: {
+                case 27: {
                 addEndToken(INTERNAL_IN_JS);
                 return firstToken;
             }
-            case 88:
-                break;
-            case 71: {
+                case 71: {
                 yybegin(YYINITIAL);
                 addToken(zzStartRead, zzStartRead + 1, Token.MARKUP_TAG_DELIMITER);
                 addToken(zzMarkedPos - 7, zzMarkedPos - 2, Token.MARKUP_TAG_NAME);
                 addToken(zzMarkedPos - 1, zzMarkedPos - 1, Token.MARKUP_TAG_DELIMITER);
             }
-            case 89:
-                break;
-            case 58: {
+                case 58: {
                 addToken(Token.VARIABLE);
             }
-            case 90:
-                break;
-            case 29: {
+                case 29: {
                 addToken(Token.ERROR_CHAR);
                 addEndToken(INTERNAL_IN_JS);
                 return firstToken;
             }
-            case 91:
-                break;
-            case 17: { /* Shouldn't happen */
+                case 17: { /* Shouldn't happen */
                 yypushback(1);
                 yybegin(INTAG);
             }
-            case 92:
-                break;
-            case 26: {
+                case 26: {
                 addToken(Token.ERROR_IDENTIFIER);
             }
-            case 93:
-                break;
-            case 49: {
+                case 49: {
                 start = zzMarkedPos - 2;
                 yybegin(JS_MLC);
             }
-            case 94:
-                break;
-            case 57: {
+                case 57: {
                 start = zzMarkedPos - 2;
                 yybegin(PHP_MLC);
             }
-            case 95:
-                break;
-            case 20: {
+                case 20: {
                 yybegin(INTAG);
                 addToken(start, zzStartRead, Token.LITERAL_CHAR);
             }
-            case 96:
-                break;
-            case 4: {
+                case 4: {
                 addToken(Token.MARKUP_TAG_DELIMITER);
                 yybegin(INTAG);
             }
-            case 97:
-                break;
-            case 9: {
+                case 9: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead, Token.VARIABLE);
             }
-            case 98:
-                break;
-            case 40: {
+                case 40: {
                 yybegin(PHP);
                 addToken(start, zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 99:
-                break;
-            case 56: {
+                case 56: {
                 yybegin(JAVASCRIPT);
                 addToken(start, zzStartRead + 1, Token.COMMENT_MULTILINE);
             }
-            case 100:
-                break;
-            case 65: {
+                case 65: {
                 addToken(Token.LITERAL_CHAR);
             }
-            case 101:
-                break;
-            case 46: {
+                case 46: {
                 addToken(Token.SEPARATOR);
                 yybegin(PHP);
             }
-            case 102:
-                break;
-            case 15: {
+                case 15: {
                 start = zzMarkedPos - 1;
                 yybegin(INATTR_DOUBLE);
             }
-            case 103:
-                break;
-            case 39: { /* Skip escaped chars. */
+                case 39: { /* Skip escaped chars. */
             }
-            case 104:
-                break;
-            case 52: {
+                case 52: {
                 addToken(Token.LITERAL_NUMBER_HEXADECIMAL);
             }
-            case 105:
-                break;
-            case 16: { /* A non-recognized HTML tag name */
+                case 16: { /* A non-recognized HTML tag name */
                 yypushback(yylength());
                 yybegin(INTAG);
             }
-            case 106:
-                break;
-            case 23: {
+                case 23: {
                 start = zzMarkedPos - 1;
                 yybegin(INATTR_DOUBLE_SCRIPT);
             }
-            case 107:
-                break;
-            case 5: {
+                case 5: {
                 addToken(Token.WHITESPACE);
             }
-            case 108:
-                break;
-            case 59: {
+                case 59: {
                 addToken(Token.SEPARATOR);
                 yybegin(YYINITIAL);
             }
-            case 109:
-                break;
-            case 6: {
+                case 6: {
                 addToken(Token.DATA_TYPE);
             }
-            case 110:
-                break;
-            case 18: {
+                case 18: {
                 addToken(Token.MARKUP_TAG_NAME);
             }
-            case 111:
-                break;
-            case 33: {
+                case 33: {
                 addEndToken(INTERNAL_IN_PHP);
                 return firstToken;
             }
-            case 112:
-                break;
-            case 28: {
+                case 28: {
                 addToken(Token.LITERAL_NUMBER_DECIMAL_INT);
             }
-            case 113:
-                break;
-            case 14: {
+                case 14: {
                 start = zzMarkedPos - 1;
                 yybegin(INATTR_SINGLE);
             }
-            case 114:
-                break;
-            case 10: {
+                case 10: {
                 addToken(Token.MARKUP_TAG_ATTRIBUTE);
             }
-            case 115:
-                break;
-            case 38: {
+                case 38: {
                 addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                 addEndToken(INTERNAL_PHP_STRING);
                 return firstToken;
             }
-            case 116:
-                break;
-            case 19: {
+                case 19: {
                 yybegin(INTAG);
                 addToken(start, zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE);
             }
-            case 117:
-                break;
-            case 62: {
+                case 62: {
                 int temp = zzStartRead;
                 addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                 addToken(temp, zzMarkedPos - 1, Token.VARIABLE);
                 start = zzMarkedPos;
             }
-            case 118:
-                break;
-            case 25: {
+                case 25: {
                 yybegin(INTAG_SCRIPT);
                 addToken(start, zzStartRead, Token.LITERAL_CHAR);
             }
-            case 119:
-                break;
-            case 36: {
+                case 36: {
                 addToken(Token.COMMENT_EOL);
                 addEndToken(INTERNAL_IN_PHP);
                 return firstToken;
             }
-            case 120:
-                break;
-            case 42: { /* Skip escaped single quotes only, but this should still work. */
+                case 42: { /* Skip escaped single quotes only, but this should still work. */
             }
-            case 121:
-                break;
-            case 66: {
+                case 66: {
                 start = zzMarkedPos - 4;
                 yybegin(COMMENT);
             }
-            case 122:
-                break;
-            case 37: {
+                case 37: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                 addEndToken(INTERNAL_IN_PHP_MLC);
                 return firstToken;
             }
-            case 123:
-                break;
-            case 55: {
+                case 55: {
                 addToken(Token.RESERVED_WORD);
             }
-            case 124:
-                break;
-            case 41: {
+                case 41: {
                 addToken(start, zzStartRead - 1, Token.LITERAL_CHAR);
                 addEndToken(INTERNAL_PHP_CHAR);
                 return firstToken;
             }
-            case 125:
-                break;
-            case 70: {
+                case 70: {
                 addToken(zzStartRead, zzStartRead, Token.MARKUP_TAG_DELIMITER);
                 addToken(zzMarkedPos - 6, zzMarkedPos - 1, Token.MARKUP_TAG_NAME);
                 start = zzMarkedPos;
                 yybegin(INTAG_SCRIPT);
             }
-            case 126:
-                break;
-            case 64: {
+                case 64: {
                 yybegin(YYINITIAL);
                 addToken(start, zzStartRead + 2, Token.COMMENT_MULTILINE);
             }
-            case 127:
-                break;
-            case 63: {
+                case 63: {
                 int count = yylength();
                 addToken(zzStartRead, zzStartRead + 1, Token.MARKUP_TAG_DELIMITER);
                 zzMarkedPos -= (count - 2); // yypushback(count-2);
                 yybegin(INTAG_CHECK_TAG_NAME);
             }
-            case 128:
-                break;
-            case 61: {
+                case 61: {
                 yybegin(PHP);
                 addToken(start, zzStartRead + 1, Token.COMMENT_MULTILINE);
             }
-            case 129:
-                break;
-            case 31: {
+                case 31: {
                 addToken(Token.SEPARATOR);
             }
-            case 130:
-                break;
-            case 30: {
+                case 30: {
                 addToken(Token.ERROR_STRING_DOUBLE);
                 addEndToken(INTERNAL_IN_JS);
                 return firstToken;
             }
-            case 131:
-                break;
-            case 3: {
+                case 3: {
                 addNullToken();
                 return firstToken;
             }
-            case 132:
-                break;
-            case 21: {
+                case 21: {
                 yybegin(JAVASCRIPT);
                 addToken(Token.MARKUP_TAG_DELIMITER);
             }
-            case 133:
-                break;
-            case 47: {
+                case 47: {
                 addToken(Token.MARKUP_TAG_DELIMITER);
                 yybegin(YYINITIAL);
             }
-            case 134:
-                break;
-            case 7: {
+                case 7: {
                 addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                 return firstToken;
             }
-            case 135:
-                break;
-            case 11: {
+                case 11: {
                 addToken(Token.OPERATOR);
             }
-            case 136:
-                break;
-            case 51: {
+                case 51: {
                 addToken(Token.LITERAL_NUMBER_FLOAT);
             }
-            case 137:
-                break;
-            case 43: {
+                case 43: {
                 yybegin(PHP);
                 addToken(start, zzStartRead, Token.LITERAL_CHAR);
             }
-            case 138:
-                break;
-            case 12: {
+                case 12: {
                 addToken(Token.MARKUP_TAG_DELIMITER);
             }
-            case 139:
-                break;
-            case 67: {
+                case 67: {
                 addToken(Token.COMMENT_MULTILINE);
             }
-            case 140:
-                break;
-            case 68: {
+                case 68: {
                 addToken(Token.ERROR_STRING_DOUBLE);
             }
-            case 141:
-                break;
-            case 1: {
+                case 1: {
             }
-            case 142:
-                break;
-            default:
+                default:
                 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
                     zzAtEOF = true;
                     switch (zzLexicalState) {
-                    case INTAG_CHECK_TAG_NAME: {
+                    case INTAG_CHECK_TAG_NAME:
+                        case INTAG: {
                         addToken(zzMarkedPos, zzMarkedPos, INTERNAL_INTAG);
                         return firstToken;
                     }
                     case 7573:
-                        break;
+                        case 7588:
+                        case 7587:
+                        case 7586:
+                        case 7585:
+                        case 7584:
+                        case 7583:
+                        case 7582:
+                        case 7581:
+                        case 7580:
+                        case 7579:
+                        case 7578:
+                        case 7577:
+                        case 7576:
+                        case 7575:
+                        case 7574:
+                            break;
                     case JS_MLC: {
                         addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                         addEndToken(INTERNAL_IN_JS_MLC);
                         return firstToken;
                     }
-                    case 7574:
-                        break;
-                    case INTAG_SCRIPT: {
+                        case INTAG_SCRIPT: {
                         addToken(zzMarkedPos, zzMarkedPos, INTERNAL_INTAG_SCRIPT);
                         return firstToken;
                     }
-                    case 7575:
-                        break;
-                    case PHP_MLC: {
+                        case PHP_MLC: {
                         addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                         addEndToken(INTERNAL_IN_PHP_MLC);
                         return firstToken;
                     }
-                    case 7576:
-                        break;
-                    case INATTR_DOUBLE_SCRIPT: {
+                        case INATTR_DOUBLE_SCRIPT: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                         addEndToken(INTERNAL_ATTR_DOUBLE_QUOTE_SCRIPT);
                         return firstToken;
                     }
-                    case 7577:
-                        break;
-                    case INATTR_SINGLE_SCRIPT: {
+                        case INATTR_SINGLE_SCRIPT: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                         addEndToken(INTERNAL_ATTR_SINGLE_QUOTE_SCRIPT);
                         return firstToken;
                     }
-                    case 7578:
-                        break;
-                    case PHP_STRING: {
+                        case PHP_STRING: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                         addEndToken(INTERNAL_PHP_STRING);
                         return firstToken;
                     }
-                    case 7579:
-                        break;
-                    case DTD: {
+                        case DTD: {
                         addToken(start, zzStartRead - 1, Token.VARIABLE);
                         return firstToken;
                     }
-                    case 7580:
-                        break;
-                    case INATTR_SINGLE: {
+                        case INATTR_SINGLE: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_CHAR);
                         return firstToken;
                     }
-                    case 7581:
-                        break;
-                    case INATTR_DOUBLE: {
+                        case INATTR_DOUBLE: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_STRING_DOUBLE_QUOTE);
                         return firstToken;
                     }
-                    case 7582:
-                        break;
-                    case YYINITIAL: {
+                        case YYINITIAL: {
                         addNullToken();
                         return firstToken;
                     }
-                    case 7583:
-                        break;
-                    case PHP_CHAR: {
+                        case PHP_CHAR: {
                         addToken(start, zzStartRead - 1, Token.LITERAL_CHAR);
                         addEndToken(INTERNAL_PHP_CHAR);
                         return firstToken;
                     }
-                    case 7584:
-                        break;
-                    case PHP: {
+                        case PHP: {
                         addEndToken(INTERNAL_IN_PHP);
                         return firstToken;
                     }
-                    case 7585:
-                        break;
-                    case INTAG: {
-                        addToken(zzMarkedPos, zzMarkedPos, INTERNAL_INTAG);
-                        return firstToken;
-                    }
-                    case 7586:
-                        break;
-                    case COMMENT: {
+                        case COMMENT: {
                         addToken(start, zzStartRead - 1, Token.COMMENT_MULTILINE);
                         return firstToken;
                     }
-                    case 7587:
-                        break;
-                    case JAVASCRIPT: {
+                        case JAVASCRIPT: {
                         addEndToken(INTERNAL_IN_JS);
                         return firstToken;
                     }
-                    case 7588:
-                        break;
-                    default:
+                        default:
                         return null;
                     }
                 }

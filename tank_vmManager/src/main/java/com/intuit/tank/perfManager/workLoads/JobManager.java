@@ -325,11 +325,7 @@ public class JobManager implements Serializable {
                 if (Integer.parseInt(r.getUsers()) > 0) {
                     if (region == r.getRegion()) {
                         int numUsersRemaining = userMap.get(r);
-                        if (agent.getCapacity() >= numUsersRemaining) {
-                            ret = numUsersRemaining;
-                        } else {
-                            ret = agent.getCapacity();
-                        }
+                        ret = Math.min(agent.getCapacity(), numUsersRemaining);
                         userMap.put(r, numUsersRemaining - ret);
                         break;
                     }

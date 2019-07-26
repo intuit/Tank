@@ -71,8 +71,8 @@ public class InfiniteProgressPanel extends JComponent implements MouseListener {
     public InfiniteProgressPanel(String text, int barsCount, float shield, float fps, int rampDelay)
     {
         this.text = text;
-        this.rampDelay = rampDelay >= 0 ? rampDelay : 0;
-        this.shield = shield >= 0.0f ? shield : 0.0f;
+        this.rampDelay = Math.max(rampDelay, 0);
+        this.shield = Math.max(shield, 0.0f);
         this.fps = fps > 0.0f ? fps : 15.0f;
         this.barsCount = barsCount > 0 ? barsCount : 14;
 

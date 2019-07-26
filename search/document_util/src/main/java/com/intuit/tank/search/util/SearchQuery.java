@@ -140,7 +140,7 @@ public class SearchQuery {
          * @return the builder
          */
         public QueryBuilder startIndex(int num) {
-            query.startIndex = num > 0 ? num : 0;
+            query.startIndex = Math.max(num, 0);
             return this;
         }
 
