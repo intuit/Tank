@@ -39,11 +39,11 @@ public class TextFormatter extends Formatter {
     }
 
     public String format(LogRecord record) {
-        StringBuffer buff = new StringBuffer(100);
+        StringBuilder buff = new StringBuilder(100);
         buff.append(sdf.format(new Date(record.getMillis())));
         buff.append(Thread.currentThread().getName());
         String className = record.getSourceClassName();
-        if (className.indexOf(".") > -1) {
+        if (className.contains(".")) {
             className = className.substring(className.lastIndexOf(".") + 1,
                     className.length());
         }

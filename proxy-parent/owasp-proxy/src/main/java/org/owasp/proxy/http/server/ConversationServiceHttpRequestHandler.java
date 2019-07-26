@@ -172,15 +172,12 @@ public class ConversationServiceHttpRequestHandler implements
                     break;
                 }
             }
-        } catch (MessageFormatException mfe) {
+        } catch (MessageFormatException | NumberFormatException mfe) {
             mfe.printStackTrace();
             return err_400();
         } catch (DataAccessException dae) {
             dae.printStackTrace();
             return err_500();
-        } catch (NumberFormatException nfe) {
-            nfe.printStackTrace();
-            return err_400();
         }
         return err_404();
     }
@@ -303,7 +300,7 @@ public class ConversationServiceHttpRequestHandler implements
             } else if (c == '"') {
                 buf.append("&quot;");
             } else {
-                buf.append("&#" + (int) c + ";");
+                buf.append("&#").append((int) c).append(";");
             }
         }
         return buf.toString();

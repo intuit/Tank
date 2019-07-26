@@ -367,14 +367,14 @@ public class RtfGenerator {
         // Example:
         // "{\\fonttbl{\\f0\\fmodern\\fcharset0 Courier;}}"
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         // Workaround for text areas using the Java logical font "Monospaced"
         // by default. There's no way to know what it's mapped to, so we
         // just search for a monospaced font on the system.
         String monoFamilyName = getMonospacedFontName();
 
-        sb.append("{\\fonttbl{\\f0\\fnil\\fcharset0 " + monoFamilyName + ";}");
+        sb.append("{\\fonttbl{\\f0\\fnil\\fcharset0 ").append(monoFamilyName).append(";}");
         for (int i = 0; i < fontList.size(); i++) {
             Font f = (Font) fontList.get(i);
             String familyName = f.getFamily();
@@ -424,8 +424,7 @@ public class RtfGenerator {
                     getLocalGraphicsEnvironment();
             String[] familyNames = ge.getAvailableFontFamilyNames();
             Arrays.sort(familyNames);
-            boolean windows = System.getProperty("os.name").toLowerCase().
-                    indexOf("windows") >= 0;
+            boolean windows = System.getProperty("os.name").toLowerCase().contains("windows");
 
             // "Monaco" is the "standard" monospaced font on OS X. We'll
             // check for it first so on Macs we don't get stuck with the

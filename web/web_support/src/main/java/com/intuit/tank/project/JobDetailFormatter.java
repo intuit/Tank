@@ -326,7 +326,7 @@ public class JobDetailFormatter {
                 sb.append(": ");
             }
             if (StringUtils.isNotBlank(style)) {
-                sb.append("<span class=\"" + style + "\">");
+                sb.append("<span class=\"").append(style).append("\">");
             }
             sb.append(value);
             if (StringUtils.isNotBlank(style)) {

@@ -98,11 +98,7 @@ public class CloudWatchObserver {
             Set<CloudVmStatus> statuses = vmStatusForJob.getStatuses();
             Map<VMRegion, Set<String>> instanceMap = new HashMap<VMRegion, Set<String>>();
             for (CloudVmStatus s : statuses) {
-                Set<String> set = instanceMap.get(s.getVmRegion());
-                if (set == null) {
-                    set = new HashSet<String>();
-                    instanceMap.put(s.getVmRegion(), set);
-                }
+                Set<String> set = instanceMap.computeIfAbsent(s.getVmRegion(), k -> new HashSet<String>());
                 set.add(s.getInstanceId());
             }
             for (Entry<VMRegion, Set<String>> entry : instanceMap.entrySet()) {
@@ -129,11 +125,7 @@ public class CloudWatchObserver {
             Set<CloudVmStatus> statuses = vmStatusForJob.getStatuses();
             Map<VMRegion, Set<String>> instanceMap = new HashMap<VMRegion, Set<String>>();
             for (CloudVmStatus s : statuses) {
-                Set<String> set = instanceMap.get(s.getVmRegion());
-                if (set == null) {
-                    set = new HashSet<String>();
-                    instanceMap.put(s.getVmRegion(), set);
-                }
+                Set<String> set = instanceMap.computeIfAbsent(s.getVmRegion(), k -> new HashSet<String>());
                 set.add(s.getInstanceId());
             }
             for (VMRegion vmRegion : instanceMap.keySet()) {

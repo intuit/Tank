@@ -36,11 +36,7 @@ public class TableViewState implements Serializable {
     private Map<String, Object> filteredValues = new HashMap<String, Object>();
 
     public Object getFilterValue(String key) {
-        Object ret = filteredValues.get(key);
-        if (ret == null) {
-            ret = "";
-            filteredValues.put(key, ret);
-        }
+        Object ret = filteredValues.computeIfAbsent(key, k -> "");
         return ret;
     }
 

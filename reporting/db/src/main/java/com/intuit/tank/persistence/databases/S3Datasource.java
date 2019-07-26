@@ -130,19 +130,13 @@ public class S3Datasource implements IDatabase {
 					float ninetynine = 0.99f;
 					int ninetynineth = Math.round(size * ninetynine);
 					if (ninetynineth >= 1) ninetynineth--;
-					sb.append(metricString + ".resp_time.min " + sortedList[0] + " " + timestamp + " transaction=" + requestName)
-						.append(tagsComplete)
-						.append(metricString + ".resp_time.avg " + average + " " + timestamp + " transaction=" + requestName)
-						.append(tagsComplete)
-						.append(metricString + ".resp_time.max " + sortedList[size - 1] + " " + timestamp + " transaction=" + requestName)
-						.append(tagsComplete)
-						.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth] + " " + timestamp + " transaction=" + requestName)
-						.append(tagsComplete)
-						.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth] + " " + timestamp + " transaction=" + requestName)
-						.append(tagsComplete)
-						.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth] + " " + timestamp + " transaction=" + requestName)
-						.append(tagsComplete)
-						.append(metricString + ".rpi " + size + " " + timestamp + " transaction=" + requestName)
+					sb.append(metricString).append(".resp_time.min ").append(sortedList[0]).append(" ").append(timestamp).append(" transaction=").append(requestName)
+							.append(tagsComplete).append(metricString).append(".resp_time.avg ").append(average).append(" ").append(timestamp).append(" transaction=").append(requestName)
+							.append(tagsComplete).append(metricString).append(".resp_time.max ").append(sortedList[size - 1]).append(" ").append(timestamp).append(" transaction=").append(requestName)
+							.append(tagsComplete).append(metricString).append(".resp_time.tp_50 ").append(sortedList[fiftieth]).append(" ").append(timestamp).append(" transaction=").append(requestName)
+							.append(tagsComplete).append(metricString).append(".resp_time.tp_90 ").append(sortedList[ninetieth]).append(" ").append(timestamp).append(" transaction=").append(requestName)
+							.append(tagsComplete).append(metricString).append(".resp_time.tp_99 ").append(sortedList[ninetynineth]).append(" ").append(timestamp).append(" transaction=").append(requestName)
+							.append(tagsComplete).append(metricString).append(".rpi ").append(size).append(" ").append(timestamp).append(" transaction=").append(requestName)
 						.append(tagsComplete);
 					requestName = metric.getRequestName();
 					groupResults.clear();
@@ -162,19 +156,13 @@ public class S3Datasource implements IDatabase {
 			float ninetynine = 0.99f;
 			int ninetynineth = Math.round(size * ninetynine);
 			if (ninetynineth >= 1) ninetynineth--;
-			sb.append(metricString + ".resp_time.min " + sortedList[0] + " " + timestamp + " transaction=" + requestName)
-				.append(tagsComplete)
-				.append(metricString + ".resp_time.avg " + average + " " + timestamp + " transaction=" + requestName)
-				.append(tagsComplete)
-				.append(metricString + ".resp_time.max " + sortedList[size - 1] + " " + timestamp + " transaction=" + requestName)
-				.append(tagsComplete)
-				.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth] + " " + timestamp + " transaction=" + requestName)
-				.append(tagsComplete)
-				.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth] + " " + timestamp + " transaction=" + requestName)
-				.append(tagsComplete)
-				.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth] + " " + timestamp + " transaction=" + requestName)
-				.append(tagsComplete)
-				.append(metricString + ".rpi " + size + " " + timestamp + " transaction=" + requestName)
+			sb.append(metricString).append(".resp_time.min ").append(sortedList[0]).append(" ").append(timestamp).append(" transaction=").append(requestName)
+					.append(tagsComplete).append(metricString).append(".resp_time.avg ").append(average).append(" ").append(timestamp).append(" transaction=").append(requestName)
+					.append(tagsComplete).append(metricString).append(".resp_time.max ").append(sortedList[size - 1]).append(" ").append(timestamp).append(" transaction=").append(requestName)
+					.append(tagsComplete).append(metricString).append(".resp_time.tp_50 ").append(sortedList[fiftieth]).append(" ").append(timestamp).append(" transaction=").append(requestName)
+					.append(tagsComplete).append(metricString).append(".resp_time.tp_90 ").append(sortedList[ninetieth]).append(" ").append(timestamp).append(" transaction=").append(requestName)
+					.append(tagsComplete).append(metricString).append(".resp_time.tp_99 ").append(sortedList[ninetynineth]).append(" ").append(timestamp).append(" transaction=").append(requestName)
+					.append(tagsComplete).append(metricString).append(".rpi ").append(size).append(" ").append(timestamp).append(" transaction=").append(requestName)
 				.append(tagsComplete);
 			InputStream is =  new ByteArrayInputStream(sb.toString().getBytes());
 			ObjectMetadata metaData = new ObjectMetadata();

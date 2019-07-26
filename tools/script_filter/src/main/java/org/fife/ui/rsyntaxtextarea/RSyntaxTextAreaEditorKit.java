@@ -962,7 +962,7 @@ public class RSyntaxTextAreaEditorKit extends RTextAreaEditorKit {
                 // endWS is the end of the leading whitespace of the
                 // current line.
                 String leadingWS = RSyntaxUtilities.getLeadingWhitespace(s);
-                StringBuffer sb = new StringBuffer("\n");
+                StringBuilder sb = new StringBuilder("\n");
                 sb.append(leadingWS);
 
                 // If there is only whitespace between the caret and
@@ -1021,7 +1021,7 @@ public class RSyntaxTextAreaEditorKit extends RTextAreaEditorKit {
                 if (t != null && t.isLeftCurly()) {
 
                     if (getOpenBraceCount(doc) > 0) {
-                        StringBuffer sb = new StringBuffer();
+                        StringBuilder sb = new StringBuilder();
                         if (line == textArea.getLineCount() - 1) {
                             sb.append('\n');
                         }

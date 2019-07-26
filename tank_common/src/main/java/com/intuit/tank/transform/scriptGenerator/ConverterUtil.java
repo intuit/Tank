@@ -593,16 +593,16 @@ public class ConverterUtil {
         }
 
         if (null != cookies) {
-            String cookieStr = "";
+            StringBuilder cookieStr = new StringBuilder();
             for (RequestData c : cookies) {
                 // only add cookies for variables
                 if (c.getValue().startsWith("@")) {
-                    cookieStr += "." + c.getKey().replace(".", "-dot-") + "=." + c.getValue() + ".;";
+                    cookieStr.append(".").append(c.getKey().replace(".", "-dot-")).append("=.").append(c.getValue()).append(".;");
                 } /*
                    * else { cookieStr += "." + c.getKey().replace(".", "-dot-") + "=." + c.getValue() + ".;"; }
                    */
             }
-            if (!cookieStr.isEmpty()) {
+            if (cookieStr.length() > 0) {
                 String cookieValue = "#function.string.concat" + cookieStr;
                 Header cookieData = new Header();
                 cookieData.setKey("Cookie");

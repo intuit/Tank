@@ -262,18 +262,18 @@ public class NotificationContextBuilder {
                 ret.append("<br/>\n");
                 for (ScriptGroup group : plan.getScriptGroups()) {
                     ret.append("&nbsp;&nbsp;");
-                    ret.append("Group: " + group.getName());
+                    ret.append("Group: ").append(group.getName());
                     if (group.getLoop() > 1) {
-                        ret.append(" (Loops: " + group.getLoop() + ")");
+                        ret.append(" (Loops: ").append(group.getLoop()).append(")");
                     }
                     ret.append("<br/>\n");
                     for (ScriptGroupStep groupStep : group.getScriptGroupSteps()) {
                         Script script = groupStep.getScript();
                         ret.append("&nbsp;&nbsp;");
                         ret.append("&nbsp;&nbsp;");
-                        ret.append("Script: " + script.getName());
+                        ret.append("Script: ").append(script.getName());
                         if (groupStep.getLoop() > 1) {
-                            ret.append(" (Loops: " + groupStep.getLoop() + ")");
+                            ret.append(" (Loops: ").append(groupStep.getLoop()).append(")");
                         }
                         ret.append("<br/>\n");
                     }

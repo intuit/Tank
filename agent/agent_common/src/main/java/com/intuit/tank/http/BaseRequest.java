@@ -281,11 +281,11 @@ public abstract class BaseRequest {
         try {
             StringBuilder sb = new StringBuilder();
 
-            sb.append("REQUEST URL: " + method + " " + url).append(NEWLINE);
-            sb.append("CONTENT TYPE: " + contentType).append(NEWLINE);
+            sb.append("REQUEST URL: ").append(method).append(" ").append(url).append(NEWLINE);
+            sb.append("CONTENT TYPE: ").append(contentType).append(NEWLINE);
             // Header Information
             for (Map.Entry mapEntry : headerInformation.entrySet()) {
-                sb.append("REQUEST HEADER: " + (String) mapEntry.getKey() + " = " + (String) mapEntry.getValue()).append(NEWLINE);
+                sb.append("REQUEST HEADER: ").append((String) mapEntry.getKey()).append(" = ").append((String) mapEntry.getValue()).append(NEWLINE);
             }
             // Cookies Information
             if (cookies != null) {
@@ -294,8 +294,8 @@ public abstract class BaseRequest {
                 }
             }
             if (null != body) {
-                sb.append("REQUEST SIZE: " + body.getBytes().length).append(NEWLINE);
-                sb.append("REQUEST BODY: " + body).append(NEWLINE);
+                sb.append("REQUEST SIZE: ").append(body.getBytes().length).append(NEWLINE);
+                sb.append("REQUEST BODY: ").append(body).append(NEWLINE);
             }
             this.logMsg = sb.toString();
             LOG.debug("******** REQUEST *********");

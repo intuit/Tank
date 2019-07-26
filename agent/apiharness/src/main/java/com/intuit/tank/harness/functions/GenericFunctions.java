@@ -106,13 +106,13 @@ class GenericFunctions {
     public static String getCSVData(String[] values, Variables variables) {
         String ret = null;
         int index = Integer.parseInt(values[values.length - 1]);
-        String file = values[3];
+        StringBuilder file = new StringBuilder(values[3]);
         for (int i = 4; i < values.length - 1; i++) {
-            file += "." + values[i];
+            file.append(".").append(values[i]);
         }
         String[] currentLine = fileLineMap.get(Thread.currentThread().getId() + "-" + file);
         if (currentLine == null || index >= currentLine.length || currentLine[index] == null) {
-            currentLine = CSVReader.getInstance(file).getNextLine(false);
+            currentLine = CSVReader.getInstance(file.toString()).getNextLine(false);
             fileLineMap.put(Thread.currentThread().getId() + "-" + file, currentLine);
         }
 

@@ -160,7 +160,7 @@ public class StaticCodeTemplate extends AbstractCodeTemplate {
         }
         int pos = 0;
         int old = firstNewline + 1;
-        StringBuffer sb = new StringBuffer(text.substring(0, old));
+        StringBuilder sb = new StringBuilder(text.substring(0, old));
         sb.append(indent);
         while ((pos = text.indexOf('\n', old)) > -1) {
             sb.append(text.substring(old, pos + 1));

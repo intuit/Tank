@@ -423,12 +423,10 @@ public class TextEditorPane extends RSyntaxTextArea implements
         // Remove listener so dirty flag doesn't get set when loading a file.
         Document doc = getDocument();
         doc.removeDocumentListener(this);
-        BufferedReader r = new BufferedReader(ur);
-        try {
+        try (BufferedReader r = new BufferedReader(ur)) {
             read(r, null);
         } finally {
             doc.addDocumentListener(this);
-            r.close();
         }
 
     }
@@ -453,11 +451,8 @@ public class TextEditorPane extends RSyntaxTextArea implements
         String oldEncoding = getEncoding();
         UnicodeReader ur = new UnicodeReader(loc.getInputStream(), oldEncoding);
         String encoding = ur.getEncoding();
-        BufferedReader r = new BufferedReader(ur);
-        try {
+        try (BufferedReader r = new BufferedReader(ur)) {
             read(r, null); // Dumps old contents.
-        } finally {
-            r.close();
         }
         setEncoding(encoding);
         setDirty(false);
@@ -526,12 +521,9 @@ public class TextEditorPane extends RSyntaxTextArea implements
      */
     private void saveImpl(FileLocation loc) throws IOException {
         OutputStream out = loc.getOutputStream();
-        PrintWriter w = new PrintWriter(
-                new BufferedWriter(new UnicodeWriter(out, getEncoding())));
-        try {
+        try (PrintWriter w = new PrintWriter(
+                new BufferedWriter(new UnicodeWriter(out, getEncoding())))) {
             write(w);
-        } finally {
-            w.close();
         }
     }
 

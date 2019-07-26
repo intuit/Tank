@@ -417,7 +417,7 @@ public class SyntaxScheme implements Cloneable {
      */
     public String toCommaSeparatedString() {
 
-        StringBuffer sb = new StringBuffer(VERSION);
+        StringBuilder sb = new StringBuilder(VERSION);
         sb.append(',');
 
         for (int i = 0; i < Token.NUM_TOKEN_TYPES; i++) {
@@ -524,10 +524,7 @@ public class SyntaxScheme implements Cloneable {
                     int index = 0;
                     try {
                         index = field.getInt(scheme);
-                    } catch (IllegalArgumentException e) {
-                        e.printStackTrace();
-                        return;
-                    } catch (IllegalAccessException e) {
+                    } catch (IllegalArgumentException | IllegalAccessException e) {
                         e.printStackTrace();
                         return;
                     }

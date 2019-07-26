@@ -128,8 +128,7 @@ public class AutoGeneratingContextSelector implements SSLContextSelector {
     private void initFromKeyStore(File ks, String type, char[] kspassword,
             char[] keyPassword, String alias) throws GeneralSecurityException,
             IOException {
-        InputStream in = new FileInputStream(ks);
-        try {
+        try (InputStream in = new FileInputStream(ks)) {
             KeyStore keyStore = KeyStore.getInstance(type);
             keyStore.load(in, kspassword);
             caKey = (PrivateKey) keyStore.getKey(alias, keyPassword);
@@ -138,8 +137,6 @@ public class AutoGeneratingContextSelector implements SSLContextSelector {
             System.arraycopy(certChain, 0, caCerts, 0, certChain.length);
         } catch (IOException ioe) {
             ioe.printStackTrace();
-        } finally {
-            in.close();
         }
     }
 
@@ -193,13 +190,10 @@ public class AutoGeneratingContextSelector implements SSLContextSelector {
         KeyStore store = KeyStore.getInstance(type);
         store.load(null, password);
         store.setKeyEntry(caAlias, caKey, keyPassword, caCerts);
-        OutputStream out = new FileOutputStream(keyStore);
-        try {
+        try (OutputStream out = new FileOutputStream(keyStore)) {
             store.store(out, password);
         } catch (IOException ioe) {
             ioe.printStackTrace();
-        } finally {
-            out.close();
         }
     }
 

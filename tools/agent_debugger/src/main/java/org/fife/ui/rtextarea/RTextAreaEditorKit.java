@@ -1319,7 +1319,7 @@ public class RTextAreaEditorKit extends DefaultEditorKit {
             }
             String selection = textArea.getSelectedText();
             if (selection != null) {
-                StringBuffer buffer = new StringBuffer(selection);
+                StringBuilder buffer = new StringBuilder(selection);
                 int length = buffer.length();
                 for (int i = 0; i < length; i++) {
                     char c = buffer.charAt(i);

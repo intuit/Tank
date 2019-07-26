@@ -662,7 +662,7 @@ public class ErrorStrip extends JComponent {
                 text = ((ParserNotice) notices.get(0)).getMessage();
             }
             else { // > 1
-                StringBuffer sb = new StringBuffer("<html>");
+                StringBuilder sb = new StringBuilder("<html>");
                 sb.append(msg.getString("MultipleMarkers"));
                 sb.append("<br>");
                 for (Object notice : notices) {

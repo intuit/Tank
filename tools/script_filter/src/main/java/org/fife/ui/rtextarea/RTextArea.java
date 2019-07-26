@@ -1147,15 +1147,15 @@ public class RTextArea extends RTextAreaBase
      */
     private final String replaceTabsWithSpaces(final String text) {
 
-        String tabText = "";
+        StringBuilder tabText = new StringBuilder();
         int temp = getTabSize();
         for (int i = 0; i < temp; i++) {
-            tabText += ' ';
+            tabText.append(' ');
         }
 
         // Common case: User's entering a single tab (pressed the tab key).
         if (text.length() == 1) {
-            return tabText;
+            return tabText.toString();
         }
 
         // Otherwise, there may be more than one tab. Manually search for

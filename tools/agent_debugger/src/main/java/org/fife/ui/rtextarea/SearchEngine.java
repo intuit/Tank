@@ -511,7 +511,7 @@ public class SearchEngine {
 
         // Process substitution string to replace group references with groups
         int cursor = 0;
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         while (cursor < template.length()) {
 

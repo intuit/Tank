@@ -114,7 +114,7 @@ public class PanelBuilder {
         s.append("<agent-config>");
 
         // <!-- Where to store csv files on the agent -->
-        s.append("<agent-data-file-storage>" + workingDir.getAbsolutePath() + "</agent-data-file-storage>");
+        s.append("<agent-data-file-storage>").append(workingDir.getAbsolutePath()).append("</agent-data-file-storage>");
         // <!-- Mime type rgex for logging of response body on error. -->
         s.append("<valid-mime-types>").append(NEWLINE);
         s.append("<mime-type-regex>.*text.*</mime-type-regex>").append(NEWLINE);

@@ -271,12 +271,8 @@ public class RTATextTransferHandler extends TransferHandler {
                 Reader r = importFlavor.getReaderForText(t);
                 handleReaderImport(r, c);
                 imported = true;
-            } catch (UnsupportedFlavorException ufe) {
+            } catch (UnsupportedFlavorException | IOException | BadLocationException ufe) {
                 ufe.printStackTrace();
-            } catch (BadLocationException ble) {
-                ble.printStackTrace();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
             }
         }
 

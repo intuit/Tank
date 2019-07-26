@@ -339,10 +339,10 @@ public class AJPMessage {
     }
 
     protected static String hexLine(byte buf[], int start, int len) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = start; i < start + 16; i++) {
             if (i < len + 4) {
-                sb.append(hex(buf[i]) + " ");
+                sb.append(hex(buf[i])).append(" ");
             } else {
                 sb.append("   ");
             }

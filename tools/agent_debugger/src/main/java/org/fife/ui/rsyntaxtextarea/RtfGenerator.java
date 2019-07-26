@@ -421,8 +421,7 @@ public class RtfGenerator {
                     getLocalGraphicsEnvironment();
             String[] familyNames = ge.getAvailableFontFamilyNames();
             Arrays.sort(familyNames);
-            boolean windows = System.getProperty("os.name").toLowerCase().
-                    indexOf("windows") >= 0;
+            boolean windows = System.getProperty("os.name").toLowerCase().contains("windows");
 
             // "Monaco" is the "standard" monospaced font on OS X. We'll
             // check for it first so on Macs we don't get stuck with the

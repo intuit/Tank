@@ -72,9 +72,7 @@ public class XMlViewDialog extends JDialog implements ActionListener {
         RTextScrollPane sp = new RTextScrollPane(xmlViewTA);
         add(sp, BorderLayout.CENTER);
         JButton button = new JButton("Close");
-        button.addActionListener( (ActionEvent e) -> {
-            setVisible(false);
-        });
+        button.addActionListener( (ActionEvent e) -> setVisible(false));
         add(button, BorderLayout.SOUTH);
 
         // Create a toolbar with searching options.

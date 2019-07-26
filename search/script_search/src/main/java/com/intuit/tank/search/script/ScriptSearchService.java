@@ -259,16 +259,22 @@ public class ScriptSearchService {
     private static void addField(Document document, ScriptSearchField searchField, String value, Field.Store store,
             String index) {
         if (value != null) {
-            if (index.equals("Field.Index.ANALYZED")) {
-                document.add(new TextField(searchField.getValue(), value, store));
-            } else if (index.equals("Field.Index.NOT_ANALYZED")) {
-                FieldType ft = new FieldType(StringField.TYPE_STORED);
-                ft.setOmitNorms(false);
-                document.add(new Field(searchField.getValue(), value, ft));
-            } else if (index.equals("Field.Index.NO")) {
-                FieldType ft = new FieldType(StringField.TYPE_STORED);
-                ft.setIndexOptions(IndexOptions.NONE);
-                document.add(new Field(searchField.getValue(), value, ft));
+            switch (index) {
+                case "Field.Index.ANALYZED":
+                    document.add(new TextField(searchField.getValue(), value, store));
+                    break;
+                case "Field.Index.NOT_ANALYZED": {
+                    FieldType ft = new FieldType(StringField.TYPE_STORED);
+                    ft.setOmitNorms(false);
+                    document.add(new Field(searchField.getValue(), value, ft));
+                    break;
+                }
+                case "Field.Index.NO": {
+                    FieldType ft = new FieldType(StringField.TYPE_STORED);
+                    ft.setIndexOptions(IndexOptions.NONE);
+                    document.add(new Field(searchField.getValue(), value, ft));
+                    break;
+                }
             }
         }
     }

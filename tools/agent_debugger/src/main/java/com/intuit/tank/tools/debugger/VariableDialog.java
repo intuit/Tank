@@ -119,9 +119,7 @@ public class VariableDialog extends JDialog implements ListSelectionListener {
         panel.add(saveBT);
 
         JButton cancelBT = new JButton("Close");
-        cancelBT.addActionListener( (ActionEvent arg0) -> {
-            setVisible(false);
-        });
+        cancelBT.addActionListener( (ActionEvent arg0) -> setVisible(false));
         panel.add(cancelBT);
 
         JButton addBt = new JButton("Add Variable");

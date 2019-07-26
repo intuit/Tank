@@ -41,7 +41,7 @@ public class JexlTaxFunctions implements ExpressionContextVisitor {
 
         long startSsn = FunctionHandler.getLong(ostartSsn);
 
-        String ssnString = "";
+        StringBuilder ssnString = new StringBuilder();
         synchronized (lockSSN) {
             do {
                 if (lastSSN < 0)
@@ -50,14 +50,14 @@ public class JexlTaxFunctions implements ExpressionContextVisitor {
                     lastSSN++;
             } while (!isValidSsn(lastSSN));
 
-            ssnString = "" + lastSSN;
+            ssnString = new StringBuilder("" + lastSSN);
             for (int z = 0; z <= (9 - ssnString.length()); z++) {
-                ssnString = "0" + ssnString;
+                ssnString.insert(0, "0");
             }
         }
 
-        ssnString = ssnString.substring(0, 3) + "-" + ssnString.substring(3, 5) + "-" + ssnString.substring(5, 9);
-        return ssnString;
+        ssnString = new StringBuilder(ssnString.substring(0, 3) + "-" + ssnString.substring(3, 5) + "-" + ssnString.substring(5, 9));
+        return ssnString.toString();
     }
 
     /**

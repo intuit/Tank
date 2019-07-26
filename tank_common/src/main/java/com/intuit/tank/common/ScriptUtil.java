@@ -233,7 +233,7 @@ public class ScriptUtil {
             Set<RequestData> setData = step.getData();
             if (null != setData) {
                 for (RequestData d : setData) {
-                    label.append("Variable definition " + d.getKey() + "=>" + d.getValue());
+                    label.append("Variable definition ").append(d.getKey()).append("=>").append(d.getValue());
                 }
             }
         }  else if (step.getType().equalsIgnoreCase(ScriptConstants.AUTHENTICATION)) {
@@ -255,7 +255,7 @@ public class ScriptUtil {
                             break;
                     }
                 }
-                label.append("Authentication " + scheme + " [host: " + host + " user: " + user + "]");
+                label.append("Authentication ").append(scheme).append(" [host: ").append(host).append(" user: ").append(user).append("]");
             }
         } else if (step.getType().equalsIgnoreCase(ScriptConstants.THINK_TIME)) {
 
@@ -270,9 +270,9 @@ public class ScriptUtil {
                         max = d.getValue();
                 }
             }
-            label.append("Think time " + min + "-" + max);
+            label.append("Think time ").append(min).append("-").append(max);
         } else if (step.getType().equalsIgnoreCase(ScriptConstants.LOGIC)) {
-            label.append("Logic Step: " + step.getName());
+            label.append("Logic Step: ").append(step.getName());
         } else if (step.getType().equalsIgnoreCase(ScriptConstants.COOKIE)) {
             String name = "";
             String value = "";
@@ -293,7 +293,7 @@ public class ScriptUtil {
             Set<RequestData> setData = step.getData();
             if (null != setData) {
                 for (RequestData d : setData) {
-                    label.append("Sleep for " + d.getValue());
+                    label.append("Sleep for ").append(d.getValue());
                 }
             }
         } else if (step.getType().equalsIgnoreCase(ScriptConstants.CLEAR)) {

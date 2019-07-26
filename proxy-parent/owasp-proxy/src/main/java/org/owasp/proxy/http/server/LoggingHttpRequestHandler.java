@@ -107,8 +107,8 @@ public class LoggingHttpRequestHandler implements HttpRequestHandler {
             buff.append(request.getVersion()).append("\" ");
             buff.append(response.getStatus()).append(" \n");
             for (NamedValue nv : response.getHeaders()) {
-                buff.append(nv.getName() + " " + nv.getSeparator());
-                buff.append(nv.getValue() + " ");
+                buff.append(nv.getName()).append(" ").append(nv.getSeparator());
+                buff.append(nv.getValue()).append(" ");
             }
             buff.append("\n").append(response);
 

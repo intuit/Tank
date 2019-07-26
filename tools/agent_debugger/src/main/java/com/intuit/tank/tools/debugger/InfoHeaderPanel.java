@@ -108,7 +108,7 @@ public class InfoHeaderPanel extends JPanel implements StepListener, ScriptChang
                     .append(NEWLINE);
             sb.append("  Raw Validation: ").append(ec.getOriginalValidation().toString()).append(NEWLINE);
             sb.append("  Interpreted Validation: ").append(ec.getValidation().toString()).append(NEWLINE);
-            sb.append("  Message: " + ec.getReason());
+            sb.append("  Message: ").append(ec.getReason());
         }
         return sb.toString();
     }

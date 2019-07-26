@@ -141,23 +141,23 @@ public class WindowsProxy {
         } else {
             ProxySettings settings = new ProxySettings();
             list.read();
-            for (int i = 0; i < options.length; i++) {
-                switch (options[i].dwOption) {
-                case WinInet.INTERNET_PER_CONN_FLAGS:
-                    settings.flags = getInt(options[i]);
-                    break;
-                case WinInet.INTERNET_PER_CONN_PROXY_SERVER:
-                    settings.proxyServer = getString(options[i]);
-                    break;
-                case WinInet.INTERNET_PER_CONN_PROXY_BYPASS:
-                    settings.proxyBypass = getString(options[i]);
-                    break;
-                case WinInet.INTERNET_PER_CONN_AUTOCONFIG_URL:
-                    settings.autoConfigUrl = getString(options[i]);
-                    break;
-                case WinInet.INTERNET_PER_CONN_AUTODISCOVERY_FLAGS:
-                    settings.autoDiscoveryFlags = getInt(options[i]);
-                    break;
+            for (INTERNET_PER_CONN_OPTION option : options) {
+                switch (option.dwOption) {
+                    case WinInet.INTERNET_PER_CONN_FLAGS:
+                        settings.flags = getInt(option);
+                        break;
+                    case WinInet.INTERNET_PER_CONN_PROXY_SERVER:
+                        settings.proxyServer = getString(option);
+                        break;
+                    case WinInet.INTERNET_PER_CONN_PROXY_BYPASS:
+                        settings.proxyBypass = getString(option);
+                        break;
+                    case WinInet.INTERNET_PER_CONN_AUTOCONFIG_URL:
+                        settings.autoConfigUrl = getString(option);
+                        break;
+                    case WinInet.INTERNET_PER_CONN_AUTODISCOVERY_FLAGS:
+                        settings.autoDiscoveryFlags = getInt(option);
+                        break;
                 }
             }
             return settings;
@@ -209,8 +209,7 @@ public class WindowsProxy {
         options[4].value.setType(int.class);
         options[4].value.dwValue = settings.autoDiscoveryFlags;
 
-        for (int i = 0; i < options.length; i++)
-            options[i].write();
+        for (INTERNET_PER_CONN_OPTION option : options) option.write();
 
         INTERNET_PER_CONN_OPTION_LIST list = new INTERNET_PER_CONN_OPTION_LIST();
         list.dwOptionCount = options.length;

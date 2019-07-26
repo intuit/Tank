@@ -146,9 +146,7 @@ public class ReportServiceV1 implements ReportService {
     public Response processSummary(final String jobId) {
         ResponseBuilder responseBuilder = Response.ok();
         try {
-            Thread t = new Thread( () -> {
-                SummaryReportRunner.generateSummary(jobId);
-            });
+            Thread t = new Thread( () -> SummaryReportRunner.generateSummary(jobId));
             t.setDaemon(true);
             t.start();
             responseBuilder.entity("Generating summary data for job " + jobId);
@@ -395,7 +393,7 @@ public class ReportServiceV1 implements ReportService {
         List<SummaryData> data = new SummaryDataDao().findByJobId(Integer.parseInt(jobId));
         if (!data.isEmpty()) {
             try {
-                writer.append("<h2>" + title + "</h2>");
+                writer.append("<h2>").append(title).append("</h2>");
                 writer.append("<table>");
                 String[] headers = ReportUtil.getSummaryHeaders();
                 writeRow(writer, headers, "th", "lightgray");
@@ -408,10 +406,10 @@ public class ReportServiceV1 implements ReportService {
             } finally {
                 writer.append("</table>");
                 String downloadUrl = servletContext.getContextPath() + TankConstants.REST_SERVICE_CONTEXT + ReportService.SERVICE_RELATIVE_PATH + ReportService.METHOD_TIMING_SUMMARY_CSV + "/" + jobId;
-                writer.append("<p>Download CSV file <a href='" + downloadUrl + "'>" + downloadUrl + "</a></p>");
+                writer.append("<p>Download CSV file <a href='").append(downloadUrl).append("'>").append(downloadUrl).append("</a></p>");
             }
         } else {
-            writer.append("<p>No Summary data available for Job " + jobId + "</p>");
+            writer.append("<p>No Summary data available for Job ").append(jobId).append("</p>");
         }
         writer.append("</body>");
         writer.append("</html>");
@@ -446,7 +444,7 @@ public class ReportServiceV1 implements ReportService {
         List<PeriodicData> data = new PeriodicDataDao().findByJobId(Integer.parseInt(jobId));
         if (!data.isEmpty()) {
             try {
-                writer.append("<h2>" + title + "</h2>");
+                writer.append("<h2>").append(title).append("</h2>");
                 writer.append("<table>");
                 String[] headers = ReportUtil.BUCKET_HEADERS;
                 writeRow(writer, headers, "th", "lightgray");
@@ -463,10 +461,10 @@ public class ReportServiceV1 implements ReportService {
                 writer.append("</table>");
                 String downloadUrl = servletContext.getContextPath() + TankConstants.REST_SERVICE_CONTEXT + ReportService.SERVICE_RELATIVE_PATH + ReportService.METHOD_TIMING_PERIODIC_CSV + "/"
                         + jobId;
-                writer.append("<p>Download CSV file <a href='" + downloadUrl + "'>" + downloadUrl + "</a></p>");
+                writer.append("<p>Download CSV file <a href='").append(downloadUrl).append("'>").append(downloadUrl).append("</a></p>");
             }
         } else {
-            writer.append("<p>No Periodic data available for Job " + jobId + "</p>");
+            writer.append("<p>No Periodic data available for Job ").append(jobId).append("</p>");
         }
         writer.append("</body>");
         writer.append("</html>");
@@ -479,9 +477,7 @@ public class ReportServiceV1 implements ReportService {
     public Response setTPSInfos(final TPSReportingPackage reportingPackage) {
         ResponseBuilder responseBuilder = null;
         try {
-            new Thread( () -> {
-                ResultsStorage.instance().storeTpsResults(reportingPackage.getJobId(), reportingPackage.getInstanceId(), reportingPackage.getContainer());
-            }).start();
+            new Thread( () -> ResultsStorage.instance().storeTpsResults(reportingPackage.getJobId(), reportingPackage.getInstanceId(), reportingPackage.getContainer())).start();
             responseBuilder = Response.status(Status.ACCEPTED);
 
         } catch (Exception e) {
@@ -495,9 +491,7 @@ public class ReportServiceV1 implements ReportService {
     public Response sendTimingResults(final TankResultPackage results) {
         ResponseBuilder responseBuilder = null;
         try {
-            new Thread( () -> {
-                ResultsStorage.instance().storeTimingResults(results.getJobId(), results.getInstanceId(), results.getResults());
-            }).start();
+            new Thread( () -> ResultsStorage.instance().storeTimingResults(results.getJobId(), results.getInstanceId(), results.getResults())).start();
             responseBuilder = Response.status(Status.ACCEPTED);
 
         } catch (Exception e) {

@@ -82,9 +82,7 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
         list = new JList(items.toArray());
         list.setSelectionMode(singleSelection ? ListSelectionModel.SINGLE_SELECTION
                 : ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        list.addListSelectionListener( (ListSelectionEvent e) -> {
-            okBT.setEnabled(list.getSelectedIndex() != -1);
-        });
+        list.addListSelectionListener( (ListSelectionEvent e) -> okBT.setEnabled(list.getSelectedIndex() != -1));
         list.addMouseListener(new MouseAdapter() {
 
             /**
@@ -101,7 +99,7 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
         JPanel labelPanel = new JPanel(new GridLayout(singleSelection ? 1 : 2, 1, 0, 5));
         labelPanel.add(new JLabel("Select a " + itemType + "."));
         if (!singleSelection) {
-            String key = System.getProperty("os.name").toLowerCase().indexOf("mac") != -1 ? "⌘" : "control";
+            String key = System.getProperty("os.name").toLowerCase().contains("mac") ? "⌘" : "control";
             System.out.println(key);
             labelPanel.add(new JLabel("Hold down the " + key
                     + " key to select multiple " + itemType + "."));
@@ -175,13 +173,9 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
     private Component createButtonPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
         JButton cancelBT = new JButton("Cancel");
-        cancelBT.addActionListener( (ActionEvent arg0) -> {
-            setVisible(false);
-        });
+        cancelBT.addActionListener( (ActionEvent arg0) -> setVisible(false));
         okBT = new JButton("Ok");
-        okBT.addActionListener( (ActionEvent arg0) -> {
-            select();
-        });
+        okBT.addActionListener( (ActionEvent arg0) -> select());
 
         panel.add(okBT);
         panel.add(cancelBT);

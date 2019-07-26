@@ -310,13 +310,12 @@ public class JobManager implements Serializable {
         }
 
         public boolean isFilled() {
-            boolean ret = true;
             for (Integer i : userMap.values()) {
                 if (i != 0) {
-                    ret = false;
+                    return false;
                 }
             }
-            return ret;
+            return true;
         }
 
         public int getUsers(AgentData agent) {
