@@ -253,7 +253,6 @@
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>8.0.15</version>
     </dependency>
 
     <dependency>
@@ -278,7 +277,12 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- Common to JEE and Servlet containers -->
+    <!-- Weld servlet, EL and JSP required for testing CDI injections -->
+    <dependency>
+      <groupId>org.jboss.weld.servlet</groupId>
+      <artifactId>weld-servlet-shaded</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>javax.enterprise</groupId>
       <artifactId>cdi-api</artifactId>
@@ -295,11 +299,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.weld.servlet</groupId>
-      <artifactId>weld-servlet-shaded</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi</artifactId>
     </dependency>
@@ -313,7 +312,6 @@
       <groupId>jdom</groupId>
       <artifactId>jdom</artifactId>
     </dependency>
-
 
     <dependency>
       <groupId>commons-fileupload</groupId>

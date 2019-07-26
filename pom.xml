@@ -30,7 +30,7 @@
     <version.hibernate>4.2.21.Final</version.hibernate>
     <version-aws-sdk>1.11.591</version-aws-sdk>
 
-    <version-tomcat>9.0.19</version-tomcat>
+    <version-tomcat>9.0.22</version-tomcat>
 
     <weld.version>3.1.1.Final</weld.version>
     <cdi.version>2.0</cdi.version>
@@ -51,8 +51,8 @@
     <version.httpclient5>5.0-beta2</version.httpclient5>
     <version.lucene>8.0.0</version.lucene>
 
-    <version.groovy>2.4.9</version.groovy>
-    <version.spock>1.1-groovy-2.4</version.spock>
+    <version.groovy>2.4.17</version.groovy>
+    <version.spock>1.3-groovy-2.5</version.spock>
 
     <!-- maven-compiler-plugin -->
     <version.compiler.plugin>3.8.1</version.compiler.plugin>
@@ -264,19 +264,8 @@
   <dependencies>
 
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.webcohesion.enunciate</groupId>
-      <artifactId>enunciate-core</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -330,12 +319,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-core</artifactId>
       <scope>test</scope>
@@ -356,12 +339,6 @@
       <artifactId>tomcat-jasper</artifactId>
       <scope>provided</scope>
     </dependency>
-    <!-- Weld servlet, EL and JSP required for testing CDI injections -->
-    <dependency>
-      <groupId>org.jboss.weld.servlet</groupId>
-      <artifactId>weld-servlet-shaded</artifactId>
-      <!-- <scope>test</scope> -->
-    </dependency>
 
     <dependency>
       <groupId>javax.servlet.jsp</groupId>
@@ -373,8 +350,19 @@
 
   <dependencyManagement>
     <!-- This section specifies defaults for dependencies. --><!-- Any subpom can use these dependencies without specifying version -->
-
     <dependencies>
+
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>8.0.17</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>28.0-jre</version>
+      </dependency>
 
       <dependency>
         <groupId>net.sf.docbook</groupId>
@@ -835,7 +823,7 @@
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>
-        <version>5.2.0</version>
+        <version>5.5.1</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -1189,7 +1177,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <reportSets>
           <reportSet>
             <reports>

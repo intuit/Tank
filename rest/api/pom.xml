@@ -29,4 +29,13 @@
     <module>agent</module>
   </modules>
 
+  <dependencies>
+    <!-- enunciate dependencies -->
+    <dependency>
+      <groupId>com.webcohesion.enunciate</groupId>
+      <artifactId>enunciate-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
 </project>
