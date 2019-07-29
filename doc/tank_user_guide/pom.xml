@@ -115,6 +115,7 @@
               </pluginExecution>
             </pluginExecutions>
           </lifecycleMappingMetadata>
+          <sourceDocumentName/>
         </configuration>
       </plugin>
       <plugin>

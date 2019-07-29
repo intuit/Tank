@@ -58,7 +58,7 @@ public class ConfiguredLanguage {
             try {
                 ScriptEngine engineByName = manager.getEngineByName(row[0]);
                 if (engineByName == null) {
-                    ScriptEngineFactory fact = (ScriptEngineFactory) Class.forName(row[3]).newInstance();
+                    ScriptEngineFactory fact = (ScriptEngineFactory) Class.forName(row[3]).getConstructor().newInstance();
                     manager.registerEngineName(row[0], fact);
                 }
                 configuredLanguages.add(new ConfiguredLanguage(row[0], row[1], row[2], row[4]));

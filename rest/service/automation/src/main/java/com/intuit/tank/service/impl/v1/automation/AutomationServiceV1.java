@@ -42,7 +42,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 
-import org.apache.commons.io.IOUtils;
+import com.amazonaws.util.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -206,7 +206,7 @@ public class AutomationServiceV1 implements AutomationService {
 					responseBuilder = Response.status(Status.INTERNAL_SERVER_ERROR);
 					responseBuilder.entity("An External Script failed with Exception: " + e.toString());
 				} finally {
-					IOUtils.closeQuietly(is);
+					IOUtils.closeQuietly(is, null);
 				}
 			}
 			// now send off to service

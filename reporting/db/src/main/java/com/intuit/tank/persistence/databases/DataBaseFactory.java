@@ -42,7 +42,7 @@ public class DataBaseFactory {
     private static IDatabase initProvider() {
         IDatabase provider = null;
         try {
-            provider = (IDatabase) Class.forName(resultsProvider).newInstance();
+            provider = (IDatabase) Class.forName(resultsProvider).getConstructor().newInstance();
         } catch (Exception e) {
             provider = new AmazonDynamoDatabaseDocApi();
         }

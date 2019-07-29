@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import com.amazonaws.util.IOUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -62,7 +62,7 @@ public class FileSystemFileStorage implements FileStorage, Serializable {
             LOG.error("Error storing file: " + e, e);
             throw new RuntimeException(e);
         } finally {
-            IOUtils.closeQuietly(out);
+            IOUtils.closeQuietly(out, null);
         }
     }
 

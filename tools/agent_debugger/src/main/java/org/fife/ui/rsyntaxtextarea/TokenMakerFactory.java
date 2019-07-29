@@ -77,7 +77,7 @@ public abstract class TokenMakerFactory {
             }
             try {
                 DEFAULT_INSTANCE = (TokenMakerFactory) Class.forName(clazz).
-                        newInstance();
+                        getConstructor().newInstance();
             } catch (RuntimeException re) { // FindBugs
                 throw re;
             } catch (Exception e) {

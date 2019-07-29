@@ -27,7 +27,7 @@ public final class ReportingFactory {
         try {
             ReportingConfig config = new TankConfig().getReportingConfig();
             String providerClass = config.getReporterClass();
-            ret = (ResultsReporter) Class.forName(providerClass).newInstance();
+            ret = (ResultsReporter) Class.forName(providerClass).getConstructor().newInstance();
             HierarchicalConfiguration providerConfig = config.getProviderConfig();
             ret.config(providerConfig);
         } catch (Exception e) {
@@ -45,7 +45,7 @@ public final class ReportingFactory {
         try {
             ReportingConfig config = new TankConfig().getReportingConfig();
             String providerClass = config.getReaderClass();
-            ret = (ResultsReader) Class.forName(providerClass).newInstance();
+            ret = (ResultsReader) Class.forName(providerClass).getConstructor().newInstance();
             HierarchicalConfiguration providerConfig = config.getProviderConfig();
             ret.config(providerConfig);
         } catch (Exception e) {

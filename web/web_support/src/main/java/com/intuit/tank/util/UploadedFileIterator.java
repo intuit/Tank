@@ -18,12 +18,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import com.amazonaws.util.IOUtils;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.primefaces.model.UploadedFile;
@@ -96,7 +96,7 @@ public class UploadedFileIterator {
             moveNext();
         }
         if (next == null) {
-            IOUtils.closeQuietly(itemInputStream);
+            IOUtils.closeQuietly(itemInputStream, null);
         }
         FileInputStreamWrapper ret = next;
         next = null;
@@ -113,7 +113,7 @@ public class UploadedFileIterator {
         }
 
         public void forceClose() {
-            IOUtils.closeQuietly(in);
+            IOUtils.closeQuietly(in, null);
         }
 
         @Override

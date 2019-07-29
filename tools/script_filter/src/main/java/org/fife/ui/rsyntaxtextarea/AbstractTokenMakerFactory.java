@@ -68,7 +68,7 @@ public abstract class AbstractTokenMakerFactory extends TokenMakerFactory {
         String clazz = (String) tokenMakerMap.get(key);
         if (clazz != null) {
             try {
-                return (TokenMaker) Class.forName(clazz).newInstance();
+                return (TokenMaker) Class.forName(clazz).getConstructor().newInstance();
             } catch (RuntimeException re) { // FindBugs
                 throw re;
             } catch (Exception e) {

@@ -14,8 +14,8 @@ import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import com.amazonaws.util.IOUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,7 +55,8 @@ public class S3FileStorage implements FileStorage, Serializable {
     private AmazonS3Client s3Client;
 
     /**
-     * @param basePath
+     * @param bucketName
+     * @param compress
      */
     public S3FileStorage(String bucketName, boolean compress) {
         super();
@@ -120,7 +121,7 @@ public class S3FileStorage implements FileStorage, Serializable {
                 File tmp = File.createTempFile("tmp-", ".gz");
                 out = new GZIPOutputStream(new FileOutputStream(tmp));
                 IOUtils.copy(in, out);
-                IOUtils.closeQuietly(out);
+                IOUtils.closeQuietly(out, null);
                 in = new FileInputStream(tmp);
             }
             s3Client.putObject(bucketName, path, in, metaData);
@@ -130,8 +131,8 @@ public class S3FileStorage implements FileStorage, Serializable {
             throw new RuntimeException(e);
         } finally {
             if (out != null) {
-                IOUtils.closeQuietly(out);
-                IOUtils.closeQuietly(in);
+                IOUtils.closeQuietly(out, null);
+                IOUtils.closeQuietly(in, null);
             }
         }
 
@@ -158,7 +159,7 @@ public class S3FileStorage implements FileStorage, Serializable {
             LOG.error("Error getting File: " + e, e);
             throw new RuntimeException(e);
         } finally {
-            IOUtils.closeQuietly(objectContent);
+            IOUtils.closeQuietly(objectContent, null);
         }
         return ret;
     }

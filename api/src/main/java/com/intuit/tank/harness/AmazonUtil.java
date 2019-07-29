@@ -24,8 +24,8 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import com.amazonaws.util.IOUtils;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -347,7 +347,7 @@ public class AmazonUtil {
     private static String convertStreamToString(InputStream is) throws IOException {
         if (is != null) {
             try {
-                return IOUtils.toString(is, UTF_8);
+                return IOUtils.toString(is);
             } finally {
                 try {
                     is.close();

@@ -17,7 +17,6 @@ import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.AmazonUtil;
 import com.intuit.tank.harness.HostInfo;
 import com.intuit.tank.logging.SourceType;
-import com.intuit.tank.vm.api.enumerated.VMRegion;
 import org.apache.logging.log4j.ThreadContext;
 
 /**

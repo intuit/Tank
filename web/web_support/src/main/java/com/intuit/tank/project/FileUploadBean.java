@@ -24,7 +24,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.io.IOUtils;
+import com.amazonaws.util.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.intuit.tank.util.Messages;
@@ -96,7 +96,7 @@ public class FileUploadBean implements Serializable {
                 messages.error("Error extracting zip file: " + e.toString());
                 throw new RuntimeException(e);
             } finally {
-                IOUtils.closeQuietly(item.getInputstream());
+                IOUtils.closeQuietly(item.getInputstream(), null);
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.intuit.tank.http;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;

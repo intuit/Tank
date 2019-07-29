@@ -27,7 +27,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 
-import org.apache.commons.io.IOUtils;
+import com.amazonaws.util.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.intuit.tank.util.Messages;
@@ -95,7 +95,7 @@ public class TankXmlUploadBean implements Serializable {
                 messages.error("Error extracting zip file: " + e.toString());
                 throw new RuntimeException(e);
             } finally {
-                IOUtils.closeQuietly(item.getInputstream());
+                IOUtils.closeQuietly(item.getInputstream(), null);
             }
         }
     }
