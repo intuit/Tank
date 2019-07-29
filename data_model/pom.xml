@@ -37,11 +37,7 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>org.picketlink</groupId>
-      <artifactId>picketlink</artifactId>
-    </dependency>
+
   </dependencies>
 
 </project>
