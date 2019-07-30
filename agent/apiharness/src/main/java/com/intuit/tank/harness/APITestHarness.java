@@ -708,7 +708,6 @@ public class APITestHarness {
     }
 
     public boolean hasMetSimulationTime() {
-        boolean ret = false;
         if (agentRunData.getSimulationTime() > 0) {
             long currentTime = System.currentTimeMillis();
             if (currentTime > getSimulationEndTimeMillis()) {
@@ -716,10 +715,10 @@ public class APITestHarness {
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Simulation time met")));
                     loggedSimTime = true;
                 }
-                ret = true;
+                return true;
             }
         }
-        return ret;
+        return false;
     }
 
     public long getStartTime() {

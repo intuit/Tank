@@ -36,8 +36,6 @@ import com.intuit.tank.vm.api.enumerated.VMSize;
 import com.intuit.tank.vm.common.TankConstants;
 import org.apache.logging.log4j.message.ObjectMessage;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 /**
  * 
  * AmazonUtil
@@ -94,17 +92,12 @@ public class AmazonUtil {
     }
 
     public static String getPublicHostName() throws IOException {
-        String ret = null;
         try {
-            ret = getMetaData(CloudMetaDataType.public_hostname);
+            return getMetaData(CloudMetaDataType.public_hostname);
         } catch (Exception e) {
             LOG.debug(new ObjectMessage(ImmutableMap.of("Message","Failed getting public host: " + e)));
         }
-        if (StringUtils.isBlank(ret)) {
-            //LOG.info("getting local_ipv4...");
-            ret = getMetaData(CloudMetaDataType.local_ipv4);
-        }
-        return ret;
+        return getMetaData(CloudMetaDataType.local_ipv4);
     }
 
     /**
@@ -122,13 +115,12 @@ public class AmazonUtil {
      * @return
      */
     public static String getAWSKeyFromUserData() {
-        String ret = null;
         try {
-            ret = getUserDataAsMap().get(TankConstants.KEY_AWS_SECRET_KEY);
+            return getUserDataAsMap().get(TankConstants.KEY_AWS_SECRET_KEY);
         } catch (IOException e) {
             LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting key: " + e.toString())));
         }
-        return ret;
+        return null;
     }
 
     /**
@@ -136,13 +128,12 @@ public class AmazonUtil {
      * @return
      */
     public static String getAWSKeyIdFromUserData() {
-        String ret = null;
         try {
-            ret = getUserDataAsMap().get(TankConstants.KEY_AWS_SECRET_KEY_ID);
+            return getUserDataAsMap().get(TankConstants.KEY_AWS_SECRET_KEY_ID);
         } catch (IOException e) {
             LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting key ID: " + e.toString())));
         }
-        return ret;
+        return null;
     }
 
     /**
@@ -184,7 +175,7 @@ public class AmazonUtil {
     @Nonnull
     public static String getMetaData(CloudMetaDataType metaData) throws IOException {
         InputStream inputStream = getInputStream(BASE + META_DATA + "/" + metaData.getKey());
-        return convertStreamToString(inputStream);
+        return IOUtils.toString(inputStream);
     }
 
     /**
@@ -194,10 +185,8 @@ public class AmazonUtil {
      * @throws IOException
      */
     public static String getUserDataAsString() throws IOException {
-        String result = null;
         InputStream inputStream = getInputStream(BASE + USER_DATA);
-        result = convertStreamToString(inputStream);
-        return result;
+        return IOUtils.toString(inputStream);
     }
 
     /**
@@ -206,13 +195,12 @@ public class AmazonUtil {
      * @return
      */
     public static String getJobId() {
-        String ret = null;
         try {
-            ret = getUserDataAsMap().get(TankConstants.KEY_JOB_ID);
+            return getUserDataAsMap().get(TankConstants.KEY_JOB_ID);
         } catch (IOException e) {
             LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting job ID: " + e.toString())));
         }
-        return ret != null ? ret : "unknown";
+        return "unknown";
     }
 
     /**
@@ -221,13 +209,12 @@ public class AmazonUtil {
      * @return
      */
     public static String getProjectName() {
-        String ret = null;
         try {
-            ret = getUserDataAsMap().get(TankConstants.KEY_PROJECT_NAME);
+            return getUserDataAsMap().get(TankConstants.KEY_PROJECT_NAME);
         } catch (IOException e) {
             LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting Project  Name: " + e.toString())));
         }
-        return ret != null ? ret : "unknown";
+        return "unknown";
     }
 
     /**
@@ -236,29 +223,27 @@ public class AmazonUtil {
      * @return LoggingProfile
      */
     public static LoggingProfile getLoggingProfile() {
-        LoggingProfile ret = LoggingProfile.STANDARD;
         try {
             String lp = getUserDataAsMap().get(TankConstants.KEY_LOGGING_PROFILE);
-            if (lp != null) {
-                ret = LoggingProfile.valueOf(lp);
+            if (StringUtils.isNoneEmpty(lp)) {
+                return LoggingProfile.valueOf(lp);
             }
         } catch (Exception e) {
             LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting LoggingProfile: " + e.toString())));
         }
-        return ret;
+        return LoggingProfile.STANDARD;
     }
 
     public static int getCapacity() {
-        int ret = 4000;
         try {
             String lp = getUserDataAsMap().get(TankConstants.KEY_NUM_USERS_PER_AGENT);
-            if (lp != null) {
-                ret = Integer.valueOf(lp);
+            if (StringUtils.isNoneEmpty(lp)) {
+                return Integer.valueOf(lp);
             }
         } catch (Exception e) {
             LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting capacity: " + e.toString())));
         }
-        return ret;
+        return 4000;
     }
 
     /**
@@ -267,16 +252,15 @@ public class AmazonUtil {
      * @return Stopbehavior
      */
     public static StopBehavior getStopBehavior() {
-        StopBehavior ret = StopBehavior.END_OF_SCRIPT_GROUP;
         try {
             String sb = getUserDataAsMap().get(TankConstants.KEY_STOP_BEHAVIOR);
-            if (sb != null) {
-                ret = StopBehavior.valueOf(sb);
+            if (StringUtils.isNoneEmpty(sb)) {
+                return StopBehavior.valueOf(sb);
             }
         } catch (Exception e) {
             LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting StopBehavior: " + e.toString())));
         }
-        return ret;
+        return StopBehavior.END_OF_SCRIPT_GROUP;
     }
 
     /**
@@ -285,13 +269,12 @@ public class AmazonUtil {
      * @return
      */
     public static boolean usingEip() {
-        boolean ret = false;
         try {
-            ret = getUserDataAsMap().get(TankConstants.KEY_USING_BIND_EIP) != null;
+            return getUserDataAsMap().get(TankConstants.KEY_USING_BIND_EIP) != null;
         } catch (IOException e) {
             LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting is using EIP: " + e.toString())));
         }
-        return ret;
+        return false;
     }
 
     /**
@@ -300,13 +283,12 @@ public class AmazonUtil {
      * @return
      */
     public static String getControllerBaseUrl() {
-        String ret = null;
         try {
-            ret = getUserDataAsMap().get(TankConstants.KEY_CONTROLLER_URL);
+            return getUserDataAsMap().get(TankConstants.KEY_CONTROLLER_URL);
         } catch (IOException e) {
             LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting controller url: " + e.toString())));
         }
-        return ret != null ? ret : "http://localhost:8080/";
+        return "http://localhost:8080/";
     }
 
     /**
@@ -316,46 +298,26 @@ public class AmazonUtil {
      * @throws IOException
      */
     public static Map<String, String> getUserDataAsMap() throws IOException {
-        Map<String, String> result = null;
         InputStream inputStream = getInputStream(BASE + USER_DATA);
-        result = convertStreamToMap(inputStream);
-        return result;
+        return convertStreamToMap(inputStream);
     }
 
     private static Map<String, String> convertStreamToMap(InputStream is) throws IOException {
         Map<String, String> result = new HashMap<String, String>();
         if (is != null) {
-            try {
-                BufferedReader r = new BufferedReader(new InputStreamReader(is));
-                String s = r.readLine();
-                while (s != null) {
-                    String[] pair = s.split("=", 2);
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+                String line;
+                while (StringUtils.isNoneEmpty(line = reader.readLine())) {
+                    String[] pair = line.split("=", 2);
                     if (pair.length == 2) {
                         result.put(pair[0], pair[1]);
                     }
-                    s = r.readLine();
                 }
             } finally {
-                try {
-                    is.close();
-                } catch (IOException e) {}
+                IOUtils.closeQuietly(is, null);
             }
         }
         return result;
-    }
-
-    private static String convertStreamToString(InputStream is) throws IOException {
-        if (is != null) {
-            try {
-                return IOUtils.toString(is);
-            } finally {
-                try {
-                    is.close();
-                } catch (IOException e) {}
-            }
-        } else {
-            return "";
-        }
     }
 
     /**
