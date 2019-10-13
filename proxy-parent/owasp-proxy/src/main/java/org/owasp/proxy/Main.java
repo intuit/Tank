@@ -169,16 +169,11 @@ public class Main {
             System.err.println("Error saving CA keys to keystore: "
                     + e.getLocalizedMessage());
         }
-        FileWriter pem = null;
-        try {
-            pem = new FileWriter("auto_generated_ca.pem");
+        try (FileWriter pem = new FileWriter("auto_generated_ca.pem")) {
             pem.write(ssl.getCACert());
         } catch (IOException e) {
             System.err.println("Error writing CA cert : "
                     + e.getLocalizedMessage());
-        } finally {
-            if (pem != null)
-                pem.close();
         }
         return ssl;
     }
