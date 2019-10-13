@@ -142,12 +142,8 @@ public class DataFileServiceV1 implements DataFileService {
                             JAXBContext ctx = JAXBContext.newInstance(DataFileDescriptor.class.getPackage().getName());
                             DataFileDescriptor dfd = (DataFileDescriptor) ctx.createUnmarshaller().unmarshal(xmlSource);
                             dataFile = descriptorToDataFile(dao, dfd);
-                        } catch (JAXBException e) {
+                        } catch (JAXBException | ParserConfigurationException | SAXException e) {
                             throw new RuntimeException(e);
-                        } catch (SAXException saxe) {
-                            throw new RuntimeException(saxe);
-                        } catch (ParserConfigurationException pce) {
-                            throw new RuntimeException(pce);
                         }
                     }
                 } else if (MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(mediaType)) {

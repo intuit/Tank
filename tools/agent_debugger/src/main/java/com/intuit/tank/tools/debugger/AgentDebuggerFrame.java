@@ -857,9 +857,7 @@ public class AgentDebuggerFrame extends JFrame {
                 fireStepChanged(stepIndex);
                 fireStepStarted(stepIndex);
             });
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
+        } catch (InterruptedException | InvocationTargetException e) {
             e.printStackTrace();
         }
     }

@@ -331,10 +331,7 @@ public class Main implements TransactionRecordedListener {
             try {
                 return new AutoGeneratingContextSelector(ks, type, password,
                         password, alias);
-            } catch (GeneralSecurityException e) {
-                System.err.println("Error loading CA keys from keystore: "
-                        + e.getLocalizedMessage());
-            } catch (IOException e) {
+            } catch (GeneralSecurityException | IOException e) {
                 System.err.println("Error loading CA keys from keystore: "
                         + e.getLocalizedMessage());
             }
@@ -345,10 +342,7 @@ public class Main implements TransactionRecordedListener {
                 ca);
         try {
             ssl.save(ks, type, password, password, alias);
-        } catch (GeneralSecurityException e) {
-            System.err.println("Error saving CA keys to keystore: "
-                    + e.getLocalizedMessage());
-        } catch (IOException e) {
+        } catch (GeneralSecurityException | IOException e) {
             System.err.println("Error saving CA keys to keystore: "
                     + e.getLocalizedMessage());
         }

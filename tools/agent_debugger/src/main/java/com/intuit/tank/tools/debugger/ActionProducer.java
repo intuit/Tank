@@ -908,14 +908,8 @@ public class ActionProducer {
         HDWorkload ret = null;
         try {
             ret = JaxbUtil.unmarshall(xml, HDWorkload.class);
-        } catch (JAXBException e) {
+        } catch (JAXBException | ParserConfigurationException | SAXException e) {
             JOptionPane.showMessageDialog(debuggerFrame, e.getMessage(), "Error unmarshalling xml",
-                    JOptionPane.ERROR_MESSAGE);
-        } catch (SAXException saxe) {
-            JOptionPane.showMessageDialog(debuggerFrame, saxe.getMessage(), "Error unmarshalling xml",
-                    JOptionPane.ERROR_MESSAGE);
-        } catch (ParserConfigurationException pce) {
-            JOptionPane.showMessageDialog(debuggerFrame, pce.getMessage(), "Error unmarshalling xml",
                     JOptionPane.ERROR_MESSAGE);
         }
         return ret;

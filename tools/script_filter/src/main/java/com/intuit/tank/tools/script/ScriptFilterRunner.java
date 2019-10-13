@@ -477,14 +477,8 @@ public class ScriptFilterRunner extends JFrame {
             showXmlBT.setEnabled(true);
             runBT.setEnabled(true);
             saveBT.setEnabled(true);
-        } catch (JAXBException e) {
+        } catch (JAXBException | ParserConfigurationException | SAXException | FileNotFoundException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error reading file", JOptionPane.ERROR_MESSAGE);
-        } catch (FileNotFoundException fnfe) {
-        	JOptionPane.showMessageDialog(this, fnfe.getMessage(), "Error reading file", JOptionPane.ERROR_MESSAGE);
-        } catch (SAXException saxe) {
-        	JOptionPane.showMessageDialog(this, saxe.getMessage(), "Error reading file", JOptionPane.ERROR_MESSAGE);
-        } catch (ParserConfigurationException pce) {
-        	JOptionPane.showMessageDialog(this, pce.getMessage(), "Error reading file", JOptionPane.ERROR_MESSAGE);
         }
     }
 
