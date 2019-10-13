@@ -93,9 +93,7 @@ public class ProxyConfigDialog extends JDialog {
             });
             JButton openButton = new JButton("Open", new ImageIcon(
                     ProxyConfigDialog.class.getResource("/icons/16/open_folder.png")));
-            openButton.addActionListener((ActionEvent e) -> {
-                openConfig();
-            });
+            openButton.addActionListener((ActionEvent e) -> openConfig());
             toolbar.add(Box.createHorizontalStrut(5));
             toolbar.add(openButton);
             toolbar.add(Box.createHorizontalStrut(5));

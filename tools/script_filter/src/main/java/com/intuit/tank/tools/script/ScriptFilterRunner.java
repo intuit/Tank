@@ -162,15 +162,11 @@ public class ScriptFilterRunner extends JFrame {
 
         JToolBar toolBar = new JToolBar();
         JButton clearBT = new JButton("Clear");
-        clearBT.addActionListener((ActionEvent e) -> {
-            output.setText(INITIAL_OUTPUT_CONTENT);
-        });
+        clearBT.addActionListener((ActionEvent e) -> output.setText(INITIAL_OUTPUT_CONTENT));
 
         final JCheckBox scrollCB = new JCheckBox("Auto Scroll Content");
         scrollCB.setSelected(true);
-        scrollCB.addChangeListener( (ChangeEvent e) -> {
-            output.setScrollContent(scrollCB.isSelected());
-        });
+        scrollCB.addChangeListener( (ChangeEvent e) -> output.setScrollContent(scrollCB.isSelected()));
         toolBar.add(clearBT);
         toolBar.add(scrollCB);
 
@@ -190,9 +186,7 @@ public class ScriptFilterRunner extends JFrame {
         List<ConfiguredLanguage> configuredLanguages = ConfiguredLanguage.getConfiguredLanguages();
         languageSelector = new JComboBox(configuredLanguages.toArray());
         languageSelector.setSelectedIndex(0);
-        languageSelector.addItemListener((ItemEvent e) -> {
-            setSyntaxStyle();
-        });
+        languageSelector.addItemListener((ItemEvent e) -> setSyntaxStyle());
 
         currentFileLabel = new JLabel();
 
@@ -221,15 +215,11 @@ public class ScriptFilterRunner extends JFrame {
         xmlViewDialog.setSize(new Dimension(800, 500));
         showXmlBT = new JButton("Show XML");
         showXmlBT.setEnabled(false);
-        showXmlBT.addActionListener( (ActionEvent e) -> {
-            displayXml();
-        });
+        showXmlBT.addActionListener( (ActionEvent e) -> displayXml());
 
         saveBT = new JButton("Save XML");
         saveBT.setEnabled(false);
-        saveBT.addActionListener( (ActionEvent e) -> {
-            saveXml();
-        });
+        saveBT.addActionListener( (ActionEvent e) -> saveXml());
 
         JPanel xmlPanel = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 20));
         xmlPanel.add(button);
@@ -282,28 +272,18 @@ public class ScriptFilterRunner extends JFrame {
         });
         runBT = new JButton("Run Script");
         runBT.setEnabled(false);
-        runBT.addActionListener( (ActionEvent arg0) -> {
-            runScript();
-        });
+        runBT.addActionListener( (ActionEvent arg0) -> runScript());
         JButton chooseBT = new JButton("Open Script...");
-        chooseBT.addActionListener( (ActionEvent arg0) -> {
-            loadScript();
-        });
+        chooseBT.addActionListener( (ActionEvent arg0) -> loadScript());
 
         JButton saveScriptBT = new JButton("Save Script...");
-        saveScriptBT.addActionListener( (ActionEvent arg0) -> {
-            saveScript(false);
-        });
+        saveScriptBT.addActionListener( (ActionEvent arg0) -> saveScript(false));
 
         JButton saveAsScriptBT = new JButton("Save Script As...");
-        saveAsScriptBT.addActionListener( (ActionEvent arg0) -> {
-            saveScript(true);
-        });
+        saveAsScriptBT.addActionListener( (ActionEvent arg0) -> saveScript(true));
 
         JButton localBT = new JButton("Toggle Storage Mode");
-        localBT.addActionListener( (ActionEvent e) -> {
-            toggleStorageMode();
-        });
+        localBT.addActionListener( (ActionEvent e) -> toggleStorageMode());
         localLB = new JLabel();
         setLocalLable();
 

@@ -163,11 +163,7 @@ public class MetricsCalculator {
      * @return
      */
     private DescriptiveStatistics getBucketStats(String loggingKey, int period, Date periodDate) {
-        Map<Date, BucketDataItem> map = bucketItems.get(loggingKey);
-        if (map == null) {
-            map = new HashMap<Date, BucketDataItem>();
-            bucketItems.put(loggingKey, map);
-        }
+        Map<Date, BucketDataItem> map = bucketItems.computeIfAbsent(loggingKey, k -> new HashMap<Date, BucketDataItem>());
         BucketDataItem bucketDataItem = map.get(periodDate);
         if (bucketDataItem == null) {
             bucketDataItem = new BucketDataItem(period, periodDate, new DescriptiveStatistics());

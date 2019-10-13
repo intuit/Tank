@@ -48,8 +48,6 @@ public class Proxy extends Server {
             final TargetedConnectionHandler connectionHandler,
             final InetSocketAddress target) throws IOException {
         super(listen, executor, connectionHandler == null ? null
-                : (Socket socket) -> {
-                    connectionHandler.handleConnection(socket, target);
-                });
+                : (Socket socket) -> connectionHandler.handleConnection(socket, target));
     }
 }

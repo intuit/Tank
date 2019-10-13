@@ -766,9 +766,7 @@ public class AgentDebuggerFrame extends JFrame {
                 // start apiHarness and get the variables....
                 try {
                     createHarness();
-                    runningThread = new Thread(() -> {
-                        harness.runConcurrentTestPlans();
-                    });
+                    runningThread = new Thread(() -> harness.runConcurrentTestPlans());
 
                     runningThread.start();
                 } catch (Exception e) {

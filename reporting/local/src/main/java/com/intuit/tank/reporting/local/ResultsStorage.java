@@ -45,11 +45,7 @@ public final class ResultsStorage {
                 map = new ConcurrentHashMap<String, List<TankResult>>();
                 timingResultMap.put(jobId, map);
             }
-            List<TankResult> list = map.get(instanceId);
-            if (list == null) {
-                list = new ArrayList<TankResult>();
-                map.put(instanceId, list);
-            }
+            List<TankResult> list = map.computeIfAbsent(instanceId, k -> new ArrayList<TankResult>());
             list.addAll(results);
         }
     }
@@ -131,11 +127,7 @@ public final class ResultsStorage {
         for (TPSInfoContainer container : conatiners) {
             for (TPSInfo info : container.getTpsInfos()) {
                 if (minDate != null && info.getTimestamp().getTime() >= minDate.getTime()) {
-                    Map<String, TPSInfo> map = ret.get(info.getTimestamp());
-                    if (map == null) {
-                        map = new HashMap<String, TPSInfo>();
-                        ret.put(info.getTimestamp(), map);
-                    }
+                    Map<String, TPSInfo> map = ret.computeIfAbsent(info.getTimestamp(), k -> new HashMap<String, TPSInfo>());
                     TPSInfo existing = map.get(info.getKey());
                     if (existing != null) {
                         info = existing.add(info);

@@ -538,9 +538,8 @@ public class ActionProducer {
                 public void actionPerformed(ActionEvent e) {
                     try {
                         List<DataFileDescriptor> dataFiles = dataFileClient.getDataFiles();
-                        Collections.sort(dataFiles, (DataFileDescriptor o1, DataFileDescriptor o2) ->
-                                o2.getName().compareTo(o1.getName())
-                        );
+                        dataFiles.sort((DataFileDescriptor o1, DataFileDescriptor o2) ->
+                                o2.getName().compareTo(o1.getName()));
                         SelectDialog<DataFileDescriptor> selectDialog = new SelectDialog<DataFileDescriptor>(
                                 debuggerFrame,
                                 dataFiles, "datafiles", false);
@@ -889,9 +888,7 @@ public class ActionProducer {
 
     private void showError(final String msg) {
         LOG.error(msg);
-        SwingUtilities.invokeLater( () -> {
-            JOptionPane.showMessageDialog(debuggerFrame, msg, "Error", JOptionPane.ERROR_MESSAGE);
-        });
+        SwingUtilities.invokeLater( () -> JOptionPane.showMessageDialog(debuggerFrame, msg, "Error", JOptionPane.ERROR_MESSAGE));
     }
 
     private void setFromString(String scriptXml) {

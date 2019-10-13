@@ -61,9 +61,7 @@ public class GeneralInclusionPanel extends JPanel {
         JPanel opsPanel = new JPanel();
 
         JButton addButton = new JButton("Add");
-        addButton.addActionListener((ActionEvent e) -> {
-            handler.addRule(ruleTableModel, dialog);
-        });
+        addButton.addActionListener((ActionEvent e) -> handler.addRule(ruleTableModel, dialog));
         JButton deleteButton = new JButton("Delete");
         deleteButton.addActionListener((ActionEvent e) -> {
             int selectedRow = ruleTable.getSelectedRow();

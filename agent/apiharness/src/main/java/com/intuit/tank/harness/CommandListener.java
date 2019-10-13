@@ -109,9 +109,7 @@ public class CommandListener implements Container {
     }
 
     public void startTest() {
-        Thread t = new Thread( () -> {
-            APITestHarness.getInstance().runConcurrentTestPlans();
-        });
+        Thread t = new Thread( () -> APITestHarness.getInstance().runConcurrentTestPlans());
         t.setDaemon(true);
         t.start();
     }
