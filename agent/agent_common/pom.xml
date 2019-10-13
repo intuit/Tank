@@ -23,12 +23,6 @@
     </dependency>
 
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>tank-common</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    
-    <dependency>
        <groupId>commons-fileupload</groupId>
        <artifactId>commons-fileupload</artifactId>
      </dependency>
@@ -39,21 +33,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>27.0-jre</version>
-    </dependency>
-
-    <dependency>
       <groupId>jdom</groupId>
       <artifactId>jdom</artifactId>
     </dependency>
-    
-	<dependency>
-	  <groupId>xml-apis</groupId>
-	  <artifactId>xml-apis</artifactId>
-	</dependency>
-
   </dependencies>
 
 </project>

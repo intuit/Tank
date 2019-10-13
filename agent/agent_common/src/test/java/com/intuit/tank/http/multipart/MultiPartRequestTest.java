@@ -1,10 +1,11 @@
 package com.intuit.tank.http.multipart;
 
-import org.picketlink.common.util.Base64;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.intuit.tank.test.TestGroups;
+
+import java.util.Base64;
 
 public class MultiPartRequestTest {
     @DataProvider(name = "data")
@@ -52,7 +53,7 @@ public class MultiPartRequestTest {
     @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "data")
     public void test(String body, int numParts) {
         MultiPartRequest multiPartRequest = new MultiPartRequest(null, null);
-        multiPartRequest.setBody(new String(Base64.encodeObject(body)));
+        multiPartRequest.setBody(Base64.getEncoder().encodeToString(body.getBytes()));
     }
 
 }

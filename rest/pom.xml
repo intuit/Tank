@@ -29,18 +29,8 @@
 		</dependency>
 
 		<dependency>
-	      <groupId>org.apache.logging.log4j</groupId>
-	      <artifactId>log4j-core</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.glassfish.jersey.core</groupId>
-			<artifactId>jersey-client</artifactId>
 		</dependency>
 
 		<dependency>
@@ -86,7 +76,7 @@
 		<dependency>
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
-			<version>1.6.5</version>
+			<version>1.9.15</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -94,7 +84,7 @@
 		<dependency>
 			<groupId>org.objenesis</groupId>
 			<artifactId>objenesis</artifactId>
-			<version>2.5.1</version>
+			<version>3.0.1</version>
 			<scope>test</scope>
 		</dependency>
 
