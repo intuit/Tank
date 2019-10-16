@@ -2,23 +2,9 @@
  * 01/24/2005
  *
  * XMLTokenMaker.java - Generates tokens for XML syntax highlighting.
- * Copyright (C) 2005 Robert Futrell
- * robert_futrell at users.sourceforge.net
- * http://fifesoft.com/rsyntaxtextarea
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
+ * 
+ * This library is distributed under a modified BSD license.  See the included
+ * LICENSE file for details.
  */
 package org.fife.ui.rsyntaxtextarea.modes;
 
@@ -78,17 +64,60 @@ import org.fife.ui.rsyntaxtextarea.*;
 %{
 
 	/**
-	 * Token type specific to XMLTokenMaker; this signals that the user has
-	 * ended a line with an unclosed XML tag; thus a new line is beginning
-	 * still inside of the tag.
+	 * Type specific to XMLTokenMaker denoting a line ending with an unclosed
+	 * double-quote attribute.
 	 */
-	public static final int INTERNAL_INTAG					= -1;
+	public static final int INTERNAL_ATTR_DOUBLE			= -1;
 
+
+	/**
+	 * Type specific to XMLTokenMaker denoting a line ending with an unclosed
+	 * single-quote attribute.
+	 */
+	public static final int INTERNAL_ATTR_SINGLE			= -2;
+
+
+	/**
+	 * Token type specific to XMLTokenMaker denoting a line ending with an
+	 * unclosed XML tag; thus a new line is beginning still inside of the tag.
+	 */
+	public static final int INTERNAL_INTAG					= -3;
+
+	/**
+	 * Token type specific to XMLTokenMaker denoting a line ending with an
+	 * unclosed DOCTYPE element.
+	 */
+	public static final int INTERNAL_DTD					= -4;
+
+	/**
+	 * Token type specific to XMLTokenMaker denoting a line ending with an
+	 * unclosed, locally-defined DTD in a DOCTYPE element.
+	 */
+	public static final int INTERNAL_DTD_INTERNAL			= -5;
+
+	/**
+	 * Token type specific to XMLTokenMaker denoting a line ending with an
+	 * unclosed comment.  The state to return to when this comment ends is
+	 * embedded in the token type as well.
+	 */
+	public static final int INTERNAL_IN_XML_COMMENT			= -(1<<11);
 
 	/**
 	 * Whether closing markup tags are automatically completed for HTML.
 	 */
 	private static boolean completeCloseTags;
+
+	/**
+	 * Whether the DTD we're currently in is a locally-defined one.  This
+	 * field is only valid when in a DOCTYPE element (the <DTD> state).
+	 */
+	private boolean inInternalDtd;
+
+	/**
+	 * The state we were in prior to the current one.  This is used to know
+	 * what state to resume after an MLC ends.
+	 */
+	private int prevState;
 
 
 	/**
@@ -101,6 +130,29 @@ import org.fife.ui.rsyntaxtextarea.*;
 
 	static {
 		completeCloseTags = true;
+	}
+
+
+	/**
+	 * Adds the token specified to the current linked list of tokens as an
+	 * "end token;" that is, at <code>zzMarkedPos</code>.
+	 *
+	 * @param tokenType The token's type.
+	 */
+	private void addEndToken(int tokenType) {
+		addToken(zzMarkedPos,zzMarkedPos, tokenType);
+	}
+
+
+	/**
+	 * Adds the token specified to the current linked list of tokens.
+	 *
+	 * @param tokenType The token's type.
+	 * @see #addToken(int, int, int)
+	 */
+	private void addHyperlinkToken(int start, int end, int tokenType) {
+		int so = start + offsetShift;
+		addToken(zzBuffer, start,end, tokenType, so, true);
 	}
 
 
@@ -135,9 +187,18 @@ import org.fife.ui.rsyntaxtextarea.*;
 	 * @param startOffset The offset in the document at which this token
 	 *                    occurs.
 	 */
+	@Override
 	public void addToken(char[] array, int start, int end, int tokenType, int startOffset) {
 		super.addToken(array, start,end, tokenType, startOffset);
 		zzStartRead = zzMarkedPos;
+	}
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	protected OccurrenceMarker createOccurrenceMarker() {
+		return new XmlOccurrenceMarker();
 	}
 
 
@@ -148,6 +209,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 	 * @return Whether closing markup tags are completed.
 	 * @see #setCompleteCloseTags(boolean)
 	 */
+	@Override
 	public boolean getCompleteCloseTags() {
 		return completeCloseTags;
 	}
@@ -167,15 +229,14 @@ import org.fife.ui.rsyntaxtextarea.*;
 
 
 	/**
-	 * Always returns <tt>false</tt>, as you never want "mark occurrences"
-	 * working in XML files.
+	 * Returns <code>Token.MARKUP_TAG_NAME</code>.
 	 *
 	 * @param type The token type.
 	 * @return Whether tokens of this type should have "mark occurrences"
 	 *         enabled.
 	 */
 	public boolean getMarkOccurrencesOfTokenType(int type) {
-		return false;
+		return type==Token.MARKUP_TAG_NAME;
 	}
 
 
@@ -195,42 +256,54 @@ import org.fife.ui.rsyntaxtextarea.*;
 
 		resetTokenList();
 		this.offsetShift = -text.offset + startOffset;
+		prevState = YYINITIAL;
+		inInternalDtd = false;
 
 		// Start off in the proper state.
-		int state = Token.NULL;
+		int state = YYINITIAL;
 		switch (initialTokenType) {
-			case Token.COMMENT_MULTILINE:
+			case Token.MARKUP_COMMENT:
 				state = COMMENT;
-				start = text.offset;
 				break;
-			case Token.FUNCTION:
+			case INTERNAL_DTD:
 				state = DTD;
-				start = text.offset;
 				break;
-			case Token.LITERAL_STRING_DOUBLE_QUOTE:
+			case INTERNAL_DTD_INTERNAL:
+				state = DTD;
+				inInternalDtd = true;
+				break;
+			case INTERNAL_ATTR_DOUBLE:
 				state = INATTR_DOUBLE;
-				start = text.offset;
 				break;
-			case Token.LITERAL_CHAR:
+			case INTERNAL_ATTR_SINGLE:
 				state = INATTR_SINGLE;
-				start = text.offset;
 				break;
-			case Token.PREPROCESSOR:
+			case Token.MARKUP_PROCESSING_INSTRUCTION:
 				state = PI;
-				start = text.offset;
 				break;
 			case INTERNAL_INTAG:
 				state = INTAG;
-				start = text.offset;
 				break;
-			case Token.VARIABLE:
+			case Token.MARKUP_CDATA:
 				state = CDATA;
-				start = text.offset;
 				break;
 			default:
-				state = Token.NULL;
+				if (initialTokenType<-1024) { // INTERNAL_IN_XML_COMMENT - prevState
+					int main = -(-initialTokenType & 0xffffff00);
+					switch (main) {
+						default: // Should never happen
+						case INTERNAL_IN_XML_COMMENT:
+							state = COMMENT;
+							break;
+					}
+					prevState = -initialTokenType&0xff;
+				}
+				else { // Shouldn't happen
+					state = Token.NULL;
+				}
 		}
 
+		start = text.offset;
 		s = text;
 		try {
 			yyreset(zzReader);
@@ -238,7 +311,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 			return yylex();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
-			return new DefaultToken();
+			return new TokenImpl();
 		}
 
 	}
@@ -272,7 +345,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 	 *
 	 * All internal variables are reset, the old input stream 
 	 * <b>cannot</b> be reused (internal buffer is discarded and lost).
-	 * Lexical state is set to <tt>YY_INITIAL</tt>.
+	 * Lexical state is set to <code>YY_INITIAL</code>.
 	 *
 	 * @param reader   the new input stream 
 	 */
@@ -304,10 +377,18 @@ TagName				= ({NameStartChar}{NameChar}*)
 Whitespace			= ([ \t\f])
 LineTerminator			= ([\n])
 Identifier			= ([^ \t\n<&]+)
-AmperItem				= ([&][^; \t]*[;]?)
+EntityReference		= ([&][^; \t]*[;]?)
 InTagIdentifier		= ([^ \t\n\"\'=\/>]+)
 CDataBegin			= ("<![CDATA[")
 CDataEnd				= ("]]>")
+
+URLGenDelim				= ([:\/\?#\[\]@])
+URLSubDelim				= ([\!\$&'\(\)\*\+,;=])
+URLUnreserved			= ([A-Za-z_0-9\-\.\~])
+URLCharacter			= ({URLGenDelim}|{URLSubDelim}|{URLUnreserved}|[%])
+URLCharacters			= ({URLCharacter}*)
+URLEndCharacter			= ([\/\$A-Za-z0-9])
+URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 
 %state COMMENT
 %state PI
@@ -320,9 +401,9 @@ CDataEnd				= ("]]>")
 %%
 
 <YYINITIAL> {
-	"<!--"						{ start = zzMarkedPos-4; yybegin(COMMENT); }
-	{CDataBegin}					{ addToken(Token.DATA_TYPE); start = zzMarkedPos; yybegin(CDATA); }
-	"<!"							{ start = zzMarkedPos-2; yybegin(DTD); }
+	"<!--"							{ start = zzStartRead; prevState = zzLexicalState; yybegin(COMMENT); }
+	{CDataBegin}					{ addToken(Token.MARKUP_CDATA_DELIMITER); start = zzMarkedPos; yybegin(CDATA); }
+	"<!"							{ start = zzMarkedPos-2; inInternalDtd = false; yybegin(DTD); }
 	"<?"							{ start = zzMarkedPos-2; yybegin(PI); }
 	"<"{TagName}				{
 									int count = yylength();
@@ -340,32 +421,38 @@ CDataEnd				= ("]]>")
 	"</"						{ addToken(Token.MARKUP_TAG_DELIMITER); yybegin(INTAG); }
 	{LineTerminator}				{ addNullToken(); return firstToken; }
 	{Identifier}					{ addToken(Token.IDENTIFIER); }
-	{AmperItem}					{ addToken(Token.DATA_TYPE); }
+	{EntityReference}				{ addToken(Token.MARKUP_ENTITY_REFERENCE); }
 	{Whitespace}+					{ addToken(Token.WHITESPACE); }
 	<<EOF>>						{ addNullToken(); return firstToken; }
 }
 
 <COMMENT> {
-	[^\n\-]+						{}
-	{LineTerminator}				{ addToken(start,zzStartRead-1, Token.COMMENT_MULTILINE); return firstToken; }
-	"-->"						{ yybegin(YYINITIAL); addToken(start,zzStartRead+2, Token.COMMENT_MULTILINE); }
+	[^hwf\n\-]+					{}
+	{URL}						{ int temp=zzStartRead; addToken(start,zzStartRead-1, Token.MARKUP_COMMENT); addHyperlinkToken(temp,zzMarkedPos-1, Token.MARKUP_COMMENT); start = zzMarkedPos; }
+	[hwf]						{}
+	"-->"						{ int temp = zzMarkedPos; addToken(start,zzStartRead+2, Token.MARKUP_COMMENT); start = temp; yybegin(prevState); }
 	"-"							{}
-	<<EOF>>						{ addToken(start,zzStartRead-1, Token.COMMENT_MULTILINE); return firstToken; }
+	{LineTerminator} |
+	<<EOF>>						{ addToken(start,zzStartRead-1, Token.MARKUP_COMMENT); addEndToken(INTERNAL_IN_XML_COMMENT - prevState); return firstToken; }
 }
 
 <PI> {
 	[^\n\?]+						{}
-	{LineTerminator}				{ addToken(start,zzStartRead-1, Token.PREPROCESSOR); return firstToken; }
-	"?>"							{ yybegin(YYINITIAL); addToken(start,zzStartRead+1, Token.PREPROCESSOR); }
+	{LineTerminator}				{ addToken(start,zzStartRead-1, Token.MARKUP_PROCESSING_INSTRUCTION); return firstToken; }
+	"?>"							{ yybegin(YYINITIAL); addToken(start,zzStartRead+1, Token.MARKUP_PROCESSING_INSTRUCTION); }
 	"?"							{}
-	<<EOF>>						{ addToken(start,zzStartRead-1, Token.PREPROCESSOR); return firstToken; }
+	<<EOF>>						{ addToken(start,zzStartRead-1, Token.MARKUP_PROCESSING_INSTRUCTION); return firstToken; }
 }
 
 <DTD> {
-	[^\n>]+					{}
-	{LineTerminator}			{ addToken(start,zzStartRead-1, Token.FUNCTION); return firstToken; }
-	">"						{ yybegin(YYINITIAL); addToken(start,zzStartRead, Token.FUNCTION); }
-	<<EOF>>					{ addToken(start,zzStartRead-1, Token.FUNCTION); return firstToken; }
+	[^\n\[\]<>]+				{}
+	"<!--"						{ int temp = zzStartRead; addToken(start,zzStartRead-1, Token.MARKUP_DTD); start = temp; prevState = zzLexicalState; yybegin(COMMENT); }
+	"<"							{}
+	"["							{ inInternalDtd = true; }
+	"]"							{ inInternalDtd = false; }
+	">"							{ if (!inInternalDtd) { yybegin(YYINITIAL); addToken(start,zzStartRead, Token.MARKUP_DTD); } }
+	{LineTerminator} |
+	<<EOF>>						{ addToken(start,zzStartRead-1, Token.MARKUP_DTD); addEndToken(inInternalDtd ? INTERNAL_DTD_INTERNAL : INTERNAL_DTD); return firstToken; }
 }
 
 <INTAG> {
@@ -382,19 +469,19 @@ CDataEnd				= ("]]>")
 
 <INATTR_DOUBLE> {
 	[^\"]*						{}
-	[\"]						{ yybegin(INTAG); addToken(start,zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE); }
-	<<EOF>>						{ addToken(start,zzStartRead-1, Token.LITERAL_STRING_DOUBLE_QUOTE); return firstToken; }
+	[\"]						{ yybegin(INTAG); addToken(start,zzStartRead, Token.MARKUP_TAG_ATTRIBUTE_VALUE); }
+	<<EOF>>						{ addToken(start,zzStartRead-1, Token.MARKUP_TAG_ATTRIBUTE_VALUE); addEndToken(INTERNAL_ATTR_DOUBLE); return firstToken; }
 }
 
 <INATTR_SINGLE> {
 	[^\']*						{}
-	[\']						{ yybegin(INTAG); addToken(start,zzStartRead, Token.LITERAL_CHAR); }
-	<<EOF>>						{ addToken(start,zzStartRead-1, Token.LITERAL_CHAR); return firstToken; }
+	[\']						{ yybegin(INTAG); addToken(start,zzStartRead, Token.MARKUP_TAG_ATTRIBUTE_VALUE); }
+	<<EOF>>						{ addToken(start,zzStartRead-1, Token.MARKUP_TAG_ATTRIBUTE_VALUE); addEndToken(INTERNAL_ATTR_SINGLE); return firstToken; }
 }
 
 <CDATA> {
 	[^\]]+						{}
-	{CDataEnd}					{ int temp=zzStartRead; yybegin(YYINITIAL); addToken(start,zzStartRead-1, Token.VARIABLE); addToken(temp,zzMarkedPos-1, Token.DATA_TYPE); }
+	{CDataEnd}					{ int temp=zzStartRead; yybegin(YYINITIAL); addToken(start,zzStartRead-1, Token.MARKUP_CDATA); addToken(temp,zzMarkedPos-1, Token.MARKUP_CDATA_DELIMITER); }
 	"]"							{}
-	<<EOF>>						{ addToken(start,zzStartRead-1, Token.VARIABLE); return firstToken; }
+	<<EOF>>						{ addToken(start,zzStartRead-1, Token.MARKUP_CDATA); return firstToken; }
 }

@@ -2,23 +2,9 @@
  * 03/21/2005
  *
  * PropertiesFileTokenMaker.java - Scanner for properties files.
- * Copyright (C) 2005 Robert Futrell
- * robert_futrell at users.sourceforge.net
- * http://fifesoft.com/rsyntaxtextarea
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
+ * 
+ * This library is distributed under a modified BSD license.  See the included
+ * LICENSE file for details.
  */
 package org.fife.ui.rsyntaxtextarea.modes;
 
@@ -71,7 +57,6 @@ import org.fife.ui.rsyntaxtextarea.*;
 %public
 %class PropertiesFileTokenMaker
 %extends AbstractJFlexTokenMaker
-%implements TokenMaker
 %unicode
 %type org.fife.ui.rsyntaxtextarea.Token
 
@@ -119,6 +104,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 	 * @param startOffset The offset in the document at which this token
 	 *                    occurs.
 	 */
+	@Override
 	public void addToken(char[] array, int start, int end, int tokenType, int startOffset) {
 		super.addToken(array, start,end, tokenType, startOffset);
 		zzStartRead = zzMarkedPos;
@@ -126,13 +112,10 @@ import org.fife.ui.rsyntaxtextarea.*;
 
 
 	/**
-	 * Returns the text to place at the beginning and end of a
-	 * line to "comment" it in a this programming language.
-	 *
-	 * @return The start and end strings to add to a line to "comment"
-	 *         it out.
+	 * {@inheritDoc}
 	 */
-	public String[] getLineCommentStartAndEnd() {
+	@Override
+	public String[] getLineCommentStartAndEnd(int languageIndex) {
 		return new String[] { "#", null };
 	}
 
@@ -172,7 +155,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 			return yylex();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
-			return new DefaultToken();
+			return new TokenImpl();
 		}
 
 	}

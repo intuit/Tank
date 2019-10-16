@@ -36,6 +36,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.BadLocationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -74,8 +75,6 @@ public class FindReplaceDialog extends JDialog implements ActionListener {
      *            The window holder
      * @param type
      *            The type of the dialog: FindReplace.FIND or FindReplace.REPLACE
-     * @param modal
-     *            Displays dialog as a modal window if true
      */
 
     public FindReplaceDialog(AgentDebuggerFrame parent, DialogType type) {
@@ -328,7 +327,9 @@ public class FindReplaceDialog extends JDialog implements ActionListener {
             if (foundIndex != -1) {
                 int lineOfOffset = textArea.getLineOfOffset(foundIndex);
                 // textArea.setActiveLineRange(lineOfOffset, lineOfOffset);
-                textArea.setCurrentLine(lineOfOffset);
+                try {
+                    textArea.setCaretPosition(textArea.getLineStartOffset(lineOfOffset));
+                } catch (BadLocationException e) { e.printStackTrace(); }
                 // textArea.setCaretPosition(foundIndex + searchTerm.length());
                 parent.repaint();
                 parent.fireStepChanged(lineOfOffset);
