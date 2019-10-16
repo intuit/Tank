@@ -157,7 +157,7 @@ public class LogicTestData implements Serializable {
      */
     public List<Map.Entry<String, String>> getVariables() {
         ArrayList<Entry<String, String>> ret = new ArrayList<Map.Entry<String, String>>(varMap.entrySet());
-        Collections.sort(ret, new MapEntryComparator());
+        ret.sort(new MapEntryComparator());
         return ret;
     }
 
@@ -207,7 +207,7 @@ public class LogicTestData implements Serializable {
      */
     public List<Map.Entry<String, String>> getResponseHeaders() {
         ArrayList<Entry<String, String>> ret = new ArrayList<Map.Entry<String, String>>(responseHeaderMap.entrySet());
-        Collections.sort(ret, new MapEntryComparator());
+        ret.sort(new MapEntryComparator());
         return ret;
     }
 

@@ -146,9 +146,7 @@ public class ReportServiceV1 implements ReportService {
     public Response processSummary(final String jobId) {
         ResponseBuilder responseBuilder = Response.ok();
         try {
-            Thread t = new Thread( () -> {
-                SummaryReportRunner.generateSummary(jobId);
-            });
+            Thread t = new Thread( () -> SummaryReportRunner.generateSummary(jobId));
             t.setDaemon(true);
             t.start();
             responseBuilder.entity("Generating summary data for job " + jobId);
@@ -479,9 +477,7 @@ public class ReportServiceV1 implements ReportService {
     public Response setTPSInfos(final TPSReportingPackage reportingPackage) {
         ResponseBuilder responseBuilder = null;
         try {
-            new Thread( () -> {
-                ResultsStorage.instance().storeTpsResults(reportingPackage.getJobId(), reportingPackage.getInstanceId(), reportingPackage.getContainer());
-            }).start();
+            new Thread( () -> ResultsStorage.instance().storeTpsResults(reportingPackage.getJobId(), reportingPackage.getInstanceId(), reportingPackage.getContainer())).start();
             responseBuilder = Response.status(Status.ACCEPTED);
 
         } catch (Exception e) {
@@ -495,9 +491,7 @@ public class ReportServiceV1 implements ReportService {
     public Response sendTimingResults(final TankResultPackage results) {
         ResponseBuilder responseBuilder = null;
         try {
-            new Thread( () -> {
-                ResultsStorage.instance().storeTimingResults(results.getJobId(), results.getInstanceId(), results.getResults());
-            }).start();
+            new Thread( () -> ResultsStorage.instance().storeTimingResults(results.getJobId(), results.getInstanceId(), results.getResults())).start();
             responseBuilder = Response.status(Status.ACCEPTED);
 
         } catch (Exception e) {

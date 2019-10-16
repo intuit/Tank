@@ -122,12 +122,7 @@ public class JobReport extends SelectableBean<JobReportData> implements Serializ
         if (!StringUtils.isEmpty(jobReportOptions.getDurationEnd())) {
             try {
                 int duration = findDuration(jobReportOptions.getDurationEnd());
-                for (Iterator<JobReportData> iter = data.iterator(); iter.hasNext();) {
-                    JobReportData job = iter.next();
-                    if (duration < job.getDuration()) {
-                        iter.remove();
-                    }
-                }
+                data.removeIf(job -> duration < job.getDuration());
             } catch (Exception e) {
                 LOG.warn("Error with max duration value of " + jobReportOptions.getDurationEnd());
             }
@@ -137,12 +132,7 @@ public class JobReport extends SelectableBean<JobReportData> implements Serializ
 
                 String match = jobReportOptions.getProjectNameMatch().toLowerCase().replace(".", "\\.")
                         .replace("\\", "\\\\").replace("*", ".*");
-                for (Iterator<JobReportData> iter = data.iterator(); iter.hasNext();) {
-                    JobReportData job = iter.next();
-                    if (!job.getProjectName().toLowerCase().matches(match)) {
-                        iter.remove();
-                    }
-                }
+                data.removeIf(job -> !job.getProjectName().toLowerCase().matches(match));
             } catch (Exception e) {
                 LOG.warn("Error with max duration value of " + jobReportOptions.getDurationEnd());
             }
@@ -212,12 +202,7 @@ public class JobReport extends SelectableBean<JobReportData> implements Serializ
         if (NumberUtils.isDigits(jobReportOptions.getMinUsers())) {
             try {
                 int users = Integer.parseInt(jobReportOptions.getMinUsers());
-                for (Iterator<JobInstance> iter = all.iterator(); iter.hasNext();) {
-                    JobInstance job = iter.next();
-                    if (job.getTotalVirtualUsers() < users) {
-                        iter.remove();
-                    }
-                }
+                all.removeIf(job -> job.getTotalVirtualUsers() < users);
             } catch (NumberFormatException e) {
                 LOG.warn("Error with min users value of " + jobReportOptions.getMinUsers());
             }
@@ -225,12 +210,7 @@ public class JobReport extends SelectableBean<JobReportData> implements Serializ
         if (NumberUtils.isDigits(jobReportOptions.getMaxUsers())) {
             try {
                 int users = Integer.parseInt(jobReportOptions.getMaxUsers());
-                for (Iterator<JobInstance> iter = all.iterator(); iter.hasNext();) {
-                    JobInstance job = iter.next();
-                    if (job.getTotalVirtualUsers() > users) {
-                        iter.remove();
-                    }
-                }
+                all.removeIf(job -> job.getTotalVirtualUsers() > users);
             } catch (NumberFormatException e) {
                 LOG.warn("Error with max users value of " + jobReportOptions.getMaxUsers());
             }
@@ -238,12 +218,7 @@ public class JobReport extends SelectableBean<JobReportData> implements Serializ
         if (NumberUtils.isDigits(jobReportOptions.getJobIdStart())) {
             try {
                 int jobIdStart = NumberUtils.toInt(jobReportOptions.getJobIdStart());
-                for (Iterator<JobInstance> iter = all.iterator(); iter.hasNext();) {
-                    JobInstance job = iter.next();
-                    if (job.getId() < jobIdStart) {
-                        iter.remove();
-                    }
-                }
+                all.removeIf(job -> job.getId() < jobIdStart);
             } catch (NumberFormatException e) {
                 LOG.warn("Error with max users value of " + jobReportOptions.getMaxUsers());
             }
@@ -251,12 +226,7 @@ public class JobReport extends SelectableBean<JobReportData> implements Serializ
         if (NumberUtils.isDigits(jobReportOptions.getJobIdEnd())) {
             try {
                 int jobIdStart = NumberUtils.toInt(jobReportOptions.getJobIdEnd());
-                for (Iterator<JobInstance> iter = all.iterator(); iter.hasNext();) {
-                    JobInstance job = iter.next();
-                    if (job.getId() > jobIdStart) {
-                        iter.remove();
-                    }
-                }
+                all.removeIf(job -> job.getId() > jobIdStart);
             } catch (NumberFormatException e) {
                 LOG.warn("Error with max users value of " + jobReportOptions.getMaxUsers());
             }

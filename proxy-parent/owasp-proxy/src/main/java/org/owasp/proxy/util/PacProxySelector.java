@@ -74,12 +74,9 @@ public class PacProxySelector extends ProxySelector {
         }
         initPacFunctions(se);
 
-        InputStreamReader isrUtils = new InputStreamReader(getClass()
-                .getResourceAsStream("PacUtils.js"));
-        try {
+        try (InputStreamReader isrUtils = new InputStreamReader(getClass()
+                .getResourceAsStream("PacUtils.js"))) {
             se.eval(isrUtils);
-        } finally {
-            isrUtils.close();
         }
 
         try {

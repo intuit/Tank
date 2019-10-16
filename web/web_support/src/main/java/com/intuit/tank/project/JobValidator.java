@@ -135,11 +135,7 @@ public class JobValidator {
     }
 
     private void putVariable(Map<String, Set<String>> map, String key, String value, String declarer) {
-        Set<String> set = map.get(key);
-        if (set == null) {
-            set = new HashSet<String>();
-            map.put(key, set);
-        }
+        Set<String> set = map.computeIfAbsent(key, k -> new HashSet<String>());
         set.add(declarer + ":: " + value);
 
     }

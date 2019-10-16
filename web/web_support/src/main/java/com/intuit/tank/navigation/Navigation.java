@@ -48,11 +48,7 @@ public class Navigation implements Serializable {
      */
     @Nonnull
     public String getPageTitle(@Nonnull String viewId) {
-        String ret = pageTitleMap.get(viewId);
-        if (ret == null) {
-            ret = findPageTitle(viewId);
-            pageTitleMap.put(viewId, ret);
-        }
+        String ret = pageTitleMap.computeIfAbsent(viewId, this::findPageTitle);
         return ret;
     }
 

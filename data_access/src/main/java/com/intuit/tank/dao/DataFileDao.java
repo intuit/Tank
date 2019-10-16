@@ -72,9 +72,7 @@ public class DataFileDao extends BaseDao<DataFile> {
                 storeFile(is, df);
                 df = saveOrUpdate(df);
                 delete = false;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
+            } catch (IOException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             } finally {
                 if (delete) {

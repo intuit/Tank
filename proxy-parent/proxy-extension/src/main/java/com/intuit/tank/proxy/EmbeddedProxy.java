@@ -180,16 +180,12 @@ public class EmbeddedProxy implements TransactionRecordedListener {
 		try {
 			ssl = new AutoGeneratingContextSelector(ca);
 			ssl.save(ks, CA_TYPE, CA_PASSWORD, CA_PASSWORD, CA_ALIAS);
-		} catch (GeneralSecurityException e) {
-			System.err.println("Error saving CA keys to keystore: "
-					+ e.getLocalizedMessage());
-			throw e;
-		} catch (IOException e) {
+		} catch (GeneralSecurityException | IOException e) {
 			System.err.println("Error saving CA keys to keystore: "
 					+ e.getLocalizedMessage());
 			throw e;
 		}
-	}
+    }
 
 	/**
 	 * Attempts to load an existing certificate authority file, throws Exception
@@ -203,16 +199,12 @@ public class EmbeddedProxy implements TransactionRecordedListener {
 		try {
 			return new AutoGeneratingContextSelector(ks, CA_TYPE, CA_PASSWORD,
 					CA_PASSWORD, CA_ALIAS);
-		} catch (GeneralSecurityException e) {
-			System.err.println("Error loading CA keys from keystore: "
-					+ e.getLocalizedMessage());
-			throw e;
-		} catch (IOException e) {
+		} catch (GeneralSecurityException | IOException e) {
 			System.err.println("Error loading CA keys from keystore: "
 					+ e.getLocalizedMessage());
 			throw e;
 		}
-	}
+    }
 
 	private SSLContextSelector getSSLContextSelector()
 			throws GeneralSecurityException, IOException {

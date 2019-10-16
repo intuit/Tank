@@ -59,10 +59,7 @@ public class DefaultClientContextSelector implements SSLContextSelector {
             context.init(null, new TrustManager[] { getTrustManager() },
                     new SecureRandom());
             contextMap.put(host, context);
-        } catch (NoSuchAlgorithmException e) {
-            // should never happen
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
             // should never happen
             e.printStackTrace();
         }
@@ -97,10 +94,8 @@ public class DefaultClientContextSelector implements SSLContextSelector {
                 };
             }
             trustManager = manager;
-        } catch (NoSuchAlgorithmException nsae) {
+        } catch (NoSuchAlgorithmException | KeyStoreException nsae) {
             nsae.printStackTrace();
-        } catch (KeyStoreException kse) {
-            kse.printStackTrace();
         }
     }
 

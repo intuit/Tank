@@ -181,11 +181,7 @@ public class DatabaseResultsReader implements ResultsReader {
                             }
                         }
                         TPSInfo info = new TPSInfo(timestamp, loggingKey, transactions, period);
-                        Map<String, TPSInfo> map = ret.get(timestamp);
-                        if (map == null) {
-                            map = new HashMap<String, TPSInfo>();
-                            ret.put(timestamp, map);
-                        }
+                        Map<String, TPSInfo> map = ret.computeIfAbsent(timestamp, k -> new HashMap<String, TPSInfo>());
                         TPSInfo existing = map.get(loggingKey);
                         if (existing != null) {
                             info = existing.add(info);

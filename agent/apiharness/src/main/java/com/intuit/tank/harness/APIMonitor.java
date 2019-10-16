@@ -15,7 +15,6 @@ package com.intuit.tank.harness;
 
 import java.util.Date;
 
-import com.intuit.tank.vm.api.enumerated.VMRegion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
