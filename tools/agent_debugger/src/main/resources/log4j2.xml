@@ -14,10 +14,10 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-		<Logger name="com" level="info" additivity="true">
+		<Logger name="com" level="info" additivity="false">
 			<appender-ref ref="debbuggerAppender" level="info"/>
 		</Logger>
-		<Logger name="org" level="info" additivity="true">
+		<Logger name="org" level="info" additivity="false">
 			<appender-ref ref="debbuggerAppender" level="info"/>
 		</Logger>
         <Root level="error">
