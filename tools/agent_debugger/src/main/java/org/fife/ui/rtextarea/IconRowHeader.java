@@ -489,33 +489,37 @@ public class IconRowHeader extends AbstractGutterComponent implements MouseListe
 			(activeLineRangeEnd>=topLine && activeLineRangeEnd<=bottomLine) ||
 			(activeLineRangeStart<=topLine && activeLineRangeEnd>=bottomLine)) {
 
-			g.setColor(activeLineRangeColor);
+//			g.setColor(activeLineRangeColor);
 			int firstLine = Math.max(activeLineRangeStart, topLine);
 			int y1 = firstLine * cellHeight + textAreaInsets.top;
-			int lastLine = Math.min(activeLineRangeEnd, bottomLine);
-			int y2 = (lastLine+1) * cellHeight + textAreaInsets.top - 1;
-
-			int j = y1;
-			while (j<=y2) {
-				int yEnd = Math.min(y2, j+getWidth());
-				int xEnd = yEnd-j;
-				g.drawLine(0,j, xEnd,yEnd);
-				j += 2;
+//			int lastLine = Math.min(activeLineRangeEnd, bottomLine);
+//			int y2 = (lastLine+1) * cellHeight + textAreaInsets.top - 1;
+			Icon icon = getCurrentLineIcon();
+			if (icon != null) {
+				int y3 = y1 + (cellHeight - icon.getIconHeight()) / 2;
+				icon.paintIcon(this, g, 0, y3);
 			}
-
-			int i = 2;
-			while (i<getWidth()) {
-				int yEnd = y1 + getWidth() - i;
-				g.drawLine(i,y1, getWidth(),yEnd);
-				i += 2;
-			}
-
-			if (firstLine==activeLineRangeStart) {
-				g.drawLine(0,y1, getWidth(),y1);
-			}
-			if (lastLine==activeLineRangeEnd) {
-				g.drawLine(0,y2, getWidth(),y2);
-			}
+//			int j = y1;
+//			while (j<=y2) {
+//				int yEnd = Math.min(y2, j+getWidth());
+//				int xEnd = yEnd-j;
+//				g.drawLine(0,j, xEnd,yEnd);
+//				j += 2;
+//			}
+//
+//			int i = 2;
+//			while (i<getWidth()) {
+//				int yEnd = y1 + getWidth() - i;
+//				g.drawLine(i,y1, getWidth(),yEnd);
+//				i += 2;
+//			}
+//
+//			if (firstLine==activeLineRangeStart) {
+//				g.drawLine(0,y1, getWidth(),y1);
+//			}
+//			if (lastLine==activeLineRangeEnd) {
+//				g.drawLine(0,y2, getWidth(),y2);
+//			}
 
 		}
 
@@ -532,7 +536,7 @@ public class IconRowHeader extends AbstractGutterComponent implements MouseListe
 							int y2 = y + (line-topLine)*cellHeight;
 							y2 += (cellHeight-icon.getIconHeight())/2;
 							ti.getIcon().paintIcon(this, g, 0, y2);
-							lastLine = line-1; // Paint only 1 icon per line
+							//lastLine = line-1; // Paint only 1 icon per line
 						}
 					}
 					else if (line<topLine) {
@@ -542,6 +546,17 @@ public class IconRowHeader extends AbstractGutterComponent implements MouseListe
 			}
 		}
 
+		if ((activeLineRangeStart >= topLine && activeLineRangeStart <= bottomLine) ||
+				(activeLineRangeEnd >= topLine && activeLineRangeEnd <= bottomLine) ||
+				(activeLineRangeStart <= topLine && activeLineRangeEnd >= bottomLine)) {
+			int firstLine = Math.max(activeLineRangeStart, topLine);
+			int y1 = firstLine * cellHeight;
+			Icon icon = getCurrentLineIcon();
+			if (icon != null) {
+				int y3 = y1 + (cellHeight - icon.getIconHeight()) / 2;
+				icon.paintIcon(this, g, 0, y3);
+			}
+		}
 	}
 
 
