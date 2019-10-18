@@ -75,7 +75,8 @@
       <property name="org.hibernate.envers.revisionFieldName" value="rev" />
       <property name="org.hibernate.envers.revisionTypeFieldName" value="rev_type" />
 
-
+      <!-- JTA Provider-->
+      <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.SunOneJtaPlatform" />
     </properties>
   </persistence-unit>
 </persistence>
