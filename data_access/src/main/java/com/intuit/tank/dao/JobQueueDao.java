@@ -91,25 +91,15 @@ public class JobQueueDao extends BaseDao<JobQueue> {
     public List<JobQueue> findRecent() {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_YEAR, -5);
-    	List<JobQueue> results = null;
+    	List<JobQueue> results;
     	EntityManager em = getEntityManager();
-    	try {
-    		begin();
-	        CriteriaBuilder cb = em.getCriteriaBuilder();
-	        CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
-	        Root<JobQueue> root = query.from(JobQueue.class);
-	        query.select(root);
-	        query.where(cb.greaterThan(root.<Date>get(JobQueue.PROPERTY_MODIFIED), c.getTime()));
-	        query.orderBy(cb.desc(root.get(JobQueue.PROPERTY_PROJECT_ID)));
-	        results = em.createQuery(query).getResultList();
-	        commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-    	} finally {
-    		cleanup();
-    	}
+    	CriteriaBuilder cb = em.getCriteriaBuilder();
+    	CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
+    	Root<JobQueue> root = query.from(JobQueue.class);
+    	query.select(root);
+    	query.where(cb.greaterThan(root.<Date>get(JobQueue.PROPERTY_MODIFIED), c.getTime()));
+    	query.orderBy(cb.desc(root.get(JobQueue.PROPERTY_PROJECT_ID)));
+    	results = em.createQuery(query).getResultList();
     	return results;
     }
 

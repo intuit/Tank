@@ -57,19 +57,10 @@ public class JobNotificationDao extends BaseDao<JobNotification> {
     @Override
     public JobNotification findRevision(int id, int revisionNumber) {
         JobNotification result = null;
-        try {
-            begin();
-            AuditReader reader = AuditReaderFactory.get(getEntityManager());
-            result = reader.find(JobNotification.class, id, revisionNumber);
-            Hibernate.initialize(result.getLifecycleEvents());
-            result.getLifecycleEvents().contains(JobLifecycleEvent.QUEUE_ADD);
-            commit();
-        } catch (NoResultException e) {
-            rollback();
-            LOG.warn("No result for revision " + revisionNumber + " with id of " + id);
-        } finally {
-            cleanup();
-        }
+        AuditReader reader = AuditReaderFactory.get(getEntityManager());
+        result = reader.find(JobNotification.class, id, revisionNumber);
+        Hibernate.initialize(result.getLifecycleEvents());
+        result.getLifecycleEvents().contains(JobLifecycleEvent.QUEUE_ADD);
         return result;
     }
 

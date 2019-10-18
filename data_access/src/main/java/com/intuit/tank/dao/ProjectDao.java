@@ -58,26 +58,16 @@ public class ProjectDao extends OwnableDao<Project> {
     public Project findByName(@Nonnull String name) {
     	Project project = null;
     	EntityManager em = getEntityManager();
-    	try {
-    		begin();
-    		CriteriaBuilder cb = em.getCriteriaBuilder();
-	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
-	        Root<Project> root = query.from(Project.class);
-	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
-	        wl.fetch("jobConfiguration");
-	        query.select(root);
-	        query.where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
-	        project = em.createQuery(query).getSingleResult();
-			Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
-			Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
-    		commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-    	} finally {
-    		cleanup();
-    	}
+    	CriteriaBuilder cb = em.getCriteriaBuilder();
+    	CriteriaQuery<Project> query = cb.createQuery(Project.class);
+    	Root<Project> root = query.from(Project.class);
+    	Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
+    	wl.fetch("jobConfiguration");
+    	query.select(root);
+    	query.where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
+    	project = em.createQuery(query).getSingleResult();
+    	Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
+    	Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
     	return project;
     }
 
@@ -129,19 +119,9 @@ public class ProjectDao extends OwnableDao<Project> {
     @Override
     public Project findById(@Nonnull Integer id) {
     	Project project = null;
-    	try {
-    		begin();
-    		project = getEntityManager().find(Project.class, id);
-			Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
-			Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
-    		commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-    	} finally {
-    		cleanup();
-    	}
+    	project = getEntityManager().find(Project.class, id);
+    	Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
+    	Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
     	return project;
     }
 
@@ -156,25 +136,15 @@ public class ProjectDao extends OwnableDao<Project> {
     public List<Project> findAll() throws HibernateException {
     	List<Project> results = null;
     	EntityManager em = getEntityManager();
-    	try {
-    		begin();
-	        CriteriaBuilder cb = em.getCriteriaBuilder();
-	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
-	        Root<Project> root = query.from(Project.class);
-	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
-	        wl.fetch("jobConfiguration");
-	        query.select(root);
-	        results = em.createQuery(query).getResultList();
-	        for (Project project : results) {
-				Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
-	        }
-	        commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-    	} finally {
-    		cleanup();
+    	CriteriaBuilder cb = em.getCriteriaBuilder();
+    	CriteriaQuery<Project> query = cb.createQuery(Project.class);
+    	Root<Project> root = query.from(Project.class);
+    	Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
+    	wl.fetch("jobConfiguration");
+    	query.select(root);
+    	results = em.createQuery(query).getResultList();
+    	for (Project project : results) {
+    	    Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
     	}
     	return results;
     }

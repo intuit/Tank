@@ -20,6 +20,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceUnit;
 
 import org.apache.logging.log4j.LogManager;
@@ -35,45 +36,19 @@ public class TransactionContainer {
 
     private static final Logger LOG = LogManager.getLogger(TransactionContainer.class);
 
-    @PersistenceUnit
-    private static EntityManagerFactory entityManagerFactory;
+    @PersistenceContext(unitName = "tank")
+    private EntityManager em;
 
     private static volatile boolean initialized = false;  
     private static Boolean lock = Boolean.TRUE;
 
-    private EntityManager em;
+
     private EntityTransaction transaction;
     private Object initiatingObject;
 
-    protected TransactionContainer() {
-        synchronized(lock){
 
-            if(initialized){
-                return;
-            }
-            try{
-                entityManagerFactory = Persistence.createEntityManagerFactory("tank");
-                initialized = true;
-            } catch(Throwable t){
-                LOG.error("Failed to setup persistence unit!", t);
-            }
-        }
-    }
-
-    /**
-     * @return the em
-     */
-    protected EntityManager getEntityManager() {
-        if (em == null) {
-            em = entityManagerFactory.createEntityManager();
-        }
-        return em;
-    }
 
     protected void startTrasaction(Object initiatingObject) {
-        if (em == null) {
-            getEntityManager();
-        }
         if (transaction == null) {
             transaction = em.getTransaction();
             transaction.begin();
