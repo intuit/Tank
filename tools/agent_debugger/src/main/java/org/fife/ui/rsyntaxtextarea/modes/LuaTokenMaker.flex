@@ -2,23 +2,9 @@
  * 07/14/2006
  *
  * LuaTokenMaker.java - Scanner for the Lua programming language.
- * Copyright (C) 2006 Robert Futrell
- * robert_futrell at users.sourceforge.net
- * http://fifesoft.com/rsyntaxtextarea
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
+ * 
+ * This library is distributed under a modified BSD license.  See the included
+ * LICENSE file for details.
  */
 package org.fife.ui.rsyntaxtextarea.modes;
 
@@ -71,7 +57,6 @@ import org.fife.ui.rsyntaxtextarea.*;
 %public
 %class LuaTokenMaker
 %extends AbstractJFlexTokenMaker
-%implements TokenMaker
 %unicode
 %type org.fife.ui.rsyntaxtextarea.Token
 
@@ -118,6 +103,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 	 * @param startOffset The offset in the document at which this token
 	 *                    occurs.
 	 */
+	@Override
 	public void addToken(char[] array, int start, int end, int tokenType, int startOffset) {
 		super.addToken(array, start,end, tokenType, startOffset);
 		zzStartRead = zzMarkedPos;
@@ -125,13 +111,10 @@ import org.fife.ui.rsyntaxtextarea.*;
 
 
 	/**
-	 * Returns the text to place at the beginning and end of a
-	 * line to "comment" it in a this programming language.
-	 *
-	 * @return The start and end strings to add to a line to "comment"
-	 *         it out.
+	 * {@inheritDoc}
 	 */
-	public String[] getLineCommentStartAndEnd() {
+	@Override
+	public String[] getLineCommentStartAndEnd(int languageIndex) {
 		return new String[] { "--", null };
 	}
 
@@ -175,7 +158,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 			return yylex();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
-			return new DefaultToken();
+			return new TokenImpl();
 		}
 
 	}
@@ -186,9 +169,8 @@ import org.fife.ui.rsyntaxtextarea.*;
 	 *
 	 * @return      <code>true</code> if EOF was reached, otherwise
 	 *              <code>false</code>.
-	 * @exception   IOException  if any I/O-Error occurs.
 	 */
-	private boolean zzRefill() throws java.io.IOException {
+	private boolean zzRefill() {
 		return zzCurrentPos>=s.offset+s.count;
 	}
 
@@ -203,7 +185,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 	 *
 	 * @param reader   the new input stream 
 	 */
-	public final void yyreset(java.io.Reader reader) throws java.io.IOException {
+	public final void yyreset(Reader reader) {
 		// 's' has been updated.
 		zzBuffer = s.array;
 		/*
@@ -265,58 +247,60 @@ Identifier				= ({Letter}({Letter}|{Digit})*)
 %%
 
 /* Keywords */
-<YYINITIAL> "break"					{ addToken(Token.RESERVED_WORD); }
-<YYINITIAL> "do"					{ addToken(Token.RESERVED_WORD); }
-<YYINITIAL> "else"					{ addToken(Token.RESERVED_WORD); }
-<YYINITIAL> "elseif"				{ addToken(Token.RESERVED_WORD); }
-<YYINITIAL> "end"					{ addToken(Token.RESERVED_WORD); }
-<YYINITIAL> "for"					{ addToken(Token.RESERVED_WORD); }
-<YYINITIAL> "function"				{ addToken(Token.RESERVED_WORD); }
-<YYINITIAL> "if"					{ addToken(Token.RESERVED_WORD); }
-<YYINITIAL> "local"					{ addToken(Token.RESERVED_WORD); }
-<YYINITIAL> "nil"					{ addToken(Token.RESERVED_WORD); }
-<YYINITIAL> "repeat"				{ addToken(Token.RESERVED_WORD); }
-<YYINITIAL> "return"				{ addToken(Token.RESERVED_WORD); }
-<YYINITIAL> "then"					{ addToken(Token.RESERVED_WORD); }
-<YYINITIAL> "until"					{ addToken(Token.RESERVED_WORD); }
-<YYINITIAL> "while"					{ addToken(Token.RESERVED_WORD); }
+<YYINITIAL> "break" |
+<YYINITIAL> "do" |
+<YYINITIAL> "else" |
+<YYINITIAL> "elseif" |
+<YYINITIAL> "end" |
+<YYINITIAL> "for" |
+<YYINITIAL> "function" |
+<YYINITIAL> "goto" |
+<YYINITIAL> "if" |
+<YYINITIAL> "in" |
+<YYINITIAL> "local" |
+<YYINITIAL> "nil" |
+<YYINITIAL> "repeat" |
+<YYINITIAL> "return" |
+<YYINITIAL> "then" |
+<YYINITIAL> "until" |
+<YYINITIAL> "while" { addToken(Token.RESERVED_WORD); }
 
 /* Data types. */
-<YYINITIAL> "<number>"				{ addToken(Token.DATA_TYPE); }
-<YYINITIAL> "<name>"				{ addToken(Token.DATA_TYPE); }
-<YYINITIAL> "<string>"				{ addToken(Token.DATA_TYPE); }
-<YYINITIAL> "<eof>"					{ addToken(Token.DATA_TYPE); }
+<YYINITIAL> "<number>" |
+<YYINITIAL> "<name>" |
+<YYINITIAL> "<string>" |
+<YYINITIAL> "<eof>" |
 <YYINITIAL> "NULL"					{ addToken(Token.DATA_TYPE); }
 
 /* Functions. */
-<YYINITIAL> "_G"					{ addToken(Token.FUNCTION); }
-<YYINITIAL> "_VERSION"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "assert"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "collectgarbage"			{ addToken(Token.FUNCTION); }
-<YYINITIAL> "dofile"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "error"					{ addToken(Token.FUNCTION); }
-<YYINITIAL> "getfenv"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "getmetatable"			{ addToken(Token.FUNCTION); }
-<YYINITIAL> "ipairs"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "load"					{ addToken(Token.FUNCTION); }
-<YYINITIAL> "loadfile"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "loadstring"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "module"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "next"					{ addToken(Token.FUNCTION); }
-<YYINITIAL> "pairs"					{ addToken(Token.FUNCTION); }
-<YYINITIAL> "pcall"					{ addToken(Token.FUNCTION); }
-<YYINITIAL> "print"					{ addToken(Token.FUNCTION); }
-<YYINITIAL> "rawequal"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "rawget"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "rawset"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "require"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "select"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "setfenv"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "setmetatable"			{ addToken(Token.FUNCTION); }
-<YYINITIAL> "tonumber"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "tostring"				{ addToken(Token.FUNCTION); }
-<YYINITIAL> "type"					{ addToken(Token.FUNCTION); }
-<YYINITIAL> "unpack"				{ addToken(Token.FUNCTION); }
+<YYINITIAL> "_G" |
+<YYINITIAL> "_VERSION" |
+<YYINITIAL> "assert" |
+<YYINITIAL> "collectgarbage" |
+<YYINITIAL> "dofile" |
+<YYINITIAL> "error" |
+<YYINITIAL> "getfenv" |
+<YYINITIAL> "getmetatable" |
+<YYINITIAL> "ipairs" |
+<YYINITIAL> "load" |
+<YYINITIAL> "loadfile" |
+<YYINITIAL> "loadstring" |
+<YYINITIAL> "module" |
+<YYINITIAL> "next" |
+<YYINITIAL> "pairs" |
+<YYINITIAL> "pcall" |
+<YYINITIAL> "print" |
+<YYINITIAL> "rawequal" |
+<YYINITIAL> "rawget" |
+<YYINITIAL> "rawset" |
+<YYINITIAL> "require" |
+<YYINITIAL> "select" |
+<YYINITIAL> "setfenv" |
+<YYINITIAL> "setmetatable" |
+<YYINITIAL> "tonumber" |
+<YYINITIAL> "tostring" |
+<YYINITIAL> "type" |
+<YYINITIAL> "unpack" |
 <YYINITIAL> "xpcall"				{ addToken(Token.FUNCTION); }
 
 /* Booleans. */

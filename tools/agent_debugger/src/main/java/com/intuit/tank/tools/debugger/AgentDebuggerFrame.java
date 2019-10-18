@@ -208,7 +208,7 @@ public class AgentDebuggerFrame extends JFrame {
                         if (modelToView.contains(point)) {
                             if (!multiSelect) {
                                 int line = scriptEditorTA.getLineOfOffset(offset);
-                                scriptEditorTA.setCurrentLine(line);
+                                setCurrentLine(line);
                             }
                             popup.show(e.getComponent(), e.getX(), e.getY());
                         }
@@ -295,12 +295,12 @@ public class AgentDebuggerFrame extends JFrame {
             scriptEditorTA.grabFocus();
             int caretLineNumber = this.scriptEditorTA.getCaretLineNumber() + (moveUp ? -1 : 1);
             if (caretLineNumber > 0 && moveUp) {
-                scriptEditorTA.setCurrentLine(caretLineNumber);
+                setCurrentLine(caretLineNumber);
                 fireStepChanged(caretLineNumber);
             }
             int lastLine = scriptEditorTA.getLineOfOffset(this.scriptEditorTA.getText().length());
             if (!moveUp && caretLineNumber <= lastLine) {
-                scriptEditorTA.setCurrentLine(caretLineNumber);
+                setCurrentLine(caretLineNumber);
                 fireStepChanged(caretLineNumber);
             }
         } catch (BadLocationException e) {
@@ -554,7 +554,7 @@ public class AgentDebuggerFrame extends JFrame {
         } else {
             scriptEditorTA.setActiveLineRange(currentRunningStep + 1, currentRunningStep + 1);
         }
-        scriptEditorTA.setCurrentLine(stepToSet);
+        setCurrentLine(stepToSet);
         repaint();
         if (flowController.isSkipping()) {
             actionComponents.skipTo();
@@ -1039,6 +1039,12 @@ public class AgentDebuggerFrame extends JFrame {
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
+    }
+
+    private void setCurrentLine(int line) {
+        try {
+            scriptEditorTA.setCaretPosition(scriptEditorTA.getLineStartOffset(line));
+        } catch (BadLocationException e) { e.printStackTrace(); }
     }
 
     public RequestResponsePanel getRequestResponsePanel() {

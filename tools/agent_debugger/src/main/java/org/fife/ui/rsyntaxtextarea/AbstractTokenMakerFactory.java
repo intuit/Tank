@@ -2,100 +2,133 @@
  * 12/14/08
  *
  * AbstractTokenMakerFactory.java - Base class for TokenMaker implementations.
- * Copyright (C) 2008 Robert Futrell
- * robert_futrell at users.sourceforge.net
- * http://fifesoft.com/rsyntaxtextarea
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
+ * This library is distributed under a modified BSD license.  See the included
+ * LICENSE file for details.
  */
 package org.fife.ui.rsyntaxtextarea;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+
 /**
- * Base class for {@link TokenMakerFactory} implementations. A <code>java.util.Map</code> maps keys to the names of
- * {@link TokenMaker} classes.
- * 
+ * Base class for {@link TokenMakerFactory} implementations.  A mapping from
+ * language keys to the names of {@link TokenMaker} classes is stored.
+ *
  * @author Robert Futrell
  * @version 1.0
  */
 public abstract class AbstractTokenMakerFactory extends TokenMakerFactory {
 
-    /**
-     * A mapping from keys to the names of {@link TokenMaker} implementation class names. When
-     * {@link #getTokenMaker(String)} is called with a key defined in this map, a <code>TokenMaker</code> of the
-     * corresponding type is returned.
-     */
-    private Map tokenMakerMap;
+	/**
+	 * A mapping from keys to the names of {@link TokenMaker} implementation
+	 * class names.  When {@link #getTokenMaker(String)} is called with a key
+	 * defined in this map, a <code>TokenMaker</code> of the corresponding type
+	 * is returned.
+	 */
+	private Map<String, Object> tokenMakerMap;
 
-    /**
-     * Constructor.
-     */
-    protected AbstractTokenMakerFactory() {
-        tokenMakerMap = createTokenMakerKeyToClassNameMap();
-    }
 
-    /**
-     * Creates and returns a mapping from keys to the names of {@link TokenMaker} implementation classes. When
-     * {@link #getTokenMaker(String)} is called with a key defined in this map, a <code>TokenMaker</code> of the
-     * corresponding type is returned.
-     * 
-     * @return The map.
-     */
-    protected abstract Map createTokenMakerKeyToClassNameMap();
+	/**
+	 * Constructor.
+	 */
+	protected AbstractTokenMakerFactory() {
+		tokenMakerMap = new HashMap<>();
+		initTokenMakerMap();
+	}
 
-    /**
-     * Returns a {@link TokenMaker} for the specified key.
-     * 
-     * @param key
-     *            The key.
-     * @return The corresponding <code>TokenMaker</code>, or <code>null</code> if none matches the specified key.
-     */
-    protected TokenMaker getTokenMakerImpl(String key) {
-        String clazz = (String) tokenMakerMap.get(key);
-        if (clazz != null) {
-            try {
-                return (TokenMaker) Class.forName(clazz).newInstance();
-            } catch (RuntimeException re) { // FindBugs
-                throw re;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Set keySet() {
-        return tokenMakerMap.keySet();
-    }
+	/**
+	 * Returns a {@link TokenMaker} for the specified key.
+	 *
+	 * @param key The key.
+	 * @return The corresponding <code>TokenMaker</code>, or <code>null</code>
+	 *         if none matches the specified key.
+	 */
+	@Override
+	protected TokenMaker getTokenMakerImpl(String key) {
+		TokenMakerCreator tmc = (TokenMakerCreator)tokenMakerMap.get(key);
+		if (tmc!=null) {
+			try {
+				return tmc.create();
+			} catch (RuntimeException re) { // FindBugs
+				throw re;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
 
-    /**
-     * Adds a mapping from a key to a <code>TokenMaker</code> implementation class name.
-     * 
-     * @param key
-     *            The key.
-     * @param className
-     *            The <code>TokenMaker</code> class name.
-     * @return The previous value for the specified key, or <code>null</code> if there was none.
-     */
-    public String putMapping(String key, String className) {
-        return (String) tokenMakerMap.put(key, className);
-    }
+
+	/**
+	 * Populates the mapping from keys to instances of
+	 * <code>TokenMakerCreator</code>s.  Subclasses should override this method
+	 * and call one of the <code>putMapping</code> overloads to register
+	 * {@link TokenMaker}s for syntax constants.
+	 *
+	 * @see #putMapping(String, String)
+	 * @see #putMapping(String, String, ClassLoader)
+	 */
+	protected abstract void initTokenMakerMap();
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<String> keySet() {
+		return tokenMakerMap.keySet();
+	}
+
+
+	/**
+	 * Adds a mapping from a key to a <code>TokenMaker</code> implementation
+	 * class name.
+	 *
+	 * @param key The key.
+	 * @param className The <code>TokenMaker</code> class name.
+	 * @see #putMapping(String, String, ClassLoader)
+	 */
+	public void putMapping(String key, String className) {
+		putMapping(key, className, null);
+	}
+
+
+	/**
+	 * Adds a mapping from a key to a <code>TokenMaker</code> implementation
+	 * class name.
+	 *
+	 * @param key The key.
+	 * @param className The <code>TokenMaker</code> class name.
+	 * @param cl The class loader to use when loading the class.
+	 * @see #putMapping(String, String)
+	 */
+	public void putMapping(String key, String className, ClassLoader cl) {
+		tokenMakerMap.put(key, new TokenMakerCreator(className, cl));
+	}
+
+
+	/**
+	 * Wrapper that handles the creation of TokenMaker instances.
+	 */
+	private static class TokenMakerCreator {
+
+		private String className;
+		private ClassLoader cl;
+
+		public TokenMakerCreator(String className, ClassLoader cl) {
+			this.className = className;
+			this.cl = cl!=null ? cl : getClass().getClassLoader();
+		}
+
+		public TokenMaker create() throws Exception {
+			return (TokenMaker)Class.forName(className, true, cl).newInstance();
+		}
+
+	}
+
 
 }

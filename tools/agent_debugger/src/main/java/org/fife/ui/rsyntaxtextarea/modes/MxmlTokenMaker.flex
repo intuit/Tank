@@ -2,23 +2,9 @@
  * 01/21/2011
  *
  * MxmlTokenMaker.java - Generates tokens for MXML syntax highlighting.
- * Copyright (C) 2011 Robert Futrell
- * robert_futrell at users.sourceforge.net
- * http://fifesoft.com/rsyntaxtextarea
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
+ * 
+ * This library is distributed under a modified BSD license.  See the included
+ * LICENSE file for details.
  */
 package org.fife.ui.rsyntaxtextarea.modes;
 
@@ -78,46 +64,60 @@ import org.fife.ui.rsyntaxtextarea.*;
 %{
 
 	/**
+	 * Type specific to JSPTokenMaker denoting a line ending with an unclosed
+	 * double-quote attribute.
+	 */
+	public static final int INTERNAL_ATTR_DOUBLE			= -1;
+
+
+	/**
+	 * Type specific to JSPTokenMaker denoting a line ending with an unclosed
+	 * single-quote attribute.
+	 */
+	public static final int INTERNAL_ATTR_SINGLE			= -2;
+
+
+	/**
 	 * Token type specific to this class; this signals that the user has
 	 * ended a line with an unclosed XML tag; thus a new line is beginning
 	 * still inside of the tag.
 	 */
-	public static final int INTERNAL_INTAG						= -1;
+	public static final int INTERNAL_INTAG						= -3;
 
 	/**
 	 * Token type specific to this class; this signals that the user has
 	 * ended a line with an unclosed Script tag; thus a new line is beginning
 	 * still inside of the tag.
 	 */
-	public static final int INTERNAL_INTAG_SCRIPT				= -2;
+	public static final int INTERNAL_INTAG_SCRIPT				= -4;
 
 	/**
 	 * Token type specific to this class; this signals that the user has
 	 * ended a line in the middle of a double-quoted attribute in a Script
 	 * tag.
 	 */
-	public static final int INTERNAL_ATTR_DOUBLE_QUOTE_SCRIPT	= -3;
+	public static final int INTERNAL_ATTR_DOUBLE_QUOTE_SCRIPT	= -5;
 
 	/**
 	 * Token type specific to this class; this signals that the user has
 	 * ended a line in the middle of a single-quoted attribute in a Script
 	 * tag.
 	 */
-	public static final int INTERNAL_ATTR_SINGLE_QUOTE_SCRIPT	= -4;
+	public static final int INTERNAL_ATTR_SINGLE_QUOTE_SCRIPT	= -6;
 
 	/**
 	 * Token type specific to this class; this signals that the user has
 	 * ended a line in an ActionScript code block (text content inside a
 	 * Script tag).
 	 */
-	public static final int INTERNAL_IN_AS						= -5;
+	public static final int INTERNAL_IN_AS						= -7;
 
 	/**
 	 * Token type specific to this class; this signals that the user has
 	 * ended a line in an MLC in an ActionScript code block (text content
 	 * inside a Script tag).
 	 */
-	public static final int INTERNAL_IN_AS_MLC					= -6;
+	public static final int INTERNAL_IN_AS_MLC					= -8;
 
 	/**
 	 * Whether closing markup tags are automatically completed for HTML.
@@ -193,6 +193,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 	 *                    occurs.
 	 * @param hyperlink Whether this token is a hyperlink.
 	 */
+	@Override
 	public void addToken(char[] array, int start, int end, int tokenType,
 						int startOffset, boolean hyperlink) {
 		super.addToken(array, start,end, tokenType, startOffset, hyperlink);
@@ -207,6 +208,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 	 * @return Whether closing markup tags are completed.
 	 * @see #setCompleteCloseTags(boolean)
 	 */
+	@Override
 	public boolean getCompleteCloseTags() {
 		return completeCloseTags;
 	}
@@ -226,7 +228,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 
 
 	/**
-	 * Always returns <tt>false</tt>, as you never want "mark occurrences"
+	 * Always returns <code>false</code>, as you never want "mark occurrences"
 	 * working in XML files.
 	 *
 	 * @param type The token type.
@@ -258,23 +260,23 @@ import org.fife.ui.rsyntaxtextarea.*;
 		// Start off in the proper state.
 		int state = Token.NULL;
 		switch (initialTokenType) {
-			case Token.COMMENT_MULTILINE:
+			case Token.MARKUP_COMMENT:
 				state = COMMENT;
 				start = text.offset;
 				break;
-			case Token.FUNCTION:
+			case Token.MARKUP_DTD:
 				state = DTD;
 				start = text.offset;
 				break;
-			case Token.LITERAL_STRING_DOUBLE_QUOTE:
+			case INTERNAL_ATTR_DOUBLE:
 				state = INATTR_DOUBLE;
 				start = text.offset;
 				break;
-			case Token.LITERAL_CHAR:
+			case INTERNAL_ATTR_SINGLE:
 				state = INATTR_SINGLE;
 				start = text.offset;
 				break;
-			case Token.PREPROCESSOR:
+			case Token.MARKUP_PROCESSING_INSTRUCTION:
 				state = PI;
 				start = text.offset;
 				break;
@@ -302,7 +304,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 				state = AS_MLC;
 				start = text.offset;
 				break;
-			case Token.VARIABLE:
+			case Token.MARKUP_CDATA:
 				state = CDATA;
 				start = text.offset;
 				break;
@@ -317,7 +319,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 			return yylex();
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
-			return new DefaultToken();
+			return new TokenImpl();
 		}
 
 	}
@@ -351,7 +353,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 	 *
 	 * All internal variables are reset, the old input stream 
 	 * <b>cannot</b> be reused (internal buffer is discarded and lost).
-	 * Lexical state is set to <tt>YY_INITIAL</tt>.
+	 * Lexical state is set to <code>YY_INITIAL</code>.
 	 *
 	 * @param reader   the new input stream 
 	 */
@@ -388,7 +390,7 @@ TagName				= ({NameStartChar}{NameChar}*)
 Whitespace			= ([ \t\f])
 LineTerminator			= ([\n])
 Identifier			= ([^ \t\n<&]+)
-AmperItem				= ([&][^; \t]*[;]?)
+EntityReference				= ([&][^; \t]*[;]?)
 InTagIdentifier		= ([^ \t\n\"\'=\/>]+)
 CDataBegin			= ("<![CDATA[")
 CDataEnd				= ("]]>")
@@ -405,8 +407,8 @@ NonSeparator						= ([^\t\f\r\n\ \(\)\{\}\[\]\;\,\.\=\>\<\!\~\?\:\+\-\*\/\&\|\^\
 IdentifierStart					= ({LetterOrUnderscore}|"$")
 IdentifierPart						= ({IdentifierStart}|{Digit}|("\\"{EscapedSourceCharacter}))
 
-AS_CharLiteral				= ([\']({AnyCharacterButApostropheOrBackSlash}|{Escape})[\'])
-AS_UnclosedCharLiteral		= ([\'][^\'\n]*)
+AS_CharLiteral				= ([\']({AnyCharacterButApostropheOrBackSlash}|{Escape})*[\'])
+AS_UnclosedCharLiteral		= ([\']([\\].|[^\\\'])*[^\']?)
 AS_ErrorCharLiteral			= ({AS_UnclosedCharLiteral}[\'])
 AS_StringLiteral			= ([\"]({AnyCharacterButDoubleQuoteOrBackSlash}|{Escape})*[\"])
 AS_UnclosedStringLiteral	= ([\"]([\\].|[^\\\"])*[^\"]?)
@@ -466,7 +468,7 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 
 <YYINITIAL> {
 	"<!--"						{ start = zzMarkedPos-4; yybegin(COMMENT); }
-	{CDataBegin}					{ addToken(Token.DATA_TYPE); start = zzMarkedPos; yybegin(CDATA); }
+	{CDataBegin}					{ addToken(Token.MARKUP_CDATA_DELIMITER); start = zzMarkedPos; yybegin(CDATA); }
 	"<!"							{ start = zzMarkedPos-2; yybegin(DTD); }
 	"<?"							{ start = zzMarkedPos-2; yybegin(PI); }
 	"<"{TagName}				{
@@ -491,32 +493,34 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	"</"						{ addToken(Token.MARKUP_TAG_DELIMITER); yybegin(INTAG); }
 	{LineTerminator}				{ addNullToken(); return firstToken; }
 	{Identifier}					{ addToken(Token.IDENTIFIER); }
-	{AmperItem}					{ addToken(Token.DATA_TYPE); }
+	{EntityReference}					{ addToken(Token.MARKUP_ENTITY_REFERENCE); }
 	{Whitespace}+					{ addToken(Token.WHITESPACE); }
 	<<EOF>>						{ addNullToken(); return firstToken; }
 }
 
 <COMMENT> {
-	[^\n\-]+						{}
-	{LineTerminator}				{ addToken(start,zzStartRead-1, Token.COMMENT_MULTILINE); return firstToken; }
-	"-->"						{ yybegin(YYINITIAL); addToken(start,zzStartRead+2, Token.COMMENT_MULTILINE); }
+	[^hwf\n\-]+						{}
+	{URL}						{ int temp=zzStartRead; addToken(start,zzStartRead-1, Token.MARKUP_COMMENT); addHyperlinkToken(temp,zzMarkedPos-1, Token.MARKUP_COMMENT); start = zzMarkedPos; }
+	[hwf]						{}
+	"-->"						{ yybegin(YYINITIAL); addToken(start,zzStartRead+2, Token.MARKUP_COMMENT); }
 	"-"							{}
-	<<EOF>>						{ addToken(start,zzStartRead-1, Token.COMMENT_MULTILINE); return firstToken; }
+	{LineTerminator} |
+	<<EOF>>						{ addToken(start,zzStartRead-1, Token.MARKUP_COMMENT); return firstToken; }
 }
 
 <PI> {
 	[^\n\?]+						{}
-	{LineTerminator}				{ addToken(start,zzStartRead-1, Token.PREPROCESSOR); return firstToken; }
-	"?>"							{ yybegin(YYINITIAL); addToken(start,zzStartRead+1, Token.PREPROCESSOR); }
+	{LineTerminator}				{ addToken(start,zzStartRead-1, Token.MARKUP_PROCESSING_INSTRUCTION); return firstToken; }
+	"?>"							{ yybegin(YYINITIAL); addToken(start,zzStartRead+1, Token.MARKUP_PROCESSING_INSTRUCTION); }
 	"?"							{}
-	<<EOF>>						{ addToken(start,zzStartRead-1, Token.PREPROCESSOR); return firstToken; }
+	<<EOF>>						{ addToken(start,zzStartRead-1, Token.MARKUP_PROCESSING_INSTRUCTION); return firstToken; }
 }
 
 <DTD> {
 	[^\n>]+					{}
-	{LineTerminator}			{ addToken(start,zzStartRead-1, Token.FUNCTION); return firstToken; }
-	">"						{ yybegin(YYINITIAL); addToken(start,zzStartRead, Token.FUNCTION); }
-	<<EOF>>					{ addToken(start,zzStartRead-1, Token.FUNCTION); return firstToken; }
+	{LineTerminator}			{ addToken(start,zzStartRead-1, Token.MARKUP_DTD); return firstToken; }
+	">"						{ yybegin(YYINITIAL); addToken(start,zzStartRead, Token.MARKUP_DTD); }
+	<<EOF>>					{ addToken(start,zzStartRead-1, Token.MARKUP_DTD); return firstToken; }
 }
 
 <INTAG> {
@@ -533,14 +537,14 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 
 <INATTR_DOUBLE> {
 	[^\"]*						{}
-	[\"]						{ yybegin(INTAG); addToken(start,zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE); }
-	<<EOF>>						{ addToken(start,zzStartRead-1, Token.LITERAL_STRING_DOUBLE_QUOTE); return firstToken; }
+	[\"]						{ yybegin(INTAG); addToken(start,zzStartRead, Token.MARKUP_TAG_ATTRIBUTE_VALUE); }
+	<<EOF>>						{ addToken(start,zzStartRead-1, Token.MARKUP_TAG_ATTRIBUTE_VALUE); addEndToken(INTERNAL_ATTR_DOUBLE); return firstToken; }
 }
 
 <INATTR_SINGLE> {
 	[^\']*						{}
-	[\']						{ yybegin(INTAG); addToken(start,zzStartRead, Token.LITERAL_CHAR); }
-	<<EOF>>						{ addToken(start,zzStartRead-1, Token.LITERAL_CHAR); return firstToken; }
+	[\']						{ yybegin(INTAG); addToken(start,zzStartRead, Token.MARKUP_TAG_ATTRIBUTE_VALUE); }
+	<<EOF>>						{ addToken(start,zzStartRead-1, Token.MARKUP_TAG_ATTRIBUTE_VALUE); addEndToken(INTERNAL_ATTR_SINGLE); return firstToken; }
 }
 
 <INTAG_SCRIPT> {
@@ -557,21 +561,21 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 
 <INATTR_DOUBLE_SCRIPT> {
 	[^\"]*						{}
-	[\"]						{ yybegin(INTAG_SCRIPT); addToken(start,zzStartRead, Token.LITERAL_STRING_DOUBLE_QUOTE); }
-	<<EOF>>						{ addToken(start,zzStartRead-1, Token.LITERAL_STRING_DOUBLE_QUOTE); addEndToken(INTERNAL_ATTR_DOUBLE_QUOTE_SCRIPT); return firstToken; }
+	[\"]						{ yybegin(INTAG_SCRIPT); addToken(start,zzStartRead, Token.MARKUP_TAG_ATTRIBUTE_VALUE); }
+	<<EOF>>						{ addToken(start,zzStartRead-1, Token.MARKUP_TAG_ATTRIBUTE_VALUE); addEndToken(INTERNAL_ATTR_DOUBLE_QUOTE_SCRIPT); return firstToken; }
 }
 
 <INATTR_SINGLE_SCRIPT> {
 	[^\']*						{}
-	[\']						{ yybegin(INTAG_SCRIPT); addToken(start,zzStartRead, Token.LITERAL_CHAR); }
-	<<EOF>>						{ addToken(start,zzStartRead-1, Token.LITERAL_STRING_DOUBLE_QUOTE); addEndToken(INTERNAL_ATTR_SINGLE_QUOTE_SCRIPT); return firstToken; }
+	[\']						{ yybegin(INTAG_SCRIPT); addToken(start,zzStartRead, Token.MARKUP_TAG_ATTRIBUTE_VALUE); }
+	<<EOF>>						{ addToken(start,zzStartRead-1, Token.MARKUP_TAG_ATTRIBUTE_VALUE); addEndToken(INTERNAL_ATTR_SINGLE_QUOTE_SCRIPT); return firstToken; }
 }
 
 <CDATA> {
 	[^\]]+						{}
-	{CDataEnd}					{ int temp=zzStartRead; yybegin(YYINITIAL); addToken(start,zzStartRead-1, Token.VARIABLE); addToken(temp,zzMarkedPos-1, Token.DATA_TYPE); }
+	{CDataEnd}					{ int temp=zzStartRead; yybegin(YYINITIAL); addToken(start,zzStartRead-1, Token.MARKUP_CDATA); addToken(temp,zzMarkedPos-1, Token.MARKUP_CDATA_DELIMITER); }
 	"]"							{}
-	<<EOF>>						{ addToken(start,zzStartRead-1, Token.VARIABLE); return firstToken; }
+	<<EOF>>						{ addToken(start,zzStartRead-1, Token.MARKUP_CDATA); return firstToken; }
 }
 
 <AS> {
@@ -595,7 +599,7 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 
 	/* ActionScript snippets are usually wrapped in CDATA. */
 	{CDataBegin} |
-	{CDataEnd}					{ addToken(Token.DATA_TYPE); }
+	{CDataEnd}					{ addToken(Token.MARKUP_CDATA_DELIMITER); }
 	
 	/* Keywords */
 	"add" |
@@ -803,7 +807,7 @@ URL						= (((https?|f(tp|ile))"://"|"www.")({URLCharacters}{URLEndCharacter})?)
 	[^hwf\n]+				{}
 	{URL}					{ int temp=zzStartRead; addToken(start,zzStartRead-1, Token.COMMENT_EOL); addHyperlinkToken(temp,zzMarkedPos-1, Token.COMMENT_EOL); start = zzMarkedPos; }
 	[hwf]					{}
-	\n						{ addToken(start,zzStartRead-1, Token.COMMENT_EOL); addEndToken(INTERNAL_IN_AS); return firstToken; }
+	\n |
 	<<EOF>>					{ addToken(start,zzStartRead-1, Token.COMMENT_EOL); addEndToken(INTERNAL_IN_AS); return firstToken; }
 
 }
