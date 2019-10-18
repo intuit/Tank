@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -88,29 +90,20 @@ public class JobQueueDao extends BaseDao<JobQueue> {
      * 
      * @return List of JobQueue
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public List<JobQueue> findRecent() {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.DAY_OF_YEAR, -5);
     	List<JobQueue> results = null;
-    	EntityManager em = getEntityManager();
-    	try {
-    		begin();
-	        CriteriaBuilder cb = em.getCriteriaBuilder();
-	        CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
-	        Root<JobQueue> root = query.from(JobQueue.class);
-	        query.select(root);
-	        query.where(cb.greaterThan(root.<Date>get(JobQueue.PROPERTY_MODIFIED), c.getTime()));
-	        query.orderBy(cb.desc(root.get(JobQueue.PROPERTY_PROJECT_ID)));
-	        results = em.createQuery(query).getResultList();
-	        commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-    	} finally {
-    		cleanup();
-    	}
-    	return results;
+        EntityManager em = getEntityManager();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
+        Root<JobQueue> root = query.from(JobQueue.class);
+        query.select(root);
+        query.where(cb.greaterThan(root.<Date>get(JobQueue.PROPERTY_MODIFIED), c.getTime()));
+        query.orderBy(cb.desc(root.get(JobQueue.PROPERTY_PROJECT_ID)));
+        results = em.createQuery(query).getResultList();
+        return results;
     }
 
     /**
@@ -118,6 +111,7 @@ public class JobQueueDao extends BaseDao<JobQueue> {
      * @param jobId
      * @return JobQueue
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public JobQueue findForJobId(Integer jobId) {
         try {
             String string = "select x.test_id from test_instance_jobs x where x.job_id = ?";

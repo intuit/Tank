@@ -22,6 +22,8 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 
 import org.apache.commons.io.IOUtils;
@@ -79,10 +81,9 @@ public class ScriptDao extends BaseDao<Script> {
      * @inheritDoc
      */
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void delete(Integer id) throws HibernateException {
         EntityManager em = getEntityManager();
-        try {
-        	begin();
             Script entity = em.find(Script.class, id);
             if (entity != null) {
                 // check if it is used in scriptGroups
@@ -108,16 +109,7 @@ public class ScriptDao extends BaseDao<Script> {
                 }
                 LOG.debug("deleting entity " + entity.toString());
                 em.remove(entity);
-                commit();
             }
-            commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-            cleanup();
-        }
     }
 
     private Project extractProject(ScriptGroupStep step) {
@@ -165,6 +157,7 @@ public class ScriptDao extends BaseDao<Script> {
      * @inheritDoc
      */
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public Script saveOrUpdate(Script script) {
         MethodTimer mt = new MethodTimer(LOG, getClass(), "saveOrUpdate").start();
         int size = script.getScriptSteps().size();
@@ -173,29 +166,17 @@ public class ScriptDao extends BaseDao<Script> {
         LOG.info("persisting script " + script.getName() + " with id " + script.getId()
                 + " into database");
         EntityManager em = getEntityManager();
-        try {
-            begin();
-            SerializedScriptStep serializedScriptStep = serialize(script.getScriptSteps());
-            serializedScriptStep.setSerialzedData(
-                    Hibernate.getLobCreator(getHibernateSession()).createBlob(serializedScriptStep.getBytes()));
-            SerializedScriptStep serializedSteps = new SerializedScriptStepDao().saveOrUpdate(serializedScriptStep);
-            script.setSerializedScriptStepId(serializedScriptStep.getId());
-            if (script.getId() == 0) {
-                em.persist(script);
-            } else {
-                script = em.merge(script);
-            }
-            LOG.debug("Saved Script Steps with id " + serializedSteps.getId() + " for script " + script.getId());
-            commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-            cleanup();
+        SerializedScriptStep serializedScriptStep = serialize(script.getScriptSteps());
+        serializedScriptStep.setSerialzedData(
+                Hibernate.getLobCreator(getHibernateSession()).createBlob(serializedScriptStep.getBytes()));
+        SerializedScriptStep serializedSteps = new SerializedScriptStepDao().saveOrUpdate(serializedScriptStep);
+        script.setSerializedScriptStepId(serializedScriptStep.getId());
+        if (script.getId() == 0) {
+            em.persist(script);
+        } else {
+            script = em.merge(script);
         }
-        mt.markAndLog("Store script with " + size + " steps to database.");
-        mt.endAndLog();
+        LOG.debug("Saved Script Steps with id " + serializedSteps.getId() + " for script " + script.getId());
         return script;
     }
 

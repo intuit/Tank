@@ -16,26 +16,26 @@ package com.intuit.tank.dao;
  * #L%
  */
 
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Fetch;
-import javax.persistence.criteria.Root;
-
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Fetch;
+import javax.persistence.criteria.Root;
+import java.util.Date;
+import java.util.List;
 
 /**
  * ProductDao
@@ -55,29 +55,20 @@ public class ProjectDao extends OwnableDao<Project> {
      * @param name
      * @return
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public Project findByName(@Nonnull String name) {
     	Project project = null;
     	EntityManager em = getEntityManager();
-    	try {
-    		begin();
-    		CriteriaBuilder cb = em.getCriteriaBuilder();
-	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
-	        Root<Project> root = query.from(Project.class);
-	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
-	        wl.fetch("jobConfiguration");
-	        query.select(root);
-	        query.where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
-	        project = em.createQuery(query).getSingleResult();
-			Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
-			Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
-    		commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-    	} finally {
-    		cleanup();
-    	}
+    	CriteriaBuilder cb = em.getCriteriaBuilder();
+    	CriteriaQuery<Project> query = cb.createQuery(Project.class);
+    	Root<Project> root = query.from(Project.class);
+    	Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
+    	wl.fetch("jobConfiguration");
+    	query.select(root);
+    	query.where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
+    	project = em.createQuery(query).getSingleResult();
+    	Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
+    	Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
     	return project;
     }
 
@@ -127,21 +118,12 @@ public class ProjectDao extends OwnableDao<Project> {
      */
     @Nullable
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public Project findById(@Nonnull Integer id) {
     	Project project = null;
-    	try {
-    		begin();
-    		project = getEntityManager().find(Project.class, id);
-			Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
-			Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
-    		commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-    	} finally {
-    		cleanup();
-    	}
+    	project = getEntityManager().find(Project.class, id);
+    	Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
+    	Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
     	return project;
     }
 
@@ -153,28 +135,19 @@ public class ProjectDao extends OwnableDao<Project> {
      *             if there is an error in persistence
      */
     @Nonnull
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public List<Project> findAll() throws HibernateException {
     	List<Project> results = null;
     	EntityManager em = getEntityManager();
-    	try {
-    		begin();
-	        CriteriaBuilder cb = em.getCriteriaBuilder();
-	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
-	        Root<Project> root = query.from(Project.class);
-	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
-	        wl.fetch("jobConfiguration");
-	        query.select(root);
-	        results = em.createQuery(query).getResultList();
-	        for (Project project : results) {
-				Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
-	        }
-	        commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-    	} finally {
-    		cleanup();
+    	CriteriaBuilder cb = em.getCriteriaBuilder();
+    	CriteriaQuery<Project> query = cb.createQuery(Project.class);
+    	Root<Project> root = query.from(Project.class);
+    	Fetch<Project, Workload> wl = root.fetch(Project.PROPERTY_WORKLOADS);
+    	wl.fetch("jobConfiguration");
+    	query.select(root);
+    	results = em.createQuery(query).getResultList();
+    	for (Project project : results) {
+    	    Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
     	}
     	return results;
     }

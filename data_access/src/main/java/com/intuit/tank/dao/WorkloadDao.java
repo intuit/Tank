@@ -20,6 +20,9 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,6 +39,7 @@ import com.intuit.tank.project.Workload;
  * @author dangleton
  * 
  */
+@Stateless
 public class WorkloadDao extends BaseDao<Workload> {
     @SuppressWarnings("unused")
     private static final Logger LOG = LogManager.getLogger(WorkloadDao.class);
@@ -58,27 +62,18 @@ public class WorkloadDao extends BaseDao<Workload> {
      */
     @Nullable
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public Workload findById(@Nonnull Integer id) {
     	Workload workload = null;
-    	try {
-   		begin();
-    		workload = getEntityManager().find(Workload.class, id);
-    		if(workload != null) {
-    			workload.getJobConfiguration();
-    			for ( TestPlan tp : workload.getTestPlans() ) {
-    				for (ScriptGroup sg : tp.getScriptGroups() ) {
-    					sg.getScriptGroupSteps();
-    				}
-    			}
-    		}
-    		commit();
-        } catch (Exception e) {
-    	    rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-		} finally {
-			cleanup();
-		}
+    	workload = getEntityManager().find(Workload.class, id);
+    	if(workload != null) {
+    	    workload.getJobConfiguration();
+    	    for ( TestPlan tp : workload.getTestPlans() ) {
+    	        for (ScriptGroup sg : tp.getScriptGroups() ) {
+    	            sg.getScriptGroupSteps();
+    	        }
+    	    }
+    	}
 		return workload;
     }
 

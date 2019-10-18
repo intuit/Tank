@@ -20,11 +20,14 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import javax.ejb.Stateless;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -46,16 +49,18 @@ import com.intuit.tank.view.filter.ViewFilterType;
 
 /**
  * BaseDao
- * 
+ *
  * @author dangleton
- * 
+ *
  */
+
+@Stateless
 public abstract class BaseDao<T_ENTITY extends BaseEntity> {
 
+    @PersistenceContext(unitName = "tank")
+    private EntityManager em;
+
     private static final Logger LOG = LogManager.getLogger(BaseDao.class);
-
-    private static final ThreadLocal<TransactionContainer> emProvider = ThreadLocal.withInitial(TransactionContainer::new);
-
     private Class<T_ENTITY> entityClass;
     private boolean reloadEntities;
 
@@ -83,32 +88,24 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
     }
 
     /**
-     * 
+     *
      * @param id
      * @return
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public int getHeadRevisionNumber(int id) {
         int result = 0;
-        try {
-            begin();
-            AuditReader reader = AuditReaderFactory.get(getEntityManager());
-            List<Number> revisions = reader.getRevisions(entityClass, id);
+        AuditReader reader = AuditReaderFactory.get(em);
+        List<Number> revisions = reader.getRevisions(entityClass, id);
             if (!revisions.isEmpty()) {
                 result = revisions.get(revisions.size() - 1).intValue();
             }
-            commit();
-        } catch (NoResultException e) {
-        	rollback();
-            LOG.warn("No result for revision with id of " + id);
-        } finally {
-            cleanup();
-        }
         return result;
     }
 
     /**
      * gets the entity at the specified revision
-     * 
+     *
      * @param id
      *            the id of the entity to fetch
      * @param revisionNumber
@@ -116,25 +113,16 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
      * @return the entity or null if no entity can be found
      */
     @Nullable
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public T_ENTITY findRevision(int id, int revisionNumber) {
-        T_ENTITY result = null;
-        try {
-            begin();
-            AuditReader reader = AuditReaderFactory.get(getEntityManager());
-            result = reader.find(entityClass, id, revisionNumber);
-            commit();
-        } catch (NoResultException e) {
-        	rollback();
-            LOG.warn("No result for revision " + revisionNumber + " with id of " + id);
-        } finally {
-            cleanup();
-        }
+        AuditReader reader = AuditReaderFactory.get(em);
+        T_ENTITY result = reader.find(entityClass, id, revisionNumber);
         return result;
     }
 
     /**
      * Persist or update the entity. Persist if the primary key is null update otherwise.
-     * 
+     *
      * @param entity
      *            the entity to persist
      * @return the persisted unattached entity.
@@ -142,16 +130,14 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
      *             if there is an error in persistence
      */
     @Nonnull
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public T_ENTITY saveOrUpdate(@Nonnull T_ENTITY entity) throws HibernateException {
-        EntityManager em = getEntityManager();
         try {
-            begin();
             if (entity.getId() == 0) {
                 em.persist(entity);
             } else {
                 entity = em.merge(entity);
             }
-            commit();
         } catch (ConstraintViolationException e) {
             for (@SuppressWarnings("rawtypes") ConstraintViolation v : e.getConstraintViolations()) {
                 LOG.warn("ConstraintViolation for " + entityClass.getSimpleName() + " "
@@ -172,24 +158,17 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
                 throw cve;
             }
             throw e;
-        } catch (Exception e) {
-        	rollback();
-        	LOG.error("Error updating object to persistent storage: " + e.toString(), e);
-            throw new RuntimeException(e);
-        } finally {
-            cleanup();
         }
         return entity;
     }
 
     /**
-     * 
+     *
      * @param entities
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void persistCollection(Collection<T_ENTITY> entities) {
-        EntityManager em = getEntityManager();
         try {
-            begin();
             int count = 0;
             for (T_ENTITY entity : entities) {
                 if (entity.getId() == 0) {
@@ -202,7 +181,6 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
                     em.clear();
                 }
             }
-            commit();
         } catch (ConstraintViolationException e) {
             for (@SuppressWarnings("rawtypes") ConstraintViolation v : e.getConstraintViolations()) {
                 LOG.warn("ConstraintViolation for " + entityClass.getSimpleName() + " "
@@ -223,46 +201,30 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
                 throw cve;
             }
             throw e;
-        } catch (Exception e) {
-        	rollback();
-            LOG.error("Error storing object to persistent storage: " + e.toString(), e);
-            throw new RuntimeException(e);
-        } finally {
-            cleanup();
         }
     }
 
     /**
      * Deletes the entity from the datastore and applies cascade rules.
-     * 
+     *
      * @param id
      *            the id of the entity to delete
      * @throws HibernateException
      *             if there is an error in persistence
      */
-
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void delete(@Nonnull Integer id) throws HibernateException {
         EntityManager em = getEntityManager();
-        try {
-            begin();
-            T_ENTITY entity = em.find(entityClass, id);
-            if (entity != null) {
-                LOG.debug("deleting entity " + entity.toString());
-                em.remove(entity);
-            }
-            commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-            cleanup();
+        T_ENTITY entity = em.find(entityClass, id);
+        if (entity != null) {
+            LOG.debug("deleting entity " + entity.toString());
+            em.remove(entity);
         }
     }
 
     /**
      * Deletes the entity from the datastore and applies cascade rules.
-     * 
+     *
      * @param entity
      *            the entity to delete
      * @throws HibernateException
@@ -275,38 +237,30 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
 
     /**
      * Gets an entity by the id or null if no entity exists with the specified id.
-     * 
+     *
      * @param id
      *            the primary key
      * @return the entity or null
      */
     @Nullable
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public T_ENTITY findById(@Nonnull Integer id) {
         T_ENTITY result = null;
-        try {
-            begin();
-            result = getEntityManager().find(entityClass, id);
-            if (reloadEntities && result != null) {
-                getHibernateSession().refresh(result, LockOptions.READ);
-            }
-            commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-            cleanup();
+        result = getEntityManager().find(entityClass, id);
+        if (reloadEntities && result != null) {
+            getHibernateSession().refresh(result, LockOptions.READ);
         }
         return result;
     }
 
     /**
      * Finds all where in IDs
-     * 
+     *
      * @param ids
      * @return
      */
     @Nonnull
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public List<T_ENTITY> findForIds(@Nonnull List<Integer> ids) {
         String prefix = "x";
         NamedParameter parameter = new NamedParameter(BaseEntity.PROPERTY_ID, "id", ids);
@@ -315,100 +269,74 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
 
     /**
      * Finds all Objects of type T_ENTITY
-     * 
+     *
      * @return the nonnull list of entities
      * @throws HibernateException
      *             if there is an error in persistence
      */
     @Nonnull
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public List<T_ENTITY> findAll() throws HibernateException {
         List<T_ENTITY> results = null;
     	EntityManager em = getEntityManager();
-    	try {
-        	begin();
-        	CriteriaBuilder cb = em.getCriteriaBuilder();
-        	CriteriaQuery<T_ENTITY> query = cb.createQuery(entityClass);
-        	query.from(entityClass);
-        	results = em.createQuery(query).getResultList();
-        	commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-        	cleanup();
-        }
+    	CriteriaBuilder cb = em.getCriteriaBuilder();
+    	CriteriaQuery<T_ENTITY> query = cb.createQuery(entityClass);
+    	query.from(entityClass);
+    	results = em.createQuery(query).getResultList();
         return results;
     }
 
     /**
      * Find all objects of type T_ENTITY that satisfy the ViewFilterType
-     * 
+     *
      * @param viewFilter
      * @return the list of entities that satisfy the filter
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public List<T_ENTITY> findFiltered(ViewFilterType viewFilter) {
         List<T_ENTITY> results = null;
         EntityManager em = getEntityManager();
-        try {
-        	begin();
-	        if (!viewFilter.equals(ViewFilterType.ALL)) {
-	            CriteriaBuilder cb = em.getCriteriaBuilder();
-	            CriteriaQuery<T_ENTITY> query = cb.createQuery(entityClass);
-	            Root<T_ENTITY> root = query.from(entityClass);
-	            query.select(root);
-	            query.where(cb.greaterThan(root.<Date>get(BaseEntity.PROPERTY_CREATE), ViewFilterType.getViewFilterDate(viewFilter)));
-	            query.orderBy(cb.desc(root.get(BaseEntity.PROPERTY_CREATE)));
-	            results =  em.createQuery(query).getResultList();
-	        } else {
-	            CriteriaBuilder cb = em.getCriteriaBuilder();
-	            CriteriaQuery<T_ENTITY> query = cb.createQuery(entityClass);
-	            Root<T_ENTITY> root = query.from(entityClass);
-	            query.select(root);
-	            query.orderBy(cb.desc(root.get(BaseEntity.PROPERTY_CREATE)));
-	            results =  em.createQuery(query).getResultList();
-	        }
-	        commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-        	cleanup();
+        if (!viewFilter.equals(ViewFilterType.ALL)) {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<T_ENTITY> query = cb.createQuery(entityClass);
+            Root<T_ENTITY> root = query.from(entityClass);
+            query.select(root);
+            query.where(cb.greaterThan(root.<Date>get(BaseEntity.PROPERTY_CREATE), ViewFilterType.getViewFilterDate(viewFilter)));
+            query.orderBy(cb.desc(root.get(BaseEntity.PROPERTY_CREATE)));
+            results =  em.createQuery(query).getResultList();
+        } else {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<T_ENTITY> query = cb.createQuery(entityClass);
+            Root<T_ENTITY> root = query.from(entityClass);
+            query.select(root);
+            query.orderBy(cb.desc(root.get(BaseEntity.PROPERTY_CREATE)));
+            results =  em.createQuery(query).getResultList();
         }
         return results;
     }
 
     /**
-     * 
+     *
      * @param qlString
      * @param params
      * @return
      */
     @Nullable
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public T_ENTITY findOneWithJQL(String qlString, NamedParameter... params) {
         T_ENTITY result = null;
         TypedQuery<T_ENTITY> query = null;
-        try {
-            begin();
-            query = getEntityManager().createQuery(qlString, entityClass);
-            for (NamedParameter param : params) {
-                query.setParameter(param.getName(), param.getValue());
-            }
-            result = query.getSingleResult();
-            commit();
-        } catch (Exception e) {
-        	rollback();
-            LOG.info("no entity matching query "+query.toString());
-        } finally {
-            cleanup();
+        query = getEntityManager().createQuery(qlString, entityClass);
+        for (NamedParameter param : params) {
+            query.setParameter(param.getName(), param.getValue());
         }
+        result = query.getSingleResult();
         return result;
     }
 
     /**
      * returns list of entities meeting the specified criteria.
-     * 
+     *
      * @param qlString
      *            varargs criterion. (use something like Restrictions.eq(propertyName, value);) null criterion returns
      *            all.
@@ -419,23 +347,14 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
      *             if there is an error in persistence
      */
     @Nonnull
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public List<T_ENTITY> listWithJQL(String qlString, NamedParameter... params) {
         List<T_ENTITY> result = null;
-        try {
-            begin();
-            TypedQuery<T_ENTITY> query = getEntityManager().createQuery(qlString, entityClass);
-            for (NamedParameter param : params) {
-                query.setParameter(param.getName(), param.getValue());
-            }
-            result = query.getResultList();
-            commit();
-        } catch (Exception e) {
-        	rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-            cleanup();
+        TypedQuery<T_ENTITY> query = getEntityManager().createQuery(qlString, entityClass);
+        for (NamedParameter param : params) {
+            query.setParameter(param.getName(), param.getValue());
         }
+        result = query.getResultList();
         return result;
     }
 
@@ -479,7 +398,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
 
     /**
      * Gets an open hibernate session.
-     * 
+     *
      * @return the session
      */
     protected Session getHibernateSession() {
@@ -488,28 +407,12 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
 
     /**
      * Gets a JPA EntityManager
-     * 
+     *
      * @return the entityManager
      */
     protected EntityManager getEntityManager() {
-        return emProvider.get().getEntityManager();
+        return em;
 
-    }
-
-    protected void begin() {
-        emProvider.get().startTrasaction(this);
-    }
-
-    protected void commit() {
-        emProvider.get().commitTransaction(this);
-    }
-
-    protected void rollback() {
-        emProvider.get().rollbackTransaction(this);
-    }
-    
-    protected void cleanup() {
-        emProvider.get().cleanup(this);
     }
 
 }
