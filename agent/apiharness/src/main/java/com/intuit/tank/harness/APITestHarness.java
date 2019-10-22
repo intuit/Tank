@@ -708,18 +708,16 @@ public class APITestHarness {
     }
 
     public boolean hasMetSimulationTime() {
-        boolean ret = false;
         if (agentRunData.getSimulationTime() > 0) {
-            long currentTime = System.currentTimeMillis();
-            if (currentTime > getSimulationEndTimeMillis()) {
+             if (System.currentTimeMillis() > getSimulationEndTimeMillis()) {
                 if (!loggedSimTime) {
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Simulation time met")));
                     loggedSimTime = true;
                 }
-                ret = true;
+                return true;
             }
         }
-        return ret;
+        return false;
     }
 
     public long getStartTime() {
@@ -744,18 +742,15 @@ public class APITestHarness {
                     + " active Threads in thread group "
                     + threadGroup.getName())));
         }
-        if (agentRunData.getSimulationTime() != 0 && hasMetSimulationTime() && doneSignal.getCount() != 0) {
-            boolean exceededTimeLimit = System.currentTimeMillis() > getMaxSimulationEndTimeMillis();
-            if (exceededTimeLimit) {
-                LOG.info(LogUtil.getLogMessage("Max simulation time has been met and there are "
-                        + doneSignal.getCount() + " threads not reporting done."));
-                for (Thread t : sessionThreads) {
-                    if (t.isAlive()) {
-                        LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
-                                + " is still running with a State of " + t.getState().name(), LogEventType.System));
-                        t.interrupt();
-                        doneSignal.countDown();
-                    }
+        if (hasMetSimulationTime()) {          // && doneSignal.getCount() != 0) {
+            LOG.info(LogUtil.getLogMessage("Max simulation time has been met and there are "
+                    + doneSignal.getCount() + " threads not reporting done."));
+            for (Thread t : sessionThreads) {
+                if (t.isAlive()) {
+                    LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
+                            + " is still running with a State of " + t.getState().name(), LogEventType.System));
+                    t.interrupt();
+                    doneSignal.countDown();
                 }
             }
         }
