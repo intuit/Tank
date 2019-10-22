@@ -26,13 +26,13 @@ public class TestPlanStarter implements Runnable {
 
     private static final Logger LOG = LogManager.getLogger(TestPlanStarter.class);
 
-    private Object httpClient;
-    private HDTestPlan plan;
-    private int numThreads;
-    private ThreadGroup threadGroup;
-    private String tankHttpClientClass;
+    private final Object httpClient;
+    private final HDTestPlan plan;
+    private final int numThreads;
+    private final ThreadGroup threadGroup;
+    private final String tankHttpClientClass;
     private int threadsStarted = 0;
-    private long rampDelay;
+    private final long rampDelay;
 
     private boolean done = false;
 
@@ -63,7 +63,7 @@ public class TestPlanStarter implements Runnable {
         // start rest of users sleeping between each interval
         LOG.info(LogUtil.getLogMessage("Starting ramp of additional " + (numThreads - threadsStarted)
                 + " users for plan " + plan.getTestPlanName() + "..."));
-        while (true) {
+        while (!done) {
             if ((threadsStarted - numInitialUsers) % APITestHarness.getInstance().getAgentRunData().getUserInterval() == 0) {
                 try {
                     Thread.sleep(rampDelay);
@@ -85,8 +85,11 @@ public class TestPlanStarter implements Runnable {
                     }
                 }
             }
-            if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.stop
-            		|| APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill) {
+            if ( APITestHarness.getInstance().getCmd() == WatsAgentCommand.stop
+            		|| APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill
+                    || APITestHarness.getInstance().hasMetSimulationTime()
+                    || APITestHarness.getInstance().isDebug() ) {
+                done = true;
                 break;
             }
             if (threadGroup.activeCount() < numThreads) {
