@@ -7,7 +7,7 @@ env:
 phases:
   build:
     commands:
-      - mvn clean install -P release -Dmaven.test.skip=true
+      - mvn clean install -P release
 
 artifacts:
   type: NONE
