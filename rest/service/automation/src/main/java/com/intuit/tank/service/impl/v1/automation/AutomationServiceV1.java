@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
@@ -302,7 +303,8 @@ public class AutomationServiceV1 implements AutomationService {
 	public Response uploadScript(int scriptId,
 								 String scriptName,
 								 InputStream fileInputStream,
-								 FormDataContentDisposition fileFormDataContentDisposition) {
+								 FormDataContentDisposition fileFormDataContentDisposition,
+								 String contentEncoding) {
 		ResponseBuilder responseBuilder = Response.ok();
 		try {
 			Script script = null;
@@ -320,8 +322,10 @@ public class AutomationServiceV1 implements AutomationService {
 			if (StringUtils.isNotEmpty(scriptName)) {
 				script.setName(scriptName);
 			}
-			List<ScriptStep> scriptSteps = scriptProcessor.getScriptSteps(new BufferedReader(new InputStreamReader(fileInputStream)),
-					new ArrayList<>());
+			BufferedReader bufferedReader = StringUtils.equals(contentEncoding, "gzip") ?
+					new BufferedReader(new InputStreamReader(new GZIPInputStream(fileInputStream))) :
+					new BufferedReader(new InputStreamReader(fileInputStream));
+			scriptProcessor.getScriptSteps(bufferedReader, new ArrayList<>());
 			script = new ScriptDao().saveOrUpdate(script);
 			sendMsg(script, ModificationType.UPDATE);
 			responseBuilder.entity(Integer.toString(script.getId()));

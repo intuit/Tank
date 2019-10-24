@@ -15,6 +15,7 @@ package com.intuit.tank.api.service.v1.automation;
 import javax.annotation.Nonnull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -118,7 +119,8 @@ public interface AutomationService {
     Response uploadScript(@QueryParam("id") int scriptId,
                           @QueryParam("name") String scriptName,
                           @FormDataParam("file") InputStream fileInputStream,
-                          @FormDataParam("file") FormDataContentDisposition fileFormDataContentDisposition);
+                          @FormDataParam("file") FormDataContentDisposition fileFormDataContentDisposition,
+                          @HeaderParam("Content-Encoding") String contentEncoding);
 
     /**
      * Applies Filters to an existing Script
