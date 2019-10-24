@@ -363,6 +363,7 @@ public class AutomationServiceV1 implements AutomationService {
 			if (!filterIds.isEmpty()) {
 				ScriptFilterUtil.applyFilters(filterIds, script);
 				script = new ScriptDao().saveOrUpdate(script);
+				sendMsg(script, ModificationType.UPDATE);
 				return Response.ok().entity("SUCCESS").build();
 			}
 			return Response.ok().entity("You failed to include any filterIds in your request").build();
