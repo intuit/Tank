@@ -19,13 +19,18 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.intuit.tank.api.model.v1.automation.CreateJobRequest;
 import com.intuit.tank.api.model.v1.automation.ApplyFiltersRequest;
 
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
+import java.io.InputStream;
 
 /**
  * AutomationService Services for Automation integration.
@@ -89,8 +94,31 @@ public interface AutomationService {
     @Consumes({ MediaType.MULTIPART_FORM_DATA })
     @Produces({ MediaType.APPLICATION_JSON })
     @Nonnull
+    @Deprecated
     Response uploadScript(@Nonnull FormDataMultiPart formData);
-    
+
+    /**
+     * Uploads a script to an existing script
+     *
+     * @param scriptId
+     *          Script id to replace
+     * @param fileInputStream
+     *          upload file inputStream
+     * @param fileFormDataContentDisposition
+     *          upload file metadata
+     *           Example: curl -X POST -F "file=@tank-script.xml" http://xxx/rest/v1/automation-service/uploadScript/715
+     * @return Response status code 201 (created) if successful or an error code
+     */
+    @POST
+    @Path("/uploadScript")
+    @Consumes({ MediaType.MULTIPART_FORM_DATA })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Nonnull
+    Response uploadScript(@QueryParam("scriptId") int scriptId,
+                          @QueryParam("name") String scriptName,
+                          @FormDataParam("file") InputStream fileInputStream,
+                          @FormDataParam("file") FormDataContentDisposition fileFormDataContentDisposition);
+
     /**
      * Applies Filters to an existing Script
      * 
