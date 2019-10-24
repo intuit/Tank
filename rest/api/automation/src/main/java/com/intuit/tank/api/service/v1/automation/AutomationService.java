@@ -102,19 +102,20 @@ public interface AutomationService {
      *
      * @param scriptId
      *          Script id to replace
+     * @param scriptName
+     *          new name for script
      * @param fileInputStream
      *          upload file inputStream
      * @param fileFormDataContentDisposition
      *          upload file metadata
-     *           Example: curl -X POST -F "file=@tank-script.xml" http://xxx/rest/v1/automation-service/uploadScript/715
-     * @return Response status code 201 (created) if successful or an error code
+     * @return Response status code 200 (created) with body of scriptid or an error code
      */
     @POST
-    @Path("/uploadScript")
+    @Path("/upload/script")
     @Consumes({ MediaType.MULTIPART_FORM_DATA })
     @Produces({ MediaType.APPLICATION_JSON })
     @Nonnull
-    Response uploadScript(@QueryParam("scriptId") int scriptId,
+    Response uploadScript(@QueryParam("id") int scriptId,
                           @QueryParam("name") String scriptName,
                           @FormDataParam("file") InputStream fileInputStream,
                           @FormDataParam("file") FormDataContentDisposition fileFormDataContentDisposition);
