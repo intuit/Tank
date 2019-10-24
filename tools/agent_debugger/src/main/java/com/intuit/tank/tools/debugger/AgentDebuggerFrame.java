@@ -80,8 +80,6 @@ import com.intuit.tank.harness.data.RequestStep;
 import com.intuit.tank.harness.data.TestStep;
 import com.intuit.tank.harness.functions.JexlIOFunctions;
 import com.intuit.tank.harness.functions.JexlStringFunctions;
-import com.intuit.tank.harness.logging.LogUtil;
-import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.runner.TestStepContext;
 import com.intuit.tank.tools.debugger.ActionProducer.IconSize;
@@ -101,30 +99,30 @@ public class AgentDebuggerFrame extends JFrame {
 
     private RSyntaxTextArea scriptEditorTA;
     private RTextScrollPane scriptEditorScrollPane;
-    private boolean standalone;
-    private ActionProducer debuggerActions;
+    private final boolean standalone;
+    private final ActionProducer debuggerActions;
     private HDWorkload currentWorkload;
     private HDTestPlan currentTestPlan;
-    private JComboBox<HDTestPlan> testPlanChooser;
-    private JComboBox<TankClientChoice> tankClientChooser;
-    private List<StepListener> stepChangedListeners = new ArrayList<StepListener>();
-    private List<ScriptChangedListener> scriptChangedListeners = new ArrayList<ScriptChangedListener>();
-    private Map<String, String> projectVariables = new HashMap<String, String>();
-    private List<Integer> datafileList = new ArrayList<Integer>();
-    private List<DebugStep> steps = new ArrayList<DebugStep>();
+    private final JComboBox<HDTestPlan> testPlanChooser;
+    private final JComboBox<TankClientChoice> tankClientChooser;
+    private final List<StepListener> stepChangedListeners = new ArrayList<StepListener>();
+    private final List<ScriptChangedListener> scriptChangedListeners = new ArrayList<ScriptChangedListener>();
+    private final Map<String, String> projectVariables = new HashMap<String, String>();
+    private final List<Integer> datafileList = new ArrayList<Integer>();
+    private final List<DebugStep> steps = new ArrayList<DebugStep>();
     private int currentRunningStep;
-    private ActionComponents actionComponents;
+    private final ActionComponents actionComponents;
     private DebuggerFlowController flowController;
     private APITestHarness harness;
-    private File workingDir;
+    private final File workingDir;
     private Thread runningThread;
     private RSyntaxTextArea loggerTA;
-    private InfiniteProgressPanel glassPane;
+    private final InfiniteProgressPanel glassPane;
 
-    private Icon errorIcon;
-    private Icon modifiedIcon;
-    private Icon skippedIcon;
-    private RequestResponsePanel requestResponsePanel;
+    private final Icon errorIcon;
+    private final Icon modifiedIcon;
+    private final Icon skippedIcon;
+    private final RequestResponsePanel requestResponsePanel;
     private ScriptSource scriptSource;
 
     private int lastLine;
@@ -208,7 +206,7 @@ public class AgentDebuggerFrame extends JFrame {
                         if (modelToView.contains(point)) {
                             if (!multiSelect) {
                                 int line = scriptEditorTA.getLineOfOffset(offset);
-                                scriptEditorTA.setCurrentLine(line);
+                                setCurrentLine(line);
                             }
                             popup.show(e.getComponent(), e.getX(), e.getY());
                         }
@@ -295,12 +293,12 @@ public class AgentDebuggerFrame extends JFrame {
             scriptEditorTA.grabFocus();
             int caretLineNumber = this.scriptEditorTA.getCaretLineNumber() + (moveUp ? -1 : 1);
             if (caretLineNumber > 0 && moveUp) {
-                scriptEditorTA.setCurrentLine(caretLineNumber);
+                setCurrentLine(caretLineNumber);
                 fireStepChanged(caretLineNumber);
             }
             int lastLine = scriptEditorTA.getLineOfOffset(this.scriptEditorTA.getText().length());
             if (!moveUp && caretLineNumber <= lastLine) {
-                scriptEditorTA.setCurrentLine(caretLineNumber);
+                setCurrentLine(caretLineNumber);
                 fireStepChanged(caretLineNumber);
             }
         } catch (BadLocationException e) {
@@ -554,7 +552,7 @@ public class AgentDebuggerFrame extends JFrame {
         } else {
             scriptEditorTA.setActiveLineRange(currentRunningStep + 1, currentRunningStep + 1);
         }
-        scriptEditorTA.setCurrentLine(stepToSet);
+        setCurrentLine(stepToSet);
         repaint();
         if (flowController.isSkipping()) {
             actionComponents.skipTo();
@@ -766,9 +764,7 @@ public class AgentDebuggerFrame extends JFrame {
                 // start apiHarness and get the variables....
                 try {
                     createHarness();
-                    runningThread = new Thread(() -> {
-                        harness.runConcurrentTestPlans();
-                    });
+                    runningThread = new Thread(() -> harness.runConcurrentTestPlans());
 
                     runningThread.start();
                 } catch (Exception e) {
@@ -859,9 +855,7 @@ public class AgentDebuggerFrame extends JFrame {
                 fireStepChanged(stepIndex);
                 fireStepStarted(stepIndex);
             });
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
+        } catch (InterruptedException | InvocationTargetException e) {
             e.printStackTrace();
         }
     }
@@ -930,52 +924,23 @@ public class AgentDebuggerFrame extends JFrame {
 
     public TestStep getStep(int stepIndex) {
         return steps.get(stepIndex).getStepRun();
-
     }
 
     public void setCurrentTitle(String string) {
         this.actionComponents.setCurrentTitle(string);
-
     }
 
     public void pause() {
         flowController.skipTo(-1);
         flowController.setSkipping(false);
         this.actionComponents.doneSkipping();
-
     }
 
     /**
      * @param args
      */
     public static void main(String[] args) {
-        try {
-            java.security.Security.setProperty("networkaddress.cache.ttl", "0");
-        } catch (Throwable e1) {
-            LOG.warn(LogUtil.getLogMessage("Error setting dns timeout: " + e1.toString(), LogEventType.System));
-        }
-        try {
-            System.setProperty("jdk.certpath.disabledAlgorithms", "");
-        } catch (Throwable e1) {
-            System.err.println("Error setting property jdk.certpath.disabledAlgorithms: " + e1.toString());
-            e1.printStackTrace();
-        }
-        String url = "";
-        if (args.length > 0) {
-            url = args[0];
-        }
-/*        Properties props = new Properties();
-        try {
-            InputStream configStream = AgentDebuggerFrame.class.getResourceAsStream("/log4j.properties");
-            props.load(configStream);
-            configStream.close();
-        } catch (IOException e) {
-            System.out.println("Error: Cannot laod configuration file ");
-        }
-        props.setProperty("log4j.appender.agent.File", "debugger.log");
-        LogManager.resetConfiguration();
-        PropertyConfigurator.configure(props);
-*/
+        String url = args.length > 0 ? args[0] : "";
         new AgentDebuggerFrame(true, url).setVisible(true);
     }
 
@@ -1043,6 +1008,12 @@ public class AgentDebuggerFrame extends JFrame {
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
+    }
+
+    private void setCurrentLine(int line) {
+        try {
+            scriptEditorTA.setCaretPosition(scriptEditorTA.getLineStartOffset(line));
+        } catch (BadLocationException e) { e.printStackTrace(); }
     }
 
     public RequestResponsePanel getRequestResponsePanel() {

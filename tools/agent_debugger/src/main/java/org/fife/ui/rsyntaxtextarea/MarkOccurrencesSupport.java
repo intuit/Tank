@@ -3,288 +3,289 @@
  *
  * MarkOccurrencesSupport.java - Handles marking all occurrences of the
  * currently selected identifier in a text area.
- * Copyright (C) 2009 Robert Futrell
- * robert_futrell at users.sourceforge.net
- * http://fifesoft.com/rsyntaxtextarea
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA.
+ * This library is distributed under a modified BSD license.  See the included
+ * LICENSE file for details.
  */
 package org.fife.ui.rsyntaxtextarea;
 
 import java.awt.Color;
-import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.swing.Timer;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 
+import org.fife.ui.rtextarea.SmartHighlightPainter;
+
+
 /**
- * Marks all occurrences of the token at the current caret position, if it is an identifier.
- * 
+ * Marks all occurrences of the token at the current caret position, if it is
+ * an identifier.
+ *
  * @author Robert Futrell
  * @version 1.0
+ * @see OccurrenceMarker
  */
 class MarkOccurrencesSupport implements CaretListener, ActionListener {
 
-    private RSyntaxTextArea textArea;
-    private Timer timer;
-    private MarkOccurrencesHighlightPainter p;
-    private List tags;
+	private RSyntaxTextArea textArea;
+	private Timer timer;
+	private SmartHighlightPainter p;
 
-    /**
-     * The default delay.
-     */
-    private static final int DEFAULT_DELAY_MS = 1000;
+	/**
+	 * The default color used to mark occurrences.
+	 */
+	static final Color DEFAULT_COLOR = new Color(224, 224, 224);
 
-    /**
-     * Constructor. Creates a listener with a 1 second delay.
-     */
-    public MarkOccurrencesSupport() {
-        this(DEFAULT_DELAY_MS);
-    }
+	/**
+	 * The default delay.
+	 */
+	static final int DEFAULT_DELAY_MS = 1000;
 
-    /**
-     * Constructor.
-     * 
-     * @param delay
-     *            The delay between when the caret last moves and when the text should be scanned for matching
-     *            occurrences. This should be in milliseconds.
-     */
-    public MarkOccurrencesSupport(int delay) {
-        this(delay, new Color(224, 224, 224));
-    }
 
-    /**
-     * Constructor.
-     * 
-     * @param delay
-     *            The delay between when the caret last moves and when the text should be scanned for matching
-     *            occurrences. This should be in milliseconds.
-     * @param color
-     *            The color to use to mark the occurrences. This cannot be <code>null</code>.
-     */
-    public MarkOccurrencesSupport(int delay, Color color) {
-        timer = new Timer(delay, this);
-        timer.setRepeats(false);
-        p = new MarkOccurrencesHighlightPainter();
-        setColor(color);
-        tags = new ArrayList();
-    }
+	/**
+	 * Constructor.  Creates a listener with a 1 second delay.
+	 */
+	MarkOccurrencesSupport() {
+		this(DEFAULT_DELAY_MS);
+	}
 
-    /**
-     * Called after the caret has been moved and a fixed time delay has elapsed. This locates and highlights all
-     * occurrences of the identifier at the caret position, if any.
-     * 
-     * @param e
-     *            The event.
-     */
-    public void actionPerformed(ActionEvent e) {
 
-        // Don't do anything if they are selecting text.
-        Caret c = textArea.getCaret();
-        if (c.getDot() != c.getMark()) {
-            return;
-        }
+	/**
+	 * Constructor.
+	 *
+	 * @param delay The delay between when the caret last moves and when the
+	 *        text should be scanned for matching occurrences.  This should
+	 *        be in milliseconds.
+	 */
+	MarkOccurrencesSupport(int delay) {
+		this(delay, DEFAULT_COLOR);
+	}
 
-        RSyntaxDocument doc = (RSyntaxDocument) textArea.getDocument();
-        // long time = System.currentTimeMillis();
-        doc.readLock();
-        try {
 
-            // Remove old highlights
-            removeHighlights();
+	/**
+	 * Constructor.
+	 *
+	 * @param delay The delay between when the caret last moves and when the
+	 *        text should be scanned for matching occurrences.  This should
+	 *        be in milliseconds.
+	 * @param color The color to use to mark the occurrences.  This cannot be
+	 *        <code>null</code>.
+	 */
+	MarkOccurrencesSupport(int delay, Color color) {
+		timer = new Timer(delay, this);
+		timer.setRepeats(false);
+		p = new SmartHighlightPainter();
+		setColor(color);
+	}
 
-            // Get the token at the caret position.
-            int line = textArea.getCaretLineNumber();
-            Token tokenList = textArea.getTokenListForLine(line);
-            int dot = c.getDot();
-            Token t = RSyntaxUtilities.getTokenAtOffset(tokenList, dot);
-            if (t == null /* EOL */|| !isValidType(t) || isNonWordChar(t)) {
-                // Try to the "left" of the caret.
-                dot--;
-                try {
-                    if (dot >= textArea.getLineStartOffset(line)) {
-                        t = RSyntaxUtilities.getTokenAtOffset(tokenList, dot);
-                    }
-                } catch (BadLocationException ble) {
-                    ble.printStackTrace(); // Never happens
-                }
-            }
 
-            // Add new highlights if an identifier is selected.
-            if (t != null && isValidType(t) && !isNonWordChar(t)) {
-                RSyntaxTextAreaHighlighter h = (RSyntaxTextAreaHighlighter) textArea.
-                        getHighlighter();
-                String lexeme = t.getLexeme();
-                int type = t.type;
-                for (int i = 0; i < textArea.getLineCount(); i++) {
-                    Token temp = textArea.getTokenListForLine(i);
-                    while (temp != null && temp.isPaintable()) {
-                        if (temp.is(type, lexeme)) {
-                            try {
-                                int end = temp.offset + temp.textCount;
-                                Object tag = h.addMarkedOccurrenceHighlight(temp.offset, end, p);
-                                // end--; // HACK to prevent typed chars from being added
-                                // Object tag = h.addHighlight(temp.offset, end,p);
-                                tags.add(tag);
-                                // // HACK again, to ensure repaint of last char rendered.
-                                // textArea.getUI().damageRange(textArea, end+1, end+1);
-                            } catch (BadLocationException ble) {
-                                ble.printStackTrace(); // Never happens
-                            }
-                        }
-                        temp = temp.getNextToken();
-                    }
-                }
-            }
+	/**
+	 * Called after the caret has been moved and a fixed time delay has
+	 * elapsed.  This locates and highlights all occurrences of the identifier
+	 * at the caret position, if any.<p>
+	 *
+	 * Callers should not call this method directly, but should rather prefer
+	 * {@link #doMarkOccurrences()} to mark occurrences.
+	 *
+	 * @param e The event.
+	 * @see #doMarkOccurrences()
+	 */
+	@Override
+	public void actionPerformed(ActionEvent e) {
 
-        } finally {
-            doc.readUnlock();
-            // time = System.currentTimeMillis() - time;
-            // System.out.println("Took: " + time + " ms");
-        }
+		// Don't do anything if they are selecting text.
+		Caret c = textArea.getCaret();
+		if (c.getDot()!=c.getMark()) {
+			return;
+		}
 
-        textArea.fireMarkedOccurrencesChanged();
+		RSyntaxDocument doc = (RSyntaxDocument)textArea.getDocument();
+		OccurrenceMarker occurrenceMarker = doc.getOccurrenceMarker();
+		boolean occurrencesChanged = false;
 
-    }
+		if (occurrenceMarker!=null) {
 
-    /**
-     * Called when the caret moves in the text area.
-     * 
-     * @param e
-     *            The event.
-     */
-    public void caretUpdate(CaretEvent e) {
-        timer.restart();
-    }
+			doc.readLock();
+			try {
 
-    /**
-     * Returns the color being used to mark occurrences.
-     * 
-     * @return The color being used.
-     * @see #setColor(Paint)
-     */
-    public Color getColor() {
-        return p.getColor();
-    }
+				Token t = occurrenceMarker.getTokenToMark(textArea);
 
-    /**
-     * Returns the delay, in milliseconds.
-     * 
-     * @return The delay.
-     * @see #setDelay(int)
-     */
-    public int getDelay() {
-        return timer.getDelay();
-    }
+				if (t!=null && occurrenceMarker.isValidType(textArea, t) &&
+						!RSyntaxUtilities.isNonWordChar(t)) {
+					clear();
+					RSyntaxTextAreaHighlighter h = (RSyntaxTextAreaHighlighter)
+							textArea.getHighlighter();
+					occurrenceMarker.markOccurrences(doc, t, h, p);
+					//textArea.repaint();
+					// TODO: Do a textArea.repaint() instead of repainting each
+					// marker as it's added if count is huge
+					occurrencesChanged = true;
+				} else {
+					clear();
+				}
 
-    /**
-     * Installs this listener on a text area. If it is already installed on another text area, it is uninstalled first.
-     * 
-     * @param textArea
-     *            The text area to install on.
-     */
-    public void install(RSyntaxTextArea textArea) {
-        if (this.textArea != null) {
-            uninstall();
-        }
-        this.textArea = textArea;
-        textArea.addCaretListener(this);
-    }
+			} finally {
+				doc.readUnlock();
+				//time = System.currentTimeMillis() - time;
+				//System.out.println("MarkOccurrencesSupport took: " + time + " ms");
+			}
 
-    /**
-     * Returns whether the specified token is a single non-word char (e.g. not in <tt>[A-Za-z]</tt>. This is a HACK to
-     * work around the fact that many standard token makers return things like semicolons and periods as
-     * {@link Token#IDENTIFIER}s just to make the syntax highlighting coloring look a little better.
-     * 
-     * @param t
-     *            The token to check. This cannot be <tt>null</tt>.
-     * @return Whether the token is a single non-word char.
-     */
-    private static final boolean isNonWordChar(Token t) {
-        return t.textCount == 1 &&
-                !RSyntaxUtilities.isLetter(t.text[t.textOffset]);
-    }
+		}
 
-    /**
-     * Returns whether the specified token is a type that we can do a "mark occurrences" on.
-     * 
-     * @param t
-     *            The token.
-     * @return Whether we should mark all occurrences of this token.
-     */
-    private boolean isValidType(Token t) {
-        return textArea.getMarkOccurrencesOfTokenType(t.type);
-    }
+		if (occurrencesChanged) {
+			textArea.fireMarkedOccurrencesChanged();
+		}
 
-    /**
-     * Removes all highlights added to the text area by this listener.
-     */
-    private void removeHighlights() {
-        if (textArea != null) {
-            RSyntaxTextAreaHighlighter h = (RSyntaxTextAreaHighlighter)
-                    textArea.getHighlighter();
-            for (Object tag : tags) {
-                h.removeMarkOccurrencesHighlight(tag);
-            }
-        }
-        tags.clear();
-    }
+	}
 
-    /**
-     * Sets the color to use when marking occurrences.
-     * 
-     * @param color
-     *            The color to use.
-     * @see #getColor()
-     */
-    public void setColor(Color color) {
-        p.setColor(color);
-        if (textArea != null) {
-            removeHighlights();
-            caretUpdate(null); // Force a highlight repaint.
-        }
-    }
 
-    /**
-     * Sets the delay between the last caret position change and when the text is scanned for matching identifiers. A
-     * delay is needed to prevent repeated scanning while the user is typing.
-     * 
-     * @param delay
-     *            The new delay.
-     * @see #getDelay()
-     */
-    public void setDelay(int delay) {
-        timer.setDelay(delay);
-    }
+	/**
+	 * Called when the caret moves in the text area.
+	 *
+	 * @param e The event.
+	 */
+	@Override
+	public void caretUpdate(CaretEvent e) {
+		timer.restart();
+	}
 
-    /**
-     * Uninstalls this listener from the current text area. Does nothing if it not currently installed on any text area.
-     * 
-     * @see #install(RSyntaxTextArea)
-     */
-    public void uninstall() {
-        if (textArea != null) {
-            removeHighlights();
-            textArea.removeCaretListener(this);
-        }
-    }
+
+	/**
+	 * Removes all highlights added to the text area by this listener.
+	 */
+	void clear() {
+		if (textArea!=null) {
+			RSyntaxTextAreaHighlighter h = (RSyntaxTextAreaHighlighter)
+													textArea.getHighlighter();
+			h.clearMarkOccurrencesHighlights();
+		}
+	}
+
+
+	/**
+	 * Immediately marks all occurrences of the token at the current caret
+	 * position.
+	 */
+	public void doMarkOccurrences() {
+		timer.stop();
+		actionPerformed(null);
+	}
+
+
+	/**
+	 * Returns the color being used to mark occurrences.
+	 *
+	 * @return The color being used.
+	 * @see #setColor(Color)
+	 */
+	public Color getColor() {
+		return (Color)p.getPaint();
+	}
+
+
+	/**
+	 * Returns the delay, in milliseconds.
+	 *
+	 * @return The delay.
+	 * @see #setDelay(int)
+	 */
+	public int getDelay() {
+		return timer.getDelay();
+	}
+
+
+	/**
+	 * Returns whether a border is painted around marked occurrences.
+	 *
+	 * @return Whether a border is painted.
+	 * @see #setPaintBorder(boolean)
+	 * @see #getColor()
+	 */
+	public boolean getPaintBorder() {
+		return p.getPaintBorder();
+	}
+
+
+	/**
+	 * Installs this listener on a text area.  If it is already installed on
+	 * another text area, it is uninstalled first.
+	 *
+	 * @param textArea The text area to install on.
+	 */
+	public void install(RSyntaxTextArea textArea) {
+		if (this.textArea!=null) {
+			uninstall();
+		}
+		this.textArea = textArea;
+		textArea.addCaretListener(this);
+		if (textArea.getMarkOccurrencesColor()!=null) {
+			setColor(textArea.getMarkOccurrencesColor());
+		}
+	}
+
+
+	/**
+	 * Sets the color to use when marking occurrences.
+	 *
+	 * @param color The color to use.
+	 * @see #getColor()
+	 * @see #setPaintBorder(boolean)
+	 */
+	public void setColor(Color color) {
+		p.setPaint(color);
+		if (textArea!=null) {
+			clear();
+			caretUpdate(null); // Force a highlight repaint.
+		}
+	}
+
+
+	/**
+	 * Sets the delay between the last caret position change and when the
+	 * text is scanned for matching identifiers.  A delay is needed to prevent
+	 * repeated scanning while the user is typing.
+	 *
+	 * @param delay The new delay.
+	 * @see #getDelay()
+	 */
+	public void setDelay(int delay) {
+		timer.setInitialDelay(delay);
+	}
+
+
+	/**
+	 * Toggles whether a border is painted around marked highlights.
+	 *
+	 * @param paint Whether to paint a border.
+	 * @see #getPaintBorder()
+	 * @see #setColor(Color)
+	 */
+	public void setPaintBorder(boolean paint) {
+		if (paint!=p.getPaintBorder()) {
+			p.setPaintBorder(paint);
+			if (textArea!=null) {
+				textArea.repaint();
+			}
+		}
+	}
+
+
+	/**
+	 * Uninstalls this listener from the current text area.  Does nothing if
+	 * it not currently installed on any text area.
+	 *
+	 * @see #install(RSyntaxTextArea)
+	 */
+	public void uninstall() {
+		if (textArea!=null) {
+			clear();
+			textArea.removeCaretListener(this);
+		}
+	}
+
 
 }

@@ -148,10 +148,10 @@ public class SearchUtils {
                 .toArray((new SearchParam[0]))).getLuceneQuery();
         Query otherLuceneQuery = new MultiSearchParam(Operator.OR, query.getQuery2().getSearchParams()
                 .toArray((new SearchParam[0]))).getLuceneQuery();
-        BooleanQuery booleanQuery = new BooleanQuery();
-        booleanQuery.add(luceneQuery, operator.getOccur());
-        booleanQuery.add(otherLuceneQuery, query.getOperator().getOccur());
-        return booleanQuery;
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.add(luceneQuery, operator.getOccur());
+        builder.add(otherLuceneQuery, query.getOperator().getOccur());
+        return builder.build();
     }
 
     /**

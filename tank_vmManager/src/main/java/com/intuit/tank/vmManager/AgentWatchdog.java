@@ -18,6 +18,7 @@ package com.intuit.tank.vmManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -223,7 +224,9 @@ public class AgentWatchdog implements Runnable {
             LOG.info(msg);
             // relaunch instances and remove old onesn from vmTracker
             // kill them first just to be sure
-            amazonInstance.killInstances(instances);
+            List<String> instanceIds = instances.stream()
+                    .map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
+            amazonInstance.killInstances(instanceIds);
             VMImageDao dao = new VMImageDao();
             for (VMInformation info : instances) {
                 vmInfo.remove(info);

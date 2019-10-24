@@ -208,12 +208,8 @@ public class ScriptServiceV1 implements ScriptService {
                             
                             JAXBContext ctx = JAXBContext.newInstance(ScriptUploadRequest.class.getPackage().getName());
                             request = (ScriptUploadRequest) ctx.createUnmarshaller().unmarshal(xmlSource);
-                        } catch (JAXBException e) {
+                        } catch (JAXBException | ParserConfigurationException | SAXException e) {
                             throw new RuntimeException(e);
-                        } catch (SAXException saxe) {
-                        	  throw new RuntimeException(saxe);
-                        } catch (ParserConfigurationException pce) {
-                          throw new RuntimeException(pce);
                         }
                     }
                 } else if (MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(mediaType)) {

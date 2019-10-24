@@ -80,9 +80,7 @@ public class StepDialog extends JDialog {
         panel.add(saveBT);
 
         JButton cancelBT = new JButton("Close");
-        cancelBT.addActionListener( (ActionEvent arg0) -> {
-            setVisible(false);
-        });
+        cancelBT.addActionListener( (ActionEvent arg0) -> setVisible(false));
         panel.add(cancelBT);
         return panel;
     }

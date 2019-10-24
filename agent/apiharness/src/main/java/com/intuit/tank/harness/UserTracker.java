@@ -47,12 +47,7 @@ public class UserTracker implements Serializable {
      * @param script
      */
     public synchronized void add(String script) {
-        Integer i = userMap.get(script);
-        if (i == null) {
-            userMap.put(script, 1);
-        } else {
-            userMap.put(script, i + 1);
-        }
+        userMap.merge(script, 1, Integer::sum);
     }
 
     /**

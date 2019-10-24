@@ -67,11 +67,7 @@ public class HeaderParser {
         this.firstLine = firstLine != null ? firstLine.split("\\s") : new String[0];
 
         for (Header header : headers) {
-            List<String> list = headerMap.get(header.getKey().toLowerCase());
-            if (list == null) {
-                list = new ArrayList<String>();
-                headerMap.put(header.getKey().toLowerCase(), list);
-            }
+            List<String> list = headerMap.computeIfAbsent(header.getKey().toLowerCase(), k -> new ArrayList<String>());
             String value = header.getValue();
             if (this.headerType == HeaderType.Request && header.getKey().equalsIgnoreCase("Authorization")) {
                 int index = value.indexOf(':');

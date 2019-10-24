@@ -166,14 +166,10 @@ public class AutomationServiceV1 implements AutomationService {
 					    	
 							JAXBContext ctx = JAXBContext.newInstance(AutomationRequest.class.getPackage().getName());
 							request = (AutomationRequest) ctx.createUnmarshaller().unmarshal(xmlSource);
-						} catch (JAXBException e) {
+						} catch (JAXBException | ParserConfigurationException | SAXException e) {
 							throw new RuntimeException(e);
-						} catch (SAXException saxe) {
-							throw new RuntimeException(saxe);
-						} catch (ParserConfigurationException pce) {
-							throw new RuntimeException(pce);
 						}
-					}
+                    }
 				} else if (MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(mediaType)) {
 					// get the file
 					is = part.getValueAs(InputStream.class);

@@ -74,15 +74,11 @@ public final class FileReader {
         final long from = l;
 
         StreamingOutput streamer = (final OutputStream output) -> {
-            final FileChannel inputChannel = new FileInputStream(f).getChannel();
-            final WritableByteChannel outputChannel = Channels.newChannel(output);
-            try {
+            try (FileChannel inputChannel = new FileInputStream(f).getChannel();
+                 WritableByteChannel outputChannel = Channels.newChannel(output)) {
                 inputChannel.transferTo(from, to, outputChannel);
-            } finally {
-                // closing the channels
-                inputChannel.close();
-                outputChannel.close();
             }
+            // closing the channels
         };
         LOG.debug("returning data from " + from + " - " + to + " of total " + total);
         return streamer;

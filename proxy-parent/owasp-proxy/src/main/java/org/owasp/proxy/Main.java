@@ -148,10 +148,7 @@ public class Main {
             try {
                 return new AutoGeneratingContextSelector(ks, type, password,
                         password, alias);
-            } catch (GeneralSecurityException e) {
-                System.err.println("Error loading CA keys from keystore: "
-                        + e.getLocalizedMessage());
-            } catch (IOException e) {
+            } catch (GeneralSecurityException | IOException e) {
                 System.err.println("Error loading CA keys from keystore: "
                         + e.getLocalizedMessage());
             }
@@ -162,23 +159,15 @@ public class Main {
                 ca);
         try {
             ssl.save(ks, type, password, password, alias);
-        } catch (GeneralSecurityException e) {
-            System.err.println("Error saving CA keys to keystore: "
-                    + e.getLocalizedMessage());
-        } catch (IOException e) {
+        } catch (GeneralSecurityException | IOException e) {
             System.err.println("Error saving CA keys to keystore: "
                     + e.getLocalizedMessage());
         }
-        FileWriter pem = null;
-        try {
-            pem = new FileWriter("auto_generated_ca.pem");
+        try (FileWriter pem = new FileWriter("auto_generated_ca.pem")) {
             pem.write(ssl.getCACert());
         } catch (IOException e) {
             System.err.println("Error writing CA cert : "
                     + e.getLocalizedMessage());
-        } finally {
-            if (pem != null)
-                pem.close();
         }
         return ssl;
     }

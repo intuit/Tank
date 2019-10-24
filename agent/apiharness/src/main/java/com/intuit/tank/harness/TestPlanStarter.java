@@ -13,8 +13,7 @@ package com.intuit.tank.harness;
  * #L%
  */
 
-import java.util.Stack;
-
+import com.intuit.tank.runner.TestPlanRunner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,28 +26,36 @@ public class TestPlanStarter implements Runnable {
 
     private static final Logger LOG = LogManager.getLogger(TestPlanStarter.class);
 
-    private HDTestPlan plan;
-    private int numThreads;
-    private Stack<Thread> runners = new Stack<Thread>();
-    private int threadsStarted;
+    private final Object httpClient;
+    private final HDTestPlan plan;
+    private final int numThreads;
+    private final ThreadGroup threadGroup;
+    private final String tankHttpClientClass;
+    private int threadsStarted = 0;
+    private final long rampDelay;
 
     private boolean done = false;
 
-    public TestPlanStarter(HDTestPlan plan, int numThreads) {
+    public TestPlanStarter(Object httpClient, HDTestPlan plan, int numThreads, String tankHttpClientClass, ThreadGroup threadGroup) {
         super();
+        this.httpClient = httpClient;
         this.plan = plan;
+        this.threadGroup = threadGroup;
+        this.tankHttpClientClass = tankHttpClientClass;
         this.numThreads = (int) Math.floor(numThreads * (plan.getUserPercentage() / 100D));
+        this.rampDelay = calcRampTime();
     }
 
     public void run() {
         // start initial users
-        int numStartUsers = APITestHarness.getInstance().getAgentRunData().getNumStartUsers();
-        if (threadsStarted < numStartUsers && threadsStarted < numThreads) {
-            LOG.info(LogUtil.getLogMessage("Starting initial " + numStartUsers + " users for plan "
+        int numInitialUsers = APITestHarness.getInstance().getAgentRunData().getNumStartUsers();
+        if (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
+            LOG.info(LogUtil.getLogMessage("Starting initial " + numInitialUsers + " users for plan "
                     + plan.getTestPlanName() + "..."));
-            while (threadsStarted < numStartUsers && threadsStarted < numThreads && !runners.isEmpty()) {
-                runners.pop().start();
-                APITestHarness.getInstance().threadStarted();
+            while (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
+                Thread thread = createThread(httpClient, threadsStarted);
+                APITestHarness.getInstance().threadStarted(thread);
+                thread.start();
                 threadsStarted++;
             }
         }
@@ -56,10 +63,15 @@ public class TestPlanStarter implements Runnable {
         // start rest of users sleeping between each interval
         LOG.info(LogUtil.getLogMessage("Starting ramp of additional " + (numThreads - threadsStarted)
                 + " users for plan " + plan.getTestPlanName() + "..."));
-        while (threadsStarted < numThreads && !runners.isEmpty()) {
-            if ((threadsStarted - numStartUsers) % APITestHarness.getInstance().getAgentRunData().getUserInterval() == 0) {
-                waitForRampTime();
+        while (!done) {
+            if ((threadsStarted - numInitialUsers) % APITestHarness.getInstance().getAgentRunData().getUserInterval() == 0) {
+                try {
+                    Thread.sleep(rampDelay);
+                } catch (InterruptedException e) {
+                    LOG.error(LogUtil.getLogMessage("Error trying to wait for ramp", LogEventType.System), e);
+                }
             }
+            // Loop while in pause or pause_ramp state
             while (APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause_ramp
             		|| APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause) {
                 if (APITestHarness.getInstance().hasMetSimulationTime()) {
@@ -73,13 +85,19 @@ public class TestPlanStarter implements Runnable {
                     }
                 }
             }
-            if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.stop
-            		|| APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill) {
+            if ( APITestHarness.getInstance().getCmd() == WatsAgentCommand.stop
+            		|| APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill
+                    || APITestHarness.getInstance().hasMetSimulationTime()
+                    || APITestHarness.getInstance().isDebug() ) {
+                done = true;
                 break;
             }
-            runners.pop().start();
-            APITestHarness.getInstance().threadStarted();
-            threadsStarted++;
+            if (threadGroup.activeCount() < numThreads) {
+                Thread thread = createThread(httpClient, threadsStarted);
+                thread.start();
+                APITestHarness.getInstance().threadStarted(thread);
+                threadsStarted++;
+            }
         }
         done = true;
     }
@@ -96,37 +114,27 @@ public class TestPlanStarter implements Runnable {
         return numThreads;
     }
 
-    public void setNumThreads(int numThreads) {
-        this.numThreads = numThreads;
-    }
-
     public boolean isDone() {
         return done;
     }
 
-    public void addThread(Thread t) {
-        runners.add(t);
-    }
-
-    private void waitForRampTime() {
-
-        try {
-            long rampDelay = 0;
-            int ramp = (numThreads - APITestHarness.getInstance().getAgentRunData().getNumStartUsers());
-            if (ramp > 0) {
-                rampDelay = (APITestHarness.getInstance().getAgentRunData().getRampTime() * APITestHarness
-                        .getInstance().getAgentRunData().getUserInterval())
-                        / ramp;
-            }
-            if (rampDelay > 0) {
-                Thread.sleep(rampDelay);
-            } else if (APITestHarness.getInstance().getAgentRunData().getRampTime() > 0) {
-                LOG.info(LogUtil.getLogMessage("No Ramp - " + rampDelay, LogEventType.System));
-            }
-
-        } catch (Exception t) {
-            LOG.error(LogUtil.getLogMessage("Error trying to wait for ramp", LogEventType.System), t);
+    private long calcRampTime() {
+        int ramp = (numThreads - APITestHarness.getInstance().getAgentRunData().getNumStartUsers());
+        if (ramp > 0) {
+            return (APITestHarness.getInstance().getAgentRunData().getRampTime() *
+                    APITestHarness.getInstance().getAgentRunData().getUserInterval())
+                    / ramp;
+        } else if (APITestHarness.getInstance().getAgentRunData().getRampTime() > 0) {
+            LOG.info(LogUtil.getLogMessage("No Ramp - " + rampDelay, LogEventType.System));
         }
+        return 1; //Return minimum wait time 1 millisecond
     }
 
+    private Thread createThread(Object httpClient, int threadNumber) {
+        TestPlanRunner session = new TestPlanRunner(httpClient, plan, threadNumber, tankHttpClientClass);
+        Thread thread = new Thread(threadGroup, session, "AGENT");
+        thread.setDaemon(true);// system won't shut down normally until all user threads stop
+        session.setUniqueName(threadGroup.getName() + "-" + thread.getId());
+        return thread;
+    }
 }

@@ -16,8 +16,6 @@ package com.intuit.tank.search.util;
  * #L%
  */
 
-import java.io.Reader;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
@@ -44,10 +42,9 @@ public class TankAnalyzer extends Analyzer {
     }
 
     @Override
-    protected TokenStreamComponents createComponents(final String fieldName,
-            final Reader reader) {
-        final Tokenizer src = new WhitespaceTokenizer(matchVersion, reader);
-        TokenStream tok = new LowerCaseFilter(matchVersion, src);
+    protected TokenStreamComponents createComponents(String s) {
+        final Tokenizer src = new WhitespaceTokenizer();
+        TokenStream tok = new LowerCaseFilter(src);
         return new TokenStreamComponents(src, tok);
     }
 }

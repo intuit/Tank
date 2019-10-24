@@ -11,11 +11,11 @@
         icon="ui-icon-document" style="margin: 0 0 0 10px; border-radius:5px"
         styleClass="icon-button h-space" />
     </div>
-    <div class="float-left" style="margin-left: 20px;">
-      <h:outputLink title="Download Harness XML"
-        value="#{request.contextPath}/rest/v1/project-service/download/script/project/#{projectBean.project.id}">
-        <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16" style="padding: 5px 0;" />
-      </h:outputLink>
+    <div class="float-left">
+      <p:commandButton id="downloadHarnessBT" value="Harness XML" title="Download Harness XML"
+        styleClass="icon-button h-space" type="button"
+        onclick="location.href='#{request.contextPath}/rest/v1/project-service/download/script/project/#{projectBean.project.id}'"
+        icon="ui-icon-circle-arrow-s" style="margin: 0 0 0 10px; border-radius:5px" />
     </div>
   </h:panelGroup>
   <div class="vertical-spacer" />

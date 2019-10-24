@@ -13,7 +13,6 @@ package com.intuit.tank.search.lucene;
  * #L%
  */
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,11 +20,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.search.lucene.LuceneService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -183,7 +179,7 @@ public class LuceneServiceTest {
     public void testRemoveDocument_1()
         throws Exception {
         LuceneService fixture = new LuceneService();
-        Query query = new BooleanQuery(true);
+        Query query = new BooleanQuery.Builder().setMinimumNumberShouldMatch(1).build();
 
         fixture.removeDocument(query);
 
@@ -245,7 +241,7 @@ public class LuceneServiceTest {
     public void testSearch_1()
         throws Exception {
         LuceneService fixture = new LuceneService();
-        Query query = new BooleanQuery();
+        Query query = new BooleanQuery.Builder().build();
         boolean prefixWildCard = true;
 
         List<Document> result = fixture.search(query, prefixWildCard);
@@ -267,7 +263,7 @@ public class LuceneServiceTest {
     public void testSearch_2()
         throws Exception {
         LuceneService fixture = new LuceneService();
-        Query query = new BooleanQuery();
+        Query query = new BooleanQuery.Builder().build();
         boolean prefixWildCard = true;
 
         List<Document> result = fixture.search(query, prefixWildCard);

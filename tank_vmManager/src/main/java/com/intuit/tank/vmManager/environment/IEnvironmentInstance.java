@@ -71,8 +71,10 @@ public interface IEnvironmentInstance {
      * 
      * @param instanceId
      *            the instance to associate
-     * @param ip
-     *            the ip to associate
+     * @param address
+     *            the address to associate
+     * @param latch
+     *            the count down latch to associate
      */
     public void associateAddress(String instanceId, Address address, CountDownLatch latch);
 
@@ -96,14 +98,14 @@ public interface IEnvironmentInstance {
 
     /**
      * @param instanceIds
-     * @return
+     *             the instance ids to kill
      */
-    public List<VMInformation> kill(List<String> instanceIds);
+    public void killInstances(List<String> instanceIds);
 
     /**
      * 
      * @param instanceIds
      *            the instance ids to stop
      */
-    public List<VMInformation> stopInstances(List<String> instanceIds);
+    public void stopInstances(List<String> instanceIds);
 }

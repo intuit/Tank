@@ -34,7 +34,9 @@ import javax.swing.JToolBar;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
+import org.fife.ui.rtextarea.SearchResult;
 
 /**
  * XMlViewDialog
@@ -72,9 +74,7 @@ public class XMlViewDialog extends JDialog implements ActionListener {
         RTextScrollPane sp = new RTextScrollPane(xmlViewTA);
         add(sp, BorderLayout.CENTER);
         JButton button = new JButton("Close");
-        button.addActionListener( (ActionEvent e) -> {
-            setVisible(false);
-        });
+        button.addActionListener( (ActionEvent e) -> setVisible(false));
         add(button, BorderLayout.SOUTH);
 
         // Create a toolbar with searching options.
@@ -113,13 +113,12 @@ public class XMlViewDialog extends JDialog implements ActionListener {
             if (text.length() == 0) {
                 return;
             }
-            boolean forward = true;
-            boolean matchCase = matchCaseCB.isSelected();
-            boolean wholeWord = false;
-            boolean regex = regexCB.isSelected();
-            boolean found = SearchEngine.find(xmlViewTA, text, forward,
-                    matchCase, wholeWord, regex);
-            if (!found) {
+            SearchContext searchContext = new SearchContext(text, matchCaseCB.isSelected());
+            searchContext.setSearchForward(true);
+            searchContext.setWholeWord(false);
+            searchContext.setRegularExpression(regexCB.isSelected());
+            SearchResult found = SearchEngine.find(xmlViewTA, searchContext);
+            if (!found.wasFound()) {
                 JOptionPane.showMessageDialog(this, "Text not found");
             }
         }
@@ -129,13 +128,12 @@ public class XMlViewDialog extends JDialog implements ActionListener {
             if (text.length() == 0) {
                 return;
             }
-            boolean forward = false;
-            boolean matchCase = matchCaseCB.isSelected();
-            boolean wholeWord = false;
-            boolean regex = regexCB.isSelected();
-            boolean found = SearchEngine.find(xmlViewTA, text, forward,
-                    matchCase, wholeWord, regex);
-            if (!found) {
+            SearchContext searchContext = new SearchContext(text, matchCaseCB.isSelected());
+            searchContext.setSearchForward(false);
+            searchContext.setWholeWord(false);
+            searchContext.setRegularExpression(regexCB.isSelected());
+            SearchResult found = SearchEngine.find(xmlViewTA, searchContext);
+            if (!found.wasFound()) {
                 JOptionPane.showMessageDialog(this, "Text not found");
             }
         }

@@ -126,8 +126,9 @@ public class WorkLoadFactory {
     }
 
     private JobRequest jobToJobRequest(JobInstance job) {
-        Builder builder = JobRequestImpl.builder();
-        builder.withBaselineVirtualUsers(job.getBaselineVirtualUsers()).withId(Integer.toString(job.getId()))
+        Builder builder = JobRequestImpl.builder()
+                .withBaselineVirtualUsers(job.getBaselineVirtualUsers())
+                .withId(Integer.toString(job.getId()))
                 .withIncrementStrategy(job.getIncrementStrategy())
                 .withLocation(job.getLocation()).withRampTime(job.getRampTime())
                 .withLoggingProfile(job.getLoggingProfile())
@@ -138,10 +139,10 @@ public class WorkLoadFactory {
                 .withnumUsersPerAgent(job.getNumUsersPerAgent())
                 .withSimulationTime(job.getSimulationTime()).withStatus(job.getStatus())
                 .withTerminationPolicy(job.getTerminationPolicy())
-                .withUserIntervalIncrement(job.getUserIntervalIncrement());
-        builder.withRegions(getRegions(job));
-        builder.withNofitications(getNotifications(job));
-        builder.withDataFileIds(getDataFileIds(job));
+                .withUserIntervalIncrement(job.getUserIntervalIncrement())
+                .withRegions(getRegions(job))
+                .withNofitications(getNotifications(job))
+                .withDataFileIds(getDataFileIds(job));
         if (job.getTerminationPolicy() == TerminationPolicy.script) {
             builder.withSimulationTime(0);
         }

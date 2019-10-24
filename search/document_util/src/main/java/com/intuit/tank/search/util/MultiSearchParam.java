@@ -90,13 +90,13 @@ public class MultiSearchParam implements SearchParam {
      * {@inheritDoc}
      */
     public Query getLuceneQuery() {
-        BooleanQuery ret = new BooleanQuery();
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
         for (SearchParam param : params) {
             if (param != null) {
-                ret.add(new BooleanClause(param.getLuceneQuery(), operator.occur));
+                builder.add(new BooleanClause(param.getLuceneQuery(), operator.occur));
             }
         }
-        return ret;
+        return builder.build();
     }
 
     /**

@@ -63,9 +63,7 @@ public class ScriptErrorViewDialog extends JDialog {
         add(sp, BorderLayout.CENTER);
         JPanel jPanel = new JPanel(new FlowLayout());
         JButton button = new JButton("Close");
-        button.addActionListener((ActionEvent e) -> {
-            setVisible(false);
-        });
+        button.addActionListener((ActionEvent e) -> setVisible(false));
         jPanel.add(button);
         add(jPanel, BorderLayout.SOUTH);
         setSize(new Dimension(400, 500));

@@ -97,9 +97,7 @@ public class AmazonSimpleDatabase implements IDatabase {
      */
     @Override
     public void deleteForJob(final String tableName, String jobId, boolean asynch) {
-        Runnable task = () -> {
-            deleteTable(tableName);
-        };
+        Runnable task = () -> deleteTable(tableName);
         if (asynch) {
             EXECUTOR.execute(task);
         } else {

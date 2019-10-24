@@ -4,7 +4,7 @@
 
   <groupId>com.intuit.tank</groupId>
   <artifactId>tank-parent</artifactId>
-  <version>2.3.0</version>
+  <version>2.3.1</version>
 
   <packaging>pom</packaging>
   <name>Tank Parent</name>
@@ -28,12 +28,12 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>4.2.21.Final</version.hibernate>
-    <version-aws-sdk>1.11.516</version-aws-sdk>
+    <version-aws-sdk>1.11.650</version-aws-sdk>
 
-    <version-tomcat>9.0.14</version-tomcat>
+    <version-tomcat>9.0.27</version-tomcat>
 
-    <weld-version>3.1.0.Final</weld-version>
-    <cdi-version>2.0</cdi-version>
+    <weld.version>3.1.1.Final</weld.version>
+    <cdi.version>2.0</cdi.version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
     <version.enunciate>2.11.1</version.enunciate>
@@ -44,16 +44,17 @@
     <version.primefaces-ext>7.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>3.0.0-M3</version.surefire>
-    <version.jersey>2.28</version.jersey>
+    <version.jersey>2.29</version.jersey>
     <version.arquillian>1.4.1.Final</version.arquillian>
-    <version.httpclient>4.5.7</version.httpclient>
+    <version.httpclient>4.5.9</version.httpclient>
     <version.httpclient5>5.0-beta2</version.httpclient5>
+    <version.lucene>8.0.0</version.lucene>
 
-    <version.groovy>2.4.9</version.groovy>
-    <version.spock>1.1-groovy-2.4</version.spock>
+    <version.groovy>2.4.17</version.groovy>
+    <version.spock>1.3-groovy-2.5</version.spock>
 
     <!-- maven-compiler-plugin -->
-    <version.compiler.plugin>3.8.0</version.compiler.plugin>
+    <version.compiler.plugin>3.8.1</version.compiler.plugin>
     <maven.compiler.target>8</maven.compiler.target>
     <maven.compiler.source>8</maven.compiler.source>
   </properties>
@@ -115,13 +116,48 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>cobertura-maven-plugin</artifactId>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>default-prepare-agent</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>default-report</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>default-aggregate</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>report-aggregate</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>default-check</id>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <configuration>
+                  <excludes>
+                    <exclude>org/**/*.class</exclude>
+                    <exclude>**/trial/**/*.class</exclude>
+                    <exclude>**/tools/**/*.class</exclude>
+                    <exclude>**/proxy/**/*.class</exclude>
+                  </excludes>
+                  <rules/>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
-      <dependencies>
-      </dependencies>
     </profile>
 
     <profile>
@@ -224,21 +260,9 @@
   </profiles>
 
   <dependencies>
-
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.webcohesion.enunciate</groupId>
-      <artifactId>enunciate-core</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -262,7 +286,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>test-support</artifactId>
-      <version>2.3.0</version>
+      <version>2.3.1</version>
       <scope>test</scope>
     </dependency>
 
@@ -292,12 +316,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-core</artifactId>
       <scope>test</scope>
@@ -318,13 +336,6 @@
       <artifactId>tomcat-jasper</artifactId>
       <scope>provided</scope>
     </dependency>
-    <!-- Weld servlet, EL and JSP required for testing CDI injections -->
-    <dependency>
-      <groupId>org.jboss.weld.servlet</groupId>
-      <artifactId>weld-servlet-shaded</artifactId>
-      <!-- <scope>test</scope> -->
-    </dependency>
-
     <dependency>
       <groupId>javax.servlet.jsp</groupId>
       <artifactId>javax.servlet.jsp-api</artifactId>
@@ -337,6 +348,17 @@
     <!-- This section specifies defaults for dependencies. --><!-- Any subpom can use these dependencies without specifying version -->
 
     <dependencies>
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>8.0.17</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>28.0-jre</version>
+      </dependency>
 
       <dependency>
         <groupId>net.sf.docbook</groupId>
@@ -506,7 +528,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.18</version>
+        <version>1.19</version>
       </dependency>
 
       <dependency>
@@ -560,7 +582,8 @@
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-core</artifactId>
-        <version>2.11.1</version>
+        <!-- never versions break jsonlayout -->
+        <version>2.11.2</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
@@ -640,11 +663,6 @@
         <version>${version.jersey}</version>
       </dependency>
 
-      <dependency>
-        <groupId>saxpath</groupId>
-        <artifactId>saxpath</artifactId>
-        <version>1.0-FCS</version>
-      </dependency>
       <dependency>
         <groupId>com.metaparadigm</groupId>
         <artifactId>json-rpc</artifactId>
@@ -740,17 +758,17 @@
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-core</artifactId>
-        <version>4.10.4</version>
+        <version>${version.lucene}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-analyzers-common</artifactId>
-        <version>4.10.4</version>
+        <version>${version.lucene}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-queryparser</artifactId>
-        <version>4.10.4</version>
+        <version>${version.lucene}</version>
       </dependency>
       <dependency>
         <groupId>jaxen</groupId>
@@ -776,20 +794,20 @@
       <dependency>
         <groupId>javax.enterprise</groupId>
         <artifactId>cdi-api</artifactId>
-        <version>${cdi-version}</version>
+        <version>${cdi.version}</version>
         <scope>provided</scope>
       </dependency>
 
       <dependency>
         <groupId>org.jboss.weld.servlet</groupId>
         <artifactId>weld-servlet-shaded</artifactId>
-        <version>${weld-version}</version>
+        <version>${weld.version}</version>
         <scope>runtime</scope>
       </dependency>
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>
-        <version>5.2.0</version>
+        <version>5.5.1</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -849,7 +867,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>license-maven-plugin</artifactId>
-          <version>1.16</version>
+          <version>2.0.0</version>
         </plugin>
 
         <plugin>
@@ -867,7 +885,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>3.2.2</version>
+          <version>3.2.3</version>
         </plugin>
 
         <plugin>
@@ -895,6 +913,12 @@
             <storepass>${cert.store.password}</storepass>
             <keypass>${cert.password}</keypass>
           </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${version.surefire}</version>
         </plugin>
 
         <plugin>
@@ -945,12 +969,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.1.0</version>
           <dependencies>
             <dependency>
               <groupId>${project.groupId}</groupId>
               <artifactId>test-support</artifactId>
-              <version>2.3.0</version>
+              <version>2.3.1</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -1002,41 +1026,9 @@
           </configuration>
         </plugin>
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>cobertura-maven-plugin</artifactId>
-          <version>2.7</version>
-          <dependencies>
-            <dependency>
-              <groupId>org.ow2.asm</groupId>
-              <artifactId>asm</artifactId>
-              <version>7.0</version>
-            </dependency>
-          </dependencies>
-          <configuration>
-            <aggregate>true</aggregate>
-            <formats>
-              <format>html</format>
-              <format>xml</format>
-            </formats>
-            <instrumentation>
-              <ignores>
-                <ignore>org.fife.**</ignore>
-              </ignores>
-              <excludes>
-                <exclude>org/**/*.class</exclude>
-                <exclude>**/trial/**/*.class</exclude>
-                <exclude>**/tools/**/*.class</exclude>
-                <exclude>**/proxy/**/*.class</exclude>
-              </excludes>
-            </instrumentation>
-          </configuration>
-          <executions>
-            <execution>
-              <goals>
-                <goal>clean</goal>
-              </goals>
-            </execution>
-          </executions>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.4</version>
         </plugin>
 
         <plugin>
@@ -1133,8 +1125,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${version.surefire}</version>
         <configuration>
+          <!-- Sets the VM argument line used when unit tests are run. -->
+          <argLine>${argLine}</argLine>
           <excludedGroups>manual,integration,experimental</excludedGroups>
           <includes>
             <include>**/*Test.java</include>
