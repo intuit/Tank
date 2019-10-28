@@ -16,6 +16,7 @@ package com.intuit.tank.auth;
  * #L%
  */
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +42,7 @@ import static org.picketlink.idm.model.basic.BasicModel.*;
  * @author dangleton
  * 
  */
+@ApplicationScoped
 public class InternalSecurity {
 	
     @Inject 
