@@ -17,6 +17,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -111,10 +112,9 @@ public interface AutomationService {
      *          upload file metadata
      * @return Response status code 200 (created) with body of scriptid or an error code
      */
-    @POST
+    @PUT
     @Path("/upload/script")
     @Consumes({ MediaType.MULTIPART_FORM_DATA })
-    @Produces({ MediaType.APPLICATION_JSON })
     @Nonnull
     Response uploadScript(@QueryParam("id") int scriptId,
                           @QueryParam("name") String scriptName,
