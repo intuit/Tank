@@ -101,6 +101,7 @@ public class AgentConfig implements Serializable {
         // 3.1">com.intuit.tank.httpclient3.TankHttpClient3</tank-client>
         // <tank-client name="apache HttpClient
         // 4.5">com.intuit.tank.httpclient4.TankHttpClient4</tank-client>
+        // 6">com.intuit.tank.httpclient6.TankHttpClient6</tank-client>
         // <tank-http-clients>
         List<HierarchicalConfiguration> tankClients = config.configurationsAt(KEY_TANK_HTTP_CLIENTS);
         if (tankClients != null) {
@@ -112,6 +113,7 @@ public class AgentConfig implements Serializable {
             tankClientMap.put("Apache HttpClient 3.1", "com.intuit.tank.httpclient3.TankHttpClient3");
             tankClientMap.put("Apache HttpClient 4.5", "com.intuit.tank.httpclient4.TankHttpClient4");
             tankClientMap.put("Apache HttpClient 5", "com.intuit.tank.httpclient5.TankHttpClient5");
+            tankClientMap.put("Async HttpClient", "com.intuit.tank.httpclient6.TankHttpClient6");
         }
         resultsProviderMap = new HashMap<String, String>();
         resultsTypeMap = new HashMap<String, String>();
