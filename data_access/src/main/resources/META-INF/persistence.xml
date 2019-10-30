@@ -71,9 +71,9 @@
       <!-- Echo all executed SQL to stdout -->
       <property name="hibernate.show_sql" value="false" />
 
-      <property name="org.hibernate.envers.auditTableSuffix" value="_version" />
-      <property name="org.hibernate.envers.revisionFieldName" value="rev" />
-      <property name="org.hibernate.envers.revisionTypeFieldName" value="rev_type" />
+      <property name="org.hibernate.envers.audit_table_suffix" value="_version" />
+      <property name="org.hibernate.envers.revision_field_name" value="rev" />
+      <property name="org.hibernate.envers.revision_type_field_name" value="rev_type" />
 
 
     </properties>
