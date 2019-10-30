@@ -20,7 +20,6 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
