@@ -400,9 +400,9 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
             commit();
         } catch (Exception e) {
         	rollback();
-        	String printQuery = Optional.ofNullable(query.toString())
-                    .orElse("NullPointerException, probably can't connect to database.");
-            LOG.info("no entity matching query " + printQuery);
+        	String printQuery = (query != null) ? query.toString()
+                    : "Failed to connect to database: ";
+            LOG.info("no entity matching query: " + printQuery, e);
         } finally {
             cleanup();
         }
