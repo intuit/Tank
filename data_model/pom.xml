@@ -26,6 +26,11 @@
       <artifactId>hibernate-envers</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jandex</artifactId>
+    </dependency>
+
     <!-- Bean Validation API (JSR 303) -->
     <dependency>
       <groupId>javax.validation</groupId>

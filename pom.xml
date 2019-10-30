@@ -27,7 +27,7 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>4.2.21.Final</version.hibernate>
+    <version.hibernate>4.3.11.Final</version.hibernate>
     <version-aws-sdk>1.11.650</version-aws-sdk>
 
     <version-tomcat>9.0.27</version-tomcat>
@@ -242,14 +242,14 @@
           </dependency>
           <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
+            <artifactId>hibernate-envers</artifactId>
             <version>${version.hibernate}</version>
             <scope>provided</scope>
           </dependency>
           <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-envers</artifactId>
-            <version>${version.hibernate}</version>
+            <groupId>org.jboss</groupId>
+            <artifactId>jandex</artifactId>
+            <version>2.1.1.Final</version>
             <scope>provided</scope>
           </dependency>
         </dependencies>
@@ -509,14 +509,14 @@
 
       <dependency>
         <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-core</artifactId>
+        <artifactId>hibernate-envers</artifactId>
         <version>${version.hibernate}</version>
       </dependency>
 
       <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-envers</artifactId>
-        <version>${version.hibernate}</version>
+        <groupId>org.jboss</groupId>
+        <artifactId>jandex</artifactId>
+        <version>2.1.1.Final</version>
       </dependency>
 
       <dependency>
