@@ -48,7 +48,7 @@ public abstract class BaseEntity implements Serializable {
     public static final String PROPERTY_MODIFIED = "modified";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
