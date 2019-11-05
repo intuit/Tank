@@ -53,7 +53,7 @@ import com.intuit.tank.vm.script.util.ReplaceActionScope;
 
 public class ScriptFilterUtil {
 
-    private static Logger logger = LogManager.getLogger(ScriptFilterUtil.class);
+    private static final Logger logger = LogManager.getLogger(ScriptFilterUtil.class);
 
     /**
      * Applys the filters specified by filterIds
@@ -90,11 +90,11 @@ public class ScriptFilterUtil {
         List<ScriptFilter> internalFilters = new ArrayList<ScriptFilter>();
         List<ScriptFilter> externalFilters = new ArrayList<ScriptFilter>();
 
-        for (ScriptFilter tempFilter : filters) {
-            if (tempFilter.getFilterType() == ScriptFilterType.EXTERNAL) {
-                externalFilters.add(tempFilter);
+        for (ScriptFilter filter : filters) {
+            if (filter.getFilterType() == ScriptFilterType.EXTERNAL) {
+                externalFilters.add(filter);
             } else {
-                internalFilters.add(tempFilter);
+                internalFilters.add(filter);
             }
         }
 
@@ -110,7 +110,7 @@ public class ScriptFilterUtil {
             for (ScriptFilter filter : externalFilters) {
                 ExternalScript externalScript = externalScriptDao.findById(filter.getExternalScriptId());
                 logger.info("Running external Script: " + externalScript);
-                if (script != null) {
+                if (externalScript != null) {
                     try {
                         runner.runScript(externalScript.getName(), externalScript.getScript(),
                                 externalScript.getEngine(),
@@ -395,23 +395,17 @@ public class ScriptFilterUtil {
         if (filterField == null)
             return false;
         if (condition.getCondition().equalsIgnoreCase("Contains")) {
-            if (filterField.contains(condition.getValue()))
-                return true;
+            return filterField.contains(condition.getValue());
         } else if (condition.getCondition().equalsIgnoreCase("Matches")) {
-            if (filterField.matches(condition.getValue()))
-                return true;
+            return filterField.matches(condition.getValue());
         } else if (condition.getCondition().equalsIgnoreCase("Does not contain")) {
-            if (!filterField.contains(condition.getValue()))
-                return true;
+            return !filterField.contains(condition.getValue());
         } else if (condition.getCondition().equalsIgnoreCase("Starts with")) {
-            if (filterField.startsWith(condition.getValue()))
-                return true;
+            return filterField.startsWith(condition.getValue());
         } else if (condition.getCondition().equalsIgnoreCase("Exist")) {
-            if (!filterField.isEmpty())
-                return true;
+            return !filterField.isEmpty();
         } else if (condition.getCondition().equalsIgnoreCase("Does not exist")) {
-            if (filterField.isEmpty())
-                return true;
+            return filterField.isEmpty();
             // return doAction(condition.getActions(), currentStep);
         }
         return false;
@@ -433,12 +427,8 @@ public class ScriptFilterUtil {
             return true;
         }
 
-        if ((condition.getCondition().equals("Does not contain")) ||
-                (condition.getCondition().equals("Does not exist"))) {
-            return true;
-        }
-
-        return false;
+        return (condition.getCondition().equals("Does not contain")) ||
+                (condition.getCondition().equals("Does not exist"));
     }
 
     private static boolean matchContition(ScriptFilterCondition condition, String filterField) {

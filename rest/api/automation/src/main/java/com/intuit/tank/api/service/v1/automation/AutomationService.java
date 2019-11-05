@@ -15,17 +15,24 @@ package com.intuit.tank.api.service.v1.automation;
 import javax.annotation.Nonnull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.intuit.tank.api.model.v1.automation.CreateJobRequest;
 import com.intuit.tank.api.model.v1.automation.ApplyFiltersRequest;
 
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
+import java.io.InputStream;
 
 /**
  * AutomationService Services for Automation integration.
@@ -89,8 +96,32 @@ public interface AutomationService {
     @Consumes({ MediaType.MULTIPART_FORM_DATA })
     @Produces({ MediaType.APPLICATION_JSON })
     @Nonnull
+    @Deprecated
     Response uploadScript(@Nonnull FormDataMultiPart formData);
-    
+
+    /**
+     * Uploads a script to an existing script
+     *
+     * @param scriptId
+     *          Script id to replace
+     * @param scriptName
+     *          new name for script
+     * @param fileInputStream
+     *          upload file inputStream
+     * @param fileFormDataContentDisposition
+     *          upload file metadata
+     * @return Response status code 200 (created) with body of scriptid or an error code
+     */
+    @PUT
+    @Path("/upload/script")
+    @Consumes({ MediaType.MULTIPART_FORM_DATA })
+    @Nonnull
+    Response uploadScript(@QueryParam("id") int scriptId,
+                          @QueryParam("name") String scriptName,
+                          @FormDataParam("file") InputStream fileInputStream,
+                          @FormDataParam("file") FormDataContentDisposition fileFormDataContentDisposition,
+                          @HeaderParam("Content-Encoding") String contentEncoding);
+
     /**
      * Applies Filters to an existing Script
      * 

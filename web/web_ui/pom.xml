@@ -284,7 +284,7 @@
     <!-- Weld servlet, EL and JSP required for testing CDI injections -->
     <dependency>
       <groupId>org.jboss.weld.servlet</groupId>
-      <artifactId>weld-servlet-shaded</artifactId>
+      <artifactId>weld-servlet-core</artifactId>
     </dependency>
 
     <dependency>
