@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core"
-  xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag"
-  xmlns:p="http://primefaces.org/ui"
-  template="/WEB-INF/templates/tank.xhtml">
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ts="http://xmlns.jcp.org/jsf/composite/tag"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/tank.xhtml">
 
   <ui:define name="content">
     <h:form id="searchForm">
@@ -15,12 +15,7 @@
           <h:panelGroup styleClass="toolbar-ui">
 
             <p:commandButton id="tbCancelBtn" action="#{scriptSearchBean.cancel()}" value="Back" immediate="true"
-              ajax="false"
-              style=" background-image: url(#{request.contextPath}/resources/gfx/16/document_page_previous.png);
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
-              styleClass="icon-button h-space" />
+              ajax="false" icon="ui-icon-cancel" styleClass="icon-button h-space" />
           </h:panelGroup>
         </f:facet>
       </ts:toolbar>
@@ -29,7 +24,6 @@
 
       <div class="vertical-spacer" />
       <p:growl id="messages" />
-
 
       <h:panelGroup id="searchFieldGroup">
         <div class="formDiv">

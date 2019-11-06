@@ -2,6 +2,14 @@
   font-size: 12px;
 }
 
+.ui-login-box {
+  width: 360px;
+  padding: 2%;
+  margin: 8% auto;
+  background: #5c9ccc
+    url("/javax.faces.resource/images/ui-bg_gloss-wave_55_5c9ccc_500x100.png.jsf?ln=primefaces-redmond")
+    repeat-x;
+}
 
 .CodeMirror {
   border: 1px solid gray;
