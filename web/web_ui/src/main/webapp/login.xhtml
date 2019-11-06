@@ -4,15 +4,14 @@
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/templates/tank.xhtml">
-  <ui:define name="content" style="padding: 8%">
+  <ui:define name="content">
     <p:growl globalOnly="true" id="messages" />
     
     <h:inputHidden value="#{tsAuthenticator.getUri()}" />
 
     <div class="vertical-spacer" />
 
-    <h:form id="login" rendered="#{not identity.loggedIn}"
-            styleClass="ui-login-box">
+    <h:form id="login" rendered="#{not identity.loggedIn}" styleClass="ui-login-box">
       <p:growl globalOnly="true" id="messages" sticky="true"/>
       <p:outputLabel value="Username" style="font-size: 10px;color: #ffffff; width:100%" />
       <h:inputText id="username" value="#{loginCredentials.userId}" styleClass="formInput" style="padding:8px; width: 340px"/>
