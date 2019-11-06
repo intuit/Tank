@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-  xmlns:ts="http://xmlns.jcp.org/jsf/composite/tag"
-  xmlns:f="http://xmlns.jcp.org/jsf/core"
-  xmlns:h="http://xmlns.jcp.org/jsf/html"
-  xmlns:p="http://primefaces.org/ui">
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:ts="http://xmlns.jcp.org/jsf/composite/tag"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui">
 
   <div class="formRow">
     <p:commandButton value="Raw Response" rendered="#{scriptRequestEditor.step.response ne null}"
       onclick="PF('rawResponseDialog').show();" ajax="true" update=":rawResponseForm:rawResponseGroup"
-      style=" background-image: url(#{request.contextPath}/resources/gfx/16/magnifier.png);
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
-      styleClass="icon-button h-space" />
+      icon="ui-icon-search" styleClass="icon-button h-space" />
       <p:spacer width="5px" height="5px" />
       <ts:tip tipId="headerTip"
                 text="Response Headers are for informational purposes only. They are not used in any way in the request."  />

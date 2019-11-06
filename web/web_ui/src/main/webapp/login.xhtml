@@ -11,30 +11,14 @@
 
     <div class="vertical-spacer" />
 
-    <h:form id="login" rendered="#{not identity.loggedIn}">
+    <h:form id="login" rendered="#{not identity.loggedIn}"
+            styleClass="ui-login-box">
       <p:growl globalOnly="true" id="messages" sticky="true"/>
-      <div class="formRow">
-        <div class="formLabelDiv">
-          <h:outputLabel for="username" value="Login Name" styleClass="formLabel required" />
-        </div>
-        <div class="formInputDiv">
-          <h:inputText id="username" value="#{loginCredentials.userId}" styleClass="formInput" />
-        </div>
-      </div>
-      <div class="formRow">
-        <div class="formLabelDiv">
-          <h:outputLabel for="password" value="Password" styleClass="formLabel required" />
-        </div>
-        <div class="formInputDiv">
-          <h:inputSecret id="password" value="#{loginCredentials.password}" styleClass="formInput" />
-        </div>
-      </div>
-      <div class="vertical-spacer" />
-      <div class="formRow">
-        <div class="buttonBox">
-          <p:commandButton id="login" action="#{tsAuthenticator.login}" value="Login" ajax="false"/>
-        </div>
-      </div>
+      <p:outputLabel value="Username" style="font-size: 10px;color: #ffffff; width:100%" />
+      <h:inputText id="username" value="#{loginCredentials.userId}" styleClass="formInput" style="padding:8px; width: 340px"/>
+      <p:outputLabel value="Password" style="font-size: 10px;color: #ffffff; width:100%" />
+      <h:inputSecret id="password" value="#{loginCredentials.password}" styleClass="formInput" style="padding:8px; width: 340px; margin: 0 0 14px"/>
+      <p:commandButton id="login" action="#{tsAuthenticator.login}" value="Login" ajax="false" style="padding:8px; width:100%"/>
      
       <h:inputHidden id="timeZone" value="#{preferencesBean.clientTimeZone}" converter="tsTimeZoneConverter" />
       <h:outputScript library="js" name="jstz-1.0.4.min.js" />

@@ -6,26 +6,14 @@
   xmlns:p="http://primefaces.org/ui">
   <div class="formRow">
     <p:commandButton value="Pre Validation" action="#{responseContentEditor.insertPreValidation()}" ajax="true"
-      update=":requestForm:request-editor-tab-panel,:requestForm:request-editor-tab-panel:validationContentTable"
-      style=" background-image: url(#{request.contextPath}/resources/gfx/16/lightning_add.png);
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
-      styleClass="icon-button h-space"/>
+                     update=":requestForm:request-editor-tab-panel,:requestForm:request-editor-tab-panel:validationContentTable"
+                     icon="ui-icon-plus" styleClass="icon-button h-space"/>
     <p:commandButton value="Validation" action="#{responseContentEditor.insertPostValidation()}" ajax="true"
-      update=":requestForm:request-editor-tab-panel,:requestForm:request-editor-tab-panel:validationContentTable"
-      style=" background-image: url(#{request.contextPath}/resources/gfx/16/lightning_add.png);
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
-      styleClass="icon-button h-space"/>
+                     update=":requestForm:request-editor-tab-panel,:requestForm:request-editor-tab-panel:validationContentTable"
+                     icon="ui-icon-plus" styleClass="icon-button h-space"/>
     <p:commandButton value="Raw Response" rendered="#{scriptRequestEditor.step.response ne null}"
-      onclick="PF('rawResponseDialog').show();" ajax="true" update=":rawResponseForm:rawResponseGroup"
-      style=" background-image: url(#{request.contextPath}/resources/gfx/16/magnifier.png);
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
-      styleClass="icon-button h-space"/>
+                     onclick="PF('rawResponseDialog').show();" ajax="true" update=":rawResponseForm:rawResponseGroup"
+                     icon="ui-icon-search" styleClass="icon-button h-space"/>
   </div>
   <div class="clear-both vertical-spacer" />
   <div class="height300 overflow-auto">

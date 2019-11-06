@@ -14,12 +14,7 @@
           <f:facet name="actions">
             <h:panelGroup styleClass="toolbar-ui" layout="block">
               <p:commandButton value="Apply Filters" update=":mainForm" ajax="true" action="#{scriptEditor.reapplyFilters()}"
-                title="Apply selected filters."
-                style=" background-image: url(#{request.contextPath}/resources/gfx/16/accept.png);
-                      background-repeat: no-repeat;
-                      background-position: 3px 5px;
-                      border-radius:5px;"
-                styleClass="icon-button h-space"/>
+                title="Apply selected filters." icon="ui-icon-check" styleClass="icon-button h-space"/>
               <p:commandButton id="cancelBtn" action="#{scriptEditor.enterFilterMode()}" value="Cancel" ajax="true"
                 icon="ui-icon-cancel" styleClass="icon-button h-space" />
             </h:panelGroup>
