@@ -26,10 +26,10 @@ import com.intuit.tank.vm.common.ThreadLocalUsernameProvider;
  * @author dangleton
  * 
  */
-public class WatsRevisionListener implements RevisionListener {
+public class TankRevisionListener implements RevisionListener {
 
     public void newRevision(Object revisionEntity) {
-        WatsRevisionInfo revisionInfo = (WatsRevisionInfo) revisionEntity;
+        TankRevisionInfo revisionInfo = (TankRevisionInfo) revisionEntity;
         revisionInfo.setUsername(ThreadLocalUsernameProvider.getUsernameProvider().getUserName());
     }
 

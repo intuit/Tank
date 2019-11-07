@@ -15,15 +15,12 @@ package com.intuit.tank.project;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.WatsRevisionInfo;
-import com.intuit.tank.project.WatsRevisionListener;
-
 /**
- * The class <code>WatsRevisionListenerTest</code> contains tests for the class <code>{@link WatsRevisionListener}</code>.
+ * The class <code>WatsRevisionListenerTest</code> contains tests for the class <code>{@link TankRevisionListener}</code>.
  *
  * @generatedBy CodePro at 12/15/14 1:34 PM
  */
-public class WatsRevisionListenerTest {
+public class TankRevisionListenerTest {
     /**
      * Run the void newRevision(Object) method test.
      *
@@ -34,8 +31,8 @@ public class WatsRevisionListenerTest {
     @Test
     public void testNewRevision_1()
         throws Exception {
-        WatsRevisionListener fixture = new WatsRevisionListener();
-        Object revisionEntity = new WatsRevisionInfo();
+        TankRevisionListener fixture = new TankRevisionListener();
+        Object revisionEntity = new TankRevisionInfo();
 
         fixture.newRevision(revisionEntity);
 

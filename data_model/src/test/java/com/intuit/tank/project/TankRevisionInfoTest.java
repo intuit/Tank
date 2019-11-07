@@ -18,14 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.WatsRevisionInfo;
-
 /**
- * The class <code>WatsRevisionInfoTest</code> contains tests for the class <code>{@link WatsRevisionInfo}</code>.
+ * The class <code>WatsRevisionInfoTest</code> contains tests for the class <code>{@link TankRevisionInfo}</code>.
  *
  * @generatedBy CodePro at 12/15/14 1:34 PM
  */
-public class WatsRevisionInfoTest {
+public class TankRevisionInfoTest {
     /**
      * Run the WatsRevisionInfo() constructor test.
      *
@@ -34,7 +32,7 @@ public class WatsRevisionInfoTest {
     @Test
     public void testWatsRevisionInfo_1()
         throws Exception {
-        WatsRevisionInfo result = new WatsRevisionInfo();
+        TankRevisionInfo result = new TankRevisionInfo();
         assertNotNull(result);
     }
 
@@ -48,7 +46,7 @@ public class WatsRevisionInfoTest {
     @Test
     public void testGetUsername_1()
         throws Exception {
-        WatsRevisionInfo fixture = new WatsRevisionInfo();
+        TankRevisionInfo fixture = new TankRevisionInfo();
         fixture.setUsername("");
 
         String result = fixture.getUsername();
@@ -66,7 +64,7 @@ public class WatsRevisionInfoTest {
     @Test
     public void testSetUsername_1()
         throws Exception {
-        WatsRevisionInfo fixture = new WatsRevisionInfo();
+        TankRevisionInfo fixture = new TankRevisionInfo();
         fixture.setUsername("");
         String username = "";
 
