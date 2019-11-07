@@ -27,7 +27,7 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>5.0.12.Final</version.hibernate>
+    <version.hibernate>5.1.17.Final</version.hibernate>
     <version-aws-sdk>1.11.650</version-aws-sdk>
 
     <version-tomcat>9.0.27</version-tomcat>
