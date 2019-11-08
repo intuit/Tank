@@ -27,7 +27,7 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>4.3.11.Final</version.hibernate>
+    <version.hibernate>5.1.17.Final</version.hibernate>
     <version-aws-sdk>1.11.650</version-aws-sdk>
 
     <version-tomcat>9.0.27</version-tomcat>
@@ -310,8 +310,14 @@
 
     <dependency>
       <groupId>org.jboss.arquillian.container</groupId>
-      <artifactId>arquillian-tomcat-embedded-8</artifactId>
-      <version>1.1.0.Final</version>
+      <artifactId>arquillian-weld-embedded</artifactId>
+      <version>2.0.1.Final</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.weld.servlet</groupId>
+      <artifactId>weld-servlet-core</artifactId>
       <scope>test</scope>
     </dependency>
 

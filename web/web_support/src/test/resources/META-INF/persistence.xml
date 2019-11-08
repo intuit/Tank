@@ -26,7 +26,7 @@
     <class>com.intuit.tank.project.JobRecipient</class>
     <class>com.intuit.tank.project.JobRegion</class>
     <class>com.intuit.tank.project.Workload</class>
-    <class>com.intuit.tank.project.WatsRevisionInfo</class>
+    <class>com.intuit.tank.project.TankRevisionInfo</class>
     <class>com.intuit.tank.project.SerializedScriptStep</class>
     <class>com.intuit.tank.project.ExternalScript</class>
     <class>com.intuit.tank.project.SummaryData</class>
