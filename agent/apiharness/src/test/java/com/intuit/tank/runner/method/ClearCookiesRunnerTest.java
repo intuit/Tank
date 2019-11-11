@@ -1,7 +1,5 @@
 package com.intuit.tank.runner.method;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 /*
  * #%L
  * Intuit Tank Agent (apiharness)
@@ -14,14 +12,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * http://www.eclipse.org/legal/epl-v10.html
  * #L%
  */
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.harness.data.ClearCookiesStep;
 import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.test.data.Variables;
-import com.intuit.tank.runner.TestHttpClient;
 import com.intuit.tank.runner.TestPlanRunner;
 import com.intuit.tank.runner.TestStepContext;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * The class <code>ClearCookiesRunnerTest</code> contains tests for the class <code>{@link ClearCookiesRunner}</code>.
@@ -58,6 +58,7 @@ public class ClearCookiesRunnerTest {
      * @generatedBy CodePro at 12/16/14 5:53 PM
      */
     @Test
+    @Disabled
     public void testExecute_1()
         throws Exception {
         ClearCookiesRunner fixture = new ClearCookiesRunner(new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient")));

@@ -54,7 +54,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    @org.testng.annotations.Ignore
+    @Disabled
     public void testCancel_1()
             throws Exception {
         ScriptEditor fixture = new ScriptEditor();

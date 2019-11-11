@@ -16,12 +16,15 @@ package com.intuit.tank.rest;
  * #L%
  */
 
-import com.intuit.tank.rest.RestUrlBuilder;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * RestUrlBuilderTest
@@ -31,32 +34,27 @@ import org.testng.annotations.Test;
  */
 public class RestUrlBuilderTest {
 
-    @SuppressWarnings("unused")
-    @DataProvider(name = "patterns")
-    private Object[][] violationData() {
-        return new Object[][] {
-                { "http://base.url.com/rest/v1", "method", "parameter", "http://base.url.com/rest/v1/method/parameter" },
-                { "http://base.url.com/rest/v1/", "method", "parameter", "http://base.url.com/rest/v1/method/parameter" },
-                { "http://base.url.com/rest/v1/", "/method", "parameter",
-                        "http://base.url.com/rest/v1/method/parameter" },
-                { "http://base.url.com/rest/v1/", "/method/", "parameter",
-                        "http://base.url.com/rest/v1/method/parameter" },
-                { "http://base.url.com/rest/v1/", "/method/", "/parameter",
-                        "http://base.url.com/rest/v1/method/parameter" },
-                { "http://base.url.com/rest/v1/", "/method/", "/parameter/",
-                        "http://base.url.com/rest/v1/method/parameter/" },
-                { "http://base.url.com/rest/v1", "method", null, "http://base.url.com/rest/v1/method" },
-                { "http://base.url.com/rest/v1", "/method", null, "http://base.url.com/rest/v1/method" },
-                { "http://base.url.com/rest/v1", "/method/", null, "http://base.url.com/rest/v1/method" },
-                { "http://base.url.com/rest/v1", null, null, "http://base.url.com/rest/v1" }
-
-        };
+    static Stream<Arguments> patterns() {
+        return Stream.of(
+                Arguments.of("http://base.url.com/rest/v1", "method", "parameter", "http://base.url.com/rest/v1/method/parameter"),
+                Arguments.of("http://base.url.com/rest/v1/", "method", "parameter", "http://base.url.com/rest/v1/method/parameter"),
+                Arguments.of("http://base.url.com/rest/v1/", "/method", "parameter", "http://base.url.com/rest/v1/method/parameter"),
+                Arguments.of("http://base.url.com/rest/v1/", "/method/", "parameter", "http://base.url.com/rest/v1/method/parameter"),
+                Arguments.of("http://base.url.com/rest/v1/", "/method/", "/parameter", "http://base.url.com/rest/v1/method/parameter"),
+                Arguments.of("http://base.url.com/rest/v1/", "/method/", "/parameter/", "http://base.url.com/rest/v1/method/parameter/"),
+                Arguments.of("http://base.url.com/rest/v1", "method", null, "http://base.url.com/rest/v1/method"),
+                Arguments.of("http://base.url.com/rest/v1", "/method", null, "http://base.url.com/rest/v1/method"),
+                Arguments.of("http://base.url.com/rest/v1", "/method/", null, "http://base.url.com/rest/v1/method"),
+                Arguments.of("http://base.url.com/rest/v1", null, null, "http://base.url.com/rest/v1")
+        );
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "patterns")
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("patterns")
     public void testUrlPatterns(String baseUrl, String methodName, String parameter, String expectedResult) {
         RestUrlBuilder restUrlBuilder = new RestUrlBuilder(baseUrl);
         String result = restUrlBuilder.buildUrl(methodName, parameter);
-        Assert.assertEquals(result, expectedResult);
+        assertEquals(result, expectedResult);
     }
 }

@@ -30,9 +30,9 @@ import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.logging.Logger;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.owasp.proxy.daemon.Proxy;
 import org.owasp.proxy.daemon.TargetedConnectionHandler;
@@ -56,7 +56,7 @@ public class TcpInterceptorTest {
 
     private HashSet<StreamHandle> handlers = new HashSet<StreamHandle>();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         try {
             ts = new TraceServer(9999);
@@ -67,7 +67,7 @@ public class TcpInterceptorTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         listen = new InetSocketAddress("localhost", 9998);
         StreamInterceptor<InetSocketAddress, InetSocketAddress> si = new StreamInterceptor<InetSocketAddress, InetSocketAddress>() {
@@ -119,7 +119,7 @@ public class TcpInterceptorTest {
         ch = new InterceptingConnectionHandler(si);
     }
 
-    @AfterClass
+    @AfterEach
     public static void tearDownAfterClass() throws Exception {
         ts.stop();
         Thread.sleep(1000);

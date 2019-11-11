@@ -16,6 +16,7 @@ package com.intuit.tank.script;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,7 +28,6 @@ import com.intuit.tank.project.ScriptFilter;
 import com.intuit.tank.project.ScriptFilterGroup;
 import com.intuit.tank.script.ScriptCreationBean;
 import com.intuit.tank.wrapper.SelectableWrapper;
-import org.testng.annotations.Ignore;
 
 /**
  * The class <code>ScriptCreationBeanTest</code> contains tests for the class <code>{@link ScriptCreationBean}</code>.
@@ -56,7 +56,7 @@ public class ScriptCreationBeanTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    @Ignore
+    @Disabled
     public void testCancel_1()
         throws Exception {
         ScriptCreationBean fixture = new ScriptCreationBean();
@@ -82,7 +82,7 @@ public class ScriptCreationBeanTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    @org.testng.annotations.Ignore
+    @Disabled
     public void testCreateNewScript_1()
         throws Exception {
         ScriptCreationBean fixture = new ScriptCreationBean();

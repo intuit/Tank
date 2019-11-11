@@ -13,12 +13,12 @@ package com.intuit.tank.rest;
  * #L%
  */
 
-import com.intuit.tank.rest.RestServiceException;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import org.testng.Assert;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.testng.annotations.Test;
 
 /**
  * Summary
@@ -26,8 +26,9 @@ import org.testng.annotations.Test;
  * @author wlee5
  */
 public class RestServiceExceptionTest {
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testGetStatusCode() throws Exception {
-        Assert.assertTrue(new RestServiceException("hi", 1).getStatusCode() == 1);
+        assertTrue(new RestServiceException("hi", 1).getStatusCode() == 1);
     }
 }

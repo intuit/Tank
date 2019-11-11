@@ -15,8 +15,6 @@ package com.intuit.tank.api.model.v1.cloud;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.api.model.v1.cloud.VMStatus;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -33,7 +31,7 @@ public class VMStatusTest {
      * @generatedBy CodePro at 12/15/14 2:57 PM
      */
     @Test
-    @org.testng.annotations.Ignore
+    @Disabled
     public void testFromString_1()
         throws Exception {
         String value = "shutting-down";

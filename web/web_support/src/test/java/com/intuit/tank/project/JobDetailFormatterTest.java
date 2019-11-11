@@ -17,13 +17,6 @@ import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.jupiter.api.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import com.intuit.tank.project.JobDetailFormatter;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobRegion;
@@ -32,6 +25,9 @@ import com.intuit.tank.project.Script;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.vm.settings.TankConfig;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JobDetailFormatterTest {
 
@@ -39,14 +35,14 @@ public class JobDetailFormatterTest {
     public void addError() {
         StringBuilder sb = new StringBuilder();
         JobDetailFormatter.addError(sb, "Error");
-        Assert.assertTrue(sb.length() > 0);
+        assertTrue(sb.length() > 0);
     }
 
     @Test
     public void addProperty() {
         StringBuilder sb = new StringBuilder();
         JobDetailFormatter.addProperty(sb, "key", "value");
-        Assert.assertTrue(sb.length() > 0);
+        assertTrue(sb.length() > 0);
     }
 
 
@@ -74,7 +70,7 @@ public class JobDetailFormatterTest {
     @Test
     public void estimateCost() {
         BigDecimal estimateCost = JobDetailFormatter.estimateCost(2, BigDecimal.valueOf(1.5D), 600000);
-        Assert.assertEquals(estimateCost.doubleValue(), 7.50D);
+        assertEquals(estimateCost.doubleValue(), 7.50D);
     }
 
     @Test
@@ -88,7 +84,7 @@ public class JobDetailFormatterTest {
     @Test
     public void getVmDetails() {
         String vmDetails = JobDetailFormatter.getVmDetails(new TankConfig(), "c3.xlarge");
-        Assert.assertEquals(vmDetails, "c3.xlarge (cpus=4 ecus=14 memory=7.5 cost=$0.21 per hour)");
+        assertEquals(vmDetails, "c3.xlarge (cpus=4 ecus=14 memory=7.5 cost=$0.21 per hour)");
     }
 
     /**

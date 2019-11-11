@@ -18,12 +18,13 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.testng.Assert;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.harness.functions.FunctionHandler;
 import com.intuit.tank.harness.test.data.Variables;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DateFunctionsTest {
 
@@ -41,38 +42,38 @@ public class DateFunctionsTest {
     @Test
     public void testIsValid() {
         // Generic Tests
-        Assert.assertFalse(FunctionHandler.validFunction("#function.date"));
-        Assert.assertFalse(FunctionHandler.validFunction("#function.date.bogusFunction"));
+        assertFalse(FunctionHandler.validFunction("#function.date"));
+        assertFalse(FunctionHandler.validFunction("#function.date.bogusFunction"));
 
         // Current Date Tests
-        Assert.assertTrue(FunctionHandler.validFunction("#function.date.currentDate"));
-        Assert.assertTrue(FunctionHandler.validFunction("#function.date.currentDate.MMddyyyy"));
+        assertTrue(FunctionHandler.validFunction("#function.date.currentDate"));
+        assertTrue(FunctionHandler.validFunction("#function.date.currentDate.MMddyyyy"));
 
         // Add Days Tests
-        Assert.assertFalse(FunctionHandler.validFunction("#function.date.addDays"));
-        Assert.assertTrue(FunctionHandler.validFunction("#function.date.addDays.MMddyyyy"));
-        Assert.assertTrue(FunctionHandler.validFunction("#function.date.addDays.14.MMddyyyy"));
+        assertFalse(FunctionHandler.validFunction("#function.date.addDays"));
+        assertTrue(FunctionHandler.validFunction("#function.date.addDays.MMddyyyy"));
+        assertTrue(FunctionHandler.validFunction("#function.date.addDays.14.MMddyyyy"));
     }
 
     @Test
     public void testGetCurrentDate() {
         String command = "#function.date.currentDate.MM-dd-yyyy";
         String date = FunctionHandler.executeFunction(command, variables);
-        Assert.assertNotNull(date);
+        assertNotNull(date);
     }
 
     @Test
     public void testAddDays() {
         String command = "#function.date.addDays.1.MM-dd-yyyy";
         String date = FunctionHandler.executeFunction(command, variables);
-        Assert.assertNotNull(date);
+        assertNotNull(date);
 
         command = "#function.date.addDays.50.MM-dd-yyyy";
         date = FunctionHandler.executeFunction(command, variables);
-        Assert.assertNotNull(date);
+        assertNotNull(date);
 
         command = "#function.date.addDays.-50.MM-dd-yyyy";
         date = FunctionHandler.executeFunction(command, variables);
-        Assert.assertNotNull(date);
+        assertNotNull(date);
     }
 }

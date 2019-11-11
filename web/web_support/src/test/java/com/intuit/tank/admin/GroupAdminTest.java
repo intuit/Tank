@@ -49,7 +49,7 @@ public class GroupAdminTest {
      * @generatedBy CodePro at 12/15/14 3:53 PM
      */
     @Test
-    @org.testng.annotations.Ignore
+    @Disabled
     public void testBegin_1()
         throws Exception {
         GroupAdmin fixture = new GroupAdmin();

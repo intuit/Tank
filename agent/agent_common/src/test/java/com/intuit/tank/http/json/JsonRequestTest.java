@@ -13,32 +13,38 @@ package com.intuit.tank.http.json;
  * #L%
  */
 
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JsonRequestTest {
 
     /**
      * 
      */
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testCreate() {
 
         JsonRequest req = new JsonRequest(null, null);
         req.setKey("/address/home", "123 street");
         String body = req.getBody();
-        Assert.assertEquals("{\"address\":{\"home\":\"123 street\"}}", body);
+        assertEquals("{\"address\":{\"home\":\"123 street\"}}", body);
         req.setKey("/address/employeeId", "123");
         body = req.getBody();
-        Assert.assertEquals("{\"address\":{\"employeeId\":123,\"home\":\"123 street\"}}", body);
+        assertEquals("{\"address\":{\"employeeId\":123,\"home\":\"123 street\"}}", body);
     }
 
-    @DataProvider(name = "jsonRaw")
-    private Object[][] jsonData() {
-        return new Object[][] { {
+    static Stream<Arguments> jsonRaw() {
+        return Stream.of(
+                Arguments.of(
                 "{\"ProcessBeaconRequest\":[{\"TransactionID\":\"17599c19%2D7ec8%2D4219%2D81ce%2Df3b5e9357868\",\"BeaconRequestData\":{"
                         +
                         "\"Screen\":\"DialogWelcome\",\"CustomerType\":2,\"TaxSessionLocation\":\"pprftta11001:65533\",\"ClientProfileData\":{\"renderTime\":188,"
@@ -74,14 +80,13 @@ public class JsonRequestTest {
                         "Program%20Options",
                         "Home",
                         "pprftta11001:65533",
-                        "17599c19%2D7ec8%2D4219%2D81ce%2Df3b5e9357868" } } // validValues
-
-        };
+                        "17599c19%2D7ec8%2D4219%2D81ce%2Df3b5e9357868" } ) // validValues
+        );
     }
 
-    @DataProvider(name = "jsonNumbersRaw")
-    private Object[][] jsonNumbers() {
-        return new Object[][] { {
+    static Stream<Arguments> jsonNumbersRaw() {
+        return Stream.of(
+                Arguments.of(
                 "{\"}", // expected
                         // result
                 new String[] { "/ProcessBeaconRequest/[0]/BeaconRequestData/ClientProfileData/customerUsageTime",
@@ -111,12 +116,13 @@ public class JsonRequestTest {
                         "Program%20Options",
                         "Home",
                         "pprftta11001:65533",
-                        "17599c19%2D7ec8%2D4219%2D81ce%2Df3b5e9357868" } } // validValues
-
-        };
+                        "17599c19%2D7ec8%2D4219%2D81ce%2Df3b5e9357868" } ) // validValues
+        );
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "jsonRaw")
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("jsonRaw")
     public void testJSONParse(String result, String[] keys, String[] values) throws Exception {
         JsonRequest req = new JsonRequest(null, null);
         for (int i = 0; i < keys.length; i++) {
@@ -124,19 +130,20 @@ public class JsonRequestTest {
         }
         String body = req.getBody();
         System.out.println(body);
-        Assert.assertNotNull(body);
-        //Assert.assertEquals(result, body);
+        assertNotNull(body);
+        //assertEquals(result, body);
 
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testNumbers() throws Exception {
         JsonRequest req = new JsonRequest(null, null);
         req.setKey("number", "123232323232323232323");
         String body = req.getBody();
         System.out.println(body);
-        Assert.assertNotNull(body);
-        // Assert.assertEquals(", body);
+        assertNotNull(body);
+        // assertEquals(", body);
 
     }
 

@@ -30,10 +30,9 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.owasp.proxy.http.MutableBufferedRequest;
 import org.owasp.proxy.http.MutableBufferedResponse;
@@ -54,7 +53,7 @@ public class JdbcMessageDAOTest {
 
     private static DriverManagerDataSource dataSource = null;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         Logger dslogger = Logger.getLogger(DriverManagerDataSource.class
                 .getName());
@@ -68,12 +67,12 @@ public class JdbcMessageDAOTest {
         dao.setDataSource(dataSource);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         dao.createTables();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
     }
 
@@ -85,7 +84,7 @@ public class JdbcMessageDAOTest {
         dump("SELECT * FROM conversations");
     }
 
-    @AfterClass
+    @AfterEach
     public static void tearDownAfterClass() throws Exception {
         dao.getJdbcTemplate().execute("SHUTDOWN");
     }

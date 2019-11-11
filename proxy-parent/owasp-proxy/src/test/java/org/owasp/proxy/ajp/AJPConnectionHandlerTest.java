@@ -27,10 +27,9 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.owasp.proxy.ajp.AJPClient;
 import org.owasp.proxy.ajp.AJPConnectionHandler;
@@ -115,7 +114,7 @@ public class AJPConnectionHandlerTest {
 
     private static Server server;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         ajp = new InetSocketAddress("localhost", 8010);
         response = new MutableBufferedResponse.Impl();
@@ -127,15 +126,15 @@ public class AJPConnectionHandlerTest {
         server.start();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 
-    @AfterClass
+    @AfterEach
     public static void tearDownAfterClass() throws Exception {
         server.stop();
     }

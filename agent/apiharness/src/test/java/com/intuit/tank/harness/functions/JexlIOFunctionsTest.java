@@ -16,17 +16,6 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-
-import org.apache.commons.io.FileUtils;
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.test.TestGroups;
 
 /**
@@ -75,24 +64,27 @@ public class JexlIOFunctionsTest {
 //        variables = new Variables();
 //    }
 //
-//    @Test(groups = TestGroups.FUNCTIONAL)
+//    @Test
+//    @Tag(TestGroups.FUNCTIONAL)
 //    public void testReadDataFile() {
 //        String evaluated = variables.evaluate("#{ioFunctions.getFileData('data.txt')}");
-//        Assert.assertEquals(evaluated, "This is a Data File");
+//        assertEquals(evaluated, "This is a Data File");
 //    }
 //
-//    @Test(groups = TestGroups.FUNCTIONAL)
+//    @Test
+//    @Tag(TestGroups.FUNCTIONAL)
 //    public void testReadBinaryDataFile() throws IOException {
 //        String evaluated = variables.evaluate("#{ioFunctions.getFileData('32_bit.png')}");
 //        byte[] fileBytes = FileUtils.readFileToByteArray(new File("src/test/resources/32_bit.png"));
-//        Assert.assertEquals(evaluated, new String(fileBytes));
+//        assertEquals(evaluated, new String(fileBytes));
 //    }
 //
-//    @Test(groups = TestGroups.FUNCTIONAL)
+//    @Test
+//    @Tag(TestGroups.FUNCTIONAL)
 //    public void testReadBinaryData() throws IOException {
 //        byte[] ioBytes = new JexlIOFunctions().getFileBytes("32_bit.png");
 //        byte[] fileBytes = FileUtils.readFileToByteArray(new File("src/test/resources/32_bit.png"));
-//        Assert.assertTrue(Arrays.equals(ioBytes, fileBytes));
+//        assertTrue(Arrays.equals(ioBytes, fileBytes));
 //    }
 //
 //    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "csvData")
@@ -102,11 +94,11 @@ public class JexlIOFunctionsTest {
 //            csv1 = true;
 //        }
 //        String evaluated = variables.evaluate("#{ioFunctions.getCSVData()}");
-//        Assert.assertEquals(evaluated, name);
+//        assertEquals(evaluated, name);
 //        evaluated = variables.evaluate("#{ioFunctions.getCSVData(1)}");
-//        Assert.assertEquals(evaluated, num);
+//        assertEquals(evaluated, num);
 //        evaluated = variables.evaluate("#{ioFunctions.getCSVData(2)}");
-//        Assert.assertEquals(evaluated, romanNum);
+//        assertEquals(evaluated, romanNum);
 //    }
 //
 //    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "csvData")
@@ -116,11 +108,11 @@ public class JexlIOFunctionsTest {
 //            csv2 = true;
 //        }
 //        String evaluated = variables.evaluate("#{ioFunctions.getCSVData('csvData.csv', 0)}");
-//        Assert.assertEquals(evaluated, name);
+//        assertEquals(evaluated, name);
 //        evaluated = variables.evaluate("#{ioFunctions.getCSVData('csvData.csv', 1)}");
-//        Assert.assertEquals(evaluated, num);
+//        assertEquals(evaluated, num);
 //        evaluated = variables.evaluate("#{ioFunctions.getCSVData('csvData.csv', 2)}");
-//        Assert.assertEquals(evaluated, romanNum);
+//        assertEquals(evaluated, romanNum);
 //    }
 //
 //    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "csvDataLoop")
@@ -130,11 +122,11 @@ public class JexlIOFunctionsTest {
 //            csv3 = true;
 //        }
 //        String evaluated = variables.evaluate("#{ioFunctions.getCSVData('csvDataLoop.csv', 0, true)}");
-//        Assert.assertEquals(evaluated, name);
+//        assertEquals(evaluated, name);
 //        evaluated = variables.evaluate("#{ioFunctions.getCSVData('csvDataLoop.csv', 1, true)}");
-//        Assert.assertEquals(evaluated, num);
+//        assertEquals(evaluated, num);
 //        evaluated = variables.evaluate("#{ioFunctions.getCSVData('csvDataLoop.csv', 2, true)}");
-//        Assert.assertEquals(evaluated, romanNum);
+//        assertEquals(evaluated, romanNum);
 //    }
 
 }

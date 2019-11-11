@@ -13,13 +13,9 @@ package com.intuit.tank.vm.agent.messages;
  * #L%
  */
 
-import java.text.DateFormat;
 import java.util.Date;
 
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.vm.agent.messages.AgentAvailability;
-import com.intuit.tank.vm.agent.messages.AgentAvailabilityStatus;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,9 +39,9 @@ public class AgentAvailabilityCpTest {
         AgentAvailability result = new AgentAvailability();
 
         assertNotNull(result);
-        assertEquals(null, result.getInstanceId());
-        assertEquals(null, result.getTimestamp());
-        assertEquals(null, result.getInstanceUrl());
+        assertNull(result.getInstanceId());
+        assertNull(result.getTimestamp());
+        assertNull(result.getInstanceUrl());
         assertEquals(0, result.getCapacity());
     }
 

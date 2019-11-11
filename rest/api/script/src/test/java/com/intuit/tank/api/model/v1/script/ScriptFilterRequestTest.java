@@ -16,6 +16,10 @@ package com.intuit.tank.api.model.v1.script;
  * #L%
  */
 
+import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -24,13 +28,7 @@ import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import com.intuit.tank.api.model.v1.script.ScriptFilterRequest;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * DataFileDescriptorTest
@@ -40,20 +38,21 @@ import com.intuit.tank.api.model.v1.script.ScriptFilterRequest;
  */
 public class ScriptFilterRequestTest {
 
-    @Test(groups = { "functional" })
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void generateSample() throws Exception {
         JAXBContext ctx = JAXBContext.newInstance(ScriptFilterRequest.class.getPackage().getName());
         Marshaller marshaller = ctx.createMarshaller();
         marshaller.setProperty("jaxb.formatted.output", true);
-        ScriptFilterRequest jaxbObject = new ScriptFilterRequest(1, Arrays.asList(new Integer[] { 1, 2, 3, 4, 5 }));
+        ScriptFilterRequest jaxbObject = new ScriptFilterRequest(1, Arrays.asList(1, 2, 3, 4, 5));
         File parent = new File("target/jaxb-sample-xml");
         parent.mkdirs();
-        Assert.assertTrue(parent.exists());
+        assertTrue(parent.exists());
         File file = new File(parent, jaxbObject.getClass().getSimpleName() + ".xml");
         marshaller.marshal(jaxbObject, file);
         ScriptFilterRequest unmarshalled = (ScriptFilterRequest) ctx.createUnmarshaller().unmarshal(file);
-        Assert.assertEquals(jaxbObject.getScriptId(), unmarshalled.getScriptId());
-        Assert.assertEquals(jaxbObject.getFilterIds().size(), unmarshalled.getFilterIds().size());
+        assertEquals(jaxbObject.getScriptId(), unmarshalled.getScriptId());
+        assertEquals(jaxbObject.getFilterIds().size(), unmarshalled.getFilterIds().size());
     }
 
     /**

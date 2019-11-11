@@ -16,6 +16,9 @@ package com.intuit.tank.dao;
  * #L%
  */
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Produces;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -31,14 +34,15 @@ import org.apache.logging.log4j.Logger;
  * @author dangleton
  * 
  */
+@ApplicationScoped
 public class TransactionContainer {
 
     private static final Logger LOG = LogManager.getLogger(TransactionContainer.class);
 
-    @PersistenceUnit
+    @PersistenceUnit(unitName = "tank")
     private static EntityManagerFactory entityManagerFactory;
 
-    private static volatile boolean initialized = false;  
+    private static volatile boolean initialized = false;
     private static Boolean lock = Boolean.TRUE;
 
     private EntityManager em;
@@ -63,6 +67,8 @@ public class TransactionContainer {
     /**
      * @return the em
      */
+    @Produces
+    @RequestScoped
     protected EntityManager getEntityManager() {
         if (em == null) {
             em = entityManagerFactory.createEntityManager();

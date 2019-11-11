@@ -13,12 +13,13 @@ package com.intuit.tank.vm.common.util;
  * #L%
  */
 
-import com.intuit.tank.vm.common.util.JSONBuilder;
 import com.intuit.tank.test.TestGroups;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Summary
@@ -29,7 +30,7 @@ public class JSONBuilderTest {
 
     JSONBuilder builder;
 
-    @BeforeSuite
+    @BeforeEach
     public void setUp() {
         builder = new JSONBuilder();
         builder.add("/1/2/[0]/TransactionId", "myTransactionId");
@@ -40,23 +41,26 @@ public class JSONBuilderTest {
         builder.add("/1/2/[0]/D", "false");
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testMain() throws Exception {
         // just run it to make sure no exceptions
         JSONBuilder.main(null);
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testGetValue() throws Exception {
-        Assert.assertEquals(builder.getValue("/1/2/[0]/Name"), "myName");
+        assertEquals(builder.getValue("/1/2/[0]/Name"), "myName");
     }
 
-//    @Test(groups = TestGroups.FUNCTIONAL)
+//    @Test
+//    @Tag(TestGroups.FUNCTIONAL)
 //    public void testToJsonString() throws Exception {
 //        String noIndent = "\"D\":false,\"Name\":\"myName\",\"TransactionId\"";
-//        Assert.assertTrue(builder.toJsonString().contains(noIndent));
+//        assertTrue(builder.toJsonString().contains(noIndent));
 //
 //        String twoIntent = "\"1\": {\"2\": [{\n  \"A\": 1,\n  \"B\": 1.2";
-//        Assert.assertTrue(builder.toJsonString(2).contains(twoIntent));
+//        assertTrue(builder.toJsonString(2).contains(twoIntent));
 //    }
 }

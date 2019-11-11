@@ -7,12 +7,11 @@
 
 package com.intuit.tank.harness;
 
-import static org.testng.Assert.assertNotNull;
-
-import org.testng.annotations.Test;
-
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 public class AgentUtilTest {
@@ -21,7 +20,8 @@ public class AgentUtilTest {
      *
      * @see com.intuit.tank.harness.AgentUtil#validateTestPlans(String)
      */
-    @Test(groups =  TestGroups.FUNCTIONAL )
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void validateTestPlans() {
     	boolean result = AgentUtil.validateTestPlans("");
     	assertNotNull(result, "result cannot be null");

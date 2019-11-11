@@ -3,19 +3,7 @@
  */
 package com.intuit.tank.util;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
-
-import org.testng.Assert;
-
-import org.junit.jupiter.api.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
 
 import com.intuit.tank.conversation.Cookie;
 import com.intuit.tank.conversation.Header;
@@ -26,6 +14,12 @@ import com.intuit.tank.util.HeaderParser;
 import com.intuit.tank.util.KeyValuePair;
 import com.intuit.tank.util.HeaderParser.HeaderType;
 import com.intuit.tank.test.TestGroups;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * HeaderParserTest
@@ -38,7 +32,7 @@ public class HeaderParserTest {
     private HeaderParser requestParser;
     private HeaderParser responseParser;
 
-    @BeforeTest
+    @BeforeEach
     public void setup() throws Exception {
         Request req = new Request();
         req.setFirstLine("GET /b/test?test=bogus HTTP/1.1");
@@ -61,32 +55,34 @@ public class HeaderParserTest {
         responseParser = new HeaderParser(HeaderType.Response, res.getFirstLine(), res.getHeaders());
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testRequestParser() {
         List<Cookie> cookies = requestParser.getCookies();
-        Assert.assertFalse(cookies.isEmpty());
+        assertFalse(cookies.isEmpty());
         String host = requestParser.getHost();
-        Assert.assertEquals("test.testdomain.com", host);
+        assertEquals("test.testdomain.com", host);
         String path = requestParser.getPath();
-        Assert.assertEquals("/b/test", path);
+        assertEquals("/b/test", path);
         List<KeyValuePair> queryParams = requestParser.getQueryParams();
-        Assert.assertFalse(queryParams.isEmpty());
+        assertFalse(queryParams.isEmpty());
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testResponseParser() {
         String contentType = responseParser.getContentType();
-        Assert.assertEquals("image/gif", contentType);
+        assertEquals("image/gif", contentType);
         int contentLength = responseParser.getContentLength();
-        Assert.assertEquals(43, contentLength);
+        assertEquals(43, contentLength);
         int statusCode = responseParser.getStatusCode();
-        Assert.assertEquals(200, statusCode);
+        assertEquals(200, statusCode);
         // Date responseDate = responseParser.getResponseDate();
-        // Assert.assertNotNull(responseDate);
+        // assertNotNull(responseDate);
         String statusMessage = responseParser.getStatusMessage();
-        Assert.assertEquals("OK", statusMessage);
+        assertEquals("OK", statusMessage);
         List<Cookie> cookies = responseParser.getCookies();
-        Assert.assertNotNull(cookies);
+        assertNotNull(cookies);
     }
 
 }

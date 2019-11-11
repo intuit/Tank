@@ -25,10 +25,7 @@ import java.util.Map;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.testng.annotations.Test;
-
-import com.intuit.tank.persistence.databases.BucketDataItem;
-import com.intuit.tank.persistence.databases.MetricsCalculator;
+import org.junit.jupiter.api.Test;
 
 /**
  * MetricsCalculatorTest

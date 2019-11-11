@@ -14,13 +14,10 @@ package com.intuit.tank.http.xml;
  */
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.jdom.Document;
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.http.xml.GenericXMLHandler;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -267,7 +264,7 @@ public class GenericXMLHandlerTest {
      * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    @org.testng.annotations.Ignore
+    @Disabled
     public void testGetElementAttr_1()
             throws Exception {
         GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
@@ -291,7 +288,7 @@ public class GenericXMLHandlerTest {
      * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    @org.testng.annotations.Ignore
+    @Disabled
     public void testGetElementAttr_2()
             throws Exception {
         GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
@@ -825,7 +822,7 @@ public class GenericXMLHandlerTest {
      * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    @org.testng.annotations.Ignore
+    @Disabled
     public void testXPathExists_1()
             throws Exception {
         GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
@@ -849,7 +846,7 @@ public class GenericXMLHandlerTest {
      * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    @org.testng.annotations.Ignore
+    @Disabled
     public void testXPathExists_2()
             throws Exception {
         GenericXMLHandler fixture = new GenericXMLHandler(new File("src/test/resources/tt.xml"));

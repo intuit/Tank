@@ -1,5 +1,6 @@
 package com.intuit.tank.harness.functions;
 
+import com.intuit.tank.test.TestGroups;
 import org.apache.logging.log4j.Level;
 
 /*
@@ -18,18 +19,21 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
-import com.intuit.tank.harness.functions.FunctionHandler;
 import com.intuit.tank.harness.test.data.Variables;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GenericFunctionsNGTest {
 
     Variables variables;
 
-    @BeforeClass
+    @BeforeEach
     public void setUp() {
     	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     	Configuration config = ctx.getConfiguration();
@@ -38,30 +42,30 @@ public class GenericFunctionsNGTest {
         variables = new Variables();
     }
 
-    @Test(groups = "functional")
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testIsValid() {
         // Generic Tests
-        Assert.assertFalse(FunctionHandler.validFunction("#function.generic"));
-        Assert.assertFalse(FunctionHandler.validFunction("#function.generic.bogusFunction"));
+        assertFalse(FunctionHandler.validFunction("#function.generic"));
+        assertFalse(FunctionHandler.validFunction("#function.generic.bogusFunction"));
 
         // Random Positive Whole Number
-        Assert.assertFalse(FunctionHandler.validFunction("#function.generic.random"));
-        Assert.assertFalse(FunctionHandler.validFunction("#function.generic.random.alphaGrammar"));
-        Assert.assertFalse(FunctionHandler.validFunction("#function.generic.getscripttimeremaining.2"));
-        Assert.assertTrue(FunctionHandler.validFunction("#function.generic.getcsv.10"));
+        assertFalse(FunctionHandler.validFunction("#function.generic.random"));
+        assertFalse(FunctionHandler.validFunction("#function.generic.random.alphaGrammar"));
+        assertFalse(FunctionHandler.validFunction("#function.generic.getscripttimeremaining.2"));
+        assertTrue(FunctionHandler.validFunction("#function.generic.getcsv.10"));
     }
 
-   
-
-    @Test(groups = "functional")
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testCSV() {
         String command = "#function.generic.getcsv.0";
         String str = FunctionHandler.executeFunction(command, variables);
-        Assert.assertNotNull(str);
+        assertNotNull(str);
 
         command = "#function.generic.getcsv.0";
         str = FunctionHandler.executeFunction(command, variables);
-        Assert.assertNotNull(str);
+        assertNotNull(str);
         System.err.println(str);
     }
 

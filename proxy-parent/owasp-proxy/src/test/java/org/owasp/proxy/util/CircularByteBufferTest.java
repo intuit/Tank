@@ -21,32 +21,27 @@
 
 package org.owasp.proxy.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Arrays;
-
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.owasp.proxy.util.AsciiString;
-import org.owasp.proxy.util.CircularByteBuffer;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CircularByteBufferTest {
 
     private CircularByteBuffer cb = new CircularByteBuffer(16);
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
     }
 
-    @AfterClass
+    @AfterEach
     public static void tearDownAfterClass() throws Exception {
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
 
     }
@@ -66,11 +61,11 @@ public class CircularByteBufferTest {
 
         assertEquals(5, cb.length());
 
-        assertTrue(cb.remove() == (byte) 'A');
-        assertTrue(cb.remove() == (byte) 'B');
-        assertTrue(cb.remove() == (byte) 'C');
-        assertTrue(cb.remove() == (byte) 'D');
-        assertTrue(cb.remove() == (byte) 'E');
+        assertEquals(cb.remove(), (byte) 'A');
+        assertEquals(cb.remove(), (byte) 'B');
+        assertEquals(cb.remove(), (byte) 'C');
+        assertEquals(cb.remove(), (byte) 'D');
+        assertEquals(cb.remove(), (byte) 'E');
 
         assertEquals(0, cb.length());
 
@@ -88,9 +83,9 @@ public class CircularByteBufferTest {
         cb.add((byte) 'B');
         cb.add((byte) 'C');
         assertEquals(3, cb.length());
-        assertTrue(cb.remove() == (byte) 'A');
-        assertTrue(cb.remove() == (byte) 'B');
-        assertTrue(cb.remove() == (byte) 'C');
+        assertEquals(cb.remove(), (byte) 'A');
+        assertEquals(cb.remove(), (byte) 'B');
+        assertEquals(cb.remove(), (byte) 'C');
         String s = "DEFGHIJKLMNOPQRS";
         cb.add(s.getBytes(), 0, s.length());
         assertEquals(cb.length(), s.length());
@@ -115,7 +110,7 @@ public class CircularByteBufferTest {
         byte[] buff = new byte[cb.length()];
         int got = cb.remove(buff);
         assertEquals(s16.length(), got);
-        assertTrue(Arrays.equals(s16.getBytes(), buff));
+        assertArrayEquals(s16.getBytes(), buff);
 
         cb.add((byte) 'Z');
         cb.add((byte) 'Z');
@@ -129,6 +124,6 @@ public class CircularByteBufferTest {
         buff = new byte[cb.length()];
         got = cb.remove(buff);
         assertEquals(s16.length(), got);
-        assertTrue(Arrays.equals(s16.getBytes(), buff));
+        assertArrayEquals(s16.getBytes(), buff);
     }
 }

@@ -30,13 +30,13 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.owasp.proxy.http.MutableMessageHeader;
 import org.owasp.proxy.http.MutableResponseHeader;
-import org.owasp.proxy.http.client.HttpClient;
 import org.owasp.proxy.io.ChunkedInputStream;
 import org.owasp.proxy.test.TraceServer;
 import org.owasp.proxy.util.AsciiString;
@@ -47,13 +47,13 @@ public class HttpClientTest {
 
     private static TraceServer ts = null;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         ts = new TraceServer(9999);
         ts.start();
     }
 
-    @AfterClass
+    @AfterEach
     public static void tearDownAfterClass() throws Exception {
         ts.stop();
         Thread.sleep(1000);
@@ -106,7 +106,7 @@ public class HttpClientTest {
     }
 
     @Test
-    @Ignore("needs internet access")
+    @Disabled("needs internet access")
     public void testChunked() throws Exception {
         HttpClient client = new HttpClient();
         client.connect("www.google.co.za", 80, false);

@@ -26,14 +26,14 @@ import javax.annotation.Nonnull;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
-import org.testng.Assert;
-
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.project.Workload;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * DaoTestUtil
@@ -174,11 +174,11 @@ public class DaoTestUtil {
         Set<ConstraintViolation<?>> constraintViolations = e.getConstraintViolations();
         for (ConstraintViolation<?> violation : constraintViolations) {
             if (property.equalsIgnoreCase(violation.getPropertyPath().iterator().next().getName())) {
-                Assert.assertTrue(violation.getMessage().contains(messageContains));
+                assertTrue(violation.getMessage().contains(messageContains));
                 return;
             }
         }
-        Assert.fail("Constraint violation did not contain a violation on property " + property);
+        fail("Constraint violation did not contain a violation on property " + property);
     }
 
 }

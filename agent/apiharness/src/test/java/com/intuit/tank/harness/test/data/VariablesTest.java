@@ -16,6 +16,7 @@ package com.intuit.tank.harness.test.data;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.stream.Stream;
 
 import junit.framework.TestCase;
 
@@ -24,33 +25,34 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
-import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.vm.common.util.ValidationUtil;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class VariablesTest {
 
-    @DataProvider(name = "validations")
-    private Object[][] matching() {
-        return new Object[][] {
-                { "Hello #{name}, I want you to meet #{other}. #{string.concat('She ', 'is ', adjective, '.')}", //${string.
-                        "Hello Denis Angleton, I want you to meet Sue King. She is cool." },
-                { "No Replacements", "No Replacements" },
-                { "#{bogus_name}", "" },
-                { "#{something  }", "" },
-                { "#{string.concat}", "" },
-                { "#{bogusFunction}", "" },
-                { "#{string.concat()}", "" },
-
-        };
+    static Stream<Arguments> validations() {
+        return Stream.of(
+                Arguments.of("Hello #{name}, I want you to meet #{other}. #{string.concat('She ', 'is ', adjective, '.')}", //${string.
+                        "Hello Denis Angleton, I want you to meet Sue King. She is cool." ),
+                Arguments.of( "No Replacements", "No Replacements" ),
+                Arguments.of( "#{bogus_name}", "" ),
+                Arguments.of( "#{something  }", "" ),
+                Arguments.of( "#{string.concat}", "" ),
+                Arguments.of( "#{bogusFunction}", "" ),
+                Arguments.of( "#{string.concat()}", "" )
+            );
     }
 
-    @BeforeClass
+    @BeforeEach
     public void configure() {
     	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     	Configuration config = ctx.getConfiguration();
@@ -58,7 +60,8 @@ public class VariablesTest {
     	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testVariable_NoPrefix() {
         Variables variables = new Variables();
         variables.addVariable("VariableName_1", "Variable Value_1");
@@ -66,7 +69,8 @@ public class VariablesTest {
         TestCase.assertFalse(ValidationUtil.isVariable("NOTVARIABLE"));
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testVariable_Prefix() {
         // Variables variables = Variables.getInstance();
         Variables variables = new Variables();
@@ -75,7 +79,9 @@ public class VariablesTest {
         TestCase.assertFalse(ValidationUtil.isVariable("NOTVARIABLE"));
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "validations")
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("validations")
     public void testEvaluate(String expression, String expected) {
         Variables variables = new Variables();
         variables.getContext().set("string", VariablesTest.class);
@@ -83,7 +89,7 @@ public class VariablesTest {
         variables.addVariable("other", "Sue King");
         variables.addVariable("adjective", "cool");
         String evaluated = variables.evaluate(expression);
-        Assert.assertEquals(evaluated, expected);
+        assertEquals(evaluated, expected);
     }
 
     public static String concat(String... s) {
@@ -91,7 +97,8 @@ public class VariablesTest {
     }
     
     
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testSetJson() throws IOException{
     	
     	String json = readFile("src/test/resources/json-response.json");

@@ -15,14 +15,10 @@ package com.intuit.tank.search.util;
 
 import java.util.Date;
 
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.Sort;
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.search.util.SearchUtils;
-import org.testng.Assert;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 /**
@@ -45,7 +41,7 @@ public class SearchUtilsTest {
         Date d = new Date();
 
         String result = SearchUtils.formatDate(d);
-        Assert.assertNotNull(result);
+        assertNotNull(result);
 
     }
 

@@ -16,12 +16,13 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
-
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author rchalmela
@@ -31,15 +32,16 @@ public class JexlTaxFunctionsTest {
 
     private Variables variables;
 
-    @BeforeTest
+    @BeforeEach
     public void init() {
         variables = new Variables();
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testGetSSN() {
         String random = variables.evaluate("#{taxFunctions.getSsn(1)}");
-        Assert.assertNotNull(random);
-        Assert.assertTrue(random.length() == 11);
+        assertNotNull(random);
+        assertTrue(random.length() == 11);
     }
 }

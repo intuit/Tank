@@ -15,16 +15,18 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import org.testng.Assert;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FileStorageFactoryTest {
     
-    @BeforeClass
+    @BeforeEach
     public void init() {
     	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     	Configuration config = ctx.getConfiguration();
@@ -32,7 +34,8 @@ public class FileStorageFactoryTest {
     	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testFileStorage() throws Exception {
         String s = "This is a test";
         File f = new File("target/storage");
@@ -46,19 +49,20 @@ public class FileStorageFactoryTest {
 
         File file = getFile(f.getAbsolutePath(), fd);
         String fromFile = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-        Assert.assertEquals(s, fromFile);
+        assertEquals(s, fromFile);
 
         try (InputStream in = storage.readFileData(fd) ) {
             String fromService = IOUtils.toString(in, StandardCharsets.UTF_8);
-            Assert.assertEquals(s, fromService);
+            assertEquals(s, fromService);
         }
 
-        Assert.assertTrue(storage.exists(fd));
+        assertTrue(storage.exists(fd));
         storage.delete(fd);
-        Assert.assertTrue(!storage.exists(fd));
+        assertTrue(!storage.exists(fd));
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testFileStorageCompressed() throws Exception {
         String s = "This is a test";
         File f = new File("target/storage");
@@ -73,16 +77,16 @@ public class FileStorageFactoryTest {
         File file = getFile(f.getAbsolutePath(), fd);
         try ( InputStream in = new GZIPInputStream(new FileInputStream(file)) ) {
             String fromFile = IOUtils.toString(in, StandardCharsets.UTF_8);
-            Assert.assertEquals(s, fromFile);
+            assertEquals(s, fromFile);
         }
 
         try ( InputStream in = storage.readFileData(fd) ) {
             String fromService = IOUtils.toString(in);
-            Assert.assertEquals(s, fromService);
+            assertEquals(s, fromService);
         }
-        Assert.assertTrue(storage.exists(fd));
+        assertTrue(storage.exists(fd));
         storage.delete(fd);
-        Assert.assertTrue(!storage.exists(fd));
+        assertTrue(!storage.exists(fd));
     }
 
     /**
@@ -91,7 +95,8 @@ public class FileStorageFactoryTest {
      * 
      * @throws Exception
      */
-    @Test(groups = TestGroups.EXPERIMENTAL)
+    @Test
+    @Tag(TestGroups.EXPERIMENTAL)
     public void testS3FileStorage() throws Exception {
         String s = "This is a test";
 
@@ -102,11 +107,11 @@ public class FileStorageFactoryTest {
 
         try ( InputStream in = storage.readFileData(fd) ) {
             String fromService = IOUtils.toString(in, StandardCharsets.UTF_8);
-            Assert.assertEquals(s, fromService);
+            assertEquals(s, fromService);
         }
-        Assert.assertTrue(storage.exists(fd));
+        assertTrue(storage.exists(fd));
         storage.delete(fd);
-        Assert.assertTrue(!storage.exists(fd));
+        assertTrue(!storage.exists(fd));
     }
 
     /**
@@ -115,7 +120,8 @@ public class FileStorageFactoryTest {
      * 
      * @throws Exception
      */
-    @Test(groups = TestGroups.EXPERIMENTAL)
+    @Test
+    @Tag(TestGroups.EXPERIMENTAL)
     public void testS3StorageCompressed() throws Exception {
         String s = "This is a test";
         ByteArrayInputStream bis = new ByteArrayInputStream(s.getBytes());
@@ -125,11 +131,11 @@ public class FileStorageFactoryTest {
 
         try ( InputStream in = storage.readFileData(fd) ) {
             String fromService = IOUtils.toString(in, StandardCharsets.UTF_8);
-            Assert.assertEquals(s, fromService);
+            assertEquals(s, fromService);
         }
-        Assert.assertTrue(storage.exists(fd));
+        assertTrue(storage.exists(fd));
         storage.delete(fd);
-        Assert.assertTrue(!storage.exists(fd));
+        assertTrue(!storage.exists(fd));
     }
     
     /**
@@ -138,7 +144,8 @@ public class FileStorageFactoryTest {
      * 
      * @throws Exception
      */
-    @Test(groups = TestGroups.EXPERIMENTAL)
+    @Test
+    @Tag(TestGroups.EXPERIMENTAL)
     public void testS3List() throws Exception {
         String s = "This is a test";
         FileStorage storage = FileStorageFactory.getFileStorage("s3:systemstorage", false);
@@ -161,17 +168,17 @@ public class FileStorageFactoryTest {
         storage.delete(fd);
         storage.delete(fd1);
         storage.delete(fd2);
-        Assert.assertTrue(listFileData.contains(fd));
-        Assert.assertTrue(listFileData.contains(fd1));
-        Assert.assertTrue(!listFileData.contains(fd2));
+        assertTrue(listFileData.contains(fd));
+        assertTrue(listFileData.contains(fd1));
+        assertTrue(!listFileData.contains(fd2));
         
-        Assert.assertTrue(!listFileData1.contains(fd));
-        Assert.assertTrue(!listFileData1.contains(fd1));
-        Assert.assertTrue(listFileData1.contains(fd2));
+        assertTrue(!listFileData1.contains(fd));
+        assertTrue(!listFileData1.contains(fd1));
+        assertTrue(listFileData1.contains(fd2));
         
-        Assert.assertTrue(!storage.exists(fd));
-        Assert.assertTrue(!storage.exists(fd1));
-        Assert.assertTrue(!storage.exists(fd2));
+        assertTrue(!storage.exists(fd));
+        assertTrue(!storage.exists(fd1));
+        assertTrue(!storage.exists(fd2));
     }
     /**
      * set the enviroment variables AWS_SECRET_KEY_ID and AWS_SECRET_KEY before
@@ -179,7 +186,8 @@ public class FileStorageFactoryTest {
      * 
      * @throws Exception
      */
-    @Test(groups = TestGroups.EXPERIMENTAL)
+    @Test
+    @Tag(TestGroups.EXPERIMENTAL)
     public void testFileList() throws Exception {
         String s = "This is a test";
         File f = new File("target/storage");
@@ -204,17 +212,17 @@ public class FileStorageFactoryTest {
         storage.delete(fd);
         storage.delete(fd1);
         storage.delete(fd2);
-        Assert.assertTrue(listFileData.contains(fd));
-        Assert.assertTrue(listFileData.contains(fd1));
-        Assert.assertTrue(!listFileData.contains(fd2));
+        assertTrue(listFileData.contains(fd));
+        assertTrue(listFileData.contains(fd1));
+        assertTrue(!listFileData.contains(fd2));
         
-        Assert.assertTrue(!listFileData1.contains(fd));
-        Assert.assertTrue(!listFileData1.contains(fd1));
-        Assert.assertTrue(listFileData1.contains(fd2));
+        assertTrue(!listFileData1.contains(fd));
+        assertTrue(!listFileData1.contains(fd1));
+        assertTrue(listFileData1.contains(fd2));
         
-        Assert.assertTrue(!storage.exists(fd));
-        Assert.assertTrue(!storage.exists(fd1));
-        Assert.assertTrue(!storage.exists(fd2));
+        assertTrue(!storage.exists(fd));
+        assertTrue(!storage.exists(fd1));
+        assertTrue(!storage.exists(fd2));
     }
 
     private File getFile(String base, FileData fd) {

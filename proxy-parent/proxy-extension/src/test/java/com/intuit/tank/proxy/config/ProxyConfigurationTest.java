@@ -16,11 +16,12 @@ package com.intuit.tank.proxy.config;
  * #L%
  */
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import com.intuit.tank.proxy.config.CommonsProxyConfiguration;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * ProxyConfigurationTest
@@ -29,15 +30,16 @@ import com.intuit.tank.test.TestGroups;
  * 
  */
 public class ProxyConfigurationTest {
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testConfigParse() throws Exception {
         CommonsProxyConfiguration c = new CommonsProxyConfiguration("src/test/resources/test-config.xml");
-        Assert.assertNotNull(c);
-        Assert.assertEquals(c.getPort(), 8188);
-        Assert.assertEquals(c.getOutputFile(), "testOutputFile.xml");
-        Assert.assertFalse(c.getInclusions().isEmpty());
-        Assert.assertFalse(c.getExclusions().isEmpty());
-        Assert.assertFalse(c.getBodyInclusions().isEmpty());
-        Assert.assertFalse(c.getBodyExclusions().isEmpty());
+        assertNotNull(c);
+        assertEquals(c.getPort(), 8188);
+        assertEquals(c.getOutputFile(), "testOutputFile.xml");
+        assertFalse(c.getInclusions().isEmpty());
+        assertFalse(c.getExclusions().isEmpty());
+        assertFalse(c.getBodyInclusions().isEmpty());
+        assertFalse(c.getBodyExclusions().isEmpty());
     }
 }

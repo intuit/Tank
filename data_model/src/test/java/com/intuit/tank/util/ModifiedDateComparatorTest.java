@@ -15,12 +15,12 @@ package com.intuit.tank.util;
 
 import java.util.Date;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import com.intuit.tank.project.BaseEntity;
-import com.intuit.tank.util.ModifiedDateComparator;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Summary
@@ -28,7 +28,8 @@ import com.intuit.tank.test.TestGroups;
  * @author wlee5
  */
 public class ModifiedDateComparatorTest {
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testClass() {
         BaseEntityImpl base1 = new BaseEntityImpl();
         BaseEntityImpl base2 = new BaseEntityImpl();
@@ -36,10 +37,10 @@ public class ModifiedDateComparatorTest {
         base2.setModified(new Date(new Date().getTime() + 200));
 
         ModifiedDateComparator cmptr = new ModifiedDateComparator();
-        Assert.assertTrue(cmptr.compare(base1, base2) < 0);
+        assertTrue(cmptr.compare(base1, base2) < 0);
 
         ModifiedDateComparator cmptr2 = new ModifiedDateComparator(ModifiedDateComparator.SortOrder.DESCENDING);
-        Assert.assertTrue(cmptr2.compare(base1, base2) > 0);
+        assertTrue(cmptr2.compare(base1, base2) > 0);
     }
 
     /**
@@ -49,13 +50,14 @@ public class ModifiedDateComparatorTest {
      * 
      * @generatedBy CodePro at 9/3/14 3:59 PM
      */
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testModifiedDateComparator_1()
             throws Exception {
 
         ModifiedDateComparator result = new ModifiedDateComparator();
 
-        Assert.assertNotNull(result);
+        assertNotNull(result);
     }
 
     /**
@@ -65,14 +67,15 @@ public class ModifiedDateComparatorTest {
      * 
      * @generatedBy CodePro at 9/3/14 3:59 PM
      */
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testModifiedDateComparator_2()
             throws Exception {
         ModifiedDateComparator.SortOrder order = ModifiedDateComparator.SortOrder.ASCENDING;
 
         ModifiedDateComparator result = new ModifiedDateComparator(order);
 
-        Assert.assertNotNull(result);
+        assertNotNull(result);
     }
 
 }
