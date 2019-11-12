@@ -19,8 +19,8 @@ import java.util.List;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,7 +73,7 @@ public class LuceneServiceTest {
     @Test
     public void testLuceneService_3()
         throws Exception {
-        Directory directory = new RAMDirectory();
+        Directory directory = new ByteBuffersDirectory();
 
         LuceneService result = new LuceneService(directory);
 
@@ -137,7 +137,7 @@ public class LuceneServiceTest {
     public void testIndexDocuments_1()
         throws Exception {
         LuceneService fixture = new LuceneService();
-        List<Document> docs = new LinkedList();
+        List<Document> docs = new LinkedList<>();
 
         fixture.indexDocuments(docs);
 
@@ -158,7 +158,7 @@ public class LuceneServiceTest {
     public void testIndexDocuments_2()
         throws Exception {
         LuceneService fixture = new LuceneService();
-        List<Document> docs = new LinkedList();
+        List<Document> docs = new LinkedList<>();
 
         fixture.indexDocuments(docs);
 
@@ -199,7 +199,7 @@ public class LuceneServiceTest {
     public void testRemoveDocuments_1()
         throws Exception {
         LuceneService fixture = new LuceneService();
-        List<Query> queries = new LinkedList();
+        List<Query> queries = new LinkedList<>();
 
         fixture.removeDocuments(queries);
 
@@ -220,7 +220,7 @@ public class LuceneServiceTest {
     public void testRemoveDocuments_2()
         throws Exception {
         LuceneService fixture = new LuceneService();
-        List<Query> queries = new LinkedList();
+        List<Query> queries = new LinkedList<>();
 
         fixture.removeDocuments(queries);
 
