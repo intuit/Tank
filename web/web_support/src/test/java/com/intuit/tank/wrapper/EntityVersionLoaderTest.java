@@ -39,6 +39,7 @@ public class EntityVersionLoaderTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
+    @Disabled
     public void testGetVersionContainer_1()
             throws Exception {
         ProjectLoader fixture = new ProjectLoader();
@@ -57,6 +58,7 @@ public class EntityVersionLoaderTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
+    @Disabled
     public void testGetVersionContainer_2()
             throws Exception {
         ProjectLoader fixture = new ProjectLoader();
@@ -76,6 +78,7 @@ public class EntityVersionLoaderTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
+    @Disabled
     public void testGetVersionContainer_3()
             throws Exception {
         ProjectLoader fixture = new ProjectLoader();
@@ -94,6 +97,7 @@ public class EntityVersionLoaderTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
+    @Disabled
     public void testGetVersionEntities_1()
             throws Exception {
         ProjectLoader fixture = new ProjectLoader();
@@ -111,6 +115,7 @@ public class EntityVersionLoaderTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
+    @Disabled
     public void testGetVersionEntities_2()
             throws Exception {
         ProjectLoader fixture = new ProjectLoader();
@@ -129,6 +134,7 @@ public class EntityVersionLoaderTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
+    @Disabled
     public void testGetVersionEntities_3()
             throws Exception {
         ProjectLoader fixture = new ProjectLoader();

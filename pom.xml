@@ -1127,7 +1127,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <!-- Sets the VM argument line used when unit tests are run. -->
-          <argLine>@{argLine}</argLine>
+          <argLine>${argLine}</argLine>
           <excludedGroups>manual,integration,experimental</excludedGroups>
           <includes>
             <include>**/*Test.java</include>

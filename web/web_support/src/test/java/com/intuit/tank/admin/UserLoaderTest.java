@@ -48,6 +48,7 @@ public class UserLoaderTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
+    @Disabled
     public void testGetEntities_1()
         throws Exception {
         UserLoader fixture = new UserLoader();
@@ -68,6 +69,7 @@ public class UserLoaderTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
+    @Disabled
     public void testGetEntities_2()
         throws Exception {
         UserLoader fixture = new UserLoader();

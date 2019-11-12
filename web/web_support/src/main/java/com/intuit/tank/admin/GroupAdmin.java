@@ -48,9 +48,6 @@ public class GroupAdmin implements Serializable {
     @Inject
     private Conversation conversation;
 
-    @SuppressWarnings("unused")
-    private Group current;
-
     public void begin() {
     	conversation.begin();
     }
@@ -68,14 +65,6 @@ public class GroupAdmin implements Serializable {
             }
         }
         return groups;
-    }
-
-    /**
-     * 
-     * @param group
-     */
-    public void select(Group group) {
-        current = group;
     }
 
     /**

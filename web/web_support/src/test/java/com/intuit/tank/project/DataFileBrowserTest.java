@@ -649,6 +649,7 @@ public class DataFileBrowserTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
+    @Disabled
     public void testSetViewDatafileId_1()
         throws Exception {
         DataFileBrowser fixture = new DataFileBrowser();

@@ -76,6 +76,7 @@ public class FilterGroupBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
+    @Disabled
     public void testGetEntityList_1()
         throws Exception {
         FilterGroupBean fixture = new FilterGroupBean();
@@ -100,6 +101,7 @@ public class FilterGroupBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
+    @Disabled
     public void testGetEntityList_2()
         throws Exception {
         FilterGroupBean fixture = new FilterGroupBean();

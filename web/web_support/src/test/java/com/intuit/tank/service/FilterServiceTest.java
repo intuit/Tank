@@ -48,6 +48,7 @@ public class FilterServiceTest {
      * @generatedBy CodePro at 12/15/14 3:53 PM
      */
     @Test
+    @Disabled
     public void testDeleteScriptFilter_1()
             throws Exception {
         FilterService fixture = new FilterService();
@@ -68,6 +69,7 @@ public class FilterServiceTest {
      * @generatedBy CodePro at 12/15/14 3:53 PM
      */
     @Test
+    @Disabled
     public void testDeleteScriptFilter_2()
             throws Exception {
         FilterService fixture = new FilterService();
@@ -88,6 +90,7 @@ public class FilterServiceTest {
      * @generatedBy CodePro at 12/15/14 3:53 PM
      */
     @Test
+    @Disabled
     public void testGetFilters_1()
             throws Exception {
         FilterService fixture = new FilterService();
@@ -108,6 +111,7 @@ public class FilterServiceTest {
      * @generatedBy CodePro at 12/15/14 3:53 PM
      */
     @Test
+    @Disabled
     public void testGetFilters_2()
             throws Exception {
         FilterService fixture = new FilterService();
@@ -128,6 +132,7 @@ public class FilterServiceTest {
      * @generatedBy CodePro at 12/15/14 3:53 PM
      */
     @Test
+    @Disabled
     public void testGetScriptFilter_1()
             throws Exception {
         FilterService fixture = new FilterService();
