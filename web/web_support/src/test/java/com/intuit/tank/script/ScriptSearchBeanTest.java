@@ -13,26 +13,33 @@ package com.intuit.tank.script;
  * #L%
  */
 
-import java.util.LinkedList;
-import java.util.List;
-
+import org.jboss.weld.junit5.auto.ActivateScopes;
+import org.jboss.weld.junit5.auto.AddExtensions;
+import org.jboss.weld.junit5.auto.AddPackages;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
+import org.picketlink.Identity;
+import org.picketlink.extension.PicketLinkExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.project.Script;
-import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.ScriptSearchBean;
-import com.intuit.tank.script.replace.ReplaceEntity;
-import com.intuit.tank.script.replace.ReplaceMode;
-import com.intuit.tank.search.script.Section;
+import javax.enterprise.context.ConversationScoped;
+import javax.inject.Inject;
 
 /**
  * The class <code>ScriptSearchBeanTest</code> contains tests for the class <code>{@link ScriptSearchBean}</code>.
  *
  * @generatedBy CodePro at 12/15/14 3:54 PM
  */
+@EnableAutoWeld
+@AddPackages(Identity.class)
+@AddExtensions(PicketLinkExtension.class)
+@ActivateScopes(ConversationScoped.class)
 public class ScriptSearchBeanTest {
+
+    @Inject
+    private ScriptSearchBean scriptSearchBean;
+
     /**
      * Run the ScriptSearchBean() constructor test.
      *
@@ -41,7 +48,6 @@ public class ScriptSearchBeanTest {
     @Test
     public void testScriptSearchBean_1()
         throws Exception {
-        ScriptSearchBean result = new ScriptSearchBean();
-        assertNotNull(result);
+        assertNotNull(scriptSearchBean);
     }
 }

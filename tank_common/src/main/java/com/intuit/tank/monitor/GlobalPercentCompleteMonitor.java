@@ -20,7 +20,8 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
+import javax.inject.Named;
 
 import com.intuit.tank.vm.common.PercentCompleteMonitor;
 
@@ -30,7 +31,8 @@ import com.intuit.tank.vm.common.PercentCompleteMonitor;
  * @author dangleton
  * 
  */
-@ApplicationScoped
+@Named
+@Dependent
 public class GlobalPercentCompleteMonitor implements PercentCompleteMonitor, Serializable {
 
     private final Map<Integer, Integer> statusMap = new ConcurrentHashMap<Integer, Integer>();

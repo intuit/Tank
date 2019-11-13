@@ -24,6 +24,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.intuit.tank.monitor.GlobalPercentCompleteMonitor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -54,7 +55,7 @@ public class ScriptProcessor implements Runnable, Serializable {
     private static final Logger LOG = LogManager.getLogger(ScriptProcessor.class);
 
     @Inject
-    private PercentCompleteMonitor monitor;
+    private GlobalPercentCompleteMonitor monitor;
 
     private Script script = null;
     private List<ScriptStep> steps;
@@ -83,7 +84,7 @@ public class ScriptProcessor implements Runnable, Serializable {
      * @param monitor
      *            the monitor to set
      */
-    public void setMonitor(PercentCompleteMonitor monitor) {
+    public void setMonitor(GlobalPercentCompleteMonitor monitor) {
         this.monitor = monitor;
     }
 
