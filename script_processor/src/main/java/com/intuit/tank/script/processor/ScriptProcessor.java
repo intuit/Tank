@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -45,6 +46,7 @@ import com.intuit.tank.vm.exception.WatsParseException;
  * 
  */
 @Named
+@Dependent
 public class ScriptProcessor implements Runnable, Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -18,7 +18,9 @@ package com.intuit.tank.util;
 
 import java.io.Serializable;
 
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
@@ -32,6 +34,8 @@ import com.intuit.tank.util.Messages;
  * @author dangleton
  * 
  */
+@Named
+@Dependent
 public class ExceptionHandler implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -15,6 +15,7 @@ package com.intuit.tank.admin;
 
 import java.util.List;
 
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,12 +23,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.intuit.tank.admin.UserLoader;
 import com.intuit.tank.project.User;
 
+import javax.inject.Inject;
+
 /**
  * The class <code>UserLoaderTest</code> contains tests for the class <code>{@link UserLoader}</code>.
  *
  * @generatedBy CodePro at 12/15/14 3:52 PM
  */
+@EnableAutoWeld
 public class UserLoaderTest {
+    
+    @Inject
+    private UserLoader userLoader;
+    
     /**
      * Run the UserLoader() constructor test.
      *
@@ -36,8 +44,7 @@ public class UserLoaderTest {
     @Test
     public void testUserLoader_1()
         throws Exception {
-        UserLoader result = new UserLoader();
-        assertNotNull(result);
+        assertNotNull(userLoader);
     }
 
     /**
@@ -51,30 +58,8 @@ public class UserLoaderTest {
     @Disabled
     public void testGetEntities_1()
         throws Exception {
-        UserLoader fixture = new UserLoader();
 
-        List<User> result = fixture.getEntities();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.admin.UserLoader.getEntities(UserLoader.java:32)
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the List<User> getEntities() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    @Disabled
-    public void testGetEntities_2()
-        throws Exception {
-        UserLoader fixture = new UserLoader();
-
-        List<User> result = fixture.getEntities();
+        List<User> result = userLoader.getEntities();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder

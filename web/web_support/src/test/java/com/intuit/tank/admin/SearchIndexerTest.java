@@ -13,9 +13,12 @@ package com.intuit.tank.admin;
  * #L%
  */
 
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
 import com.intuit.tank.admin.SearchIndexer;
+
+import javax.inject.Inject;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,7 +27,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * 
  * @generatedBy CodePro at 12/15/14 3:54 PM
  */
+@EnableAutoWeld
 public class SearchIndexerTest {
+
+    @Inject
+    private SearchIndexer searchIndexer;
+
     /**
      * Run the SearchIndexer() constructor test.
      * 
@@ -33,8 +41,7 @@ public class SearchIndexerTest {
     @Test
     public void testSearchIndexer_1()
             throws Exception {
-        SearchIndexer result = new SearchIndexer();
-        assertNotNull(result);
+        assertNotNull(searchIndexer);
     }
 
 }
