@@ -17,8 +17,7 @@ import javax.enterprise.context.SessionScoped;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 
-import org.jboss.weld.junit5.WeldInitiator;
-import org.jboss.weld.junit5.WeldSetup;
+import org.jboss.weld.junit5.auto.ActivateScopes;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
@@ -30,10 +29,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @generatedBy CodePro at 12/15/14 3:53 PM
  */
 @EnableAutoWeld
+@ActivateScopes(SessionScoped.class)
 public class ProjectUtilBeanTest {
-
-    @WeldSetup
-    public WeldInitiator weld = WeldInitiator.from(ProjectUtilBean.class).activate(SessionScoped.class).build();
 
     @Inject
     private ProjectUtilBean projectUtilBean;

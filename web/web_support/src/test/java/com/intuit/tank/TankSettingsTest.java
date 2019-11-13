@@ -15,8 +15,6 @@ package com.intuit.tank;
 
 import java.util.List;
 
-import org.jboss.weld.junit5.WeldInitiator;
-import org.jboss.weld.junit5.WeldSetup;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
@@ -24,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 /**
@@ -34,9 +31,6 @@ import javax.inject.Inject;
  */
 @EnableAutoWeld
 public class TankSettingsTest {
-
-    @WeldSetup
-    public WeldInitiator weld = WeldInitiator.from(TankSettings.class).activate(ApplicationScoped.class).build();
 
     @Inject
     private TankSettings tankSettings;

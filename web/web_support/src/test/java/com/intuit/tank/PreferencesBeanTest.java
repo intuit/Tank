@@ -18,8 +18,7 @@ import java.util.Date;
 import java.util.LinkedList;
 
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.jboss.weld.junit5.WeldInitiator;
-import org.jboss.weld.junit5.WeldSetup;
+import org.jboss.weld.junit5.auto.ActivateScopes;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
@@ -36,10 +35,8 @@ import javax.inject.Inject;
  * @generatedBy CodePro at 12/15/14 3:52 PM
  */
 @EnableAutoWeld
+@ActivateScopes(SessionScoped.class)
 public class PreferencesBeanTest {
-
-    @WeldSetup
-    public WeldInitiator weld = WeldInitiator.from(PreferencesBean.class).activate(SessionScoped.class).build();
     
     @Inject
     private PreferencesBean preferencesBean;
