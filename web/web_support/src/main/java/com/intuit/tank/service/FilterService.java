@@ -32,7 +32,7 @@ import com.intuit.tank.project.ScriptFilter;
  * @author dangleton
  * 
  */
-@Named
+@Named("scriptFilterService")
 @Dependent
 public class FilterService implements Serializable {
 
