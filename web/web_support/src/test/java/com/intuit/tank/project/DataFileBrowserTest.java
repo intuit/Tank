@@ -452,7 +452,7 @@ public class DataFileBrowserTest {
         assertTrue(result);
     }
 
- 
+
     /**
      * Run the void nextSetOfEntries() method test.
      *

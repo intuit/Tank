@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -43,6 +44,7 @@ import com.intuit.tank.util.UploadedFileIterator;
 import com.intuit.tank.wrapper.FileInputStreamWrapper;
 
 @Named
+@RequestScoped
 public class FileUploadBean implements Serializable {
 
     private static final long serialVersionUID = 1L;

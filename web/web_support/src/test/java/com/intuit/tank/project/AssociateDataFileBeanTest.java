@@ -13,15 +13,24 @@ package com.intuit.tank.project;
  * #L%
  */
 
+import org.jboss.weld.junit5.auto.ActivateScopes;
+import org.jboss.weld.junit5.auto.AddExtensions;
+import org.jboss.weld.junit5.auto.AddPackages;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.picketlink.Identity;
+import org.picketlink.extension.PicketLinkExtension;
 import org.primefaces.model.DualListModel;
 
 import com.intuit.tank.ModifiedDatafileMessage;
 import com.intuit.tank.project.AssociateDataFileBean;
 import com.intuit.tank.project.DataFile;
+
+import javax.enterprise.context.ConversationScoped;
+import javax.inject.Inject;
 
 /**
  * The class <code>AssociateDataFileBeanTest</code> contains tests for the class
@@ -29,7 +38,15 @@ import com.intuit.tank.project.DataFile;
  * 
  * @generatedBy CodePro at 12/15/14 3:54 PM
  */
+@EnableAutoWeld
+@AddPackages(Identity.class)
+@AddExtensions(PicketLinkExtension.class)
+@ActivateScopes(ConversationScoped.class)
 public class AssociateDataFileBeanTest {
+    
+    @Inject
+    private AssociateDataFileBean associateDataFileBean;
+    
     /**
      * Run the AssociateDataFileBean() constructor test.
      * 
@@ -38,8 +55,7 @@ public class AssociateDataFileBeanTest {
     @Test
     public void testAssociateDataFileBean_1()
             throws Exception {
-        AssociateDataFileBean result = new AssociateDataFileBean();
-        assertNotNull(result);
+        assertNotNull(associateDataFileBean);
     }
 
     /**
@@ -52,9 +68,8 @@ public class AssociateDataFileBeanTest {
     @Test
     public void testGetSelectionModel_1()
             throws Exception {
-        AssociateDataFileBean fixture = new AssociateDataFileBean();
 
-        DualListModel<DataFile> result = fixture.getSelectionModel();
+        DualListModel<DataFile> result = associateDataFileBean.getSelectionModel();
 
     }
 
@@ -68,10 +83,9 @@ public class AssociateDataFileBeanTest {
     @Test
     public void testObserverUpload_1()
             throws Exception {
-        AssociateDataFileBean fixture = new AssociateDataFileBean();
         ModifiedDatafileMessage msg = new ModifiedDatafileMessage(new DataFile(), new Object());
 
-        fixture.observerUpload(msg);
+        associateDataFileBean.observerUpload(msg);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -89,10 +103,9 @@ public class AssociateDataFileBeanTest {
     @Test
     public void testObserverUpload_2()
             throws Exception {
-        AssociateDataFileBean fixture = new AssociateDataFileBean();
         ModifiedDatafileMessage msg = new ModifiedDatafileMessage(new DataFile(), new Object());
 
-        fixture.observerUpload(msg);
+        associateDataFileBean.observerUpload(msg);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -110,10 +123,9 @@ public class AssociateDataFileBeanTest {
     @Test
     public void testObserverUpload_3()
             throws Exception {
-        AssociateDataFileBean fixture = new AssociateDataFileBean();
         ModifiedDatafileMessage msg = new ModifiedDatafileMessage(new DataFile(), new Object());
 
-        fixture.observerUpload(msg);
+        associateDataFileBean.observerUpload(msg);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -131,10 +143,9 @@ public class AssociateDataFileBeanTest {
     @Test
     public void testSetSelectionModel_1()
             throws Exception {
-        AssociateDataFileBean fixture = new AssociateDataFileBean();
         DualListModel<DataFile> selectionModel = new DualListModel();
 
-        fixture.setSelectionModel(selectionModel);
+        associateDataFileBean.setSelectionModel(selectionModel);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -151,10 +162,9 @@ public class AssociateDataFileBeanTest {
     @Test
     public void testSetSelectionModel_2()
             throws Exception {
-        AssociateDataFileBean fixture = new AssociateDataFileBean();
         DualListModel<DataFile> selectionModel = new DualListModel();
 
-        fixture.setSelectionModel(selectionModel);
+        associateDataFileBean.setSelectionModel(selectionModel);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -171,10 +181,9 @@ public class AssociateDataFileBeanTest {
     @Test
     public void testSetSelectionModel_3()
             throws Exception {
-        AssociateDataFileBean fixture = new AssociateDataFileBean();
         DualListModel<DataFile> selectionModel = null;
 
-        fixture.setSelectionModel(selectionModel);
+        associateDataFileBean.setSelectionModel(selectionModel);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -191,10 +200,9 @@ public class AssociateDataFileBeanTest {
     @Test
     public void testSetSelectionModel_4()
             throws Exception {
-        AssociateDataFileBean fixture = new AssociateDataFileBean();
         DualListModel<DataFile> selectionModel = new DualListModel();
 
-        fixture.setSelectionModel(selectionModel);
+        associateDataFileBean.setSelectionModel(selectionModel);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
