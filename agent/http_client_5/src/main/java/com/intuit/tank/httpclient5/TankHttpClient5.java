@@ -68,6 +68,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.cookie.ClientCookie;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -268,6 +269,7 @@ public class TankHttpClient5 implements TankHttpClient {
     public void setCookie(TankCookie cookie) {
         BasicClientCookie c = new BasicClientCookie(cookie.getName(), cookie.getValue());
         c.setDomain(cookie.getDomain());
+        c.setAttribute(ClientCookie.DOMAIN_ATTR, "true");
         c.setPath(cookie.getPath());
         context.getCookieStore().addCookie(c);
 
