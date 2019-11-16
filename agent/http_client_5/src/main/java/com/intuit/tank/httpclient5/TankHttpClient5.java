@@ -272,7 +272,6 @@ public class TankHttpClient5 implements TankHttpClient {
         c.setAttribute(ClientCookie.DOMAIN_ATTR, "true");
         c.setPath(cookie.getPath());
         context.getCookieStore().addCookie(c);
-
     }
 
     @Override
