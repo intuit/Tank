@@ -62,6 +62,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultUserTokenHandler;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.logging.log4j.LogManager;
@@ -111,6 +112,7 @@ public class TankHttpClient4 implements TankHttpClient {
         // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
         return HttpClients.custom()
                 .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                .setUserTokenHandler(DefaultUserTokenHandler.INSTANCE)
                 .evictIdleConnections(1L, TimeUnit.MINUTES)
                 .evictExpiredConnections()
                 .setMaxConnPerRoute(1024)
