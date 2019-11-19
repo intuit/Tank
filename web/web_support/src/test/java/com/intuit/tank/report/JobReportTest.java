@@ -166,6 +166,7 @@ public class JobReportTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
+    @Disabled
     public void testRunReport_1()
         throws Exception {
         JobReport fixture = new JobReport();
@@ -188,6 +189,7 @@ public class JobReportTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
+    @Disabled
     public void testRunReport_2()
         throws Exception {
         JobReport fixture = new JobReport();

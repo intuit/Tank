@@ -22,6 +22,11 @@ import java.util.Enumeration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.enterprise.context.Dependent;
+import javax.inject.Named;
+
+@Named
+@Dependent
 public class HostInfo implements Serializable {
 
     public static final String UNKNOWN = "N/A";

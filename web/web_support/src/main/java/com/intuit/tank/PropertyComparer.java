@@ -21,12 +21,15 @@ import java.util.Comparator;
 
 import com.ocpsoft.shade.org.apache.commons.beanutils.PropertyUtils;
 
+import javax.enterprise.context.Dependent;
+
 /**
  * PropertyComparer
  * 
  * @author dangleton
  * 
  */
+@Dependent
 public class PropertyComparer<T> implements Comparator<T> {
 
     private String propertyName;

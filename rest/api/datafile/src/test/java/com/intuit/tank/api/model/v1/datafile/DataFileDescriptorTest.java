@@ -16,17 +16,15 @@ package com.intuit.tank.api.model.v1.datafile;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.util.Date;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.testng.Assert;
 import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptor;
 import com.intuit.tank.test.JaxbUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * DataFileDescriptorTest
@@ -47,7 +45,7 @@ public class DataFileDescriptorTest {
         df.setName("users.csv");
         String marshall = JaxbUtil.marshall(df);
         DataFileDescriptor unmarshall = JaxbUtil.unmarshall(marshall, DataFileDescriptor.class);
-        Assert.assertTrue(EqualsBuilder.reflectionEquals(df, unmarshall));
+        assertTrue(EqualsBuilder.reflectionEquals(df, unmarshall));
     }
 
     /**
@@ -64,14 +62,14 @@ public class DataFileDescriptorTest {
         DataFileDescriptor result = new DataFileDescriptor();
 
         assertNotNull(result);
-        assertEquals(null, result.toString());
-        assertEquals(null, result.getName());
-        assertEquals(null, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreator());
-        assertEquals(null, result.getCreated());
-        assertEquals(null, result.getDataUrl());
-        assertEquals(null, result.getComments());
+        assertNull(result.toString());
+        assertNull(result.getName());
+        assertNull(result.getId());
+        assertNull(result.getModified());
+        assertNull(result.getCreator());
+        assertNull(result.getCreated());
+        assertNull(result.getDataUrl());
+        assertNull(result.getComments());
     }
 
     /**
@@ -89,7 +87,7 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
 
@@ -113,7 +111,7 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
 
@@ -137,7 +135,7 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
 
@@ -161,7 +159,7 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
 
@@ -185,7 +183,7 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
 
@@ -216,7 +214,7 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
 
@@ -240,7 +238,7 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
 
@@ -264,7 +262,7 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
         String comments = "";
@@ -288,7 +286,7 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
         Date created = new Date();
@@ -312,7 +310,7 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
         String creator = "";
@@ -336,7 +334,7 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
         String dataUrl = "";
@@ -360,10 +358,10 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
-        Integer id = new Integer(1);
+        Integer id = 1;
 
         fixture.setId(id);
 
@@ -384,7 +382,7 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
         Date modified = new Date();
@@ -408,7 +406,7 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
         String name = "";
@@ -432,7 +430,7 @@ public class DataFileDescriptorTest {
         fixture.setCreator("");
         fixture.setName("");
         fixture.setDataUrl("");
-        fixture.setId(new Integer(1));
+        fixture.setId(1);
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
 

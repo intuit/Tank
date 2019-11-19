@@ -4,15 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.test.JaxbUtil;
 import com.intuit.tank.test.TestGroups;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TankHttpClientDefinitionContainerTest {
     
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testMarshallUnmarshall() throws Exception {
         List<TankHttpClientDefinition> list = new ArrayList<TankHttpClientDefinition>();
         TankHttpClientDefinition definition1 = new TankHttpClientDefinition("test1", "com.test1.package");
@@ -24,12 +27,12 @@ public class TankHttpClientDefinitionContainerTest {
         TankHttpClientDefinitionContainer container = new TankHttpClientDefinitionContainer(list, "test1");
         String marshalled = JaxbUtil.marshall(container);
         System.out.println(marshalled);
-        Assert.assertTrue(marshalled.contains("com.test1.package"));
-        Assert.assertTrue(marshalled.contains("com.test2.package"));
-        Assert.assertTrue(marshalled.contains("com.test3.package"));
+        assertTrue(marshalled.contains("com.test1.package"));
+        assertTrue(marshalled.contains("com.test2.package"));
+        assertTrue(marshalled.contains("com.test3.package"));
         TankHttpClientDefinitionContainer unmarshalled = JaxbUtil.unmarshall(marshalled, TankHttpClientDefinitionContainer.class);
 
-        Assert.assertEquals(unmarshalled.getDefaultDefinition(), container.getDefaultDefinition());
-        Assert.assertTrue(EqualsBuilder.reflectionEquals(unmarshalled, container));
+        assertEquals(unmarshalled.getDefaultDefinition(), container.getDefaultDefinition());
+        assertTrue(EqualsBuilder.reflectionEquals(unmarshalled, container));
     }
 }

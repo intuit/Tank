@@ -23,9 +23,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.testng.annotations.Test;
-
-import com.intuit.tank.http.json.JsonResponse;
+import org.junit.jupiter.api.Test;
 
 public class JsonResponseTest {
 

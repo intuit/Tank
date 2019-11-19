@@ -19,6 +19,8 @@ package com.intuit.tank.dao;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.enterprise.context.Dependent;
+import javax.inject.Named;
 
 import com.intuit.tank.project.ScriptFilterGroup;
 
@@ -28,6 +30,8 @@ import com.intuit.tank.project.ScriptFilterGroup;
  * @author dangleton
  * 
  */
+@Named
+@Dependent
 public class FilterGroupDao extends BaseDao<ScriptFilterGroup> {
 
     /**

@@ -17,7 +17,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 
 /**

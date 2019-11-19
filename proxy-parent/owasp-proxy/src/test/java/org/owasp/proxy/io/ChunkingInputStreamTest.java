@@ -28,13 +28,12 @@ import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
-import org.testng.Assert;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import org.junit.jupiter.api.Test;
-import org.owasp.proxy.io.ChunkedInputStream;
-import org.owasp.proxy.io.ChunkingInputStream;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ChunkingInputStreamTest {
 
@@ -42,11 +41,11 @@ public class ChunkingInputStreamTest {
 
     private byte[] data;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownAfterClass() throws Exception {
     }
 
@@ -72,13 +71,13 @@ public class ChunkingInputStreamTest {
             logger.fine("Read " + got);
             read += got;
         }
-        Assert.assertEquals(data.length, read);
+        assertEquals(data.length, read);
         compare(data, 0, buff, 0, read);
     }
 
     private void compare(byte[] a, int ao, byte[] b, int bo, int len) {
         for (int i = 0; i < len; i++) {
-            Assert.assertEquals( a[ao + i], b[bo + i],"Unexpected input at position " + (ao + i)
+            assertEquals( a[ao + i], b[bo + i],"Unexpected input at position " + (ao + i)
                     + "/" + (bo + i));
         }
     }

@@ -19,6 +19,8 @@ package com.intuit.tank.service;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.intuit.tank.dao.ScriptFilterDao;
@@ -31,7 +33,11 @@ import com.intuit.tank.project.ScriptFilter;
  * 
  */
 @Named("scriptFilterService")
+@Dependent
 public class FilterService implements Serializable {
+
+    @Inject
+    ScriptFilterDao scriptFilterDao;
 
     private static final long serialVersionUID = 1L;
 
@@ -41,7 +47,7 @@ public class FilterService implements Serializable {
      * @return
      */
     public List<ScriptFilter> getFilters() {
-        return new ScriptFilterDao().findAll();
+        return scriptFilterDao.findAll();
     }
 
     /**
@@ -52,7 +58,7 @@ public class FilterService implements Serializable {
      * @return
      */
     public ScriptFilter getScriptFilter(int id) {
-        return new ScriptFilterDao().findById(id);
+        return scriptFilterDao.findById(id);
     }
 
     // /**
@@ -75,7 +81,7 @@ public class FilterService implements Serializable {
      * @param id
      */
     public void deleteScriptFilter(int id) {
-        new ScriptFilterDao().delete(id);
+        scriptFilterDao.delete(id);
     }
 
     /**
@@ -86,7 +92,7 @@ public class FilterService implements Serializable {
      * @return
      */
     public ScriptFilter saveFilter(ScriptFilter sf) {
-        return new ScriptFilterDao().saveOrUpdate(sf);
+        return scriptFilterDao.saveOrUpdate(sf);
     }
 
 }

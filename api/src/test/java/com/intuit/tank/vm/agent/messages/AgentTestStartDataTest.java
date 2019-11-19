@@ -14,17 +14,18 @@ package com.intuit.tank.vm.agent.messages;
  */
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
-import com.intuit.tank.vm.agent.messages.AgentTestStartData;
-import com.intuit.tank.vm.agent.messages.DataFileRequest;
 import com.intuit.tank.test.JaxbUtil;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AgentTestStartDataTest {
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testMarshal() throws Exception {
         AgentTestStartData agentTestStartData = new AgentTestStartData();
         agentTestStartData.setAgentInstanceNum(1);
@@ -44,16 +45,16 @@ public class AgentTestStartDataTest {
 
         String marshalled = JaxbUtil.marshall(agentTestStartData);
         System.out.println(marshalled);
-        Assert.assertNotNull(marshalled);
+        assertNotNull(marshalled);
         AgentTestStartData unmarshalled = JaxbUtil.unmarshall(marshalled, AgentTestStartData.class);
-        Assert.assertNotNull(unmarshalled);
-        Assert.assertTrue(EqualsBuilder.reflectionEquals(unmarshalled, agentTestStartData, new String[] { "dataFile",
+        assertNotNull(unmarshalled);
+        assertTrue(EqualsBuilder.reflectionEquals(unmarshalled, agentTestStartData, new String[] { "dataFile",
                 "scriptUrl" }));
-        Assert.assertTrue(EqualsBuilder.reflectionEquals(unmarshalled.getDataFiles()[0],
+        assertTrue(EqualsBuilder.reflectionEquals(unmarshalled.getDataFiles()[0],
                 agentTestStartData.getDataFiles()[0]));
-        Assert.assertTrue(EqualsBuilder.reflectionEquals(unmarshalled.getDataFiles()[1],
+        assertTrue(EqualsBuilder.reflectionEquals(unmarshalled.getDataFiles()[1],
                 agentTestStartData.getDataFiles()[1]));
-        Assert.assertEquals(unmarshalled.getScriptUrl(), script);
+        assertEquals(unmarshalled.getScriptUrl(), script);
 
     }
 

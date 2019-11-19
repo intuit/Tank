@@ -13,25 +13,26 @@ package com.intuit.tank.vm.agent.messages;
  * #L%
  */
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.test.JaxbUtil;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AgentDataTest {
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testMarshal() throws Exception {
         AgentData agentData = new AgentData("1", "i-instanceID", "http://instanceUrl", 4000, VMRegion.US_EAST,
                 "us-east-1c");
         String marshall = JaxbUtil.marshall(agentData);
         System.out.println(marshall);
-        Assert.assertNotNull(marshall);
+        assertNotNull(marshall);
         AgentData unmarshalled = JaxbUtil.unmarshall(marshall, AgentData.class);
-        Assert.assertEquals(agentData, unmarshalled);
+        assertEquals(agentData, unmarshalled);
     }
 
 }

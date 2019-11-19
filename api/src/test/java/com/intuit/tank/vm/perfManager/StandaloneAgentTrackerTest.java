@@ -15,31 +15,34 @@ package com.intuit.tank.vm.perfManager;
 
 import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentAvailabilityStatus;
-import com.intuit.tank.vm.perfManager.StandaloneAgentTracker;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class StandaloneAgentTrackerTest {
     StandaloneAgentTracker tracker = new StandaloneAgentTracker();
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void addAvailability() {
         for (int i = 0; i < 4; i++) {
             AgentAvailability a = new AgentAvailability("instance-id-" + i, "url", 500,
                     AgentAvailabilityStatus.AVAILABLE);
             tracker.addAvailability(a);
-            Assert.assertSame(a, tracker.getAvailabilityForAgent(a.getInstanceId()));
+            assertSame(a, tracker.getAvailabilityForAgent(a.getInstanceId()));
         }
-        Assert.assertEquals(4, tracker.getAvailabilities().size());
+        assertEquals(4, tracker.getAvailabilities().size());
 
         List<AgentAvailability> agents = tracker.getAgents(1000);
-        Assert.assertEquals(2, agents.size());
+        assertEquals(2, agents.size());
         for (AgentAvailability a : agents) {
-            Assert.assertEquals(AgentAvailabilityStatus.DELEGATING, a.getAvailabilityStatus());
+            assertEquals(AgentAvailabilityStatus.DELEGATING, a.getAvailabilityStatus());
         }
         int availableAgents = 0;
         for (AgentAvailability a : tracker.getAvailabilities()) {
@@ -47,10 +50,10 @@ public class StandaloneAgentTrackerTest {
                 availableAgents++;
             }
         }
-        Assert.assertEquals(2, availableAgents);
+        assertEquals(2, availableAgents);
 
         agents = tracker.getAgents(2000);
-        Assert.assertNull(agents);
+        assertNull(agents);
     }
 
 }

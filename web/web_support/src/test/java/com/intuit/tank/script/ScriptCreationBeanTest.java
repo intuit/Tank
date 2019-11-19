@@ -16,10 +16,17 @@ package com.intuit.tank.script;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jboss.weld.junit5.auto.ActivateScopes;
+import org.jboss.weld.junit5.auto.AddExtensions;
+import org.jboss.weld.junit5.auto.AddPackages;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.picketlink.Identity;
+import org.picketlink.extension.PicketLinkExtension;
 import org.primefaces.model.DefaultUploadedFile;
 import org.primefaces.model.UploadedFile;
 
@@ -27,14 +34,24 @@ import com.intuit.tank.project.ScriptFilter;
 import com.intuit.tank.project.ScriptFilterGroup;
 import com.intuit.tank.script.ScriptCreationBean;
 import com.intuit.tank.wrapper.SelectableWrapper;
-import org.testng.annotations.Ignore;
+
+import javax.enterprise.context.ConversationScoped;
+import javax.inject.Inject;
 
 /**
  * The class <code>ScriptCreationBeanTest</code> contains tests for the class <code>{@link ScriptCreationBean}</code>.
  *
  * @generatedBy CodePro at 12/15/14 3:54 PM
  */
+@EnableAutoWeld
+@AddPackages(Identity.class)
+@AddExtensions(PicketLinkExtension.class)
+@ActivateScopes(ConversationScoped.class)
 public class ScriptCreationBeanTest {
+    
+    @Inject
+    private ScriptCreationBean scriptCreationBean;
+    
     /**
      * Run the ScriptCreationBean() constructor test.
      *
@@ -43,8 +60,7 @@ public class ScriptCreationBeanTest {
     @Test
     public void testScriptCreationBean_1()
         throws Exception {
-        ScriptCreationBean result = new ScriptCreationBean();
-        assertNotNull(result);
+        assertNotNull(scriptCreationBean);
     }
 
 
@@ -56,18 +72,17 @@ public class ScriptCreationBeanTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    @Ignore
+    @Disabled
     public void testCancel_1()
         throws Exception {
-        ScriptCreationBean fixture = new ScriptCreationBean();
-        fixture.setFile(new DefaultUploadedFile());
-        fixture.setProductName("");
-        fixture.setCreationMode("");
-        fixture.setFilterWrappers(new LinkedList());
-        fixture.setName("");
-        fixture.setGroupWrappers(new LinkedList());
+        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setProductName("");
+        scriptCreationBean.setCreationMode("");
+        scriptCreationBean.setFilterWrappers(new LinkedList<>());
+        scriptCreationBean.setName("");
+        scriptCreationBean.setGroupWrappers(new LinkedList<>());
 
-        fixture.cancel();
+        scriptCreationBean.cancel();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -82,18 +97,17 @@ public class ScriptCreationBeanTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    @org.testng.annotations.Ignore
+    @Disabled
     public void testCreateNewScript_1()
         throws Exception {
-        ScriptCreationBean fixture = new ScriptCreationBean();
-        fixture.setFile(new DefaultUploadedFile());
-        fixture.setProductName("");
-        fixture.setCreationMode("");
-        fixture.setFilterWrappers(new LinkedList());
-        fixture.setName("");
-        fixture.setGroupWrappers(new LinkedList());
+        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setProductName("");
+        scriptCreationBean.setCreationMode("");
+        scriptCreationBean.setFilterWrappers(new LinkedList<>());
+        scriptCreationBean.setName("");
+        scriptCreationBean.setGroupWrappers(new LinkedList<>());
 
-        String result = fixture.createNewScript();
+        String result = scriptCreationBean.createNewScript();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -111,15 +125,14 @@ public class ScriptCreationBeanTest {
     @Test
     public void testGetCreationMode_1()
         throws Exception {
-        ScriptCreationBean fixture = new ScriptCreationBean();
-        fixture.setFile(new DefaultUploadedFile());
-        fixture.setProductName("");
-        fixture.setCreationMode("");
-        fixture.setFilterWrappers(new LinkedList());
-        fixture.setName("");
-        fixture.setGroupWrappers(new LinkedList());
+        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setProductName("");
+        scriptCreationBean.setCreationMode("");
+        scriptCreationBean.setFilterWrappers(new LinkedList<>());
+        scriptCreationBean.setName("");
+        scriptCreationBean.setGroupWrappers(new LinkedList<>());
 
-        String result = fixture.getCreationMode();
+        String result = scriptCreationBean.getCreationMode();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -137,15 +150,14 @@ public class ScriptCreationBeanTest {
     @Test
     public void testGetFile_1()
         throws Exception {
-        ScriptCreationBean fixture = new ScriptCreationBean();
-        fixture.setFile(new DefaultUploadedFile());
-        fixture.setProductName("");
-        fixture.setCreationMode("");
-        fixture.setFilterWrappers(new LinkedList());
-        fixture.setName("");
-        fixture.setGroupWrappers(new LinkedList());
+        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setProductName("");
+        scriptCreationBean.setCreationMode("");
+        scriptCreationBean.setFilterWrappers(new LinkedList<>());
+        scriptCreationBean.setName("");
+        scriptCreationBean.setGroupWrappers(new LinkedList<>());
 
-        UploadedFile result = fixture.getFile();
+        UploadedFile result = scriptCreationBean.getFile();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -164,15 +176,14 @@ public class ScriptCreationBeanTest {
     @Test
     public void testGetFilterWrappers_2()
         throws Exception {
-        ScriptCreationBean fixture = new ScriptCreationBean();
-        fixture.setFile(new DefaultUploadedFile());
-        fixture.setProductName("");
-        fixture.setCreationMode("");
-        fixture.setFilterWrappers(new LinkedList());
-        fixture.setName("");
-        fixture.setGroupWrappers(new LinkedList());
+        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setProductName("");
+        scriptCreationBean.setCreationMode("");
+        scriptCreationBean.setFilterWrappers(new LinkedList<>());
+        scriptCreationBean.setName("");
+        scriptCreationBean.setGroupWrappers(new LinkedList<>());
 
-        List<SelectableWrapper<ScriptFilter>> result = fixture.getFilterWrappers();
+        List<SelectableWrapper<ScriptFilter>> result = scriptCreationBean.getFilterWrappers();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -191,15 +202,14 @@ public class ScriptCreationBeanTest {
     @Test
     public void testGetGroupWrappers_2()
         throws Exception {
-        ScriptCreationBean fixture = new ScriptCreationBean();
-        fixture.setFile(new DefaultUploadedFile());
-        fixture.setProductName("");
-        fixture.setCreationMode("");
-        fixture.setFilterWrappers(new LinkedList());
-        fixture.setName("");
-        fixture.setGroupWrappers(new LinkedList());
+        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setProductName("");
+        scriptCreationBean.setCreationMode("");
+        scriptCreationBean.setFilterWrappers(new LinkedList<>());
+        scriptCreationBean.setName("");
+        scriptCreationBean.setGroupWrappers(new LinkedList<>());
 
-        List<SelectableWrapper<ScriptFilterGroup>> result = fixture.getGroupWrappers();
+        List<SelectableWrapper<ScriptFilterGroup>> result = scriptCreationBean.getGroupWrappers();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -217,15 +227,14 @@ public class ScriptCreationBeanTest {
     @Test
     public void testGetName_1()
         throws Exception {
-        ScriptCreationBean fixture = new ScriptCreationBean();
-        fixture.setFile(new DefaultUploadedFile());
-        fixture.setProductName("");
-        fixture.setCreationMode("");
-        fixture.setFilterWrappers(new LinkedList());
-        fixture.setName("");
-        fixture.setGroupWrappers(new LinkedList());
+        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setProductName("");
+        scriptCreationBean.setCreationMode("");
+        scriptCreationBean.setFilterWrappers(new LinkedList<>());
+        scriptCreationBean.setName("");
+        scriptCreationBean.setGroupWrappers(new LinkedList<>());
 
-        String result = fixture.getName();
+        String result = scriptCreationBean.getName();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -243,15 +252,14 @@ public class ScriptCreationBeanTest {
     @Test
     public void testGetProductName_1()
         throws Exception {
-        ScriptCreationBean fixture = new ScriptCreationBean();
-        fixture.setFile(new DefaultUploadedFile());
-        fixture.setProductName("");
-        fixture.setCreationMode("");
-        fixture.setFilterWrappers(new LinkedList());
-        fixture.setName("");
-        fixture.setGroupWrappers(new LinkedList());
+        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setProductName("");
+        scriptCreationBean.setCreationMode("");
+        scriptCreationBean.setFilterWrappers(new LinkedList<>());
+        scriptCreationBean.setName("");
+        scriptCreationBean.setGroupWrappers(new LinkedList<>());
 
-        String result = fixture.getProductName();
+        String result = scriptCreationBean.getProductName();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -269,16 +277,15 @@ public class ScriptCreationBeanTest {
     @Test
     public void testSetCreationMode_1()
         throws Exception {
-        ScriptCreationBean fixture = new ScriptCreationBean();
-        fixture.setFile(new DefaultUploadedFile());
-        fixture.setProductName("");
-        fixture.setCreationMode("");
-        fixture.setFilterWrappers(new LinkedList());
-        fixture.setName("");
-        fixture.setGroupWrappers(new LinkedList());
+        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setProductName("");
+        scriptCreationBean.setCreationMode("");
+        scriptCreationBean.setFilterWrappers(new LinkedList<>());
+        scriptCreationBean.setName("");
+        scriptCreationBean.setGroupWrappers(new LinkedList<>());
         String creationMode = "";
 
-        fixture.setCreationMode(creationMode);
+        scriptCreationBean.setCreationMode(creationMode);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -295,16 +302,15 @@ public class ScriptCreationBeanTest {
     @Test
     public void testSetFile_1()
         throws Exception {
-        ScriptCreationBean fixture = new ScriptCreationBean();
-        fixture.setFile(new DefaultUploadedFile());
-        fixture.setProductName("");
-        fixture.setCreationMode("");
-        fixture.setFilterWrappers(new LinkedList());
-        fixture.setName("");
-        fixture.setGroupWrappers(new LinkedList());
+        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setProductName("");
+        scriptCreationBean.setCreationMode("");
+        scriptCreationBean.setFilterWrappers(new LinkedList<>());
+        scriptCreationBean.setName("");
+        scriptCreationBean.setGroupWrappers(new LinkedList<>());
         UploadedFile file = new DefaultUploadedFile();
 
-        fixture.setFile(file);
+        scriptCreationBean.setFile(file);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -321,16 +327,15 @@ public class ScriptCreationBeanTest {
     @Test
     public void testSetFilterWrappers_1()
         throws Exception {
-        ScriptCreationBean fixture = new ScriptCreationBean();
-        fixture.setFile(new DefaultUploadedFile());
-        fixture.setProductName("");
-        fixture.setCreationMode("");
-        fixture.setFilterWrappers(new LinkedList());
-        fixture.setName("");
-        fixture.setGroupWrappers(new LinkedList());
-        List<SelectableWrapper<ScriptFilter>> filterWrappers = new LinkedList();
+        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setProductName("");
+        scriptCreationBean.setCreationMode("");
+        scriptCreationBean.setFilterWrappers(new LinkedList<>());
+        scriptCreationBean.setName("");
+        scriptCreationBean.setGroupWrappers(new LinkedList<>());
+        List<SelectableWrapper<ScriptFilter>> filterWrappers = new LinkedList<>();
 
-        fixture.setFilterWrappers(filterWrappers);
+        scriptCreationBean.setFilterWrappers(filterWrappers);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -347,16 +352,15 @@ public class ScriptCreationBeanTest {
     @Test
     public void testSetGroupWrappers_1()
         throws Exception {
-        ScriptCreationBean fixture = new ScriptCreationBean();
-        fixture.setFile(new DefaultUploadedFile());
-        fixture.setProductName("");
-        fixture.setCreationMode("");
-        fixture.setFilterWrappers(new LinkedList());
-        fixture.setName("");
-        fixture.setGroupWrappers(new LinkedList());
-        List<SelectableWrapper<ScriptFilterGroup>> groupWrappers = new LinkedList();
+        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setProductName("");
+        scriptCreationBean.setCreationMode("");
+        scriptCreationBean.setFilterWrappers(new LinkedList<>());
+        scriptCreationBean.setName("");
+        scriptCreationBean.setGroupWrappers(new LinkedList<>());
+        List<SelectableWrapper<ScriptFilterGroup>> groupWrappers = new LinkedList<>();
 
-        fixture.setGroupWrappers(groupWrappers);
+        scriptCreationBean.setGroupWrappers(groupWrappers);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -373,16 +377,15 @@ public class ScriptCreationBeanTest {
     @Test
     public void testSetName_1()
         throws Exception {
-        ScriptCreationBean fixture = new ScriptCreationBean();
-        fixture.setFile(new DefaultUploadedFile());
-        fixture.setProductName("");
-        fixture.setCreationMode("");
-        fixture.setFilterWrappers(new LinkedList());
-        fixture.setName("");
-        fixture.setGroupWrappers(new LinkedList());
+        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setProductName("");
+        scriptCreationBean.setCreationMode("");
+        scriptCreationBean.setFilterWrappers(new LinkedList<>());
+        scriptCreationBean.setName("");
+        scriptCreationBean.setGroupWrappers(new LinkedList<>());
         String name = "";
 
-        fixture.setName(name);
+        scriptCreationBean.setName(name);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -399,16 +402,15 @@ public class ScriptCreationBeanTest {
     @Test
     public void testSetProductName_1()
         throws Exception {
-        ScriptCreationBean fixture = new ScriptCreationBean();
-        fixture.setFile(new DefaultUploadedFile());
-        fixture.setProductName("");
-        fixture.setCreationMode("");
-        fixture.setFilterWrappers(new LinkedList());
-        fixture.setName("");
-        fixture.setGroupWrappers(new LinkedList());
+        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setProductName("");
+        scriptCreationBean.setCreationMode("");
+        scriptCreationBean.setFilterWrappers(new LinkedList<>());
+        scriptCreationBean.setName("");
+        scriptCreationBean.setGroupWrappers(new LinkedList<>());
         String productName = "";
 
-        fixture.setProductName(productName);
+        scriptCreationBean.setProductName(productName);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder

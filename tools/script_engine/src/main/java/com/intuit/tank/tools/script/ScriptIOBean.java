@@ -87,11 +87,10 @@ public class ScriptIOBean {
      * @return Object the value
      */
     public Object getInput(String name) {
-        Object ret = null;
         if (name != null) {
-            ret = inputs.get(name);
+            return inputs.get(name);
         }
-        return ret;
+        return null;
     }
 
     /**
@@ -102,11 +101,10 @@ public class ScriptIOBean {
      * @return Object the value
      */
     public Object getOutput(String name) {
-        Object ret = null;
         if (name != null) {
-            ret = outputs.get(name);
+            return outputs.get(name);
         }
-        return ret;
+        return null;
     }
 
     /**

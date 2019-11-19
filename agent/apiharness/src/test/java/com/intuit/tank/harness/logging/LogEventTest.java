@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Map;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.harness.MockRequest;
@@ -33,7 +34,7 @@ public class LogEventTest {
      * @generatedBy CodePro at 9/3/14 9:20 PM
      */
     @Test
-    @org.testng.annotations.Ignore
+    @Disabled
     public void testLogEvent_1()
             throws Exception {
 

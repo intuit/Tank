@@ -15,16 +15,16 @@ package com.intuit.tank.harness.functions;
 
 import junit.framework.TestCase;
 
-import org.testng.annotations.Test;
-
-import com.intuit.tank.harness.functions.FunctionHandler;
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 public class MonetaryFunctionsNGTest {
     Variables variables = new Variables();
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testIsValid() {
         // Generic Tests
         TestCase.assertFalse(FunctionHandler.validFunction("#function.monetary"));
@@ -37,7 +37,8 @@ public class MonetaryFunctionsNGTest {
         TestCase.assertTrue(FunctionHandler.validFunction("#function.monetary.randomNegative.5"));
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testRandomPositiveNumber() {
         String command = "#function.monetary.randomPositive.4";
 
@@ -46,7 +47,8 @@ public class MonetaryFunctionsNGTest {
         TestCase.assertTrue(random.length() == 7);
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testRandomNegativeNumber() {
         String command = "#function.monetary.randomNegative.5";
 

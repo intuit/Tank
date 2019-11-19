@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @generatedBy CodePro at 12/15/14 3:52 PM
  */
+
 public class AddTestPlanTest {
     /**
      * Run the AddTestPlan() constructor test.
@@ -146,7 +147,7 @@ public class AddTestPlanTest {
         assertTrue(!result);
     }
 
-   
+
 
     /**
      * Run the void setName(String) method test.

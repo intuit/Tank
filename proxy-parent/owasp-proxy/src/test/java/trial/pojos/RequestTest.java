@@ -10,9 +10,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.testng.Assert;
-
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RequestTest {
 
@@ -43,7 +43,7 @@ public class RequestTest {
         createMarshaller.marshal(request, new File("./request.xml"));
         Request requestUnmarshalled = (Request) unmarshaller.unmarshal(new File("./request.xml"));
 
-        Assert.assertEquals(request, requestUnmarshalled);
+        assertEquals(request, requestUnmarshalled);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class RequestTest {
         createMarshaller.marshal(response, new File("./response.xml"));
         Response responseUnmarshalled = (Response) unmarshaller.unmarshal(new File("./response.xml"));
 
-        Assert.assertEquals(response, responseUnmarshalled);
+        assertEquals(response, responseUnmarshalled);
     }
 
 }

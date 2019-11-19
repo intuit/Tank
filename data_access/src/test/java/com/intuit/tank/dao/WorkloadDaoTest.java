@@ -18,24 +18,29 @@ package com.intuit.tank.dao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 
+import com.intuit.tank.test.TestGroups;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.hibernate.PropertyValueException;
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
-import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * ProductDaoTest
@@ -47,19 +52,19 @@ public class WorkloadDaoTest {
 
     private WorkloadDao dao;
 
-    @DataProvider(name = "validations")
-    private Object[][] violationData() {
-        return new Object[][] {
-                {
+    static Stream<Arguments> validations() {
+        return Stream.of(
+                Arguments.of(
                         Workload.builderFrom(DaoTestUtil.createWorkload())
                                 .name(DaoTestUtil.generateStringOfLength(256)).build(), "name",
-                        "length must be between" },
-                { Workload.builderFrom(DaoTestUtil.createWorkload()).name(null).build(), "name",
-                        "may not be empty" } };
-
+                        "length must be between" ),
+                Arguments.of(
+                        Workload.builderFrom(DaoTestUtil.createWorkload()).name(null).build(), "name",
+                        "may not be empty")
+        );
     }
 
-    @BeforeClass
+    @BeforeEach
     public void configure() {
     	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     	Configuration config = ctx.getConfiguration();
@@ -68,7 +73,8 @@ public class WorkloadDaoTest {
         dao = new WorkloadDao();
     }
 
-    @Test(groups = { "functional" })
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testScriptGroupOrder() throws Exception {
         Workload workload = DaoTestUtil.createWorkload();
         TestPlan tp = TestPlan.builder().name("default test plan").usersPercentage(100).build();
@@ -85,23 +91,18 @@ public class WorkloadDaoTest {
             scriptGroups.add(0, removed);
             persistedWorkload = dao.saveOrUpdate(persistedWorkload);
             persistedWorkload = dao.findById(id);
-            Assert.assertFalse(persistedWorkload.getTestPlans().get(0).getScriptGroups().get(0)
-                    .equals(originalOrder.get(0)));
-            Assert.assertTrue(persistedWorkload.getTestPlans().get(0).getScriptGroups().get(0)
-                    .equals(originalOrder.get(2)));
-            Assert.assertTrue(persistedWorkload.getTestPlans().get(0).getScriptGroups().get(1)
-                    .equals(originalOrder.get(0)));
-            Assert.assertTrue(persistedWorkload.getTestPlans().get(0).getScriptGroups().get(2)
-                    .equals(originalOrder.get(1)));
+            assertNotEquals(persistedWorkload.getTestPlans().get(0).getScriptGroups().get(0), originalOrder.get(0));
+            assertEquals(persistedWorkload.getTestPlans().get(0).getScriptGroups().get(0), originalOrder.get(2));
+            assertEquals(persistedWorkload.getTestPlans().get(0).getScriptGroups().get(1), originalOrder.get(0));
+            assertEquals(persistedWorkload.getTestPlans().get(0).getScriptGroups().get(2), originalOrder.get(1));
 
             originalOrder = new ArrayList<ScriptGroup>(persistedWorkload.getTestPlans().get(0).getScriptGroups());
             persistedWorkload.getTestPlans().get(0).getScriptGroups().remove(2);
             persistedWorkload.getTestPlans().get(0).getScriptGroups().remove(0);
             persistedWorkload = dao.saveOrUpdate(persistedWorkload);
             persistedWorkload = dao.findById(id);
-            Assert.assertTrue(persistedWorkload.getTestPlans().get(0).getScriptGroups().get(0)
-                    .equals(originalOrder.get(1)));
-            Assert.assertEquals(1, persistedWorkload.getTestPlans().size());
+            assertEquals(persistedWorkload.getTestPlans().get(0).getScriptGroups().get(0), originalOrder.get(1));
+            assertEquals(1, persistedWorkload.getTestPlans().size());
 
         } finally {
             // delete it
@@ -110,24 +111,27 @@ public class WorkloadDaoTest {
 
     }
 
-    @Test(groups = { "functional" }, dataProvider = "validations")
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("validations")
     public void testValidation(Workload workload, String property, String messageContains) throws Exception {
         try {
             dao.saveOrUpdate(workload);
-            Assert.fail("Should have failed validation.");
+            fail("Should have failed validation.");
         } catch (ConstraintViolationException e) {
             // expected validation
             DaoTestUtil.checkConstraintViolation(e, property, messageContains);
         } catch (PersistenceException e) {
             if (e.getCause() instanceof PropertyValueException) {
-                Assert.assertTrue(e.getCause().getMessage().startsWith("not-null property references a null or transient value"));
+                assertTrue(e.getCause().getMessage().startsWith("not-null property references a null or transient value"));
                 return;
             }
-            Assert.assertTrue(e.getCause().getCause().getMessage().startsWith("Value too long for column "));
+            assertTrue(e.getCause().getCause().getMessage().startsWith("Value too long for column "));
         }
     }
 
-    @Test(groups = { "functional" })
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testBasicCreateUpdateDelete() throws Exception {
         List<Workload> all = dao.findAll();
         int originalSize = all.size();
@@ -144,34 +148,34 @@ public class WorkloadDaoTest {
         validateWorkload(workload, persistedWorkload, true);
 
         all = dao.findAll();
-        Assert.assertNotNull(all);
-        Assert.assertEquals(originalSize + 1, all.size());
+        assertNotNull(all);
+        assertEquals(originalSize + 1, all.size());
 
         all = dao.findAll();
-        Assert.assertNotNull(all);
-        Assert.assertEquals(originalSize + 1, all.size());
+        assertNotNull(all);
+        assertEquals(originalSize + 1, all.size());
 
         // delete it
         dao.delete(persistedWorkload);
         workload = dao.findById(workload.getId());
-        Assert.assertNull(workload);
+        assertNull(workload);
         all = dao.findAll();
-        Assert.assertEquals(originalSize, all.size());
+        assertEquals(originalSize, all.size());
     }
 
     private void validateWorkload(Workload workload1, Workload workload2, boolean checkCreateAttributes) {
         if (checkCreateAttributes) {
-            Assert.assertEquals(workload1.getId(), workload2.getId());
-            Assert.assertEquals(workload1.getCreated(), workload2.getCreated());
-            Assert.assertNotSame(workload1.getModified(), workload2.getModified());
+            assertEquals(workload1.getId(), workload2.getId());
+            assertEquals(workload1.getCreated(), workload2.getCreated());
+            assertNotSame(workload1.getModified(), workload2.getModified());
         } else {
-            Assert.assertNotNull(workload2.getId());
-            Assert.assertNotNull(workload2.getCreated());
-            Assert.assertNotNull(workload2.getModified());
+            assertNotNull(workload2.getId());
+            assertNotNull(workload2.getCreated());
+            assertNotNull(workload2.getModified());
         }
-        Assert.assertEquals(workload1.getName(), workload2.getName());
+        assertEquals(workload1.getName(), workload2.getName());
 
-        Assert.assertEquals(workload1.getTestPlans().size(), workload2.getTestPlans().size());
+        assertEquals(workload1.getTestPlans().size(), workload2.getTestPlans().size());
     }
 
 }

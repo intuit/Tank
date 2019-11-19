@@ -54,7 +54,7 @@ public class AgentBeanTest {
             throws Exception {
         AgentBean fixture = new AgentBean();
         fixture.setAgents(null);
-        fixture.setJobs(new LinkedList());
+        fixture.setJobs(new LinkedList<>());
         fixture.setSelectedJob(new JobQueue());
 
         List<AgentStatusReporter> result = fixture.getAgents();
@@ -76,8 +76,8 @@ public class AgentBeanTest {
     public void testGetAgents_2()
             throws Exception {
         AgentBean fixture = new AgentBean();
-        fixture.setAgents(new LinkedList());
-        fixture.setJobs(new LinkedList());
+        fixture.setAgents(new LinkedList<>());
+        fixture.setJobs(new LinkedList<>());
         fixture.setSelectedJob(new JobQueue());
 
         List<AgentStatusReporter> result = fixture.getAgents();
@@ -99,8 +99,8 @@ public class AgentBeanTest {
     public void testGetJobs_1()
             throws Exception {
         AgentBean fixture = new AgentBean();
-        fixture.setAgents(new LinkedList());
-        fixture.setJobs(null);
+        fixture.setAgents(new LinkedList<>());
+        fixture.setJobs(new LinkedList<>());
         fixture.setSelectedJob(new JobQueue());
 
         List<JobQueue> result = fixture.getJobs();
@@ -122,8 +122,8 @@ public class AgentBeanTest {
     public void testGetJobs_2()
             throws Exception {
         AgentBean fixture = new AgentBean();
-        fixture.setAgents(new LinkedList());
-        fixture.setJobs(new LinkedList());
+        fixture.setAgents(new LinkedList<>());
+        fixture.setJobs(new LinkedList<>());
         fixture.setSelectedJob(new JobQueue());
 
         List<JobQueue> result = fixture.getJobs();
@@ -145,8 +145,8 @@ public class AgentBeanTest {
     public void testGetSelectedJob_1()
             throws Exception {
         AgentBean fixture = new AgentBean();
-        fixture.setAgents(new LinkedList());
-        fixture.setJobs(new LinkedList());
+        fixture.setAgents(new LinkedList<>());
+        fixture.setJobs(new LinkedList<>());
         fixture.setSelectedJob((JobQueue) null);
 
         JobQueue result = fixture.getSelectedJob();
@@ -163,8 +163,8 @@ public class AgentBeanTest {
     public void testGetSelectedJob_2()
             throws Exception {
         AgentBean fixture = new AgentBean();
-        fixture.setAgents(new LinkedList());
-        fixture.setJobs(new LinkedList());
+        fixture.setAgents(new LinkedList<>());
+        fixture.setJobs(new LinkedList<>());
         fixture.setSelectedJob((JobQueue) null);
 
         JobQueue result = fixture.getSelectedJob();
@@ -181,8 +181,8 @@ public class AgentBeanTest {
     public void testGetSelectedJob_3()
             throws Exception {
         AgentBean fixture = new AgentBean();
-        fixture.setAgents(new LinkedList());
-        fixture.setJobs(new LinkedList());
+        fixture.setAgents(new LinkedList<>());
+        fixture.setJobs(new LinkedList<>());
         fixture.setSelectedJob(new JobQueue());
 
         JobQueue result = fixture.getSelectedJob();
@@ -204,10 +204,10 @@ public class AgentBeanTest {
     public void testSetAgents_1()
             throws Exception {
         AgentBean fixture = new AgentBean();
-        fixture.setAgents(new LinkedList());
-        fixture.setJobs(new LinkedList());
+        fixture.setAgents(new LinkedList<>());
+        fixture.setJobs(new LinkedList<>());
         fixture.setSelectedJob(new JobQueue());
-        List<AgentStatusReporter> agents = new LinkedList();
+        List<AgentStatusReporter> agents = new LinkedList<>();
 
         fixture.setAgents(agents);
 
@@ -227,10 +227,10 @@ public class AgentBeanTest {
     public void testSetJobs_1()
             throws Exception {
         AgentBean fixture = new AgentBean();
-        fixture.setAgents(new LinkedList());
-        fixture.setJobs(new LinkedList());
+        fixture.setAgents(new LinkedList<>());
+        fixture.setJobs(new LinkedList<>());
         fixture.setSelectedJob(new JobQueue());
-        List<JobQueue> jobs = new LinkedList();
+        List<JobQueue> jobs = new LinkedList<>();
 
         fixture.setJobs(jobs);
 
@@ -250,8 +250,8 @@ public class AgentBeanTest {
     public void testSetSelectedJob_1()
             throws Exception {
         AgentBean fixture = new AgentBean();
-        fixture.setAgents(new LinkedList());
-        fixture.setJobs(new LinkedList());
+        fixture.setAgents(new LinkedList<>());
+        fixture.setJobs(new LinkedList<>());
         fixture.setSelectedJob(new JobQueue());
         JobQueue selectedJob = new JobQueue();
 

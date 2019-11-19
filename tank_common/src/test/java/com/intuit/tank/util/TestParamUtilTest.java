@@ -19,48 +19,49 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 
-import org.testng.Assert;
+import org.junit.jupiter.api.BeforeEach;
 
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import com.intuit.tank.util.TestParamUtil;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestParamUtilTest {
     private static final long TEST_VALUE = 30000L;
 
-    @DataProvider(name = "data")
-    private Object[][] testData() {
-        return new Object[][] {
-                { "1.5ET", 45000L },
-                { ".5ET", 15000L },
-                { "3 * ET + 10", 90010L },
-                { "3ET + 10", 90010L },
-                { "10", 10L },
-                { "4 * RT / 1000", 120L },
-                { "100 * RT / 1000", 3000L },
-                { "10h 3m 4S", 36184000L },
-                { "(3ET + 2RT) / 2", 75000L },
-                { "(ET3 + RT2) / ST", 5L },
-                { "(3ET + RT2) / (2 * ST)", 3L },
-                { "(3ET + RT2) / (2 * 2ST)", 1L }
-        };
+    static Stream<Arguments> data() {
+        return Stream.of(
+                Arguments.of("1.5ET", 45000L ),
+                Arguments.of( ".5ET", 15000L ),
+                Arguments.of( "3 * ET + 10", 90010L ),
+                Arguments.of( "3ET + 10", 90010L ),
+                Arguments.of( "10", 10L ),
+                Arguments.of( "4 * RT / 1000", 120L ),
+                Arguments.of( "100 * RT / 1000", 3000L ),
+                Arguments.of( "10h 3m 4S", 36184000L ),
+                Arguments.of( "(3ET + 2RT) / 2", 75000L ),
+                Arguments.of( "(ET3 + RT2) / ST", 5L ),
+                Arguments.of( "(3ET + RT2) / (2 * ST)", 3L ),
+                Arguments.of( "(3ET + RT2) / (2 * 2ST)", 1L )
+        );
     }
 
-    @DataProvider(name = "invalidData")
-    private Object[][] invalidData() {
-        return new Object[][] {
-                { "3 * XT + 10" },
-                { "" },
-                { "10X" },
-                { "((3ET + 2RT) / 2" },
-                { "22% * 5" }
-        };
+    static Stream<Arguments> invalidData() {
+        return Stream.of(
+                Arguments.of( "3 * XT + 10" ),
+                Arguments.of( "" ),
+                Arguments.of( "10X" ),
+                Arguments.of( "((3ET + 2RT) / 2" ),
+                Arguments.of( "22% * 5" )
+        );
     }
 
-    @BeforeTest
+    @BeforeEach
     public void before() {
     	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     	Configuration config = ctx.getConfiguration();
@@ -68,20 +69,26 @@ public class TestParamUtilTest {
     	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "data")
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("data")
     public void testEvaluateExpression(String expression, long expectedResult) {
-        Assert.assertEquals(expectedResult,
+        assertEquals(expectedResult,
                 TestParamUtil.evaluateExpression(expression, TEST_VALUE, TEST_VALUE, TEST_VALUE));
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "data")
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("data")
     public void testValidExpression(String expression, long result) {
-        Assert.assertTrue(TestParamUtil.isValidExpression(expression));
+        assertTrue(TestParamUtil.isValidExpression(expression));
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "invalidData")
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("invalidData")
     public void testInvalidExpression(String expression) {
-        Assert.assertFalse(TestParamUtil.isValidExpression(expression));
+        assertFalse(TestParamUtil.isValidExpression(expression));
     }
 
 }

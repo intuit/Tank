@@ -54,6 +54,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.cookie.ClientCookie;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -258,9 +259,9 @@ public class TankHttpClient4 implements TankHttpClient {
     public void setCookie(TankCookie cookie) {
         BasicClientCookie c = new BasicClientCookie(cookie.getName(), cookie.getValue());
         c.setDomain(cookie.getDomain());
+        c.setAttribute(ClientCookie.DOMAIN_ATTR, "true");
         c.setPath(cookie.getPath());
         context.getCookieStore().addCookie(c);
-
     }
 
     @Override

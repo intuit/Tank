@@ -1,17 +1,18 @@
 package com.intuit.tank.http.multipart;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Base64;
+import java.util.stream.Stream;
 
 public class MultiPartRequestTest {
-    @DataProvider(name = "data")
-    private Object[][] csvData() {
-        return new Object[][] {
-                {
+    static Stream<Arguments> data() {
+        return Stream.of(
+                Arguments.of(
                         "-----------------------------10681713301939738037227942752"
                                 + "\r\n"
                                 + "Content-Disposition: form-data; name=\"createNewScriptForm\""
@@ -36,8 +37,9 @@ public class MultiPartRequestTest {
                                 + "Content-Disposition: form-data; name=\"javax.faces.ViewState\"" + "\r\n"
                                 + "\r\n"
                                 + "-1346138416504364622:5284803266475066700" + "\r\n"
-                                + "-----------------------------10681713301939738037227942752--" + "\r\n", 4 },
-                { "----AaB03x\r\n"
+                                + "-----------------------------10681713301939738037227942752--" + "\r\n", 4 ),
+                Arguments.of(
+                        "----AaB03x\r\n"
                         + "Content-Disposition: form-data; name=\"submit-name\"\r\n"
                         + "\r\n"
                         + "Larry\r\n"
@@ -46,11 +48,13 @@ public class MultiPartRequestTest {
                         + "Content-Type: text/plain\r\n"
                         + "\r\n"
                         + "HELLO WORLD!\r\n"
-                        + "----AaB03x--\r\n", 2 }
-        };
+                        + "----AaB03x--\r\n", 2 )
+        );
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "data")
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("data")
     public void test(String body, int numParts) {
         MultiPartRequest multiPartRequest = new MultiPartRequest(null, null);
         multiPartRequest.setBody(Base64.getEncoder().encodeToString(body.getBytes()));

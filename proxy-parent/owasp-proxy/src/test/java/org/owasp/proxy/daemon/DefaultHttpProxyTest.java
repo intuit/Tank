@@ -36,10 +36,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Logger;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.owasp.proxy.http.server.DefaultHttpRequestHandler;
 import org.owasp.proxy.http.server.HttpProxyConnectionHandler;
@@ -59,7 +59,7 @@ public class DefaultHttpProxyTest {
 
     private HttpRequestHandler rh;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         try {
             ts = new TraceServer(9999);
@@ -69,14 +69,14 @@ public class DefaultHttpProxyTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         listen = new InetSocketAddress("localhost", 9998);
         rh = new DefaultHttpRequestHandler();
         ch = new HttpProxyConnectionHandler(rh);
     }
 
-    @AfterClass
+    @AfterEach
     public static void tearDownAfterClass() throws Exception {
         ts.stop();
         Thread.sleep(1000);
@@ -139,7 +139,7 @@ public class DefaultHttpProxyTest {
     }
 
     @Test
-    @Ignore("needs internet access")
+    @Disabled("needs internet access")
     public void testChunked() throws Exception {
         ts.setChunked(true);
         Proxy proxy = new Proxy(listen, ch, null);
@@ -168,7 +168,7 @@ public class DefaultHttpProxyTest {
      * sockets get closed, e.g. the result of "telnet proxy port" + doing nothing
      */
     @Test
-    @Ignore("needs internet access")
+    @Disabled("needs internet access")
     public void testInitialTimeout() throws Exception {
         Proxy proxy = new Proxy(listen, ch, null);
         proxy.setSocketTimeout(1000);
@@ -209,7 +209,7 @@ public class DefaultHttpProxyTest {
      * timeout period.
      */
     @Test
-    @Ignore("needs internet access")
+    @Disabled("needs internet access")
     public void testSecondTimeout() throws Exception {
         ts.setVersion("HTTP/1.1");
         Proxy proxy = new Proxy(listen, ch, null);

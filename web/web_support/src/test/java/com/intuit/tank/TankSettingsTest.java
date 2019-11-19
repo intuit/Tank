@@ -15,19 +15,26 @@ package com.intuit.tank;
 
 import java.util.List;
 
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.TankSettings;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
+
+import javax.inject.Inject;
 
 /**
  * The class <code>TankSettingsTest</code> contains tests for the class <code>{@link TankSettings}</code>.
  *
  * @generatedBy CodePro at 12/15/14 3:52 PM
  */
+@EnableAutoWeld
 public class TankSettingsTest {
+
+    @Inject
+    private TankSettings tankSettings;
+    
     /**
      * Run the TankSettings() constructor test.
      *
@@ -36,8 +43,7 @@ public class TankSettingsTest {
     @Test
     public void testTankSettings_1()
         throws Exception {
-        TankSettings result = new TankSettings();
-        assertNotNull(result);
+        assertNotNull(tankSettings);
     }
 
     /**
@@ -50,10 +56,7 @@ public class TankSettingsTest {
     @Test
     public void testGetVmRegions_1()
         throws Exception {
-        TankSettings fixture = new TankSettings();
-
-        List<VMRegion> result = fixture.getVmRegions();
-
+        List<VMRegion> result = tankSettings.getVmRegions();
     }
 
     /**
@@ -66,10 +69,9 @@ public class TankSettingsTest {
     @Test
     public void testHasRegionConfigured_1()
         throws Exception {
-        TankSettings fixture = new TankSettings();
         String region = "";
 
-        boolean result = fixture.hasRegionConfigured(region);
+        boolean result = tankSettings.hasRegionConfigured(region);
     }
 
     /**
@@ -82,10 +84,9 @@ public class TankSettingsTest {
     @Test
     public void testHasRegionConfigured_2()
         throws Exception {
-        TankSettings fixture = new TankSettings();
         String region = "";
 
-        boolean result = fixture.hasRegionConfigured(region);
+        boolean result = tankSettings.hasRegionConfigured(region);
     }
 
     /**
@@ -98,10 +99,9 @@ public class TankSettingsTest {
     @Test
     public void testHasRegionConfigured_3()
         throws Exception {
-        TankSettings fixture = new TankSettings();
         String region = "";
 
-        boolean result = fixture.hasRegionConfigured(region);
+        boolean result = tankSettings.hasRegionConfigured(region);
         assertTrue(!result);
     }
 
@@ -115,9 +115,8 @@ public class TankSettingsTest {
     @Test
     public void testInit_1()
         throws Exception {
-        TankSettings fixture = new TankSettings();
 
-        fixture.init();
+        tankSettings.init();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -135,10 +134,9 @@ public class TankSettingsTest {
     @Test
     public void testIsStandalone_1()
         throws Exception {
-        TankSettings fixture = new TankSettings();
 
-        boolean result = fixture.isStandalone();
-        assertTrue(!result);
+        boolean result = tankSettings.isStandalone();
+        assertFalse(result);
     }
 
     /**
@@ -151,9 +149,8 @@ public class TankSettingsTest {
     @Test
     public void testIsStandalone_2()
         throws Exception {
-        TankSettings fixture = new TankSettings();
 
-        boolean result = fixture.isStandalone();
-        assertTrue(!result);
+        boolean result = tankSettings.isStandalone();
+        assertFalse(result);
     }
 }

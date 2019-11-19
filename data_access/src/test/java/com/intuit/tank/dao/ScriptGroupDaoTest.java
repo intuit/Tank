@@ -18,22 +18,28 @@ package com.intuit.tank.dao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 
+import com.intuit.tank.test.TestGroups;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
 import com.intuit.tank.dao.ScriptGroupDao;
 import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * ProductDaoTest
@@ -45,16 +51,15 @@ public class ScriptGroupDaoTest {
 
     private ScriptGroupDao dao;
 
-    @DataProvider(name = "validations")
-    private Object[][] violationData() {
-        return new Object[][] { {
-                ScriptGroup.builderFrom(DaoTestUtil.createScriptGroup(10))
+    static Stream<Arguments> validations() {
+        return Stream.of(
+                Arguments.of(ScriptGroup.builderFrom(DaoTestUtil.createScriptGroup(10))
                         .name(DaoTestUtil.generateStringOfLength(256)).build(), "name",
-                "length must be between" } };
+                "length must be between" ) );
 
     }
 
-    @BeforeClass
+    @BeforeEach
     public void configure() {
     	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     	Configuration config = ctx.getConfiguration();
@@ -63,7 +68,8 @@ public class ScriptGroupDaoTest {
         dao = new ScriptGroupDao();
     }
 
-    @Test(groups = { "functional" })
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testWorkloadOrder() throws Exception {
         ScriptGroup group = DaoTestUtil.createScriptGroup(10);
         group.addScriptGroupStep(DaoTestUtil.createScriptGroupStep(10));
@@ -78,18 +84,18 @@ public class ScriptGroupDaoTest {
             children.add(0, removed);
             persisted = dao.saveOrUpdate(persisted);
             persisted = dao.findById(id);
-            Assert.assertFalse(persisted.getScriptGroupSteps().get(0).equals(originalOrder.get(0)));
-            Assert.assertTrue(persisted.getScriptGroupSteps().get(0).equals(originalOrder.get(2)));
-            Assert.assertTrue(persisted.getScriptGroupSteps().get(1).equals(originalOrder.get(0)));
-            Assert.assertTrue(persisted.getScriptGroupSteps().get(2).equals(originalOrder.get(1)));
+            assertNotEquals(persisted.getScriptGroupSteps().get(0), originalOrder.get(0));
+            assertEquals(persisted.getScriptGroupSteps().get(0), originalOrder.get(2));
+            assertEquals(persisted.getScriptGroupSteps().get(1), originalOrder.get(0));
+            assertEquals(persisted.getScriptGroupSteps().get(2), originalOrder.get(1));
 
             originalOrder = new ArrayList<ScriptGroupStep>(persisted.getScriptGroupSteps());
             persisted.getScriptGroupSteps().remove(2);
             persisted.getScriptGroupSteps().remove(0);
             persisted = dao.saveOrUpdate(persisted);
             persisted = dao.findById(id);
-            Assert.assertTrue(persisted.getScriptGroupSteps().get(0).equals(originalOrder.get(1)));
-            Assert.assertEquals(1, persisted.getScriptGroupSteps().size());
+            assertEquals(persisted.getScriptGroupSteps().get(0), originalOrder.get(1));
+            assertEquals(1, persisted.getScriptGroupSteps().size());
 
         } finally {
             // delete it
@@ -98,20 +104,23 @@ public class ScriptGroupDaoTest {
 
     }
 
-    @Test(groups = { "functional" }, dataProvider = "validations")
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("validations")
     public void testValidation(ScriptGroup entity, String property, String messageContains) throws Exception {
         try {
             dao.saveOrUpdate(entity);
-            Assert.fail("Should have failed validation.");
+            fail("Should have failed validation.");
         } catch (ConstraintViolationException e) {
             // expected validation
             DaoTestUtil.checkConstraintViolation(e, property, messageContains);
         } catch (PersistenceException e) {
-            Assert.assertTrue(e.getCause().getCause().getMessage().startsWith("Value too long for column "));
+            assertTrue(e.getCause().getCause().getMessage().startsWith("Value too long for column "));
         }
     }
 
-    @Test(groups = { "functional" })
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testBasicCreateUpdateDelete() throws Exception {
         List<ScriptGroup> all = dao.findAll();
         int originalSize = all.size();
@@ -126,34 +135,34 @@ public class ScriptGroupDaoTest {
         validateScriptGroup(entity, persisted, true);
 
         all = dao.findAll();
-        Assert.assertNotNull(all);
-        Assert.assertEquals(originalSize + 1, all.size());
+        assertNotNull(all);
+        assertEquals(originalSize + 1, all.size());
 
         all = dao.findAll();
-        Assert.assertNotNull(all);
-        Assert.assertEquals(originalSize + 1, all.size());
+        assertNotNull(all);
+        assertEquals(originalSize + 1, all.size());
 
         // delete it
         dao.delete(persisted);
         entity = dao.findById(entity.getId());
-        Assert.assertNull(entity);
+        assertNull(entity);
         all = dao.findAll();
-        Assert.assertEquals(originalSize, all.size());
+        assertEquals(originalSize, all.size());
     }
 
     private void validateScriptGroup(ScriptGroup entity1, ScriptGroup entity2, boolean checkCreateAttributes) {
         if (checkCreateAttributes) {
-            Assert.assertEquals(entity1.getId(), entity2.getId());
-            Assert.assertEquals(entity1.getCreated(), entity2.getCreated());
-            Assert.assertNotSame(entity1.getModified(), entity2.getModified());
+            assertEquals(entity1.getId(), entity2.getId());
+            assertEquals(entity1.getCreated(), entity2.getCreated());
+            assertNotSame(entity1.getModified(), entity2.getModified());
         } else {
-            Assert.assertNotNull(entity2.getId());
-            Assert.assertNotNull(entity2.getCreated());
-            Assert.assertNotNull(entity2.getModified());
+            assertNotNull(entity2.getId());
+            assertNotNull(entity2.getCreated());
+            assertNotNull(entity2.getModified());
         }
-        Assert.assertEquals(entity1.getName(), entity2.getName());
-        Assert.assertEquals(entity1.getLoop(), entity2.getLoop());
-        Assert.assertEquals(entity1.getScriptGroupSteps().size(), entity2.getScriptGroupSteps().size());
+        assertEquals(entity1.getName(), entity2.getName());
+        assertEquals(entity1.getLoop(), entity2.getLoop());
+        assertEquals(entity1.getScriptGroupSteps().size(), entity2.getScriptGroupSteps().size());
     }
 
 }

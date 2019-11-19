@@ -16,14 +16,15 @@ package com.intuit.tank.api.model.v1.automation;
 import com.intuit.tank.api.model.v1.automation.AutomationRequest;
 import com.intuit.tank.test.JaxbUtil;
 import com.intuit.tank.test.TestGroups;
-
-import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.bind.JAXBException;
 
 import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests marshalling of automationrequest object, specifically the variables. Maybe expand later.
@@ -34,7 +35,7 @@ public class AutomationRequestTest {
 
     private AutomationRequest req;
 
-    @BeforeMethod
+    @BeforeEach
     public void setUp() throws Exception {
         HashMap<String, String> vars = new HashMap<String, String>();
         vars.put("var1", "val1");
@@ -42,11 +43,12 @@ public class AutomationRequestTest {
         req = AutomationRequest.builder().withVariables(vars).build();
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testMarshall() throws JAXBException {
         String marshalled = JaxbUtil.marshall(req);
         System.out.println(marshalled);
         AutomationRequest unmarshalled = JaxbUtil.unmarshall(marshalled, AutomationRequest.class);
-        Assert.assertEquals(unmarshalled, req);
+        assertEquals(unmarshalled, req);
     }
 }

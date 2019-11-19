@@ -13,19 +13,19 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
-import org.testng.annotations.Test;
-
-import com.intuit.tank.harness.functions.FunctionHandler;
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.test.TestGroups;
 
 import junit.framework.TestCase;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 public class NumericFunctionsNGTest {
 
     Variables variables = new Variables();
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testIsValid() {
         // Generic Tests
         TestCase.assertFalse(FunctionHandler.validFunction("#function.numeric"));
@@ -48,7 +48,8 @@ public class NumericFunctionsNGTest {
         TestCase.assertTrue(FunctionHandler.validFunction("#function.numeric.randomNegativeFloat.5.4"));
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testRandomPositiveWhole() {
         String command = "#function.numeric.randomPositiveWhole.4";
 
@@ -57,7 +58,8 @@ public class NumericFunctionsNGTest {
         TestCase.assertTrue(random.length() == 4);
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testRandomNegativeWhole() {
         String command = "#function.numeric.randomNegativeWhole.5";
 
@@ -66,7 +68,8 @@ public class NumericFunctionsNGTest {
         TestCase.assertTrue(random.length() == 6);
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testRandomPositiveFloat() {
         String command = "#function.numeric.randomPositiveFloat.5.3";
 
@@ -75,7 +78,8 @@ public class NumericFunctionsNGTest {
         TestCase.assertTrue(random.length() == 9);
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testRandomNegativeFloat() {
         String command = "#function.numeric.randomNegativeFloat.6.4";
 
@@ -84,7 +88,8 @@ public class NumericFunctionsNGTest {
         TestCase.assertTrue(random.length() == 12);
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testAdd() {
         String command = "#function.numeric.add.4.8";
 
@@ -93,7 +98,8 @@ public class NumericFunctionsNGTest {
         TestCase.assertEquals("12.0", sum);
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testAdd3Params() {
         String command = "#function.numeric.add.4.8.13";
 
@@ -102,7 +108,8 @@ public class NumericFunctionsNGTest {
         TestCase.assertEquals("25.0", sum);
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testSubtract() {
         String command = "#function.numeric.subtract.9.3";
 
@@ -111,7 +118,8 @@ public class NumericFunctionsNGTest {
         TestCase.assertEquals("6.0", result);
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testSubtract3Params() {
         String command = "#function.numeric.subtract.9.3.2";
 

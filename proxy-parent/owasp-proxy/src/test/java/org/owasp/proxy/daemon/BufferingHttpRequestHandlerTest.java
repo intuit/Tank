@@ -34,11 +34,10 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.owasp.proxy.http.BufferedRequest;
 import org.owasp.proxy.http.MessageFormatException;
@@ -67,24 +66,24 @@ public class BufferingHttpRequestHandlerTest {
 
     private static TraceServer ts = null;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         ts = new TraceServer(9999);
         ts.start();
     }
 
-    @AfterClass
+    @AfterEach
     public static void tearDownAfterClass() throws Exception {
         ts.stop();
         Thread.sleep(1000);
         assertTrue(ts.isStopped(),"TraceServer shutdown failed!");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 
@@ -214,7 +213,7 @@ public class BufferingHttpRequestHandlerTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testHandleRequest() throws Exception {
         MockBufferedInterceptor bm = new MockBufferedInterceptor();
         BufferingHttpRequestHandler brh = new BufferingHttpRequestHandler(

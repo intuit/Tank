@@ -15,14 +15,14 @@ package com.intuit.tank.project;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.Project;
-import com.intuit.tank.project.Workload;
 import com.intuit.tank.vm.api.enumerated.ScriptDriver;
 
 /**
@@ -39,21 +39,21 @@ public class ProjectTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
-    @org.testng.annotations.Ignore
+    @Disabled
     public void testProject_1()
         throws Exception {
 
         Project result = new Project();
 
         assertNotNull(result);
-        assertEquals(null, result.getName());
-        assertEquals(null, result.getWorkloadNames());
-        assertEquals(null, result.getProductName());
-        assertEquals(null, result.getComments());
-        assertEquals(null, result.getCreator());
+        assertNull(result.getName());
+        assertNull(result.getWorkloadNames());
+        assertNull(result.getProductName());
+        assertNull(result.getComments());
+        assertNull(result.getCreator());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -191,7 +191,7 @@ public class ProjectTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
-    @org.testng.annotations.Ignore
+    @Disabled
     public void testGetComments_1()
         throws Exception {
         Project fixture = new Project();

@@ -18,16 +18,18 @@ package com.intuit.tank.dao;
 
 import java.util.List;
 
+import com.intuit.tank.test.TestGroups;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
-import com.intuit.tank.dao.ScriptGroupStepDao;
 import com.intuit.tank.project.ScriptGroupStep;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * ProductDaoTest
@@ -39,7 +41,7 @@ public class ScriptGroupStepDaoTest {
 
     private ScriptGroupStepDao dao;
 
-    @BeforeClass
+    @BeforeEach
     public void configure() {
     	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     	Configuration config = ctx.getConfiguration();
@@ -48,7 +50,8 @@ public class ScriptGroupStepDaoTest {
         dao = new ScriptGroupStepDao();
     }
 
-    @Test(groups = { "functional" })
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testBasicCreateUpdateDelete() throws Exception {
         List<ScriptGroupStep> all = dao.findAll();
         int originalSize = all.size();
@@ -62,32 +65,32 @@ public class ScriptGroupStepDaoTest {
         validateScriptGroupStep(entity, persisted, true);
 
         all = dao.findAll();
-        Assert.assertNotNull(all);
-        Assert.assertEquals(originalSize + 1, all.size());
+        assertNotNull(all);
+        assertEquals(originalSize + 1, all.size());
 
         all = dao.findAll();
-        Assert.assertNotNull(all);
-        Assert.assertEquals(originalSize + 1, all.size());
+        assertNotNull(all);
+        assertEquals(originalSize + 1, all.size());
 
         // delete it
         dao.delete(persisted);
         entity = dao.findById(entity.getId());
-        Assert.assertNull(entity);
+        assertNull(entity);
         all = dao.findAll();
-        Assert.assertEquals(originalSize, all.size());
+        assertEquals(originalSize, all.size());
     }
 
     private void validateScriptGroupStep(ScriptGroupStep entity1, ScriptGroupStep entity2, boolean checkCreateAttributes) {
         if (checkCreateAttributes) {
-            Assert.assertEquals(entity1.getId(), entity2.getId());
-            Assert.assertEquals(entity1.getCreated(), entity2.getCreated());
-            Assert.assertNotSame(entity1.getModified(), entity2.getModified());
+            assertEquals(entity1.getId(), entity2.getId());
+            assertEquals(entity1.getCreated(), entity2.getCreated());
+            assertNotSame(entity1.getModified(), entity2.getModified());
         } else {
-            Assert.assertNotNull(entity2.getId());
-            Assert.assertNotNull(entity2.getCreated());
-            Assert.assertNotNull(entity2.getModified());
+            assertNotNull(entity2.getId());
+            assertNotNull(entity2.getCreated());
+            assertNotNull(entity2.getModified());
         }
-        Assert.assertEquals(entity1.getLoop(), entity2.getLoop());
+        assertEquals(entity1.getLoop(), entity2.getLoop());
     }
 
 }

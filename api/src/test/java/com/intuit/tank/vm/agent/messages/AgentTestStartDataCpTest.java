@@ -15,9 +15,6 @@ package com.intuit.tank.vm.agent.messages;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.agent.messages.AgentTestStartData;
-import com.intuit.tank.vm.agent.messages.DataFileRequest;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

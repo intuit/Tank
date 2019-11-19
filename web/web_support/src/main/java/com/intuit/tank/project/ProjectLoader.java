@@ -20,8 +20,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
 import javax.faces.model.SelectItem;
+import javax.inject.Inject;
 
 import com.intuit.tank.ModifiedProjectMessage;
 import com.intuit.tank.dao.ProjectDao;
@@ -36,8 +38,11 @@ import com.intuit.tank.wrapper.EntityVersionLoader;
  * @author dangleton
  * 
  */
-@ApplicationScoped
+@Dependent
 public class ProjectLoader extends EntityVersionLoader<Project, ModifiedProjectMessage> {
+
+    @Inject
+    ProjectDao projectDao;
 
     private static final long serialVersionUID = 1L;
 
@@ -75,7 +80,7 @@ public class ProjectLoader extends EntityVersionLoader<Project, ModifiedProjectM
      */
     @Override
     protected List<Project> getEntities() {
-        List<Project> projects = new ProjectDao().findFiltered(ViewFilterType.ALL);
+        List<Project> projects = projectDao.findFiltered(ViewFilterType.ALL);
         List<String> list = projects.stream().filter(p -> !p.getCreator().isEmpty()).map(OwnableEntity::getCreator).distinct().sorted().collect(Collectors.toList());
         creatorList = new SelectItem[list.size() + 1];
         creatorList[0] = new SelectItem("", "All");

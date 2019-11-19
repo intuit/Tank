@@ -21,17 +21,12 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.testng.Arquillian;
-import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.jboss.weld.junit5.auto.AddPackages;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.harness.HostInfo;
 import com.intuit.tank.test.TestGroups;
 
 /**
@@ -39,21 +34,22 @@ import com.intuit.tank.test.TestGroups;
  * 
  * @generatedBy CodePro at 9/3/14 3:44 PM
  */
-public class HostInfoCpTest extends Arquillian {
+@EnableAutoWeld
+public class HostInfoCpTest {
 
     @Inject
     private HostInfo hostInfo;
 
-    @Deployment
-    public static Archive<?> createDeployment() {
-        return ShrinkWrap.create(WebArchive.class, "test.war")
-                .addPackage(HostInfo.class.getPackage())
-                .addAsManifestResource("container-context.xml",
-                        "context.xml").setWebXML("container-web.xml")
-                .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
-    }
+//    @Deployment
+//    public static Archive<?> createDeployment() {
+//        return ShrinkWrap.create(WebArchive.class, "test.war")
+//                .addPackage(HostInfo.class.getPackage())
+//                .addAsManifestResource("container-context.xml",
+//                        "context.xml").setWebXML("container-web.xml")
+//                .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
+//    }
 
-    @BeforeClass
+    @BeforeEach
     public void configure() {
     	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     	Configuration config = ctx.getConfiguration();
@@ -68,12 +64,13 @@ public class HostInfoCpTest extends Arquillian {
      *
      * @generatedBy CodePro at 9/3/14 3:44 PM
      */
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testHostInfo_1()
             throws Exception {
         assertNotNull(hostInfo);
-        Assert.assertNotNull(hostInfo.getPublicHostname());
-        Assert.assertNotNull(hostInfo.getPublicIp());
+        assertNotNull(hostInfo.getPublicHostname());
+        assertNotNull(hostInfo.getPublicIp());
     }
 
 }

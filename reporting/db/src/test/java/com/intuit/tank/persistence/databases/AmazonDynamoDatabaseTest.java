@@ -9,9 +9,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
@@ -24,8 +22,10 @@ import com.intuit.tank.results.TankResult;
 import com.intuit.tank.results.TankResultBuilder;
 import com.intuit.tank.test.TestGroups;
 import com.intuit.tank.vm.common.util.ReportUtil;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import org.testng.Assert;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AmazonDynamoDatabaseTest {
 
@@ -35,7 +35,7 @@ public class AmazonDynamoDatabaseTest {
     private AmazonDynamoDatabaseDocApi db;
     private AmazonDynamoDBClient dynamoDb;
     
-    @BeforeSuite
+    @BeforeEach
     public void init() {
     	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     	Configuration config = ctx.getConfiguration();
@@ -43,7 +43,7 @@ public class AmazonDynamoDatabaseTest {
     	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
     }
 
-    @BeforeClass
+    @BeforeEach
     public void before() {
         AWSCredentials credentials = new BasicAWSCredentials(System.getProperty("AWS_SECRET_KEY_ID"),
                 System.getProperty("AWS_SECRET_KEY"));
@@ -62,7 +62,8 @@ public class AmazonDynamoDatabaseTest {
         }
     }
 
-    @Test(groups = TestGroups.EXPERIMENTAL)
+    @Test
+    @Tag(TestGroups.EXPERIMENTAL)
     public void testListTables() {
         ListTablesResult listTables = dynamoDb.listTables();
         for (String s : listTables.getTableNames()) {
@@ -71,56 +72,59 @@ public class AmazonDynamoDatabaseTest {
 
     }
 
-    // @Test(groups = TestGroups.EXPERIMENTAL)
+    @Test
+    @Tag(TestGroups.EXPERIMENTAL)
     public void testCreateDelete() {
         db.createTable(TEST_TABLE);
         boolean hasTable = db.hasTable(TEST_TABLE);
-        Assert.assertEquals(true, hasTable);
+        assertEquals(true, hasTable);
         db.deleteTable(TEST_TABLE);
     }
 
-//    @Test(groups = TestGroups.EXPERIMENTAL)
+    @Test
+    @Tag(TestGroups.EXPERIMENTAL)
     public void testInsertTiming() {
         db.createTable(TEST_TABLE);
         boolean hasTable = db.hasTable(TEST_TABLE);
         
-        Assert.assertEquals(true, hasTable);
+        assertEquals(true, hasTable);
         boolean hasJobData = db.hasJobData(TEST_TABLE, TEST_JOB_ID);
-        Assert.assertEquals(false, hasJobData);
+        assertEquals(false, hasJobData);
         List<TankResult> results = getResults(NUM_ENTRIES);
         db.addTimingResults(TEST_TABLE, results, false);
         List<Item> items = db.getItems(TEST_TABLE, TEST_JOB_ID, null, null, null);
-        Assert.assertEquals(NUM_ENTRIES , items.size());
+        assertEquals(NUM_ENTRIES , items.size());
         printItems(items);
         hasJobData = db.hasJobData(TEST_TABLE, TEST_JOB_ID);
-        Assert.assertEquals(true, hasJobData);
+        assertEquals(true, hasJobData);
         String start = ReportUtil.getTimestamp(results.get(10).getTimeStamp());
         String end = ReportUtil.getTimestamp(results.get(90).getTimeStamp());
         items = db.getItems(TEST_TABLE, TEST_JOB_ID, start, null, null);
-        Assert.assertEquals(NUM_ENTRIES - 10 , items.size());
+        assertEquals(NUM_ENTRIES - 10 , items.size());
         items = db.getItems(TEST_TABLE, TEST_JOB_ID, null, end, null);
-        Assert.assertEquals(NUM_ENTRIES - 10 , items.size());
+        assertEquals(NUM_ENTRIES - 10 , items.size());
         items = db.getItems(TEST_TABLE, TEST_JOB_ID, start, end, null);
-        Assert.assertEquals(NUM_ENTRIES - 20 , items.size());
+        assertEquals(NUM_ENTRIES - 20 , items.size());
     }
 
-//    @Test(groups = TestGroups.EXPERIMENTAL)
+    @Test
+    @Tag(TestGroups.EXPERIMENTAL)
     public void testInsertTps() {
         db.createTable(TEST_TABLE);
         int numJobs = 3;
         boolean hasTable = db.hasTable(TEST_TABLE);
-        Assert.assertEquals(true, hasTable);
+        assertEquals(true, hasTable);
         List<Item> results = getTpsItems(NUM_ENTRIES, numJobs);
         db.addItems(TEST_TABLE, results, false);
         List<Item> items = db.getItems(TEST_TABLE, null, null, null, null);
-        Assert.assertEquals(numJobs * NUM_ENTRIES, items.size());
+        assertEquals(numJobs * NUM_ENTRIES, items.size());
         for (int i = 0; i < numJobs; i++) {
             items = db.getItems(TEST_TABLE, Integer.toString(i), null, null, null);
-            Assert.assertEquals(NUM_ENTRIES, items.size());
+            assertEquals(NUM_ENTRIES, items.size());
             printItems(items);
             db.deleteForJob(TEST_TABLE, Integer.toString(i), false);
             items = db.getItems(TEST_TABLE, Integer.toString(i), null, null, null);
-            Assert.assertEquals(0, items.size());
+            assertEquals(0, items.size());
         }
     }
 

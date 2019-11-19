@@ -22,14 +22,15 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
 import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.util.CreateDateComparator;
 import com.intuit.tank.util.CreateDateComparator.SortOrder;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * CreateDateComparatorTest
@@ -41,7 +42,7 @@ public class CreateDateComparatorTest {
 
     private List<TestBaseEntity> entities;
 
-    @BeforeClass
+    @BeforeEach
     public void init() {
         entities = new ArrayList<TestBaseEntity>();
         Calendar cal = Calendar.getInstance();
@@ -53,25 +54,27 @@ public class CreateDateComparatorTest {
 
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testAscending() {
         CreateDateComparator comp = new CreateDateComparator(SortOrder.ASCENDING);
         List<TestBaseEntity> copied = new ArrayList<CreateDateComparatorTest.TestBaseEntity>(entities);
         Collections.sort(copied, comp);
-        Assert.assertEquals(copied.get(0).position, 0);
-        Assert.assertEquals(copied.get(1).position, 1);
-        Assert.assertEquals(copied.get(2).position, 2);
+        assertEquals(copied.get(0).position, 0);
+        assertEquals(copied.get(1).position, 1);
+        assertEquals(copied.get(2).position, 2);
 
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testDescending() {
         CreateDateComparator comp = new CreateDateComparator(SortOrder.DESCENDING);
         List<TestBaseEntity> copied = new ArrayList<CreateDateComparatorTest.TestBaseEntity>(entities);
         Collections.sort(copied, comp);
-        Assert.assertEquals(copied.get(0).position, 2);
-        Assert.assertEquals(copied.get(1).position, 1);
-        Assert.assertEquals(copied.get(2).position, 0);
+        assertEquals(copied.get(0).position, 2);
+        assertEquals(copied.get(1).position, 1);
+        assertEquals(copied.get(2).position, 0);
 
     }
 

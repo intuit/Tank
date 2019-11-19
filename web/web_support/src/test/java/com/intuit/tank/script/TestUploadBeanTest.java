@@ -13,6 +13,7 @@ package com.intuit.tank.script;
  * #L%
  */
 
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,12 +23,18 @@ import org.primefaces.model.UploadedFile;
 
 import com.intuit.tank.script.TestUploadBean;
 
+import javax.inject.Inject;
+
 /**
  * The class <code>TestUploadBeanTest</code> contains tests for the class <code>{@link TestUploadBean}</code>.
  *
  * @generatedBy CodePro at 12/15/14 3:53 PM
  */
+@EnableAutoWeld
 public class TestUploadBeanTest {
+    
+    @Inject
+    private TestUploadBean testUploadBean;
     /**
      * Run the TestUploadBean() constructor test.
      *
@@ -36,8 +43,7 @@ public class TestUploadBeanTest {
     @Test
     public void testTestUploadBean_1()
         throws Exception {
-        TestUploadBean result = new TestUploadBean();
-        assertNotNull(result);
+        assertNotNull(testUploadBean);
     }
 
     /**
@@ -50,10 +56,9 @@ public class TestUploadBeanTest {
     @Test
     public void testGetFile_1()
         throws Exception {
-        TestUploadBean fixture = new TestUploadBean();
-        fixture.setFile(new DefaultUploadedFile());
+        testUploadBean.setFile(new DefaultUploadedFile());
 
-        UploadedFile result = fixture.getFile();
+        UploadedFile result = testUploadBean.getFile();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -72,11 +77,10 @@ public class TestUploadBeanTest {
     @Test
     public void testSetFile_1()
         throws Exception {
-        TestUploadBean fixture = new TestUploadBean();
-        fixture.setFile(new DefaultUploadedFile());
+        testUploadBean.setFile(new DefaultUploadedFile());
         UploadedFile file = new DefaultUploadedFile();
 
-        fixture.setFile(file);
+        testUploadBean.setFile(file);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder

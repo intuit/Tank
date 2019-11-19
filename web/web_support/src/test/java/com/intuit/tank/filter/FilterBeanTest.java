@@ -73,6 +73,7 @@ public class FilterBeanTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
+    @Disabled
     public void testGetEntityList_1()
             throws Exception {
         FilterBean fixture = new FilterBean();
@@ -120,6 +121,7 @@ public class FilterBeanTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
+    @Disabled
     public void testGetSelectedFilterIds_1()
             throws Exception {
         FilterBean fixture = new FilterBean();
@@ -143,6 +145,7 @@ public class FilterBeanTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
+    @Disabled
     public void testGetSelectedFilterIds_2()
             throws Exception {
         FilterBean fixture = new FilterBean();
@@ -166,6 +169,7 @@ public class FilterBeanTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
+    @Disabled
     public void testGetSelectedFilterIds_3()
             throws Exception {
         FilterBean fixture = new FilterBean();

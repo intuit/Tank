@@ -16,14 +16,16 @@ package com.intuit.tank.util;
  * #L%
  */
 
-import org.testng.Assert;
+import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import com.intuit.tank.util.TimeFormatUtil;
 
 /**
  * TimeUtilTest
@@ -33,22 +35,23 @@ import com.intuit.tank.util.TimeFormatUtil;
  */
 public class TimeFormatUtilTest {
 
-    @DataProvider(name = "data")
-    private Object[][] testData() {
-        return new Object[][] {
-                { 60, "00:01:00" },
-                { 5, "00:00:05" },
-                { 65, "00:01:05" },
-                { 3665, "01:01:05" },
-                { 3600, "01:00:00" }
-        };
+    static Stream<Arguments> data() {
+        return Stream.of(
+                Arguments.of( 60, "00:01:00" ),
+                Arguments.of( 5, "00:00:05" ),
+                Arguments.of( 65, "00:01:05" ),
+                Arguments.of( 3665, "01:01:05" ),
+                Arguments.of( 3600, "01:00:00" )
+        );
 
     }
 
-    @Test(groups = { "functional" }, dataProvider = "data")
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("data")
     public void testFormatTime(int seconds, String expected) throws Exception {
         String result = TimeFormatUtil.formatTime(seconds);
-        Assert.assertEquals(expected, result);
+        assertEquals(expected, result);
     }
 
     /**

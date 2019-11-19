@@ -143,6 +143,7 @@ public class ScriptEditor implements Serializable {
 
     @Inject
     private PreferencesBean userPrefs;
+
     protected TablePreferences tablePrefs;
     protected TableViewState tableState = new TableViewState();
 

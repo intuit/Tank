@@ -27,7 +27,7 @@ import com.intuit.tank.util.SelectionTracker;
  *
  * @generatedBy CodePro at 12/15/14 3:52 PM
  */
-@org.testng.annotations.Ignore
+@Disabled
 public class SelectionTrackerTest {
     /**
      * Run the SelectionTracker(Multiselectable<T>) constructor test.
