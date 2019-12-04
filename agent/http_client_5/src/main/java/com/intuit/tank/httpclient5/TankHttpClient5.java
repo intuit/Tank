@@ -1,7 +1,5 @@
 package com.intuit.tank.httpclient5;
 
-import java.io.ByteArrayInputStream;
-
 /*
  * #%L
  * Intuit Tank Agent (apiharness)
@@ -15,7 +13,6 @@ import java.io.ByteArrayInputStream;
  * #L%
  */
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
@@ -30,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 
 import javax.annotation.Nonnull;
 
