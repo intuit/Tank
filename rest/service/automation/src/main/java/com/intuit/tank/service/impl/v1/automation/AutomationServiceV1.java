@@ -322,7 +322,7 @@ public class AutomationServiceV1 implements AutomationService {
 			if (StringUtils.isNotEmpty(scriptName)) {
 				script.setName(scriptName);
 			}
-			BufferedReader bufferedReader = StringUtils.equals(contentEncoding, "gzip") ?
+			BufferedReader bufferedReader = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
 					new BufferedReader(new InputStreamReader(new GZIPInputStream(fileInputStream))) :
 					new BufferedReader(new InputStreamReader(fileInputStream));
 			scriptProcessor.getScriptSteps(bufferedReader, new ArrayList<>());
