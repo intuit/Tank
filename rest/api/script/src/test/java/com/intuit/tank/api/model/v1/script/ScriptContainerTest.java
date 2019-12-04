@@ -16,6 +16,10 @@ package com.intuit.tank.api.model.v1.script;
  * #L%
  */
 
+import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,12 +31,7 @@ import java.util.UUID;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import com.intuit.tank.api.model.v1.script.ScriptStepContainer;
-import com.intuit.tank.api.model.v1.script.ScriptStepTO;
-import com.intuit.tank.api.model.v1.script.StepDataTO;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * DataFileDescriptorTest
@@ -42,7 +41,8 @@ import com.intuit.tank.api.model.v1.script.StepDataTO;
  */
 public class ScriptContainerTest {
 
-    @Test(groups = { "manual" })
+    @Test
+    @Tag(TestGroups.MANUAL)
     public void generateSample() throws Exception {
 
         JAXBContext ctx = JAXBContext.newInstance(ScriptStepContainer.class.getPackage().getName());
@@ -56,14 +56,14 @@ public class ScriptContainerTest {
                 .withNumReturned(2).withStartIndex(20).withSteps(steps).build();
         File parent = new File("target/jaxb-sample-xml");
         parent.mkdirs();
-        Assert.assertTrue(parent.exists());
+        assertTrue(parent.exists());
         File file = new File(parent, jaxbObject.getClass().getSimpleName() + ".xml");
         marshaller.marshal(jaxbObject, file);
-        Assert.assertTrue(file.length() > 0);
+        assertTrue(file.length() > 0);
         ScriptStepContainer unmarshalled = (ScriptStepContainer) ctx.createUnmarshaller().unmarshal(file);
-        Assert.assertEquals(unmarshalled.getNumRemaining(), jaxbObject.getNumRemaining());
-        Assert.assertEquals(unmarshalled.getNumRequsted(), jaxbObject.getNumRequsted());
-        Assert.assertEquals(unmarshalled.getNumReturned(), jaxbObject.getNumReturned());
+        assertEquals(unmarshalled.getNumRemaining(), jaxbObject.getNumRemaining());
+        assertEquals(unmarshalled.getNumRequsted(), jaxbObject.getNumRequsted());
+        assertEquals(unmarshalled.getNumReturned(), jaxbObject.getNumReturned());
     }
 
     public ScriptStepTO createStep(int index) {
@@ -100,7 +100,7 @@ public class ScriptContainerTest {
     }
 
     /**
-     * @param string
+     * @param type
      * @return
      */
     private Set<StepDataTO> createData(String type) {

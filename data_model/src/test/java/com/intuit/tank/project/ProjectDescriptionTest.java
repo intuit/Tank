@@ -14,16 +14,17 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.Project;
-import com.intuit.tank.project.ProjectDescription;
 import com.intuit.tank.vm.api.enumerated.ScriptDriver;
 
 /**
@@ -31,7 +32,7 @@ import com.intuit.tank.vm.api.enumerated.ScriptDriver;
  *
  * @generatedBy CodePro at 12/15/14 1:34 PM
  */
-@org.testng.annotations.Ignore
+@Disabled
 public class ProjectDescriptionTest {
     /**
      * Run the ProjectDescription() constructor test.
@@ -79,9 +80,9 @@ public class ProjectDescriptionTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
-        assertEquals(null, result.getCreator());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
+        assertNull(result.getCreator());
         assertEquals("", result.getProductName());
         assertEquals("", result.getComments());
     }
@@ -108,9 +109,9 @@ public class ProjectDescriptionTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
-        assertEquals(null, result.getCreator());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
+        assertNull(result.getCreator());
         assertEquals("", result.getProductName());
         assertEquals("", result.getComments());
     }
@@ -139,7 +140,7 @@ public class ProjectDescriptionTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -166,7 +167,7 @@ public class ProjectDescriptionTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -193,7 +194,7 @@ public class ProjectDescriptionTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

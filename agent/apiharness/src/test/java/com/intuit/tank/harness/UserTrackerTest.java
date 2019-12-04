@@ -18,13 +18,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 
-import org.testng.Assert;
-
-import org.testng.annotations.Test;
-
 import com.intuit.tank.api.model.v1.cloud.UserDetail;
-import com.intuit.tank.harness.UserTracker;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * The class <code>UserTrackerTest</code> contains tests for the class <code>{@link UserTracker}</code>.
@@ -37,7 +34,8 @@ public class UserTrackerTest {
      * 
      * @generatedBy CodePro at 9/15/14 4:18 PM
      */
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testUserTracker_1()
             throws Exception {
         UserTracker result = new UserTracker();
@@ -51,7 +49,8 @@ public class UserTrackerTest {
      * 
      * @generatedBy CodePro at 9/15/14 4:18 PM
      */
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testAdd_1()
             throws Exception {
         UserTracker fixture = new UserTracker();
@@ -59,13 +58,13 @@ public class UserTrackerTest {
 
         fixture.add(script);
         List<UserDetail> snapshot = fixture.getSnapshot();
-        Assert.assertEquals(1, snapshot.size());
-        Assert.assertEquals(script, snapshot.get(0).getScript());
-        Assert.assertEquals(1, snapshot.get(0).getUsers().intValue());
+        assertEquals(1, snapshot.size());
+        assertEquals(script, snapshot.get(0).getScript());
+        assertEquals(1, snapshot.get(0).getUsers().intValue());
         fixture.add(script);
         snapshot = fixture.getSnapshot();
-        Assert.assertEquals(1, snapshot.size());
-        Assert.assertEquals(2, snapshot.get(0).getUsers().intValue());
+        assertEquals(1, snapshot.size());
+        assertEquals(2, snapshot.get(0).getUsers().intValue());
 
     }
 
@@ -76,7 +75,8 @@ public class UserTrackerTest {
      * 
      * @generatedBy CodePro at 9/15/14 4:18 PM
      */
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testRemove_1()
             throws Exception {
         UserTracker fixture = new UserTracker();
@@ -84,25 +84,25 @@ public class UserTrackerTest {
 
         fixture.add(script);
         List<UserDetail> snapshot = fixture.getSnapshot();
-        Assert.assertEquals(1, snapshot.size());
-        Assert.assertEquals(script, snapshot.get(0).getScript());
-        Assert.assertEquals(1, snapshot.get(0).getUsers().intValue());
+        assertEquals(1, snapshot.size());
+        assertEquals(script, snapshot.get(0).getScript());
+        assertEquals(1, snapshot.get(0).getUsers().intValue());
         fixture.add(script);
         snapshot = fixture.getSnapshot();
-        Assert.assertEquals(1, snapshot.size());
-        Assert.assertEquals(2, snapshot.get(0).getUsers().intValue());
+        assertEquals(1, snapshot.size());
+        assertEquals(2, snapshot.get(0).getUsers().intValue());
 
         fixture.remove(script);
         snapshot = fixture.getSnapshot();
-        Assert.assertEquals(1, snapshot.size());
-        Assert.assertEquals(script, snapshot.get(0).getScript());
-        Assert.assertEquals(1, snapshot.get(0).getUsers().intValue());
+        assertEquals(1, snapshot.size());
+        assertEquals(script, snapshot.get(0).getScript());
+        assertEquals(1, snapshot.get(0).getUsers().intValue());
 
         fixture.remove(script);
         snapshot = fixture.getSnapshot();
-        Assert.assertEquals(1, snapshot.size());
-        Assert.assertEquals(script, snapshot.get(0).getScript());
-        Assert.assertEquals(0, snapshot.get(0).getUsers().intValue());
+        assertEquals(1, snapshot.size());
+        assertEquals(script, snapshot.get(0).getScript());
+        assertEquals(0, snapshot.get(0).getUsers().intValue());
 
     }
 

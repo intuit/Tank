@@ -13,9 +13,18 @@ package com.intuit.tank.project;
  * #L%
  */
 
+import org.jboss.weld.junit5.auto.ActivateScopes;
+import org.jboss.weld.junit5.auto.AddExtensions;
+import org.jboss.weld.junit5.auto.AddPackages;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
 import com.intuit.tank.project.CreateProjectBean;
+import org.picketlink.Identity;
+import org.picketlink.extension.PicketLinkExtension;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,7 +33,15 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @generatedBy CodePro at 12/15/14 3:53 PM
  */
+@EnableAutoWeld
+@AddPackages(Identity.class)
+@AddExtensions(PicketLinkExtension.class)
+@ActivateScopes(RequestScoped.class)
 public class CreateProjectBeanTest {
+    
+    @Inject
+    private CreateProjectBean createProjectBean;
+    
     /**
      * Run the CreateProjectBean() constructor test.
      *
@@ -33,8 +50,7 @@ public class CreateProjectBeanTest {
     @Test
     public void testCreateProjectBean_1()
         throws Exception {
-        CreateProjectBean result = new CreateProjectBean();
-        assertNotNull(result);
+        assertNotNull(createProjectBean);
     }
 
 
@@ -48,13 +64,12 @@ public class CreateProjectBeanTest {
     @Test
     public void testCancel_1()
         throws Exception {
-        CreateProjectBean fixture = new CreateProjectBean();
-        fixture.setComments("");
-        fixture.setProductName("");
-        fixture.setName("");
-        fixture.setScriptDriver("");
+        createProjectBean.setComments("");
+        createProjectBean.setProductName("");
+        createProjectBean.setName("");
+        createProjectBean.setScriptDriver("");
 
-        fixture.cancel();
+        createProjectBean.cancel();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -72,13 +87,12 @@ public class CreateProjectBeanTest {
     @Test
     public void testGetComments_1()
         throws Exception {
-        CreateProjectBean fixture = new CreateProjectBean();
-        fixture.setComments("");
-        fixture.setProductName("");
-        fixture.setName("");
-        fixture.setScriptDriver("");
+        createProjectBean.setComments("");
+        createProjectBean.setProductName("");
+        createProjectBean.setName("");
+        createProjectBean.setScriptDriver("");
 
-        String result = fixture.getComments();
+        String result = createProjectBean.getComments();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -96,13 +110,12 @@ public class CreateProjectBeanTest {
     @Test
     public void testGetName_1()
         throws Exception {
-        CreateProjectBean fixture = new CreateProjectBean();
-        fixture.setComments("");
-        fixture.setProductName("");
-        fixture.setName("");
-        fixture.setScriptDriver("");
+        createProjectBean.setComments("");
+        createProjectBean.setProductName("");
+        createProjectBean.setName("");
+        createProjectBean.setScriptDriver("");
 
-        String result = fixture.getName();
+        String result = createProjectBean.getName();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -120,13 +133,12 @@ public class CreateProjectBeanTest {
     @Test
     public void testGetProductName_1()
         throws Exception {
-        CreateProjectBean fixture = new CreateProjectBean();
-        fixture.setComments("");
-        fixture.setProductName("");
-        fixture.setName("");
-        fixture.setScriptDriver("");
+        createProjectBean.setComments("");
+        createProjectBean.setProductName("");
+        createProjectBean.setName("");
+        createProjectBean.setScriptDriver("");
 
-        String result = fixture.getProductName();
+        String result = createProjectBean.getProductName();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -144,13 +156,12 @@ public class CreateProjectBeanTest {
     @Test
     public void testGetScriptDriver_1()
         throws Exception {
-        CreateProjectBean fixture = new CreateProjectBean();
-        fixture.setComments("");
-        fixture.setProductName("");
-        fixture.setName("");
-        fixture.setScriptDriver("");
+        createProjectBean.setComments("");
+        createProjectBean.setProductName("");
+        createProjectBean.setName("");
+        createProjectBean.setScriptDriver("");
 
-        String result = fixture.getScriptDriver();
+        String result = createProjectBean.getScriptDriver();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -168,14 +179,13 @@ public class CreateProjectBeanTest {
     @Test
     public void testSetComments_1()
         throws Exception {
-        CreateProjectBean fixture = new CreateProjectBean();
-        fixture.setComments("");
-        fixture.setProductName("");
-        fixture.setName("");
-        fixture.setScriptDriver("");
+        createProjectBean.setComments("");
+        createProjectBean.setProductName("");
+        createProjectBean.setName("");
+        createProjectBean.setScriptDriver("");
         String comments = "";
 
-        fixture.setComments(comments);
+        createProjectBean.setComments(comments);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -192,14 +202,13 @@ public class CreateProjectBeanTest {
     @Test
     public void testSetName_1()
         throws Exception {
-        CreateProjectBean fixture = new CreateProjectBean();
-        fixture.setComments("");
-        fixture.setProductName("");
-        fixture.setName("");
-        fixture.setScriptDriver("");
+        createProjectBean.setComments("");
+        createProjectBean.setProductName("");
+        createProjectBean.setName("");
+        createProjectBean.setScriptDriver("");
         String name = "";
 
-        fixture.setName(name);
+        createProjectBean.setName(name);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -216,14 +225,13 @@ public class CreateProjectBeanTest {
     @Test
     public void testSetProductName_1()
         throws Exception {
-        CreateProjectBean fixture = new CreateProjectBean();
-        fixture.setComments("");
-        fixture.setProductName("");
-        fixture.setName("");
-        fixture.setScriptDriver("");
+        createProjectBean.setComments("");
+        createProjectBean.setProductName("");
+        createProjectBean.setName("");
+        createProjectBean.setScriptDriver("");
         String productName = "";
 
-        fixture.setProductName(productName);
+        createProjectBean.setProductName(productName);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -240,14 +248,13 @@ public class CreateProjectBeanTest {
     @Test
     public void testSetScriptDriver_1()
         throws Exception {
-        CreateProjectBean fixture = new CreateProjectBean();
-        fixture.setComments("");
-        fixture.setProductName("");
-        fixture.setName("");
-        fixture.setScriptDriver("");
+        createProjectBean.setComments("");
+        createProjectBean.setProductName("");
+        createProjectBean.setName("");
+        createProjectBean.setScriptDriver("");
         String scriptDriver = "";
 
-        fixture.setScriptDriver(scriptDriver);
+        createProjectBean.setScriptDriver(scriptDriver);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder

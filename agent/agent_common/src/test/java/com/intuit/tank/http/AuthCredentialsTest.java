@@ -1,23 +1,23 @@
 package com.intuit.tank.http;
 
-import org.testng.annotations.Test;
-
-import com.intuit.tank.http.AuthScheme;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import org.testng.Assert;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AuthCredentialsTest {
 
-  @Test(groups=TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
   public void getHost() {
       AuthCredentials fixture = getAuthCreds();
-      Assert.assertEquals("test.com", fixture.getHost());
-      Assert.assertEquals("tester", fixture.getUserName());
-      Assert.assertEquals("password", fixture.getPassword());
-      Assert.assertEquals("80", fixture.getPortString());
-      Assert.assertEquals("testRealm", fixture.getRealm());
-      Assert.assertEquals(AuthScheme.Basic, fixture.getScheme());
+      assertEquals("test.com", fixture.getHost());
+      assertEquals("tester", fixture.getUserName());
+      assertEquals("password", fixture.getPassword());
+      assertEquals("80", fixture.getPortString());
+      assertEquals("testRealm", fixture.getRealm());
+      assertEquals(AuthScheme.Basic, fixture.getScheme());
   }
 
   private AuthCredentials getAuthCreds() {

@@ -1,26 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:f="http://java.sun.com/jsf/core"
-  xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:p="http://primefaces.org/ui">
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui">
 
   <div class="formRow">
 
     <p:commandButton value="Assignment" action="#{responseContentEditor.insertAssignment()}" ajax="true"
       update=":requestForm:request-editor-tab-panel,:requestForm:request-editor-tab-panel:assignmentContentTable"
-      style=" background-image: url(#{request.contextPath}/resources/gfx/16/lightbulb_add.png);
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
-      styleClass="icon-button h-space" />
+      icon="ui-icon-plus" styleClass="icon-button h-space" />
     <p:commandButton value="Raw Response" rendered="#{scriptRequestEditor.step.response ne null}"
       onclick="PF('rawResponseDialog').show();" ajax="true" update=":rawResponseForm:rawResponseGroup"
-      style=" background-image: url(#{request.contextPath}/resources/gfx/16/magnifier.png);
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
-      styleClass="icon-button h-space" />
+      icon="ui-icon-search" styleClass="icon-button h-space" />
     
   </div>
   <div class="clear-both vertical-spacer" />

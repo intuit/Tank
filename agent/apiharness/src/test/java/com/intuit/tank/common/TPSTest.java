@@ -21,8 +21,6 @@ import java.util.Random;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
@@ -36,13 +34,17 @@ import com.intuit.tank.reporting.databases.Attribute;
 import com.intuit.tank.reporting.databases.IDatabase;
 import com.intuit.tank.test.TestGroups;
 import com.intuit.tank.vm.common.util.ReportUtil;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 public class TPSTest {
 	private static final Logger LOG = LogManager.getLogger(TPSTest.class);
 
     private AmazonDynamoDBClient dbclient;
 
-    @BeforeSuite(groups = TestGroups.EXPERIMENTAL)
+    @BeforeAll
+    @Tag(TestGroups.EXPERIMENTAL)
     public void init() {
         ClientConfiguration clientConfig = new ClientConfiguration();
         AWSCredentials credentials = new BasicAWSCredentials(System.getProperty("AWS_KEY_ID"),
@@ -50,7 +52,8 @@ public class TPSTest {
         dbclient = new AmazonDynamoDBClient(credentials, clientConfig);
     }
 
-    @Test(groups = TestGroups.EXPERIMENTAL)
+    @Test
+    @Tag(TestGroups.EXPERIMENTAL)
     private void sendTps() {
         TPSInfoContainer tpsInfo = createTPsInfo();
         try {

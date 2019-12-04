@@ -32,6 +32,4 @@ import org.apache.deltaspike.security.api.authorization.SecurityBindingType;
 @SecurityBindingType
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD, ElementType.METHOD, ElementType.TYPE })
-public @interface TsLoggedIn {
-
-}
+public @interface TsLoggedIn { }

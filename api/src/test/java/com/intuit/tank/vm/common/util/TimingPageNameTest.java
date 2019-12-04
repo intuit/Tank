@@ -16,13 +16,15 @@ package com.intuit.tank.vm.common.util;
  * #L%
  */
 
-import org.testng.Assert;
-
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import com.intuit.tank.vm.common.util.TimingPageName;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * TimingPageNameTest
@@ -32,26 +34,26 @@ import com.intuit.tank.test.TestGroups;
  */
 public class TimingPageNameTest {
 
-    @SuppressWarnings("unused")
-    @DataProvider(name = "data")
-    private Object[][] data() {
-        return new Object[][] {
-                { "Page ID:||:Page Name:||:14", "Page ID", "Page Name", 14 },
-                { "Page ID", "Page ID", "Page ID", null },
-                { ":||:Page Name", "Page Name", "Page Name", null },
-                { ":||:Page Name:||:15", "Page Name", "Page Name", 15 },
-                { "Page ID:||:", "Page ID", "Page ID", null },
-                { "Page ID:||::||:16", "Page ID", "Page ID", 16 },
-                { "Old Page", "Old Page", "Old Page", null },
-        };
+    static Stream<Arguments> data() {
+        return Stream.of(
+                Arguments.of("Page ID:||:Page Name:||:14", "Page ID", "Page Name", 14),
+                Arguments.of("Page ID", "Page ID", "Page ID", null),
+                Arguments.of(":||:Page Name", "Page Name", "Page Name", null),
+                Arguments.of(":||:Page Name:||:15", "Page Name", "Page Name", 15),
+                Arguments.of("Page ID:||:", "Page ID", "Page ID", null),
+                Arguments.of("Page ID:||::||:16", "Page ID", "Page ID", 16),
+                Arguments.of("Old Page", "Old Page", "Old Page", null)
+        );
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "data")
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("data")
     public void testParse(String pageIdString, String id, String name, Integer index) {
 
         TimingPageName timingPageName = new TimingPageName(pageIdString);
-        Assert.assertEquals(timingPageName.getId(), id);
-        Assert.assertEquals(timingPageName.getName(), name);
-        Assert.assertEquals(timingPageName.getIndex(), index);
+        assertEquals(timingPageName.getId(), id);
+        assertEquals(timingPageName.getName(), name);
+        assertEquals(timingPageName.getIndex(), index);
     }
 }

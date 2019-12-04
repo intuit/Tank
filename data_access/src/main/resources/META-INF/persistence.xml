@@ -10,10 +10,11 @@
   http://www.eclipse.org/legal/epl-v10.html
   #L%
   -->
-<persistence xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
-  version="2.0">
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+  version="2.1">
   <persistence-unit name="tank" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
     <non-jta-data-source>java:/comp/env/jdbc/watsDS</non-jta-data-source>
 
     <class>com.intuit.tank.project.DataFile</class>
@@ -38,7 +39,7 @@
     <class>com.intuit.tank.project.JobRecipient</class>
     <class>com.intuit.tank.project.JobRegion</class>
     <class>com.intuit.tank.project.Workload</class>
-    <class>com.intuit.tank.project.WatsRevisionInfo</class>
+    <class>com.intuit.tank.project.TankRevisionInfo</class>
     <class>com.intuit.tank.project.SerializedScriptStep</class>
     <class>com.intuit.tank.project.ExternalScript</class>
     <class>com.intuit.tank.project.SummaryData</class>
@@ -49,7 +50,7 @@
     <class>com.intuit.tank.project.Group</class>
 
     <properties>
-      <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5Dialect" />
+      <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL57InnoDBDialect" />
       <property name="hibernate.hbm2ddl.auto" value="update" />
 
       <!-- JDBC connection pool (use the built-in) -->
@@ -71,9 +72,9 @@
       <!-- Echo all executed SQL to stdout -->
       <property name="hibernate.show_sql" value="false" />
 
-      <property name="org.hibernate.envers.auditTableSuffix" value="_version" />
-      <property name="org.hibernate.envers.revisionFieldName" value="rev" />
-      <property name="org.hibernate.envers.revisionTypeFieldName" value="rev_type" />
+      <property name="org.hibernate.envers.audit_table_suffix" value="_version" />
+      <property name="org.hibernate.envers.revision_field_name" value="rev" />
+      <property name="org.hibernate.envers.revision_type_field_name" value="rev_type" />
 
 
     </properties>

@@ -16,13 +16,16 @@ package com.intuit.tank.vm.settings;
  * #L%
  */
 
-import org.testng.Assert;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import com.intuit.tank.vm.settings.TimeUtil;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * TimeUtilTest
@@ -32,27 +35,26 @@ import com.intuit.tank.test.TestGroups;
  */
 public class TimeUtilTest {
 
-    @SuppressWarnings("unused")
-    @DataProvider(name = "times")
-    private Object[][] data() {
-        return new Object[][] {
-                { "1234", 1234L },
-                { "1s", 1000L },
-                { "30s", 1000L * 30 },
-                { "1m", 1000L * 60 },
-                { "1ms", 1L },
-                { "1h", 1000L * 60 * 60 },
-                { "1m30s", 1000L * 60 + 1000L * 30 },
-                { "1d 1h 30m 10s 50ms", 1000L * 60 * 60 * 24 + 1000L * 60 * 60 + 1000L * 60 * 30 + 1000L * 10 + 50 },
-                { "1d", 1000L * 60 * 60 * 24 }
-
-        };
+    static Stream<Arguments> data() {
+        return Stream.of(
+                Arguments.of("1234", 1234L),
+                Arguments.of("1s", 1000L),
+                Arguments.of("30s", 1000L * 30),
+                Arguments.of("1m", 1000L * 60),
+                Arguments.of("1ms", 1L),
+                Arguments.of("1h", 1000L * 60 * 60),
+                Arguments.of("1m30s", 1000L * 60 + 1000L * 30),
+                Arguments.of("1d 1h 30m 10s 50ms", 1000L * 60 * 60 * 24 + 1000L * 60 * 60 + 1000L * 60 * 30 + 1000L * 10 + 50),
+                Arguments.of("1d", 1000L * 60 * 60 * 24)
+        );
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "times")
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("data")
     public void testJSONParse(String time, long expected) throws Exception {
         long result = TimeUtil.parseTimeString(time);
         System.out.println(result);
-        Assert.assertEquals(expected, result);
+        assertEquals(expected, result);
     }
 }

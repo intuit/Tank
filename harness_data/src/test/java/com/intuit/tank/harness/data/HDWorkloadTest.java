@@ -13,23 +13,19 @@ package com.intuit.tank.harness.data;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import com.intuit.tank.harness.data.HDTestPlan;
-import com.intuit.tank.harness.data.HDTestVariables;
-import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.test.JaxbUtil;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class HDWorkloadTest {
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void test() throws Exception {
         HDWorkload workload = new HDWorkload();
         workload.setName("Test Workload");
@@ -38,10 +34,10 @@ public class HDWorkloadTest {
         plans.add(getTestPlan(1, 50));
         plans.add(getTestPlan(2, 50));
         String marshall = JaxbUtil.marshall(workload);
-        Assert.assertNotNull(marshall);
+        assertNotNull(marshall);
         System.out.println(marshall);
         HDWorkload unmarshall = JaxbUtil.unmarshall(marshall, HDWorkload.class);
-        Assert.assertEquals(workload, unmarshall);
+        assertEquals(workload, unmarshall);
 
     }
 

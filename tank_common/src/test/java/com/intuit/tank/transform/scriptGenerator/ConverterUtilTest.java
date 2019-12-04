@@ -20,8 +20,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.harness.data.Header;
@@ -31,12 +30,8 @@ import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
-import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.script.RequestDataType;
-import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
-import org.testng.Assert;
 
 /**
  * The class <code>ConverterUtilTest</code> contains tests for the class
@@ -50,38 +45,38 @@ public class ConverterUtilTest {
     public void testParseHost() {
         String hostname = "www.company.com";
         String result = ConverterUtil.extractHost(hostname);
-        Assert.assertEquals(hostname, result);
+        assertEquals(hostname, result);
 
         hostname = "www.company.com:8080";
         result = ConverterUtil.extractHost(hostname);
-        Assert.assertEquals("www.company.com", result);
+        assertEquals("www.company.com", result);
 
         hostname = "denis:angleton@www.company.com";
         result = ConverterUtil.extractHost(hostname);
-        Assert.assertEquals("denis:angleton@www.company.com", result);
+        assertEquals("denis:angleton@www.company.com", result);
 
         hostname = "denis:angleton@www.company.com:8080";
         result = ConverterUtil.extractHost(hostname);
-        Assert.assertEquals("denis:angleton@www.company.com", result);
+        assertEquals("denis:angleton@www.company.com", result);
     }
 
     @Test
     public void testParsePort() {
         String hostname = "www.company.com";
         String result = ConverterUtil.extractPort(hostname);
-        Assert.assertEquals(null, result);
+        assertEquals(null, result);
 
         hostname = "www.company.com:8080";
         result = ConverterUtil.extractPort(hostname);
-        Assert.assertEquals("8080", result);
+        assertEquals("8080", result);
 
         hostname = "denis:angleton@www.company.com";
         result = ConverterUtil.extractPort(hostname);
-        Assert.assertEquals(null, result);
+        assertEquals(null, result);
 
         hostname = "denis:angleton@www.company.com:8080";
         result = ConverterUtil.extractPort(hostname);
-        Assert.assertEquals("8080", result);
+        assertEquals("8080", result);
     }
 
     /**
@@ -102,7 +97,7 @@ public class ConverterUtilTest {
         assertNotNull(result);
         assertEquals("TestPlan for  (id_0)", result.getName());
         assertEquals("TestPlan for  (id_0)", result.getDescription());
-        assertEquals(null, result.getVariables());
+        assertNull(result.getVariables());
     }
 
     /**
@@ -182,11 +177,11 @@ public class ConverterUtilTest {
         assertEquals(2, result.size());
         for (Header h : result) {
             if (h.getKey().equalsIgnoreCase("Referer")) {
-                Assert.assertEquals("myValue", h.getValue());
+                assertEquals("myValue", h.getValue());
                 return;
             }
         }
-        Assert.fail("X-Include header not included");
+        fail("X-Include header not included");
     }
 
     /**
@@ -475,10 +470,10 @@ public class ConverterUtilTest {
 
         String result = ConverterUtil.getWorkloadXML(hdWorkload);
 
-        Assert.assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"));
-        Assert.assertTrue(result.contains("<ns2:workload xmlns:ns2=\"urn:com/intuit/tank/harness/data/v1\">"));
-        Assert.assertTrue(result.contains("<client-class>com.intuit.tank.httpclient3.TankHttpClient3</client-class>"));
-        Assert.assertTrue(result.contains("</ns2:workload>"));
+        assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"));
+        assertTrue(result.contains("<ns2:workload xmlns:ns2=\"urn:com/intuit/tank/harness/data/v1\">"));
+        assertTrue(result.contains("<client-class>com.intuit.tank.httpclient4.TankHttpClient4</client-class>"));
+        assertTrue(result.contains("</ns2:workload>"));
     }
 
     /**

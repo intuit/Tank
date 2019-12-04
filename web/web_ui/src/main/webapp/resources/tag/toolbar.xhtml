@@ -1,9 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 
   Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<ui:component xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:ts="http://java.sun.com/jsf/composite/tag" xmlns:f="http://java.sun.com/jsf/core"
-  xmlns:p="http://primefaces.org/ui" xmlns:composite="http://java.sun.com/jsf/composite"
-  xmlns:ui="http://java.sun.com/jsf/facelets">
+<ui:component xmlns="http://www.w3.org/1999/xhtml"
+              xmlns:h="http://xmlns.jcp.org/jsf/html"
+              xmlns:p="http://primefaces.org/ui"
+              xmlns:composite="http://xmlns.jcp.org/jsf/composite"
+              xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
   <composite:interface>
     <composite:attribute name="title" required="true" />
@@ -62,7 +63,7 @@
       </p:toolbarGroup>
 
 
-      <p:toolbarGroup align="right" rendered="#{cc.attrs.showRightComponents eq 'true' and cc.attrs.shortToolbar eq 'false'}">
+      <p:toolbarGroup align="right" style="margin-top:6px" rendered="#{cc.attrs.showRightComponents eq 'true' and cc.attrs.shortToolbar eq 'false'}">
         <composite:renderFacet name="additional-group" />
       </p:toolbarGroup>
 

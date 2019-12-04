@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 
 /**
@@ -41,7 +40,7 @@ public class JobRegionTest {
         JobRegion result = new JobRegion();
 
         assertNotNull(result);
-        assertEquals(null, result.getUsers());
+        assertEquals("0", result.getUsers());
         assertEquals(0, result.getId());
         assertEquals(null, result.getModified());
         assertEquals(null, result.getCreated());
@@ -63,7 +62,7 @@ public class JobRegionTest {
         JobRegion result = new JobRegion(region, users);
 
         assertNotNull(result);
-        assertEquals("", result.getUsers());
+        assertEquals("0", result.getUsers());
         assertEquals(0, result.getId());
         assertEquals(null, result.getModified());
         assertEquals(null, result.getCreated());
@@ -213,7 +212,7 @@ public class JobRegionTest {
 
         String result = fixture.getUsers();
 
-        assertEquals("", result);
+        assertEquals("0", result);
     }
 
     /**
@@ -229,7 +228,6 @@ public class JobRegionTest {
         JobRegion fixture = new JobRegion(VMRegion.ASIA_1, "");
 
         int result = fixture.hashCode();
-
     }
 
     /**
@@ -246,7 +244,6 @@ public class JobRegionTest {
         VMRegion region = VMRegion.ASIA_1;
 
         fixture.setRegion(region);
-
     }
 
     /**
@@ -263,7 +260,6 @@ public class JobRegionTest {
         String users = "";
 
         fixture.setUsers(users);
-
     }
 
     /**

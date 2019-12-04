@@ -4,7 +4,7 @@
 
   <groupId>com.intuit.tank</groupId>
   <artifactId>tank-parent</artifactId>
-  <version>2.3.1</version>
+  <version>2.3.2</version>
 
   <packaging>pom</packaging>
   <name>Tank Parent</name>
@@ -27,28 +27,28 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>4.2.21.Final</version.hibernate>
+    <version.hibernate>5.1.17.Final</version.hibernate>
     <version-aws-sdk>1.11.650</version-aws-sdk>
 
     <version-tomcat>9.0.27</version-tomcat>
 
-    <weld.version>3.1.1.Final</weld.version>
+    <weld.version>3.1.2.Final</weld.version>
     <cdi.version>2.0</cdi.version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
-    <version.enunciate>2.11.1</version.enunciate>
+    <version.enunciate>2.12.1</version.enunciate>
 
-    <version.mojarra>2.2.18</version.mojarra>
-    <version.jsf-api>2.2.18</version.jsf-api>
+    <version.mojarra>2.2.20</version.mojarra>
+    <version.jsf-api>2.2.20</version.jsf-api>
     <version.primefaces>7.0</version.primefaces>
-    <version.primefaces-ext>7.0</version.primefaces-ext>
+    <version.primefaces-ext>7.0.2</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
-    <version.surefire>3.0.0-M3</version.surefire>
+    <version.surefire>2.22.2</version.surefire>
     <version.jersey>2.29</version.jersey>
-    <version.arquillian>1.4.1.Final</version.arquillian>
-    <version.httpclient>4.5.9</version.httpclient>
+    <version.junit>5.5.2</version.junit>
+    <version.httpclient>4.5.10</version.httpclient>
     <version.httpclient5>5.0-beta2</version.httpclient5>
-    <version.lucene>8.0.0</version.lucene>
+    <version.lucene>8.2.0</version.lucene>
 
     <version.groovy>2.4.17</version.groovy>
     <version.spock>1.3-groovy-2.5</version.spock>
@@ -242,14 +242,14 @@
           </dependency>
           <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
+            <artifactId>hibernate-envers</artifactId>
             <version>${version.hibernate}</version>
             <scope>provided</scope>
           </dependency>
           <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-envers</artifactId>
-            <version>${version.hibernate}</version>
+            <groupId>org.jboss</groupId>
+            <artifactId>jandex</artifactId>
+            <version>2.1.1.Final</version>
             <scope>provided</scope>
           </dependency>
         </dependencies>
@@ -272,21 +272,27 @@
     </dependency>
 
     <dependency>
-      <groupId>org.testng</groupId>
-      <artifactId>testng</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
     </dependency>
 
     <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>test-support</artifactId>
-      <version>2.3.1</version>
+      <version>2.3.2</version>
       <scope>test</scope>
     </dependency>
 
@@ -303,15 +309,15 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.arquillian.testng</groupId>
-      <artifactId>arquillian-testng-container</artifactId>
+      <groupId>org.jboss.weld</groupId>
+      <artifactId>weld-junit5</artifactId>
+      <version>2.0.1.Final</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.arquillian.container</groupId>
-      <artifactId>arquillian-tomcat-embedded-8</artifactId>
-      <version>1.1.0.Final</version>
+      <groupId>org.jboss.weld.servlet</groupId>
+      <artifactId>weld-servlet-core</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -351,7 +357,7 @@
       <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
-        <version>8.0.17</version>
+        <version>8.0.18</version>
       </dependency>
 
       <dependency>
@@ -370,14 +376,6 @@
         <groupId>org.jboss.pressgang</groupId>
         <artifactId>pressgang-highlight</artifactId>
         <version>3.1.4</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.arquillian</groupId>
-        <artifactId>arquillian-bom</artifactId>
-        <version>${version.arquillian}</version>
-        <scope>import</scope>
-        <type>pom</type>
       </dependency>
 
       <dependency>
@@ -509,14 +507,14 @@
 
       <dependency>
         <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-core</artifactId>
+        <artifactId>hibernate-envers</artifactId>
         <version>${version.hibernate}</version>
       </dependency>
 
       <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-envers</artifactId>
-        <version>${version.hibernate}</version>
+        <groupId>org.jboss</groupId>
+        <artifactId>jandex</artifactId>
+        <version>2.1.1.Final</version>
       </dependency>
 
       <dependency>
@@ -792,28 +790,38 @@
         <version>2.3.1</version>
       </dependency>
       <dependency>
-        <groupId>javax.enterprise</groupId>
-        <artifactId>cdi-api</artifactId>
-        <version>${cdi.version}</version>
-        <scope>provided</scope>
-      </dependency>
-
-      <dependency>
         <groupId>org.jboss.weld.servlet</groupId>
-        <artifactId>weld-servlet-shaded</artifactId>
+        <artifactId>weld-servlet-core</artifactId>
         <version>${weld.version}</version>
         <scope>runtime</scope>
       </dependency>
       <dependency>
+        <groupId>javax.enterprise</groupId>
+        <artifactId>cdi-api</artifactId>
+        <version>${cdi.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>
-        <version>5.5.1</version>
+        <version>${version.junit}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>${version.junit}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-params</artifactId>
+        <version>${version.junit}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.easymock</groupId>
         <artifactId>easymock</artifactId>
-        <version>3.6</version>
+        <version>4.0.2</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -825,25 +833,19 @@
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjrt</artifactId>
-        <version>1.9.1</version>
+        <version>1.9.4</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
-        <version>1.9.1</version>
+        <version>1.9.4</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>com.jcraft</groupId>
         <artifactId>jsch</artifactId>
-        <version>0.1.54</version>
-      </dependency>
-      <dependency>
-        <groupId>org.testng</groupId>
-        <artifactId>testng</artifactId>
-        <version>6.14.3</version>
-        <scope>test</scope>
+        <version>0.1.55</version>
       </dependency>
       <dependency>
         <groupId>com.google.code.findbugs</groupId>
@@ -851,9 +853,7 @@
         <version>3.0.2</version>
         <scope>provided</scope>
       </dependency>
-
     </dependencies>
-
   </dependencyManagement>
 
   <build>
@@ -974,7 +974,7 @@
             <dependency>
               <groupId>${project.groupId}</groupId>
               <artifactId>test-support</artifactId>
-              <version>2.3.1</version>
+              <version>2.3.2</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -1134,13 +1134,6 @@
             <include>**/*Spec.groovy</include>
           </includes>
         </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.maven.surefire</groupId>
-            <artifactId>surefire-testng</artifactId>
-            <version>${version.surefire}</version>
-          </dependency>
-        </dependencies>
       </plugin>
     </plugins>
   </build>

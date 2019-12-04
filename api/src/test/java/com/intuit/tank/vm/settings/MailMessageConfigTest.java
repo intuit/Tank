@@ -16,17 +16,18 @@ package com.intuit.tank.vm.settings;
  * #L%
  */
 
-import org.testng.Assert;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
-import com.intuit.tank.vm.settings.MailMessage;
-import com.intuit.tank.vm.settings.MailMessageConfig;
 import com.intuit.tank.test.TestGroups;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * MailMessageConfigTest
@@ -36,7 +37,7 @@ import com.intuit.tank.test.TestGroups;
  */
 public class MailMessageConfigTest {
 
-    @BeforeClass
+    @BeforeEach
     public void init() {
     	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     	Configuration config = ctx.getConfiguration();
@@ -45,21 +46,22 @@ public class MailMessageConfigTest {
         System.getProperties().setProperty("WATS_PROPERTIES", "src/test/resources");
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testConfig() {
         MailMessageConfig config = new MailMessageConfig();
-        Assert.assertEquals(2, config.getAllMessages().size());
+        assertEquals(2, config.getAllMessages().size());
         MailMessage msg = config.getMailMessage("TEST");
-        Assert.assertEquals("Test Subject", msg.getSubject());
-        Assert.assertEquals("<p>Test Body</p>", msg.getBody());
-        Assert.assertEquals("Test Body", msg.getPlainTextBody());
+        assertEquals("Test Subject", msg.getSubject());
+        assertEquals("<p>Test Body</p>", msg.getBody());
+        assertEquals("Test Body", msg.getPlainTextBody());
         for (MailMessage m : config.getAllMessages()) {
-            Assert.assertTrue(!m.getPlainTextBody().contains("<"));
-            Assert.assertTrue(!m.getPlainTextBody().contains(">"));
+            assertTrue(!m.getPlainTextBody().contains("<"));
+            assertTrue(!m.getPlainTextBody().contains(">"));
         }
         msg = config.getMailMessage("BOGUS");
-        Assert.assertEquals("Default Test Subject", msg.getSubject());
-        Assert.assertEquals("<p>Default Test Body</p>", msg.getBody());
-        Assert.assertEquals("Default Test Body", msg.getPlainTextBody());
+        assertEquals("Default Test Subject", msg.getSubject());
+        assertEquals("<p>Default Test Body</p>", msg.getBody());
+        assertEquals("Default Test Body", msg.getPlainTextBody());
     }
 }

@@ -16,6 +16,7 @@ package com.intuit.tank.filter;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -25,6 +26,7 @@ import com.intuit.tank.dao.FilterDao;
 import com.intuit.tank.project.ScriptFilter;
 
 @Named("filterService")
+@Dependent
 public class FilterServiceBean implements Serializable {
 
     /**

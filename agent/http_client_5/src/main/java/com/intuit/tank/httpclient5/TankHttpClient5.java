@@ -68,6 +68,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.cookie.ClientCookie;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -107,6 +108,7 @@ public class TankHttpClient5 implements TankHttpClient {
         // requests
         context = HttpClientContext.create();
         context.setCredentialsProvider(new BasicCredentialsProvider());
+        context.setUserToken(Thread.currentThread().getName());
         context.setCookieStore(new BasicCookieStore());
         context.setRequestConfig(requestConfig);
     }
@@ -265,12 +267,15 @@ public class TankHttpClient5 implements TankHttpClient {
      * 
      */
     @Override
-    public void setCookie(TankCookie cookie) {
-        BasicClientCookie c = new BasicClientCookie(cookie.getName(), cookie.getValue());
-        c.setDomain(cookie.getDomain());
-        c.setPath(cookie.getPath());
-        context.getCookieStore().addCookie(c);
-
+    public void setCookie(TankCookie tankCookie) {
+        BasicClientCookie cookie = new BasicClientCookie(tankCookie.getName(), tankCookie.getValue());
+        // Set effective domain and path attributes
+        cookie.setDomain(tankCookie.getDomain());
+        cookie.setPath(tankCookie.getPath());
+        // Set attributes exactly as sent by the server
+        cookie.setAttribute(ClientCookie.PATH_ATTR, tankCookie.getPath());
+        cookie.setAttribute(ClientCookie.DOMAIN_ATTR, tankCookie.getDomain());
+        context.getCookieStore().addCookie(cookie);
     }
 
     @Override

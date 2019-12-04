@@ -14,6 +14,7 @@ package com.intuit.tank.service.impl.v1.automation;
 
 import javax.annotation.Nonnull;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -27,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
@@ -47,6 +49,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -263,8 +266,8 @@ public class AutomationServiceV1 implements AutomationService {
 		FormDataBodyPart scriptId = formData.getField("scriptId");
 		FormDataBodyPart newScriptName = formData.getField("scriptName");
 		FormDataBodyPart filePart = formData.getField("file");
-		Script script = null;
-		try (InputStream is = filePart.getValueAs(InputStream.class)){
+		try (InputStream is = filePart.getValueAs(InputStream.class)) {
+			Script script = null;
 			if ("0".equals(scriptId.getValue())) {
 				script = new Script();
 				script.setName("New");
@@ -281,7 +284,6 @@ public class AutomationServiceV1 implements AutomationService {
 			}
 			List<ScriptStep> scriptSteps = scriptProcessor.getScriptSteps(new BufferedReader(new InputStreamReader(is)),
 					new ArrayList<>());
-			List<ScriptStep> newSteps = new ArrayList<>(scriptSteps);
 			script = new ScriptDao().saveOrUpdate(script);
 			sendMsg(script, ModificationType.UPDATE);
 			responseBuilder.entity(Integer.toString(script.getId()));
@@ -290,7 +292,52 @@ public class AutomationServiceV1 implements AutomationService {
 			responseBuilder = Response.status(Status.INTERNAL_SERVER_ERROR);
 			responseBuilder.entity("An External Script failed with Exception: " + e.toString());
 		}
+		return responseBuilder.build();
+	}
 
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	@Nonnull
+	public Response uploadScript(int scriptId,
+								 String scriptName,
+								 InputStream fileInputStream,
+								 FormDataContentDisposition fileFormDataContentDisposition,
+								 String contentEncoding) {
+		ResponseBuilder responseBuilder = Response.ok();
+		try {
+			Script script = null;
+			if (0 == scriptId) {
+				script = new Script();
+				script.setName("New");
+				script.setCreator("System");
+			} else {
+				script = new ScriptDao().findById(scriptId);
+			}
+			ScriptProcessor scriptProcessor = new ServletInjector<ScriptProcessor>().getManagedBean(servletContext,
+					ScriptProcessor.class);
+
+			scriptProcessor.setScript(script);
+			if (StringUtils.isNotEmpty(scriptName)) {
+				script.setName(scriptName);
+			}
+			BufferedReader bufferedReader = StringUtils.equals(contentEncoding, "gzip") ?
+					new BufferedReader(new InputStreamReader(new GZIPInputStream(fileInputStream))) :
+					new BufferedReader(new InputStreamReader(fileInputStream));
+			scriptProcessor.getScriptSteps(bufferedReader, new ArrayList<>());
+			script = new ScriptDao().saveOrUpdate(script);
+			sendMsg(script, ModificationType.UPDATE);
+			responseBuilder.entity(Integer.toString(script.getId()));
+		} catch (Exception e) {
+			LOG.error("Error starting script: " + e, e);
+			responseBuilder = Response.status(Status.INTERNAL_SERVER_ERROR);
+			responseBuilder.entity("An External Script failed with Exception: " + e.toString());
+		} finally {
+			try {
+				fileInputStream.close();
+			} catch (IOException e) {}
+		}
 		return responseBuilder.build();
 	}
 
@@ -316,6 +363,7 @@ public class AutomationServiceV1 implements AutomationService {
 			if (!filterIds.isEmpty()) {
 				ScriptFilterUtil.applyFilters(filterIds, script);
 				script = new ScriptDao().saveOrUpdate(script);
+				sendMsg(script, ModificationType.UPDATE);
 				return Response.ok().entity("SUCCESS").build();
 			}
 			return Response.ok().entity("You failed to include any filterIds in your request").build();

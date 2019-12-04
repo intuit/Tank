@@ -44,7 +44,7 @@ public class FieldSearchParamTest {
         assertNotNull(result);
         assertEquals(":", result.toString());
         assertEquals(":", result.getQuery());
-        assertEquals(null, result.getLuceneQuery());
+        assertNull(result.getLuceneQuery());
     }
 
     /**
@@ -62,7 +62,7 @@ public class FieldSearchParamTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -80,7 +80,7 @@ public class FieldSearchParamTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -98,7 +98,7 @@ public class FieldSearchParamTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -116,7 +116,7 @@ public class FieldSearchParamTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -152,7 +152,7 @@ public class FieldSearchParamTest {
 
         Query result = fixture.getLuceneQuery();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

@@ -20,7 +20,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.RevisionEntity;
 
 /**
@@ -31,8 +30,8 @@ import org.hibernate.envers.RevisionEntity;
  */
 @Entity
 @Table(name = "revision_info")
-@RevisionEntity(WatsRevisionListener.class)
-public class WatsRevisionInfo extends DefaultRevisionEntity {
+@RevisionEntity(TankRevisionListener.class)
+public class TankRevisionInfo extends TankDefaultRevisionEntity {
 
     private static final long serialVersionUID = 1L;
 

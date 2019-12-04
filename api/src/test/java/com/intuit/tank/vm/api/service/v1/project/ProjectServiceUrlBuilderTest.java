@@ -13,12 +13,12 @@ package com.intuit.tank.vm.api.service.v1.project;
  * #L%
  */
 
-import com.intuit.tank.vm.api.service.v1.project.ProjectServiceUrlBuilder;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Summary
@@ -27,9 +27,10 @@ import org.testng.annotations.Test;
  */
 public class ProjectServiceUrlBuilderTest {
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testGetScriptXmlUrl() throws Exception {
-        Assert.assertEquals(ProjectServiceUrlBuilder.getScriptXmlUrl("1"), new TankConfig().getControllerBase()
+        assertEquals(ProjectServiceUrlBuilder.getScriptXmlUrl("1"), new TankConfig().getControllerBase()
                 + "/rest/v1/project-service/script/1");
     }
 }

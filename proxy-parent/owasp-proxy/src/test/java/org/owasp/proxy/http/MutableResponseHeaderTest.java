@@ -21,13 +21,13 @@
 
 package org.owasp.proxy.http;
 
-import org.junit.After;
-import org.testng.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.owasp.proxy.http.MutableResponseHeader;
 import org.owasp.proxy.util.AsciiString;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MutableResponseHeaderTest {
 
@@ -36,15 +36,11 @@ public class MutableResponseHeaderTest {
     private static final String ok = "HTTP/1.0 200 Ok\r\n"
             + "Content-Type: text/html\r\n" + "\r\n";
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 
@@ -52,18 +48,21 @@ public class MutableResponseHeaderTest {
     public void test100Continue() throws Exception {
         MutableResponseHeader.Impl resp = new MutableResponseHeader.Impl();
         resp.setHeader(AsciiString.getBytes(cont));
-        Assert.assertFalse(resp.has100Continue());
-        Assert.assertEquals("100", resp.getStatus());
+        assertFalse(resp.has100Continue());
+        assertEquals("100", resp.getStatus());
         resp.setStatus("200");
-        Assert.assertEquals("200", resp.getStatus());
+        assertEquals("200", resp.getStatus());
 
         resp.setHeader(AsciiString.getBytes(cont + ok));
-        Assert.assertTrue(resp.has100Continue());
-        Assert.assertEquals("200", resp.getStatus());
+        assertTrue(resp.has100Continue());
+        assertEquals("200", resp.getStatus());
         resp.setHeaderLines(new String[] { "HTTP/1.0 302 Moved",
                 "Location: new location", "" });
-        Assert.assertTrue(resp.has100Continue());
-        Assert.assertEquals("new location", resp.getHeader("Location"));
+        assertTrue(resp.has100Continue());
+        assertEquals("new location", resp.getHeader("Location"));
         System.out.write(resp.getHeader());
+    }
+
+    private void assertFalse(boolean has100Continue) {
     }
 }

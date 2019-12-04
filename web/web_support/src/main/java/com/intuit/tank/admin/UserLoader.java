@@ -19,6 +19,8 @@ package com.intuit.tank.admin;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
 
 import com.intuit.tank.ModifiedUserMessage;
 import com.intuit.tank.dao.UserDao;
@@ -31,17 +33,20 @@ import com.intuit.tank.wrapper.EntityVersionLoader;
  * @author dangleton
  * 
  */
-@ApplicationScoped
+@Dependent
 public class UserLoader extends EntityVersionLoader<User, ModifiedUserMessage> {
 
     private static final long serialVersionUID = 1L;
+    
+    @Inject
+    UserDao userDao;
 
     /**
      * @inheritDoc
      */
     @Override
     protected List<User> getEntities() {
-        return new UserDao().findAll();
+        return userDao.findAll();
     }
 
 }

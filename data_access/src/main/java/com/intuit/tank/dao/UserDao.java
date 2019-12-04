@@ -18,6 +18,7 @@ package com.intuit.tank.dao;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.enterprise.context.Dependent;
 
 import com.intuit.tank.project.User;
 import com.intuit.tank.vm.common.PasswordEncoder;
@@ -28,6 +29,7 @@ import com.intuit.tank.vm.common.PasswordEncoder;
  * @author dangleton
  * 
  */
+@Dependent
 public class UserDao extends BaseDao<User> {
 
     /**

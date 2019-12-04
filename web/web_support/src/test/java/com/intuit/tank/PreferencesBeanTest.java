@@ -18,19 +18,29 @@ import java.util.Date;
 import java.util.LinkedList;
 
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.jboss.weld.junit5.auto.ActivateScopes;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.project.Preferences;
+
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
 
 /**
  * The class <code>PreferencesBeanTest</code> contains tests for the class <code>{@link PreferencesBean}</code>.
  *
  * @generatedBy CodePro at 12/15/14 3:52 PM
  */
+@EnableAutoWeld
+@ActivateScopes(SessionScoped.class)
 public class PreferencesBeanTest {
+    
+    @Inject
+    private PreferencesBean preferencesBean;
+    
     /**
      * Run the PreferencesBean() constructor test.
      *
@@ -42,12 +52,10 @@ public class PreferencesBeanTest {
     public void testPreferencesBean_1()
         throws Exception {
 
-        PreferencesBean result = new PreferencesBean();
-
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.PreferencesBean.<init>(PreferencesBean.java:179)
-        assertNotNull(result);
+        assertNotNull(preferencesBean);
     }
 
     /**
@@ -60,14 +68,13 @@ public class PreferencesBeanTest {
     @Test
     public void testFormatDate_1()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
         Date date = new Date();
 
-        String result = fixture.formatDate(date);
+        String result = preferencesBean.formatDate(date);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -85,14 +92,13 @@ public class PreferencesBeanTest {
     @Test
     public void testGetCollectionFilterString_1()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
-        Collection<? extends Object> c = new LinkedList();
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
+        Collection<? extends Object> c = new LinkedList<>();
 
-        String result = fixture.getCollectionFilterString(c);
+        String result = preferencesBean.getCollectionFilterString(c);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -110,14 +116,13 @@ public class PreferencesBeanTest {
     @Test
     public void testGetCollectionFilterString_2()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
         Collection<? extends Object> c = new LinkedList();
 
-        String result = fixture.getCollectionFilterString(c);
+        String result = preferencesBean.getCollectionFilterString(c);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -135,14 +140,13 @@ public class PreferencesBeanTest {
     @Test
     public void testGetCollectionFilterString_3()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
-        Collection<? extends Object> c = new LinkedList();
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
+        Collection<? extends Object> c = new LinkedList<>();
 
-        String result = fixture.getCollectionFilterString(c);
+        String result = preferencesBean.getCollectionFilterString(c);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -160,14 +164,13 @@ public class PreferencesBeanTest {
     @Test
     public void testGetCollectionFilterString_4()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
         Collection<? extends Object> c = null;
 
-        String result = fixture.getCollectionFilterString(c);
+        String result = preferencesBean.getCollectionFilterString(c);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -185,13 +188,12 @@ public class PreferencesBeanTest {
     @Test
     public void testGetDateTimeFotmat_1()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
 
-        FastDateFormat result = fixture.getDateTimeFormat();
+        FastDateFormat result = preferencesBean.getDateTimeFormat();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -209,13 +211,12 @@ public class PreferencesBeanTest {
     @Test
     public void testGetPreferences_1()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
 
-        Preferences result = fixture.getPreferences();
+        Preferences result = preferencesBean.getPreferences();
     }
 
     /**
@@ -228,13 +229,12 @@ public class PreferencesBeanTest {
     @Test
     public void testGetScreenHeight_1()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
 
-        int result = fixture.getScreenHeight();
+        int result = preferencesBean.getScreenHeight();
     }
 
     /**
@@ -247,13 +247,12 @@ public class PreferencesBeanTest {
     @Test
     public void testGetScreenWidth_1()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
 
-        int result = fixture.getScreenWidth();
+        int result = preferencesBean.getScreenWidth();
     }
 
     /**
@@ -266,13 +265,12 @@ public class PreferencesBeanTest {
     @Test
     public void testGetTimestampFormat_1()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
 
-        FastDateFormat result = fixture.getTimestampFormat();
+        FastDateFormat result = preferencesBean.getTimestampFormat();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -292,13 +290,12 @@ public class PreferencesBeanTest {
     @Test
     public void testPrefsChanged_1()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
 
-        fixture.prefsChanged();
+        preferencesBean.prefsChanged();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -315,13 +312,12 @@ public class PreferencesBeanTest {
     @Test
     public void testPrefsChanged_2()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
 
-        fixture.prefsChanged();
+        preferencesBean.prefsChanged();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -338,13 +334,12 @@ public class PreferencesBeanTest {
     @Test
     public void testPrefsChanged_3()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
 
-        fixture.prefsChanged();
+        preferencesBean.prefsChanged();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -361,14 +356,13 @@ public class PreferencesBeanTest {
     @Test
     public void testSetDateTimeFotmat_1()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
         FastDateFormat dateTimeFotmat = FastDateFormat.getInstance();
 
-        fixture.setDateTimeFotmat(dateTimeFotmat);
+        preferencesBean.setDateTimeFotmat(dateTimeFotmat);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -385,14 +379,13 @@ public class PreferencesBeanTest {
     @Test
     public void testSetScreenHeight_1()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
         int screenHeight = 1;
 
-        fixture.setScreenHeight(screenHeight);
+        preferencesBean.setScreenHeight(screenHeight);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -409,15 +402,14 @@ public class PreferencesBeanTest {
     @Test
     public void testSetScreenSizes_1()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
         String width = "";
         String height = "";
 
-        fixture.setScreenSizes(width, height);
+        preferencesBean.setScreenSizes(width, height);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -434,15 +426,14 @@ public class PreferencesBeanTest {
     @Test
     public void testSetScreenSizes_2()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
         String width = "";
         String height = "";
 
-        fixture.setScreenSizes(width, height);
+        preferencesBean.setScreenSizes(width, height);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -459,15 +450,14 @@ public class PreferencesBeanTest {
     @Test
     public void testSetScreenSizes_3()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
         String width = "";
         String height = "";
 
-        fixture.setScreenSizes(width, height);
+        preferencesBean.setScreenSizes(width, height);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -484,15 +474,14 @@ public class PreferencesBeanTest {
     @Test
     public void testSetScreenSizes_4()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
         String width = "";
         String height = "";
 
-        fixture.setScreenSizes(width, height);
+        preferencesBean.setScreenSizes(width, height);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -509,14 +498,13 @@ public class PreferencesBeanTest {
     @Test
     public void testSetScreenWidth_1()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
         int screenWidth = 1;
 
-        fixture.setScreenWidth(screenWidth);
+        preferencesBean.setScreenWidth(screenWidth);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -533,14 +521,13 @@ public class PreferencesBeanTest {
     @Test
     public void testSetTimestampFormat_1()
         throws Exception {
-        PreferencesBean fixture = new PreferencesBean();
-        fixture.setDateTimeFotmat(FastDateFormat.getInstance());
-        fixture.setScreenWidth(1);
-        fixture.setScreenHeight(1);
-        fixture.setTimestampFormat(FastDateFormat.getInstance());
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        preferencesBean.setScreenWidth(1);
+        preferencesBean.setScreenHeight(1);
+        preferencesBean.setTimestampFormat(FastDateFormat.getInstance());
         FastDateFormat timestampFormat = FastDateFormat.getInstance();
 
-        fixture.setTimestampFormat(timestampFormat);
+        preferencesBean.setTimestampFormat(timestampFormat);
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder

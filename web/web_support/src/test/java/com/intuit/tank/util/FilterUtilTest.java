@@ -14,36 +14,40 @@ package com.intuit.tank.util;
  */
 
 import java.util.Locale;
-
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import java.util.stream.Stream;
 
 import com.intuit.tank.util.FilterUtil;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FilterUtilTest {
 
-    @DataProvider(name = "data")
-    private Object[][] data() {
-        return new Object[][] {
-                { "One", "o", true },
-                { "One", "O", true },
-                { "One", "N", true },
-                { "One", "n", true },
-                { "One", "one", true },
-                { "One", "OnE", true },
-                { "One", "OnEx", false },
-                { "One", "f", false },
-                { null, "", true },
-                { null, "d", false },
-                { "Three", null, true }
-        };
+    static Stream<Arguments> data() {
+        return Stream.of(
+                Arguments.of("One", "o", true ),
+                Arguments.of( "One", "O", true ),
+                Arguments.of( "One", "N", true ),
+                Arguments.of( "One", "n", true ),
+                Arguments.of( "One", "one", true ),
+                Arguments.of( "One", "OnE", true ),
+                Arguments.of( "One", "OnEx", false ),
+                Arguments.of( "One", "f", false ),
+                Arguments.of( null, "", true ),
+                Arguments.of( null, "d", false ),
+                Arguments.of( "Three", null, true )
+        );
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "data")
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("data")
     public void filterByName(Object value, String filterText, boolean expected) {
         boolean filtered = new FilterUtil().contains(value, filterText, Locale.US);
-        Assert.assertEquals(filtered, expected);
+        assertEquals(filtered, expected);
     }
 }

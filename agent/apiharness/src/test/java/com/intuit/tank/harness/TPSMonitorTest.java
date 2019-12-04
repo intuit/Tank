@@ -1,14 +1,5 @@
 package com.intuit.tank.harness;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.testng.annotations.Test;
-
-import com.intuit.tank.http.BaseRequest;
-import com.intuit.tank.reporting.api.TPSInfoContainer;
-
 /*
  * #%L
  * Intuit Tank Agent (apiharness)
@@ -22,7 +13,14 @@ import com.intuit.tank.reporting.api.TPSInfoContainer;
  * #L%
  */
 
-import org.testng.Assert;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.intuit.tank.http.BaseRequest;
+import com.intuit.tank.reporting.api.TPSInfoContainer;
+import org.junit.jupiter.api.Test;
 
 /**
  * The class <code>TPSMonitorTest</code> contains tests for the class <code>{@link TPSMonitor}</code>.
@@ -65,7 +63,7 @@ public class TPSMonitorTest {
         TPSInfoContainer tpsInfo = fixture.getTPSInfo();
         int totalTps = tpsInfo.getTotalTps();
         System.out.println(totalTps);
-        Assert.assertEquals(1, totalTps);
+        assertEquals(1, totalTps);
     }
 
     /**

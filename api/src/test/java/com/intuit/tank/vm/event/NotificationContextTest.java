@@ -16,12 +16,11 @@ package com.intuit.tank.vm.event;
  * #L%
  */
 
-import org.testng.Assert;
-
-import org.testng.annotations.Test;
-
-import com.intuit.tank.vm.event.NotificationContext;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * NotificationContextTest
@@ -31,7 +30,8 @@ import com.intuit.tank.test.TestGroups;
  */
 public class NotificationContextTest {
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testContext() {
         NotificationContext context = new NotificationContext();
         context.addContextEntry("testKey", "testValue");
@@ -39,10 +39,10 @@ public class NotificationContextTest {
         context.addContextEntry("nullKey1", " ");
 
         String val = context.replaceValues("testKey = {testKey}");
-        Assert.assertEquals("testKey = testValue", val);
+        assertEquals("testKey = testValue", val);
         val = context.replaceValues("nullKey = {nullKey}");
-        Assert.assertEquals("nullKey = N/A", val);
+        assertEquals("nullKey = N/A", val);
         val = context.replaceValues("nullKey1 = {nullKey1}");
-        Assert.assertEquals("nullKey1 = N/A", val);
+        assertEquals("nullKey1 = N/A", val);
     }
 }

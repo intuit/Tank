@@ -15,7 +15,6 @@ package com.intuit.tank.api.model.v1.cloud;
  * http://www.eclipse.org/legal/epl-v10.html
  * #L%
  */
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,10 +23,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
-import com.intuit.tank.api.model.v1.cloud.UserDetail;
-import com.intuit.tank.api.model.v1.cloud.VMStatus;
-import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
@@ -54,15 +49,15 @@ public class CloudVmStatusTest {
         CloudVmStatus result = new CloudVmStatus();
 
         assertNotNull(result);
-        assertEquals(null, result.getJobId());
-        assertEquals(null, result.getReportTime());
-        assertEquals(null, result.getStartTime());
-        assertEquals(null, result.getInstanceId());
-        assertEquals(null, result.getEndTime());
-        assertEquals(null, result.getVmRegion());
+        assertNull(result.getJobId());
+        assertNull(result.getReportTime());
+        assertNull(result.getStartTime());
+        assertNull(result.getInstanceId());
+        assertNull(result.getEndTime());
+        assertNull(result.getVmRegion());
         assertEquals(0, result.getCurrentUsers());
-        assertEquals(null, result.getValidationFailures());
-        assertEquals(null, result.getSecurityGroup());
+        assertNull(result.getValidationFailures());
+        assertNull(result.getSecurityGroup());
         assertEquals(0, result.getTotalTps());
         assertEquals(0, result.getTotalUsers());
     }
@@ -145,7 +140,7 @@ public class CloudVmStatusTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -166,7 +161,7 @@ public class CloudVmStatusTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -187,7 +182,7 @@ public class CloudVmStatusTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -497,7 +492,7 @@ public class CloudVmStatusTest {
      * @generatedBy CodePro at 12/15/14 2:57 PM
      */
     @Test
-    @org.testng.annotations.Ignore
+    @Disabled
     public void testGetVmStatus_1()
         throws Exception {
         CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());

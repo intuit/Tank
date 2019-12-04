@@ -13,39 +13,41 @@ package com.intuit.tank.common;
  * #L%
  */
 
-import org.testng.Assert;
-
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ScriptUtilTest {
 
-    @DataProvider(name = "csvData")
-    private Object[][] testData() {
-        return new Object[][] {
-                { "#{ioFunctions.getCSVData()}", TankConstants.DEFAULT_CSV_FILE_NAME },
-                { "#{ioFunctions.getCSVData(0)}", TankConstants.DEFAULT_CSV_FILE_NAME },
-                { "#{ioFunctions.getCSVData( 1 )}", TankConstants.DEFAULT_CSV_FILE_NAME },
-                { "#{ioFunctions.getCSVData( 1 , true)}", TankConstants.DEFAULT_CSV_FILE_NAME },
-                { "#{ioFunctions.getCSVData('filename.csv')}", "'filename.csv'" },
-                { "#{ioFunctions.getCSVData(\"filename.csv\", 1)}", "\"filename.csv\"" },
-                { "#{ioFunctions.getCSVData('filename.csv', 1, true)}", "'filename.csv'" },
-                { "#{ioFunctions.getCSVData(myVariable)}", "myVariable" }
-        };
-
+    static Stream<Arguments> data() {
+        return Stream.of(
+                Arguments.of("#{ioFunctions.getCSVData()}", TankConstants.DEFAULT_CSV_FILE_NAME ),
+                Arguments.of("#{ioFunctions.getCSVData(0)}", TankConstants.DEFAULT_CSV_FILE_NAME ),
+                Arguments.of("#{ioFunctions.getCSVData( 1 )}", TankConstants.DEFAULT_CSV_FILE_NAME ),
+                Arguments.of("#{ioFunctions.getCSVData( 1 , true)}", TankConstants.DEFAULT_CSV_FILE_NAME ),
+                Arguments.of("#{ioFunctions.getCSVData('filename.csv')}", "'filename.csv'" ),
+                Arguments.of("#{ioFunctions.getCSVData(\"filename.csv\", 1)}", "\"filename.csv\"" ),
+                Arguments.of("#{ioFunctions.getCSVData('filename.csv', 1, true)}", "'filename.csv'" ),
+                Arguments.of("#{ioFunctions.getCSVData(myVariable)}", "myVariable" )
+        );
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "csvData")
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("data")
     public void testVariableExtraction(String input, String output) {
         ScriptStep step = buildVariableStep(input);
         String dataFile = ScriptUtil.getDataFileUse(step);
-        Assert.assertEquals(output, dataFile);
+        assertEquals(output, dataFile);
     }
 
     private ScriptStep buildVariableStep(String input) {

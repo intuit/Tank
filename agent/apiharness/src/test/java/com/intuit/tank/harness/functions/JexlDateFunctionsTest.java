@@ -13,49 +13,53 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
-
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JexlDateFunctionsTest {
 
     Variables variables;
 
-    @BeforeTest
+    @BeforeEach
     public void setUp() {
         variables = new Variables();
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testGetCurrentDate() {
         String date = variables.evaluate("#{dateFunctions.currentDate('yyyy-MM-dd HH:mm:ssZ')}");
-        Assert.assertNotNull(date);
+        assertNotNull(date);
         date = variables.evaluate("#{dateFunctions.currentDate('yyyy-MM-dd HH:mm:ssZ', 'PST')}");
-        Assert.assertNotNull(date);
+        assertNotNull(date);
         date = variables.evaluate("#{dateFunctions.currentDate('yyyy-MM-dd HH:mm:ssZ', 'America/Los_Angeles')}");
-        Assert.assertNotNull(date);
+        assertNotNull(date);
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testCurrentTimeMilis() {
         long currentTime = System.currentTimeMillis();
         String time = variables.evaluate("#{dateFunctions.currentTimeMilis()}");
-        Assert.assertTrue(currentTime <= Long.parseLong(time));
+        assertTrue(currentTime <= Long.parseLong(time));
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testAddDays() {
 
         String date = variables.evaluate("#{dateFunctions.addDays(1, '07-05-2012')}");
-        Assert.assertNotNull(date);
+        assertNotNull(date);
 
         date = variables.evaluate("#{dateFunctions.addDays(5, '07-05-2012')}");
-        Assert.assertNotNull(date);
+        assertNotNull(date);
 
         date = variables.evaluate("#{dateFunctions.addDays(-50, '07-05-2012')}");
-        Assert.assertNotNull(date);
+        assertNotNull(date);
     }
 }

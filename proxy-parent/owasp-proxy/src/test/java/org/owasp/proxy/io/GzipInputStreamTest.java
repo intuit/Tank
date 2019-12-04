@@ -29,13 +29,13 @@ import java.security.SecureRandom;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
 
-import org.testng.Assert;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.owasp.proxy.io.GzipInputStream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GzipInputStreamTest {
 
@@ -45,7 +45,7 @@ public class GzipInputStreamTest {
 
     private static byte[] data;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         random = new byte[16385];
         SecureRandom sr = new SecureRandom();
@@ -56,11 +56,11 @@ public class GzipInputStreamTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 
@@ -90,7 +90,7 @@ public class GzipInputStreamTest {
 
     private void compare(byte[] a, int ao, byte[] b, int bo, int len) {
         for (int i = 0; i < len; i++) {
-            Assert.assertEquals( a[ao + i], b[bo + i],"Unexpected input at position " + (ao + i)
+            assertEquals( a[ao + i], b[bo + i],"Unexpected input at position " + (ao + i)
                     + "/" + (bo + i));
         }
     }

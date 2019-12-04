@@ -9,8 +9,8 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.http.AuthCredentials;
 import com.intuit.tank.http.AuthScheme;
@@ -20,162 +20,176 @@ import com.intuit.tank.http.TankCookie;
 import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.test.TestGroups;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TankHttpClient5Test {
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testBasicAuth() {
         BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/basic-auth/test/test_pass");
         request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withRealm("bogus").withScheme(AuthScheme.Basic).build());
 
         request.doGet(null);
         BaseResponse response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(401, response.getHttpCode());
+        assertNotNull(response);
+        assertEquals(401, response.getHttpCode());
 
         request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withHost("httpbin.org").withRealm("Fake Realm").withScheme(AuthScheme.Basic).build());
         request.doGet(null);
         response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getHttpCode());
-        Assert.assertNotNull(response.getBody());
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotNull(response.getBody());
 
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testDigestAuth() {
         BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/digest-auth/auth/test/test_pass");
         request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withRealm("bogus").withScheme(AuthScheme.Digest).build());
 
         request.doGet(null);
         BaseResponse response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(401, response.getHttpCode());
+        assertNotNull(response);
+        assertEquals(401, response.getHttpCode());
 
         request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withHost("httpbin.org").withScheme(AuthScheme.Digest).build());
         request.doGet(null);
         response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getHttpCode());
-        Assert.assertNotNull(response.getBody());
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotNull(response.getBody());
 
     }
 
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void doDelete() {
         BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/delete");
         request.doDelete(null);
         BaseResponse response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getHttpCode());
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void doGet() {
         BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/get");
         request.doGet(null);
         BaseResponse response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getHttpCode());
-        Assert.assertNotNull(response.getBody());
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotNull(response.getBody());
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void doPost() {
         BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/post");
         request.doPost(null);
         BaseResponse response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getHttpCode());
-        Assert.assertNotNull(response.getBody());
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotNull(response.getBody());
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void doPut() {
         BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/put");
         request.doPut(null);
         BaseResponse response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getHttpCode());
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void clearSession() {
         BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/cookies");
         request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("httpbin.org").withPath("/").build());
         request.doGet(null);
         BaseResponse response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getHttpCode());
-        Assert.assertTrue(response.getBody().contains("test-cookie"));
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertTrue(response.getBody().contains("test-cookie"));
         request.getHttpclient().clearSession();
 
         request.doGet(null);
         response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getHttpCode());
-        Assert.assertTrue(!response.getBody().contains("test-cookie"));
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertTrue(!response.getBody().contains("test-cookie"));
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void setCookie() {
         BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/cookies");
         request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("httpbin.org").withPath("/").build());
         request.doGet(null);
         BaseResponse response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getHttpCode());
-        Assert.assertTrue(response.getBody().contains("test-cookie"));
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertTrue(response.getBody().contains("test-cookie"));
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void setProxy() {
         // BaseRequest request = getRequest(new TankHttpClient4(),
         // "http://httpbin.org/ip");
         // request.getHttpclient().setProxy("168.9.128.152", 8080);
         // request.doGet(null);
         // BaseResponse response = request.getResponse();
-        // Assert.assertNotNull(response);
-        // Assert.assertEquals(200, response.getHttpCode());
+        // assertNotNull(response);
+        // assertEquals(200, response.getHttpCode());
         // String body = response.getBody();
         //
         // request.doGet(null);
         // response = request.getResponse();
-        // Assert.assertNotNull(response);
-        // Assert.assertEquals(200, response.getHttpCode());
-        // Assert.assertEquals(body, response.getBody());
+        // assertNotNull(response);
+        // assertEquals(200, response.getHttpCode());
+        // assertEquals(body, response.getBody());
         //
         // // unset proxy
         // request.getHttpclient().setProxy(null, -1);
         // request.doGet(null);
         // response = request.getResponse();
-        // Assert.assertNotNull(response);
-        // Assert.assertEquals(200, response.getHttpCode());
-        // Assert.assertNotEquals(body, response.getBody());
+        // assertNotNull(response);
+        // assertEquals(200, response.getHttpCode());
+        // assertNotEquals(body, response.getBody());
     }
 
-    @Test(groups = TestGroups.MANUAL)
+    @Test
+    @Tag(TestGroups.MANUAL)
     public void testSSL() {
         BaseRequest request = getRequest(new TankHttpClient5(), "https://www.pcwebshop.co.uk/");
         request.doGet(null);
         BaseResponse response = request.getResponse();
-        Assert.assertNotNull(response);
-//        Assert.assertEquals(response.getHttpCode(), 403);
+        assertNotNull(response);
+//        assertEquals(response.getHttpCode(), 403);
     }
 
-//    @Test(groups = TestGroups.FUNCTIONAL)
+//    @Test
+//    @Tag(TestGroups.FUNCTIONAL)
 //    public void doPostMultipart() throws IOException {
 //        BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/post");
 //        request.setContentType(BaseRequest.CONTENT_TYPE_MULTIPART);
 //        request.setBody(createMultiPartBody());
 //        request.doPost(null);
 //        BaseResponse response = request.getResponse();
-//        Assert.assertNotNull(response);
-//        Assert.assertEquals(200, response.getHttpCode());
-//        Assert.assertNotNull(response.getBody());
+//        assertNotNull(response);
+//        assertEquals(200, response.getHttpCode());
+//        assertNotNull(response.getBody());
 //    }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void doPostMultipartwithFile() throws IOException {
         BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/post");
         request.setContentType(BaseRequest.CONTENT_TYPE_MULTIPART);
@@ -236,9 +250,9 @@ public class TankHttpClient5Test {
                 + "jExNTM0OTI5ODI2LS0NCg==");
         request.doPost(null);
         BaseResponse response = request.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getHttpCode());
-        Assert.assertNotNull(response.getBody());
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotNull(response.getBody());
     }
 
     private String createMultiPartBody() throws IOException {

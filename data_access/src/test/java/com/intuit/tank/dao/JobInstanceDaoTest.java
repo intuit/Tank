@@ -25,15 +25,16 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.testng.Assert;
-
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * JobInstanceDaoTest
@@ -45,7 +46,7 @@ public class JobInstanceDaoTest {
 
     private JobInstanceDao dao;
 
-    @BeforeClass
+    @BeforeEach
     public void setUp() {
     	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     	Configuration config = ctx.getConfiguration();
@@ -55,14 +56,15 @@ public class JobInstanceDaoTest {
         insertData();
     }
 
-    @Test(groups = TestGroups.FUNCTIONAL)
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testFindComplete() throws Exception {
         List<JobInstance> all = dao.findAll();
-        Assert.assertEquals(3, all.size());
+        assertEquals(3, all.size());
         List<JobInstance> findCompleted = dao.findCompleted();
-        Assert.assertEquals(1, findCompleted.size());
+        assertEquals(1, findCompleted.size());
         JobInstance job = findCompleted.get(0);
-        Assert.assertEquals(JobQueueStatus.Completed, job.getStatus());
+        assertEquals(JobQueueStatus.Completed, job.getStatus());
 
     }
 

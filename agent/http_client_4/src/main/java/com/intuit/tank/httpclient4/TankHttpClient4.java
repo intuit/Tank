@@ -54,6 +54,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.cookie.ClientCookie;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -61,6 +62,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultUserTokenHandler;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.logging.log4j.LogManager;
@@ -102,6 +104,7 @@ public class TankHttpClient4 implements TankHttpClient {
         // requests
         context = HttpClientContext.create();
         context.setCredentialsProvider(new BasicCredentialsProvider());
+        context.setUserToken(Thread.currentThread().getName());
         context.setCookieStore(new BasicCookieStore());
         context.setRequestConfig(requestConfig);
     }
@@ -110,6 +113,7 @@ public class TankHttpClient4 implements TankHttpClient {
         // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
         return HttpClients.custom()
                 .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                .setUserTokenHandler(DefaultUserTokenHandler.INSTANCE)
                 .evictIdleConnections(1L, TimeUnit.MINUTES)
                 .evictExpiredConnections()
                 .setMaxConnPerRoute(1024)
@@ -255,12 +259,15 @@ public class TankHttpClient4 implements TankHttpClient {
      * 
      */
     @Override
-    public void setCookie(TankCookie cookie) {
-        BasicClientCookie c = new BasicClientCookie(cookie.getName(), cookie.getValue());
-        c.setDomain(cookie.getDomain());
-        c.setPath(cookie.getPath());
-        context.getCookieStore().addCookie(c);
-
+    public void setCookie(TankCookie tankCookie) {
+        BasicClientCookie cookie = new BasicClientCookie(tankCookie.getName(), tankCookie.getValue());
+        // Set effective domain and path attributes
+        cookie.setDomain(tankCookie.getDomain());
+        cookie.setPath(tankCookie.getPath());
+        // Set attributes exactly as sent by the server
+        cookie.setAttribute(ClientCookie.PATH_ATTR, tankCookie.getPath());
+        cookie.setAttribute(ClientCookie.DOMAIN_ATTR, tankCookie.getDomain());
+        context.getCookieStore().addCookie(cookie);
     }
 
     @Override

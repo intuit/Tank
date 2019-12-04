@@ -23,13 +23,13 @@ import com.intuit.tank.auth.Authenticated;
 public class LoginObserver {
 
     @Inject
-    private PreferencesBean prefs;
+    private PreferencesBean preferencesBean;
 
     /**
      * 
      * @param user
      */
     public void observeLogin(@Observes @Authenticated User user) {
-        prefs.init(user.getId());
+        preferencesBean.init(user.getLoginName());
     }
 }

@@ -25,18 +25,20 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
+import com.intuit.tank.test.TestGroups;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.ClientResponse;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
-import org.testng.Assert;
-
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import com.intuit.tank.api.model.v1.datafile.DataFileDescriptor;
 import com.intuit.tank.datafile.util.DataFileServiceUtil;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * DataFileServiceV1Test
@@ -52,20 +54,22 @@ public class DataFileServiceV1Test {
     private static final String SERVICE_BASE_URL = "http://localhost:8080//rest/v1/data-file-service";
     private Client client = null;
 
-    @BeforeClass
+    @BeforeEach
     public void setup() {
         client = ClientBuilder.newClient();
     }
 
-    @Test(groups = { "manual" })
+    @Test
+    @Tag(TestGroups.MANUAL)
     public void testPing() {
     	WebTarget webTarget = client.target(SERVICE_BASE_URL + "/ping");
     	webTarget.property(ClientProperties.FOLLOW_REDIRECTS, true);
         String response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(String.class);
-        Assert.assertEquals("PONG", response);
+        assertEquals("PONG", response);
     }
 
-    @Test(groups = { "manual" })
+    @Test
+    @Tag(TestGroups.MANUAL)
     public void testPostDataFile() {
     	WebTarget webTarget = client.target(SERVICE_BASE_URL + "/data-file");
     	webTarget.property(ClientProperties.FOLLOW_REDIRECTS, true);
@@ -82,13 +86,13 @@ public class DataFileServiceV1Test {
         ClientResponse response = webTarget.request().post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE), ClientResponse.class);
 
         DataFileDescriptor entity = response.readEntity(DataFileDescriptor.class);
-        Assert.assertNotNull(entity);
-        Assert.assertNotNull(entity.getId());
-        Assert.assertNotNull(entity.getCreated());
-        Assert.assertNotNull(entity.getModified());
-        Assert.assertEquals(df.getComments(), entity.getComments());
-        Assert.assertEquals(df.getCreator(), entity.getCreator());
-        Assert.assertEquals(df.getName(), entity.getName());
+        assertNotNull(entity);
+        assertNotNull(entity.getId());
+        assertNotNull(entity.getCreated());
+        assertNotNull(entity.getModified());
+        assertEquals(df.getComments(), entity.getComments());
+        assertEquals(df.getCreator(), entity.getCreator());
+        assertEquals(df.getName(), entity.getName());
 
         df = DataFileServiceUtil.dataFileToDescriptor(DataFileServiceUtil.descriptorToDataFile(entity));
         // update the dataFile data
@@ -100,28 +104,28 @@ public class DataFileServiceV1Test {
         response = webTarget.request().post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE), ClientResponse.class);
 
         entity = response.readEntity(DataFileDescriptor.class);
-        Assert.assertNotNull(entity);
-        Assert.assertNotNull(entity.getId());
-        Assert.assertNotNull(entity.getCreated());
-        Assert.assertNotNull(entity.getModified());
-        Assert.assertEquals(df.getComments(), entity.getComments());
-        Assert.assertEquals(df.getCreator(), entity.getCreator());
-        Assert.assertEquals(df.getName(), entity.getName());
+        assertNotNull(entity);
+        assertNotNull(entity.getId());
+        assertNotNull(entity.getCreated());
+        assertNotNull(entity.getModified());
+        assertEquals(df.getComments(), entity.getComments());
+        assertEquals(df.getCreator(), entity.getCreator());
+        assertEquals(df.getName(), entity.getName());
 
         webTarget = client.target(SERVICE_BASE_URL + "/data-file/" + entity.getId());
         response = webTarget.request().get(ClientResponse.class);
 
         entity = response.readEntity(DataFileDescriptor.class);
-        Assert.assertNotNull(entity);
-        Assert.assertNotNull(entity.getId());
-        Assert.assertNotNull(entity.getCreated());
-        Assert.assertNotNull(entity.getModified());
-        Assert.assertEquals(df.getComments(), entity.getComments());
-        Assert.assertEquals(df.getCreator(), entity.getCreator());
-        Assert.assertEquals(df.getName(), entity.getName());
+        assertNotNull(entity);
+        assertNotNull(entity.getId());
+        assertNotNull(entity.getCreated());
+        assertNotNull(entity.getModified());
+        assertEquals(df.getComments(), entity.getComments());
+        assertEquals(df.getCreator(), entity.getCreator());
+        assertEquals(df.getName(), entity.getName());
 
         response = webTarget.request().delete(ClientResponse.class);
-        Assert.assertEquals(Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(Status.OK.getStatusCode(), response.getStatus());
 
     }
 }

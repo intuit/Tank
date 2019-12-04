@@ -18,13 +18,16 @@ package com.intuit.tank.vm.settings;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import java.util.stream.Stream;
 
 import com.intuit.tank.vm.common.util.RegexUtil;
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * AbstractReplacementTest
@@ -34,31 +37,29 @@ import com.intuit.tank.test.TestGroups;
  */
 public class RegexUtilTest {
 
-    @SuppressWarnings("unused")
-    @DataProvider(name = "validations")
-    private Object[][] violationData() {
-        return new Object[][] {
-                { "query*", "queryOtherStuff", true },
-                { "query*", "query*", true },
-                { "query*", "query", true },
-                { "y\\*", "y*", true },
-                { "y\\*", "y*Stuff", false },
-                { "*$100*", "I have $100 Dollars", true },
-                { "$100*", "I have $100 Dollars", false },
-                { "y\\\\*", "y\\*", true },
-                { "y\\\\*", "y\\anything else", true },
-                { "*", "hello There", true },
-                { "*", "", true },
-
-        };
+    static Stream<Arguments> data() {
+        return Stream.of(
+                Arguments.of("query*", "queryOtherStuff", true),
+                Arguments.of("query*", "query*", true),
+                Arguments.of("query*", "query", true),
+                Arguments.of("y\\*", "y*", true),
+                Arguments.of("y\\*", "y*Stuff", false),
+                Arguments.of("*$100*", "I have $100 Dollars", true),
+                Arguments.of("$100*", "I have $100 Dollars", false),
+                Arguments.of("y\\\\*", "y\\*", true),
+                Arguments.of("y\\\\*", "y\\anything else", true),
+                Arguments.of("*", "hello There", true),
+                Arguments.of("*", "", true)
+        );
     }
 
-    @Test(groups = { TestGroups.FUNCTIONAL }, dataProvider = "validations")
-    public void testPatternConcvert(String query, String matchValue, boolean isMatch) throws Exception {
+    @ParameterizedTest
+    @Tag(TestGroups.FUNCTIONAL)
+    @MethodSource("data")
+    public void testPatternConvert(String query, String matchValue, boolean isMatch) throws Exception {
         String pattern = RegexUtil.wildcardToRegexp(query);
         Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(matchValue);
-        Assert.assertEquals(m.matches(), isMatch);
+        assertEquals(m.matches(), isMatch);
     }
-
 }

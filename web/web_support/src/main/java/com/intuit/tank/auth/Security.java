@@ -19,6 +19,7 @@ package com.intuit.tank.auth;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -44,6 +45,7 @@ import static org.picketlink.idm.model.basic.BasicModel.*;
  * 
  */
 @Named
+@Dependent
 public class Security implements Serializable {
 
     private static final long serialVersionUID = 1L;

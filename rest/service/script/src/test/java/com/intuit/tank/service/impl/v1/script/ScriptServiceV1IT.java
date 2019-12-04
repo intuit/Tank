@@ -23,12 +23,17 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
+import com.intuit.tank.test.TestGroups;
 import org.glassfish.jersey.client.ClientResponse;
-import org.testng.Assert;
 
-import org.testng.annotations.BeforeClass;
 import com.intuit.tank.api.model.v1.script.ScriptDescription;
 import com.intuit.tank.api.model.v1.script.ScriptDescriptionContainer;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * DataFileServiceV1Test
@@ -44,19 +49,23 @@ public class ScriptServiceV1IT {
     private static final String SERVICE_BASE_URL = "http://localhost:8088//rest/v1/script-service";
     private Client client = null;
 
-    @BeforeClass
+    @BeforeEach
     public void setup() {
 
     }
 
-    // @Test(groups = {"manual"})
+    @Test
+    @Tag(TestGroups.MANUAL)
+    @Disabled
     public void testPing() {
     	WebTarget webTarget = client.target(SERVICE_BASE_URL + "/ping");
         String response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(String.class);
-        Assert.assertEquals("PONG", response);
+        assertEquals("PONG", response);
     }
 
-    // @Test(groups = TestGroups.MANUAL)
+    @Test
+    @Tag(TestGroups.MANUAL)
+    @Disabled
     public void testPostDataFile() {
         client = ClientBuilder.newClient();
         //client.setFollowRedirects(true);
@@ -66,12 +75,12 @@ public class ScriptServiceV1IT {
         ClientResponse response = webTarget.request().get(ClientResponse.class);
 
         ScriptDescriptionContainer entity = response.readEntity(ScriptDescriptionContainer.class);
-        Assert.assertNotNull(entity);
-        Assert.assertNotNull(entity.getScripts());
+        assertNotNull(entity);
+        assertNotNull(entity.getScripts());
 
         List<ScriptDescription> scripts = entity.getScripts();
         for (ScriptDescription sd : scripts) {
-            Assert.assertNotNull(sd.getId());
+            assertNotNull(sd.getId());
         }
 
     }

@@ -87,6 +87,7 @@ public class FilterServiceBeanTest {
      * @generatedBy CodePro at 12/15/14 3:53 PM
      */
     @Test
+    @Disabled
     public void testGetScriptFilters_1()
         throws Exception {
         FilterServiceBean fixture = new FilterServiceBean();

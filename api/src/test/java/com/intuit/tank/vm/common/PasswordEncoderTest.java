@@ -16,10 +16,12 @@ package com.intuit.tank.vm.common;
  * #L%
  */
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.vm.common.PasswordEncoder;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * PasswordEncoderTest
@@ -29,10 +31,11 @@ import com.intuit.tank.vm.common.PasswordEncoder;
  */
 public class PasswordEncoderTest {
 
-    @Test(groups = { "functional" })
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testEncoding() {
         String encodePassword = PasswordEncoder.encodePassword("admin");
-        Assert.assertNotNull(encodePassword);
-        Assert.assertTrue(PasswordEncoder.validatePassword("admin", encodePassword));
+        assertNotNull(encodePassword);
+        assertTrue(PasswordEncoder.validatePassword("admin", encodePassword));
     }
 }

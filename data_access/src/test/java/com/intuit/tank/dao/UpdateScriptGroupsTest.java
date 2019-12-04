@@ -22,18 +22,19 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+
+import com.intuit.tank.test.TestGroups;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
-import com.intuit.tank.dao.ScriptGroupDao;
-import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * ProductDaoTest
@@ -47,7 +48,7 @@ public class UpdateScriptGroupsTest {
     private WorkloadDao workloadDao;
     private Map<Integer, Workload> workloadMap = new HashMap<Integer, Workload>();
 
-    @BeforeClass
+    @BeforeEach
     public void configure() {
     	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     	Configuration config = ctx.getConfiguration();
@@ -57,7 +58,8 @@ public class UpdateScriptGroupsTest {
         workloadDao = new WorkloadDao();
     }
 
-    @Test(groups = { "manual" })
+    @Test
+    @Tag(TestGroups.MANUAL)
     public void upgrade() {
         EntityManager em = dao.getEM();
         Query query = em
