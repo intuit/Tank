@@ -542,9 +542,9 @@
       </dependency>
 
       <dependency>
-        <groupId>de.javakaffee.msm</groupId>
-        <artifactId>msm-kryo-serializer</artifactId>
-        <version>2.3.0</version>
+        <groupId>commons-httpclient</groupId>
+        <artifactId>commons-httpclient</artifactId>
+        <version>3.1</version>
       </dependency>
 
       <dependency>
@@ -563,12 +563,6 @@
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
         <version>${version.httpclient}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-httpclient</groupId>
-        <artifactId>commons-httpclient</artifactId>
-        <version>3.0.1</version>
       </dependency>
 
       <dependency>

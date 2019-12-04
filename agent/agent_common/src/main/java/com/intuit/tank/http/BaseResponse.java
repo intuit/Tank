@@ -226,11 +226,13 @@ public abstract class BaseResponse {
     }
 
     public static final boolean isDataType(String contentType) {
-        boolean ret = false;
         if (!StringUtils.isBlank(contentType)) {
             contentType = contentType.toLowerCase();
-            ret = contentType.contains("html") || contentType.contains("text") || contentType.contains("json") || contentType.contains("xml");
+            return  contentType.contains("html") ||
+                    contentType.contains("text") ||
+                    contentType.contains("json") ||
+                    contentType.contains("xml");
         }
-        return ret;
+        return false;
     }
 }
