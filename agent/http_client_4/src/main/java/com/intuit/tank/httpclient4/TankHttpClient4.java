@@ -390,10 +390,6 @@ public class TankHttpClient4 implements TankHttpClient {
             }
             response.setResponseTime(waitTime);
 
-            String contentEncoding = response.getHttpHeader("Content-Encoding");
-            bResponse = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
-                    IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(bResponse))) :
-                    bResponse;
             response.setResponseBody(bResponse);
 
         } catch (Exception ex) {
