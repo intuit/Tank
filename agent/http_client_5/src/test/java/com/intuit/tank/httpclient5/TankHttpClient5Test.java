@@ -2,13 +2,13 @@ package com.intuit.tank.httpclient5;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -290,13 +290,11 @@ public class TankHttpClient5Test {
      * @return base64 string
      */
     public String toBase64(byte[] bytes) {
-        String ret = null;
         try {
-            ret = new String(Base64.encodeBase64(bytes), Charset.forName("utf-8")).trim();
+            return new String(Base64.encodeBase64(bytes), StandardCharsets.UTF_8).trim();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return ret;
     }
 
 }
