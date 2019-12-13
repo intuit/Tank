@@ -30,10 +30,12 @@ import org.apache.logging.log4j.message.ObjectMessage;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.client.spi.ConnectorProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.jersey.message.GZipEncoder;
 
 public abstract class BaseRestClient {
 
@@ -69,10 +71,12 @@ public abstract class BaseRestClient {
         } else {
             client = ClientBuilder.newClient();
         }
-//        client.setConnectTimeout(5000);
-//        client.setFollowRedirects(true);
         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "client for url " + baseUrl + ": proxy="
                 + (proxyServer != null ? proxyServer + ":" + proxyPort : "none"))));
+        
+        // Request Compressed objects
+        client.register(GZipEncoder.class);
+        client.register(EncodingFilter.class);
     }
     
     public void addAuth(String user, String token) {
