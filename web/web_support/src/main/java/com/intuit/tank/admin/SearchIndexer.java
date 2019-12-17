@@ -50,27 +50,22 @@ public class SearchIndexer implements Serializable {
     private Messages messages;
 
     public String indexAll() {
-        Runnable runnable = new Runnable() {
-
-            @Override
-            public void run() {
-                MethodTimer mt = new MethodTimer(LOG, getClass(), "indexAll");
-                mt.start();
-                ScriptSearchService scriptSearchService = new ScriptSearchService();
-                ScriptDao dao = new ScriptDao();
-                List<Script> allScripts = dao.findAll();
-                for (Script script : allScripts) {
-                    try {
-                        script = dao.loadScriptSteps(script);
-                        scriptSearchService.saveScript(script);
-                    } catch (Exception e) {
-                        LOG.error("Error indexing Script " + script.getName() + ": " + e.toString(), e);
-                    }
+        Thread t = new Thread(() -> {
+            MethodTimer mt = new MethodTimer(LOG, getClass(), "indexAll");
+            mt.start();
+            ScriptSearchService scriptSearchService = new ScriptSearchService();
+            ScriptDao dao = new ScriptDao();
+            List<Script> allScripts = dao.findAll();
+            for (Script script : allScripts) {
+                try {
+                    script = dao.loadScriptSteps(script);
+                    scriptSearchService.saveScript(script);
+                } catch (Exception e) {
+                    LOG.error("Error indexing Script " + script.getName() + ": " + e.toString(), e);
                 }
-                mt.markAndLog();
             }
-        };
-        Thread t = new Thread(runnable);
+            mt.markAndLog();
+        });
         t.setDaemon(true);
         t.start();
         messages.info("Indexing all Scripts... This may take a while.");

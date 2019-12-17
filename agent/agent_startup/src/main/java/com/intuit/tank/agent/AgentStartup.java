@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.amazonaws.util.StringUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -32,32 +33,22 @@ import com.intuit.tank.vm.common.TankConstants;
 public class AgentStartup implements Runnable {
 
     private static Logger logger = LogManager.getLogger(AgentStartup.class);
-    public static final String SERVICE_RELATIVE_PATH = "/rest/v1/agent-service";
-    public static final String METHOD_SETTINGS = "/settings";
-    private static String API_HARNESS_COMMAND = "./startAgent.sh";
-    public static final String METHOD_SUPPORT = "/supportFiles";
-    private static final long WAIT_FOR_RESTART_TIME = 00000; // zero minute
+    private static final String SERVICE_RELATIVE_PATH = "/rest/v1/agent-service";
+    private static final String METHOD_SETTINGS = "/settings";
+    private static final String API_HARNESS_COMMAND = "./startAgent.sh";
+    private static final String METHOD_SUPPORT = "/supportFiles";
 
-    private String controllerBase;
+    private final String controllerBaseUrl;
+
+    public AgentStartup (String controllerBaseUrl ) {
+        this.controllerBaseUrl = controllerBaseUrl;
+    }
 
     public void run() {
         logger.info("Starting up...");
-        if (AmazonUtil.usingEip()) {
-            try {
-                logger.info("Using EIP. Sleeping for " + WAIT_FOR_RESTART_TIME + " ms.");
-                Thread.sleep(WAIT_FOR_RESTART_TIME);
-            } catch (InterruptedException e1) {
-                logger.info("Exception waiting.");
-                System.exit(0);
-            }
-        }
         try {
-            if (controllerBase == null) {
-                controllerBase = AmazonUtil.getControllerBaseUrl();
-            }
-
-            logger.info("Starting up: ControllerBaseUrl=" + controllerBase);
-            URL url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SETTINGS);
+            logger.info("Starting up: ControllerBaseUrl=" + controllerBaseUrl);
+            URL url = new URL(controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SETTINGS);
             logger.info("Starting up: making call to tank service url to get settings.xml "
                     + url.toExternalForm());
             try ( InputStream settingsStream = url.openStream() ) {
@@ -65,7 +56,7 @@ public class AgentStartup implements Runnable {
                 FileUtils.writeStringToFile(new File("settings.xml"), settings, StandardCharsets.UTF_8);
                 logger.info("got settings file...");
             }
-            url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
+            url = new URL(controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
             logger.info("Making call to tank service url to get support files " + url.toExternalForm());
             try ( ZipInputStream zip = new ZipInputStream(url.openStream()) ){
                 ZipEntry entry = zip.getNextEntry();
@@ -81,17 +72,16 @@ public class AgentStartup implements Runnable {
             }
             // now start the harness
             String jvmArgs = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_JVM_ARGS);
-            logger.info("Starting apiharness with command: " + API_HARNESS_COMMAND + " -http=" + controllerBase + " "
+            logger.info("Starting apiharness with command: " + API_HARNESS_COMMAND + " -http=" + controllerBaseUrl + " "
                     + jvmArgs);
-            Runtime.getRuntime().exec(API_HARNESS_COMMAND + " -http=" + controllerBase + " " + jvmArgs);
+            Runtime.getRuntime().exec(API_HARNESS_COMMAND + " -http=" + controllerBaseUrl + " " + jvmArgs);
         } catch (Exception e) {
             logger.error("Error in AgentStartup " + e, e);
         }
     }
 
     public static void main(String[] args) {
-        AgentStartup agentStartup = new AgentStartup();
-
+        String controllerBaseUrl = null;
         for (String argument : args) {
             String[] values = argument.split("=");
 
@@ -100,10 +90,13 @@ public class AgentStartup implements Runnable {
                     usage();
                     return;
                 }
-                agentStartup.controllerBase = values[1];
+                controllerBaseUrl = values[1];
             }
-
         }
+        if (StringUtils.isNullOrEmpty(controllerBaseUrl)) {
+            controllerBaseUrl = AmazonUtil.getControllerBaseUrl();
+        }
+        AgentStartup agentStartup = new AgentStartup(controllerBaseUrl);
         agentStartup.run();
     }
 
