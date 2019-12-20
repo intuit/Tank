@@ -82,11 +82,12 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
 
     public void authenticate() {
         
-        LOG.info("Logging in " + credentials.getUserId());
-        if ((credentials.getUserId() == null) || (credentials.getPassword() == null)) {
+        if (credentials.getUserId() == null || credentials.getPassword() == null) {
             messages.error("Invalid username or password");
             setStatus(AuthenticationStatus.FAILURE);
+            return;
         }
+        LOG.info("Attempting to login " + credentials.getUserId());
         com.intuit.tank.project.User user = new UserDao().authenticate(credentials.getUserId(), credentials.getPassword());
         if (user != null) {
         	User idmuser = getUser(identityManager,user.getName());
@@ -107,6 +108,7 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
 	            }
         	}
             loginEventSrc.fire(idmuser);
+            LOG.info("Successfully logged in " + credentials.getUserId());
             messages.info("You're signed in as " + idmuser.getLoginName());
             setStatus(AuthenticationStatus.SUCCESS);
             setAccount(idmuser);
