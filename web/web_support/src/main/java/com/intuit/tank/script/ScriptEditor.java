@@ -29,6 +29,8 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Subsegment;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -296,6 +298,7 @@ public class ScriptEditor implements Serializable {
      */
     public String reapplyFilters() {
         List<Integer> selectedFilterIds = filterBean.getSelectedFilterIds();
+        Subsegment subsegment = AWSXRay.beginSubsegment("Apply.Filters");
         try {
             ScriptFilterUtil.applyFilters(selectedFilterIds, script);
             ScriptUtil.setScriptStepLabels(script);
@@ -303,7 +306,10 @@ public class ScriptEditor implements Serializable {
                     + " filter(s) to \"" + script.getName() + "\".");
             return "success";
         } catch (Exception e) {
+            subsegment.addException(e);
             e.printStackTrace();
+        } finally {
+            AWSXRay.endSubsegment();
         }
         messages.error("Error applying filters to \"" + script.getName()
                 + "\".");
