@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
+import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -90,6 +91,7 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
         LOG.info("Attempting to login " + credentials.getUserId());
         com.intuit.tank.project.User user = new UserDao().authenticate(credentials.getUserId(), credentials.getPassword());
         if (user != null) {
+            AWSXRay.getCurrentSegment().setUser(user.getName());
         	User idmuser = getUser(identityManager,user.getName());
         	if (idmuser == null ) {
         		idmuser = new User(user.getName());

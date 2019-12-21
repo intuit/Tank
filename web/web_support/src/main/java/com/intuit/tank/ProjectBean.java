@@ -24,6 +24,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -123,7 +124,7 @@ public class ProjectBean implements Serializable {
     }
 
     /**
-     * @param Name
+     * @param name
      *            the Name to set
      */
     public void setName(String name) {
@@ -138,7 +139,7 @@ public class ProjectBean implements Serializable {
     }
     
     /**
-     * @param Comment
+     * @param comment
      *            the Comment to set
      */
     public void setComments(String comment) {
@@ -148,11 +149,14 @@ public class ProjectBean implements Serializable {
     /**
      * Initializes all the data variables of the class.
      * 
-     * @param project
+     * @param prj
      */
     public void openProject(Project prj) {
     	conversation.begin();
-        doOpenProject(prj);
+        AWSXRay.createSubsegment("Open.Project", (subsegment) -> {
+            doOpenProject(prj);
+        });
+
     }
 
     /**
