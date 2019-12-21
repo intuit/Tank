@@ -154,6 +154,7 @@ public class ProjectBean implements Serializable {
     public void openProject(Project prj) {
     	conversation.begin();
         AWSXRay.createSubsegment("Open.Project", (subsegment) -> {
+            subsegment.putAnnotation("project", prj.getName());
             doOpenProject(prj);
         });
 
@@ -164,7 +165,7 @@ public class ProjectBean implements Serializable {
      */
     private void doOpenProject(Project prj) {
         this.project = new ProjectDao().findById(prj.getId());
-        LOG.info("Opening Project " + prj + " workloads " + project.getWorkloads());
+        LOG.info("Opening Project " + prj + " workloads " + this.project.getWorkloads());
         usersAndTimes.init();
         notificationsEditor.init();
         jobMaker.init(this);

@@ -268,14 +268,17 @@ public class ScriptEditor implements Serializable {
     /**
      * Sets the current editing script to the passed in parameter script.
      * 
-     * @param script
+     * @param scpt
      */
-    public String editScript(Script s) {
-    	conversation.begin();
-        this.script = new ScriptDao().findById(s.getId());
-        ScriptUtil.setScriptStepLabels(script);
-        steps = script.getScriptSteps();
-        saveAsName = script.getName();
+    public String editScript(Script scpt) {
+        conversation.begin();
+        AWSXRay.createSubsegment("Open.Script", (subsegment) -> {
+            subsegment.putAnnotation("script", scpt.getName());
+            this.script = new ScriptDao().findById(scpt.getId());
+            ScriptUtil.setScriptStepLabels(this.script);
+            steps = this.script.getScriptSteps();
+            saveAsName = this.script.getName();
+        });
         if (!canEditScript()) {
             messages.warn("You do not have permission to edit this script.");
         }
@@ -414,7 +417,7 @@ public class ScriptEditor implements Serializable {
     }
 
     /**
-     * @param script
+     * @param name
      *            the script to set
      */
     public void setScriptName(String name) {
@@ -569,7 +572,7 @@ public class ScriptEditor implements Serializable {
     /**
      * Deletes a request from the script.
      * 
-     * @param request
+     * @param step
      */
     public void deleteRequest(ScriptStep step) {
         doDelete(step);
@@ -579,7 +582,7 @@ public class ScriptEditor implements Serializable {
     /**
      * Deletes a request from the script.
      * 
-     * @param request
+     * @param step
      */
     private void doDelete(ScriptStep step) {
         if (aggregatorEditor.isAggregator(step)) {

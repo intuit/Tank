@@ -658,7 +658,7 @@ public class APITestHarness {
         long count = doneSignal.getCount();
         // numCompletedThreads = (int) (agentRunData.getNumUsers() - count);
         if (isDebug() || count < 10) {
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining->" + currentUsers)));
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining = " + currentUsers)));
         }
     }
 
