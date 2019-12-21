@@ -470,9 +470,9 @@ public abstract class JobTreeTableBean implements Serializable {
             mt.markAndLog("find all active jobs");
             rootNode = new DefaultTreeNode("root", null);
             for (JobQueue jobQueue : queuedJobs) {
-                AWSXRay.createSubsegment("Build.Tree." + jobQueue.getProjectId(), (subsegment) -> {
+                AWSXRay.createSubsegment("Create.Node.ProjectId." + jobQueue.getProjectId(), (subsegment) -> {
                     TreeNode projectNode = createJobNode(trackerJobs, jobQueue);
-                       if (projectNode != null && projectNode.getChildCount() != 0) {
+                    if (projectNode != null && projectNode.getChildCount() != 0) {
                         jobNodeMap.put(jobQueue.getProjectId(), projectNode);
                         projectNode.setParent(rootNode);
                         rootNode.getChildren().add(projectNode);

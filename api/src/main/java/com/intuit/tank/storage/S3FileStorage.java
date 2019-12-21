@@ -2,27 +2,24 @@ package com.intuit.tank.storage;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.util.IOUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
@@ -52,10 +49,11 @@ public class S3FileStorage implements FileStorage, Serializable {
     private boolean compress = true;
     private boolean encrypt = true;
 
-    private AmazonS3Client s3Client;
+    private AmazonS3 s3Client;
 
     /**
-     * @param basePath
+     * @param bucketName
+     * @param compress
      */
     public S3FileStorage(String bucketName, boolean compress) {
         super();
@@ -70,18 +68,24 @@ public class S3FileStorage implements FileStorage, Serializable {
                 try {
                     config.setProxyHost(System.getProperty("http.proxyHost"));
                     if (StringUtils.isNotBlank(System.getProperty("http.proxyPort"))) {
-                        config.setProxyPort(Integer.valueOf(System.getProperty("http.proxyPort")));
+                        config.setProxyPort(Integer.parseInt(System.getProperty("http.proxyPort")));
                     }
                 } catch (NumberFormatException e) {
                     LOG.error("invalid proxy setup.");
                 }
 
             }
+            assert creds != null;
             if (StringUtils.isNotBlank(creds.getKeyId()) && StringUtils.isNotBlank(creds.getKey())) {
                 BasicAWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
-                this.s3Client = new AmazonS3Client(credentials, config);
+                this.s3Client = AmazonS3ClientBuilder.standard()
+                        .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                        .withClientConfiguration(config)
+                        .build();
             } else {
-                this.s3Client = new AmazonS3Client(config);
+                this.s3Client = AmazonS3ClientBuilder.standard()
+                        .withClientConfiguration(config)
+                        .build();
             }
             createBucket(bucketName);
         } catch (Exception ex) {
@@ -105,7 +109,6 @@ public class S3FileStorage implements FileStorage, Serializable {
     public void storeFileData(FileData fileData, InputStream in) {
         String path = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(extraPath + fileData.getPath() + "/" + fileData.getFileName()));
         path = StringUtils.stripStart(path, "/");
-        OutputStream out = null;
         try {
             ObjectMetadata metaData = new ObjectMetadata();
             if (encrypt) {
@@ -117,24 +120,15 @@ public class S3FileStorage implements FileStorage, Serializable {
                 }
             }
             if (compress) {
-                File tmp = File.createTempFile("tmp-", ".gz");
-                out = new GZIPOutputStream(new FileOutputStream(tmp));
-                IOUtils.copy(in, out);
-                IOUtils.closeQuietly(out);
-                in = new FileInputStream(tmp);
+                in = new GZIPInputStream(in);
             }
             s3Client.putObject(bucketName, path, in, metaData);
-
         } catch (Exception e) {
             LOG.error("Error storing file: " + e, e);
             throw new RuntimeException(e);
         } finally {
-            if (out != null) {
-                IOUtils.closeQuietly(out);
-                IOUtils.closeQuietly(in);
-            }
+            IOUtils.closeQuietly(in, null);
         }
-
     }
 
     @Override
@@ -142,14 +136,10 @@ public class S3FileStorage implements FileStorage, Serializable {
         String path = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(extraPath + fileData.getPath() + "/" + fileData.getFileName()));
         path = StringUtils.stripStart(path, "/");
         InputStream ret = null;
-        S3ObjectInputStream objectContent = null;
         try {
             S3Object object = s3Client.getObject(bucketName, path);
             if (object != null) {
-                ByteArrayOutputStream temp = new ByteArrayOutputStream();
-                objectContent = object.getObjectContent();
-                IOUtils.copy(objectContent, temp);
-                ret = new ByteArrayInputStream(temp.toByteArray());
+                ret = object.getObjectContent();
                 if (compress) {
                     ret = new GZIPInputStream(ret);
                 }
@@ -157,8 +147,6 @@ public class S3FileStorage implements FileStorage, Serializable {
         } catch (Exception e) {
             LOG.error("Error getting File: " + e, e);
             throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(objectContent);
         }
         return ret;
     }
@@ -220,15 +208,13 @@ public class S3FileStorage implements FileStorage, Serializable {
 
     @Override
     public boolean delete(FileData fileData) {
-        boolean ret = true;
         String path = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(fileData.getPath() + "/" + fileData.getFileName()));
         path = StringUtils.stripStart(path, "/");
         try {
             s3Client.deleteObject(bucketName, path);
         } catch (AmazonS3Exception e) {
-            ret = false;
+            return false;
         }
-        return ret;
+        return true;
     }
-
 }
