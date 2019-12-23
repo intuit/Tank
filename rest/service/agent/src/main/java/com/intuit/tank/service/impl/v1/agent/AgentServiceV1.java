@@ -18,6 +18,7 @@ package com.intuit.tank.service.impl.v1.agent;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -36,6 +37,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Subsegment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -136,16 +139,15 @@ public class AgentServiceV1 implements AgentService {
             try (ZipOutputStream zip = new ZipOutputStream(outputStream)) {
                 if (harnessJar.exists()) {
                     addFileToZip(HARNESS_JAR, new FileInputStream(harnessJar), zip);
-                    zip.flush();
                 }
                 for (FileData fileData : files) {
                     if (harnessJar.exists() && fileData.getFileName().equals(HARNESS_JAR)) {
                         LOG.info("Not adding harness because we found it in the war.");
                     } else {
                         addFileToZip(fileData.getFileName(), fileStorage.readFileData(fileData), zip);
-                        zip.flush();
                     }
                 }
+                zip.flush();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -156,12 +158,19 @@ public class AgentServiceV1 implements AgentService {
         return responseBuilder.build();
     }
 
-    private void addFileToZip(String name, InputStream in, ZipOutputStream zip) throws Exception {
+    private void addFileToZip(String name, InputStream in, ZipOutputStream zip) {
+        Subsegment subsegment = AWSXRay.beginSubsegment("Zip.File." + name);
         try {
             zip.putNextEntry(new ZipEntry(name));
             IOUtils.copy(in, zip);
+            zip.closeEntry();
+        } catch (IOException e) {
+            subsegment.addException(e);
         } finally {
-            in.close();
+            AWSXRay.endSubsegment();
+            if (in != null) {
+                try { in.close(); } catch (IOException e) {}
+            }
         }
     }
 
