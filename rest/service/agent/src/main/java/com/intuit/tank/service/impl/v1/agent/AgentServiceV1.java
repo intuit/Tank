@@ -74,7 +74,7 @@ public class AgentServiceV1 implements AgentService {
     private static final Logger LOG = LogManager.getLogger(AgentServiceV1.class);
     private static final String HARNESS_JAR = "apiharness-1.0-all.jar";
     private static final String START_SCRIPT = "startAgent.sh";
-    
+
     @Context
     private ServletContext servletContext;
 

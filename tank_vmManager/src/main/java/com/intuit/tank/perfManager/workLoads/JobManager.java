@@ -169,18 +169,11 @@ public class JobManager implements Serializable {
             }
         }
         return ret;
-
     }
 
     private void startTest(final JobInfo info) {
         LOG.info("Sending start command asynchronously.");
         Thread thread = new Thread( () -> {
-            LOG.info("Sleeping for one minute before starting test to give time for all agents to download files.");
-            try {
-                Thread.sleep(60 * 1000);// 1 minute
-            } catch (InterruptedException e) {
-                // ignore
-            }
             try {
                 LOG.info("Sending start commands on executer.");
                 List<FutureTask<AgentData>> futures = info.agentData.stream().map(agent -> sendCommand(agent, WatsAgentCommand.start, true)).collect(Collectors.toList());
@@ -310,13 +303,12 @@ public class JobManager implements Serializable {
         }
 
         public boolean isFilled() {
-            boolean ret = true;
             for (Integer i : userMap.values()) {
                 if (i != 0) {
-                    ret = false;
+                    return false;
                 }
             }
-            return ret;
+            return true
         }
 
         public int getUsers(AgentData agent) {
