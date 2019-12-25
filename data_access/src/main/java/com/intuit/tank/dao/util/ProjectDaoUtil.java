@@ -67,8 +67,8 @@ public class ProjectDaoUtil {
      */
     public static void storeScriptFile(String jobId, String scriptString) {
         try {
-            File f = createScriptFile(jobId);
-            FileUtils.writeStringToFile(f, scriptString, "UTF-8");
+            File file = createScriptFile(jobId);
+            FileUtils.writeStringToFile(file, scriptString, "UTF-8");
         } catch (IOException e) {
             LOG.error("Erorr writing file: " + e, e);
             throw new RuntimeException(e);

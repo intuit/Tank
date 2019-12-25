@@ -66,7 +66,7 @@ public interface JobService {
     /**
      * Gets the specified Job form the database. Returns a JobTO object
      * 
-     * @param jobId
+     * @param projectId
      *            the id of the job to fetch
      */
     @Path(METHOD_JOBS + "/{projectId}")

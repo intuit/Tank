@@ -44,9 +44,7 @@ public class ProjectServiceUtil {
 
     private static final Logger LOG = LogManager.getLogger(ProjectServiceUtil.class);
 
-    private ProjectServiceUtil() {
-
-    }
+    private ProjectServiceUtil() { }
 
     public static ProjectTO projectToTransferObject(Project p) {
         ProjectTO ret = new ProjectTO();
@@ -72,8 +70,8 @@ public class ProjectServiceUtil {
      * @return
      */
     public static synchronized File getScriptFile(String jobId) {
-        File f = ProjectDaoUtil.getScriptFile(jobId);
-        if (!f.exists()) {
+        File file = ProjectDaoUtil.getScriptFile(jobId);
+        if (!file.exists()) {
             if (NumberUtils.isCreatable(jobId)) {
                 try {
                     String scriptString = getScriptString(new JobInstanceDao().findById(Integer.valueOf(jobId)));
@@ -86,8 +84,7 @@ public class ProjectServiceUtil {
                 throw new RuntimeException("Job is not a stored job.");
             }
         }
-
-        return f;
+        return file;
     }
 
     /**

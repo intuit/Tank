@@ -308,7 +308,7 @@ public class JobManager implements Serializable {
                     return false;
                 }
             }
-            return true
+            return true;
         }
 
         public int getUsers(AgentData agent) {
