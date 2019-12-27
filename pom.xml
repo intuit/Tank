@@ -30,7 +30,7 @@
     <version.hibernate>5.1.17.Final</version.hibernate>
     <version-aws-sdk>1.11.694</version-aws-sdk>
 
-    <version-tomcat>9.0.27</version-tomcat>
+    <version-tomcat>9.0.30</version-tomcat>
 
     <weld.version>3.1.2.Final</weld.version>
     <cdi.version>2.0</cdi.version>
