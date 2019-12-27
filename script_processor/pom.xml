@@ -74,6 +74,11 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-xray-recorder-sdk-core</artifactId>
+    </dependency>
+
   </dependencies>
 
 </project>

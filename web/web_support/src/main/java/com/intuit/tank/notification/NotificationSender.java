@@ -22,6 +22,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,6 +37,7 @@ import com.intuit.tank.vm.event.JobEvent;
  * @author dangleton
  * 
  */
+@Named
 @ApplicationScoped
 public class NotificationSender implements Serializable {
 

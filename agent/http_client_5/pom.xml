@@ -34,11 +34,6 @@
 	  <artifactId>httpclient5</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpmime</artifactId>
-    </dependency>
-
   </dependencies>
 
 </project>

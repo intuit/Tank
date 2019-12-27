@@ -15,7 +15,6 @@ import java.io.ByteArrayInputStream;
  * #L%
  */
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -353,18 +352,11 @@ public class TankHttpClient3 implements TankHttpClient {
                 }
             }
             response.setResponseTime(waitTime);
-            String contentType = response.getHttpHeader("Content-Type");
-            String contentEncode = response.getHttpHeader("Content-Encoding");
-            if (BaseResponse.isDataType(contentType) && contentEncode != null && contentEncode.toLowerCase().contains("gzip")) {
-                // decode gzip for data types
-                try (   GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(bResponse));
-                        ByteArrayOutputStream out = new ByteArrayOutputStream() ) {
-                    IOUtils.copy(in, out);
-                    bResponse = out.toByteArray();
-                } catch (IOException | NullPointerException e) {
-                    LOG.warn(request.getLogUtil().getLogMessage("cannot decode gzip stream: " + e, LogEventType.System));
-                }
-            }
+
+            String contentEncoding = response.getHttpHeader("Content-Encoding");
+            bResponse = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
+                    IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(bResponse))) :
+                    bResponse;
             response.setResponseBody(bResponse);
 
         } catch (Exception ex) {

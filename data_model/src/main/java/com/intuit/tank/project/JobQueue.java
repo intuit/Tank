@@ -103,7 +103,7 @@ public class JobQueue extends BaseEntity {
     }
 
     /**
-     * @param jobs
+     * @param job
      *            the jobs to set
      */
     public void addJob(JobInstance job) {

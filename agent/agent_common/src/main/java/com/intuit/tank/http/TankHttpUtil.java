@@ -177,7 +177,7 @@ public class TankHttpUtil {
          * @return the body as a string
          */
         public String getBodyAsString() {
-            return new String(body, Charset.forName("UTF-8"));
+            return new String(body, StandardCharsets.UTF_8);
         }
 
         // Content-Disposition: form-data; name="uploadname1";

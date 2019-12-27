@@ -129,11 +129,6 @@
   <dependencies>
 
     <dependency>
-      <groupId>de.javakaffee.msm</groupId>
-      <artifactId>msm-kryo-serializer</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>tank-common</artifactId>
       <version>${project.version}</version>

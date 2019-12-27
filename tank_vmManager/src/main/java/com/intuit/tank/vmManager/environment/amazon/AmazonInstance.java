@@ -297,20 +297,17 @@ public class AmazonInstance implements IEnvironmentInstance {
 
                 if (instanceRequest.isUseEips()) {
                     Set<Address> availableEips = new HashSet<Address>();
-                    if (instanceRequest.isUseEips()) {
-                        synchronized (instanceRequest.getRegion()) {
-                            DescribeAddressesResult describeAddresses = asynchEc2Client.describeAddresses(new DescribeAddressesRequest());
-                            Set<String> reserved = config.getVmManagerConfig().getReservedElasticIps();
-                            for (Address address : describeAddresses.getAddresses()) {
-                                String elasticIPType = instanceDescription.isVPC() ? "vpc" : "standard";
-                                if (elasticIPType.equalsIgnoreCase(address.getDomain()) && StringUtils.isBlank(address.getInstanceId())) {
-                                    String ip = address.getPublicIp();
-                                    if (!reserved.contains(ip)) {
-                                        availableEips.add(address);
-                                    }
+                    synchronized (instanceRequest.getRegion()) {
+                        DescribeAddressesResult describeAddresses = asynchEc2Client.describeAddresses(new DescribeAddressesRequest());
+                        Set<String> reserved = config.getVmManagerConfig().getReservedElasticIps();
+                        for (Address address : describeAddresses.getAddresses()) {
+                            String elasticIPType = instanceDescription.isVPC() ? "vpc" : "standard";
+                            if (elasticIPType.equalsIgnoreCase(address.getDomain()) && StringUtils.isBlank(address.getInstanceId())) {
+                                String ip = address.getPublicIp();
+                                if (!reserved.contains(ip)) {
+                                    availableEips.add(address);
                                 }
                             }
-
                         }
                     }
                     List<Address> randomizedIps = new ArrayList<Address>(availableEips);

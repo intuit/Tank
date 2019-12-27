@@ -31,6 +31,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
@@ -422,7 +423,9 @@ public abstract class JobTreeTableBean implements Serializable {
      */
     public TreeNode getRootNode() {
         if (rootNode == null) {
-            buildTree();
+            AWSXRay.createSubsegment("Build.Tree", (subsegment) -> {
+                buildTree();
+            });
             updateExpansionStatus(rootNode);
             refreshCurrentJobInstance(rootNode);
             rootNode.setSelected(false);
@@ -467,12 +470,14 @@ public abstract class JobTreeTableBean implements Serializable {
             mt.markAndLog("find all active jobs");
             rootNode = new DefaultTreeNode("root", null);
             for (JobQueue jobQueue : queuedJobs) {
-                TreeNode projectNode = createJobNode(trackerJobs, jobQueue);
-                if (projectNode != null && projectNode.getChildCount() != 0) {
-                    jobNodeMap.put(jobQueue.getProjectId(), projectNode);
-                    projectNode.setParent(rootNode);
-                    rootNode.getChildren().add(projectNode);
-                }
+                AWSXRay.createSubsegment("Create.Node.ProjectId." + jobQueue.getProjectId(), (subsegment) -> {
+                    TreeNode projectNode = createJobNode(trackerJobs, jobQueue);
+                    if (projectNode != null && projectNode.getChildCount() != 0) {
+                        jobNodeMap.put(jobQueue.getProjectId(), projectNode);
+                        projectNode.setParent(rootNode);
+                        rootNode.getChildren().add(projectNode);
+                    }
+                });
             }
             mt.markAndLog("Added all queued Jobs");
             if (!trackerJobs.isEmpty()) {

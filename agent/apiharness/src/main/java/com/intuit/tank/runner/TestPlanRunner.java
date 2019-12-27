@@ -121,7 +121,6 @@ public class TestPlanRunner implements Runnable {
         List<HDScriptGroup> group = testPlan.getGroup();
         try {
             int i = 0;
-            int loopCount = 1;
 
             mainLoop: while (i < group.size()) {
                 HDScriptGroup hdScriptGroup = group.get(i);
@@ -144,7 +143,6 @@ public class TestPlanRunner implements Runnable {
                         break;
                     } catch (RestartScriptException e) {
                         i = 0;
-                        loopCount = 1;
                         continue mainLoop;
                     }
                     if (isCompleted(RunPhase.group, finished)) {
@@ -156,16 +154,8 @@ public class TestPlanRunner implements Runnable {
                 if (group.get(group.size() - 1) != hdScriptGroup) {
                     i++;
                 } else {
-                    finished = true;
-                    if (isCompleted(RunPhase.test, finished)) {
-                        LOG.info(LogUtil.getLogMessage("finished or Stop set to test or less, exiting at test..."));
-                        return;
-                    }
-                    i = 0;
-                    loopCount++;
-                    LOG.info(LogUtil.getLogMessage("Test for test plan " + testPlan.getTestPlanName()
-                            + " has finished and is now starting over for the  "
-                            + loopCount + " time"));
+                    // All Threads should end after loops complete.
+                    return;
                 }
             }
         } catch (Throwable e) {
@@ -176,8 +166,8 @@ public class TestPlanRunner implements Runnable {
         }
     }
 
-    private void runTestGroup(List<HDScript> scripts, HDScriptGroup parent) throws KillScriptException,
-            RestartScriptException {
+    private void runTestGroup(List<HDScript> scripts, HDScriptGroup parent)
+            throws KillScriptException, RestartScriptException {
         MethodTimer mt = new MethodTimer(LOG, getClass(), "runScriptGroup(" + parent.getName() + ")");
         LogEvent logEvent = LogUtil.getLogEvent();
         try {
@@ -222,8 +212,7 @@ public class TestPlanRunner implements Runnable {
                     APITestHarness.getInstance().getUserTracker().remove(hdscript.getName());
                 }
                 if (shouldStop(RunPhase.script)) {
-                    LOG.info(LogUtil.getLogMessage("Stop set to script or less, exiting at script " + hdscript.getName()));
-                    return;
+                    throw new KillScriptException("Stop set to script or less, exiting at script " + hdscript.getName());
                 }
             }
         } finally {
