@@ -22,6 +22,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import com.intuit.tank.service.impl.v1.report.SummaryReportRunner;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
@@ -29,11 +30,12 @@ import com.intuit.tank.vm.event.JobEvent;
 import com.intuit.tank.vm.settings.TankConfig;
 
 /**
- * NotificationSender
+ * SummaryReportObserver
  * 
  * @author dangleton
  * 
  */
+@Named
 @ApplicationScoped
 public class SummaryReportObserver implements Serializable {
 

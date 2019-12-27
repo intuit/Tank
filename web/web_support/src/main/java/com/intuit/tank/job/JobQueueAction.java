@@ -13,6 +13,7 @@ package com.intuit.tank.job;
  * #L%
  */
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -21,6 +22,7 @@ import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 
 @Named
+@RequestScoped
 public class JobQueueAction {
 
     @Inject

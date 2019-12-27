@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -174,6 +175,12 @@ public class JobManager implements Serializable {
     private void startTest(final JobInfo info) {
         LOG.info("Sending start command asynchronously.");
         Thread thread = new Thread( () -> {
+            LOG.info("Sleeping for one minute before starting test to give time for all agents to download files.");
+            try {
+                Thread.sleep(30 * 1000);// 30 seconds
+            } catch (InterruptedException e) {
+                // ignore
+            }
             try {
                 LOG.info("Sending start commands on executer.");
                 List<FutureTask<AgentData>> futures = info.agentData.stream().map(agent -> sendCommand(agent, WatsAgentCommand.start, true)).collect(Collectors.toList());
@@ -187,7 +194,7 @@ public class JobManager implements Serializable {
                     }
                 }
                 LOG.info("All agents received start command.");
-            } catch (Exception e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error sending start: " + e, e);
                 vmTracker.stopJob(info.jobRequest.getId());
             }
@@ -318,11 +325,7 @@ public class JobManager implements Serializable {
                 if (Integer.parseInt(r.getUsers()) > 0) {
                     if (region == r.getRegion()) {
                         int numUsersRemaining = userMap.get(r);
-                        if (agent.getCapacity() >= numUsersRemaining) {
-                            ret = numUsersRemaining;
-                        } else {
-                            ret = agent.getCapacity();
-                        }
+                        ret = Math.min(agent.getCapacity(), numUsersRemaining);
                         userMap.put(r, numUsersRemaining - ret);
                         break;
                     }
