@@ -464,9 +464,6 @@
                     Connection
                   </listitem>
                   <listitem>
-                    Referer
-                  </listitem>
-                  <listitem>
                     If-None-Match
                   </listitem>
                   <listitem>
