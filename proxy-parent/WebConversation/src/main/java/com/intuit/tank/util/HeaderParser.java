@@ -50,8 +50,8 @@ public class HeaderParser {
 
     private HeaderType headerType;
     private String[] firstLine;
-    private DateFormat expiresFormat = new SimpleDateFormat("EE, dd-MMM-yyyy HH:mm:ss z");
-    private DateFormat responseDateFormat = new SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss z");
+    private final DateFormat expiresFormat = new SimpleDateFormat("EE, dd-MMM-yyyy HH:mm:ss z");
+    private final DateFormat responseDateFormat = new SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss z");
 
     public HeaderParser(Request request) {
         this(HeaderType.Request, request.getFirstLine(), request.getHeaders());
@@ -333,31 +333,29 @@ public class HeaderParser {
      * @return
      */
     public Date getResponseDate() {
-        Date ret = null;
         if (headerType == HeaderType.Response) {
             String dateStr = getSingleValue("date");
-            parseDate(dateStr);
+            return parseDate(dateStr);
         }
-        return ret;
+        return null;
     }
 
     /**
      * @param dateStr
      */
     private Date parseDate(String dateStr) {
-        Date ret = null;
         if (dateStr != null) {
             try {
-                ret = responseDateFormat.parse(dateStr);
+                return responseDateFormat.parse(dateStr);
             } catch (ParseException e) {
                 try {
-                    ret = expiresFormat.parse(dateStr);
+                    return expiresFormat.parse(dateStr);
                 } catch (ParseException e1) {
                     LOG.warn("Cannot parse date " + dateStr);
                 }
             }
         }
-        return ret;
+        return null;
     }
 
     /**
@@ -366,12 +364,11 @@ public class HeaderParser {
      * @return
      */
     private String getSingleValue(String key) {
-        String ret = null;
         List<String> list = headerMap.get(key.toLowerCase());
         if (list != null && list.size() == 1) {
-            ret = list.get(0);
+            return list.get(0);
         }
-        return ret;
+        return null;
     }
 
     /**
@@ -380,8 +377,7 @@ public class HeaderParser {
      * @return
      */
     private String getSingleValue(String key, String defaultValue) {
-        String ret = getSingleValue(key);
-        return ret != null ? ret : defaultValue;
+        return (getSingleValue(key) != null) ? getSingleValue(key) : defaultValue;
     }
 
     /**

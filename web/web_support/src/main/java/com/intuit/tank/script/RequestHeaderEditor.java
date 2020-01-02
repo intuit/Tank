@@ -54,11 +54,7 @@ public class RequestHeaderEditor implements Serializable {
     }
 
     public String getStyle(String key) {
-        String ret = "";
-        if (key == null || !ConverterUtil.includedHeader(key)) {
-            ret = "gray";
-        }
-        return ret;
+        return (key == null || !ConverterUtil.includedHeader(key)) ? "gray" : "";
     }
 
     public void insertHeader() {
