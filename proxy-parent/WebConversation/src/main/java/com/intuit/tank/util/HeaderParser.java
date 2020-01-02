@@ -333,11 +333,9 @@ public class HeaderParser {
      * @return
      */
     public Date getResponseDate() {
-        if (headerType == HeaderType.Response) {
-            String dateStr = getSingleValue("date");
-            return parseDate(dateStr);
-        }
-        return null;
+        return (headerType == HeaderType.Response) ?
+                parseDate(getSingleValue("date")) :
+                null;
     }
 
     /**
@@ -365,10 +363,9 @@ public class HeaderParser {
      */
     private String getSingleValue(String key) {
         List<String> list = headerMap.get(key.toLowerCase());
-        if (list != null && list.size() == 1) {
-            return list.get(0);
-        }
-        return null;
+        return (list != null && list.size() == 1) ?
+                list.get(0) :
+                null;
     }
 
     /**
@@ -377,7 +374,9 @@ public class HeaderParser {
      * @return
      */
     private String getSingleValue(String key, String defaultValue) {
-        return (getSingleValue(key) != null) ? getSingleValue(key) : defaultValue;
+        return (getSingleValue(key) != null) ?
+                getSingleValue(key) :
+                defaultValue;
     }
 
     /**
