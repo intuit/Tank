@@ -16,7 +16,6 @@ package com.intuit.tank.dao;
  * #L%
  */
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -88,9 +87,7 @@ public class JobQueueDao extends BaseDao<JobQueue> {
      * 
      * @return List of JobQueue
      */
-    public List<JobQueue> findRecent() {
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DAY_OF_YEAR, -5);
+    public List<JobQueue> findRecent(Date since) {
     	List<JobQueue> results = null;
     	EntityManager em = getEntityManager();
     	try {
@@ -99,7 +96,7 @@ public class JobQueueDao extends BaseDao<JobQueue> {
 	        CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
 	        Root<JobQueue> root = query.from(JobQueue.class);
 	        query.select(root);
-	        query.where(cb.greaterThan(root.<Date>get(JobQueue.PROPERTY_MODIFIED), c.getTime()));
+	        query.where(cb.greaterThan(root.<Date>get(JobQueue.PROPERTY_MODIFIED), since));
 	        query.orderBy(cb.desc(root.get(JobQueue.PROPERTY_PROJECT_ID)));
 	        results = em.createQuery(query).getResultList();
 	        commit();

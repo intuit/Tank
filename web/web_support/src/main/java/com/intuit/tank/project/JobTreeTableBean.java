@@ -34,6 +34,7 @@ import javax.inject.Inject;
 import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.intuit.tank.util.Messages;
@@ -466,7 +467,10 @@ public abstract class JobTreeTableBean implements Serializable {
         mt.markAndLog("get tracker jobs");
         Map<Integer, TreeNode> jobNodeMap = new HashMap<Integer, TreeNode>();
         if (rootJob == null || rootJob == 0) {
-            List<JobQueue> queuedJobs = jqd.findRecent();
+            AWSXRay.beginSubsegment("Build.Tree.findRecent");
+            Date dateMinus5Days = DateUtils.addDays(new Date(),-5);
+            List<JobQueue> queuedJobs = jqd.findRecent(dateMinus5Days);
+            AWSXRay.endSubsegment();
             mt.markAndLog("find all active jobs");
             rootNode = new DefaultTreeNode("root", null);
             for (JobQueue jobQueue : queuedJobs) {
