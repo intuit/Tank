@@ -25,6 +25,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
+import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -125,6 +126,7 @@ public class ConverterUtil {
     }
 
     public static String getWorkloadXML(HDWorkload hdWorkload) {
+        AWSXRay.beginSubsegment("JAXB.Marshal." + HDWorkload.class.getPackage().getName());
         StringWriter sw;
         try {
             JAXBContext context = JAXBContext.newInstance(HDWorkload.class.getPackage().getName());
@@ -137,9 +139,10 @@ public class ConverterUtil {
         } catch (JAXBException | IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
+        } finally {
+            AWSXRay.endSubsegment();
         }
         return sw.toString();
-
     }
 
     private static List<HDScriptGroup> convertScriptGroups(List<ScriptGroup> scriptGroups, StepCounter sc) {

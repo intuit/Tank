@@ -16,7 +16,24 @@ package com.intuit.tank.service.util;
  * #L%
  */
 
+import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.dao.WorkloadDao;
+import com.intuit.tank.dao.util.ProjectDaoUtil;
+import com.intuit.tank.harness.data.HDWorkload;
+import com.intuit.tank.project.JobInstance;
+import com.intuit.tank.project.Workload;
+import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import java.io.OutputStream;
 
 /**
  * ResponseUtil
@@ -25,9 +42,34 @@ import javax.ws.rs.core.CacheControl;
  * 
  */
 public class ResponseUtil {
+    private static final Logger LOG = LogManager.getLogger(ResponseUtil.class);
 
     private ResponseUtil() {
         // empty private constructor to implement util pattern
+    }
+
+    public static StreamingOutput getXML(Object toMarshall, String className) {
+        return (OutputStream outputStream) -> {
+            AWSXRay.beginSubsegment("JAXB.Marshal." + className);
+            try {
+                JAXBContext ctx = JAXBContext.newInstance(className);
+                Marshaller marshaller = ctx.createMarshaller();
+                marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+                marshaller.marshal(toMarshall, outputStream);
+            } catch (JAXBException e) {
+                LOG.error("Error Marshalling XML to Stream: " + e.toString(), e);
+                throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            } finally {
+                AWSXRay.endSubsegment();
+            }
+        };
+    }
+
+    public static void storeScript(String jobId, Workload workload, JobInstance job) {
+        new WorkloadDao().loadScriptsForWorkload(workload);
+        HDWorkload hdWorkload = ConverterUtil.convertWorkload(workload, job);
+        String scriptString = ConverterUtil.getWorkloadXML(hdWorkload);
+        ProjectDaoUtil.storeScriptFile(jobId, scriptString);
     }
 
     public static final CacheControl getNoStoreCacheControl() {

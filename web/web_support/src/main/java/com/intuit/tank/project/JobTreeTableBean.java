@@ -38,6 +38,9 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.intuit.tank.util.Messages;
+import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.basic.User;
 import org.primefaces.event.NodeCollapseEvent;
 import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.model.DefaultTreeNode;
@@ -92,6 +95,12 @@ public abstract class JobTreeTableBean implements Serializable {
 
     @Inject
     private Messages messages;
+
+    @Inject
+    private Identity identity;
+
+    @Inject
+    private IdentityManager identityManager;
     
     @Inject
     private Security security;
@@ -119,17 +128,15 @@ public abstract class JobTreeTableBean implements Serializable {
     private Map<String, TreeNode> nodeMap = new HashMap<String, TreeNode>();
 //    private Map<Date, Map<String, TPSInfo>> tpsMap = new HashMap<Date, Map<String, TPSInfo>>();
 
-    @Inject
-    private PreferencesBean userPrefs;
-
     protected TablePreferences tablePrefs;
     protected TableViewState tableState = new TableViewState();
     private Date lastDate = null;
 
     @PostConstruct
     public void init() {
-        tablePrefs = new TablePreferences(userPrefs.getPreferences().getJobsTableColumns());
-        tablePrefs.registerListener(userPrefs);
+        AWSXRay.getCurrentSegment().setUser(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
+        tablePrefs = new TablePreferences(preferencesBean.getPreferences().getJobsTableColumns());
+        tablePrefs.registerListener(preferencesBean);
     }
 
     /**
@@ -468,7 +475,7 @@ public abstract class JobTreeTableBean implements Serializable {
         Map<Integer, TreeNode> jobNodeMap = new HashMap<Integer, TreeNode>();
         if (rootJob == null || rootJob == 0) {
             AWSXRay.beginSubsegment("Build.Tree.findRecent");
-            Date dateMinus5Days = DateUtils.addDays(new Date(),-5);
+            Date dateMinus5Days = DateUtils.addWeeks(new Date(),-1);
             List<JobQueue> queuedJobs = jqd.findRecent(dateMinus5Days);
             AWSXRay.endSubsegment();
             mt.markAndLog("find all active jobs");

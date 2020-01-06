@@ -40,6 +40,8 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
+import com.intuit.tank.harness.data.HDWorkload;
+import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
@@ -55,9 +57,7 @@ import com.intuit.tank.dao.JobNotificationDao;
 import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.JobRegionDao;
 import com.intuit.tank.dao.ProjectDao;
-import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.dao.util.ProjectDaoUtil;
-import com.intuit.tank.perfManager.workLoads.util.WorkloadScriptUtil;
 import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.project.DataFile;
 import com.intuit.tank.project.EntityVersion;
@@ -177,16 +177,8 @@ public class ProjectServiceV1 implements ProjectService {
         if (p == null) {
             throw new RuntimeException("Cannot find Project with id of " + projectId);
         }
-        final String scriptString = WorkloadScriptUtil.getScriptForWorkload(p.getWorkloads().get(0), p.getWorkloads().get(0).getJobConfiguration());
-        return (OutputStream outputStream) -> {
-            // Get the object of DataInputStream
-            try {
-                IOUtils.write(scriptString, outputStream, StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                LOG.error("Error streaming file: " + e.toString(), e);
-                throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-            }
-        };
+        HDWorkload hdWorkload = ConverterUtil.convertWorkload(p.getWorkloads().get(0), p.getWorkloads().get(0).getJobConfiguration());
+        return ResponseUtil.getXML(hdWorkload, HDWorkload.class.getPackage().getName());
     }
 
     /**
@@ -208,10 +200,17 @@ public class ProjectServiceV1 implements ProjectService {
     @Override
     public Response downloadTestScriptForProject(Integer projectId) {
         ResponseBuilder responseBuilder = Response.ok();
-        String filename = "project_" + projectId + "_H.xml";
-        responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-        responseBuilder.cacheControl(ResponseUtil.getNoStoreCacheControl());
-        responseBuilder.type(MediaType.APPLICATION_OCTET_STREAM_TYPE).entity(getTestScriptForProject(projectId));
+        Project p = new ProjectDao().loadScripts(projectId);
+        if (p != null) {
+            String filename = "project_" + projectId + "_H.xml";
+            responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+            responseBuilder.cacheControl(ResponseUtil.getNoStoreCacheControl());
+            HDWorkload hdWorkload = ConverterUtil.convertWorkload(p.getWorkloads().get(0), p.getWorkloads().get(0).getJobConfiguration());
+            StreamingOutput so = ResponseUtil.getXML(hdWorkload, HDWorkload.class.getPackage().getName());
+            responseBuilder.type(MediaType.APPLICATION_OCTET_STREAM_TYPE).entity(so);
+        } else {
+            responseBuilder = Response.noContent().status(Status.NOT_FOUND);
+        }
         return responseBuilder.build();
     }
 
@@ -287,7 +286,7 @@ public class ProjectServiceV1 implements ProjectService {
         queue.addJob(jobInstance);
 
         jobQueueDao.saveOrUpdate(queue);
-        storeScript(Integer.toString(jobInstance.getId()), workload, jobInstance);
+        ResponseUtil.storeScript(Integer.toString(jobInstance.getId()), workload, jobInstance);
         return jobInstance;
     }
 
@@ -323,11 +322,4 @@ public class ProjectServiceV1 implements ProjectService {
         }
         return getVersions(dao, ids, entityClass);
     }
-
-    private void storeScript(String jobId, Workload workload, JobInstance job) {
-        new WorkloadDao().loadScriptsForWorkload(workload);
-        String scriptString = WorkloadScriptUtil.getScriptForWorkload(workload, job);
-        ProjectDaoUtil.storeScriptFile(jobId, scriptString);
-    }
-
 }
