@@ -13,6 +13,7 @@ package com.intuit.tank.transform.scriptGenerator;
  * #L%
  */
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import org.apache.commons.lang3.math.NumberUtils;
@@ -126,13 +128,13 @@ public class ConverterUtil {
         StringWriter sw;
         try {
             JAXBContext context = JAXBContext.newInstance(HDWorkload.class.getPackage().getName());
-            Marshaller createMarshaller = context.createMarshaller();
-            createMarshaller.setProperty("jaxb.formatted.output", Boolean.TRUE);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             sw = new StringWriter();
-            createMarshaller.marshal(hdWorkload, sw);
+            marshaller.marshal(hdWorkload, sw);
             sw.flush();
             sw.close();
-        } catch (Exception e) {
+        } catch (JAXBException | IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }

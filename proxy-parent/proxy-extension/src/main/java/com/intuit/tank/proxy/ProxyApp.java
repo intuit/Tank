@@ -310,13 +310,13 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
             JAXBContext ctx;
             try {
                 ctx = JAXBContext.newInstance(Session.class.getPackage().getName());
-                Marshaller m = ctx.createMarshaller();
-                m.setProperty("jaxb.formatted.output", Boolean.TRUE);
+                Marshaller marshaller = ctx.createMarshaller();
+                marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
                 Session session = new Session(model.getTransactions(), configDialog.getConfiguration()
                         .isFollowRedirects());
                 System.out.println("outputting to : " + currentFile.getCanonicalPath());
-                m.marshal(session, currentFile);
-            } catch (Exception e) {
+                marshaller.marshal(session, currentFile);
+            } catch (JAXBException | IOException e) {
                 JOptionPane.showMessageDialog(this, "Error saving recording: " + e, "Error", JOptionPane.ERROR_MESSAGE);
             }
         }

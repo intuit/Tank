@@ -420,9 +420,9 @@ public class ScriptServiceV1 implements ScriptService {
                 try {
                     JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
                     Marshaller marshaller = ctx.createMarshaller();
-                    marshaller.setProperty("jaxb.formatted.output", Boolean.TRUE);
+                    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
                     marshaller.marshal(scriptTO, outputStream);
-                } catch (Exception e) {
+                } catch (JAXBException e) {
                     LOG.error("Error streaming file: " + e.toString(), e);
                     throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
                 }
