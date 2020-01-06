@@ -167,8 +167,8 @@ public class ConverterUtilTest {
     @Test
     public void testGetRequestHeaders_1() throws Exception {
         Set<RequestData> headers = new HashSet();
-        headers.add(new RequestData("X-Include-Referer", "myValue", RequestDataType.requestHeader.name()));
-        headers.add(new RequestData("Referer", "myValueNotIncluded", RequestDataType.requestHeader.name()));
+        headers.add(new RequestData("X-Include-Connection", "myValue", RequestDataType.requestHeader.name()));
+        headers.add(new RequestData("Connection", "myValueNotIncluded", RequestDataType.requestHeader.name()));
         Set<RequestData> cookies = new HashSet();
 
         List<Header> result = ConverterUtil.getRequestHeaders(headers, cookies);
@@ -176,7 +176,7 @@ public class ConverterUtilTest {
         assertNotNull(result);
         assertEquals(2, result.size());
         for (Header h : result) {
-            if (h.getKey().equalsIgnoreCase("Referer")) {
+            if (h.getKey().equalsIgnoreCase("Connection")) {
                 assertEquals("myValue", h.getValue());
                 return;
             }
