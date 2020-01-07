@@ -32,6 +32,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+
+import com.amazonaws.xray.AWSXRay;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -148,6 +150,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public void setVmStatus(final String instanceId, final CloudVmStatus status) {
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", status.getJobId());
         CloudController controller = new ServletInjector<CloudController>().getManagedBean(
                 servletContext, CloudController.class);
         controller.setVmStatus(instanceId, status);
