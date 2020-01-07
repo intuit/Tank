@@ -34,6 +34,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Segment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -130,6 +131,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public Response getVmStatus(String instanceId) {
+        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         ResponseBuilder responseBuilder = null;
         try {
             responseBuilder = Response.ok();
@@ -150,7 +152,12 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public void setVmStatus(final String instanceId, final CloudVmStatus status) {
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", status.getJobId());
+        Segment segment = AWSXRay.getCurrentSegment();
+        segment.putAnnotation("instanceId", instanceId);
+        segment.putAnnotation("jobId", status.getJobId());
+        segment.putAnnotation("currentUsers", status.getCurrentUsers());
+        segment.putAnnotation("TotalUsers", status.getTotalUsers());
+        segment.putAnnotation("totalTps", status.getTotalTps());
         CloudController controller = new ServletInjector<CloudController>().getManagedBean(
                 servletContext, CloudController.class);
         controller.setVmStatus(instanceId, status);
@@ -182,6 +189,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public String startJob(String jobId) {
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
         return controller.startJob(jobId);
@@ -192,6 +200,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public void killJob(String jobId) {
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
         controller.killJob(jobId);
@@ -213,6 +222,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public void killInstance(String instanceId) {
+        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
         controller.killInstance(instanceId);
@@ -243,6 +253,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public void stopJob(String jobId) {
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
         controller.stopJob(jobId);
@@ -253,6 +264,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public void stopAgent(String instanceId) {
+        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
         controller.stopAgent(instanceId);
@@ -274,6 +286,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public void pauseJob(String jobId) {
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
         controller.pauseJob(jobId);
@@ -284,6 +297,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public void pauseAgent(String instanceId) {
+        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
         controller.pauseAgent(instanceId);
@@ -304,6 +318,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public void restartJob(String jobId) {
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
         controller.restartJob(jobId);
@@ -314,6 +329,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public void restartAgent(String instanceId) {
+        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
         controller.restartAgent(instanceId);
@@ -334,6 +350,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public void pauseRampInstance(String instanceId) {
+        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
         controller.pauseRampInstance(instanceId);
@@ -344,6 +361,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public void pauseRampJob(String jobId) {
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
         controller.pauseRampJob(jobId);
@@ -364,6 +382,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public void resumeRampInstance(String instanceId) {
+        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
         controller.resumeRampInstance(instanceId);
@@ -374,6 +393,7 @@ public class CloudServiceV1 implements CloudService {
      */
     @Override
     public void resumeRampJob(String jobId) {
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         JobController controller = new ServletInjector<JobController>().getManagedBean(
                 servletContext, JobController.class);
         controller.resumeRampJob(jobId);
