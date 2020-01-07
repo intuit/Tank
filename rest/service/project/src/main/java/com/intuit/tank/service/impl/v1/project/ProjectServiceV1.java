@@ -178,7 +178,7 @@ public class ProjectServiceV1 implements ProjectService {
             throw new RuntimeException("Cannot find Project with id of " + projectId);
         }
         HDWorkload hdWorkload = ConverterUtil.convertWorkload(p.getWorkloads().get(0), p.getWorkloads().get(0).getJobConfiguration());
-        return ResponseUtil.getXML(hdWorkload, HDWorkload.class.getPackage().getName());
+        return ResponseUtil.getXMLStream(hdWorkload, HDWorkload.class.getPackage().getName());
     }
 
     /**
@@ -206,7 +206,7 @@ public class ProjectServiceV1 implements ProjectService {
             responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
             responseBuilder.cacheControl(ResponseUtil.getNoStoreCacheControl());
             HDWorkload hdWorkload = ConverterUtil.convertWorkload(p.getWorkloads().get(0), p.getWorkloads().get(0).getJobConfiguration());
-            StreamingOutput so = ResponseUtil.getXML(hdWorkload, HDWorkload.class.getPackage().getName());
+            StreamingOutput so = ResponseUtil.getXMLStream(hdWorkload, HDWorkload.class.getPackage().getName());
             responseBuilder.type(MediaType.APPLICATION_OCTET_STREAM_TYPE).entity(so);
         } else {
             responseBuilder = Response.noContent().status(Status.NOT_FOUND);

@@ -48,7 +48,7 @@ public class ResponseUtil {
         // empty private constructor to implement util pattern
     }
 
-    public static StreamingOutput getXML(Object toMarshall, String className) {
+    public static StreamingOutput getXMLStream(Object toMarshall, String className) {
         return (OutputStream outputStream) -> {
             AWSXRay.beginSubsegment("JAXB.Marshal." + className);
             try {
