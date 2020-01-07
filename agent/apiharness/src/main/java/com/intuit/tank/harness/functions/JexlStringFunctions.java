@@ -31,7 +31,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -41,6 +40,7 @@ import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.vm.common.util.ExpressionContextVisitor;
+import org.apache.tomcat.util.codec.binary.Base64;
 
 /**
  * 

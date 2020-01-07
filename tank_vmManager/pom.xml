@@ -16,15 +16,11 @@
 
   <dependencies>
 
-
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>client-common</artifactId>
       <version>${project.version}</version>
     </dependency>
-
-    <!-- <dependency> <groupId>${project.groupId}</groupId> <artifactId>reporting-db</artifactId> 
-      <version>${project.version}</version> </dependency> -->
 
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -59,12 +55,12 @@
        <groupId>com.amazonaws</groupId>
        <artifactId>aws-java-sdk-ec2</artifactId>
      </dependency>
-     
+
      <dependency>
        <groupId>com.amazonaws</groupId>
        <artifactId>aws-java-sdk-cloudwatch</artifactId>
      </dependency>
-      
+
      <dependency>
        <groupId>com.amazonaws</groupId>
        <artifactId>aws-java-sdk-sns</artifactId>
@@ -73,11 +69,6 @@
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-ssm</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
     </dependency>
 
     <dependency>

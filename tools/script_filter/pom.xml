@@ -52,11 +52,6 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>com.fifesoft</groupId>
       <artifactId>rsyntaxtextarea</artifactId>
       <version>3.0.4</version>
