@@ -52,11 +52,11 @@ import com.intuit.tank.vm.vmManager.VMInstanceRequest;
 import com.intuit.tank.vm.vmManager.VMKillRequest;
 import com.intuit.tank.vm.vmManager.VMRequest;
 import com.intuit.tank.vmManager.environment.IEnvironmentInstance;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.tomcat.util.codec.binary.Base64;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
