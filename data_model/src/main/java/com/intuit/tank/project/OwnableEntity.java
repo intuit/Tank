@@ -19,8 +19,6 @@ package com.intuit.tank.project;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 
-import org.hibernate.annotations.Index;
-
 /**
  * OwnableEntity entity that can be owned
  * 
@@ -34,7 +32,6 @@ public abstract class OwnableEntity extends BaseEntity {
     public static final String PROPERTY_CREATOR = "creator";
 
     @Column(name = "creator", nullable = false)
-    @Index(name = "IDX_CREATOR")
     private String creator;
 
     /**

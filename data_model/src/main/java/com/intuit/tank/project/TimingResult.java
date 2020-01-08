@@ -15,6 +15,7 @@ package com.intuit.tank.project;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -30,7 +31,8 @@ import org.hibernate.envers.Audited;
  */
 @Entity
 @Audited
-@Table(name = "timing_result")
+@Table(name = "timing_result",
+        indexes = { @Index(name = "IDX_CREATOR", columnList = ColumnPreferences.PROPERTY_CREATOR)})
 public class TimingResult extends OwnableEntity {
 
     private static final long serialVersionUID = 1L;

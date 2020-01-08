@@ -15,6 +15,7 @@ package com.intuit.tank.project;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.script.ScriptEngine;
@@ -30,7 +31,8 @@ import org.hibernate.envers.Audited;
 
 @Entity
 @Audited
-@Table(name = "external_script")
+@Table(name = "external_script",
+        indexes = { @Index(name = "IDX_CREATOR", columnList = ColumnPreferences.PROPERTY_CREATOR)})
 public class ExternalScript extends OwnableEntity implements Comparable<ExternalScript> {
 
     private static final long serialVersionUID = 1L;

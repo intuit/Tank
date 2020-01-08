@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -35,7 +36,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * 
  */
 @Entity
-@Table(name = "table_column")
+@Table(name = "table_column",
+        indexes = { @Index(name = "IDX_CREATOR", columnList = ColumnPreferences.PROPERTY_CREATOR)})
 public class ColumnPreferences extends OwnableEntity implements Serializable {
 
     public static enum Visibility {

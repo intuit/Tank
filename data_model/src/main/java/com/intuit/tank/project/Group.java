@@ -15,13 +15,13 @@ package com.intuit.tank.project;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.Index;
 import org.hibernate.envers.Audited;
 
 /**
@@ -32,8 +32,9 @@ import org.hibernate.envers.Audited;
  * 
  */
 @Entity
-@Table(name = "user_group")
 @Audited
+@Table(name = "user_group",
+        indexes = { @Index(name = "IDX_GROUP_NAME", columnList = Group.PROPERTY_NAME)})
 public class Group extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -43,7 +44,6 @@ public class Group extends BaseEntity {
     @Column(name = "name", nullable = false)
     @NotNull
     @Size(max = 255)
-    @Index(name = "IDX_GROUP_NAME")
     private String name;
 
     public Group() {
