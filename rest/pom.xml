@@ -72,11 +72,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-xray-recorder-sdk-core</artifactId>
-		</dependency>
-
 		<!--allows mocking of classes (in addition to interfaces)-->
 		<dependency>
 			<groupId>net.bytebuddy</groupId>
