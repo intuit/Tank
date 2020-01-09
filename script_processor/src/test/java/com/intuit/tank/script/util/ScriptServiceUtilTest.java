@@ -1,4 +1,4 @@
-package com.intuit.tank.api.script.util;
+package com.intuit.tank.script.util;
 
 /*
  * #%L
@@ -13,24 +13,23 @@ package com.intuit.tank.api.script.util;
  * #L%
  */
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.junit.jupiter.api.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
 import com.intuit.tank.api.model.v1.script.ScriptDescription;
 import com.intuit.tank.api.model.v1.script.ScriptStepTO;
 import com.intuit.tank.api.model.v1.script.ScriptTO;
 import com.intuit.tank.api.model.v1.script.StepDataTO;
-import com.intuit.tank.api.script.util.ScriptServiceUtil;
 import com.intuit.tank.project.ExternalScript;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptStep;
+import com.intuit.tank.script.util.ScriptServiceUtil;
+import org.junit.jupiter.api.Test;
+
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * The class <code>ScriptServiceUtilTest</code> contains tests for the class <code>{@link ScriptServiceUtil}</code>.

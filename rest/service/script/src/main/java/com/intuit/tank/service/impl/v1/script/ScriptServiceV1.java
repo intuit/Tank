@@ -46,6 +46,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 
+import com.intuit.tank.script.util.ScriptServiceUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -63,7 +64,6 @@ import com.intuit.tank.api.model.v1.script.ScriptStepContainer;
 import com.intuit.tank.api.model.v1.script.ScriptStepTO;
 import com.intuit.tank.api.model.v1.script.ScriptTO;
 import com.intuit.tank.api.model.v1.script.ScriptUploadRequest;
-import com.intuit.tank.api.script.util.ScriptServiceUtil;
 import com.intuit.tank.api.service.v1.script.ScriptService;
 import com.intuit.tank.dao.ExternalScriptDao;
 import com.intuit.tank.dao.FilterDao;

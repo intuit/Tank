@@ -27,6 +27,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 
+import com.intuit.tank.script.util.ScriptServiceUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +41,6 @@ import org.xml.sax.InputSource;
 
 import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.api.model.v1.script.ScriptTO;
-import com.intuit.tank.api.script.util.ScriptServiceUtil;
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.config.TsLoggedIn;
 import com.intuit.tank.dao.ScriptDao;

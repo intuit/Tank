@@ -33,7 +33,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.script.ScriptStepTO;
 import com.intuit.tank.api.model.v1.script.ScriptTO;
-import com.intuit.tank.api.script.util.ScriptServiceUtil;
 import com.intuit.tank.dao.ExternalScriptDao;
 import com.intuit.tank.dao.ScriptFilterDao;
 import com.intuit.tank.project.ExternalScript;
