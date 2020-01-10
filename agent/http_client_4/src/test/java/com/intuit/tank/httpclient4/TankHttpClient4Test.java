@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
@@ -16,7 +17,6 @@ import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.http.TankCookie;
 import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.test.TestGroups;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

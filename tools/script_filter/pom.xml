@@ -47,10 +47,14 @@
         <exclusion>
 	      <groupId>com.amazonaws</groupId>
 	      <artifactId>aws-java-sdk-s3</artifactId>
-		</exclusion>
+		    </exclusion>
       </exclusions>
     </dependency>
 
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.fifesoft</groupId>
       <artifactId>rsyntaxtextarea</artifactId>

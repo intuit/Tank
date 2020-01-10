@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -20,7 +21,6 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.http.binary.BinaryResponse;
 import com.intuit.tank.http.json.JsonResponse;
 import com.intuit.tank.http.xml.XMLResponse;
-import org.apache.tomcat.util.codec.binary.Base64;
 
 /**
  * utitly methods for tank http clients

@@ -16,7 +16,7 @@ package com.intuit.tank.vm.common;
  * #L%
  */
 
-import org.apache.tomcat.util.codec.binary.Base64;
+import org.apache.commons.codec.binary.Base64;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
