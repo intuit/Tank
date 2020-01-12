@@ -22,9 +22,9 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.intuit.tank.test.TestGroups;
-import org.glassfish.jersey.client.ClientResponse;
 
 import com.intuit.tank.api.model.v1.script.ScriptDescription;
 import com.intuit.tank.api.model.v1.script.ScriptDescriptionContainer;
@@ -72,7 +72,7 @@ public class ScriptServiceV1IT {
         WebTarget webTarget = client.target(SERVICE_BASE_URL + "/script/description");
 
         webTarget.request(MediaType.APPLICATION_JSON_TYPE);
-        ClientResponse response = webTarget.request().get(ClientResponse.class);
+        Response response = webTarget.request().get();
 
         ScriptDescriptionContainer entity = response.readEntity(ScriptDescriptionContainer.class);
         assertNotNull(entity);

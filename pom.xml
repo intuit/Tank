@@ -712,19 +712,14 @@
         <type>pom</type>
       </dependency>
       <dependency>
-        <groupId>commons-discovery</groupId>
-        <artifactId>commons-discovery</artifactId>
-        <version>0.2</version>
-      </dependency>
-      <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
-        <version>20160212</version>
+        <version>20190722</version>
       </dependency>
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.10</version>
+        <version>1.13</version>
       </dependency>
       <dependency>
         <groupId>xalan</groupId>

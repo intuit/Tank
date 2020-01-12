@@ -414,7 +414,7 @@ public class ScriptFilterRunner extends JFrame {
             // fw = new FileWriter(xmlFile);
             JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
             Marshaller marshaller = ctx.createMarshaller();
-            marshaller.setProperty("jaxb.formatted.output", true);
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             marshaller.marshal(tankScript, fw);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error writing file", JOptionPane.ERROR_MESSAGE);
@@ -483,18 +483,17 @@ public class ScriptFilterRunner extends JFrame {
     }
 
     private String toXml(ScriptTO turboScriptTO) {
-        String ret = null;
         try {
             JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
             Marshaller marshaller = ctx.createMarshaller();
-            marshaller.setProperty("jaxb.formatted.output", true);
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             StringWriter sw = new StringWriter();
             marshaller.marshal(turboScriptTO, sw);
-            ret = sw.toString();
+            return sw.toString();
         } catch (JAXBException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error reading file", JOptionPane.ERROR_MESSAGE);
         }
-        return ret;
+        return null;
     }
 
     private void runScript() {

@@ -30,6 +30,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.MapKeyColumn;
@@ -41,13 +42,13 @@ import javax.persistence.TemporalType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.Index;
 
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.vmManager.JobUtil;
 
 @Entity
-@Table(name = "job_instance")
+@Table(name = "job_instance",
+        indexes = { @Index(name = "IDX_JQ_STATUS", columnList = JobInstance.PROPERTY_STATUS)})
 public class JobInstance extends BaseJob {
 
     private static final long serialVersionUID = 1L;
@@ -73,7 +74,6 @@ public class JobInstance extends BaseJob {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    @Index(name = "IDX_JQ_STATUS")
     private JobQueueStatus status = JobQueueStatus.Created;
 
     @Column(name = "start")
@@ -143,7 +143,7 @@ public class JobInstance extends BaseJob {
 
     /**
      * 
-     * @return
+     * @return jobDetails
      */
     public String getJobDetails() {
         return jobDetails;

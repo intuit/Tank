@@ -17,6 +17,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -25,10 +26,12 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.Index;
 
 @Entity
-@Table(name = "timing_periodic")
+@Table(name = "timing_periodic",
+        indexes = { @Index(name = "IDX_TS_JOB_ID", columnList = "job_id"),
+                    @Index(name = "IDX_TS_TIME", columnList = PeriodicData.PROPERTY_TIMESTAMP),
+                    @Index(name = "IDX_TS_PAGE_ID", columnList = "page_id")})
 public class PeriodicData extends BaseEntity implements Comparable<PeriodicData> {
 
     private static final long serialVersionUID = 1L;
@@ -38,16 +41,13 @@ public class PeriodicData extends BaseEntity implements Comparable<PeriodicData>
     public static final String PROPERTY_TIMESTAMP = "timestamp";
 
     @Column(name = "job_id", nullable = false, updatable = false)
-    @Index(name = "IDX_TS_JOB_ID")
     private int jobId;
 
     @Column(name = "timestamp", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    @Index(name = "IDX_TS_TIME")
     private Date timestamp;
 
     @Column(name = "page_id", nullable = false, updatable = false)
-    @Index(name = "IDX_TS_PAGE_ID")
     private String pageId;
 
     @Column(name = "sample_size", nullable = false, updatable = false)

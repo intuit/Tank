@@ -20,6 +20,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
@@ -36,7 +37,8 @@ import com.intuit.tank.util.ScriptFilterType;
 
 @Entity
 @Audited
-@Table(name = "script_filter")
+@Table(name = "script_filter",
+        indexes = { @Index(name = "IDX_CREATOR", columnList = ColumnPreferences.PROPERTY_CREATOR)})
 public class ScriptFilter extends OwnableEntity implements Comparable<ScriptFilter> {
 
     private static final long serialVersionUID = 1L;

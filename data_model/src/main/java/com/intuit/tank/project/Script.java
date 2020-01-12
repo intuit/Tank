@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
@@ -30,7 +31,8 @@ import org.hibernate.envers.Audited;
 
 @Entity
 @Audited
-@Table(name = "script")
+@Table(name = "script",
+        indexes = { @Index(name = "IDX_CREATOR", columnList = ColumnPreferences.PROPERTY_CREATOR)})
 public class Script extends OwnableEntity implements Comparable<Script> {
 
     private static final long serialVersionUID = 1L;

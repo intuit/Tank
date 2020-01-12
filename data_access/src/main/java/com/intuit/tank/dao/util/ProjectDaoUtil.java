@@ -18,6 +18,7 @@ package com.intuit.tank.dao.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
@@ -68,7 +69,7 @@ public class ProjectDaoUtil {
     public static void storeScriptFile(String jobId, String scriptString) {
         try {
             File file = createScriptFile(jobId);
-            FileUtils.writeStringToFile(file, scriptString, "UTF-8");
+            FileUtils.writeStringToFile(file, scriptString, StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOG.error("Erorr writing file: " + e, e);
             throw new RuntimeException(e);

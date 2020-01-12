@@ -20,6 +20,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -30,12 +31,13 @@ import javax.validation.constraints.Size;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.Index;
 import org.hibernate.envers.Audited;
 
 @Entity
 @Audited
-@Table(name = "script_filter_group")
+@Table(name = "script_filter_group",
+        indexes = { @Index(name = "IDX_CREATOR", columnList = ColumnPreferences.PROPERTY_CREATOR),
+                    @Index(name = "IDX_PRODUCT_NAME", columnList = "product_name")})
 public class ScriptFilterGroup extends OwnableEntity implements Comparable<ScriptFilterGroup> {
 
     private static final long serialVersionUID = 1L;
@@ -50,7 +52,6 @@ public class ScriptFilterGroup extends OwnableEntity implements Comparable<Scrip
 
     @Column(name = "product_name", length = 255)
     @Size(max = 255)
-    @Index(name = "IDX_PRODUCT_NAME")
     private String productName;
 
     @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, fetch = FetchType.EAGER)

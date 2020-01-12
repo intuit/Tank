@@ -18,6 +18,7 @@ package com.intuit.tank.service.impl.v1.agent;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -35,7 +36,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.StreamingOutput;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Subsegment;
@@ -81,6 +81,7 @@ public class AgentServiceV1 implements AgentService {
     /**
      * @inheritDoc
      */
+    @Nonnull
     @Override
     public String ping() {
         return "PONG " + getClass().getSimpleName();
@@ -105,6 +106,7 @@ public class AgentServiceV1 implements AgentService {
         return responseBuilder.build();
     }
 
+    @Nonnull
     @Override
     public Response getSettings() {
         ResponseBuilder responseBuilder = Response.ok();
@@ -123,37 +125,42 @@ public class AgentServiceV1 implements AgentService {
         return responseBuilder.build();
     }
 
-    @Override
     @Nonnull
+    @Override
     public Response getSupportFiles() {
         ResponseBuilder responseBuilder = Response.ok();
         // AuthUtil.checkLoggedIn(servletContext);
-        final FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getJarDir(), false);
-        final File harnessJar = new File(servletContext.getRealPath("/tools/" + HARNESS_JAR));
-        LOG.info("harnessJar = " + harnessJar.getAbsolutePath());
-        final List<FileData> files = fileStorage.listFileData("");
-
-        StreamingOutput streamingOutput = outputStream -> {
-            // open the zip stream in a try resource block, no finally needed
-            try (ZipOutputStream zip = new ZipOutputStream(outputStream)) {
-                if (harnessJar.exists()) {
-                    addFileToZip(HARNESS_JAR, new FileInputStream(harnessJar), zip);
-                }
-                for (FileData fileData : files) {
-                    if (harnessJar.exists() && fileData.getFileName().equals(HARNESS_JAR)) {
-                        LOG.info("Not adding harness because we found it in the war.");
-                    } else {
-                        addFileToZip(fileData.getFileName(), fileStorage.readFileData(fileData), zip);
-                    }
-                }
-                zip.flush();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        };
         String filename = "agent-support-files.zip";
+        File supportFiles = new File(new TankConfig().getTmpDir(), filename);
+        if (!supportFiles.exists()) {
+            final FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getJarDir(), false);
+            final File harnessJar = new File(servletContext.getRealPath("/tools/" + HARNESS_JAR));
+            LOG.info("harnessJar = " + harnessJar.getAbsolutePath());
+            final List<FileData> files = fileStorage.listFileData("");
+
+            synchronized ( supportFiles ) {
+                supportFiles.getParentFile().mkdirs();
+                // open the zip stream in a try resource block, no finally needed
+                try (ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(supportFiles))) {
+
+                    if (harnessJar.exists()) {
+                        addFileToZip(HARNESS_JAR, new FileInputStream(harnessJar), zip);
+                    }
+                    for (FileData fileData : files) {
+                        if (harnessJar.exists() && fileData.getFileName().equals(HARNESS_JAR)) {
+                            LOG.info("Not adding harness because we found it in the war.");
+                        } else {
+                            addFileToZip(fileData.getFileName(), fileStorage.readFileData(fileData), zip);
+                        }
+                    }
+                    zip.flush();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
         responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-        responseBuilder.entity(streamingOutput);
+        responseBuilder.entity(supportFiles);
         return responseBuilder.build();
     }
 
@@ -181,6 +188,7 @@ public class AgentServiceV1 implements AgentService {
         return Response.noContent().build();
     }
 
+    @Nonnull
     @Override
     public Response getHeaders() {
         ResponseBuilder responseBuilder = Response.ok();
@@ -195,6 +203,7 @@ public class AgentServiceV1 implements AgentService {
         return responseBuilder.build();
     }
 
+    @Nonnull
     @Override
     public Response getClients() {
         ResponseBuilder responseBuilder = Response.ok();

@@ -301,7 +301,7 @@ public class ScriptEditor implements Serializable {
      */
     public String reapplyFilters() {
         List<Integer> selectedFilterIds = filterBean.getSelectedFilterIds();
-        Subsegment subsegment = AWSXRay.beginSubsegment("Apply.Filters");
+        Subsegment subsegment = AWSXRay.beginSubsegment("Apply.Filters.to." + script.getName());
         try {
             ScriptFilterUtil.applyFilters(selectedFilterIds, script);
             ScriptUtil.setScriptStepLabels(script);

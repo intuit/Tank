@@ -35,6 +35,7 @@ import org.apache.logging.log4j.message.ObjectMessage;
 @Named
 @ApplicationScoped
 public class TankConfig extends BaseCommonsXmlConfig {
+    private static final Logger LOG = LogManager.getLogger(TankConfig.class);
 
     private static final long serialVersionUID = 1L;
     private static final String KEY_VM_MANAGER_NODE = "vm-manager";
@@ -49,9 +50,6 @@ public class TankConfig extends BaseCommonsXmlConfig {
     private static final String KEY_MAIL_NODE = "mail";
     private static final String KEY_STANDALONE = "standalone";
     private static final String KEY_ENCRYPT_S3 = "s3-encrypt";
-
-    private static final Logger LOG = LogManager.getLogger(TankConfig.class);
-
     private static final String CONFIG_NAME = "settings.xml";
     private static final String KEY_PRODUCTS_NODE = "products";
     private static final String KEY_SECURITY_NODE = "security";

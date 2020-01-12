@@ -17,13 +17,10 @@ package com.intuit.tank.service.impl.v1.script;
  */
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,12 +41,12 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 
+import com.intuit.tank.script.util.ScriptServiceUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -67,7 +64,6 @@ import com.intuit.tank.api.model.v1.script.ScriptStepContainer;
 import com.intuit.tank.api.model.v1.script.ScriptStepTO;
 import com.intuit.tank.api.model.v1.script.ScriptTO;
 import com.intuit.tank.api.model.v1.script.ScriptUploadRequest;
-import com.intuit.tank.api.script.util.ScriptServiceUtil;
 import com.intuit.tank.api.service.v1.script.ScriptService;
 import com.intuit.tank.dao.ExternalScriptDao;
 import com.intuit.tank.dao.FilterDao;
@@ -375,31 +371,17 @@ public class ScriptServiceV1 implements ScriptService {
         ResponseBuilder responseBuilder = Response.ok();
         ScriptDao dao = new ScriptDao();
         Script script = dao.findById(scriptId);
-        if (script == null) {
-            throw new RuntimeException("Cannot find Script with id of " + scriptId);
+        if (script != null) {
+            String filename = script.getName() + "_H.xml";
+            responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+            responseBuilder.cacheControl(ResponseUtil.getNoStoreCacheControl());
+            final HDWorkload hdWorkload = ConverterUtil.convertScriptToHdWorkload(script);
+            StreamingOutput so = ResponseUtil.getXMLStream(hdWorkload, HDWorkload.class.getPackage().getName());
+            responseBuilder.type(MediaType.APPLICATION_OCTET_STREAM_TYPE).entity(so);
+        } else {
+            responseBuilder = Response.noContent().status(Status.NOT_FOUND);
         }
-        String filename = script.getName() + "_H.xml";
-        responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-        responseBuilder.cacheControl(ResponseUtil.getNoStoreCacheControl());
-        responseBuilder.type(MediaType.APPLICATION_OCTET_STREAM_TYPE).entity(getTestScriptForScript(script));
         return responseBuilder.build();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    private StreamingOutput getTestScriptForScript(Script script) {
-
-        HDWorkload hdWorkload = ConverterUtil.convertScriptToHdWorkload(script);
-        final String scriptXML = ConverterUtil.getWorkloadXML(hdWorkload);
-        return (OutputStream outputStream) -> {
-            try {
-                IOUtils.write(scriptXML, outputStream, StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                LOG.error("Error streaming file: " + e.toString(), e);
-                throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-            }
-        };
     }
 
     /**
@@ -415,24 +397,11 @@ public class ScriptServiceV1 implements ScriptService {
             responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
             responseBuilder.cacheControl(ResponseUtil.getNoStoreCacheControl());
             final ScriptTO scriptTO = ScriptServiceUtil.scriptToTransferObject(script);
-            StreamingOutput so = (OutputStream outputStream) -> {
-                // Get the object of DataInputStream
-                try {
-                    JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
-                    Marshaller marshaller = ctx.createMarshaller();
-                    marshaller.setProperty("jaxb.formatted.output", Boolean.TRUE);
-                    marshaller.marshal(scriptTO, outputStream);
-                } catch (Exception e) {
-                    LOG.error("Error streaming file: " + e.toString(), e);
-                    throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-                }
-            };
+            StreamingOutput so = ResponseUtil.getXMLStream(scriptTO, ScriptTO.class.getPackage().getName());
             responseBuilder.type(MediaType.APPLICATION_OCTET_STREAM_TYPE).entity(so);
         } else {
             responseBuilder = Response.noContent().status(Status.NOT_FOUND);
         }
-
-        // add jobId to response
         return responseBuilder.build();
     }
 

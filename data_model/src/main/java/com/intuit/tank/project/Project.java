@@ -22,6 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
@@ -48,7 +49,8 @@ import com.intuit.tank.vm.api.enumerated.ScriptDriver;
  */
 @Entity
 @Audited
-@Table(name = "project")
+@Table(name = "project",
+        indexes = { @Index(name = "IDX_CREATOR", columnList = ColumnPreferences.PROPERTY_CREATOR)})
 public class Project extends OwnableEntity {
 
     private static final long serialVersionUID = 1L;

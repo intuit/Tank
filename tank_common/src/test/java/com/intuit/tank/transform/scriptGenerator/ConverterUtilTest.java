@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.amazonaws.xray.AWSXRay;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,7 +65,7 @@ public class ConverterUtilTest {
     public void testParsePort() {
         String hostname = "www.company.com";
         String result = ConverterUtil.extractPort(hostname);
-        assertEquals(null, result);
+        assertNull(result);
 
         hostname = "www.company.com:8080";
         result = ConverterUtil.extractPort(hostname);
@@ -72,7 +73,7 @@ public class ConverterUtilTest {
 
         hostname = "denis:angleton@www.company.com";
         result = ConverterUtil.extractPort(hostname);
-        assertEquals(null, result);
+        assertNull(result);
 
         hostname = "denis:angleton@www.company.com:8080";
         result = ConverterUtil.extractPort(hostname);
@@ -467,8 +468,9 @@ public class ConverterUtilTest {
     @Test
     public void testGetWorkloadXML_1() throws Exception {
         HDWorkload hdWorkload = new HDWorkload();
-
+        AWSXRay.beginDummySegment();
         String result = ConverterUtil.getWorkloadXML(hdWorkload);
+        AWSXRay.endSegment();
 
         assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"));
         assertTrue(result.contains("<ns2:workload xmlns:ns2=\"urn:com/intuit/tank/harness/data/v1\">"));
@@ -489,7 +491,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.includedHeader(header);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -505,7 +507,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.includedHeader(header);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -521,7 +523,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.includedHeader(header);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -537,7 +539,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.includedHeader(header);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -553,7 +555,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.includedHeader(header);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -569,7 +571,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.includedHeader(header);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -585,7 +587,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.includedHeader(header);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -601,7 +603,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.includedHeader(header);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -617,7 +619,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.includedHeader(header);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -633,7 +635,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.includedHeader(header);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -649,7 +651,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.includedHeader(header);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -665,7 +667,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.isAssignment(data);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -681,7 +683,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.isAssignment(data);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -697,7 +699,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.isAssignment(data);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -713,7 +715,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.isAssignment(data);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -729,7 +731,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.isAssignment(data);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -745,7 +747,7 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.isAssignment(data);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -761,6 +763,6 @@ public class ConverterUtilTest {
 
         boolean result = ConverterUtil.isAssignment(data);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 }

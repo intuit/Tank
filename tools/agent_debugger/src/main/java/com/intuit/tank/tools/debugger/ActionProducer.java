@@ -50,6 +50,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.jersey.message.internal.MessageBodyProviderNotFoundException;
 import org.xml.sax.SAXException;
 
 import com.intuit.tank.AgentServiceClient;
@@ -66,6 +67,7 @@ import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.tools.debugger.FindReplaceDialog.DialogType;
 
 public class ActionProducer {
+    private static Logger LOG = LogManager.getLogger(ActionProducer.class);
 
     private static final String DEBUGGER_PROPERTIES = "debugger.properties";
     private static final String TS_INSTANCE_START = "tank.instance.";
@@ -94,8 +96,6 @@ public class ActionProducer {
     private static final String SAVE_LOG_DEFAULT_FILE = "debuggerLog.txt";
     private static final String ACTION_CLEAR_LOG = "Clear Log Output";
     private static final String ACTION_SELECT_CLIENT = "Select Client...";
-
-    private static Logger LOG = LogManager.getLogger(ActionProducer.class);
 
     private AgentDebuggerFrame debuggerFrame;
     private Map<String, Action> actionMap = new HashMap<String, Action>();
@@ -626,8 +626,11 @@ public class ActionProducer {
                                 }
                             }).start();
                         }
-                    } catch (Exception e1) {
-                        showError("Error downloading projects: " + e1);
+                    } catch (MessageBodyProviderNotFoundException e1) {
+                        showError("Error viewing the projects response: " + e1);
+                        LOG.error("Error viewing response from ProjectService.METHOD_PROJECT_SCRIPT_DOWNLOAD", e1);
+                    } catch (Exception e2) {
+                        showError("Error downloading projects: " + e2);
                     }
                 }
 

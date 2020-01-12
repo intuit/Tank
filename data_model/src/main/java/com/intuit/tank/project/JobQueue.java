@@ -24,6 +24,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
@@ -32,7 +33,6 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.Index;
 
 /**
  * TestInstance
@@ -41,7 +41,9 @@ import org.hibernate.annotations.Index;
  * 
  */
 @Entity
-@Table(name = "job_queue")
+@Table(name = "job_queue",
+        indexes = { @Index(name = "IDX_PROJ_ID", columnList = "project_id"),
+                    @Index(name = "IDX_MODIFIED", columnList = JobQueue.PROPERTY_MODIFIED)})
 public class JobQueue extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -49,7 +51,6 @@ public class JobQueue extends BaseEntity {
     public static final String PROPERTY_JOBS = "jobs";
 
     @Column(name = "project_id")
-    @Index(name = "IDX_PROJ_ID")
     private int projectId;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

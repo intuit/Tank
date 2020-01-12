@@ -23,11 +23,11 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.intuit.tank.test.TestGroups;
 import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.ClientResponse;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
@@ -63,7 +63,7 @@ public class DataFileServiceV1Test {
     @Tag(TestGroups.MANUAL)
     public void testPing() {
     	WebTarget webTarget = client.target(SERVICE_BASE_URL + "/ping");
-    	webTarget.property(ClientProperties.FOLLOW_REDIRECTS, true);
+    	webTarget.property(ClientProperties.FOLLOW_REDIRECTS, Boolean.TRUE);
         String response = webTarget.request(MediaType.TEXT_PLAIN_TYPE).get(String.class);
         assertEquals("PONG", response);
     }
@@ -72,7 +72,7 @@ public class DataFileServiceV1Test {
     @Tag(TestGroups.MANUAL)
     public void testPostDataFile() {
     	WebTarget webTarget = client.target(SERVICE_BASE_URL + "/data-file");
-    	webTarget.property(ClientProperties.FOLLOW_REDIRECTS, true);
+    	webTarget.property(ClientProperties.FOLLOW_REDIRECTS, Boolean.TRUE);
         File f = new File("src/test/resources/users.csv");
         MultiPart multiPart = new MultiPart();
         FileDataBodyPart fileDataBodyPart = new FileDataBodyPart("file", f);
@@ -83,7 +83,7 @@ public class DataFileServiceV1Test {
         df.setComments("comments");
         multiPart.bodyPart(new FormDataBodyPart("dataFile", df, MediaType.APPLICATION_XML_TYPE));
         webTarget.request(MediaType.APPLICATION_XML_TYPE);
-        ClientResponse response = webTarget.request().post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
 
         DataFileDescriptor entity = response.readEntity(DataFileDescriptor.class);
         assertNotNull(entity);
@@ -101,7 +101,7 @@ public class DataFileServiceV1Test {
         multiPart = new MultiPart();
         multiPart.bodyPart(new FormDataBodyPart("dataFile", df, MediaType.APPLICATION_XML_TYPE));
         webTarget.request(MediaType.APPLICATION_XML_TYPE);
-        response = webTarget.request().post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE), ClientResponse.class);
+        response = webTarget.request().post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
 
         entity = response.readEntity(DataFileDescriptor.class);
         assertNotNull(entity);
@@ -113,7 +113,7 @@ public class DataFileServiceV1Test {
         assertEquals(df.getName(), entity.getName());
 
         webTarget = client.target(SERVICE_BASE_URL + "/data-file/" + entity.getId());
-        response = webTarget.request().get(ClientResponse.class);
+        response = webTarget.request().get();
 
         entity = response.readEntity(DataFileDescriptor.class);
         assertNotNull(entity);
@@ -124,7 +124,7 @@ public class DataFileServiceV1Test {
         assertEquals(df.getCreator(), entity.getCreator());
         assertEquals(df.getName(), entity.getName());
 
-        response = webTarget.request().delete(ClientResponse.class);
+        response = webTarget.request().delete();
         assertEquals(Status.OK.getStatusCode(), response.getStatus());
 
     }

@@ -34,10 +34,11 @@ import com.intuit.tank.api.model.v1.cloud.VMStatus;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.dao.util.ProjectDaoUtil;
+import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.perfManager.workLoads.JobManager;
-import com.intuit.tank.perfManager.workLoads.util.WorkloadScriptUtil;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Workload;
+import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
@@ -311,7 +312,8 @@ public class JobController {
         Workload workload = dao.findById(job.getWorkloadId());
         workload.getTestPlans();
         dao.loadScriptsForWorkload(workload);
-        return WorkloadScriptUtil.getScriptForWorkload(workload, job);
+        HDWorkload hdWorkload = ConverterUtil.convertWorkload(workload, job);
+        return ConverterUtil.getWorkloadXML(hdWorkload);
     }
 
 }

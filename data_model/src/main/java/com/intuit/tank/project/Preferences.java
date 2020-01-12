@@ -22,6 +22,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
@@ -34,7 +35,8 @@ import javax.persistence.Table;
  * 
  */
 @Entity
-@Table(name = "table_preferences")
+@Table(name = "table_preferences",
+        indexes = { @Index(name = "IDX_CREATOR", columnList = ColumnPreferences.PROPERTY_CREATOR)})
 public class Preferences extends OwnableEntity {
 
     private static final long serialVersionUID = 1L;

@@ -15,16 +15,18 @@ package com.intuit.tank.project;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.Index;
 
 @Entity
-@Table(name = "timing_summary")
+@Table(name = "timing_summary",
+        indexes = { @Index(name = "IDX_TS_JOB_ID", columnList = "job_id"),
+                    @Index(name = "IDX_TS_PAGE_ID", columnList = "page_id")})
 public class SummaryData extends BaseEntity implements Comparable<SummaryData> {
 
     private static final long serialVersionUID = 1L;
@@ -33,11 +35,9 @@ public class SummaryData extends BaseEntity implements Comparable<SummaryData> {
     public static final String PROPERTY_PAGE_ID = "pageId";
 
     @Column(name = "job_id", nullable = false, updatable = false)
-    @Index(name = "IDX_TS_JOB_ID")
     private int jobId;
 
     @Column(name = "page_id", nullable = false, updatable = false)
-    @Index(name = "IDX_TS_PAGE_ID")
     private String pageId;
 
     @Column(name = "sample_size", nullable = false, updatable = false)
