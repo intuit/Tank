@@ -431,9 +431,7 @@ public abstract class JobTreeTableBean implements Serializable {
      */
     public TreeNode getRootNode() {
         if (rootNode == null) {
-            AWSXRay.createSubsegment("Build.Tree", (subsegment) -> {
-                buildTree();
-            });
+            buildTree();
             updateExpansionStatus(rootNode);
             refreshCurrentJobInstance(rootNode);
             rootNode.setSelected(false);
@@ -467,6 +465,7 @@ public abstract class JobTreeTableBean implements Serializable {
     }
 
     private void buildTree() {
+        AWSXRay.beginSubsegment("Build.Tree");
         MethodTimer mt = new MethodTimer(LOG, this.getClass(), "buildTree");
         Integer rootJob = getRootJobId();
         JobQueueDao jqd = new JobQueueDao();
@@ -490,7 +489,7 @@ public abstract class JobTreeTableBean implements Serializable {
             }
             mt.markAndLog("Added all queued Jobs");
             if (!trackerJobs.isEmpty()) {
-                TreeNode unknownNode = new DefaultTreeNode(getProjectNodeBean("unknown"), null);
+                TreeNode unknownNode = new DefaultTreeNode(new ProjectNodeBean("unknown"), null);
                 for (String id : trackerJobs) {// left over nodes that the tracker is tracking
                     // create job nodes now
                     createAdhocJobNode(jqd, jobNodeMap, unknownNode, id);
@@ -506,6 +505,7 @@ public abstract class JobTreeTableBean implements Serializable {
             rootNode = createJobNode(trackerJobs, jobQueue);
         }
         mt.endAndLog();
+        AWSXRay.endSubsegment();
     }
 
     // private void buildTree() {
@@ -695,11 +695,6 @@ public abstract class JobTreeTableBean implements Serializable {
             vmNodes.add(vmNode);
         }
         return vmNodes;
-    }
-
-    private ProjectNodeBean getProjectNodeBean(String projectName) {
-        return new ProjectNodeBean(projectName);
-
     }
 
     public void onNodeExpand(NodeExpandEvent event) {

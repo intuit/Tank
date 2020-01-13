@@ -32,6 +32,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -60,6 +61,7 @@ import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
  * @author dangleton
  * 
  */
+@Named
 @ApplicationScoped
 public class VMTrackerImpl implements VMTracker {
     private static final Logger LOG = LogManager.getLogger(VMTrackerImpl.class);
@@ -203,9 +205,9 @@ public class VMTrackerImpl implements VMTracker {
         if (curentStatus != null) {
             VMStatus status = curentStatus.getVmStatus();
             return (status != VMStatus.shutting_down
-            		|| status != VMStatus.stopped
-            		|| status != VMStatus.stopping
-                    || status != VMStatus.terminated);
+            		&& status != VMStatus.stopped
+            		&& status != VMStatus.stopping
+                    && status != VMStatus.terminated);
         }
         return true;
     }
