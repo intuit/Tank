@@ -481,14 +481,12 @@ public abstract class JobTreeTableBean implements Serializable {
             mt.markAndLog("find all active jobs");
             rootNode = new DefaultTreeNode("root", null);
             for (JobQueue jobQueue : queuedJobs) {
-                AWSXRay.createSubsegment("Create.Node.ProjectId." + jobQueue.getProjectId(), (subsegment) -> {
-                    TreeNode projectNode = createJobNode(trackerJobs, jobQueue);
-                    if (projectNode != null && projectNode.getChildCount() != 0) {
-                        jobNodeMap.put(jobQueue.getProjectId(), projectNode);
-                        projectNode.setParent(rootNode);
-                        rootNode.getChildren().add(projectNode);
-                    }
-                });
+                TreeNode projectNode = createJobNode(trackerJobs, jobQueue);
+                if (projectNode != null && projectNode.getChildCount() != 0) {
+                    jobNodeMap.put(jobQueue.getProjectId(), projectNode);
+                    projectNode.setParent(rootNode);
+                    rootNode.getChildren().add(projectNode);
+                }
             }
             mt.markAndLog("Added all queued Jobs");
             if (!trackerJobs.isEmpty()) {
@@ -557,6 +555,7 @@ public abstract class JobTreeTableBean implements Serializable {
      * @param jobQueue
      */
     private TreeNode createJobNode(Set<String> trackerJobs, JobQueue jobQueue) {
+        AWSXRay.beginSubsegment("Create.JobNode.ProjectId." + jobQueue.getProjectId());
         MethodTimer mt = new MethodTimer(LOG, getClass(), "createJobNode for project " + jobQueue.getProjectId());
         TreeNode projectNode = null;
         Project p = projectDao.findById(jobQueue.getProjectId());
@@ -631,6 +630,7 @@ public abstract class JobTreeTableBean implements Serializable {
             pnb.reCalculate();
         }
         mt.endAndLog();
+        AWSXRay.endSubsegment();
         return projectNode;
     }
 
