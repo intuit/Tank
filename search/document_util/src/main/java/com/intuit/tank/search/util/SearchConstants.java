@@ -17,7 +17,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.util.Version;
 
 public class SearchConstants {
-    public static final Version version = Version.LUCENE_8_0_0;
+    public static final Version version = Version.LUCENE_8_2_0;
     public static final Analyzer analyzer = new TankAnalyzer(version);
 
 }

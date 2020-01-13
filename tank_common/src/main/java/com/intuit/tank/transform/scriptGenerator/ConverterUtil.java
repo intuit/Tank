@@ -126,7 +126,7 @@ public class ConverterUtil {
     }
 
     public static String getWorkloadXML(HDWorkload hdWorkload) {
-        AWSXRay.beginSubsegment("JAXB.Marshal." + HDWorkload.class.getPackage().getName());
+        AWSXRay.beginSubsegment("JAXB.Marshal." + HDWorkload.class.getName());
         StringWriter sw;
         try {
             JAXBContext context = JAXBContext.newInstance(HDWorkload.class.getPackage().getName());

@@ -48,11 +48,11 @@ public class ResponseUtil {
         // empty private constructor to implement util pattern
     }
 
-    public static StreamingOutput getXMLStream(Object toMarshall, String className) {
+    public static StreamingOutput getXMLStream(Object toMarshall) {
         return (OutputStream outputStream) -> {
-            AWSXRay.beginSubsegment("JAXB.Marshal." + className);
+            AWSXRay.beginSubsegment("JAXB.Marshal." + toMarshall.getClass().getName());
             try {
-                JAXBContext ctx = JAXBContext.newInstance(className);
+                JAXBContext ctx = JAXBContext.newInstance(toMarshall.getClass().getPackage().getName());
                 Marshaller marshaller = ctx.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
                 marshaller.marshal(toMarshall, outputStream);

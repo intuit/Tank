@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
+import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
@@ -75,7 +76,7 @@ public class JobController {
      * @inheritDoc
      */
     public String startJob(String jobId) {
-
+        AWSXRay.beginSubsegment("Start.Job." + jobId);
         JobInstanceDao jobInstanceDao = new JobInstanceDao();
         JobInstance job = jobInstanceDao.findById(Integer.valueOf(jobId));
         synchronized (jobId) {
@@ -86,12 +87,13 @@ public class JobController {
 
                 ProjectDaoUtil.storeScriptFile(jobId, getScriptString(job));
 
-                vmTracker.removeStatusForJob(Integer.toString(job.getId()));
+                vmTracker.removeStatusForJob(jobId);
                 jobManager.startJob(job.getId());
                 jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_STARTED));
             }
         }
-        return Integer.toString(job.getId());
+        AWSXRay.endSubsegment();
+        return jobId;
     }
 
     /**

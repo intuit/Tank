@@ -38,6 +38,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -74,6 +75,7 @@ public class JobInstance extends BaseJob {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private JobQueueStatus status = JobQueueStatus.Created;
 
     @Column(name = "start")
