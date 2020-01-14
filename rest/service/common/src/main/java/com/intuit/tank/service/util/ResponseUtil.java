@@ -50,7 +50,7 @@ public class ResponseUtil {
 
     public static StreamingOutput getXMLStream(Object toMarshall) {
         return (OutputStream outputStream) -> {
-            AWSXRay.beginSubsegment("JAXB.Marshal." + toMarshall.getClass().getName());
+            AWSXRay.beginSubsegment("JAXB.Marshal.[" + toMarshall.getClass().getSimpleName() + "]");
             try {
                 JAXBContext ctx = JAXBContext.newInstance(toMarshall.getClass().getPackage().getName());
                 Marshaller marshaller = ctx.createMarshaller();
