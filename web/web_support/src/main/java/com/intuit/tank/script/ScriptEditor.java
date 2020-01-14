@@ -151,6 +151,7 @@ public class ScriptEditor implements Serializable {
 
     @PostConstruct
     public void init() {
+        AWSXRay.getCurrentSegment().setUser(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
         tablePrefs = new TablePreferences(userPrefs.getPreferences().getScriptStepTableColumns());
         tablePrefs.registerListener(userPrefs);
     }
@@ -272,7 +273,7 @@ public class ScriptEditor implements Serializable {
      */
     public String editScript(Script scpt) {
         conversation.begin();
-        AWSXRay.createSubsegment("Open.Script", (subsegment) -> {
+        AWSXRay.createSubsegment("Open.Script." + scpt.getName(), (subsegment) -> {
             subsegment.putAnnotation("script", scpt.getName());
             this.script = new ScriptDao().findById(scpt.getId());
             ScriptUtil.setScriptStepLabels(this.script);
@@ -503,7 +504,9 @@ public class ScriptEditor implements Serializable {
      * Saves the script to persistent storage
      */
     public void save() {
-        new ScriptDao().saveOrUpdate(script);
+        AWSXRay.createSubsegment("Save.Script." + script.getName(), (subsegment) -> {
+            new ScriptDao().saveOrUpdate(script);
+        });
         // ScriptSearchService s3 = new ScriptSearchService();
         // s3.saveScript(script);
         scriptEvent.fire(new ModifiedScriptMessage(script, this));

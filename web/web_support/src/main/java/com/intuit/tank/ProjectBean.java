@@ -152,12 +152,12 @@ public class ProjectBean implements Serializable {
      * @param prj
      */
     public void openProject(Project prj) {
+        AWSXRay.getCurrentSegment().setUser(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
     	conversation.begin();
-        AWSXRay.createSubsegment("Open.Project", (subsegment) -> {
+        AWSXRay.createSubsegment("Open.Project." + prj.getName(), (subsegment) -> {
             subsegment.putAnnotation("project", prj.getName());
             doOpenProject(prj);
         });
-
     }
 
     /**
@@ -229,7 +229,10 @@ public class ProjectBean implements Serializable {
      * Saves the Project object in the database.
      */
     public void save() {
-        doSave();
+        AWSXRay.createSubsegment("Save.Project." + project.getName(), (subsegment) -> {
+            subsegment.putAnnotation("project", project.getName());
+            doSave();
+        });
         messages.info("Project " + project.getName() + " has been saved.");
     }
 
