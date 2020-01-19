@@ -636,6 +636,7 @@ public abstract class JobTreeTableBean implements Serializable {
 
     private TreeNode createAdhocJobNode(JobQueueDao jqd, Map<Integer, TreeNode> jobNodeMap, TreeNode parent,
             String jobId) {
+        AWSXRay.beginSubsegment("Create.AdhocNode.JobId." + jobId);
         // this needs to be a JobNode, not a projectNode
         // need to make new constructor for ActJobNodeBean that just sets empty strings?
         CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
@@ -675,6 +676,7 @@ public abstract class JobTreeTableBean implements Serializable {
         jobBeanNode.reCalculate();
         adhocNode.setParent(parent);
         parent.getChildren().add(adhocNode);
+        AWSXRay.endSubsegment();
         return adhocNode;
     }
 

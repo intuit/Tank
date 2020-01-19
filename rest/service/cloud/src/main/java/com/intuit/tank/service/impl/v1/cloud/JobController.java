@@ -24,8 +24,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.api.cloud.VMTracker;
@@ -55,6 +57,8 @@ import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
  * @author dangleton
  * 
  */
+@Named
+@RequestScoped
 public class JobController {
 
     @Inject

@@ -24,8 +24,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Entity;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,8 +52,9 @@ import com.intuit.tank.vm.vmManager.VMTerminator;
  * @author dangleton
  * 
  */
+@Named
+@RequestScoped
 public class CloudController {
-
     private static final Logger LOG = LogManager.getLogger(CloudController.class);
 
     @Inject
@@ -64,9 +69,15 @@ public class CloudController {
     @Inject
     private VMChannel channel;
 
-    private static final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(10, 50, 60, TimeUnit.SECONDS,
-            new ArrayBlockingQueue<Runnable>(50), Executors.defaultThreadFactory(),
-            new ThreadPoolExecutor.DiscardOldestPolicy());
+    private static final ThreadPoolExecutor EXECUTOR =
+            new ThreadPoolExecutor(10, 50, 60, TimeUnit.SECONDS,
+                    new ArrayBlockingQueue<Runnable>(50),
+                    threadFactoryRunnable -> {
+                        Thread t = Executors.defaultThreadFactory().newThread(threadFactoryRunnable);
+                        t.setDaemon(true);
+                        return t;
+                    },
+                    new ThreadPoolExecutor.DiscardOldestPolicy());
 
     /**
      * @inheritDoc
@@ -80,24 +91,19 @@ public class CloudController {
      */
     public void setVmStatus(final String instanceId, final CloudVmStatus status) {
 
+        Entity entity = AWSXRay.getTraceEntity();
         Runnable task = () -> {
+            AWSXRay.setTraceEntity(entity);
             vmTracker.setStatus(status);
             if (status.getJobStatus() == JobStatus.Completed || status.getVmStatus() == VMStatus.terminated) {
                 // will terrminate instance after waiting for some cleanup time
                 terminator.terminate(status.getInstanceId());
                 // check job status and kill off instances appropriately
-                checkJobStatus(status.getJobId(), mailService);
+                checkJobStatus(status.getJobId());
             }
 
         };
-        if (status.getJobStatus() == JobStatus.Completed || status.getVmStatus() == VMStatus.terminated) {
-            Thread t = new Thread(task);
-            t.setDaemon(true);
-            t.start();
-        } else {
-            EXECUTOR.execute(task);
-        }
-
+        EXECUTOR.execute(task);
     }
 
     /**
@@ -107,15 +113,10 @@ public class CloudController {
         return vmTracker.getVmStatusForJob(jobId);
     }
 
-    public void checkJobStatus(String jobId) {
-        checkJobStatus(jobId, mailService);
-    }
-
     /**
      * @param jobId
-     * @param mailService
      */
-    private void checkJobStatus(String jobId, MailService mailService) {
+    public void checkJobStatus(String jobId) {
         CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
         LOG.info("Checking Job Status to see if we can kill reporting instances. Container=" + container);
         if (container != null) {
@@ -155,7 +156,7 @@ public class CloudController {
                     }
                 }
             } else {
-                LOG.info("Container does not have end time set so cannot kill reporting instaces.");
+                LOG.info("Container does not have end time set so cannot kill reporting instances.");
             }
         }
 

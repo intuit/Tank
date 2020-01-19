@@ -30,10 +30,8 @@ import javax.servlet.ServletContext;
 public class ServletInjector<T> {
 
     private BeanManager getBeanManager(ServletContext servletContext) {
-        BeanManager result = null;
-        result = (BeanManager) servletContext
+        return (BeanManager) servletContext
                 .getAttribute("org.jboss.weld.environment.servlet.javax.enterprise.inject.spi.BeanManager");
-        return result;
     }
 
     @SuppressWarnings({ "unchecked" })
