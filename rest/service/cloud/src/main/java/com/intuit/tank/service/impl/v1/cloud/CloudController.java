@@ -19,17 +19,11 @@ package com.intuit.tank.service.impl.v1.cloud;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Entity;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,16 +63,6 @@ public class CloudController {
     @Inject
     private VMChannel channel;
 
-    private static final ThreadPoolExecutor EXECUTOR =
-            new ThreadPoolExecutor(10, 50, 60, TimeUnit.SECONDS,
-                    new ArrayBlockingQueue<Runnable>(50),
-                    threadFactoryRunnable -> {
-                        Thread t = Executors.defaultThreadFactory().newThread(threadFactoryRunnable);
-                        t.setDaemon(true);
-                        return t;
-                    },
-                    new ThreadPoolExecutor.DiscardOldestPolicy());
-
     /**
      * @inheritDoc
      */
@@ -90,20 +74,13 @@ public class CloudController {
      * @inheritDoc
      */
     public void setVmStatus(final String instanceId, final CloudVmStatus status) {
-
-        Entity entity = AWSXRay.getTraceEntity();
-        Runnable task = () -> {
-            AWSXRay.setTraceEntity(entity);
-            vmTracker.setStatus(status);
-            if (status.getJobStatus() == JobStatus.Completed || status.getVmStatus() == VMStatus.terminated) {
-                // will terrminate instance after waiting for some cleanup time
-                terminator.terminate(status.getInstanceId());
-                // check job status and kill off instances appropriately
-                checkJobStatus(status.getJobId());
-            }
-
-        };
-        EXECUTOR.execute(task);
+        vmTracker.setStatus(status);
+        if (status.getJobStatus() == JobStatus.Completed || status.getVmStatus() == VMStatus.terminated) {
+            // will terrminate instance after waiting for some cleanup time
+            terminator.terminate(status.getInstanceId());
+            // check job status and kill off instances appropriately
+            checkJobStatus(status.getJobId());
+        }
     }
 
     /**
@@ -161,5 +138,4 @@ public class CloudController {
         }
 
     }
-
 }

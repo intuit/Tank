@@ -24,16 +24,24 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Entity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -84,10 +92,21 @@ public class VMTrackerImpl implements VMTracker {
     private Map<String, CloudVmStatusContainer> jobMap = new ConcurrentHashMap<String, CloudVmStatusContainer>();
     private Set<String> stoppedJobs = new HashSet<String>();
 
+    private static final ThreadPoolExecutor EXECUTOR =
+            new ThreadPoolExecutor(10, 50, 60, TimeUnit.SECONDS,
+                    new ArrayBlockingQueue<Runnable>(50),
+                    threadFactoryRunnable -> {
+                        Thread t = Executors.defaultThreadFactory().newThread(threadFactoryRunnable);
+                        t.setDaemon(true);
+                        return t;
+                    },
+                    new ThreadPoolExecutor.DiscardOldestPolicy());
+
     /**
      * 
      */
-    public VMTrackerImpl() {
+    @PostConstruct
+    public void init() {
         devMode = new TankConfig().getStandalone();
     }
 
@@ -120,6 +139,15 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void setStatus(@Nonnull CloudVmStatus status) {
+        Entity entity = AWSXRay.getTraceEntity();
+        Runnable task = () -> {
+            AWSXRay.setTraceEntity(entity);
+            setStatusThread(status);
+        };
+        EXECUTOR.execute(task);
+    }
+
+    private void setStatusThread(@Nonnull CloudVmStatus status) {
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
             CloudVmStatus curentStatus = getStatus(status.getInstanceId());
@@ -367,5 +395,10 @@ public class VMTrackerImpl implements VMTracker {
     private Object getCacheSyncObject(final String id) {
         locks.putIfAbsent(id, id);
         return locks.get(id);
+    }
+
+    @PreDestroy
+    private void destroy() {
+        EXECUTOR.shutdown();
     }
 }
