@@ -15,6 +15,8 @@ package com.intuit.tank.vmManager.environment;
 
 import java.util.List;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Entity;
 import com.intuit.tank.vm.settings.TankConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +33,10 @@ public class KillInstance implements Runnable {
 
     public KillInstance(VMKillRequest request) {
         this.request = request;
+    }
+
+    public void setTraceEntity(Entity entity) {
+        AWSXRay.getGlobalRecorder().setTraceEntity(entity);
     }
 
     @Override

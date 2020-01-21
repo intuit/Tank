@@ -49,11 +49,11 @@ public class SummaryReportObserver implements Serializable {
 
     public void observerJobEvents(@Observes final JobEvent jobEvent) {
         if (jobEvent.getEvent() == JobLifecycleEvent.JOB_FINISHED) {
-            Thread t = new Thread(new SummaryReportRunner(tankConfig.getControllerBase(), jobEventProducer,
-                    jobEvent));
-            t.setDaemon(true);
-            t.setPriority(Thread.MIN_PRIORITY);
-            t.start();
+            Thread thread = new Thread(
+                    new SummaryReportRunner(tankConfig.getControllerBase(), jobEventProducer, jobEvent));
+            thread.setDaemon(true);
+            thread.setPriority(Thread.MIN_PRIORITY);
+            thread.start();
         }
     }
 }

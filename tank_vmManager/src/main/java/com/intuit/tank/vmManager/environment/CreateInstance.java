@@ -15,6 +15,8 @@ package com.intuit.tank.vmManager.environment;
 
 import java.util.List;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Entity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,6 +44,10 @@ public class CreateInstance implements Runnable {
         this.vmTracker = vmTracker;
     }
 
+    public void setTraceEntity(Entity entity) {
+        AWSXRay.getGlobalRecorder().setTraceEntity(entity);
+    }
+
     @Override
     public void run() {
         IEnvironmentInstance environment = this.getEnvironment();
@@ -57,7 +63,7 @@ public class CreateInstance implements Runnable {
     }
 
     /**
-     * @param request2
+     * @param req
      * @param info
      * @return
      */

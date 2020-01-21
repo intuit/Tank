@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -161,8 +162,10 @@ public class JobManager implements Serializable {
                 ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement());
                 jobInfo.agentData.add(agent);
                 CloudVmStatus status = vmTracker.getStatus(agent.getInstanceId());
-                status.setVmStatus(VMStatus.pending);
-                vmTracker.setStatus(status);
+                if(status != null) {
+                    status.setVmStatus(VMStatus.pending);
+                    vmTracker.setStatus(status);
+                }
                 if (jobInfo.isFilled()) {
                     startTest(jobInfo);
                 }
@@ -344,5 +347,10 @@ public class JobManager implements Serializable {
 
         }
 
+    }
+
+    @PreDestroy
+    private void destroy() {
+        executor.shutdown();
     }
 }

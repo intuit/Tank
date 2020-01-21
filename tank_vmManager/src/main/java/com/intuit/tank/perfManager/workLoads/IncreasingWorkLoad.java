@@ -15,6 +15,7 @@ package com.intuit.tank.perfManager.workLoads;
 
 import java.util.ArrayList;
 
+import com.amazonaws.xray.AWSXRay;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,10 +44,13 @@ public class IncreasingWorkLoad implements Runnable {
 
     @Override
     public void run() {
+        AWSXRay.beginDummySegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
         try {
             askForAgents(new JobInstanceAgentModel(job));
         } catch (Exception th) {
             LOG.error("Error starting agents: " + th.getMessage(), th);
+        } finally {
+            AWSXRay.endSegment();
         }
     }
 

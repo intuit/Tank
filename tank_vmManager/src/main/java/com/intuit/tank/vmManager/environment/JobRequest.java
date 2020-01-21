@@ -16,6 +16,8 @@ package com.intuit.tank.vmManager.environment;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Entity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -46,10 +48,13 @@ public class JobRequest implements Runnable {
         this.vmTracker = tracker;
     }
 
+    public void setTraceEntity(Entity entity) {
+        AWSXRay.getGlobalRecorder().setTraceEntity(entity);
+    }
+
     @Override
     public void run() {
         try {
-            IEnvironmentInstance instance = null;
             VMInstanceRequest instanceRequest = this.populateAmazonRequest();
             int machines = JobVmCalculator.getMachinesForAgent(request.getNumberOfUsers(),
                     request.getNumUsersPerAgent());
@@ -58,8 +63,7 @@ public class JobRequest implements Runnable {
             instanceRequest.setNumUsersPerAgent(JobVmCalculator.getOptimalUsersPerAgent(request.getNumberOfUsers(),
                     machines));
             instanceRequest.setSize(request.getVmInstanceType());
-            instance = this.getEnvironment(instanceRequest);
-            List<VMInformation> response = new ArrayList<VMInformation>(instance.create());
+            List<VMInformation> response = this.getEnvironment(instanceRequest).create();
             persistInstances(instanceRequest, response);
         } catch (Exception ex) {
             logger.error("Error : " + ex, ex);

@@ -81,7 +81,7 @@ public class VMTrackerImpl implements VMTracker {
     private Event<JobEvent> jobEventProducer;
 
     @Inject
-    private Instance<JobInstanceDao> jobDaoInstance;
+    private Instance<JobInstanceDao> jobInstanceDao;
 
     @Inject
     private Instance<WorkloadDao> workloadDaoInstance;
@@ -138,16 +138,16 @@ public class VMTrackerImpl implements VMTracker {
      * @inheritDoc
      */
     @Override
-    public void setStatus(@Nonnull CloudVmStatus status) {
-        Entity entity = AWSXRay.getTraceEntity();
+    public void setStatus(@Nonnull final CloudVmStatus status) {
         Runnable task = () -> {
-            AWSXRay.setTraceEntity(entity);
+            AWSXRay.beginDummySegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
             setStatusThread(status);
+            AWSXRay.endSegment();
         };
         EXECUTOR.execute(task);
     }
 
-    private void setStatusThread(@Nonnull CloudVmStatus status) {
+    private void setStatusThread(@Nonnull final CloudVmStatus status) {
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
             CloudVmStatus curentStatus = getStatus(status.getInstanceId());
@@ -167,7 +167,7 @@ public class VMTrackerImpl implements VMTracker {
                 cloudVmStatusContainer.setJobId(jobId);
 
                 jobMap.put(jobId, cloudVmStatusContainer);
-                JobInstance job = getJob(jobId);
+                JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(jobId));
                 if (job != null) {
                     JobQueueStatus newStatus = getQueueStatus(job.getStatus(), status.getJobStatus());
                     cloudVmStatusContainer.setStatus(newStatus);
@@ -198,7 +198,7 @@ public class VMTrackerImpl implements VMTracker {
         String ret = jobToProjectIdMap.get(jobId);
         if (ret == null) {
             try {
-                JobInstance jobInstance = jobDaoInstance.get().findById(Integer.valueOf(jobId));
+                JobInstance jobInstance = jobInstanceDao.get().findById(Integer.valueOf(jobId));
                 Workload wkld = workloadDaoInstance.get().findById(jobInstance.getWorkloadId());
                 ret = Integer.toString(wkld.getProject().getId());
             } catch (Exception e) {
@@ -314,7 +314,7 @@ public class VMTrackerImpl implements VMTracker {
         boolean running = true;
 
         // look up the job
-        JobInstance job = getJob(status.getJobId());
+        JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(status.getJobId()));
         for (CloudVmStatus s : cloudVmStatusContainer.getStatuses()) {
             JobStatus jobStatus = s.getJobStatus();
             if (jobStatus != JobStatus.Completed) {  // If no VMs are Completed
@@ -373,23 +373,6 @@ public class VMTrackerImpl implements VMTracker {
                 }
             }
         }
-    }
-
-    /**
-     * @param jobId
-     * @return
-     */
-    private JobInstance getJob(String jobId) {
-        JobInstanceDao dao = new JobInstanceDao();
-        JobInstance job = null;
-        try {
-            int id = Integer.parseInt(jobId);
-            job = dao.findById(id);
-        } catch (NumberFormatException e) {
-            // dev mode. using synthetic jobID
-            LOG.warn("Using Local mode ignoring job status.");
-        }
-        return job;
     }
 
     private Object getCacheSyncObject(final String id) {
