@@ -49,6 +49,9 @@ public class Workload extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+    public static final String PROPERTY_TEST_PLANS = "testPlans";
+    public static final String PROPERTY_JOB_CONFIGURATION = "jobConfiguration";
+
     @ManyToOne
     @JoinColumn(name = "project_id", updatable = false, insertable = false)
     private Project project;

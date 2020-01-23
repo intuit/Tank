@@ -19,6 +19,10 @@ package com.intuit.tank.dao;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.enterprise.context.Dependent;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import com.intuit.tank.project.User;
 import com.intuit.tank.vm.common.PasswordEncoder;
@@ -68,11 +72,26 @@ public class UserDao extends BaseDao<User> {
      * @return the user or null if no user with the name found.
      */
     public User findByUserName(@Nonnull String userName) {
-        String prefix = "x";
-        NamedParameter parameter = new NamedParameter(User.PROPERTY_NAME, "name", userName);
-        String sb = buildQlSelect(prefix) + startWhere() +
-                buildWhereClause(Operation.EQUALS, prefix, parameter);
-        return super.findOneWithJQL(sb, parameter);
+        User user = null;
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<User> query = cb.createQuery(User.class);
+            Root<User> root = query.from(User.class);
+            root.fetch(User.PROPERTY_GROUPS);
+            query.select(root)
+                    .where(cb.equal(root.<String>get(User.PROPERTY_NAME), userName));
+            user = em.createQuery(query).getSingleResult();
+            commit();
+        } catch (Exception e) {
+            rollback();
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+            cleanup();
+        }
+        return user;
     }
     /**
      * finds the user by the apiToken.

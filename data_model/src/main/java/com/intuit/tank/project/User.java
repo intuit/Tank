@@ -53,6 +53,7 @@ public class User extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     public static final String PROPERTY_NAME = "name";
+    public static final String PROPERTY_GROUPS = "groups";
     public static final String PROPERTY_EMAIL = "email";
     public static final String PROPERTY_TOKEN = "apiToken";
 
@@ -72,7 +73,7 @@ public class User extends BaseEntity {
     @Column(name = "token")
     private String apiToken;
 
-    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
     @JoinTable(joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<Group> groups = new HashSet<Group>();

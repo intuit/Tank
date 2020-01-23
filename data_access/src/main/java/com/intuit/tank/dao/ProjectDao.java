@@ -64,12 +64,11 @@ public class ProjectDao extends OwnableDao<Project> {
 	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
 	        Root<Project> root = query.from(Project.class);
 	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
-	        wl.fetch("jobConfiguration");
-	        query.select(root);
-	        query.where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
+	        wl.fetch(Workload.PROPERTY_JOB_CONFIGURATION);
+	        wl.fetch(Workload.PROPERTY_TEST_PLANS);
+	        query.select(root)
+                    .where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
 	        project = em.createQuery(query).getSingleResult();
-			Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
-			Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
     		commit();
         } catch (Exception e) {
         	rollback();
