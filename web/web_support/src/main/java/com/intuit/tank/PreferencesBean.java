@@ -99,17 +99,26 @@ public class PreferencesBean implements Serializable, PreferencesChangedListener
 
     /**
      * 
-     * @param user
+     * @param preferences
      */
     public void observeLogin(@Observes(notifyObserver = Reception.IF_EXISTS) @Deleted Preferences preferences) {
         init(preferences.getCreator());
     }
 
+    /**
+     *
+     * @param owner
+     */
     public void init(String owner) {
         preferences = new PreferencesDao().getForOwner(owner);
         validatePrefs(owner);
     }
 
+    /**
+     *
+     * @param width
+     * @param height
+     */
     public void setScreenSizes(String width, String height) {
         if (NumberUtils.isDigits(width)) {
             this.screenWidth = NumberUtils.toInt(width) - 20;

@@ -162,7 +162,7 @@ public class TablePreferences implements Serializable {
      * 
      * @param colName
      *            the name of the column to fetch.
-     * @param newSize
+     * @param newVisible
      *            the new size of the column
      */
     public void setVisible(String colName, boolean newVisible) {
