@@ -25,8 +25,13 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Fetch;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 
+import com.intuit.tank.project.JobInstance;
+import com.intuit.tank.project.Project;
+import com.intuit.tank.project.Workload;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.LockOptions;
@@ -95,6 +100,11 @@ public class JobQueueDao extends BaseDao<JobQueue> {
 	        CriteriaBuilder cb = em.getCriteriaBuilder();
 	        CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
 	        Root<JobQueue> root = query.from(JobQueue.class);
+            Fetch<JobQueue, JobInstance> ji = root.fetch(JobQueue.PROPERTY_JOBS, JoinType.INNER);
+            ji.fetch(JobInstance.PROPERTY_NOTIFICATION_VERSIONS, JoinType.INNER);
+            ji.fetch(JobInstance.PROPERTY_DATAFILE_VERSIONS, JoinType.INNER);
+            ji.fetch(JobInstance.PROPERTY_JOB_REGION_VERSONS, JoinType.INNER);
+            ji.fetch(JobInstance.PROPERTY_VARIABLES, JoinType.INNER);
 	        query.select(root);
 	        query.where(cb.greaterThan(root.<Date>get(JobQueue.PROPERTY_MODIFIED), since));
 	        query.orderBy(cb.desc(root.get(JobQueue.PROPERTY_PROJECT_ID)));

@@ -22,6 +22,7 @@ import javax.enterprise.context.Dependent;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 
 import com.intuit.tank.project.User;
@@ -79,7 +80,7 @@ public class UserDao extends BaseDao<User> {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaQuery<User> query = cb.createQuery(User.class);
             Root<User> root = query.from(User.class);
-            root.fetch(User.PROPERTY_GROUPS);
+            root.fetch(User.PROPERTY_GROUPS, JoinType.INNER);
             query.select(root)
                     .where(cb.equal(root.<String>get(User.PROPERTY_NAME), userName));
             user = em.createQuery(query).getSingleResult();

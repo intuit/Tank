@@ -56,6 +56,11 @@ public class JobInstance extends BaseJob {
     public static final String PROPERTY_STATUS = "status";
     public static final String PROPERTY_START_TIME = "startTime";
     public static final String PROPERTY_END_TIME = "endTime";
+    public static final String PROPERTY_NOTIFICATION_VERSIONS = "notificationVersions";
+    public static final String PROPERTY_DATAFILE_VERSIONS = "dataFileVersions";
+    public static final String PROPERTY_JOB_REGION_VERSONS = "jobRegionVersions";
+    public static final String PROPERTY_VARIABLES = "variables";
+
 
     @Column(name = "workload_id")
     private int workloadId;
@@ -122,7 +127,7 @@ public class JobInstance extends BaseJob {
     @MapKeyColumn(name = "name")
     @Column(name = "value")
     @CollectionTable(name = "job_instance_varibles", joinColumns = @JoinColumn(name = "job_id"))
-    Map<String, String> variables = new HashMap<String, String>(); // maps from attribute name to value
+    private Map<String, String> variables = new HashMap<String, String>(); // maps from attribute name to value
 
     /**
      * 
