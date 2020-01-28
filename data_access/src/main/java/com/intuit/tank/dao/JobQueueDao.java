@@ -65,12 +65,7 @@ public class JobQueueDao extends BaseDao<JobQueue> {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
             Root<JobQueue> root = query.from(JobQueue.class);
-            Fetch<JobQueue, JobInstance> ji = root.fetch(JobQueue.PROPERTY_JOBS, JoinType.LEFT);
-            ji.fetch(JobInstance.PROPERTY_VM_INSTANCES, JoinType.LEFT);
-            ji.fetch(JobInstance.PROPERTY_NOTIFICATION_VERSIONS, JoinType.LEFT);
-            ji.fetch(JobInstance.PROPERTY_DATAFILE_VERSIONS, JoinType.LEFT);
-            ji.fetch(JobInstance.PROPERTY_JOB_REGION_VERSONS, JoinType.LEFT);
-            ji.fetch(JobInstance.PROPERTY_VARIABLES, JoinType.LEFT);
+            root.fetch(JobQueue.PROPERTY_JOBS, JoinType.LEFT);
             query.select(root);
             query.where(cb.equal(root.<String>get(JobQueue.PROPERTY_PROJECT_ID), projectId));
             List<JobQueue>results = em.createQuery(query).getResultList();
@@ -118,12 +113,6 @@ public class JobQueueDao extends BaseDao<JobQueue> {
 	        CriteriaBuilder cb = em.getCriteriaBuilder();
 	        CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
 	        Root<JobQueue> root = query.from(JobQueue.class);
-            Fetch<JobQueue, JobInstance> ji = root.fetch(JobQueue.PROPERTY_JOBS, JoinType.LEFT);
-            ji.fetch(JobInstance.PROPERTY_VM_INSTANCES, JoinType.LEFT);
-            ji.fetch(JobInstance.PROPERTY_NOTIFICATION_VERSIONS, JoinType.LEFT);
-            ji.fetch(JobInstance.PROPERTY_DATAFILE_VERSIONS, JoinType.LEFT);
-            ji.fetch(JobInstance.PROPERTY_JOB_REGION_VERSONS, JoinType.LEFT);
-            ji.fetch(JobInstance.PROPERTY_VARIABLES, JoinType.LEFT);
 	        query.select(root);
 	        query.where(cb.greaterThan(root.<Date>get(JobQueue.PROPERTY_MODIFIED), since));
 	        query.orderBy(cb.desc(root.get(JobQueue.PROPERTY_PROJECT_ID)));

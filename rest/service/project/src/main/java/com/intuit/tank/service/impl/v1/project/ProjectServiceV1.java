@@ -120,7 +120,7 @@ public class ProjectServiceV1 implements ProjectService {
         ResponseBuilder responseBuilder = Response.noContent();
         ProjectDao dao = new ProjectDao();
         try {
-            Project project = dao.findById(projectId);
+            Project project = dao.findByIdEager(projectId);
             if (project == null) {
                 LOG.warn("Proect with id " + projectId + "does not exist.");
                 responseBuilder.status(Status.BAD_REQUEST);
@@ -231,7 +231,7 @@ public class ProjectServiceV1 implements ProjectService {
     public Response runProject(Integer projectId) {
         ResponseBuilder responseBuilder = Response.ok();
         ProjectDao projectDao = new ProjectDao();
-        Project project = projectDao.findById(projectId);
+        Project project = projectDao.findByIdEager(projectId);
         if (project == null) {
             responseBuilder.status(Status.NOT_FOUND);
             responseBuilder.entity("Cannot find Project with id " + projectId);

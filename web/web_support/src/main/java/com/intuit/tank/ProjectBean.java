@@ -164,7 +164,7 @@ public class ProjectBean implements Serializable {
      * @param prj
      */
     private void doOpenProject(Project prj) {
-        this.project = new ProjectDao().findById(prj.getId());
+        this.project = new ProjectDao().findByIdEager(prj.getId());
         LOG.info("Opening Project " + prj + " workloads " + this.project.getWorkloads());
         usersAndTimes.init();
         notificationsEditor.init();

@@ -474,8 +474,8 @@ public abstract class JobTreeTableBean implements Serializable {
         Map<Integer, TreeNode> jobNodeMap = new HashMap<Integer, TreeNode>();
         if (rootJob == null || rootJob == 0) {
             AWSXRay.beginSubsegment("Build.Tree.findRecent");
-            Date dateMinus5Days = DateUtils.addWeeks(new Date(),-1);
-            List<JobQueue> queuedJobs = jqd.findRecent(dateMinus5Days);
+            Date dateMinus1Week = DateUtils.addWeeks(new Date(),-1);
+            List<JobQueue> queuedJobs = jqd.findRecent(dateMinus1Week);
             AWSXRay.endSubsegment();
             mt.markAndLog("find all active jobs");
             rootNode = new DefaultTreeNode("root", null);

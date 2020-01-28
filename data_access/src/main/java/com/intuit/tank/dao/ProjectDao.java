@@ -25,7 +25,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Fetch;
-import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 
 import org.hibernate.Hibernate;
@@ -64,9 +63,9 @@ public class ProjectDao extends OwnableDao<Project> {
     		CriteriaBuilder cb = em.getCriteriaBuilder();
 	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
 	        Root<Project> root = query.from(Project.class);
-	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS, JoinType.INNER);
-	        wl.fetch(Workload.PROPERTY_JOB_CONFIGURATION, JoinType.INNER);
-	        wl.fetch(Workload.PROPERTY_TEST_PLANS, JoinType.INNER);
+	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
+	        wl.fetch(Workload.PROPERTY_JOB_CONFIGURATION);
+	        wl.fetch(Workload.PROPERTY_TEST_PLANS);
 	        query.select(root)
                     .where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
 	        project = em.createQuery(query).getSingleResult();
@@ -126,8 +125,7 @@ public class ProjectDao extends OwnableDao<Project> {
      * @return the entity or null
      */
     @Nullable
-    @Override
-    public Project findById(@Nonnull Integer id) {
+    public Project findByIdEager(@Nonnull Integer id) {
     	Project project = null;
     	try {
     		begin();
@@ -161,8 +159,8 @@ public class ProjectDao extends OwnableDao<Project> {
 	        CriteriaBuilder cb = em.getCriteriaBuilder();
 	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
 	        Root<Project> root = query.from(Project.class);
-	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS, JoinType.INNER);
-	        wl.fetch("jobConfiguration", JoinType.INNER);
+	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
+	        wl.fetch("jobConfiguration");
 	        query.select(root);
 	        results = em.createQuery(query).getResultList();
 	        for (Project project : results) {
@@ -181,7 +179,7 @@ public class ProjectDao extends OwnableDao<Project> {
     
     @Nullable
     public Project loadScripts(Integer ProjectId) {
-    	Project project = findById(ProjectId);
+    	Project project = findByIdEager(ProjectId);
         ScriptDao sd = new ScriptDao();
         for (TestPlan testPlan : project.getWorkloads().get(0).getTestPlans()) {
             for (ScriptGroup scriptGroup : testPlan.getScriptGroups()) {
