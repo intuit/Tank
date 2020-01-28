@@ -19,7 +19,7 @@ package com.intuit.tank.project;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
 import javax.faces.model.SelectItem;
 import javax.inject.Named;
@@ -37,7 +37,7 @@ import com.intuit.tank.wrapper.EntityVersionLoader;
  * 
  */
 @Named
-@RequestScoped
+@Dependent
 public class DataFileLoader extends EntityVersionLoader<DataFile, ModifiedDatafileMessage> {
 
     private static final long serialVersionUID = 1L;

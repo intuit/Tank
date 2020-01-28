@@ -56,6 +56,7 @@ public class JobInstance extends BaseJob {
     public static final String PROPERTY_STATUS = "status";
     public static final String PROPERTY_START_TIME = "startTime";
     public static final String PROPERTY_END_TIME = "endTime";
+    public static final String PROPERTY_VM_INSTANCES = "vmInstances";
     public static final String PROPERTY_NOTIFICATION_VERSIONS = "notificationVersions";
     public static final String PROPERTY_DATAFILE_VERSIONS = "dataFileVersions";
     public static final String PROPERTY_JOB_REGION_VERSONS = "jobRegionVersions";

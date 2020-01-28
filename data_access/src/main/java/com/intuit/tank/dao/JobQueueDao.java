@@ -59,20 +59,38 @@ public class JobQueueDao extends BaseDao<JobQueue> {
      */
     public synchronized JobQueue findOrCreateForProjectId(@Nonnull int projectId) {
         JobQueue result = null;
-        String prefix = "x";
-        NamedParameter parameter = new NamedParameter(JobQueue.PROPERTY_PROJECT_ID, "pId", projectId);
-        List<JobQueue> resultList = super.listWithJQL(buildQlSelect(prefix) + startWhere() + buildWhereClause(Operation.EQUALS, prefix, parameter), parameter);
-        if (resultList.size() > 1) {
-            LOG.warn("Have " + resultList.size() + " queues for project " + projectId);
-        }
-        if (!resultList.isEmpty()) {
-            result = resultList.get(0);
-        }
-        if (result == null) {
-            result = new JobQueue(projectId);
-            result = saveOrUpdate(result);
-        } else {
-            getHibernateSession().refresh(result, LockOptions.READ);
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
+            Root<JobQueue> root = query.from(JobQueue.class);
+            Fetch<JobQueue, JobInstance> ji = root.fetch(JobQueue.PROPERTY_JOBS, JoinType.LEFT);
+            ji.fetch(JobInstance.PROPERTY_VM_INSTANCES, JoinType.LEFT);
+            ji.fetch(JobInstance.PROPERTY_NOTIFICATION_VERSIONS, JoinType.LEFT);
+            ji.fetch(JobInstance.PROPERTY_DATAFILE_VERSIONS, JoinType.LEFT);
+            ji.fetch(JobInstance.PROPERTY_JOB_REGION_VERSONS, JoinType.LEFT);
+            ji.fetch(JobInstance.PROPERTY_VARIABLES, JoinType.LEFT);
+            query.select(root);
+            query.where(cb.equal(root.<String>get(JobQueue.PROPERTY_PROJECT_ID), projectId));
+            List<JobQueue>results = em.createQuery(query).getResultList();
+            if (!results.isEmpty()) {
+                result = results.get(0);
+                if (results.size() > 1) {
+                    LOG.warn("Have " + results.size() + " queues for project " + projectId);
+                }
+            }
+            if (result == null) {
+                result = new JobQueue(projectId);
+                result = saveOrUpdate(result);
+            }
+            commit();
+        } catch (Exception e) {
+            rollback();
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+            cleanup();
         }
         return result;
     }
@@ -101,6 +119,7 @@ public class JobQueueDao extends BaseDao<JobQueue> {
 	        CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
 	        Root<JobQueue> root = query.from(JobQueue.class);
             Fetch<JobQueue, JobInstance> ji = root.fetch(JobQueue.PROPERTY_JOBS, JoinType.INNER);
+            ji.fetch(JobInstance.PROPERTY_VM_INSTANCES, JoinType.INNER);
             ji.fetch(JobInstance.PROPERTY_NOTIFICATION_VERSIONS, JoinType.INNER);
             ji.fetch(JobInstance.PROPERTY_DATAFILE_VERSIONS, JoinType.INNER);
             ji.fetch(JobInstance.PROPERTY_JOB_REGION_VERSONS, JoinType.INNER);
