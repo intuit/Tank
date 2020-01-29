@@ -33,6 +33,7 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.annotations.BatchSize;
 
 /**
  * TestInstance
@@ -56,6 +57,7 @@ public class JobQueue extends BaseEntity {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "test_instance_jobs", joinColumns = @JoinColumn(name = "test_id"),
             inverseJoinColumns = @JoinColumn(name = "job_id"))
+    @BatchSize(size=100)
     private Set<JobInstance> jobs = new HashSet<JobInstance>();
 
     /**

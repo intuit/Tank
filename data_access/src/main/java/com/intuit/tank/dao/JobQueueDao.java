@@ -65,9 +65,8 @@ public class JobQueueDao extends BaseDao<JobQueue> {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
             Root<JobQueue> root = query.from(JobQueue.class);
-            root.fetch(JobQueue.PROPERTY_JOBS, JoinType.LEFT);
-            query.select(root);
-            query.where(cb.equal(root.<String>get(JobQueue.PROPERTY_PROJECT_ID), projectId));
+            query.select(root)
+                    .where(cb.equal(root.<String>get(JobQueue.PROPERTY_PROJECT_ID), projectId));
             List<JobQueue>results = em.createQuery(query).getResultList();
             if (!results.isEmpty()) {
                 result = results.get(0);
@@ -113,9 +112,9 @@ public class JobQueueDao extends BaseDao<JobQueue> {
 	        CriteriaBuilder cb = em.getCriteriaBuilder();
 	        CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
 	        Root<JobQueue> root = query.from(JobQueue.class);
-	        query.select(root);
-	        query.where(cb.greaterThan(root.<Date>get(JobQueue.PROPERTY_MODIFIED), since));
-	        query.orderBy(cb.desc(root.get(JobQueue.PROPERTY_PROJECT_ID)));
+	        query.select(root)
+                    .where(cb.greaterThan(root.<Date>get(JobQueue.PROPERTY_MODIFIED), since))
+                    .orderBy(cb.desc(root.get(JobQueue.PROPERTY_PROJECT_ID)));
 	        results = em.createQuery(query).getResultList();
 	        commit();
         } catch (Exception e) {

@@ -46,6 +46,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.vmManager.JobUtil;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Table(name = "job_instance",
@@ -92,6 +93,7 @@ public class JobInstance extends BaseJob {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "job_id", referencedColumnName = "id")
+    @BatchSize(size=50)
     private Set<JobVMInstance> vmInstances = new HashSet<JobVMInstance>();
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -100,6 +102,7 @@ public class JobInstance extends BaseJob {
             @AttributeOverride(name = "objectId", column = @Column(name = "notification_id")),
             @AttributeOverride(name = "versionId", column = @Column(name = "notification_version_id")),
             @AttributeOverride(name = "objectClass", column = @Column(name = "notification_object_class")) })
+    @BatchSize(size=50)
     private Set<EntityVersion> notificationVersions = new HashSet<EntityVersion>();
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -108,6 +111,7 @@ public class JobInstance extends BaseJob {
             @AttributeOverride(name = "objectId", column = @Column(name = "datafile_id")),
             @AttributeOverride(name = "versionId", column = @Column(name = "datafile_version_id")),
             @AttributeOverride(name = "objectClass", column = @Column(name = "datafile_object_class")) })
+    @BatchSize(size=50)
     private Set<EntityVersion> dataFileVersions = new HashSet<EntityVersion>();
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -116,12 +120,14 @@ public class JobInstance extends BaseJob {
             @AttributeOverride(name = "objectId", column = @Column(name = "jobregion_id")),
             @AttributeOverride(name = "versionId", column = @Column(name = "jobregion_version_id")),
             @AttributeOverride(name = "objectClass", column = @Column(name = "jobregion_object_class")) })
+    @BatchSize(size=50)
     private Set<EntityVersion> jobRegionVersions = new HashSet<EntityVersion>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "name")
     @Column(name = "value")
     @CollectionTable(name = "job_instance_varibles", joinColumns = @JoinColumn(name = "job_id"))
+    @BatchSize(size=50)
     private Map<String, String> variables = new HashMap<String, String>(); // maps from attribute name to value
 
     /**
