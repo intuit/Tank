@@ -63,7 +63,7 @@ public class JobRequest implements Runnable {
             instanceRequest.setNumUsersPerAgent(JobVmCalculator.getOptimalUsersPerAgent(request.getNumberOfUsers(),
                     machines));
             instanceRequest.setSize(request.getVmInstanceType());
-            List<VMInformation> response = this.getEnvironment().create(request);
+            List<VMInformation> response = this.getEnvironment().create(instanceRequest);
             persistInstances(instanceRequest, response);
         } catch (Exception ex) {
             logger.error("Error : " + ex, ex);
