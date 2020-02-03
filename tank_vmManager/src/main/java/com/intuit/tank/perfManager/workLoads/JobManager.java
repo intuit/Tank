@@ -40,6 +40,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
@@ -133,6 +134,7 @@ public class JobManager implements Serializable {
                 }
             }
         } else {
+            project.setTraceEntity(AWSXRay.getGlobalRecorder().getTraceEntity());
             executor.execute(project);
         }
     }
