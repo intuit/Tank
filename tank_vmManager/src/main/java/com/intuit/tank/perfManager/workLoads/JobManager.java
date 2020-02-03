@@ -237,7 +237,7 @@ public class JobManager implements Serializable {
                             LOG.error("Error sending command " + cmd.name() + " to " + url + ": " + e);
                             // look up public ip
                             if (!tankConfig.getStandalone()) {
-                                AmazonInstance amazonInstance = new AmazonInstance(null, agent.getRegion());
+                                AmazonInstance amazonInstance = new AmazonInstance(agent.getRegion());
                                 String dns = amazonInstance.findPublicName(agent.getInstanceId());
                                 if (StringUtils.isNotEmpty(dns)) {
                                     url = "http://" + dns + ":"

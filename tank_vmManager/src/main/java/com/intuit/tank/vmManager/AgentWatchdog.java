@@ -77,7 +77,7 @@ public class AgentWatchdog implements Runnable {
         this.vmInfo = vmInfo;
         this.vmTracker = vmTracker;
         this.startTime = System.currentTimeMillis();
-        this.amazonInstance = new AmazonInstance(null, instanceRequest.getRegion());
+        this.amazonInstance = new AmazonInstance(instanceRequest.getRegion());
 
         VmManagerConfig vmManagerConfig = new TankConfig().getVmManagerConfig();
         this.maxWaitForResponse = vmManagerConfig.getMaxAgentReportMills(1000 * 60 * 5); // 5 minutes
@@ -241,7 +241,7 @@ public class AgentWatchdog implements Runnable {
                 }
             }
             instanceRequest.setNumberOfInstances(instances.size());
-            List<VMInformation> newVms = new AmazonInstance(instanceRequest, instanceRequest.getRegion()).create();
+            List<VMInformation> newVms = new AmazonInstance(instanceRequest.getRegion()).create(instanceRequest);
             instances.clear();
             for (VMInformation newInfo : newVms) {
                 vmInfo.add(newInfo);

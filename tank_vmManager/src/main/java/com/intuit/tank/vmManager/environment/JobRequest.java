@@ -63,7 +63,7 @@ public class JobRequest implements Runnable {
             instanceRequest.setNumUsersPerAgent(JobVmCalculator.getOptimalUsersPerAgent(request.getNumberOfUsers(),
                     machines));
             instanceRequest.setSize(request.getVmInstanceType());
-            List<VMInformation> response = this.getEnvironment(instanceRequest).create();
+            List<VMInformation> response = this.getEnvironment().create(request);
             persistInstances(instanceRequest, response);
         } catch (Exception ex) {
             logger.error("Error : " + ex, ex);
@@ -133,21 +133,21 @@ public class JobRequest implements Runnable {
      * 
      * @return The appropriate environment object
      */
-    private IEnvironmentInstance getEnvironment(VMInstanceRequest instanceRequest) {
+    private IEnvironmentInstance getEnvironment() {
         // TODO: Implement logic to handle multiple environments
         try {
             IEnvironmentInstance environment = null;
             if (this.request.getProvider() != null) {
                 switch (this.request.getProvider()) {
                 case Amazon:
-                    environment = new AmazonInstance(instanceRequest, request.getRegion());
+                    environment = new AmazonInstance(request.getRegion());
                     break;
                 case Pharos:
                     break;
                 }
             } else {
                 // TODO: Implement logic to determine which environment to use
-                environment = new AmazonInstance(instanceRequest, request.getRegion());
+                environment = new AmazonInstance(request.getRegion());
             }
             return environment;
         } catch (Exception ex) {

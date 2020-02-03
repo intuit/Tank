@@ -51,7 +51,7 @@ public class CreateInstance implements Runnable {
     @Override
     public void run() {
         IEnvironmentInstance environment = this.getEnvironment();
-        List<VMInformation> vmInfo = environment.create();
+        List<VMInformation> vmInfo = environment.create(request);
 
         logger.info("Created " + vmInfo.size() + " Amazon instances.");
         VMImageDao dao = new VMImageDao();
@@ -82,7 +82,7 @@ public class CreateInstance implements Runnable {
         try {
             switch (this.request.getProvider()) {
             case Amazon:
-                environment = new AmazonInstance(this.request, request.getRegion());
+                environment = new AmazonInstance(request.getRegion());
                 break;
             case Pharos:
                 break;

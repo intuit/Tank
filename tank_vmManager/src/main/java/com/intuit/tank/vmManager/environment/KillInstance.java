@@ -42,7 +42,7 @@ public class KillInstance implements Runnable {
     @Override
     public void run() {
         IEnvironmentInstance environment = this.getEnvironment();
-        List<VMInformation> killResponse = environment.kill();
+        List<VMInformation> killResponse = environment.kill(request);
 
         // update status of instance
         for (VMInformation vmInformation : killResponse) {
@@ -63,7 +63,7 @@ public class KillInstance implements Runnable {
         try {
             switch (this.request.getProvider()) {
             case Amazon:
-                environment = new AmazonInstance(this.request, new TankConfig().getVmManagerConfig().getDefaultRegion());
+                environment = new AmazonInstance(new TankConfig().getVmManagerConfig().getDefaultRegion());
                 break;
             case Pharos:
                 break;

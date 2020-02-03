@@ -145,7 +145,7 @@ public class JobController {
 
         if (!vmTracker.isDevMode()) {
             for (VMRegion region : new TankConfig().getVmManagerConfig().getRegions()) {
-                AmazonInstance amzInstance = new AmazonInstance(null, region);
+                AmazonInstance amzInstance = new AmazonInstance(region);
                 amzInstance.killInstances(instanceIds);
             }
         }
