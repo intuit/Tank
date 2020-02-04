@@ -51,10 +51,13 @@ public class IncreasingWorkLoad implements Runnable {
     @Override
     public void run() {
         AWSXRay.getGlobalRecorder().setTraceEntity(entity);
+        AWSXRay.beginSubsegment("Ask.For.Agents.JobId." + job.getId());
         try {
             askForAgents(new JobInstanceAgentModel(job));
         } catch (Exception th) {
             LOG.error("Error starting agents: " + th.getMessage(), th);
+        } finally {
+            AWSXRay.endSubsegment();
         }
     }
 
