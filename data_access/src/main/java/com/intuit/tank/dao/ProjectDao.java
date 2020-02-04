@@ -16,6 +16,7 @@ package com.intuit.tank.dao;
  * #L%
  */
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +28,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.Root;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 
@@ -44,6 +47,7 @@ import com.intuit.tank.project.Workload;
  * 
  */
 public class ProjectDao extends OwnableDao<Project> {
+    private static final Logger LOG = LogManager.getLogger(ProjectDao.class);
 
     public ProjectDao() {
         super();
@@ -136,7 +140,7 @@ public class ProjectDao extends OwnableDao<Project> {
         } catch (Exception e) {
         	rollback();
             e.printStackTrace();
-            throw new RuntimeException(e);
+            LOG.info("No entities for Project id " + id);
     	} finally {
     		cleanup();
     	}
@@ -152,7 +156,7 @@ public class ProjectDao extends OwnableDao<Project> {
      */
     @Nonnull
     public List<Project> findAll() throws HibernateException {
-    	List<Project> results = null;
+    	List<Project> results = Collections.emptyList();
     	EntityManager em = getEntityManager();
     	try {
     		begin();
@@ -163,14 +167,11 @@ public class ProjectDao extends OwnableDao<Project> {
 	        wl.fetch("jobConfiguration");
 	        query.select(root);
 	        results = em.createQuery(query).getResultList();
-	        for (Project project : results) {
-				Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
-	        }
 	        commit();
         } catch (Exception e) {
         	rollback();
             e.printStackTrace();
-            throw new RuntimeException(e);
+            LOG.info("No entities found at all for Project");
     	} finally {
     		cleanup();
     	}
@@ -180,11 +181,11 @@ public class ProjectDao extends OwnableDao<Project> {
     @Nullable
     public Project loadScripts(Integer ProjectId) {
     	Project project = findByIdEager(ProjectId);
-        ScriptDao sd = new ScriptDao();
+        ScriptDao dao = new ScriptDao();
         for (TestPlan testPlan : project.getWorkloads().get(0).getTestPlans()) {
             for (ScriptGroup scriptGroup : testPlan.getScriptGroups()) {
                 for (ScriptGroupStep scriptGroupStep : scriptGroup.getScriptGroupSteps()) {
-                    sd.loadScriptSteps(scriptGroupStep.getScript());
+                    dao.loadScriptSteps(scriptGroupStep.getScript());
                 }
             }
         }

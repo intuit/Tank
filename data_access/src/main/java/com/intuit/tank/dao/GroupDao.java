@@ -17,8 +17,17 @@ package com.intuit.tank.dao;
  */
 
 import javax.annotation.Nonnull;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import com.intuit.tank.project.Group;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * GroupDao
@@ -27,6 +36,7 @@ import com.intuit.tank.project.Group;
  * 
  */
 public class GroupDao extends BaseDao<Group> {
+    private static Logger LOG = LogManager.getLogger(GroupDao.class);
 
     /**
      * @param entityClass
@@ -43,11 +53,25 @@ public class GroupDao extends BaseDao<Group> {
      * @return the group or null if no group with the name found.
      */
     public Group findByName(@Nonnull String name) {
-        String prefix = "x";
-        NamedParameter parameter = new NamedParameter(Group.PROPERTY_NAME, "name", name);
-        String sb = buildQlSelect(prefix) + startWhere() +
-                buildWhereClause(Operation.EQUALS, prefix, parameter);
-        return super.findOneWithJQL(sb, parameter);
+        Group result = null;
+        try {
+            EntityManager em = getEntityManager();
+            begin();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Group> query = cb.createQuery(Group.class);
+            Root<Group> root = query.from(Group.class);
+            query.select(root)
+                    .where(cb.equal(root.<String>get(Group.PROPERTY_NAME), name));
+            result = em.createQuery(query).getSingleResult();
+            commit();
+        } catch (Exception e) {
+            rollback();
+            e.printStackTrace();
+            LOG.info("No entities for group " + name);
+        } finally {
+            cleanup();
+        }
+        return result;
     }
 
     /**
