@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.event.Reception;
@@ -67,9 +68,10 @@ public class PreferencesBean implements Serializable, PreferencesChangedListener
     private TimeZone clientTimeZone = TimeZone.getTimeZone("PST");
 
     /**
-     * 
+     * Constructor
      */
-    public PreferencesBean() {
+    @PostConstruct
+    public void init() {
         dateTimeFotmat = FastDateFormat.getInstance(TankConstants.DATE_FORMAT_WITH_TIMEZONE, clientTimeZone);
         timestampFormat = FastDateFormat.getInstance(preferredTimeStampFormat);
     }

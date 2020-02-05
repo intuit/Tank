@@ -140,6 +140,7 @@ public class VMTrackerImpl implements VMTracker {
     @Override
     public void setStatus(@Nonnull final CloudVmStatus status) {
         Runnable task = () -> {
+            // setTraceEntity caused AlreadyEmittedException: Segment qa-tank.perf.a.intuit.com has already been emitted
             AWSXRay.beginDummySegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
             setStatusThread(status);
             AWSXRay.endSegment();
