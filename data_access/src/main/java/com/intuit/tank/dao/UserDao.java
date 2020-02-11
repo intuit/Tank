@@ -20,6 +20,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.enterprise.context.Dependent;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
@@ -27,6 +28,8 @@ import javax.persistence.criteria.Root;
 
 import com.intuit.tank.project.User;
 import com.intuit.tank.vm.common.PasswordEncoder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * UserDao
@@ -36,7 +39,7 @@ import com.intuit.tank.vm.common.PasswordEncoder;
  */
 @Dependent
 public class UserDao extends BaseDao<User> {
-
+    private static final Logger LOG = LogManager.getLogger(UserDao.class);
     /**
      * @param entityClass
      */
@@ -74,21 +77,26 @@ public class UserDao extends BaseDao<User> {
      */
     public User findByUserName(@Nonnull String userName) {
         User user = null;
+        CriteriaQuery<User> query = null;
         EntityManager em = getEntityManager();
         try {
             begin();
             CriteriaBuilder cb = em.getCriteriaBuilder();
-            CriteriaQuery<User> query = cb.createQuery(User.class);
+            query = cb.createQuery(User.class);
             Root<User> root = query.from(User.class);
             root.fetch(User.PROPERTY_GROUPS, JoinType.INNER);
             query.select(root)
                     .where(cb.equal(root.<String>get(User.PROPERTY_NAME), userName));
             user = em.createQuery(query).getSingleResult();
             commit();
+        } catch (NoResultException nre) {
+            rollback();
+            LOG.info("no entity matching username: " + userName, nre);
         } catch (Exception e) {
             rollback();
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            String printQuery = (query != null) ? query.toString()
+                    : "Failed to connect to database: ";
+            LOG.info("no entity matching query: " + printQuery, e);
         } finally {
             cleanup();
         }
@@ -102,11 +110,31 @@ public class UserDao extends BaseDao<User> {
      * @return the user or null if no user with the apiToken.
      */
     public User findByApiToken(@Nonnull String apiToken) {
-        String prefix = "x";
-        NamedParameter parameter = new NamedParameter(User.PROPERTY_TOKEN, "token", apiToken);
-        String sb = buildQlSelect(prefix) + startWhere() +
-                buildWhereClause(Operation.EQUALS, prefix, parameter);
-        return super.findOneWithJQL(sb, parameter);
+        User user = null;
+        CriteriaQuery<User> query = null;
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            query = cb.createQuery(User.class);
+            Root<User> root = query.from(User.class);
+            root.fetch(User.PROPERTY_GROUPS, JoinType.INNER);
+            query.select(root)
+                    .where(cb.equal(root.<String>get(User.PROPERTY_TOKEN), apiToken));
+            user = em.createQuery(query).getSingleResult();
+            commit();
+        } catch (NoResultException nre) {
+            rollback();
+            LOG.info("no entity matching apiToken: " + apiToken, nre);
+        } catch (Exception e) {
+            rollback();
+            String printQuery = (query != null) ? query.toString()
+                    : "Failed to connect to database: ";
+            LOG.info("no entity matching query: " + printQuery, e);
+        } finally {
+            cleanup();
+        }
+        return user;
     }
 
 }
