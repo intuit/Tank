@@ -19,9 +19,10 @@ package com.intuit.tank.script;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
 import javax.faces.model.SelectItem;
+import javax.inject.Named;
 
 import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.dao.ScriptDao;
@@ -32,12 +33,13 @@ import com.intuit.tank.vm.settings.ModifiedEntityMessage;
 import com.intuit.tank.wrapper.EntityVersionLoader;
 
 /**
- * ProjectModifiedObserver
+ * ScriptLoader
  * 
  * @author dangleton
  * 
  */
-@ApplicationScoped
+@Named
+@Dependent
 public class ScriptLoader extends EntityVersionLoader<Script, ModifiedScriptMessage> {
 
     private static final long serialVersionUID = 1L;
@@ -45,7 +47,7 @@ public class ScriptLoader extends EntityVersionLoader<Script, ModifiedScriptMess
 
     /**
      * 
-     * @param p
+     * @param entityMsg
      */
     public void observeEvents(@Observes ModifiedEntityMessage entityMsg) {
         if (entityMsg.getEntityClass() == Script.class) {

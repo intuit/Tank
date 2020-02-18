@@ -44,6 +44,7 @@ import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
+import org.apache.hc.client5.http.cookie.CookieSpecs;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -63,7 +64,6 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.ssl.SSLContexts;
-import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.cookie.ClientCookie;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -96,7 +96,7 @@ public class TankHttpClient5 implements TankHttpClient {
         		.setCircularRedirectsAllowed(true)
         		.setAuthenticationEnabled(true)
         		.setRedirectsEnabled(true)
-        		.setCookieSpec(CookieSpecs.STANDARD)
+        		.setCookieSpec(CookieSpecs.STANDARD.ident)
                 .setMaxRedirects(100)
                 .build();
 

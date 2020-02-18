@@ -32,6 +32,7 @@ import javax.validation.constraints.Size;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.envers.Audited;
 
 /**
@@ -53,6 +54,7 @@ public class User extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     public static final String PROPERTY_NAME = "name";
+    public static final String PROPERTY_GROUPS = "groups";
     public static final String PROPERTY_EMAIL = "email";
     public static final String PROPERTY_TOKEN = "apiToken";
 
@@ -75,6 +77,7 @@ public class User extends BaseEntity {
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinTable(joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @BatchSize(size=10)
     private Set<Group> groups = new HashSet<Group>();
 
     public User() {

@@ -15,6 +15,8 @@ package com.intuit.tank.vmManager.environment;
 
 import java.util.List;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Entity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,10 +44,14 @@ public class CreateInstance implements Runnable {
         this.vmTracker = vmTracker;
     }
 
+    public void setTraceEntity(Entity entity) {
+        AWSXRay.getGlobalRecorder().setTraceEntity(entity);
+    }
+
     @Override
     public void run() {
         IEnvironmentInstance environment = this.getEnvironment();
-        List<VMInformation> vmInfo = environment.create();
+        List<VMInformation> vmInfo = environment.create(request);
 
         logger.info("Created " + vmInfo.size() + " Amazon instances.");
         VMImageDao dao = new VMImageDao();
@@ -57,7 +63,7 @@ public class CreateInstance implements Runnable {
     }
 
     /**
-     * @param request2
+     * @param req
      * @param info
      * @return
      */
@@ -76,7 +82,7 @@ public class CreateInstance implements Runnable {
         try {
             switch (this.request.getProvider()) {
             case Amazon:
-                environment = new AmazonInstance(this.request, request.getRegion());
+                environment = new AmazonInstance(request.getRegion());
                 break;
             case Pharos:
                 break;

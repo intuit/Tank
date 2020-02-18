@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -39,6 +40,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
@@ -132,6 +134,7 @@ public class JobManager implements Serializable {
                 }
             }
         } else {
+            project.setTraceEntity(AWSXRay.getGlobalRecorder().getTraceEntity());
             executor.execute(project);
         }
     }
@@ -161,8 +164,10 @@ public class JobManager implements Serializable {
                 ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement());
                 jobInfo.agentData.add(agent);
                 CloudVmStatus status = vmTracker.getStatus(agent.getInstanceId());
-                status.setVmStatus(VMStatus.pending);
-                vmTracker.setStatus(status);
+                if(status != null) {
+                    status.setVmStatus(VMStatus.pending);
+                    vmTracker.setStatus(status);
+                }
                 if (jobInfo.isFilled()) {
                     startTest(jobInfo);
                 }
@@ -234,7 +239,7 @@ public class JobManager implements Serializable {
                             LOG.error("Error sending command " + cmd.name() + " to " + url + ": " + e);
                             // look up public ip
                             if (!tankConfig.getStandalone()) {
-                                AmazonInstance amazonInstance = new AmazonInstance(null, agent.getRegion());
+                                AmazonInstance amazonInstance = new AmazonInstance(agent.getRegion());
                                 String dns = amazonInstance.findPublicName(agent.getInstanceId());
                                 if (StringUtils.isNotEmpty(dns)) {
                                     url = "http://" + dns + ":"
@@ -344,5 +349,10 @@ public class JobManager implements Serializable {
 
         }
 
+    }
+
+    @PreDestroy
+    private void destroy() {
+        executor.shutdown();
     }
 }

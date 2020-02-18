@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.event.Event;
 
+import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -77,10 +78,12 @@ public class SummaryReportRunner implements Runnable {
      */
     @Override
     public void run() {
+        AWSXRay.beginDummySegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
         String jobId = jobEvent.getJobId();
         generateSummary(jobEvent.getJobId());
         jobEventProducer.fire(new JobEvent(jobId, getSummaryEventMessage(),
                 JobLifecycleEvent.SUMMARY_REPORT_FINISHED));
+        AWSXRay.endSegment();
     }
 
     /**
@@ -110,8 +113,7 @@ public class SummaryReportRunner implements Runnable {
                     MethodTimer mt = new MethodTimer(LOG,
                             SummaryReportRunner.class, "generateSummary");
                     MetricsCalculator metricsCalculator = new MetricsCalculator();
-                    JobInstance jobInstance = new JobInstanceDao()
-                            .findById(Integer.valueOf(jobIdString));
+                    JobInstance jobInstance = new JobInstanceDao().findById(Integer.valueOf(jobIdString));
                     metricsCalculator.retrieveAndCalculateTimingData(jobIdString,
                             calculateSteadyStateStart(jobInstance),
                             calculateSteadyStateEnd(jobInstance));
@@ -170,15 +172,15 @@ public class SummaryReportRunner implements Runnable {
 
     private static Date calculateSteadyStateEnd(JobInstance jobInstance) {
         return (jobInstance.getStartTime() != null
-                && jobInstance.getSimulationTime() > 0) ? null :
+                && jobInstance.getSimulationTime() > 0) ?
             new Date(jobInstance.getStartTime().getTime()
-                    + jobInstance.getSimulationTime());
+                    + jobInstance.getSimulationTime()) : null;
     }
 
     private static Date calculateSteadyStateStart(JobInstance jobInstance) {
-        return jobInstance.getStartTime() != null ? null :
+        return jobInstance.getStartTime() != null ?
             new Date(jobInstance.getStartTime().getTime()
-                    + jobInstance.getRampTime());
+                    + jobInstance.getRampTime()) : null;
     }
 
     /**

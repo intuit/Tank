@@ -93,7 +93,7 @@ public class ProjectDaoTest {
             Workload removed = workloads.remove(2);
             workloads.add(0, removed);
             persistedProject = dao.saveOrUpdate(persistedProject);
-            persistedProject = dao.findById(projectId);
+            persistedProject = dao.findByIdEager(projectId);
 
             assertNotEquals(persistedProject.getWorkloads().get(0), originalOrder.get(0));
             assertEquals(persistedProject.getWorkloads().get(0), originalOrder.get(2));
@@ -104,7 +104,7 @@ public class ProjectDaoTest {
             persistedProject.getWorkloads().remove(2);
             persistedProject.getWorkloads().remove(0);
             persistedProject = dao.saveOrUpdate(persistedProject);
-            persistedProject = dao.findById(projectId);
+            persistedProject = dao.findByIdEager(projectId);
             assertEquals(persistedProject.getWorkloads().get(0), originalOrder.get(1));
             assertEquals(1, persistedProject.getWorkloads().size());
 
@@ -146,7 +146,7 @@ public class ProjectDaoTest {
         Project persistedProject = dao.saveOrUpdate(project);
 
         validateProject(project, persistedProject, false);
-        project = dao.findById(persistedProject.getId());
+        project = dao.findByIdEager(persistedProject.getId());
         project.setComments("new Comments");
         persistedProject = dao.saveOrUpdate(project);
         validateProject(project, persistedProject, false);
@@ -161,7 +161,7 @@ public class ProjectDaoTest {
 
         // delete it
         dao.delete(persistedProject);
-        project = dao.findById(project.getId());
+        project = dao.findByIdEager(project.getId());
         assertNull(project);
         all = dao.findAll();
         assertEquals(originalSize, all.size());

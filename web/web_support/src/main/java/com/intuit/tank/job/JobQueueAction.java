@@ -17,6 +17,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.service.impl.v1.cloud.JobController;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
@@ -34,6 +35,8 @@ public class JobQueueAction {
      * @param node
      */
     public void run(JobNodeBean node) {
+        AWSXRay.getCurrentSegment().putAnnotation("job.action", "run");
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", node.getJobId());
         if (node instanceof ActJobNodeBean) {
             ActJobNodeBean jobNode = (ActJobNodeBean) node;
 
@@ -57,6 +60,8 @@ public class JobQueueAction {
      * Pauses the job for the given jobId
      */
     public void pause(JobNodeBean node) {
+        AWSXRay.getCurrentSegment().putAnnotation("job.action", "pause");
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", node.getJobId());
         if (node instanceof ActJobNodeBean) {
             controller.pauseJob(node.getId());
         } else if (node instanceof VMNodeBean) {
@@ -68,6 +73,8 @@ public class JobQueueAction {
      * Pauses the job for the given jobId
      */
     public void pauseRamp(JobNodeBean node) {
+        AWSXRay.getCurrentSegment().putAnnotation("job.action", "pauseRamp");
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", node.getJobId());
         if (node instanceof ActJobNodeBean) {
             controller.pauseRampJob(node.getId());
         } else if (node instanceof VMNodeBean) {
@@ -81,6 +88,8 @@ public class JobQueueAction {
      * @param node
      */
     public void kill(JobNodeBean node) {
+        AWSXRay.getCurrentSegment().putAnnotation("job.action", "kill");
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", node.getJobId());
         if (node instanceof ActJobNodeBean) {
             controller.killJob(node.getId());
         } else if (node instanceof VMNodeBean) {
@@ -92,6 +101,8 @@ public class JobQueueAction {
      * Stops the job with the given jobId
      */
     public void stop(JobNodeBean node) {
+        AWSXRay.getCurrentSegment().putAnnotation("job.action", "stop");
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", node.getJobId());
         if (node instanceof ActJobNodeBean) {
             controller.stopJob(node.getId());
         } else if (node instanceof VMNodeBean) {

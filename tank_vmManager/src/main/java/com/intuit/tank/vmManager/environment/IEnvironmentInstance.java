@@ -20,6 +20,7 @@ import com.amazonaws.services.ec2.model.Address;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.vmManager.VMInformation;
+import com.intuit.tank.vm.vmManager.VMRequest;
 import com.intuit.tank.vmManager.environment.amazon.KeyValuePair;
 
 /**
@@ -34,17 +35,21 @@ public interface IEnvironmentInstance {
 
     /**
      * Start the VMs that this instance is configured for.
-     * 
+     *
+     * @param request
+     *          request of instances to create
      * @return list of VmInformation objects
      */
-    public List<VMInformation> create();
+    public List<VMInformation> create(VMRequest request);
 
     /**
      * Terminate the Vms this instance is configured for.
-     * 
+     *
+     * @param request
+     *          request of instances to kill
      * @return list of VmInformation objects
      */
-    public List<VMInformation> kill();
+    public List<VMInformation> kill(VMRequest request);
 
     /**
      * Describe The instances specified.

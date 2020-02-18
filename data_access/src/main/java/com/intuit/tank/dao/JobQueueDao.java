@@ -25,8 +25,13 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Fetch;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 
+import com.intuit.tank.project.JobInstance;
+import com.intuit.tank.project.Project;
+import com.intuit.tank.project.Workload;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.LockOptions;
@@ -54,20 +59,32 @@ public class JobQueueDao extends BaseDao<JobQueue> {
      */
     public synchronized JobQueue findOrCreateForProjectId(@Nonnull int projectId) {
         JobQueue result = null;
-        String prefix = "x";
-        NamedParameter parameter = new NamedParameter(JobQueue.PROPERTY_PROJECT_ID, "pId", projectId);
-        List<JobQueue> resultList = super.listWithJQL(buildQlSelect(prefix) + startWhere() + buildWhereClause(Operation.EQUALS, prefix, parameter), parameter);
-        if (resultList.size() > 1) {
-            LOG.warn("Have " + resultList.size() + " queues for project " + projectId);
-        }
-        if (!resultList.isEmpty()) {
-            result = resultList.get(0);
-        }
-        if (result == null) {
-            result = new JobQueue(projectId);
-            result = saveOrUpdate(result);
-        } else {
-            getHibernateSession().refresh(result, LockOptions.READ);
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
+            Root<JobQueue> root = query.from(JobQueue.class);
+            query.select(root)
+                    .where(cb.equal(root.<String>get(JobQueue.PROPERTY_PROJECT_ID), projectId));
+            List<JobQueue>results = em.createQuery(query).getResultList();
+            if (!results.isEmpty()) {
+                result = results.get(0);
+                if (results.size() > 1) {
+                    LOG.warn("Have " + results.size() + " queues for project " + projectId);
+                }
+            }
+            if (result == null) {
+                result = new JobQueue(projectId);
+                result = saveOrUpdate(result);
+            }
+            commit();
+        } catch (Exception e) {
+            rollback();
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+            cleanup();
         }
         return result;
     }
@@ -95,9 +112,9 @@ public class JobQueueDao extends BaseDao<JobQueue> {
 	        CriteriaBuilder cb = em.getCriteriaBuilder();
 	        CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
 	        Root<JobQueue> root = query.from(JobQueue.class);
-	        query.select(root);
-	        query.where(cb.greaterThan(root.<Date>get(JobQueue.PROPERTY_MODIFIED), since));
-	        query.orderBy(cb.desc(root.get(JobQueue.PROPERTY_PROJECT_ID)));
+	        query.select(root)
+                    .where(cb.greaterThan(root.<Date>get(JobQueue.PROPERTY_MODIFIED), since))
+                    .orderBy(cb.desc(root.get(JobQueue.PROPERTY_PROJECT_ID)));
 	        results = em.createQuery(query).getResultList();
 	        commit();
         } catch (Exception e) {

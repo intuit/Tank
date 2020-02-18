@@ -37,7 +37,7 @@ public class CollectionConverter implements Converter {
      */
     @Override
     public Object getAsObject(FacesContext facesContext, UIComponent uiComponent, String value) {
-        throw new IllegalArgumentException("CAnnot convert to object.");
+        throw new IllegalArgumentException("Cannot convert to object.");
     }
 
     /**

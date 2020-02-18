@@ -24,9 +24,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.inject.Named;
 
+import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
@@ -54,6 +57,8 @@ import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
  * @author dangleton
  * 
  */
+@Named
+@RequestScoped
 public class JobController {
 
     @Inject
@@ -75,7 +80,7 @@ public class JobController {
      * @inheritDoc
      */
     public String startJob(String jobId) {
-
+        AWSXRay.beginSubsegment("Start.Job." + jobId);
         JobInstanceDao jobInstanceDao = new JobInstanceDao();
         JobInstance job = jobInstanceDao.findById(Integer.valueOf(jobId));
         synchronized (jobId) {
@@ -86,12 +91,13 @@ public class JobController {
 
                 ProjectDaoUtil.storeScriptFile(jobId, getScriptString(job));
 
-                vmTracker.removeStatusForJob(Integer.toString(job.getId()));
+                vmTracker.removeStatusForJob(jobId);
                 jobManager.startJob(job.getId());
                 jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_STARTED));
             }
         }
-        return Integer.toString(job.getId());
+        AWSXRay.endSubsegment();
+        return jobId;
     }
 
     /**
@@ -139,7 +145,7 @@ public class JobController {
 
         if (!vmTracker.isDevMode()) {
             for (VMRegion region : new TankConfig().getVmManagerConfig().getRegions()) {
-                AmazonInstance amzInstance = new AmazonInstance(null, region);
+                AmazonInstance amzInstance = new AmazonInstance(region);
                 amzInstance.killInstances(instanceIds);
             }
         }

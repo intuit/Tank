@@ -143,11 +143,6 @@
       <artifactId>commons-fileupload</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-    </dependency>
-
     <!-- Bean Validation API (JSR 303) -->
     <dependency>
       <groupId>javax.validation</groupId>

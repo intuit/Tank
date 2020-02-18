@@ -20,6 +20,10 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import com.intuit.tank.project.OwnableEntity;
 
@@ -53,16 +57,25 @@ public abstract class OwnableDao<T_ENTITY extends OwnableEntity> extends BaseDao
      */
     @Nonnull
     public List<T_ENTITY> listForOwner(@Nonnull String owner) {
+        List<T_ENTITY> results = Collections.emptyList();
         try {
-            String prefix = "x";
-            NamedParameter parameter = new NamedParameter(OwnableEntity.PROPERTY_CREATOR, "pId", owner);
-            String sb = buildQlSelect(prefix) + startWhere() +
-                    buildWhereClause(Operation.EQUALS, prefix, parameter);
-            return listWithJQL(sb, parameter);
+            EntityManager em = getEntityManager();
+            begin();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<T_ENTITY> query = cb.createQuery(entityClass);
+            Root<T_ENTITY> root = query.from(entityClass);
+            query.select(root)
+                    .where(cb.equal(root.<String>get(OwnableEntity.PROPERTY_CREATOR), owner));
+            results = em.createQuery(query).getResultList();
+            commit();
         } catch (Exception e) {
+            rollback();
+            e.printStackTrace();
             LOG.info("No entities for owner " + owner);
+        } finally {
+            cleanup();
         }
-        return Collections.emptyList();
+        return results;
     }
 
 }

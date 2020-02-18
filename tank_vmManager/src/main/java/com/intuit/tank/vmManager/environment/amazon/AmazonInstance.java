@@ -82,18 +82,15 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     private AmazonEC2Async asynchEc2Client;
     private VMRegion vmRegion;
-    private VMRequest request;
 
     private TankConfig config = new TankConfig();
 
     /**
-     * 
-     * @param request
+     *
      * @param vmRegion
      */
-    public AmazonInstance(VMRequest request, @Nonnull VMRegion vmRegion) {
+    public AmazonInstance(@Nonnull VMRegion vmRegion) {
         this.vmRegion = vmRegion;
-        this.request = request;
         try {
             CloudCredentials creds = config.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
             ClientConfiguration clientConfig = new ClientConfiguration();
@@ -171,7 +168,7 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @inheritDoc
      */
     @Override
-    public List<VMInformation> create() {
+    public List<VMInformation> create(VMRequest request) {
         List<VMInformation> result = new ArrayList<>();
         try {
             VMInstanceRequest instanceRequest = (VMInstanceRequest) request;
@@ -435,7 +432,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     }
 
     @Override
-    public List<VMInformation> kill() {
+    public List<VMInformation> kill(VMRequest request) {
         VMKillRequest killRequest = (VMKillRequest) request;
         TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest(killRequest.getInstances());
         TerminateInstancesResult terminateInstances = asynchEc2Client.terminateInstances(terminateInstancesRequest);

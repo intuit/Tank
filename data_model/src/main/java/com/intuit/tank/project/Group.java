@@ -41,7 +41,7 @@ public class Group extends BaseEntity {
 
     public static final String PROPERTY_NAME = "name";
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", unique = true, nullable = false)
     @NotNull
     @Size(max = 255)
     private String name;

@@ -16,6 +16,7 @@ package com.intuit.tank.vmManager;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import com.amazonaws.xray.AWSXRay;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,13 +57,16 @@ public class VmMessageProcessorImpl implements VmMessageProcessor {
         if (messageObject instanceof VMInstanceRequest) {
             logger.debug("vmManager received VMInstanceRequest");
             CreateInstance instance = new CreateInstance((VMInstanceRequest) messageObject, vmTracker);
+            instance.setTraceEntity(AWSXRay.getGlobalRecorder().getTraceEntity());
             instance.run();
         } else if (messageObject instanceof VMJobRequest) {
             JobRequest instance = new JobRequest((VMJobRequest) messageObject, vmTracker);
+            instance.setTraceEntity(AWSXRay.getGlobalRecorder().getTraceEntity());
             instance.run();
         } else if (messageObject instanceof VMKillRequest) {
             logger.debug("vmManager received VMKillRequest");
             KillInstance instance = new KillInstance((VMKillRequest) messageObject);
+            instance.setTraceEntity(AWSXRay.getGlobalRecorder().getTraceEntity());
             vmQueue.execute(instance);
         } else if (messageObject instanceof VMUpdateStateRequest) {
             logger.debug("vmManager received VMUpdateStateRequest");

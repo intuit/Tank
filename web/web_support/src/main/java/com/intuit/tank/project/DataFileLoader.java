@@ -19,9 +19,10 @@ package com.intuit.tank.project;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
 import javax.faces.model.SelectItem;
+import javax.inject.Named;
 
 import com.intuit.tank.ModifiedDatafileMessage;
 import com.intuit.tank.dao.DataFileDao;
@@ -35,7 +36,8 @@ import com.intuit.tank.wrapper.EntityVersionLoader;
  * @author Kevin McGoldrick
  * 
  */
-@ApplicationScoped
+@Named
+@Dependent
 public class DataFileLoader extends EntityVersionLoader<DataFile, ModifiedDatafileMessage> {
 
     private static final long serialVersionUID = 1L;
@@ -61,7 +63,7 @@ public class DataFileLoader extends EntityVersionLoader<DataFile, ModifiedDatafi
 
     /**
      * 
-     * @param p
+     * @param entityMsg
      */
     public void observeEvents(@Observes ModifiedEntityMessage entityMsg) {
         if (entityMsg.getEntityClass() == DataFile.class) {

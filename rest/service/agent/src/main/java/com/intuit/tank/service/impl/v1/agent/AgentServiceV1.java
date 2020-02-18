@@ -93,6 +93,8 @@ public class AgentServiceV1 implements AgentService {
     @Override
     public Response agentReady(AgentData data) {
         LOG.info("Agent ready: " + data);
+        AWSXRay.getCurrentSegment().putAnnotation("JobId", data.getJobId());
+        AWSXRay.getCurrentSegment().putAnnotation("InstanceId", data.getInstanceId());
         ResponseBuilder responseBuilder = Response.ok();
         try {
             JobManager jobManager = new ServletInjector<JobManager>().getManagedBean(servletContext, JobManager.class);

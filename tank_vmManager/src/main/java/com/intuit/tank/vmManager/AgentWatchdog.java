@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -76,7 +77,7 @@ public class AgentWatchdog implements Runnable {
         this.vmInfo = vmInfo;
         this.vmTracker = vmTracker;
         this.startTime = System.currentTimeMillis();
-        this.amazonInstance = new AmazonInstance(null, instanceRequest.getRegion());
+        this.amazonInstance = new AmazonInstance(instanceRequest.getRegion());
 
         VmManagerConfig vmManagerConfig = new TankConfig().getVmManagerConfig();
         this.maxWaitForResponse = vmManagerConfig.getMaxAgentReportMills(1000 * 60 * 5); // 5 minutes
@@ -101,6 +102,7 @@ public class AgentWatchdog implements Runnable {
     @Override
     public void run() {
         LOG.info("Starting WatchDog: " + this.toString());
+        AWSXRay.beginDummySegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
         try {
             List<VMInformation> instances = new ArrayList<VMInformation>(vmInfo);
             while (rebootCount <= maxRestarts && restartCount <= maxRestarts && !stopped) {
@@ -152,9 +154,10 @@ public class AgentWatchdog implements Runnable {
             }
         } catch (Exception e) {
             LOG.error("Error in Watchdog: " + e.toString(), e);
+        } finally {
+            LOG.info("Exiting Watchdog " + this.toString());
+            AWSXRay.endSegment();
         }
-        LOG.info("Exiting Watchdog " + this.toString());
-
     }
 
     /**
@@ -238,7 +241,7 @@ public class AgentWatchdog implements Runnable {
                 }
             }
             instanceRequest.setNumberOfInstances(instances.size());
-            List<VMInformation> newVms = new AmazonInstance(instanceRequest, instanceRequest.getRegion()).create();
+            List<VMInformation> newVms = new AmazonInstance(instanceRequest.getRegion()).create(instanceRequest);
             instances.clear();
             for (VMInformation newInfo : newVms) {
                 vmInfo.add(newInfo);
@@ -246,7 +249,7 @@ public class AgentWatchdog implements Runnable {
                 vmTracker.setStatus(createCloudStatus(instanceRequest, newInfo));
                 LOG.info("Added image (" + newInfo.getInstanceId() + ") to VMImage table");
                 try {
-                    new VMImageDao().addImageFromInfo(instanceRequest.getJobId(), newInfo,
+                    dao.addImageFromInfo(instanceRequest.getJobId(), newInfo,
                             instanceRequest.getRegion());
                 } catch (Exception e) {
                     LOG.warn("Error persisting VM Image: " + e);
