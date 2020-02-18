@@ -6,7 +6,7 @@
 
   <groupId>com.intuit.tank</groupId>
   <artifactId>test-support</artifactId>
-  <version>2.3.3-SNAPSHOT</version>
+  <version>2.3.3</version>
 
   <packaging>jar</packaging>
   <description>Intuit Tank Test Support module</description>
