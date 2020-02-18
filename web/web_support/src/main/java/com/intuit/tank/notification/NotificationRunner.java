@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -68,6 +69,7 @@ public class NotificationRunner implements Runnable {
      */
     @Override
     public void run() {
+        AWSXRay.beginDummySegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
         if (NumberUtils.isDigits(jobEvent.getJobId())) {
             JobInstance job = new JobInstanceDao().findById(Integer.valueOf(jobEvent.getJobId()));
             if (job != null) {
@@ -85,6 +87,7 @@ public class NotificationRunner implements Runnable {
         } else { // do automation stuff
 
         }
+        AWSXRay.endSegment();
     }
 
     /**

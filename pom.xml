@@ -4,7 +4,7 @@
 
   <groupId>com.intuit.tank</groupId>
   <artifactId>tank-parent</artifactId>
-  <version>2.3.2</version>
+  <version>2.3.3</version>
 
   <packaging>pom</packaging>
   <name>Tank Parent</name>
@@ -28,9 +28,9 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>5.1.17.Final</version.hibernate>
-    <version-aws-sdk>1.11.650</version-aws-sdk>
+    <version-aws-sdk>1.11.694</version-aws-sdk>
 
-    <version-tomcat>9.0.27</version-tomcat>
+    <version-tomcat>9.0.30</version-tomcat>
 
     <weld.version>3.1.2.Final</weld.version>
     <cdi.version>2.0</cdi.version>
@@ -47,7 +47,7 @@
     <version.jersey>2.29</version.jersey>
     <version.junit>5.5.2</version.junit>
     <version.httpclient>4.5.10</version.httpclient>
-    <version.httpclient5>5.0-beta2</version.httpclient5>
+    <version.httpclient5>5.0-beta6</version.httpclient5>
     <version.lucene>8.2.0</version.lucene>
 
     <version.groovy>2.4.17</version.groovy>
@@ -292,7 +292,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>test-support</artifactId>
-      <version>2.3.2</version>
+      <version>2.3.3</version>
       <scope>test</scope>
     </dependency>
 
@@ -542,15 +542,9 @@
       </dependency>
 
       <dependency>
-        <groupId>de.javakaffee.msm</groupId>
-        <artifactId>msm-kryo-serializer</artifactId>
-        <version>2.3.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpcomponents-core</artifactId>
-        <version>${version.httpclient}</version>
+        <groupId>commons-httpclient</groupId>
+        <artifactId>commons-httpclient</artifactId>
+        <version>3.1</version>
       </dependency>
 
       <dependency>
@@ -563,12 +557,6 @@
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
         <version>${version.httpclient}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-httpclient</groupId>
-        <artifactId>commons-httpclient</artifactId>
-        <version>3.0.1</version>
       </dependency>
 
       <dependency>
@@ -719,24 +707,19 @@
       <dependency>
         <groupId>com.amazonaws</groupId>
         <artifactId>aws-xray-recorder-sdk-bom</artifactId>
-        <version>2.2.1</version>
+        <version>2.4.0</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
       <dependency>
-        <groupId>commons-discovery</groupId>
-        <artifactId>commons-discovery</artifactId>
-        <version>0.2</version>
-      </dependency>
-      <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
-        <version>20160212</version>
+        <version>20190722</version>
       </dependency>
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.10</version>
+        <version>1.13</version>
       </dependency>
       <dependency>
         <groupId>xalan</groupId>
@@ -974,7 +957,7 @@
             <dependency>
               <groupId>${project.groupId}</groupId>
               <artifactId>test-support</artifactId>
-              <version>2.3.2</version>
+              <version>2.3.3</version>
             </dependency>
           </dependencies>
           <configuration>

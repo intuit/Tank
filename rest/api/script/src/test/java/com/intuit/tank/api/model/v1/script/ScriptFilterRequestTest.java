@@ -43,7 +43,7 @@ public class ScriptFilterRequestTest {
     public void generateSample() throws Exception {
         JAXBContext ctx = JAXBContext.newInstance(ScriptFilterRequest.class.getPackage().getName());
         Marshaller marshaller = ctx.createMarshaller();
-        marshaller.setProperty("jaxb.formatted.output", true);
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         ScriptFilterRequest jaxbObject = new ScriptFilterRequest(1, Arrays.asList(1, 2, 3, 4, 5));
         File parent = new File("target/jaxb-sample-xml");
         parent.mkdirs();

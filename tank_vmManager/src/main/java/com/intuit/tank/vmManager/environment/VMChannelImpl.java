@@ -45,7 +45,7 @@ public class VMChannelImpl implements VMChannel {
      */
     @Override
     public List<VMInformation> findInstancesOfType(VMRegion region, VMImageType type) {
-        AmazonInstance amazonInstance = new AmazonInstance(null, region);
+        AmazonInstance amazonInstance = new AmazonInstance(region);
         return amazonInstance.findInstancesOfType(region, type);
     }
 
@@ -55,7 +55,7 @@ public class VMChannelImpl implements VMChannel {
     @Override
     public void terminateInstances(@Nonnull List<String> instanceIds) {
         for (VMRegion region : new TankConfig().getVmManagerConfig().getRegions()) {
-            AmazonInstance amazonInstance = new AmazonInstance(null, region);
+            AmazonInstance amazonInstance = new AmazonInstance(region);
             amazonInstance.killInstances(instanceIds);
         }
     }
@@ -66,7 +66,7 @@ public class VMChannelImpl implements VMChannel {
     @Override
     public void stopInstances(@Nonnull List<String> instanceIds) {
         for (VMRegion region : new TankConfig().getVmManagerConfig().getRegions()) {
-            AmazonInstance amazonInstance = new AmazonInstance(null, region);
+            AmazonInstance amazonInstance = new AmazonInstance(region);
             amazonInstance.stopInstances(instanceIds);
         }
     }
@@ -76,8 +76,8 @@ public class VMChannelImpl implements VMChannel {
      */
     @Override
     public List<VMInformation> startInstances(@Nonnull VMInstanceRequest request) {
-        AmazonInstance amazonInstance = new AmazonInstance(request, request.getRegion());
-        return amazonInstance.create();
+        AmazonInstance amazonInstance = new AmazonInstance(request.getRegion());
+        return amazonInstance.create(request);
     }
 
 }

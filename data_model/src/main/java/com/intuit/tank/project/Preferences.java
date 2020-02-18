@@ -16,12 +16,15 @@ package com.intuit.tank.project;
  * #L%
  */
 
+import org.hibernate.annotations.BatchSize;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
@@ -34,7 +37,8 @@ import javax.persistence.Table;
  * 
  */
 @Entity
-@Table(name = "table_preferences")
+@Table(name = "table_preferences",
+        indexes = { @Index(name = "IDX_CREATOR", columnList = ColumnPreferences.PROPERTY_CREATOR)})
 public class Preferences extends OwnableEntity {
 
     private static final long serialVersionUID = 1L;
@@ -42,16 +46,19 @@ public class Preferences extends OwnableEntity {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderColumn(name = "project_position")
     @JoinColumn(name = "project_table_id", referencedColumnName = "id")
+    @BatchSize(size=10)
     private List<ColumnPreferences> projectTableColumns = new ArrayList<ColumnPreferences>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderColumn(name = "scripts_position")
     @JoinColumn(name = "scripts_table_id", referencedColumnName = "id")
+    @BatchSize(size=10)
     private List<ColumnPreferences> scriptsTableColumns = new ArrayList<ColumnPreferences>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderColumn(name = "scripts_position")
     @JoinColumn(name = "script_table_id", referencedColumnName = "id")
+    @BatchSize(size=10)
     private List<ColumnPreferences> scriptStepTableColumns = new ArrayList<ColumnPreferences>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -62,6 +69,7 @@ public class Preferences extends OwnableEntity {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderColumn(name = "jobs_position")
     @JoinColumn(name = "jobs_table_id", referencedColumnName = "id")
+    @BatchSize(size=10)
     private List<ColumnPreferences> jobsTableColumns = new ArrayList<ColumnPreferences>();
 
     /**

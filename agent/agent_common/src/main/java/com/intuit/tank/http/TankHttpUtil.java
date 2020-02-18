@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.http.binary.BinaryResponse;
 import com.intuit.tank.http.json.JsonResponse;
 import com.intuit.tank.http.xml.XMLResponse;
+
 /**
  * utitly methods for tank http clients
  * @author denisa
@@ -177,7 +177,7 @@ public class TankHttpUtil {
          * @return the body as a string
          */
         public String getBodyAsString() {
-            return new String(body, Charset.forName("UTF-8"));
+            return new String(body, StandardCharsets.UTF_8);
         }
 
         // Content-Disposition: form-data; name="uploadname1";

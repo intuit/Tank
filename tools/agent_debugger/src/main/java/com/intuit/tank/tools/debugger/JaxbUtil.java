@@ -60,7 +60,7 @@ public final class JaxbUtil {
         JAXBContext ctx = JAXBContext.newInstance(toMarshall.getClass().getPackage().getName());
         StringWriter sw = new StringWriter();
         Marshaller marshaller = ctx.createMarshaller();
-        marshaller.setProperty("jaxb.formatted.output", true);
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         marshaller.marshal(toMarshall, sw);
         return sw.toString();
     }

@@ -81,7 +81,7 @@ public class FileStorageFactoryTest {
         }
 
         try ( InputStream in = storage.readFileData(fd) ) {
-            String fromService = IOUtils.toString(in);
+            String fromService = IOUtils.toString(in,StandardCharsets.UTF_8);
             assertEquals(s, fromService);
         }
         assertTrue(storage.exists(fd));

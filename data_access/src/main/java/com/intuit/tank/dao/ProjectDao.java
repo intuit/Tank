@@ -16,6 +16,7 @@ package com.intuit.tank.dao;
  * #L%
  */
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +28,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.Root;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 
@@ -44,6 +47,7 @@ import com.intuit.tank.project.Workload;
  * 
  */
 public class ProjectDao extends OwnableDao<Project> {
+    private static final Logger LOG = LogManager.getLogger(ProjectDao.class);
 
     public ProjectDao() {
         super();
@@ -64,12 +68,11 @@ public class ProjectDao extends OwnableDao<Project> {
 	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
 	        Root<Project> root = query.from(Project.class);
 	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
-	        wl.fetch("jobConfiguration");
-	        query.select(root);
-	        query.where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
+	        wl.fetch(Workload.PROPERTY_JOB_CONFIGURATION);
+	        wl.fetch(Workload.PROPERTY_TEST_PLANS);
+	        query.select(root)
+                    .where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
 	        project = em.createQuery(query).getSingleResult();
-			Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
-			Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
     		commit();
         } catch (Exception e) {
         	rollback();
@@ -126,8 +129,7 @@ public class ProjectDao extends OwnableDao<Project> {
      * @return the entity or null
      */
     @Nullable
-    @Override
-    public Project findById(@Nonnull Integer id) {
+    public Project findByIdEager(@Nonnull Integer id) {
     	Project project = null;
     	try {
     		begin();
@@ -138,7 +140,7 @@ public class ProjectDao extends OwnableDao<Project> {
         } catch (Exception e) {
         	rollback();
             e.printStackTrace();
-            throw new RuntimeException(e);
+            LOG.info("No entities for Project id " + id);
     	} finally {
     		cleanup();
     	}
@@ -154,7 +156,7 @@ public class ProjectDao extends OwnableDao<Project> {
      */
     @Nonnull
     public List<Project> findAll() throws HibernateException {
-    	List<Project> results = null;
+    	List<Project> results = Collections.emptyList();
     	EntityManager em = getEntityManager();
     	try {
     		begin();
@@ -165,14 +167,11 @@ public class ProjectDao extends OwnableDao<Project> {
 	        wl.fetch("jobConfiguration");
 	        query.select(root);
 	        results = em.createQuery(query).getResultList();
-	        for (Project project : results) {
-				Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
-	        }
 	        commit();
         } catch (Exception e) {
         	rollback();
             e.printStackTrace();
-            throw new RuntimeException(e);
+            LOG.info("No entities found at all for Project");
     	} finally {
     		cleanup();
     	}
@@ -181,12 +180,12 @@ public class ProjectDao extends OwnableDao<Project> {
     
     @Nullable
     public Project loadScripts(Integer ProjectId) {
-    	Project project = findById(ProjectId);
-        ScriptDao sd = new ScriptDao();
+    	Project project = findByIdEager(ProjectId);
+        ScriptDao dao = new ScriptDao();
         for (TestPlan testPlan : project.getWorkloads().get(0).getTestPlans()) {
             for (ScriptGroup scriptGroup : testPlan.getScriptGroups()) {
                 for (ScriptGroupStep scriptGroupStep : scriptGroup.getScriptGroupSteps()) {
-                    sd.loadScriptSteps(scriptGroupStep.getScript());
+                    dao.loadScriptSteps(scriptGroupStep.getScript());
                 }
             }
         }

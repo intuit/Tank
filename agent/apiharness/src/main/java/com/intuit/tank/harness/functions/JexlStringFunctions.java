@@ -19,7 +19,6 @@ package com.intuit.tank.harness.functions;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -487,7 +486,7 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
     public String toBase64(String toEncode) {
         try {
             byte[] bytes = toEncode.getBytes();
-            return new String(Base64.encodeBase64(bytes), Charset.forName("utf-8")).trim();
+            return new String(Base64.encodeBase64(bytes), StandardCharsets.UTF_8).trim();
         } catch (Exception e) {
             LOG.error("Error base64 encoding " + toEncode + ": " + e);
         }
@@ -504,7 +503,7 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
     public String fromBase64(String toDecode) {
         try {
             byte[] bytes = Base64.decodeBase64(toDecode.trim());
-            return new String(bytes, Charset.forName("utf-8"));
+            return new String(bytes, StandardCharsets.UTF_8);
         } catch (Exception e) {
             LOG.error("Error base64 decoding " + toDecode + ": " + e);
         }

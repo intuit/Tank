@@ -72,9 +72,7 @@ import com.intuit.tank.dao.JobRegionDao;
 import com.intuit.tank.dao.ProjectDao;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.dao.WorkloadDao;
-import com.intuit.tank.dao.util.ProjectDaoUtil;
 import com.intuit.tank.harness.StopBehavior;
-import com.intuit.tank.perfManager.workLoads.util.WorkloadScriptUtil;
 import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.project.DataFile;
 import com.intuit.tank.project.EntityVersion;
@@ -322,7 +320,7 @@ public class AutomationServiceV1 implements AutomationService {
 			if (StringUtils.isNotEmpty(scriptName)) {
 				script.setName(scriptName);
 			}
-			BufferedReader bufferedReader = StringUtils.equals(contentEncoding, "gzip") ?
+			BufferedReader bufferedReader = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
 					new BufferedReader(new InputStreamReader(new GZIPInputStream(fileInputStream))) :
 					new BufferedReader(new InputStreamReader(fileInputStream));
 			scriptProcessor.getScriptSteps(bufferedReader, new ArrayList<>());
@@ -576,7 +574,7 @@ public class AutomationServiceV1 implements AutomationService {
 		jobInstance = jobInstanceDao.saveOrUpdate(jobInstance);
 		jobQueueDao.saveOrUpdate(queue);
 
-		storeScript(Integer.toString(jobInstance.getId()), workload, jobInstance);
+		ResponseUtil.storeScript(Integer.toString(jobInstance.getId()), workload, jobInstance);
 		return jobInstance;
 	}
 
@@ -633,7 +631,7 @@ public class AutomationServiceV1 implements AutomationService {
 		jobInstance = jobInstanceDao.saveOrUpdate(jobInstance);
 		jobQueueDao.saveOrUpdate(queue);
 
-		storeScript(Integer.toString(jobInstance.getId()), workload, jobInstance);
+		ResponseUtil.storeScript(Integer.toString(jobInstance.getId()), workload, jobInstance);
 		return jobInstance;
 	}
 
@@ -667,12 +665,6 @@ public class AutomationServiceV1 implements AutomationService {
 			entityClass = entity.getClass();
 		}
 		return getVersions(dao, ids, entityClass);
-	}
-
-	private void storeScript(String jobId, Workload workload, JobInstance job) {
-		new WorkloadDao().loadScriptsForWorkload(workload);
-		String scriptString = WorkloadScriptUtil.getScriptForWorkload(workload, job);
-		ProjectDaoUtil.storeScriptFile(jobId, scriptString);
 	}
 
 	/**

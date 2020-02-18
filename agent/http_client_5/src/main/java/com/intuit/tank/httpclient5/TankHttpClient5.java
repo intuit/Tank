@@ -1,7 +1,5 @@
 package com.intuit.tank.httpclient5;
 
-import java.io.ByteArrayInputStream;
-
 /*
  * #%L
  * Intuit Tank Agent (apiharness)
@@ -15,7 +13,6 @@ import java.io.ByteArrayInputStream;
  * #L%
  */
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
@@ -30,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 
 import javax.annotation.Nonnull;
 
@@ -48,6 +44,7 @@ import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
+import org.apache.hc.client5.http.cookie.CookieSpecs;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -67,7 +64,6 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.ssl.SSLContexts;
-import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.cookie.ClientCookie;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -100,7 +96,7 @@ public class TankHttpClient5 implements TankHttpClient {
         		.setCircularRedirectsAllowed(true)
         		.setAuthenticationEnabled(true)
         		.setRedirectsEnabled(true)
-        		.setCookieSpec(CookieSpecs.STANDARD)
+        		.setCookieSpec(CookieSpecs.STANDARD.ident)
                 .setMaxRedirects(100)
                 .build();
 
@@ -389,18 +385,7 @@ public class TankHttpClient5 implements TankHttpClient {
                 }
             }
             response.setResponseTime(waitTime);
-            String contentType = response.getHttpHeader("Content-Type");
-            String contentEncode = response.getHttpHeader("Content-Encoding");
-            if (BaseResponse.isDataType(contentType) && contentEncode != null && contentEncode.toLowerCase().contains("gzip")) {
-                // decode gzip for data types
-                try (   GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(bResponse));
-                        ByteArrayOutputStream out = new ByteArrayOutputStream() ) {
-                    IOUtils.copy(in, out);
-                    bResponse = out.toByteArray();
-                } catch (IOException | NullPointerException e) {
-                    LOG.warn(request.getLogUtil().getLogMessage("cannot decode gzip stream: " + e, LogEventType.System));
-                }
-            }
+
             response.setResponseBody(bResponse);
 
         } catch (Exception ex) {

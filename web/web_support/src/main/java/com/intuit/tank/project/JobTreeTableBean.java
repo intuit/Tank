@@ -31,11 +31,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.intuit.tank.util.Messages;
+import org.picketlink.Identity;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.basic.User;
 import org.primefaces.event.NodeCollapseEvent;
 import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.model.DefaultTreeNode;
@@ -90,6 +95,12 @@ public abstract class JobTreeTableBean implements Serializable {
 
     @Inject
     private Messages messages;
+
+    @Inject
+    private Identity identity;
+
+    @Inject
+    private IdentityManager identityManager;
     
     @Inject
     private Security security;
@@ -117,17 +128,15 @@ public abstract class JobTreeTableBean implements Serializable {
     private Map<String, TreeNode> nodeMap = new HashMap<String, TreeNode>();
 //    private Map<Date, Map<String, TPSInfo>> tpsMap = new HashMap<Date, Map<String, TPSInfo>>();
 
-    @Inject
-    private PreferencesBean userPrefs;
-
     protected TablePreferences tablePrefs;
     protected TableViewState tableState = new TableViewState();
     private Date lastDate = null;
 
     @PostConstruct
     public void init() {
-        tablePrefs = new TablePreferences(userPrefs.getPreferences().getJobsTableColumns());
-        tablePrefs.registerListener(userPrefs);
+        AWSXRay.getCurrentSegment().setUser(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
+        tablePrefs = new TablePreferences(preferencesBean.getPreferences().getJobsTableColumns());
+        tablePrefs.registerListener(preferencesBean);
     }
 
     /**
@@ -456,6 +465,7 @@ public abstract class JobTreeTableBean implements Serializable {
     }
 
     private void buildTree() {
+        AWSXRay.beginSubsegment("Build.Tree");
         MethodTimer mt = new MethodTimer(LOG, this.getClass(), "buildTree");
         Integer rootJob = getRootJobId();
         JobQueueDao jqd = new JobQueueDao();
@@ -463,7 +473,10 @@ public abstract class JobTreeTableBean implements Serializable {
         mt.markAndLog("get tracker jobs");
         Map<Integer, TreeNode> jobNodeMap = new HashMap<Integer, TreeNode>();
         if (rootJob == null || rootJob == 0) {
-            List<JobQueue> queuedJobs = jqd.findRecent();
+            AWSXRay.beginSubsegment("Build.Tree.findRecent");
+            Date dateMinus1Week = DateUtils.addWeeks(new Date(),-1);
+            List<JobQueue> queuedJobs = jqd.findRecent(dateMinus1Week);
+            AWSXRay.endSubsegment();
             mt.markAndLog("find all active jobs");
             rootNode = new DefaultTreeNode("root", null);
             for (JobQueue jobQueue : queuedJobs) {
@@ -476,7 +489,7 @@ public abstract class JobTreeTableBean implements Serializable {
             }
             mt.markAndLog("Added all queued Jobs");
             if (!trackerJobs.isEmpty()) {
-                TreeNode unknownNode = new DefaultTreeNode(getProjectNodeBean("unknown"), null);
+                TreeNode unknownNode = new DefaultTreeNode(new ProjectNodeBean("unknown"), null);
                 for (String id : trackerJobs) {// left over nodes that the tracker is tracking
                     // create job nodes now
                     createAdhocJobNode(jqd, jobNodeMap, unknownNode, id);
@@ -492,6 +505,7 @@ public abstract class JobTreeTableBean implements Serializable {
             rootNode = createJobNode(trackerJobs, jobQueue);
         }
         mt.endAndLog();
+        AWSXRay.endSubsegment();
     }
 
     // private void buildTree() {
@@ -541,6 +555,7 @@ public abstract class JobTreeTableBean implements Serializable {
      * @param jobQueue
      */
     private TreeNode createJobNode(Set<String> trackerJobs, JobQueue jobQueue) {
+        AWSXRay.beginSubsegment("Create.JobNode.ProjectId." + jobQueue.getProjectId());
         MethodTimer mt = new MethodTimer(LOG, getClass(), "createJobNode for project " + jobQueue.getProjectId());
         TreeNode projectNode = null;
         Project p = projectDao.findById(jobQueue.getProjectId());
@@ -615,11 +630,13 @@ public abstract class JobTreeTableBean implements Serializable {
             pnb.reCalculate();
         }
         mt.endAndLog();
+        AWSXRay.endSubsegment();
         return projectNode;
     }
 
     private TreeNode createAdhocJobNode(JobQueueDao jqd, Map<Integer, TreeNode> jobNodeMap, TreeNode parent,
             String jobId) {
+        AWSXRay.beginSubsegment("Create.AdhocNode.JobId." + jobId);
         // this needs to be a JobNode, not a projectNode
         // need to make new constructor for ActJobNodeBean that just sets empty strings?
         CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
@@ -659,6 +676,7 @@ public abstract class JobTreeTableBean implements Serializable {
         jobBeanNode.reCalculate();
         adhocNode.setParent(parent);
         parent.getChildren().add(adhocNode);
+        AWSXRay.endSubsegment();
         return adhocNode;
     }
 
@@ -679,11 +697,6 @@ public abstract class JobTreeTableBean implements Serializable {
             vmNodes.add(vmNode);
         }
         return vmNodes;
-    }
-
-    private ProjectNodeBean getProjectNodeBean(String projectName) {
-        return new ProjectNodeBean(projectName);
-
     }
 
     public void onNodeExpand(NodeExpandEvent event) {

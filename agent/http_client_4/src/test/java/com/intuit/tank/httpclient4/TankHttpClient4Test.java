@@ -2,7 +2,7 @@ package com.intuit.tank.httpclient4;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -290,13 +290,11 @@ public class TankHttpClient4Test {
      * @return base64 string
      */
     public String toBase64(byte[] bytes) {
-        String ret = null;
         try {
-            ret = new String(Base64.encodeBase64(bytes), Charset.forName("utf-8")).trim();
+            return new String(Base64.encodeBase64(bytes), StandardCharsets.UTF_8).trim();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return ret;
     }
 
 }

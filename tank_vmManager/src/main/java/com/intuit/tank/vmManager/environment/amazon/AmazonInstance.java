@@ -82,18 +82,15 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     private AmazonEC2Async asynchEc2Client;
     private VMRegion vmRegion;
-    private VMRequest request;
 
     private TankConfig config = new TankConfig();
 
     /**
-     * 
-     * @param request
+     *
      * @param vmRegion
      */
-    public AmazonInstance(VMRequest request, @Nonnull VMRegion vmRegion) {
+    public AmazonInstance(@Nonnull VMRegion vmRegion) {
         this.vmRegion = vmRegion;
-        this.request = request;
         try {
             CloudCredentials creds = config.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
             ClientConfiguration clientConfig = new ClientConfiguration();
@@ -171,7 +168,7 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @inheritDoc
      */
     @Override
-    public List<VMInformation> create() {
+    public List<VMInformation> create(VMRequest request) {
         List<VMInformation> result = new ArrayList<>();
         try {
             VMInstanceRequest instanceRequest = (VMInstanceRequest) request;
@@ -297,20 +294,17 @@ public class AmazonInstance implements IEnvironmentInstance {
 
                 if (instanceRequest.isUseEips()) {
                     Set<Address> availableEips = new HashSet<Address>();
-                    if (instanceRequest.isUseEips()) {
-                        synchronized (instanceRequest.getRegion()) {
-                            DescribeAddressesResult describeAddresses = asynchEc2Client.describeAddresses(new DescribeAddressesRequest());
-                            Set<String> reserved = config.getVmManagerConfig().getReservedElasticIps();
-                            for (Address address : describeAddresses.getAddresses()) {
-                                String elasticIPType = instanceDescription.isVPC() ? "vpc" : "standard";
-                                if (elasticIPType.equalsIgnoreCase(address.getDomain()) && StringUtils.isBlank(address.getInstanceId())) {
-                                    String ip = address.getPublicIp();
-                                    if (!reserved.contains(ip)) {
-                                        availableEips.add(address);
-                                    }
+                    synchronized (instanceRequest.getRegion()) {
+                        DescribeAddressesResult describeAddresses = asynchEc2Client.describeAddresses(new DescribeAddressesRequest());
+                        Set<String> reserved = config.getVmManagerConfig().getReservedElasticIps();
+                        for (Address address : describeAddresses.getAddresses()) {
+                            String elasticIPType = instanceDescription.isVPC() ? "vpc" : "standard";
+                            if (elasticIPType.equalsIgnoreCase(address.getDomain()) && StringUtils.isBlank(address.getInstanceId())) {
+                                String ip = address.getPublicIp();
+                                if (!reserved.contains(ip)) {
+                                    availableEips.add(address);
                                 }
                             }
-
                         }
                     }
                     List<Address> randomizedIps = new ArrayList<Address>(availableEips);
@@ -438,7 +432,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     }
 
     @Override
-    public List<VMInformation> kill() {
+    public List<VMInformation> kill(VMRequest request) {
         VMKillRequest killRequest = (VMKillRequest) request;
         TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest(killRequest.getInstances());
         TerminateInstancesResult terminateInstances = asynchEc2Client.terminateInstances(terminateInstancesRequest);

@@ -81,7 +81,7 @@ public class JobServiceV1 implements JobService {
     @Override
     public Response getJobsForProject(int projectId) {
         ResponseBuilder response = Response.ok();
-        Project prj = new ProjectDao().findById(projectId);
+        Project prj = new ProjectDao().findByIdEager(projectId);
         if (prj != null) {
             JobQueue queue = new JobQueueDao().findOrCreateForProjectId(projectId);
             List<JobInstance> jobs = new ArrayList<JobInstance>(queue.getJobs());

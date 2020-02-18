@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
+import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -82,13 +83,15 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
 
     public void authenticate() {
         
-        LOG.info("Logging in " + credentials.getUserId());
-        if ((credentials.getUserId() == null) || (credentials.getPassword() == null)) {
+        if (credentials.getUserId() == null || credentials.getPassword() == null) {
             messages.error("Invalid username or password");
             setStatus(AuthenticationStatus.FAILURE);
+            return;
         }
+        LOG.info("Attempting to login " + credentials.getUserId());
         com.intuit.tank.project.User user = new UserDao().authenticate(credentials.getUserId(), credentials.getPassword());
         if (user != null) {
+            AWSXRay.getCurrentSegment().setUser(user.getName());
         	User idmuser = getUser(identityManager,user.getName());
         	if (idmuser == null ) {
         		idmuser = new User(user.getName());
@@ -107,6 +110,7 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
 	            }
         	}
             loginEventSrc.fire(idmuser);
+            LOG.info("Successfully logged in " + credentials.getUserId());
             messages.info("You're signed in as " + idmuser.getLoginName());
             setStatus(AuthenticationStatus.SUCCESS);
             setAccount(idmuser);

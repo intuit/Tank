@@ -21,6 +21,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -31,7 +32,7 @@ import javax.validation.constraints.Size;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.Index;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.envers.Audited;
 
 /**
@@ -42,24 +43,27 @@ import org.hibernate.envers.Audited;
  * 
  */
 @Entity
-@Table(name = "user")
 @Audited
+@Table(name = "user",
+        indexes = { @Index(name = "IDX_USER_NAME", columnList = User.PROPERTY_NAME),
+                    @Index(name = "IDX_USER_EMAIL", columnList = User.PROPERTY_EMAIL),
+                    @Index(name = "IDX_USER_TOKEN", columnList = "token")})
+
 public class User extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
     public static final String PROPERTY_NAME = "name";
+    public static final String PROPERTY_GROUPS = "groups";
     public static final String PROPERTY_EMAIL = "email";
     public static final String PROPERTY_TOKEN = "apiToken";
 
     @Column(name = "name", unique = true, nullable = false)
-    @Index(name = "IDX_USER_NAME")
     @NotNull
     @Size(max = 255)
     private String name;
 
     @Column(name = "email", nullable = false)
-    @Index(name = "IDX_USER_EMAIL")
     @NotNull
     @Size(max = 255)
     private String email;
@@ -68,12 +72,12 @@ public class User extends BaseEntity {
     private String password;
 
     @Column(name = "token")
-    @Index(name = "IDX_USER_TOKEN")
     private String apiToken;
 
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinTable(joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @BatchSize(size=10)
     private Set<Group> groups = new HashSet<Group>();
 
     public User() {
@@ -121,8 +125,7 @@ public class User extends BaseEntity {
     }
 
     /**
-     * @param apiToken
-     *            the apiToken to set
+     * @return apiToken
      */
     public void generateApiToken() {
         this.apiToken = UUID.randomUUID().toString();

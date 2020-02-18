@@ -1,7 +1,7 @@
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved
  */
-package com.intuit.tank.api.script.util;
+package com.intuit.tank.script.util;
 
 /*
  * #%L
@@ -16,17 +16,6 @@ package com.intuit.tank.api.script.util;
  * #L%
  */
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
 import com.intuit.tank.api.model.v1.script.ScriptDescription;
 import com.intuit.tank.api.model.v1.script.ScriptStepTO;
@@ -37,6 +26,16 @@ import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.RequestDataPhase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * ScriptServiceUtil

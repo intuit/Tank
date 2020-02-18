@@ -25,13 +25,14 @@ import java.util.TreeMap;
 
 import javax.script.ScriptException;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Subsegment;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.api.model.v1.script.ScriptStepTO;
 import com.intuit.tank.api.model.v1.script.ScriptTO;
-import com.intuit.tank.api.script.util.ScriptServiceUtil;
 import com.intuit.tank.dao.ExternalScriptDao;
 import com.intuit.tank.dao.ScriptFilterDao;
 import com.intuit.tank.project.ExternalScript;
@@ -99,7 +100,9 @@ public class ScriptFilterUtil {
         }
 
         for (ScriptFilter filter : internalFilters) {
-            applyFilter(filter, script.getScriptSteps());
+            AWSXRay.createSubsegment("Apply.InternalFilter." + filter.getName(), (subsegment) -> {
+                applyFilter(filter, script.getScriptSteps());
+            });
         }
         if (!externalFilters.isEmpty()) {
             LoggingOutputLogger outputLogger = new LoggingOutputLogger();
@@ -111,6 +114,7 @@ public class ScriptFilterUtil {
                 ExternalScript externalScript = externalScriptDao.findById(filter.getExternalScriptId());
                 logger.info("Running external Script: " + externalScript);
                 if (externalScript != null) {
+                    Subsegment subsegment = AWSXRay.beginSubsegment("Apply.ExternalFilter." + externalScript.getName());
                     try {
                         runner.runScript(externalScript.getName(), externalScript.getScript(),
                                 externalScript.getEngine(),
@@ -118,7 +122,10 @@ public class ScriptFilterUtil {
                                 outputLogger);
                     } catch (ScriptException e) {
                         logger.error("Error Running Script: " + e);
+                        subsegment.addException(e);
                         throw new RuntimeException(e);
+                    } finally {
+                        AWSXRay.endSubsegment();
                     }
                 }
             }

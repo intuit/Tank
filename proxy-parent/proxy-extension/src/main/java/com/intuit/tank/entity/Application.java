@@ -81,7 +81,7 @@ public final class Application {
         try {
             context = JAXBContext.newInstance(Request.class.getPackage().getName());
             marshaller = context.createMarshaller();
-            marshaller.setProperty("jaxb.formatted.output", Boolean.TRUE);
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
             osw = new OutputStreamWriter(new FileOutputStream(new File(proxyConfiguration.getOutputFile())));
             osw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
@@ -89,7 +89,7 @@ public final class Application {
                     " followRedirects=\"" + proxyConfiguration.isFollowRedirects() + "\">\n");
             sessionStarted = true;
             paused = false;
-        } catch (Exception e) {
+        } catch (JAXBException | IOException e) {
             e.printStackTrace();
             System.exit(1);
         }
@@ -115,11 +115,12 @@ public final class Application {
 
     /**
      * Checks whether the content-type should be handled by the framework
-     * 
+     *
+     * @param t
+     * @param inclusionRules
+     * @param exclusionRules
      * @param checkStatusCode
-     * 
-     * @param extractContentType
-     * @return
+     * @return boolean
      * @throws IOException
      * @throws FileNotFoundException
      */

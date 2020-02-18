@@ -24,6 +24,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
@@ -32,7 +33,7 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.Index;
+import org.hibernate.annotations.BatchSize;
 
 /**
  * TestInstance
@@ -41,7 +42,9 @@ import org.hibernate.annotations.Index;
  * 
  */
 @Entity
-@Table(name = "job_queue")
+@Table(name = "job_queue",
+        indexes = { @Index(name = "IDX_PROJ_ID", columnList = "project_id"),
+                    @Index(name = "IDX_MODIFIED", columnList = JobQueue.PROPERTY_MODIFIED)})
 public class JobQueue extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -49,12 +52,12 @@ public class JobQueue extends BaseEntity {
     public static final String PROPERTY_JOBS = "jobs";
 
     @Column(name = "project_id")
-    @Index(name = "IDX_PROJ_ID")
     private int projectId;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "test_instance_jobs", joinColumns = @JoinColumn(name = "test_id"),
             inverseJoinColumns = @JoinColumn(name = "job_id"))
+    @BatchSize(size=100)
     private Set<JobInstance> jobs = new HashSet<JobInstance>();
 
     /**
@@ -103,7 +106,7 @@ public class JobQueue extends BaseEntity {
     }
 
     /**
-     * @param jobs
+     * @param job
      *            the jobs to set
      */
     public void addJob(JobInstance job) {

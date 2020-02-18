@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.event.Reception;
@@ -67,9 +68,10 @@ public class PreferencesBean implements Serializable, PreferencesChangedListener
     private TimeZone clientTimeZone = TimeZone.getTimeZone("PST");
 
     /**
-     * 
+     * Constructor
      */
-    public PreferencesBean() {
+    @PostConstruct
+    public void init() {
         dateTimeFotmat = FastDateFormat.getInstance(TankConstants.DATE_FORMAT_WITH_TIMEZONE, clientTimeZone);
         timestampFormat = FastDateFormat.getInstance(preferredTimeStampFormat);
     }
@@ -99,17 +101,26 @@ public class PreferencesBean implements Serializable, PreferencesChangedListener
 
     /**
      * 
-     * @param user
+     * @param preferences
      */
     public void observeLogin(@Observes(notifyObserver = Reception.IF_EXISTS) @Deleted Preferences preferences) {
         init(preferences.getCreator());
     }
 
+    /**
+     *
+     * @param owner
+     */
     public void init(String owner) {
         preferences = new PreferencesDao().getForOwner(owner);
         validatePrefs(owner);
     }
 
+    /**
+     *
+     * @param width
+     * @param height
+     */
     public void setScreenSizes(String width, String height) {
         if (NumberUtils.isDigits(width)) {
             this.screenWidth = NumberUtils.toInt(width) - 20;

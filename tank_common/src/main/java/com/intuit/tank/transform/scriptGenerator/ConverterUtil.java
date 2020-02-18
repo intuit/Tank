@@ -13,6 +13,7 @@ package com.intuit.tank.transform.scriptGenerator;
  * #L%
  */
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,8 +22,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
+import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -123,21 +126,23 @@ public class ConverterUtil {
     }
 
     public static String getWorkloadXML(HDWorkload hdWorkload) {
+        AWSXRay.beginSubsegment("JAXB.Marshal." + HDWorkload.class.getSimpleName());
         StringWriter sw;
         try {
             JAXBContext context = JAXBContext.newInstance(HDWorkload.class.getPackage().getName());
-            Marshaller createMarshaller = context.createMarshaller();
-            createMarshaller.setProperty("jaxb.formatted.output", Boolean.TRUE);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             sw = new StringWriter();
-            createMarshaller.marshal(hdWorkload, sw);
+            marshaller.marshal(hdWorkload, sw);
             sw.flush();
             sw.close();
-        } catch (Exception e) {
+        } catch (JAXBException | IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
+        } finally {
+            AWSXRay.endSubsegment();
         }
         return sw.toString();
-
     }
 
     private static List<HDScriptGroup> convertScriptGroups(List<ScriptGroup> scriptGroups, StepCounter sc) {
@@ -619,9 +624,9 @@ public class ConverterUtil {
                 (!header.equalsIgnoreCase("host")
                         && !header.startsWith("Content")
                         && !header.equalsIgnoreCase("Connection")
-                        && !header.equalsIgnoreCase("Authorization")
+        //                && !header.equalsIgnoreCase("Authorization")
                         && !header.equalsIgnoreCase("Cookie")
-                        && !header.equalsIgnoreCase("Referer")
+        //                && !header.equalsIgnoreCase("Referer")
                         && !header.toLowerCase().startsWith("get ")
                         && !header.toLowerCase().startsWith("post ")
                         && !header.equalsIgnoreCase("If-None-Match")

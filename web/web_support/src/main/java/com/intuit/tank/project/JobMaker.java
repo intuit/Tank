@@ -24,6 +24,8 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.intuit.tank.harness.data.HDWorkload;
+import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,16 +40,6 @@ import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.JobRegionDao;
 import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.dao.util.ProjectDaoUtil;
-import com.intuit.tank.perfManager.workLoads.util.WorkloadScriptUtil;
-import com.intuit.tank.project.BaseEntity;
-import com.intuit.tank.project.DataFile;
-import com.intuit.tank.project.EntityVersion;
-import com.intuit.tank.project.JobInstance;
-import com.intuit.tank.project.JobQueue;
-import com.intuit.tank.project.JobRegion;
-import com.intuit.tank.project.ScriptGroup;
-import com.intuit.tank.project.TestPlan;
-import com.intuit.tank.project.Workload;
 import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.util.TestParamUtil;
 import com.intuit.tank.util.TestParameterContainer;
@@ -389,7 +381,8 @@ public class JobMaker implements Serializable {
 
     private void storeScript(String jobId, Workload workload, JobInstance job) {
         new WorkloadDao().loadScriptsForWorkload(workload);
-        String scriptString = WorkloadScriptUtil.getScriptForWorkload(workload, job);
+        HDWorkload hdWorkload = ConverterUtil.convertWorkload(workload, job);
+        String scriptString = ConverterUtil.getWorkloadXML(hdWorkload);
         ProjectDaoUtil.storeScriptFile(jobId, scriptString);
     }
 

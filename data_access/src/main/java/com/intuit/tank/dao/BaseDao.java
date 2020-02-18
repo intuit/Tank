@@ -56,7 +56,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
 
     private static final ThreadLocal<TransactionContainer> emProvider = ThreadLocal.withInitial(TransactionContainer::new);
 
-    private Class<T_ENTITY> entityClass;
+    protected Class<T_ENTITY> entityClass;
     private boolean reloadEntities;
 
     @SuppressWarnings("unchecked")

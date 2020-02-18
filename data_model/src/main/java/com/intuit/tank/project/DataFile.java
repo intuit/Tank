@@ -15,25 +15,26 @@ package com.intuit.tank.project;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.Index;
 import org.hibernate.envers.Audited;
 
 @Entity
 @Audited
-@Table(name = "data_file")
+@Table(name = "data_file",
+        indexes = { @Index(name = "IDX_CREATOR", columnList = ColumnPreferences.PROPERTY_CREATOR),
+                    @Index(name = "IDX_PATH", columnList = "path")})
 public class DataFile extends OwnableEntity implements Comparable<DataFile> {
 
     private static final long serialVersionUID = 1L;
 
     // path relative from datafiles directory in S3
     @Column(name = "path", nullable = false)
-    @Index(name = "IDX_PATH")
     @NotNull
     @Size(max = 255)
     private String path;

@@ -22,25 +22,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang.StringUtils;
+import com.amazonaws.xray.AWSXRay;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.glassfish.jersey.client.ClientResponse;
 
 import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
@@ -68,6 +72,7 @@ import com.intuit.tank.vm.vmManager.JobVmCalculator;
 import com.intuit.tank.vm.vmManager.RegionRequest;
 import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 
+@Named
 @ApplicationScoped
 public class JobManager implements Serializable {
 
@@ -129,20 +134,18 @@ public class JobManager implements Serializable {
                 }
             }
         } else {
+            project.setTraceEntity(AWSXRay.getGlobalRecorder().getTraceEntity());
             executor.execute(project);
         }
     }
 
     private void sendRequest(String instanceUrl, StandaloneAgentRequest standaloneAgentRequest) {
         Client client = ClientBuilder.newClient();
-        //client.setConnectTimeout(5000);
-        //client.setFollowRedirects(true);
         WebTarget webTarget = client.target(instanceUrl + WatsAgentCommand.request.getPath());
-        ClientResponse response = webTarget.request().post(Entity.entity(standaloneAgentRequest, MediaType.APPLICATION_XML), ClientResponse.class);
+        Response response = webTarget.request().post(Entity.entity(standaloneAgentRequest, MediaType.APPLICATION_XML));
         if (response.getStatus() != 200) {
             throw new RuntimeException("failed to start agent: " + response.toString());
         }
-
     }
 
     public AgentTestStartData registerAgentForJob(AgentData agent) {
@@ -161,15 +164,16 @@ public class JobManager implements Serializable {
                 ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement());
                 jobInfo.agentData.add(agent);
                 CloudVmStatus status = vmTracker.getStatus(agent.getInstanceId());
-                status.setVmStatus(VMStatus.pending);
-                vmTracker.setStatus(status);
+                if(status != null) {
+                    status.setVmStatus(VMStatus.pending);
+                    vmTracker.setStatus(status);
+                }
                 if (jobInfo.isFilled()) {
                     startTest(jobInfo);
                 }
             }
         }
         return ret;
-
     }
 
     private void startTest(final JobInfo info) {
@@ -177,7 +181,7 @@ public class JobManager implements Serializable {
         Thread thread = new Thread( () -> {
             LOG.info("Sleeping for one minute before starting test to give time for all agents to download files.");
             try {
-                Thread.sleep(60 * 1000);// 1 minute
+                Thread.sleep(30 * 1000);// 30 seconds
             } catch (InterruptedException e) {
                 // ignore
             }
@@ -194,7 +198,7 @@ public class JobManager implements Serializable {
                     }
                 }
                 LOG.info("All agents received start command.");
-            } catch (Exception e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error sending start: " + e, e);
                 vmTracker.stopJob(info.jobRequest.getId());
             }
@@ -235,7 +239,7 @@ public class JobManager implements Serializable {
                             LOG.error("Error sending command " + cmd.name() + " to " + url + ": " + e);
                             // look up public ip
                             if (!tankConfig.getStandalone()) {
-                                AmazonInstance amazonInstance = new AmazonInstance(null, agent.getRegion());
+                                AmazonInstance amazonInstance = new AmazonInstance(agent.getRegion());
                                 String dns = amazonInstance.findPublicName(agent.getInstanceId());
                                 if (StringUtils.isNotEmpty(dns)) {
                                     url = "http://" + dns + ":"
@@ -310,13 +314,12 @@ public class JobManager implements Serializable {
         }
 
         public boolean isFilled() {
-            boolean ret = true;
             for (Integer i : userMap.values()) {
                 if (i != 0) {
-                    ret = false;
+                    return false;
                 }
             }
-            return ret;
+            return true;
         }
 
         public int getUsers(AgentData agent) {
@@ -326,11 +329,7 @@ public class JobManager implements Serializable {
                 if (Integer.parseInt(r.getUsers()) > 0) {
                     if (region == r.getRegion()) {
                         int numUsersRemaining = userMap.get(r);
-                        if (agent.getCapacity() >= numUsersRemaining) {
-                            ret = numUsersRemaining;
-                        } else {
-                            ret = agent.getCapacity();
-                        }
+                        ret = Math.min(agent.getCapacity(), numUsersRemaining);
                         userMap.put(r, numUsersRemaining - ret);
                         break;
                     }
@@ -350,5 +349,10 @@ public class JobManager implements Serializable {
 
         }
 
+    }
+
+    @PreDestroy
+    private void destroy() {
+        executor.shutdown();
     }
 }
