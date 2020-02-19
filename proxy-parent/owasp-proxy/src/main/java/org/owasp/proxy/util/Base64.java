@@ -74,7 +74,7 @@ import java.io.IOException;
  * encoding (by padding with equals signs) too soon. Also added an option to suppress the automatic decoding of gzipped
  * streams. Also added experimental support for specifying a class loader when using the
  * {@link #decodeToObject(java.lang.String, int, java.lang.ClassLoader)} method.</li>
- * <li>v2.3.3 - Changed default char encoding to US-ASCII which reduces the internal Java footprint with its
+ * <li>v2.3.4-SNAPSHOT - Changed default char encoding to US-ASCII which reduces the internal Java footprint with its
  * CharEncoders and so forth. Fixed some javadocs that were inconsistent. Removed imports and specified things like
  * java.io.IOException explicitly inline.</li>
  * <li>v2.3.2 - Reduced memory footprint! Finally refined the "guessing" of how big the final encoded data will be so
@@ -147,7 +147,7 @@ import java.io.IOException;
  * 
  * @author Robert Harder
  * @author rob@iharder.net
- * @version 2.3.3
+ * @version 2.3.4-SNAPSHOT
  */
 public class Base64 {
 
