@@ -558,7 +558,7 @@ public class APITestHarness {
                 monitorThread.start();
             }
 
-            LOG.info(LogUtil.getLogMessage("Starting threads..."));
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting threads...")));
             // start initial users
             startTime = System.currentTimeMillis();
             DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);

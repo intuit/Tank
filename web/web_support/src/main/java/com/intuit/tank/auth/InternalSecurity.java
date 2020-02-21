@@ -16,8 +16,9 @@ package com.intuit.tank.auth;
  * #L%
  */
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.deltaspike.security.api.authorization.Secures;
@@ -42,7 +43,8 @@ import static org.picketlink.idm.model.basic.BasicModel.*;
  * @author dangleton
  * 
  */
-@ApplicationScoped
+@Named
+@SessionScoped
 public class InternalSecurity {
 	
     @Inject 
