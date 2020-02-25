@@ -507,7 +507,7 @@ public class APITestHarness {
      */
     public void runConcurrentTestPlans() {
         if (started) {
-            LOG.warn("Agent already started. Ignoring start command");
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Agent already started. Ignoring start command")));
             return;
         }
         tpsMonitor = new TPSMonitor(tankConfig.getAgentConfig().getTPSPeriod());
@@ -603,7 +603,7 @@ public class APITestHarness {
                 doneSignal.await();
             }
         } catch (Throwable t) {
-            LOG.error("error executing..." + t, t);
+            LOG.error(new ObjectMessage(ImmutableMap.of("Message", "error executing..." + t)),t);
         } finally {
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Test Complete...")));
             if (!isDebug()) {

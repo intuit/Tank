@@ -42,7 +42,7 @@ public class TestPlanStarter implements Runnable {
         this.plan = plan;
         this.threadGroup = threadGroup;
         this.tankHttpClientClass = tankHttpClientClass;
-        this.numThreads = (int) Math.floor(numThreads * (plan.getUserPercentage() / 100D));
+        this.numThreads = (int) Math.max(1, Math.floor(numThreads * (plan.getUserPercentage() / 100D)));
         this.rampDelay = calcRampTime();
     }
 
