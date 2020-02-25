@@ -35,6 +35,8 @@ import com.intuit.tank.project.OwnableEntity;
 import com.intuit.tank.qualifier.Current;
 import com.intuit.tank.vm.common.TankConstants;
 
+import java.io.Serializable;
+
 import static org.picketlink.idm.model.basic.BasicModel.*;
 
 /**
@@ -45,7 +47,7 @@ import static org.picketlink.idm.model.basic.BasicModel.*;
  */
 @Named
 @SessionScoped
-public class InternalSecurity {
+public class InternalSecurity implements Serializable {
 	
     @Inject 
     private IdentityManager identityManager;
