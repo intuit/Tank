@@ -151,7 +151,6 @@ public class ScriptEditor implements Serializable {
 
     @PostConstruct
     public void init() {
-        AWSXRay.getCurrentSegment().setUser(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
         tablePrefs = new TablePreferences(userPrefs.getPreferences().getScriptStepTableColumns());
         tablePrefs.registerListener(userPrefs);
     }
