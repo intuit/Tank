@@ -43,14 +43,25 @@
     <filter-name>PrimeFaces FileUpload Filter</filter-name>
     <servlet-name>Faces Servlet</servlet-name>
   </filter-mapping>
+
   <filter>
     <filter-name>UserName Filter</filter-name>
     <filter-class>com.intuit.tank.util.UserNameFilter</filter-class>
   </filter>
+  <filter-mapping>
+    <filter-name>UserName Filter</filter-name>
+    <servlet-name>Faces Servlet</servlet-name>
+  </filter-mapping>
+
   <filter>
     <filter-name>RestSecurity Filter</filter-name>
     <filter-class>com.intuit.tank.util.RestSecurityFilter</filter-class>
   </filter>
+  <filter-mapping>
+    <filter-name>RestSecurity Filter</filter-name>
+    <servlet-name>Intuit Tank REST API</servlet-name>
+  </filter-mapping>
+
   <!-- Login filter -->
   <filter>
       <filter-name>LoginFilter</filter-name>
@@ -130,21 +141,6 @@
     <url-pattern>*.jsf</url-pattern>
   </servlet-mapping>
 
-  <filter-mapping>
-    <filter-name>RestSecurity Filter</filter-name>
-    <servlet-name>Intuit Tank REST API</servlet-name>
-  </filter-mapping>
-
-  <filter-mapping>
-    <filter-name>UserName Filter</filter-name>
-    <servlet-name>Faces Servlet</servlet-name>
-  </filter-mapping>
-
-  <servlet-mapping>
-    <servlet-name>Intuit Tank REST API</servlet-name>
-    <url-pattern>/rest/*</url-pattern>
-  </servlet-mapping>
-  
   <error-page>
     <exception-type>org.jboss.weld.context.NonexistentConversationException</exception-type>
     <location>/expired.xhtml</location>

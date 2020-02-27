@@ -23,6 +23,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import com.amazonaws.xray.AWSXRay;
 import org.picketlink.Identity;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.basic.User;
@@ -44,15 +45,15 @@ public class UserNameFilter implements Filter {
 
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // TODO Auto-generated method stub
-    }
+    public void init(FilterConfig filterConfig) throws ServletException {}
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
         if (identity != null && identity.getAccount() != null && identityManager.lookupById(User.class, identity.getAccount().getId()) != null) {
-            ThreadLocalUsernameProvider.getUsernameProvider().setUserName(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
+            String username = identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName();
+            ThreadLocalUsernameProvider.getUsernameProvider().setUserName(username);
+            AWSXRay.getCurrentSegment().setUser(username);
         } else {
             ThreadLocalUsernameProvider.getUsernameProvider().setUserName(null);
         }
@@ -60,8 +61,6 @@ public class UserNameFilter implements Filter {
     }
 
     @Override
-    public void destroy() {
-        // TODO Auto-generated method stub
-    }
+    public void destroy() {}
 
 }
