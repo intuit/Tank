@@ -281,15 +281,17 @@ public class AmazonInstance implements IEnvironmentInstance {
                         subnetIds.remove(runInstancesRequestClone.getSubnetId());
                     }
                 }
-                if (!subnetIds.isEmpty()) {
+                //Request remainder instances
+                if ( !subnetIds.isEmpty()  && remaining > 0 ) {
+                    position = (position >= subnetIds.size()) ? 0 : position;
                     runInstancesRequest.withSubnetId(subnetIds.get(position));
-                }
-                try {
-                    RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequest.withMinCount(remaining)
-                                                                                                .withMaxCount(remaining));
-                    result.addAll(new AmazonDataConverter().processReservation(results.getReservation(), vmRegion));
-                } catch (AmazonEC2Exception ae) {
-                    LOG.error("Amazon issue starting instances: count=" + remaining + " : " + ae.getMessage(), ae);
+                    try {
+                        RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequest.withMinCount(remaining)
+                                .withMaxCount(remaining));
+                        result.addAll(new AmazonDataConverter().processReservation(results.getReservation(), vmRegion));
+                    } catch (AmazonEC2Exception ae) {
+                        LOG.error("Amazon issue starting instances: count=" + remaining + " : " + ae.getMessage(), ae);
+                    }
                 }
 
                 if (instanceRequest.isUseEips()) {
