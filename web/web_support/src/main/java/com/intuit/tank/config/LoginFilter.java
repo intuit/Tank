@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.intuit.tank.vm.common.ThreadLocalUsernameProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +44,7 @@ public class LoginFilter implements Filter {
 		}
 		try {
 			AWSXRay.getCurrentSegment().setUser(ThreadLocalUsernameProvider.getUsernameProvider().getUserName());
+		} catch (SegmentNotFoundException snfe ) { //Ignore
 		} catch (Exception e) {
 			LOG.error("Failed to set User on current segment : " + e.getMessage(), e);
 		}

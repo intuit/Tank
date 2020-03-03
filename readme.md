@@ -18,7 +18,7 @@ Agents are instantiated on demand and exist for the duration of a test. They com
 
 ## Building Intuit Tank
 Intuit Tank uses Maven and should be able to be built using public repositories. 
-You may need to increase the default memory settings for maven to build. e.g. export MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=128m"
+You may need to increase the default memory settings for maven to build. e.g. export MAVEN_OPTS="-Xmx1g"
 
 There are several profiles (for the initial build you should build the release profile so that the installation guide is built. e.g. mvn clean install -P release)
 * default -- builds source but does not build the docs or package tools.
