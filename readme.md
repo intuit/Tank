@@ -1,5 +1,8 @@
 ![](https://raw.githubusercontent.com/intuit/tank/master/assets/TankLogo.gif)
 
+[![Build Status](https://travis-ci.org/intuit/Tank.svg?branch=master)](https://travis-ci.org/intuit/Tank)
+![Build Status](https://codebuild.us-east-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiT1Nuc1prblk5Y0E3a05mRjF0QUtBblI0Rk1zTjZyZi9NMWNCaFg4cGlzL1dFN0xVMHgzcGt1ZCtBdFZjNWpMRkhXbGN2T1ZKSmpZbGQ3YjhyaWkzdkJBPSIsIml2UGFyYW1ldGVyU3BlYyI6IlpGbU5vTHM2cHQrbUowOVkiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+![java](https://img.shields.io/badge/java-6%20%7C%207%20%7C%208-blue.svg)
 # Intuit Tank
 
 Intuit Tank is a load test platform that runs in a cloud environment. It currently supports Amazon web interfaces and utilizes services from EC2, S3, and DynamoDb.

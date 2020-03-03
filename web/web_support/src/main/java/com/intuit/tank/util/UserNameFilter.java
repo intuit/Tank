@@ -43,7 +43,6 @@ public class UserNameFilter implements Filter {
     @Inject
     private IdentityManager identityManager;
 
-
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {}
 
