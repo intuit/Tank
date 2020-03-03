@@ -31,6 +31,19 @@
     <param-value>true</param-value>
   </context-param>
 
+  <filter>
+    <filter-name>PrimeFaces FileUpload Filter</filter-name>
+    <filter-class>org.primefaces.webapp.filter.FileUploadFilter</filter-class>
+    <init-param>
+      <param-name>thresholdSize</param-name>
+      <param-value>1048576</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>PrimeFaces FileUpload Filter</filter-name>
+    <servlet-name>Faces Servlet</servlet-name>
+  </filter-mapping>
+
   <!-- AWS X-Ray filter -->
   <filter>
     <filter-name>AWSXRayServletFilter</filter-name>
@@ -104,28 +117,6 @@
     <url-pattern>*.jsf</url-pattern>
   </servlet-mapping>
 
-  <filter>
-    <filter-name>PrimeFaces FileUpload Filter</filter-name>
-    <filter-class>org.primefaces.webapp.filter.FileUploadFilter</filter-class>
-    <init-param>
-      <param-name>thresholdSize</param-name>
-      <param-value>1048576</param-value>
-    </init-param>
-  </filter>
-  <filter-mapping>
-    <filter-name>PrimeFaces FileUpload Filter</filter-name>
-    <servlet-name>Faces Servlet</servlet-name>
-  </filter-mapping>
-
-  <filter>
-    <filter-name>RestSecurity Filter</filter-name>
-    <filter-class>com.intuit.tank.util.RestSecurityFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>RestSecurity Filter</filter-name>
-    <servlet-name>Intuit Tank REST API</servlet-name>
-  </filter-mapping>
-
   <servlet>
     <servlet-name>Intuit Tank REST API</servlet-name>
     <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
@@ -139,6 +130,19 @@
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
+  <servlet-mapping>
+    <servlet-name>Intuit Tank REST API</servlet-name>
+    <url-pattern>/rest/*</url-pattern>
+  </servlet-mapping>
+
+  <filter>
+    <filter-name>RestSecurity Filter</filter-name>
+    <filter-class>com.intuit.tank.util.RestSecurityFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>RestSecurity Filter</filter-name>
+    <servlet-name>Intuit Tank REST API</servlet-name>
+  </filter-mapping>
   
   <error-page>
     <exception-type>org.jboss.weld.context.NonexistentConversationException</exception-type>
