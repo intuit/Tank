@@ -23,7 +23,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import com.amazonaws.xray.AWSXRay;
 import org.picketlink.Identity;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.basic.User;
@@ -50,9 +49,8 @@ public class UserNameFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
         if (identity != null && identity.getAccount() != null && identityManager.lookupById(User.class, identity.getAccount().getId()) != null) {
-            String username = identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName();
-            ThreadLocalUsernameProvider.getUsernameProvider().setUserName(username);
-            AWSXRay.getCurrentSegment().setUser(username);
+            ThreadLocalUsernameProvider.getUsernameProvider().setUserName(
+                    identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
         } else {
             ThreadLocalUsernameProvider.getUsernameProvider().setUserName(null);
         }

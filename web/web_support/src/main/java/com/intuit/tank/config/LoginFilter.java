@@ -12,6 +12,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.vm.common.ThreadLocalUsernameProvider;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.picketlink.Identity;
 
 
@@ -22,6 +26,7 @@ import org.picketlink.Identity;
  * 
  */
 public class LoginFilter implements Filter {
+	private static Logger LOG = LogManager.getLogger(LoginFilter.class);
 	
     @Inject
     private Identity identity;
@@ -35,6 +40,11 @@ public class LoginFilter implements Filter {
 			((HttpServletRequest)request).getSession().invalidate();
 			String contextPath = ((HttpServletRequest)request).getContextPath();
 			((HttpServletResponse)response).sendRedirect(contextPath + "/denied.xhtml");
+		}
+		try {
+			AWSXRay.getCurrentSegment().setUser(ThreadLocalUsernameProvider.getUsernameProvider().getUserName());
+		} catch (Exception e) {
+			LOG.error("Failed to set User on current segment : " + e.getMessage(), e);
 		}
         chain.doFilter(request, response);
 	}
