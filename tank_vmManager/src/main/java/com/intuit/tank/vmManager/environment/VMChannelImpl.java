@@ -55,8 +55,7 @@ public class VMChannelImpl implements VMChannel {
     @Override
     public void terminateInstances(@Nonnull List<String> instanceIds) {
         for (VMRegion region : new TankConfig().getVmManagerConfig().getRegions()) {
-            AmazonInstance amazonInstance = new AmazonInstance(region);
-            amazonInstance.killInstances(instanceIds);
+            new AmazonInstance(region).killInstances(instanceIds);
         }
     }
 
@@ -66,8 +65,7 @@ public class VMChannelImpl implements VMChannel {
     @Override
     public void stopInstances(@Nonnull List<String> instanceIds) {
         for (VMRegion region : new TankConfig().getVmManagerConfig().getRegions()) {
-            AmazonInstance amazonInstance = new AmazonInstance(region);
-            amazonInstance.stopInstances(instanceIds);
+            new AmazonInstance(region).stopInstances(instanceIds);
         }
     }
 
@@ -76,8 +74,7 @@ public class VMChannelImpl implements VMChannel {
      */
     @Override
     public List<VMInformation> startInstances(@Nonnull VMInstanceRequest request) {
-        AmazonInstance amazonInstance = new AmazonInstance(request.getRegion());
-        return amazonInstance.create(request);
+        return new AmazonInstance(request.getRegion()).create(request);
     }
 
 }

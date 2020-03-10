@@ -142,25 +142,19 @@ public class AmazonInstance implements IEnvironmentInstance {
      */
     @Override
     public List<VMInformation> describeInstances(String... instanceIds) {
-        List<VMInformation> result = new ArrayList<VMInformation>();
         try {
-
-            DescribeInstancesResult results = asynchEc2Client.describeInstances();
             HashSet<String> ids = new HashSet<String>(Arrays.asList(instanceIds));
-            for (Reservation reservationDescription : results.getReservations()) {
-                for (com.amazonaws.services.ec2.model.Instance instance : reservationDescription.getInstances()) {
-                    if (ids.contains(instance.getInstanceId())) {
-                        result.add(new AmazonDataConverter().instanceToVmInformation(reservationDescription, instance, vmRegion));
-                    }
-                }
-                // result.addAll(TypicaDataConverter.processReservationDescription(reservationDescription));
-            }
+
+            return asynchEc2Client.describeInstances().getReservations().stream()
+                    .flatMap(reservationDescription -> reservationDescription.getInstances()
+                            .stream()
+                            .filter(instance -> ids.contains(instance.getInstanceId()))
+                            .map(instance -> new AmazonDataConverter().instanceToVmInformation(reservationDescription, instance, vmRegion)))
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             LOG.error("Failed to retrieve instance from Amazon: " + e.getMessage());
             throw new RuntimeException(e);
         }
-
-        return result;
     }
 
     /**
@@ -441,22 +435,30 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     @Override
     public void killInstances(List<String> instanceIds) {
-        asynchEc2Client.terminateInstancesAsync(
-                new TerminateInstancesRequest(instanceIds),
-                new AsyncHandler<TerminateInstancesRequest, TerminateInstancesResult>() {
-                    @Override
-                    public void onError(Exception exception) {
-                        LOG.warn("something went wrong killing the instances {}",
-                                exception.getLocalizedMessage());
-                    }
 
-                    @Override
-                    public void onSuccess(TerminateInstancesRequest request, TerminateInstancesResult result) {
-                        LOG.trace("instances killed successfully {}",
-                                result.getTerminatingInstances());
-                    }
-                });
-        //return new AmazonDataConverter().processStateChange(terminateInstances.getTerminatingInstances());
+        // Filter instanceId list to only instances in the client defined region.
+        List<VMInformation> instancesInRegion = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
+        List<String> instanceIdsInRegion = instancesInRegion.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
+
+        if (!instanceIdsInRegion.isEmpty()) {
+            // asynchronous AWS SDK terminate instances.
+            asynchEc2Client.terminateInstancesAsync(
+                    new TerminateInstancesRequest(instanceIdsInRegion),
+                    new AsyncHandler<TerminateInstancesRequest, TerminateInstancesResult>() {
+                        @Override
+                        public void onError(Exception exception) {
+                            LOG.warn("something went wrong killing the instances : {}",
+                                    exception.getLocalizedMessage());
+                        }
+
+                        @Override
+                        public void onSuccess(TerminateInstancesRequest request, TerminateInstancesResult result) {
+                            LOG.trace("instances killed successfully : {}",
+                                    result.getTerminatingInstances());
+                        }
+                    });
+            //return new AmazonDataConverter().processStateChange(terminateInstances.getTerminatingInstances());
+        }
     }
 
     /**
@@ -612,22 +614,30 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @param instanceIds
      */
     public void stopInstances(List<String> instanceIds) {
-        asynchEc2Client.stopInstancesAsync(
-                new StopInstancesRequest(instanceIds),
-                new AsyncHandler<StopInstancesRequest, StopInstancesResult>() {
-                    @Override
-                    public void onError(Exception exception) {
-                        LOG.warn("something went wrong stopping the instances {}",
-                                exception.getLocalizedMessage());
-                    }
 
-                    @Override
-                    public void onSuccess(StopInstancesRequest request, StopInstancesResult result) {
-                        LOG.trace("instances stopped successfully {}",
-                                result.getStoppingInstances());
-                    }
-                });
-        //return new AmazonDataConverter().processStateChange(stoppingInstances);
+        // Filter instanceId list to only instances in the client defined region.
+        List<VMInformation> instancesInRegion = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
+        List<String> instanceIdsInRegion = instancesInRegion.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
+
+        if (!instanceIdsInRegion.isEmpty()) {
+            // asynchronous AWS SDK stop instances.
+            asynchEc2Client.stopInstancesAsync(
+                    new StopInstancesRequest(instanceIdsInRegion),
+                    new AsyncHandler<StopInstancesRequest, StopInstancesResult>() {
+                        @Override
+                        public void onError(Exception exception) {
+                            LOG.warn("something went wrong stopping the instances {}",
+                                    exception.getLocalizedMessage());
+                        }
+
+                        @Override
+                        public void onSuccess(StopInstancesRequest request, StopInstancesResult result) {
+                            LOG.trace("instances stopped successfully {}",
+                                    result.getStoppingInstances());
+                        }
+                    });
+            //return new AmazonDataConverter().processStateChange(stoppingInstances);
+        }
     }
 
     /**
