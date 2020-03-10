@@ -42,17 +42,15 @@ public class UserNameFilter implements Filter {
     @Inject
     private IdentityManager identityManager;
 
-
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // TODO Auto-generated method stub
-    }
+    public void init(FilterConfig filterConfig) throws ServletException {}
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
         if (identity != null && identity.getAccount() != null && identityManager.lookupById(User.class, identity.getAccount().getId()) != null) {
-            ThreadLocalUsernameProvider.getUsernameProvider().setUserName(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
+            ThreadLocalUsernameProvider.getUsernameProvider().setUserName(
+                    identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
         } else {
             ThreadLocalUsernameProvider.getUsernameProvider().setUserName(null);
         }
@@ -60,8 +58,6 @@ public class UserNameFilter implements Filter {
     }
 
     @Override
-    public void destroy() {
-        // TODO Auto-generated method stub
-    }
+    public void destroy() {}
 
 }

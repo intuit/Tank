@@ -16,8 +16,9 @@ package com.intuit.tank.auth;
  * #L%
  */
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.deltaspike.security.api.authorization.Secures;
@@ -34,6 +35,8 @@ import com.intuit.tank.project.OwnableEntity;
 import com.intuit.tank.qualifier.Current;
 import com.intuit.tank.vm.common.TankConstants;
 
+import java.io.Serializable;
+
 import static org.picketlink.idm.model.basic.BasicModel.*;
 
 /**
@@ -42,8 +45,9 @@ import static org.picketlink.idm.model.basic.BasicModel.*;
  * @author dangleton
  * 
  */
-@ApplicationScoped
-public class InternalSecurity {
+@Named
+@SessionScoped
+public class InternalSecurity implements Serializable {
 	
     @Inject 
     private IdentityManager identityManager;

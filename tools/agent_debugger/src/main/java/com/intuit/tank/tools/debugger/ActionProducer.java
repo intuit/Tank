@@ -908,14 +908,13 @@ public class ActionProducer {
     }
 
     private HDWorkload unmarshalWorkload(String xml) {
-        HDWorkload ret = null;
         try {
-            ret = JaxbUtil.unmarshall(xml, HDWorkload.class);
+            return JaxbUtil.unmarshall(xml, HDWorkload.class);
         } catch (JAXBException | ParserConfigurationException | SAXException e) {
             JOptionPane.showMessageDialog(debuggerFrame, e.getMessage(), "Error unmarshalling xml",
                     JOptionPane.ERROR_MESSAGE);
         }
-        return ret;
+        return null;
     }
 
     public enum IconSize {

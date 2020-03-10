@@ -46,7 +46,7 @@
     <version.surefire>2.22.2</version.surefire>
     <version.jersey>2.29</version.jersey>
     <version.junit>5.5.2</version.junit>
-    <version.httpclient>4.5.10</version.httpclient>
+    <version.httpclient>4.5.11</version.httpclient>
     <version.httpclient5>5.0-beta6</version.httpclient5>
     <version.lucene>8.2.0</version.lucene>
 

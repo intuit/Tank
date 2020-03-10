@@ -269,8 +269,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 int position = ThreadLocalRandom.current().nextInt(subnetIds.size());
                 while ( !subnetIds.isEmpty() && remaining > MAX_INSTANCE_BATCH_SIZE ) {
                     RunInstancesRequest runInstancesRequestClone = runInstancesRequest.clone();
-                    runInstancesRequestClone.withSubnetId(subnetIds.get(position++));
-                    position = (position == subnetIds.size()) ? 0 : position;
+                    runInstancesRequestClone.withSubnetId(subnetIds.get(position >= subnetIds.size() ? 0 : position++));
                     try {
                         RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequestClone.withMinCount(1)
                                                                                     .withMaxCount(MAX_INSTANCE_BATCH_SIZE));
@@ -281,15 +280,16 @@ public class AmazonInstance implements IEnvironmentInstance {
                         subnetIds.remove(runInstancesRequestClone.getSubnetId());
                     }
                 }
-                if (!subnetIds.isEmpty()) {
-                    runInstancesRequest.withSubnetId(subnetIds.get(position));
-                }
-                try {
-                    RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequest.withMinCount(remaining)
-                                                                                                .withMaxCount(remaining));
-                    result.addAll(new AmazonDataConverter().processReservation(results.getReservation(), vmRegion));
-                } catch (AmazonEC2Exception ae) {
-                    LOG.error("Amazon issue starting instances: count=" + remaining + " : " + ae.getMessage(), ae);
+                //Request remainder instances
+                if ( !subnetIds.isEmpty()  && remaining > 0 ) {
+                    runInstancesRequest.withSubnetId(subnetIds.get(position >= subnetIds.size() ? 0 : position));
+                    try {
+                        RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequest.withMinCount(remaining)
+                                .withMaxCount(remaining));
+                        result.addAll(new AmazonDataConverter().processReservation(results.getReservation(), vmRegion));
+                    } catch (AmazonEC2Exception ae) {
+                        LOG.error("Amazon issue starting instances: count=" + remaining + " : subnets=" + subnetIds.size() + " : " + ae.getMessage(), ae);
+                    }
                 }
 
                 if (instanceRequest.isUseEips()) {
@@ -341,10 +341,10 @@ public class AmazonInstance implements IEnvironmentInstance {
             }
 
         } catch (AmazonEC2Exception ae) {
-            LOG.error("Amazon issue starting instancs: " + ae.getMessage(), ae);
+            LOG.error("Amazon issue starting instances: " + ae.getMessage(), ae);
             throw new RuntimeException(ae);
         } catch (Exception ex) {
-            LOG.error("Error starting instancs: " + ex.getMessage(), ex);
+            LOG.error("Error starting instances: " + ex.getMessage(), ex);
             throw new RuntimeException(ex);
         }
         return result;

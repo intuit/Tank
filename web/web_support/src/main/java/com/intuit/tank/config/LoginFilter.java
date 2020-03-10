@@ -12,6 +12,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.exceptions.SegmentNotFoundException;
+import com.intuit.tank.vm.common.ThreadLocalUsernameProvider;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.picketlink.Identity;
 
 
@@ -22,15 +27,13 @@ import org.picketlink.Identity;
  * 
  */
 public class LoginFilter implements Filter {
+	private static Logger LOG = LogManager.getLogger(LoginFilter.class);
 	
     @Inject
     private Identity identity;
 
 	@Override
-	public void destroy() {
-		// TODO Auto-generated method stub
-		
-	}
+	public void init(FilterConfig arg0) throws ServletException {}
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -39,13 +42,16 @@ public class LoginFilter implements Filter {
 			String contextPath = ((HttpServletRequest)request).getContextPath();
 			((HttpServletResponse)response).sendRedirect(contextPath + "/denied.xhtml");
 		}
+		try {
+			AWSXRay.getCurrentSegment().setUser(ThreadLocalUsernameProvider.getUsernameProvider().getUserName());
+		} catch (SegmentNotFoundException snfe ) { //Ignore
+		} catch (Exception e) {
+			LOG.error("Failed to set User on current segment : " + e.getMessage(), e);
+		}
         chain.doFilter(request, response);
 	}
 
 	@Override
-	public void init(FilterConfig arg0) throws ServletException {
-		// TODO Auto-generated method stub
-		
-	}
+	public void destroy() {}
 
 }
