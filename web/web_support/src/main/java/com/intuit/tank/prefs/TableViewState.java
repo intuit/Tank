@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.primefaces.event.data.FilterEvent;
+import org.primefaces.model.FilterMeta;
 
 /**
  * FilterValues
@@ -33,14 +34,13 @@ public class TableViewState implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Map<String, Object> filteredValues = new HashMap<String, Object>();
+    private Map<String, FilterMeta> filteredValues = new HashMap<String, FilterMeta>();
 
     public Object getFilterValue(String key) {
-        Object ret = filteredValues.computeIfAbsent(key, k -> "");
-        return ret;
+        return filteredValues.computeIfAbsent(key, k -> new FilterMeta());
     }
 
-    public void setFilterValue(String key, Object value) {
+    public void setFilterValue(String key, FilterMeta value) {
         filteredValues.put(key, value);
     }
 
@@ -53,9 +53,9 @@ public class TableViewState implements Serializable {
     }
 
     public void onFilter(FilterEvent event) {
-        Map<String, Object> filters = event.getFilters();
+        Map<String, FilterMeta> filters = event.getFilterBy();
         clearFilters();
-        for (Entry<String, Object> entry : filters.entrySet()) {
+        for (Entry<String, FilterMeta> entry : filters.entrySet()) {
             setFilterValue(entry.getKey(), entry.getValue());
         }
     }

@@ -37,7 +37,7 @@ import org.picketlink.Identity;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.basic.User;
 import org.primefaces.event.FileUploadEvent;
-import org.primefaces.model.UploadedFile;
+import org.primefaces.model.file.UploadedFile;
 import org.xml.sax.InputSource;
 
 import com.intuit.tank.ModifiedScriptMessage;
@@ -70,7 +70,6 @@ public class TankXmlUploadBean implements Serializable {
     @Inject
     private IdentityManager identityManager;
 
-
     @Inject
     private Messages messages;
 
@@ -97,7 +96,7 @@ public class TankXmlUploadBean implements Serializable {
                 messages.error("Error extracting zip file: " + e.toString());
                 throw new RuntimeException(e);
             } finally {
-                IOUtils.closeQuietly(item.getInputstream());
+                IOUtils.closeQuietly(item.getInputStream());
             }
         }
     }
