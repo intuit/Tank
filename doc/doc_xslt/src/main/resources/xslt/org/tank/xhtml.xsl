@@ -11,7 +11,7 @@
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:d="http://docbook.org/ns/docbook" version="1.0">
   
-  <xsl:import href="http://docbook.sourceforge.net/release/xsl/1.75.1/xhtml/chunk.xsl"/>
+  <xsl:import href="http://docbook.sourceforge.net/release/xsl/1.79.1/xhtml/chunk.xsl"/>
 
   <xsl:include href="xhtml-common.xsl"/>
 
