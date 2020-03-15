@@ -32,7 +32,7 @@
 
     <version-tomcat>9.0.31</version-tomcat>
 
-    <weld.version>3.1.2.Final</weld.version>
+    <weld.version>3.1.3.Final</weld.version>
     <cdi.version>2.0</cdi.version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
