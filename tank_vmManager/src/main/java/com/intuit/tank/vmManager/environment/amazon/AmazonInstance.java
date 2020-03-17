@@ -234,9 +234,9 @@ public class AmazonInstance implements IEnvironmentInstance {
                 String image = getAMI(instanceDescription);
                 LOG.info("Requesting " + remaining + " instances in " + vmRegion.getName() + " with AMI=" + image);
 
-                RunInstancesRequest runInstancesRequest = new RunInstancesRequest();
+                RunInstancesRequest runInstancesRequestTemplate = new RunInstancesRequest();
                 Tenancy tenancy = StringUtils.isEmpty(instanceDescription.getTenancy()) ? Tenancy.Default : Tenancy.fromValue(instanceDescription.getTenancy());
-                runInstancesRequest.withImageId(image)
+                runInstancesRequestTemplate.withImageId(image)
                                     .withInstanceType(size.toString())
                 					.withKeyName(keyPair)
                 					.withPlacement(new Placement().withTenancy(tenancy))
@@ -246,43 +246,37 @@ public class AmazonInstance implements IEnvironmentInstance {
                 Collection<String> c = instanceDescription.getSecurityGroupIds();
                 if (!c.isEmpty()) {
                 	LOG.info("Security Group IDs " + c.toString());
-                    runInstancesRequest.withSecurityGroupIds(c);
+                    runInstancesRequestTemplate.withSecurityGroupIds(c);
                 } else {
-                    runInstancesRequest.withSecurityGroups(instanceDescription.getSecurityGroup());
+                    runInstancesRequestTemplate.withSecurityGroups(instanceDescription.getSecurityGroup());
                 }
                 if (StringUtils.isNotBlank(instanceDescription.getIamRole())) {
                     IamInstanceProfileSpecification iamInstanceProfile = new IamInstanceProfileSpecification().withName(instanceDescription.getIamRole());
-                    runInstancesRequest.withIamInstanceProfile(iamInstanceProfile);
+                    runInstancesRequestTemplate.withIamInstanceProfile(iamInstanceProfile);
                 }
                 // add zone info if specified
                 if (!StringUtils.isEmpty(instanceDescription.getZone())) {
-                    runInstancesRequest.withPlacement(new Placement().withAvailabilityZone(instanceDescription.getZone()));
+                    runInstancesRequestTemplate.withPlacement(new Placement().withAvailabilityZone(instanceDescription.getZone()));
                 }
                 // Loop to request agent instances
                 List<String> subnetIds = instanceDescription.getSubnetIds();
                 int position = ThreadLocalRandom.current().nextInt(subnetIds.size());
-                while ( !subnetIds.isEmpty() && remaining > MAX_INSTANCE_BATCH_SIZE ) {
-                    RunInstancesRequest runInstancesRequestClone = runInstancesRequest.clone();
-                    runInstancesRequestClone.withSubnetId(subnetIds.get(position >= subnetIds.size() ? 0 : position++));
+                while ( !subnetIds.isEmpty() && remaining > 0 ) {
+                    RunInstancesRequest runInstancesRequest = runInstancesRequestTemplate.clone();
+                    runInstancesRequest.withSubnetId(subnetIds.get(position >= subnetIds.size() ? 0 : position++));
+                    int requestCount = Math.min(remaining, MAX_INSTANCE_BATCH_SIZE);
                     try {
-                        RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequestClone.withMinCount(1)
-                                                                                    .withMaxCount(MAX_INSTANCE_BATCH_SIZE));
+                        RunInstancesResult results =
+                                asynchEc2Client.runInstances(
+                                        runInstancesRequest.withMinCount(1).withMaxCount(requestCount));
                         result.addAll(new AmazonDataConverter().processReservation(results.getReservation(), vmRegion));
                         remaining -= results.getReservation().getInstances().size();
                     } catch (AmazonEC2Exception ae) {
-                        LOG.error("Amazon issue starting instances: count=" + MAX_INSTANCE_BATCH_SIZE + " : " + ae.getMessage(), ae);
-                        subnetIds.remove(runInstancesRequestClone.getSubnetId());
-                    }
-                }
-                //Request remainder instances
-                if ( !subnetIds.isEmpty()  && remaining > 0 ) {
-                    runInstancesRequest.withSubnetId(subnetIds.get(position >= subnetIds.size() ? 0 : position));
-                    try {
-                        RunInstancesResult results = asynchEc2Client.runInstances(runInstancesRequest.withMinCount(remaining)
-                                .withMaxCount(remaining));
-                        result.addAll(new AmazonDataConverter().processReservation(results.getReservation(), vmRegion));
-                    } catch (AmazonEC2Exception ae) {
-                        LOG.error("Amazon issue starting instances: count=" + remaining + " : subnets=" + subnetIds.size() + " : " + ae.getMessage(), ae);
+                        LOG.error("Amazon issue starting instances: count="
+                                + remaining + " : subnets=" + subnetIds.size() + " : " + ae.getMessage());
+                        if(StringUtils.contains(ae.getMessage(), "InsufficientInstanceCapacity")) {
+                            subnetIds.remove(runInstancesRequest.getSubnetId());
+                        }
                     }
                 }
 
@@ -646,7 +640,8 @@ public class AmazonInstance implements IEnvironmentInstance {
      */
     private String buildUserData(@Nonnull Map<String, String> userDataMap) {
         String sb = userDataMap.entrySet().stream()
-                .map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining("\n"));
+                .map(Object::toString)
+                .collect(Collectors.joining("\n"));
         return Base64.encodeBase64String(sb.getBytes());
     }
 
@@ -663,18 +658,16 @@ public class AmazonInstance implements IEnvironmentInstance {
     }
 
     public String findPublicName(String instanceId) {
-        String result = null;
         try {
             DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest().withInstanceIds(instanceId);
-            DescribeInstancesResult output = asynchEc2Client.describeInstances(describeInstancesRequest);
-            if (output.getReservations() != null && output.getReservations().size() == 1) {
-                Reservation reservation = output.getReservations().get(0);
-                result = reservation.getInstances().get(0).getPublicDnsName();
+            DescribeInstancesResult result = asynchEc2Client.describeInstances(describeInstancesRequest);
+            if (result.getReservations() != null && result.getReservations().size() == 1) {
+                return result.getReservations().get(0).getInstances().get(0).getPublicDnsName();
             }
         } catch (Exception e) {
             LOG.error("Error getting public dns: " + e, e);
         }
-        return result;
+        return null;
     }
 
 }
