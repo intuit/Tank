@@ -13,9 +13,11 @@ package com.intuit.tank.agent;
  * #L%
  */
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
@@ -31,12 +33,12 @@ import com.intuit.tank.harness.AmazonUtil;
 import com.intuit.tank.vm.common.TankConstants;
 
 public class AgentStartup implements Runnable {
-
     private static Logger logger = LogManager.getLogger(AgentStartup.class);
     private static final String SERVICE_RELATIVE_PATH = "/rest/v1/agent-service";
     private static final String METHOD_SETTINGS = "/settings";
     private static final String API_HARNESS_COMMAND = "./startAgent.sh";
     private static final String METHOD_SUPPORT = "/supportFiles";
+    private static final int maxRetry = 5;
 
     private final String controllerBaseUrl;
 
@@ -55,25 +57,36 @@ public class AgentStartup implements Runnable {
                 String settings = IOUtils.toString(settingsStream, StandardCharsets.UTF_8);
                 FileUtils.writeStringToFile(new File("settings.xml"), settings, StandardCharsets.UTF_8);
                 logger.info("got settings file...");
+            } catch (ConnectException ce) {
+                logger.error("Error creating connection to "
+                        + controllerBaseUrl + " : this is normal during the bake : " + ce.getMessage());
             }
             url = new URL(controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
             logger.info("Making call to tank service url to get support files " + url.toExternalForm());
-            try ( ZipInputStream zip = new ZipInputStream(url.openStream()) ){
-                ZipEntry entry = zip.getNextEntry();
-                while (entry != null) {
-                    String name = entry.getName();
-                    logger.info("Got file from controller: " + name);
-                    File f = new File(name);
-                    try ( FileOutputStream fout = FileUtils.openOutputStream(f) ) {
-                        IOUtils.copy(zip, fout);
+            int retryCount = 0;
+            while (true) {
+                try (ZipInputStream zip = new ZipInputStream(url.openStream())) {
+                    ZipEntry entry = zip.getNextEntry();
+                    while (entry != null) {
+                        String name = entry.getName();
+                        logger.info("Got file from controller: " + name);
+                        File f = new File(name);
+                        try (FileOutputStream fout = FileUtils.openOutputStream(f)) {
+                            IOUtils.copy(zip, fout);
+                        }
+                        entry = zip.getNextEntry();
                     }
-                    entry = zip.getNextEntry();
+                    break;
+                } catch (EOFException eofe) {
+                    logger.error("Error unzipping support files : retryCount="
+                            + retryCount + " : " + eofe.getMessage());
+                    if (++retryCount >= maxRetry) throw eofe;
                 }
             }
             // now start the harness
             String jvmArgs = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_JVM_ARGS);
-            logger.info("Starting apiharness with command: " + API_HARNESS_COMMAND + " -http=" + controllerBaseUrl + " "
-                    + jvmArgs);
+            logger.info("Starting apiharness with command: "
+                    + API_HARNESS_COMMAND + " -http=" + controllerBaseUrl + " " + jvmArgs);
             Runtime.getRuntime().exec(API_HARNESS_COMMAND + " -http=" + controllerBaseUrl + " " + jvmArgs);
         } catch (Exception e) {
             logger.error("Error in AgentStartup " + e, e);
