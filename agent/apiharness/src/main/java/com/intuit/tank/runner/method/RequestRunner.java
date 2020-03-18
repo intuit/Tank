@@ -226,7 +226,7 @@ public class RequestRunner implements Runner {
         try {
             TankResultBuilder builder = new TankResultBuilder();
             builder.withJobId(APITestHarness.getInstance().getAgentRunData().getJobId())
-            .withInstanceId(APITestHarness.getInstance().getAgentRunData().getInstanceId());
+                    .withInstanceId(APITestHarness.getInstance().getAgentRunData().getInstanceId());
             if (resp != null) {
                 builder.withResponseTime((int) resp.getResponseTime());
                 builder.withStatusCode(resp.getHttpCode());
@@ -279,9 +279,7 @@ public class RequestRunner implements Runner {
                 ret = evaluateResult(item.getKey(), item.getValue(), item.getCondition(),
                         variables);
             }
-
         }
-
         return ret;
     }
 

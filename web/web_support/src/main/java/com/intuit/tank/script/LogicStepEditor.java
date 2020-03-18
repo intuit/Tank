@@ -37,7 +37,6 @@ import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.ScriptConstants;
 import com.intuit.tank.tools.script.ScriptIOBean;
 import com.intuit.tank.tools.script.ScriptRunner;
 import com.intuit.tank.tools.script.StringOutputLogger;
