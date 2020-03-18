@@ -172,7 +172,6 @@ public class DatabaseResultsReader implements ResultsReader {
                                     timestamp = ReportUtil.parseTimestamp(att.getValue());
                                 } catch (ParseException e) {
                                     LOG.error("Error processing timestamp " + att.getValue() + ":" + e);
-                                    continue;
                                 }
                             } else if (DatabaseKeys.TRANSACTIONS_KEY.getShortKey().equals(att.getName())) {
                                 transactions = Integer.parseInt(att.getValue());

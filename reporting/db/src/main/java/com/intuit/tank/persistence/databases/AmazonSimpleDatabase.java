@@ -273,22 +273,19 @@ public class AmazonSimpleDatabase implements IDatabase {
      */
     @Override
     public PagedDatabaseResult getPagedItems(String tableName, Object token, String minRange, String maxRange, String instanceId, String jobId) {
-        List<Item> ret;
-        String whereClause = null;
+        String whereClause = "";
         if (minRange != null && maxRange != null) {
             whereClause = " Timestamp between '" + minRange + "' and '" + maxRange + "' ";
         } else if (minRange != null) {
             whereClause = " Timestamp >= '" + minRange + "' ";
         } else if (maxRange != null) {
             whereClause = " Timestamp < '" + maxRange + "' ";
-        } else {
-            whereClause = "";
         }
         SelectRequest request = new SelectRequest("SELECT * from `" + tableName + "`" + whereClause).withConsistentRead(true);
         String nextToken = (String) token;
         request.withNextToken(nextToken);
         SelectResult result = db.select(request);
-        ret = result.getItems().stream().map(this::resultToItem).collect(Collectors.toList());
+        List<Item> ret = result.getItems().stream().map(this::resultToItem).collect(Collectors.toList());
         nextToken = result.getNextToken();
         return new PagedDatabaseResult(ret, result.getNextToken());
     }
@@ -296,6 +293,7 @@ public class AmazonSimpleDatabase implements IDatabase {
     /**
      * @inheritDoc
      */
+    @Nonnull
     @Override
     public List<Item> getItems(String tableName, String minRange, String maxRange, String instanceId, String... jobIds) {
         List<Item> ret = new ArrayList<Item>();

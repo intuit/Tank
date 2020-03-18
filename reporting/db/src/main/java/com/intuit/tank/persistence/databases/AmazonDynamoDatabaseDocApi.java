@@ -275,7 +275,6 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     @Override
     public PagedDatabaseResult getPagedItems(String tableName, Object nextToken, String minRange,
             String maxRange, String instanceId, String jobId) {
-        List<Item> ret;
         Map<String, AttributeValue> lastKeyEvaluated = (Map<String, AttributeValue>) nextToken;
         ScanRequest scanRequest = new ScanRequest().withTableName(tableName);
         Map<String, Condition> conditions = new HashMap<String, Condition>();
@@ -315,7 +314,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
         scanRequest.withExclusiveStartKey(lastKeyEvaluated);
 
         ScanResult result = dynamoDb.scan(scanRequest);
-        ret = result.getItems().stream().map(this::getItemFromResult).collect(Collectors.toList());
+        List<Item> ret = result.getItems().stream().map(this::getItemFromResult).collect(Collectors.toList());
         return new PagedDatabaseResult(ret, result.getLastEvaluatedKey());
     }
 
@@ -323,6 +322,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
      * 
      * @inheritDoc
      */
+    @Nonnull
     @Override
     public List<Item> getItems(String tableName, String minRange, String maxRange, String instanceId,
             String... jobIds) {
@@ -433,7 +433,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     }
 
     /**
-     * @param item
+     * @param attributeMap
      * @return
      */
     private Item getItemFromResult(Map<String, AttributeValue> attributeMap) {
@@ -560,7 +560,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
                 if (tableStatus.equals(status.toString()))
                     return;
             } catch (AmazonServiceException ase) {
-                if (ase.getErrorCode().equalsIgnoreCase("ResourceNotFoundException") == false)
+                if (!ase.getErrorCode().equalsIgnoreCase("ResourceNotFoundException"))
                     throw ase;
             }
         }
@@ -583,7 +583,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
                     return;
                 }
             } catch (AmazonServiceException ase) {
-                if (ase.getErrorCode().equalsIgnoreCase("ResourceNotFoundException") == false)
+                if (!ase.getErrorCode().equalsIgnoreCase("ResourceNotFoundException"))
                     throw ase;
             }
         }

@@ -105,6 +105,7 @@ public interface IDatabase {
      *            the maxRange as a String in format DATE_FORMAT
      * @return
      */
+    @Nonnull
     public List<Item> getItems(String tableName, String minRange, String maxRange, String instanceId, String... jobId);
 
     /**
