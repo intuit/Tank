@@ -21,6 +21,7 @@ import java.net.ConnectException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
 import com.amazonaws.util.StringUtils;
@@ -78,12 +79,12 @@ public class AgentStartup implements Runnable {
                         entry = zip.getNextEntry();
                     }
                     break;
-                } catch (EOFException eofe) {
+                } catch (EOFException | ZipException e) {
                     logger.error("Error unzipping support files : retryCount="
-                            + retryCount + " : " + eofe.getMessage());
+                            + retryCount + " : " + e.getMessage());
                     if (retryCount < FIBONACCI.length) {
                         Thread.sleep( FIBONACCI[++retryCount] * 1000 );
-                    } else throw eofe;
+                    } else throw e;
                 }
             }
             // now start the harness
