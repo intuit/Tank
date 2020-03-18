@@ -38,7 +38,7 @@ public class AgentStartup implements Runnable {
     private static final String METHOD_SETTINGS = "/settings";
     private static final String API_HARNESS_COMMAND = "./startAgent.sh";
     private static final String METHOD_SUPPORT = "/supportFiles";
-    private static final int maxRetry = 5;
+    private static final int[] FIBONACCI = new int[] { 1, 1, 2, 3, 5, 8, 13 };
 
     private final String controllerBaseUrl;
 
@@ -61,6 +61,7 @@ public class AgentStartup implements Runnable {
                 logger.error("Error creating connection to "
                         + controllerBaseUrl + " : this is normal during the bake : " + ce.getMessage());
             }
+            // Download Support Files
             url = new URL(controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
             logger.info("Making call to tank service url to get support files " + url.toExternalForm());
             int retryCount = 0;
@@ -80,7 +81,9 @@ public class AgentStartup implements Runnable {
                 } catch (EOFException eofe) {
                     logger.error("Error unzipping support files : retryCount="
                             + retryCount + " : " + eofe.getMessage());
-                    if (++retryCount >= maxRetry) throw eofe;
+                    if (retryCount < FIBONACCI.length) {
+                        Thread.sleep( FIBONACCI[++retryCount] * 1000 );
+                    } else throw eofe;
                 }
             }
             // now start the harness
