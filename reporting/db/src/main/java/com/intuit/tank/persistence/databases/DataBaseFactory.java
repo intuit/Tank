@@ -29,23 +29,14 @@ public class DataBaseFactory {
 	
 	public static final String resultsProvider = new TankConfig().getVmManagerConfig().getResultsProvider();
 
-//    private static IDatabase provider;
-//    private static String providerClass;
-
     public static final IDatabase getDatabase() {
-//        if (provider == null || !provider.getClass().getName().equals(providerClass)) {
             return initProvider();
-//        }
-//        return provider;
     }
 
     private static IDatabase initProvider() {
-        IDatabase provider = null;
         try {
-            provider = (IDatabase) Class.forName(resultsProvider).newInstance();
-        } catch (Exception e) {
-            provider = new AmazonDynamoDatabaseDocApi();
-        }
-        return provider;
+            return (IDatabase) Class.forName(resultsProvider).newInstance();
+        } catch (Exception e) { }
+        return new AmazonDynamoDatabaseDocApi();
     }
 }

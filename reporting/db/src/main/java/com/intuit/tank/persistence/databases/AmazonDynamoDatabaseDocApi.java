@@ -110,8 +110,6 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
         } else {
             this.dynamoDb = AmazonDynamoDBClientBuilder.defaultClient();
         }
-
-        
     }
 
     /**
