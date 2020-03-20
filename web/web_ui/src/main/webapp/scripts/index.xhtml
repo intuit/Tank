@@ -251,11 +251,9 @@
           <h:outputText styleClass="pa"
             value="Intuit Tank supports only .xml files as Scripts but can accept .zip files. Zip files will be searched recursively for all .xml files." />
           <div class="vertical-spacer" />
-          <p:fileUpload id="fileUploadControl"
-            oncomplete="PF('xmlUploadDialog').hide()"
-            fileUploadListener="#{tankXmlUploadBean.handleFileUpload}"
-            mode="advanced" allowTypes="/(\.|\/)(xml|zip)$/"
-            update=":mainForm:scriptTableId" multiple="true" />
+          <p:fileUpload id="fileUploadControl" oncomplete="PF('xmlUploadDialog').hide()"
+                        listener="#{tankXmlUploadBean.handleFileUpload}" mode="advanced"
+                        allowTypes="/(\.|\/)(xml|zip)$/" update=":mainForm:scriptTableId" multiple="true" />
           <div class="vertical-spacer" />
         </p:outputPanel>
       </h:form>

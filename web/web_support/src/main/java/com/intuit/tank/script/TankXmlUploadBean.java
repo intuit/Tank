@@ -24,6 +24,8 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
@@ -49,14 +51,16 @@ import com.intuit.tank.project.Script;
 import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.util.UploadedFileIterator;
 import com.intuit.tank.wrapper.FileInputStreamWrapper;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 
 @Named
 @RequestScoped
 public class TankXmlUploadBean implements Serializable {
+    private static final Logger LOG = LogManager.getLogger(TankXmlUploadBean.class);
 
     private static final long serialVersionUID = 1L;
-
-    private static final Logger LOG = LogManager.getLogger(TankXmlUploadBean.class);
 
     private boolean useFlash = true;
 
@@ -105,7 +109,7 @@ public class TankXmlUploadBean implements Serializable {
         messages.clear();
     }
 
-    public void processScript(InputStream inputStream, String fileName) throws Exception {
+    public void processScript(InputStream inputStream, String fileName) {
         try {
             ScriptDao dao = new ScriptDao();
             
@@ -142,9 +146,10 @@ public class TankXmlUploadBean implements Serializable {
                 script.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
             }
             script = dao.saveOrUpdate(script);
+            LOG.info("Script " + script.getName() + " from file " + fileName + " has been added.");
             messages.info("Script " + script.getName() + " from file " + fileName + " has been added.");
             scriptEvent.fire(new ModifiedScriptMessage(script, this));
-        } catch (Exception e) {
+        } catch (ParserConfigurationException | JAXBException | SAXException e) {
             LOG.error("Error unmarshalling script: " + e.getMessage() + " from file " + fileName, e);
             messages.error("Error unmarshalling script: " + e.toString() + " from file " + fileName);
         }
