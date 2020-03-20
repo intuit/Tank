@@ -59,13 +59,10 @@
       <pe:remoteCommand id="resizeListener" name="resizeFinished"
         update="scriptTableId" />
 
-
       <p:dataTable id="scriptTableId" var="selectable" widgetVar="scriptTable" class="pad2"
-        value="#{scriptBean.selectionList}" liveResize="false" scrollable="true"
+        value="#{scriptBean.selectionList}" liveResize="false" scrollable="true" scrollHeight="100%"
         filteredValue="#{scriptBean.filteredData}"
-        scrollHeight="100%" sortBy="#{selectable.entity.modified}"
-        sortOrder="descending" paginator="true" rows="25"
-        resizableColumns="true"
+        sortBy="#{selectable.entity.modified}" sortOrder="descending" paginator="true" rows="25" resizableColumns="true"
         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
         rowsPerPageTemplate="25,50,75,100">
 
@@ -76,12 +73,10 @@
             </p:outputPanel>
           </f:facet>
 
-
         <p:ajax event="colResize" update="scriptTableId"
           listener="#{scriptBean.tablePrefs.onResize}" global="true"
           onstart="saveScrollPos()" oncomplete="getScrollPos()"
           immediate="true" />
-
         <p:ajax event="filter"
           listener="#{scriptBean.tableState.onFilter}" global="false"
           immediate="true" />
