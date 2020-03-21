@@ -38,8 +38,8 @@
 
     <version.enunciate>2.12.1</version.enunciate>
 
-    <version.mojarra>2.2.20</version.mojarra>
-    <version.jsf-api>2.2.20</version.jsf-api>
+    <version.mojarra>2.3.9</version.mojarra>
+    <version.jsf-api>2.3</version.jsf-api>
     <version.primefaces>8.0</version.primefaces>
     <version.primefaces-ext>8.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
@@ -437,14 +437,14 @@
       </dependency>
 
       <dependency>
-        <groupId>com.sun.faces</groupId>
-        <artifactId>jsf-api</artifactId>
+        <groupId>javax.faces</groupId>
+        <artifactId>javax.faces-api</artifactId>
         <version>${version.jsf-api}</version>
       </dependency>
 
       <dependency>
-        <groupId>com.sun.faces</groupId>
-        <artifactId>jsf-impl</artifactId>
+        <groupId>org.glassfish</groupId>
+        <artifactId>javax.faces</artifactId>
         <version>${version.mojarra}</version>
       </dependency>
 
