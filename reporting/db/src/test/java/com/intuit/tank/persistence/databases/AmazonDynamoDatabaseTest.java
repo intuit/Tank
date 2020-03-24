@@ -56,7 +56,7 @@ public class AmazonDynamoDatabaseTest {
     public void cleanTables() {
         if (db != null) {
             try {
-                db.deleteTable(TEST_TABLE);
+                db.removeNamespace(TEST_TABLE);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -76,16 +76,16 @@ public class AmazonDynamoDatabaseTest {
     @Test
     @Tag(TestGroups.EXPERIMENTAL)
     public void testCreateDelete() {
-        db.createTable(TEST_TABLE);
+        db.initNamespace(TEST_TABLE);
         boolean hasTable = db.hasTable(TEST_TABLE);
         assertEquals(true, hasTable);
-        db.deleteTable(TEST_TABLE);
+        db.removeNamespace(TEST_TABLE);
     }
 
     @Test
     @Tag(TestGroups.EXPERIMENTAL)
     public void testInsertTiming() {
-        db.createTable(TEST_TABLE);
+        db.initNamespace(TEST_TABLE);
         boolean hasTable = db.hasTable(TEST_TABLE);
         
         assertEquals(true, hasTable);
@@ -111,7 +111,7 @@ public class AmazonDynamoDatabaseTest {
     @Test
     @Tag(TestGroups.EXPERIMENTAL)
     public void testInsertTps() {
-        db.createTable(TEST_TABLE);
+        db.initNamespace(TEST_TABLE);
         int numJobs = 3;
         boolean hasTable = db.hasTable(TEST_TABLE);
         assertEquals(true, hasTable);

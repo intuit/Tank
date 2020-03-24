@@ -125,7 +125,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
      * @inheritDoc
      */
     @Override
-    public void createTable(String tableName) {
+    public void initNamespace(String tableName) {
         try {
             if (!hasTable(tableName)) {
                 logger.info("Creating table: " + tableName);
@@ -179,7 +179,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
      * @inheritDoc
      */
     @Override
-    public void deleteTable(String tableName) {
+    public void removeNamespace(String tableName) {
         try {
             if (hasTable(tableName)) {
                 logger.info("Deleting table: " + tableName);

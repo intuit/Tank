@@ -132,7 +132,7 @@ public class DatabaseResultsReporter implements ResultsReporter {
     private String getTimingTableName(IDatabase db, String jobId) {
         if (StringUtils.isBlank(timingTableName)) {
             timingTableName = db.getDatabaseName(TankDatabaseType.timing, jobId);
-            db.createTable(timingTableName);
+            db.initNamespace(timingTableName);
         }
         return timingTableName;
     }
@@ -140,7 +140,7 @@ public class DatabaseResultsReporter implements ResultsReporter {
     private String getTpsTableName(IDatabase db) {
         if (StringUtils.isBlank(tpsTableName)) {
             tpsTableName = new TankConfig().getInstanceName() + "_tps";
-            db.createTable(tpsTableName);
+            db.initNamespace(tpsTableName);
         }
         return tpsTableName;
     }

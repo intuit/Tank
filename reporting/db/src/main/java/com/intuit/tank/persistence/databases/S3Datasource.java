@@ -3,6 +3,7 @@ package com.intuit.tank.persistence.databases;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +39,8 @@ import javax.annotation.Nonnull;
  */
 public class S3Datasource implements IDatabase {
     private static final Logger LOG = LogManager.getLogger(S3Datasource.class);
-	
+
+	private AmazonS3 s3Client;
     private String hostname = "fail";
 	private String metricString = "";
 	private String tags = "";
@@ -48,12 +50,27 @@ public class S3Datasource implements IDatabase {
 	private HierarchicalConfiguration resultsProviderConfig = config.getVmManagerConfig().getResultsProviderConfig();
 
 	@Override
-	public void createTable(String tableName) {
-		// TODO Auto-generated method stub
+	public void initNamespace(String tableName) {
+		s3Client = AmazonS3ClientBuilder.defaultClient();
+
+		if (resultsProviderConfig != null) {
+			try {
+				metricString = resultsProviderConfig.getString("metricString","test.tank.transaction");
+				tags = resultsProviderConfig.getString("tags"); //Example "bu=ctg app=tto pool=agent service=tank env=prf"
+				bucketName = resultsProviderConfig.getString("bucket", "tank-test");
+				hostname = InetAddress.getLocalHost().getHostName();
+			} catch (UnknownHostException e) {
+				LOG.error("Failed to get hostname " + e.toString(), e);
+			}
+		}
+
+		if (StringUtils.endsWith(bucketName, "-")) {
+			bucketName = bucketName.concat(s3Client.getRegionName());
+		}
 	}
 
 	@Override
-	public void deleteTable(String tableName) {
+	public void removeNamespace(String tableName) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -76,33 +93,17 @@ public class S3Datasource implements IDatabase {
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void addTimingResults(String tableName, List<TankResult> results, boolean asynch) {
-        if (resultsProviderConfig != null) {
-            try {
-            	metricString = resultsProviderConfig.getString("metricString","test.tank.transaction");
-				tags = resultsProviderConfig.getString("tags"); //Example "bu=ctg app=tto pool=agent service=tank env=prf"
-            	bucketName = resultsProviderConfig.getString("bucket", "tank-test");
-            	hostname = InetAddress.getLocalHost().getHostName();
-            } catch (Exception e) {
-                LOG.error("Failed to get S3 Datasource parameters " + e.toString(), e);
-            }
-        }
+
 		String jobId = results.get(0).getJobId();
 		String instance = results.get(0).getInstanceId();
 		long timestamp = results.get(results.size()-1).getTimeStamp().getTime() / 1000;
 		
 		try {
-			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
-			
-			String Region = s3Client.getRegionName();
-			if (StringUtils.endsWith(bucketName, "-")) {
-				bucketName = bucketName.concat(Region);
-			}
 			String tagsComplete = " source=" + hostname +
 					" instanceid=" + instance +  
-					" location=" + Region +
+					" location=" + s3Client.getRegionName() +
 					" " + tags +
 					" jobid=" + jobId + 
 					System.getProperty("line.separator");
