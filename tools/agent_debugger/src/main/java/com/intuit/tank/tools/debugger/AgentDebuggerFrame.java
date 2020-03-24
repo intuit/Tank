@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -794,9 +795,7 @@ public class AgentDebuggerFrame extends JFrame {
         harness.getAgentRunData().setTotalAgents(1);
         harness.setDebug(true);
 
-        List<String> testPlansXmls = new ArrayList<String>();
-        testPlansXmls.add(buildScriptString());
-        TestPlanSingleton.getInstance().setTestPlans(testPlansXmls);
+        TestPlanSingleton.getInstance().setTestPlans(Collections.singletonList(buildScriptString()));
         downloadDataFiles();
         JexlIOFunctions.resetStatics();
         JexlStringFunctions.resetStatics();

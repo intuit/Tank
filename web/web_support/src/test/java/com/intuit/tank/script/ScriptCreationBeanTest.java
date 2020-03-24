@@ -27,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.picketlink.Identity;
 import org.picketlink.extension.PicketLinkExtension;
-import org.primefaces.model.DefaultUploadedFile;
-import org.primefaces.model.UploadedFile;
+import org.primefaces.model.file.CommonsUploadedFile;
+import org.primefaces.model.file.UploadedFile;
 
 import com.intuit.tank.project.ScriptFilter;
 import com.intuit.tank.project.ScriptFilterGroup;
@@ -75,7 +75,7 @@ public class ScriptCreationBeanTest {
     @Disabled
     public void testCancel_1()
         throws Exception {
-        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setFile(new CommonsUploadedFile());
         scriptCreationBean.setProductName("");
         scriptCreationBean.setCreationMode("");
         scriptCreationBean.setFilterWrappers(new LinkedList<>());
@@ -100,7 +100,7 @@ public class ScriptCreationBeanTest {
     @Disabled
     public void testCreateNewScript_1()
         throws Exception {
-        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setFile(new CommonsUploadedFile());
         scriptCreationBean.setProductName("");
         scriptCreationBean.setCreationMode("");
         scriptCreationBean.setFilterWrappers(new LinkedList<>());
@@ -125,7 +125,7 @@ public class ScriptCreationBeanTest {
     @Test
     public void testGetCreationMode_1()
         throws Exception {
-        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setFile(new CommonsUploadedFile());
         scriptCreationBean.setProductName("");
         scriptCreationBean.setCreationMode("");
         scriptCreationBean.setFilterWrappers(new LinkedList<>());
@@ -150,7 +150,7 @@ public class ScriptCreationBeanTest {
     @Test
     public void testGetFile_1()
         throws Exception {
-        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setFile(new CommonsUploadedFile());
         scriptCreationBean.setProductName("");
         scriptCreationBean.setCreationMode("");
         scriptCreationBean.setFilterWrappers(new LinkedList<>());
@@ -176,7 +176,7 @@ public class ScriptCreationBeanTest {
     @Test
     public void testGetFilterWrappers_2()
         throws Exception {
-        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setFile(new CommonsUploadedFile());
         scriptCreationBean.setProductName("");
         scriptCreationBean.setCreationMode("");
         scriptCreationBean.setFilterWrappers(new LinkedList<>());
@@ -202,7 +202,7 @@ public class ScriptCreationBeanTest {
     @Test
     public void testGetGroupWrappers_2()
         throws Exception {
-        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setFile(new CommonsUploadedFile());
         scriptCreationBean.setProductName("");
         scriptCreationBean.setCreationMode("");
         scriptCreationBean.setFilterWrappers(new LinkedList<>());
@@ -227,7 +227,7 @@ public class ScriptCreationBeanTest {
     @Test
     public void testGetName_1()
         throws Exception {
-        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setFile(new CommonsUploadedFile());
         scriptCreationBean.setProductName("");
         scriptCreationBean.setCreationMode("");
         scriptCreationBean.setFilterWrappers(new LinkedList<>());
@@ -252,7 +252,7 @@ public class ScriptCreationBeanTest {
     @Test
     public void testGetProductName_1()
         throws Exception {
-        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setFile(new CommonsUploadedFile());
         scriptCreationBean.setProductName("");
         scriptCreationBean.setCreationMode("");
         scriptCreationBean.setFilterWrappers(new LinkedList<>());
@@ -277,7 +277,7 @@ public class ScriptCreationBeanTest {
     @Test
     public void testSetCreationMode_1()
         throws Exception {
-        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setFile(new CommonsUploadedFile());
         scriptCreationBean.setProductName("");
         scriptCreationBean.setCreationMode("");
         scriptCreationBean.setFilterWrappers(new LinkedList<>());
@@ -302,13 +302,13 @@ public class ScriptCreationBeanTest {
     @Test
     public void testSetFile_1()
         throws Exception {
-        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setFile(new CommonsUploadedFile());
         scriptCreationBean.setProductName("");
         scriptCreationBean.setCreationMode("");
         scriptCreationBean.setFilterWrappers(new LinkedList<>());
         scriptCreationBean.setName("");
         scriptCreationBean.setGroupWrappers(new LinkedList<>());
-        UploadedFile file = new DefaultUploadedFile();
+        UploadedFile file = new CommonsUploadedFile();
 
         scriptCreationBean.setFile(file);
 
@@ -327,7 +327,7 @@ public class ScriptCreationBeanTest {
     @Test
     public void testSetFilterWrappers_1()
         throws Exception {
-        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setFile(new CommonsUploadedFile());
         scriptCreationBean.setProductName("");
         scriptCreationBean.setCreationMode("");
         scriptCreationBean.setFilterWrappers(new LinkedList<>());
@@ -352,7 +352,7 @@ public class ScriptCreationBeanTest {
     @Test
     public void testSetGroupWrappers_1()
         throws Exception {
-        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setFile(new CommonsUploadedFile());
         scriptCreationBean.setProductName("");
         scriptCreationBean.setCreationMode("");
         scriptCreationBean.setFilterWrappers(new LinkedList<>());
@@ -377,7 +377,7 @@ public class ScriptCreationBeanTest {
     @Test
     public void testSetName_1()
         throws Exception {
-        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setFile(new CommonsUploadedFile());
         scriptCreationBean.setProductName("");
         scriptCreationBean.setCreationMode("");
         scriptCreationBean.setFilterWrappers(new LinkedList<>());
@@ -402,7 +402,7 @@ public class ScriptCreationBeanTest {
     @Test
     public void testSetProductName_1()
         throws Exception {
-        scriptCreationBean.setFile(new DefaultUploadedFile());
+        scriptCreationBean.setFile(new CommonsUploadedFile());
         scriptCreationBean.setProductName("");
         scriptCreationBean.setCreationMode("");
         scriptCreationBean.setFilterWrappers(new LinkedList<>());

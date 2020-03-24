@@ -38,7 +38,7 @@ public class TankAnalyzerTest {
     @Test
     public void testTAnkAnalyzer_1()
             throws Exception {
-        Version matchVersion = Version.LUCENE_8_2_0;
+        Version matchVersion = Version.LATEST;
 
         TankAnalyzer result = new TankAnalyzer(matchVersion);
 
@@ -56,7 +56,7 @@ public class TankAnalyzerTest {
     @Test
     public void testCreateComponents_1()
             throws Exception {
-        TankAnalyzer fixture = new TankAnalyzer(Version.LUCENE_8_2_0);
+        TankAnalyzer fixture = new TankAnalyzer(Version.LATEST);
         String fieldName = "";
 
         Analyzer.TokenStreamComponents result = fixture.createComponents(fieldName);

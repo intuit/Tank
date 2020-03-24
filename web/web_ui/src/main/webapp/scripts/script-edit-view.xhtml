@@ -209,7 +209,6 @@
             </f:facet>
           </ts:toolbar>
 
-
           <p:fieldset legend="Search Options" rendered="#{scriptSearchBean.searching}">
             <h:panelGroup id="optionsPanel">
               <p:accordionPanel style="width:1024px;">
@@ -274,20 +273,17 @@
         <p:dataTable id="scriptStepTableId" var="step" rowKey="#{step.uuid}" value="#{scriptEditor.steps}"
           rowIndexVar="rowIndex" headerSectionClass="rf-tb" bodyRowClass="pointer" class="pad2"
           selection="#{scriptEditor.selectedStepsArr}" selectionMode="multiple" widgetVar="scriptStepTable"
-          rendered="#{!scriptSearchBean.searching}" liveResize=" false" scrollable="true" scrollHeight="100%"
-          sortBy="#{selectable.entity.created}" sortOrder="descending" paginator="true" rows="50"
-          resizableColumns="true"
-          paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} Rows per Page {RowsPerPageDropdown} Jump to Page {JumpToPageDropdown}"
+          rendered="#{!scriptSearchBean.searching}" liveResize="false" scrollable="true" scrollHeight="100%"
+          sortBy="#{step.stepIndex}" sortOrder="ascending" paginator="true" rows="50" resizableColumns="true"
+          paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}  Rows per Page {RowsPerPageDropdown} Jump to Page {JumpToPageDropdown}"
           rowsPerPageTemplate="25,50,75,100,150,200,500,1000,5000">
 
           <p:ajax event="rowSelect" immediate="false" process="scriptStepTableId" global="false"
             update=":scriptBrowserForm:titleToolbar:updateGroup" listener="#{aggregatorEditor.aggregateCheck()}" />
           <p:ajax event="rowUnselect" immediate="false" process="scriptStepTableId" global="false"
             update=":scriptBrowserForm:titleToolbar:updateGroup" listener="#{aggregatorEditor.aggregateCheck()}" />
-
           <p:ajax event="colResize" update="scriptStepTableId" listener="#{scriptEditor.tablePrefs.onResize}"
             global="false" onstart="saveScrollPos()" oncomplete="getScrollPos()" immediate="true" />
-
           <p:ajax event="filter" listener="#{scriptEditor.tableState.onFilter}" global="false" immediate="true" />
 
           <f:facet name="header">

@@ -26,9 +26,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.primefaces.model.UploadedFile;
 
 import com.intuit.tank.wrapper.FileInputStreamWrapper;
+import org.primefaces.model.file.UploadedFile;
 
 /**
  * 
@@ -50,7 +50,7 @@ public class UploadedFileIterator {
         super();
         this.extension = extension;
         isZip = item.getFileName().toLowerCase().endsWith(".zip");
-        itemInputStream = item.getInputstream();
+        itemInputStream = item.getInputStream();
         if (isZip) {
             try {
                 in = new MyInputStream(

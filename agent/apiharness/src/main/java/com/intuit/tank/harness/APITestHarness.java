@@ -22,6 +22,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 import com.amazonaws.regions.Regions;
 import com.google.common.collect.ImmutableMap;
@@ -82,7 +84,6 @@ public class APITestHarness {
     private static final int BATCH_SIZE = 100;
     private String testPlans = "";
     private String instanceId;
-    private List<String> testPlanXmls = null;
     private ArrayList<ThreadGroup> threadGroupArray = new ArrayList<>();
     private int currentNumThreads = 0;
     private long startTime = 0;
@@ -235,11 +236,7 @@ public class APITestHarness {
         } else {
             resultsReporter = new DummyResultsReporter();
             TestPlanSingleton plans = TestPlanSingleton.getInstance();
-            if (null == testPlanXmls) {
-                plans.setTestPlans(testPlans);
-            } else {
-                plans.setTestPlans(testPlanXmls);
-            }
+            plans.setTestPlans(testPlans);
             runConcurrentTestPlans();
         }
     }
@@ -387,10 +384,7 @@ public class APITestHarness {
                 LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Downloading file from url " + scriptUrl + " to file " + file.getAbsolutePath())));
                 FileUtils.copyURLToFile(url, file);
                 String scriptXML = FileUtils.readFileToString(file, "UTF-8");
-                List<String> tps = new ArrayList<String>();
-                tps.add(scriptXML);
-                setTestPlans(tps);
-                TestPlanSingleton.getInstance().setTestPlans(tps);
+                TestPlanSingleton.getInstance().setTestPlans(Collections.singletonList(scriptXML));
                 break;
             } catch (Exception e) {
                 if (count < MAX_RETRIES) {
@@ -683,13 +677,6 @@ public class APITestHarness {
         sessionThreads.add(thread);
         currentNumThreads++;
         currentUsers++;
-    }
-
-    public void setTestPlans(List<String> scripts) {
-        testPlanXmls = scripts;
-        for (String script : scripts) {
-            LOG.debug(script);
-        }
     }
 
     public boolean isDebug() {

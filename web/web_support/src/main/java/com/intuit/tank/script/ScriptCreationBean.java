@@ -33,7 +33,6 @@ import com.intuit.tank.util.Messages;
 import org.picketlink.Identity;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.basic.User;
-import org.primefaces.model.UploadedFile;
 
 import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.auth.Security;
@@ -53,6 +52,7 @@ import com.intuit.tank.vm.exception.WatsParseException;
 import com.intuit.tank.vm.settings.AccessRight;
 import com.intuit.tank.wrapper.FileInputStreamWrapper;
 import com.intuit.tank.wrapper.SelectableWrapper;
+import org.primefaces.model.file.UploadedFile;
 
 @Named
 @ConversationScoped
@@ -254,7 +254,7 @@ public class ScriptCreationBean implements Serializable {
             messages.error("Script name cannot be empty.  Please enter a script name.");
         }
         if (getCreationMode().equalsIgnoreCase("upload script")) {
-            if (getFile() == null || getFile().getContents().length == 0) {
+            if (getFile() == null || getFile().getContent().length == 0) {
                 messages.error("Please select a script file.");
             }
         }

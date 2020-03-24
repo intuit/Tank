@@ -13,21 +13,9 @@ package com.intuit.tank.script;
  * #L%
  */
 
-import java.io.InputStream;
-import java.io.PipedInputStream;
-
-import javax.faces.component.UIComponent;
-
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import org.primefaces.event.FileUploadEvent;
-import org.primefaces.extensions.component.dynaform.DynaForm;
-import org.primefaces.model.DefaultUploadedFile;
-import org.primefaces.model.UploadedFile;
-
-import com.intuit.tank.script.TankXmlUploadBean;
 
 /**
  * The class <code>TankXmlUploadBeanTest</code> contains tests for the class
