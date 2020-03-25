@@ -7,8 +7,10 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +32,9 @@ import com.intuit.tank.results.TankResult;
 import com.intuit.tank.vm.settings.TankConfig;
 
 import javax.annotation.Nonnull;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 /**
  * S3Datasource
@@ -108,77 +113,40 @@ public class S3Datasource implements IDatabase {
 					" jobid=" + jobId + 
 					System.getProperty("line.separator");
 			StringBuilder sb = new StringBuilder();
-			List<Long> groupResults = new ArrayList<Long>();
-			String requestName = "";
-			long sum = 0;
-			Collections.sort(results);
-			for (TankResult metric: results) {
-				if (StringUtils.equalsIgnoreCase(metric.getRequestName(), requestName)) { //Middle of the Group
-					groupResults.add(Long.valueOf(metric.getResponseTime()));
-					sum += metric.getResponseTime();
-				} else if (StringUtils.isEmpty(requestName)) { // Handles the first time through //
-					requestName = metric.getRequestName();
-					sum = metric.getResponseTime();
-					groupResults.add(Long.valueOf(sum));
-				} else { // Handles the last time through of the group//
-					int size = groupResults.size();
-					Collections.sort(groupResults);
-					Long[] sortedList = groupResults.toArray(new Long[size]);
-					long average = sum / size;
-					int fiftieth = (size/2);
-					if (fiftieth >= 1) fiftieth--;
-					float ninety = 0.9f;
-					int ninetieth = Math.round(size * ninety);
-					if (ninetieth >= 1) ninetieth--;
-					float ninetynine = 0.99f;
-					int ninetynineth = Math.round(size * ninetynine);
-					if (ninetynineth >= 1) ninetynineth--;
-					sb.append(metricString + ".resp_time.min " + sortedList[0] + " " + timestamp + " transaction=" + requestName)
-						.append(tagsComplete)
-						.append(metricString + ".resp_time.avg " + average + " " + timestamp + " transaction=" + requestName)
-						.append(tagsComplete)
-						.append(metricString + ".resp_time.max " + sortedList[size - 1] + " " + timestamp + " transaction=" + requestName)
-						.append(tagsComplete)
-						.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth] + " " + timestamp + " transaction=" + requestName)
-						.append(tagsComplete)
-						.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth] + " " + timestamp + " transaction=" + requestName)
-						.append(tagsComplete)
-						.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth] + " " + timestamp + " transaction=" + requestName)
-						.append(tagsComplete)
-						.append(metricString + ".rpi " + size + " " + timestamp + " transaction=" + requestName)
-						.append(tagsComplete);
-					requestName = metric.getRequestName();
-					groupResults.clear();
-					sum = metric.getResponseTime();
-					groupResults.add(Long.valueOf(sum));
-				}
-			} // Get that last one //
-			int size = groupResults.size();
-			Collections.sort(groupResults);
-			Long[] sortedList = groupResults.toArray(new Long[size]);
-			long average = sum / size;
-			int fiftieth = (size/2);
-			if (fiftieth >= 1) fiftieth--;
-			float ninety = 0.9f;
-			int ninetieth = Math.round(size * ninety);
-			if (ninetieth >= 1) ninetieth--;
-			float ninetynine = 0.99f;
-			int ninetynineth = Math.round(size * ninetynine);
-			if (ninetynineth >= 1) ninetynineth--;
-			sb.append(metricString + ".resp_time.min " + sortedList[0] + " " + timestamp + " transaction=" + requestName)
-				.append(tagsComplete)
-				.append(metricString + ".resp_time.avg " + average + " " + timestamp + " transaction=" + requestName)
-				.append(tagsComplete)
-				.append(metricString + ".resp_time.max " + sortedList[size - 1] + " " + timestamp + " transaction=" + requestName)
-				.append(tagsComplete)
-				.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth] + " " + timestamp + " transaction=" + requestName)
-				.append(tagsComplete)
-				.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth] + " " + timestamp + " transaction=" + requestName)
-				.append(tagsComplete)
-				.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth] + " " + timestamp + " transaction=" + requestName)
-				.append(tagsComplete)
-				.append(metricString + ".rpi " + size + " " + timestamp + " transaction=" + requestName)
-				.append(tagsComplete);
+
+			Map<String, List<Integer>> grouped = results.stream()
+					.collect(groupingBy(TankResult::getRequestName,
+							Collectors.mapping(TankResult::getResponseTime, toList())));
+
+			for (Map.Entry<String,List<Integer>> entry : grouped.entrySet()) {
+				String requestName = entry.getKey();
+				List<Integer> groupResults = entry.getValue();
+				long sum = groupResults.stream().mapToInt(Integer::intValue).sum();
+				int size = groupResults.size();
+				Collections.sort(groupResults);
+				Integer[] sortedList = groupResults.toArray(new Integer[0]);
+				long average = sum / size;
+				int fiftieth = (size/2);
+				if (fiftieth >= 1) fiftieth--;
+				int ninetieth = Math.round(size * 0.9f);
+				if (ninetieth >= 1) ninetieth--;
+				int ninetynineth = Math.round(size * 0.99f);
+				if (ninetynineth >= 1) ninetynineth--;
+				sb.append(metricString + ".resp_time.min " + sortedList[0] + " " + timestamp + " transaction=" + requestName)
+					.append(tagsComplete)
+					.append(metricString + ".resp_time.avg " + average + " " + timestamp + " transaction=" + requestName)
+					.append(tagsComplete)
+					.append(metricString + ".resp_time.max " + sortedList[size - 1] + " " + timestamp + " transaction=" + requestName)
+					.append(tagsComplete)
+					.append(metricString + ".resp_time.tp_50 " + sortedList[fiftieth] + " " + timestamp + " transaction=" + requestName)
+					.append(tagsComplete)
+					.append(metricString + ".resp_time.tp_90 " + sortedList[ninetieth] + " " + timestamp + " transaction=" + requestName)
+					.append(tagsComplete)
+					.append(metricString + ".resp_time.tp_99 " + sortedList[ninetynineth] + " " + timestamp + " transaction=" + requestName)
+					.append(tagsComplete)
+					.append(metricString + ".rpi " + size + " " + timestamp + " transaction=" + requestName)
+					.append(tagsComplete);
+			}
 			InputStream is =  new ByteArrayInputStream(sb.toString().getBytes());
 			ObjectMetadata metaData = new ObjectMetadata();
 			metaData.setContentLength(sb.length());

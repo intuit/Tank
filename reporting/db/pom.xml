@@ -33,6 +33,11 @@
     </dependency>
 
     <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-cloudwatchmetrics</artifactId>
+    </dependency>
+
+    <dependency>
 	    <groupId>com.opencsv</groupId>
 	    <artifactId>opencsv</artifactId>
     </dependency>

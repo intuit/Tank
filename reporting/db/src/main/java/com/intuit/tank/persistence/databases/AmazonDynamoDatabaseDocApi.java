@@ -349,7 +349,11 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
                     MethodTimer mt = new MethodTimer(logger, this.getClass(), "addItems (" + items + ")");
                     List<WriteRequest> requests;
                     try {
-                        requests = items.stream().map(item -> itemToMap(item)).map(toInsert -> new PutRequest().withItem(toInsert)).map(putRequest -> new WriteRequest().withPutRequest(putRequest)).collect(Collectors.toList());
+                        requests = items.stream()
+                                .map(item -> itemToMap(item))
+                                .map(toInsert -> new PutRequest().withItem(toInsert))
+                                .map(putRequest -> new WriteRequest().withPutRequest(putRequest))
+                                .collect(Collectors.toList());
                         sendBatch(tableName, requests);
                     } catch (Exception t) {
                         logger.error("Error adding results: " + t.getMessage(), t);
