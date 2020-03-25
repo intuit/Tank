@@ -63,8 +63,6 @@ public class CloudWatchDataSource implements IDatabase {
     public void addTimingResults(@Nonnull String tableName, @Nonnull List<TankResult> results, boolean asynch) {
         List<MetricDatum> datumList = new ArrayList<>();
 
-        long timestamp = results.get(results.size()-1).getTimeStamp().getTime() / 1000;
-
         Dimension instanceId = new Dimension()
                 .withName("InstanceId")
                 .withValue(results.get(0).getInstanceId());
@@ -97,6 +95,7 @@ public class CloudWatchDataSource implements IDatabase {
                             .withSampleCount((double)size)
                             .withSum((double)sum))
                     .withValues(sortedList)
+                    .withTimestamp(results.get(results.size()-1).getTimeStamp())
                     .withDimensions(request, instanceId, jobId));
         }
         PutMetricDataRequest request = new PutMetricDataRequest()
