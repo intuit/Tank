@@ -41,9 +41,10 @@ public class DatabaseResultsReporter implements ResultsReporter {
 
     private static final Logger LOG = LogManager.getLogger(DatabaseResultsReporter.class);
 
-    private static final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(10, 50, 60, TimeUnit.SECONDS,
-            new ArrayBlockingQueue<Runnable>(50), Executors.defaultThreadFactory(),
-            new ThreadPoolExecutor.DiscardOldestPolicy());
+    private static final ThreadPoolExecutor EXECUTOR =
+            new ThreadPoolExecutor(10, 50, 60, TimeUnit.SECONDS,
+                    new ArrayBlockingQueue<Runnable>(50), Executors.defaultThreadFactory(),
+                    new ThreadPoolExecutor.DiscardOldestPolicy());
 
     private String tpsTableName;
     private String timingTableName;
@@ -62,7 +63,9 @@ public class DatabaseResultsReporter implements ResultsReporter {
 
         Runnable task = () -> {
             try {
-                List<Item> items = container.getTpsInfos().stream().map(info -> createItem(jobId, instanceId, info)).collect(Collectors.toList());
+                List<Item> items = container.getTpsInfos().stream()
+                        .map(info -> createItem(jobId, instanceId, info))
+                        .collect(Collectors.toList());
                 if (!items.isEmpty()) {
                     String tableName = getTpsTableName(db);
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Sending " + items.size() + " to TPS Table " + tableName)));
