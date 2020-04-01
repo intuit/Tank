@@ -45,7 +45,7 @@ import static java.util.stream.Collectors.toList;
 public class S3Datasource implements IDatabase {
     private static final Logger LOG = LogManager.getLogger(S3Datasource.class);
 
-	private AmazonS3 s3Client;
+	private final AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
     private String hostname = "fail";
 	private String metricString = "";
 	private String tags = "";
@@ -56,8 +56,6 @@ public class S3Datasource implements IDatabase {
 
 	@Override
 	public void initNamespace(String tableName) {
-		s3Client = AmazonS3ClientBuilder.defaultClient();
-
 		if (resultsProviderConfig != null) {
 			try {
 				metricString = resultsProviderConfig.getString("metricString","test.tank.transaction");

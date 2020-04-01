@@ -35,7 +35,7 @@ import static java.util.stream.Collectors.toList;
 public class CloudWatchDataSource implements IDatabase {
     private static final Logger LOG = LogManager.getLogger(CloudWatchDataSource.class);
 
-    private final AmazonCloudWatch cwClient = AmazonCloudWatchClientBuilder.defaultClient();
+    private final AmazonCloudWatch cloudWatchClient = AmazonCloudWatchClientBuilder.defaultClient();
 
     @Override
     public void initNamespace(@Nonnull String tableName) {
@@ -105,7 +105,7 @@ public class CloudWatchDataSource implements IDatabase {
                     .withNamespace("Intuit/TANK")
                     .withMetricData(datumList);
 
-            cwClient.putMetricData(request);
+            cloudWatchClient.putMetricData(request);
         } catch (Exception e) {
             LOG.error("Failed to push metric data to cloudwatch: " + e.getMessage(), e);
         }
