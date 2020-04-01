@@ -12,6 +12,8 @@ import com.intuit.tank.reporting.databases.Item;
 import com.intuit.tank.reporting.databases.PagedDatabaseResult;
 import com.intuit.tank.reporting.databases.TankDatabaseType;
 import com.intuit.tank.results.TankResult;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -25,12 +27,13 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 /**
- * S3Datasource
+ * CloudWatchDataSource
  *
  * @author Kevin McGoldrick
  *
  */
 public class CloudWatchDataSource implements IDatabase {
+    private static final Logger LOG = LogManager.getLogger(CloudWatchDataSource.class);
 
     private final AmazonCloudWatch cwClient = AmazonCloudWatchClientBuilder.defaultClient();
 
@@ -70,39 +73,42 @@ public class CloudWatchDataSource implements IDatabase {
         Dimension jobId = new Dimension()
                 .withName("JobId")
                 .withValue(results.get(0).getJobId());
+        try {
+            Map<String, List<Integer>> grouped = results.stream()
+                    .collect(groupingBy(TankResult::getRequestName,
+                            Collectors.mapping(TankResult::getResponseTime, toList())));
 
-        Map<String, List<Integer>> grouped = results.stream()
-                .collect(groupingBy(TankResult::getRequestName,
-                        Collectors.mapping(TankResult::getResponseTime, toList())));
+            for (Map.Entry<String,List<Integer>> entry : grouped.entrySet()) {
+                List<Integer> groupResults = entry.getValue();
+                long sum = groupResults.stream().mapToInt(Integer::intValue).sum();
+                int size = groupResults.size();
+                Collections.sort(groupResults);
+                Double[] sortedList = groupResults.toArray(new Double[0]);
 
-        for (Map.Entry<String,List<Integer>> entry : grouped.entrySet()) {
-            List<Integer> groupResults = entry.getValue();
-            long sum = groupResults.stream().mapToInt(Integer::intValue).sum();
-            int size = groupResults.size();
-            Collections.sort(groupResults);
-            Double[] sortedList = groupResults.toArray(new Double[0]);
+                Dimension request = new Dimension()
+                        .withName("RequestName")
+                        .withValue(entry.getKey());
 
-            Dimension request = new Dimension()
-                    .withName("RequestName")
-                    .withValue(entry.getKey());
+                datumList.add(new MetricDatum()
+                        .withMetricName("ResponseTime")
+                        .withUnit(StandardUnit.Milliseconds)
+                        .withStatisticValues(new StatisticSet()
+                                .withMaximum(sortedList[size - 1])
+                                .withMinimum(sortedList[0])
+                                .withSampleCount((double)size)
+                                .withSum((double)sum))
+                        .withValues(sortedList)
+                        .withTimestamp(results.get(results.size()-1).getTimeStamp())
+                        .withDimensions(request, instanceId, jobId));
+            }
+            PutMetricDataRequest request = new PutMetricDataRequest()
+                    .withNamespace("Intuit/TANK")
+                    .withMetricData(datumList);
 
-            datumList.add(new MetricDatum()
-                    .withMetricName("ResponseTime")
-                    .withUnit(StandardUnit.Milliseconds)
-                    .withStatisticValues(new StatisticSet()
-                            .withMaximum(sortedList[size - 1])
-                            .withMinimum(sortedList[0])
-                            .withSampleCount((double)size)
-                            .withSum((double)sum))
-                    .withValues(sortedList)
-                    .withTimestamp(results.get(results.size()-1).getTimeStamp())
-                    .withDimensions(request, instanceId, jobId));
+            cwClient.putMetricData(request);
+        } catch (Exception e) {
+            LOG.error("Failed to push metric data to cloudwatch: " + e.getMessage(), e);
         }
-        PutMetricDataRequest request = new PutMetricDataRequest()
-                .withNamespace("Intuit/TANK")
-                .withMetricData(datumList);
-
-        cwClient.putMetricData(request);
     }
 
     @Override
