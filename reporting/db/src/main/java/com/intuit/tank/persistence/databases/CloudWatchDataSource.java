@@ -36,6 +36,7 @@ public class CloudWatchDataSource implements IDatabase {
     private static final Logger LOG = LogManager.getLogger(CloudWatchDataSource.class);
 
     private final AmazonCloudWatch cloudWatchClient = AmazonCloudWatchClientBuilder.defaultClient();
+    private static final String namespace = "Intuit/Tank";
 
     @Override
     public void initNamespace(@Nonnull String tableName) {}
@@ -48,17 +49,17 @@ public class CloudWatchDataSource implements IDatabase {
 
     @Override
     public boolean hasTable(@Nonnull String tableName) {
-        return false;
+        return true;
     }
 
     @Override
     public boolean hasJobData(@Nonnull String tableName, String jobId) {
-        return false;
+        return true;
     }
 
     @Override
     public void addTimingResults(@Nonnull String tableName, @Nonnull List<TankResult> results, boolean asynch) {
-        LOG.trace("Starting addTimingResults with " + results.size() + " items");
+        LOG.info("Starting addTimingResults with " + results.size() + " items");
         List<MetricDatum> datumList = new ArrayList<>();
 
         Dimension instanceId = new Dimension()
@@ -72,7 +73,7 @@ public class CloudWatchDataSource implements IDatabase {
             Map<String, List<Integer>> grouped = results.stream()
                     .collect(groupingBy(TankResult::getRequestName,
                             Collectors.mapping(TankResult::getResponseTime, toList())));
-            LOG.trace("Sorted into " + grouped.size() + " request name groups");
+            LOG.info("Sorted into " + grouped.size() + " request name groups");
 
             for (Map.Entry<String,List<Integer>> entry : grouped.entrySet()) {
                 List<Integer> groupResults = entry.getValue();
@@ -97,9 +98,9 @@ public class CloudWatchDataSource implements IDatabase {
                         .withTimestamp(results.get(results.size()-1).getTimeStamp())
                         .withDimensions(request, instanceId, jobId));
             }
-            LOG.trace("Sending to CloudWatchMetrics: " + datumList.size() + " to Intuit/Tank");
+            LOG.info("Sending to CloudWatchMetrics: " + datumList.size() + " to Intuit/Tank");
             PutMetricDataRequest request = new PutMetricDataRequest()
-                    .withNamespace("Intuit/TANK")
+                    .withNamespace(namespace)
                     .withMetricData(datumList);
 
             cloudWatchClient.putMetricData(request);
@@ -131,6 +132,6 @@ public class CloudWatchDataSource implements IDatabase {
 
     @Override
     public String getDatabaseName(TankDatabaseType type, String jobId) {
-        return null;
+        return namespace;
     }
 }

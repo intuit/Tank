@@ -29,8 +29,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class DataBaseFactory {
     private static final Logger LOG = LogManager.getLogger(DataBaseFactory.class);
-	
-	public static final String resultsProvider = new TankConfig().getVmManagerConfig().getResultsProvider();
+	private static final String resultsProvider = new TankConfig().getVmManagerConfig().getResultsProvider();
 
     public static IDatabase getDatabase() {
             return initProvider();

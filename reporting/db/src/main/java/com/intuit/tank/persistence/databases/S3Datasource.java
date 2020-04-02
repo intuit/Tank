@@ -75,7 +75,7 @@ public class S3Datasource implements IDatabase {
 
 	@Override
 	public void addTimingResults(String tableName, List<TankResult> results, boolean asynch) {
-		LOG.info("Starting addTimingResults with " + results.size() + " items");
+		LOG.trace("Starting addTimingResults with " + results.size() + " items");
 		if (resultsProviderConfig != null) {
 			try {
 				metricString = resultsProviderConfig.getString("metricString","test.tank.transaction");
@@ -109,7 +109,7 @@ public class S3Datasource implements IDatabase {
 			Map<String, List<Integer>> grouped = results.stream()
 					.collect(groupingBy(TankResult::getRequestName,
 							Collectors.mapping(TankResult::getResponseTime, toList())));
-			LOG.info("Sorted into " + grouped.size() + " request name groups");
+			LOG.trace("Sorted into " + grouped.size() + " request name groups");
 
 			for (Map.Entry<String,List<Integer>> entry : grouped.entrySet()) {
 				String requestName = entry.getKey();
@@ -140,7 +140,7 @@ public class S3Datasource implements IDatabase {
 					.append(metricString + ".rpi " + size + " " + timestamp + " transaction=" + requestName)
 					.append(tagsComplete);
 			}
-			LOG.info("Sending to S3: " + sb.toString());
+			LOG.trace("Sending to S3: " + sb.toString());
 			InputStream is =  new ByteArrayInputStream(sb.toString().getBytes());
 			ObjectMetadata metaData = new ObjectMetadata();
 			metaData.setContentLength(sb.length());
