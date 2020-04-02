@@ -75,7 +75,7 @@ public class S3Datasource implements IDatabase {
 
 	@Override
 	public void addTimingResults(String tableName, List<TankResult> results, boolean asynch) {
-		LOG.info("Call:addTimingResults with " + results.size() + " items");
+		LOG.info("Starting addTimingResults with " + results.size() + " items");
 		if (resultsProviderConfig != null) {
 			try {
 				metricString = resultsProviderConfig.getString("metricString","test.tank.transaction");
