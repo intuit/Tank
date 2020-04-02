@@ -38,19 +38,13 @@ public class CloudWatchDataSource implements IDatabase {
     private final AmazonCloudWatch cloudWatchClient = AmazonCloudWatchClientBuilder.defaultClient();
 
     @Override
-    public void initNamespace(@Nonnull String tableName) {
-
-    }
+    public void initNamespace(@Nonnull String tableName) {}
 
     @Override
-    public void removeNamespace(@Nonnull String tableName) {
-
-    }
+    public void removeNamespace(@Nonnull String tableName) {}
 
     @Override
-    public void deleteForJob(@Nonnull String tableName, @Nonnull String jobId, boolean asynch) {
-
-    }
+    public void deleteForJob(@Nonnull String tableName, @Nonnull String jobId, boolean asynch) {}
 
     @Override
     public boolean hasTable(@Nonnull String tableName) {
@@ -64,6 +58,7 @@ public class CloudWatchDataSource implements IDatabase {
 
     @Override
     public void addTimingResults(@Nonnull String tableName, @Nonnull List<TankResult> results, boolean asynch) {
+        LOG.info("Call:addTimingResults with " + results.size() + " items");
         List<MetricDatum> datumList = new ArrayList<>();
 
         Dimension instanceId = new Dimension()
@@ -77,6 +72,7 @@ public class CloudWatchDataSource implements IDatabase {
             Map<String, List<Integer>> grouped = results.stream()
                     .collect(groupingBy(TankResult::getRequestName,
                             Collectors.mapping(TankResult::getResponseTime, toList())));
+            LOG.info("Sorted into " + grouped.size() + " request name groups");
 
             for (Map.Entry<String,List<Integer>> entry : grouped.entrySet()) {
                 List<Integer> groupResults = entry.getValue();
@@ -101,6 +97,7 @@ public class CloudWatchDataSource implements IDatabase {
                         .withTimestamp(results.get(results.size()-1).getTimeStamp())
                         .withDimensions(request, instanceId, jobId));
             }
+            LOG.info("Sending to CloudWatchMetrics: " + datumList.size() + " to Intuit/Tank");
             PutMetricDataRequest request = new PutMetricDataRequest()
                     .withNamespace("Intuit/TANK")
                     .withMetricData(datumList);
