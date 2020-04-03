@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -77,13 +78,13 @@ public class CloudWatchDataSource implements IDatabase {
 
             for (Map.Entry<String,List<Integer>> entry : grouped.entrySet()) {
                 List<Integer> groupResults = entry.getValue();
-                double sum = groupResults.stream().mapToDouble(Double::valueOf).sum();
                 int size = groupResults.size();
-                Collection<Double> sortedList = groupResults.stream()
+                DoubleStream doubleStream = groupResults.stream()
                         .sorted()
-                        .map(Double::valueOf)
-                        .collect(Collectors.toList());
-                Object[] sortedArray = groupResults.toArray();
+                        .mapToDouble(Double::valueOf);
+                double sum = doubleStream.sum();
+                Collection<Double> sortedList = doubleStream.boxed().collect(Collectors.toList());
+                double[] sortedArray = doubleStream.toArray();
 
                 Dimension request = new Dimension()
                         .withName("RequestName")
@@ -93,8 +94,8 @@ public class CloudWatchDataSource implements IDatabase {
                         .withMetricName("ResponseTime")
                         .withUnit(StandardUnit.Milliseconds)
                         .withStatisticValues(new StatisticSet()
-                                .withMaximum((double)sortedArray[size - 1])
-                                .withMinimum((double)sortedArray[0])
+                                .withMaximum(sortedArray[size - 1])
+                                .withMinimum(sortedArray[0])
                                 .withSampleCount((double)size)
                                 .withSum(sum))
                         .withValues(sortedList)
