@@ -106,7 +106,7 @@ public class APITestHarness {
     private String tankHttpClientClass;
     
     private Date send = new Date();
-    private int interval = 15; // SECONDS
+    private static final int interval = 15; // SECONDS
 
     /**
      * 

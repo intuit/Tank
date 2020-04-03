@@ -88,12 +88,8 @@ public class CloudWatchDataSource implements IDatabase {
                 double[] sortedArray = doubleStream.get().toArray();
                 double sum = doubleStream.get().sum();
 
-                Dimension request = new Dimension()
-                        .withName("RequestName")
-                        .withValue(entry.getKey());
-
                 datumList.add(new MetricDatum()
-                        .withMetricName("ResponseTime")
+                        .withMetricName(entry.getKey())
                         .withUnit(StandardUnit.Milliseconds)
                         .withStatisticValues(new StatisticSet()
                                 .withMaximum(sortedArray[size - 1])
@@ -102,7 +98,7 @@ public class CloudWatchDataSource implements IDatabase {
                                 .withSum(sum))
                         .withValues(sortedList)
                         .withTimestamp(results.get(results.size()-1).getTimeStamp())
-                        .withDimensions(request, instanceId, jobId));
+                        .withDimensions(instanceId, jobId));
             }
             LOG.trace("Sending to CloudWatchMetrics: " + datumList.size() + " to " + namespace);
             PutMetricDataRequest request = new PutMetricDataRequest()
