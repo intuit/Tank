@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,7 +59,7 @@ public class CloudWatchDataSource implements IDatabase {
 
     @Override
     public void addTimingResults(@Nonnull String tableName, @Nonnull List<TankResult> results, boolean asynch) {
-        LOG.info("Starting addTimingResults with " + results.size() + " items");
+        LOG.trace("Starting addTimingResults with " + results.size() + " items");
         List<MetricDatum> datumList = new ArrayList<>();
 
         Dimension instanceId = new Dimension()
@@ -73,14 +73,17 @@ public class CloudWatchDataSource implements IDatabase {
             Map<String, List<Integer>> grouped = results.stream()
                     .collect(groupingBy(TankResult::getRequestName,
                             Collectors.mapping(TankResult::getResponseTime, toList())));
-            LOG.info("Sorted into " + grouped.size() + " request name groups");
+            LOG.trace("Sorted into " + grouped.size() + " request name groups");
 
             for (Map.Entry<String,List<Integer>> entry : grouped.entrySet()) {
                 List<Integer> groupResults = entry.getValue();
-                long sum = groupResults.stream().mapToInt(Integer::intValue).sum();
+                double sum = groupResults.stream().mapToDouble(Double::valueOf).sum();
                 int size = groupResults.size();
-                Collections.sort(groupResults);
-                Double[] sortedList = groupResults.toArray(new Double[0]);
+                Collection<Double> sortedList = groupResults.stream()
+                        .sorted()
+                        .map(Double::valueOf)
+                        .collect(Collectors.toList());
+                Object[] sortedArray = groupResults.toArray();
 
                 Dimension request = new Dimension()
                         .withName("RequestName")
@@ -90,15 +93,15 @@ public class CloudWatchDataSource implements IDatabase {
                         .withMetricName("ResponseTime")
                         .withUnit(StandardUnit.Milliseconds)
                         .withStatisticValues(new StatisticSet()
-                                .withMaximum(sortedList[size - 1])
-                                .withMinimum(sortedList[0])
+                                .withMaximum((double)sortedArray[size - 1])
+                                .withMinimum((double)sortedArray[0])
                                 .withSampleCount((double)size)
-                                .withSum((double)sum))
+                                .withSum(sum))
                         .withValues(sortedList)
                         .withTimestamp(results.get(results.size()-1).getTimeStamp())
                         .withDimensions(request, instanceId, jobId));
             }
-            LOG.info("Sending to CloudWatchMetrics: " + datumList.size() + " to Intuit/Tank");
+            LOG.trace("Sending to CloudWatchMetrics: " + datumList.size() + " to " + namespace);
             PutMetricDataRequest request = new PutMetricDataRequest()
                     .withNamespace(namespace)
                     .withMetricData(datumList);
@@ -115,9 +118,7 @@ public class CloudWatchDataSource implements IDatabase {
     }
 
     @Override
-    public void addItems(String tableName, List<Item> items, boolean asynch) {
-
-    }
+    public void addItems(String tableName, List<Item> items, boolean asynch) {}
 
     @Nonnull
     @Override
