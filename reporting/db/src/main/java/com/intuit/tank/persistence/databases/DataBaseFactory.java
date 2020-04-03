@@ -41,6 +41,6 @@ public class DataBaseFactory {
         } catch (Exception e) {
             LOG.error("Unable to create DataSource Provider : " + resultsProvider + ", update settings.xml", e);
         }
-        return new AmazonDynamoDatabaseDocApi();
+        return new CloudWatchDataSource();
     }
 }

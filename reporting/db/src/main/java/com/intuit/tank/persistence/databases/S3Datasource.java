@@ -114,8 +114,8 @@ public class S3Datasource implements IDatabase {
 			for (Map.Entry<String,List<Integer>> entry : grouped.entrySet()) {
 				String requestName = entry.getKey();
 				List<Integer> groupResults = entry.getValue();
-				long sum = groupResults.stream().mapToInt(Integer::intValue).sum();
 				int size = groupResults.size();
+				long sum = groupResults.stream().mapToInt(Integer::intValue).sum();
 				Collections.sort(groupResults);
 				Integer[] sortedList = groupResults.toArray(new Integer[0]);
 				long average = sum / size;
