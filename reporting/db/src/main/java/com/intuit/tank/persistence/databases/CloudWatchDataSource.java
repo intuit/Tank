@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
@@ -79,12 +80,13 @@ public class CloudWatchDataSource implements IDatabase {
             for (Map.Entry<String,List<Integer>> entry : grouped.entrySet()) {
                 List<Integer> groupResults = entry.getValue();
                 int size = groupResults.size();
-                DoubleStream doubleStream = groupResults.stream()
-                        .sorted()
-                        .mapToDouble(Double::valueOf);
-                double sum = doubleStream.sum();
-                Collection<Double> sortedList = doubleStream.boxed().collect(Collectors.toList());
-                double[] sortedArray = doubleStream.toArray();
+                Supplier<DoubleStream> doubleStream =
+                        () -> groupResults.stream()
+                                .sorted()
+                                .mapToDouble(Double::valueOf);
+                Collection<Double> sortedList = doubleStream.get().boxed().collect(Collectors.toList());
+                double[] sortedArray = doubleStream.get().toArray();
+                double sum = doubleStream.get().sum();
 
                 Dimension request = new Dimension()
                         .withName("RequestName")
