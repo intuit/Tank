@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,6 +63,7 @@ public class CloudWatchDataSource implements IDatabase {
     @Override
     public void addTimingResults(@Nonnull String tableName, @Nonnull List<TankResult> results, boolean asynch) {
         LOG.trace("Starting addTimingResults with " + results.size() + " items");
+        Date timestamp = results.get(results.size()-1).getTimeStamp();
         List<MetricDatum> datumList = new ArrayList<>();
 
         Dimension instanceId = new Dimension()
@@ -98,10 +100,17 @@ public class CloudWatchDataSource implements IDatabase {
                         .withStatisticValues(new StatisticSet()
                                 .withMaximum(sortedArray[size - 1])
                                 .withMinimum(sortedArray[0])
-                                .withSampleCount((double)size)
+                                .withSampleCount((double) size)
                                 .withSum(sum))
                         .withValues(sortedList)
-                        .withTimestamp(results.get(results.size()-1).getTimeStamp())
+                        .withTimestamp(timestamp)
+                        .withDimensions(request, instanceId, jobId));
+
+                datumList.add(new MetricDatum()
+                        .withMetricName("RequestCount")
+                        .withUnit(StandardUnit.Count)
+                        .withValue((double) size)
+                        .withTimestamp(timestamp)
                         .withDimensions(request, instanceId, jobId));
             }
             LOG.trace("Sending to CloudWatchMetrics: " + datumList.size() + " to " + namespace);
