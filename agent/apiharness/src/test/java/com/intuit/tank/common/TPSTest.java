@@ -64,7 +64,7 @@ public class TPSTest {
                 items.add(item);
             }
             String tpsTableName = "test_qa";
-            db.createTable(tpsTableName);
+            db.initNamespace(tpsTableName);
             LOG.info("Sending " + items.size() + " to TPS Table " + tpsTableName);
             db.addItems(tpsTableName, items, false);
         } catch (Exception e) {

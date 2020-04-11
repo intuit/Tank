@@ -12,7 +12,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:d="http://docbook.org/ns/docbook" version="1.0">
 
   <!-- We need to replicate the contents of eclipse/eclipse.xsl but import xhtml/chunk.xsl to generate valid XHTML -->
-  <xsl:import href="http://docbook.sourceforge.net/release/xsl/1.72.0/xhtml/chunk.xsl"/>
+  <xsl:import href="http://docbook.sourceforge.net/release/xsl/1.79.1/xhtml/chunk.xsl"/>
 
 <xsl:template match="/">
   <xsl:choose>

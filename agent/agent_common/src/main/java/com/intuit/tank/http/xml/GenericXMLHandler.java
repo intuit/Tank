@@ -27,14 +27,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.Namespace;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
-import org.jdom.xpath.XPath;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.Namespace;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.XMLOutputter;
+import org.jdom2.xpath.XPath;
 import org.xml.sax.InputSource;
 
 /**
@@ -70,7 +70,7 @@ public class GenericXMLHandler implements Cloneable {
     public GenericXMLHandler(File xmlFile) {
         try {
             this.xmlFile = xmlFile;
-            this.xmlDocument = new org.jdom.Document();
+            this.xmlDocument = new org.jdom2.Document();
             SAXBuilder builder = new SAXBuilder();
             builder.setValidation(false);
             this.xmlDocument = builder.build(this.xmlFile);
@@ -92,7 +92,7 @@ public class GenericXMLHandler implements Cloneable {
             this.xml = xmlFile;
             try {
                 this.xmlFile = null;
-                this.xmlDocument = new org.jdom.Document();
+                this.xmlDocument = new org.jdom2.Document();
                 SAXBuilder builder = new SAXBuilder();
                 builder.setValidation(false);
                 // LOG.debug("XML string to load: "+xmlFile);
@@ -155,7 +155,7 @@ public class GenericXMLHandler implements Cloneable {
 
         if (xPathExists(currentPath)) {
             if (currentPath.equals(xPathExpression)) {
-                return (org.jdom.Element) XPath.selectSingleNode(this.xmlDocument, xPathExpression);
+                return (org.jdom2.Element) XPath.selectSingleNode(this.xmlDocument, xPathExpression);
             }
             else {
                 return SetElementText(xPathExpression, currentNode + 1);
@@ -225,7 +225,7 @@ public class GenericXMLHandler implements Cloneable {
      */
     public String GetElementAttr(String xPathExpression) {
         try {
-            org.jdom.Attribute node = (Attribute) XPath.selectSingleNode(this.xmlDocument, xPathExpression);
+            org.jdom2.Attribute node = (Attribute) XPath.selectSingleNode(this.xmlDocument, xPathExpression);
             return node.getValue();
         } catch (Exception ex) {
             LOG.error("Error in handler: " + ex.getMessage(), ex);

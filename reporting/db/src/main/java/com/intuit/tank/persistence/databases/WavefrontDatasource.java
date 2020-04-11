@@ -24,6 +24,8 @@ import com.intuit.tank.reporting.databases.TankDatabaseType;
 import com.intuit.tank.results.TankResult;
 import com.intuit.tank.vm.settings.TankConfig;
 
+import javax.annotation.Nonnull;
+
 /**
  * WavefrontDatasource
  * 
@@ -44,12 +46,12 @@ public class WavefrontDatasource implements IDatabase {
 	private HierarchicalConfiguration resultsProviderConfig = config.getVmManagerConfig().getResultsProviderConfig();
 
 	@Override
-	public void createTable(String tableName) {
+	public void initNamespace(String tableName) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void deleteTable(String tableName) {
+	public void removeNamespace(String tableName) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -218,10 +220,10 @@ public class WavefrontDatasource implements IDatabase {
 		
 	}
 
+	@Nonnull
 	@Override
 	public List<Item> getItems(String tableName, String minRange, String maxRange, String instanceId, String... jobId) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<>();
 	}
 
 	@Override

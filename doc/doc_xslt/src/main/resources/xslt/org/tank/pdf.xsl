@@ -22,7 +22,7 @@
                 xmlns:jbh="java:org.jboss.highlight.renderer.FORenderer"
             exclude-result-prefixes="jbh">
 
-<xsl:import href="http://docbook.sourceforge.net/release/xsl/1.72.0/fo/docbook.xsl"/>
+<xsl:import href="http://docbook.sourceforge.net/release/xsl/1.79.1/fo/docbook.xsl"/>
 
 <xsl:import href="common.xsl" />
 

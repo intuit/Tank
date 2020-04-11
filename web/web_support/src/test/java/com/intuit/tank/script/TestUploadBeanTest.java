@@ -18,8 +18,8 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.primefaces.model.DefaultUploadedFile;
-import org.primefaces.model.UploadedFile;
+import org.primefaces.model.file.CommonsUploadedFile;
+import org.primefaces.model.file.UploadedFile;
 
 import com.intuit.tank.script.TestUploadBean;
 
@@ -56,7 +56,7 @@ public class TestUploadBeanTest {
     @Test
     public void testGetFile_1()
         throws Exception {
-        testUploadBean.setFile(new DefaultUploadedFile());
+        testUploadBean.setFile(new CommonsUploadedFile());
 
         UploadedFile result = testUploadBean.getFile();
 
@@ -77,8 +77,8 @@ public class TestUploadBeanTest {
     @Test
     public void testSetFile_1()
         throws Exception {
-        testUploadBean.setFile(new DefaultUploadedFile());
-        UploadedFile file = new DefaultUploadedFile();
+        testUploadBean.setFile(new CommonsUploadedFile());
+        UploadedFile file = new CommonsUploadedFile();
 
         testUploadBean.setFile(file);
 

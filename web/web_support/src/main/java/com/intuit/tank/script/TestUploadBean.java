@@ -26,7 +26,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.intuit.tank.util.Messages;
-import org.primefaces.model.UploadedFile;
+import org.primefaces.model.file.UploadedFile;
 
 @Named
 @ApplicationScoped
@@ -68,7 +68,7 @@ public class TestUploadBean implements Serializable {
             parent.mkdirs();
             File f = new File(parent, fileName);
             LOG.info("Writing file to " + f.getAbsolutePath());
-            FileUtils.writeByteArrayToFile(f, item.getContents());
+            FileUtils.writeByteArrayToFile(f, item.getContent());
             messages.info("Wrote file to " + f.getAbsolutePath());
         } catch (Exception e) {
             messages.error(e.getMessage());

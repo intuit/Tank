@@ -1,5 +1,6 @@
 package com.intuit.tank.http;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /*
@@ -146,9 +147,13 @@ public class TankHttpUtilTest {
     public void testGetQueryString_2()
         throws Exception {
         Map<String, String> urlVariables = new HashMap();
+        urlVariables.put("val1", "val1");
+        urlVariables.put("val2", "val2");
+        urlVariables.put("val3", "val3");
 
         String result = TankHttpUtil.getQueryString(urlVariables);
         assertNotNull(result);
+        assertEquals( "?val3=val3&val2=val2&val1=val1", result);
     }
 
     /**
@@ -162,9 +167,11 @@ public class TankHttpUtilTest {
     public void testGetQueryString_3()
         throws Exception {
         Map<String, String> urlVariables = new HashMap();
+        urlVariables.put("data", "{\"val1\":\"val1\", \"val2\":\"val2\", \"val3\":\"val3\"}");
 
         String result = TankHttpUtil.getQueryString(urlVariables);
         assertNotNull(result);
+        assertEquals( "?data=%7B%22val1%22%3A%22val1%22%2C+%22val2%22%3A%22val2%22%2C+%22val3%22%3A%22val3%22%7D", result);
     }
 
     /**

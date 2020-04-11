@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.prefs.TableViewState;
+import org.primefaces.model.FilterMeta;
 
 /**
  * The class <code>TableViewStateTest</code> contains tests for the class <code>{@link TableViewState}</code>.
@@ -129,7 +130,7 @@ public class TableViewStateTest {
         throws Exception {
         TableViewState fixture = new TableViewState();
         String key = "";
-        String value = "";
+        FilterMeta value = new FilterMeta();
 
         fixture.setFilterValue(key, value);
 

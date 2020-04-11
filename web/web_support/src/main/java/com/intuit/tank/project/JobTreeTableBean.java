@@ -38,9 +38,6 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.intuit.tank.util.Messages;
-import org.picketlink.Identity;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.basic.User;
 import org.primefaces.event.NodeCollapseEvent;
 import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.model.DefaultTreeNode;
@@ -97,12 +94,6 @@ public abstract class JobTreeTableBean implements Serializable {
     private Messages messages;
 
     @Inject
-    private Identity identity;
-
-    @Inject
-    private IdentityManager identityManager;
-    
-    @Inject
     private Security security;
     
     @Inject
@@ -134,7 +125,6 @@ public abstract class JobTreeTableBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        AWSXRay.getCurrentSegment().setUser(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
         tablePrefs = new TablePreferences(preferencesBean.getPreferences().getJobsTableColumns());
         tablePrefs.registerListener(preferencesBean);
     }

@@ -33,7 +33,6 @@ import org.picketlink.Identity;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.basic.User;
 import org.primefaces.event.FileUploadEvent;
-import org.primefaces.model.UploadedFile;
 
 import com.intuit.tank.ModifiedDatafileMessage;
 import com.intuit.tank.config.TsLoggedIn;
@@ -42,6 +41,7 @@ import com.intuit.tank.project.DataFile;
 import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.util.UploadedFileIterator;
 import com.intuit.tank.wrapper.FileInputStreamWrapper;
+import org.primefaces.model.file.UploadedFile;
 
 @Named
 @RequestScoped
@@ -98,7 +98,7 @@ public class FileUploadBean implements Serializable {
                 messages.error("Error extracting zip file: " + e.toString());
                 throw new RuntimeException(e);
             } finally {
-                IOUtils.closeQuietly(item.getInputstream());
+                IOUtils.closeQuietly(item.getInputStream());
             }
         }
     }

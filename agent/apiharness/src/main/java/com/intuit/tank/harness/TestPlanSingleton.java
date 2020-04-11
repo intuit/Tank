@@ -15,7 +15,10 @@ package com.intuit.tank.harness;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,36 +47,28 @@ public class TestPlanSingleton {
 
     public void setTestPlans(String plans) {
 
-        String[] testPlanLists = plans.split(",");
+        List<String> testPlanLists = Arrays.asList(plans.split(","));
 
-        for (String testPlanList : testPlanLists) {
-            try {
-                File xmlFile = new File(testPlanList);
-                if (!xmlFile.exists()) {
-                    throw new Exception("File not found");
-                }
-
-                WorkloadParser parser = new WorkloadParser(xmlFile);
-                HDWorkload workload = parser.getWorkload();
-                if (workload != null) {
-                    workloads.add(workload);
-                }
-            } catch (Exception e) {
-                LOG.error(LogUtil.getLogMessage(e.getMessage(), LogEventType.System), e);
-                throw new RuntimeException(e);
-            }
-        }
+        workloads = testPlanLists.stream()
+                .filter(xmlFile -> {
+                    if (new File(xmlFile).exists()) {
+                        return true;
+                    } else {
+                        Exception e = new Exception("File not found");
+                        LOG.error(LogUtil.getLogMessage(e.getMessage(), LogEventType.System), e);
+                        return false;
+                    }
+                })
+                .map(xml -> new WorkloadParser(xml).getWorkload())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public void setTestPlans(List<String> testPlanXmls) {
-        workloads.clear();
-        for (String xml : testPlanXmls) {
-            WorkloadParser parser = new WorkloadParser(xml);
-            HDWorkload workload = parser.getWorkload();
-            if (workload != null) {
-                workloads.add(workload);
-            }
-        }
+        workloads = testPlanXmls.stream()
+                .map(xml -> new WorkloadParser(xml).getWorkload())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public List<HDWorkload> getTestPlans() {

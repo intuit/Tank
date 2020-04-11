@@ -28,7 +28,7 @@ public interface IDatabase {
      * @param tableName
      *            the name of the table this db instance is dealing with
      */
-    public void createTable(@Nonnull String tableName);
+    public void initNamespace(@Nonnull String tableName);
 
     /**
      * Deletes the table from the datastore.
@@ -36,7 +36,7 @@ public interface IDatabase {
      * @param tableName
      *            the name of the table this db instance is dealing with
      */
-    public void deleteTable(@Nonnull String tableName);
+    public void removeNamespace(@Nonnull String tableName);
 
     /**
      * Deletes the table from the datastore.
@@ -105,6 +105,7 @@ public interface IDatabase {
      *            the maxRange as a String in format DATE_FORMAT
      * @return
      */
+    @Nonnull
     public List<Item> getItems(String tableName, String minRange, String maxRange, String instanceId, String... jobId);
 
     /**

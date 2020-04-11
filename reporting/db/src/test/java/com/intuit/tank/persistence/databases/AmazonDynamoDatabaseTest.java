@@ -5,16 +5,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 
-import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import com.intuit.tank.reporting.databases.Attribute;
 import com.intuit.tank.reporting.databases.Item;
@@ -33,7 +34,7 @@ public class AmazonDynamoDatabaseTest {
     private static final String TEST_TABLE = "TestTable";
     private static final int NUM_ENTRIES = 100;
     private AmazonDynamoDatabaseDocApi db;
-    private AmazonDynamoDBClient dynamoDb;
+    private AmazonDynamoDB dynamoDb;
     
     @BeforeEach
     public void init() {
@@ -47,7 +48,7 @@ public class AmazonDynamoDatabaseTest {
     public void before() {
         AWSCredentials credentials = new BasicAWSCredentials(System.getProperty("AWS_SECRET_KEY_ID"),
                 System.getProperty("AWS_SECRET_KEY"));
-        dynamoDb = new AmazonDynamoDBClient(credentials, new ClientConfiguration());
+        dynamoDb = AmazonDynamoDBClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
         db = new AmazonDynamoDatabaseDocApi(dynamoDb);
     }
 
@@ -55,7 +56,7 @@ public class AmazonDynamoDatabaseTest {
     public void cleanTables() {
         if (db != null) {
             try {
-                db.deleteTable(TEST_TABLE);
+                db.removeNamespace(TEST_TABLE);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -75,16 +76,16 @@ public class AmazonDynamoDatabaseTest {
     @Test
     @Tag(TestGroups.EXPERIMENTAL)
     public void testCreateDelete() {
-        db.createTable(TEST_TABLE);
+        db.initNamespace(TEST_TABLE);
         boolean hasTable = db.hasTable(TEST_TABLE);
         assertEquals(true, hasTable);
-        db.deleteTable(TEST_TABLE);
+        db.removeNamespace(TEST_TABLE);
     }
 
     @Test
     @Tag(TestGroups.EXPERIMENTAL)
     public void testInsertTiming() {
-        db.createTable(TEST_TABLE);
+        db.initNamespace(TEST_TABLE);
         boolean hasTable = db.hasTable(TEST_TABLE);
         
         assertEquals(true, hasTable);
@@ -110,7 +111,7 @@ public class AmazonDynamoDatabaseTest {
     @Test
     @Tag(TestGroups.EXPERIMENTAL)
     public void testInsertTps() {
-        db.createTable(TEST_TABLE);
+        db.initNamespace(TEST_TABLE);
         int numJobs = 3;
         boolean hasTable = db.hasTable(TEST_TABLE);
         assertEquals(true, hasTable);

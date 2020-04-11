@@ -18,6 +18,8 @@ package com.intuit.tank.persistence.databases;
 
 import com.intuit.tank.reporting.databases.IDatabase;
 import com.intuit.tank.vm.settings.TankConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * DataBaseFactory
@@ -26,26 +28,19 @@ import com.intuit.tank.vm.settings.TankConfig;
  * 
  */
 public class DataBaseFactory {
-	
-	public static final String resultsProvider = new TankConfig().getVmManagerConfig().getResultsProvider();
+    private static final Logger LOG = LogManager.getLogger(DataBaseFactory.class);
+	private static final String resultsProvider = new TankConfig().getVmManagerConfig().getResultsProvider();
 
-//    private static IDatabase provider;
-//    private static String providerClass;
-
-    public static final IDatabase getDatabase() {
-//        if (provider == null || !provider.getClass().getName().equals(providerClass)) {
+    public static IDatabase getDatabase() {
             return initProvider();
-//        }
-//        return provider;
     }
 
     private static IDatabase initProvider() {
-        IDatabase provider = null;
         try {
-            provider = (IDatabase) Class.forName(resultsProvider).newInstance();
+            return (IDatabase) Class.forName(resultsProvider).newInstance();
         } catch (Exception e) {
-            provider = new AmazonDynamoDatabaseDocApi();
+            LOG.error("Unable to create DataSource Provider : " + resultsProvider + ", update settings.xml", e);
         }
-        return provider;
+        return new CloudWatchDataSource();
     }
 }

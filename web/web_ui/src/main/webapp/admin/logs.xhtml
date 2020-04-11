@@ -27,15 +27,19 @@
 
             <div class="float-left h-space">
               Initial Lines:
-              <p:inputNumber value="#{logViewer.numLines}" minValue="0"
-                decimalPlaces="0" converter="javax.faces.Integer" />
+              <p:inputNumber id="numLines" value="#{logViewer.numLines}" minValue="0"
+                decimalPlaces="0" converter="javax.faces.Integer">
+                <p:ajax update="numLines" />
+              </p:inputNumber>
               <ts:tip tipId="numLinsesTip"
                 text="Number of lines to tail at start. Set to 0 to view entire file." />
             </div>
             <div class="float-left h-space">
               Poll seconds:
-              <p:inputNumber value="#{logViewer.pollSeconds}"
-                decimalPlaces="0" minValue="0" converter="javax.faces.Integer"/>
+              <p:inputNumber id="pollSeconds" value="#{logViewer.pollSeconds}"
+                decimalPlaces="0" minValue="0" converter="javax.faces.Integer">
+                <p:ajax update="pollSeconds" />
+              </p:inputNumber>
               <ts:tip tipId="pollTip"
                 text="Poll time in seconds. Set to 0 to not poll." />
             </div>

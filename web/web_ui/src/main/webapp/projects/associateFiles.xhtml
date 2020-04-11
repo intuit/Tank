@@ -12,7 +12,7 @@
         <h:outputText
           value="Intuit Tank supports only .csv, .txt, or .xml files as Data Files but can accept .zip files. Zip files will be searched recursively for all .csv, .txt, or .xml files." />
         <div class="vertical-spacer" />
-        <p:fileUpload id="fileUploadControl" fileUploadListener="#{fileUploadBean.handleFileUpload}" mode="advanced"
+        <p:fileUpload id="fileUploadControl" listener="#{fileUploadBean.handleFileUpload}" mode="advanced"
           allowTypes="/(\.|\/)(csv|zip|txt|xml)$/" update=":mainForm:projectTabPanelID:dataFileShuffleListId, :mainForm:messages"
           multiple="true" invalidFileMessage="Please select only .csv or .zip files."
           invalidSizeMessage="The selectd file is too large." />

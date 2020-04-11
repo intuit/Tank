@@ -16,7 +16,7 @@ package com.intuit.tank.http.xml;
 import java.io.File;
 import java.util.HashMap;
 
-import org.jdom.Document;
+import org.jdom2.Document;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -20,6 +20,7 @@ import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_EVENT_
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
@@ -158,7 +159,7 @@ public class VMTrackerImpl implements VMTracker {
                 		&& (status.getJobStatus() == JobStatus.Completed)
                 		&& !isDevMode()) {
 	                        AmazonInstance amzInstance = new AmazonInstance(status.getVmRegion());
-	                        amzInstance.killInstances(Arrays.asList(new String[] { status.getInstanceId() }));
+	                        amzInstance.killInstances(Collections.singletonList(status.getInstanceId()));
                 }
             }
             String jobId = status.getJobId();
@@ -363,7 +364,7 @@ public class VMTrackerImpl implements VMTracker {
                 }
             }
 
-            LOG.info("Setting Container for job=" + status.getJobId() + " newStatus to " + newStatus);
+            LOG.trace("Setting Container for job=" + status.getJobId() + " newStatus to " + newStatus);
             job.setStatus(newStatus);
             new JobInstanceDao().saveOrUpdate(job);
 
