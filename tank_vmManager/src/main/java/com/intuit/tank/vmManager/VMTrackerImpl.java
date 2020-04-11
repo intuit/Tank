@@ -364,7 +364,7 @@ public class VMTrackerImpl implements VMTracker {
                 }
             }
 
-            LOG.info("Setting Container for job=" + status.getJobId() + " newStatus to " + newStatus);
+            LOG.trace("Setting Container for job=" + status.getJobId() + " newStatus to " + newStatus);
             job.setStatus(newStatus);
             new JobInstanceDao().saveOrUpdate(job);
 

@@ -28,7 +28,7 @@ public interface IDatabase {
      * @param tableName
      *            the name of the table this db instance is dealing with
      */
-    public void createTable(@Nonnull String tableName);
+    public void initNamespace(@Nonnull String tableName);
 
     /**
      * Deletes the table from the datastore.
@@ -36,7 +36,7 @@ public interface IDatabase {
      * @param tableName
      *            the name of the table this db instance is dealing with
      */
-    public void deleteTable(@Nonnull String tableName);
+    public void removeNamespace(@Nonnull String tableName);
 
     /**
      * Deletes the table from the datastore.

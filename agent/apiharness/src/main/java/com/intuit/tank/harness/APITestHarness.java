@@ -21,7 +21,6 @@ import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,13 +29,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
 
 import com.amazonaws.regions.Regions;
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.http.TankHttpClient;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -71,17 +70,15 @@ import com.intuit.tank.vm.settings.TankConfig;
 import org.apache.logging.log4j.message.ObjectMessage;
 
 public class APITestHarness {
-
     private static Logger LOG = LogManager.getLogger(APITestHarness.class);
+
+    private static final int[] FIBONACCI = new int[] { 1, 1, 2, 3, 5, 8, 13 };
     public static final int POLL_INTERVAL = 15000;
-    private static final int RETRY_SLEEP = 2000;
-    private static final int MAX_RETRIES = 10;
 
     private static APITestHarness instance;
 
     private AgentRunData agentRunData;
 
-    private static final int BATCH_SIZE = 100;
     private String testPlans = "";
     private String instanceId;
     private ArrayList<ThreadGroup> threadGroupArray = new ArrayList<>();
@@ -108,9 +105,8 @@ public class APITestHarness {
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
     
-    private Calendar c = Calendar.getInstance();
     private Date send = new Date();
-    private int interval = 15; // SECONDS
+    private static final int interval = 15; // SECONDS
 
     /**
      * 
@@ -278,19 +274,16 @@ public class APITestHarness {
         }
         AgentServiceClient client = new AgentServiceClient(baseUrl);
         String instanceUrl = null;
-        int tries = 0;
+        int retryCount = 0;
         while (instanceUrl == null) {
             try {
                 instanceUrl = "http://" + AmazonUtil.getPublicHostName() + ":"
                         + tankConfig.getAgentConfig().getAgentPort();
-            } catch (IOException e1) {
-                tries++;
-                if (tries < 10) {
+            } catch (IOException e) {
+                if (retryCount < FIBONACCI.length) {
                     try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        // ignore
-                    }
+                        Thread.sleep(FIBONACCI[++retryCount] * 100);
+                    } catch ( InterruptedException ie) { /*Ignore*/ }
                 } else {
                     LOG.error("Error getting amazon host. maybe local.");
                     String publicIp = hostInfo.getPublicIp();
@@ -372,9 +365,8 @@ public class APITestHarness {
     public void writeXmlToFile(String scriptUrl) throws IOException {
         File file = new File("script.xml");
         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Writing xml to " + file.getAbsolutePath())));
-        int count = 0;
-
-        while (count++ < MAX_RETRIES) {
+        int retryCount = 0;
+        while (true) {
             try {
                 if (file.exists()) {
                 	file.delete();
@@ -387,15 +379,13 @@ public class APITestHarness {
                 TestPlanSingleton.getInstance().setTestPlans(Collections.singletonList(scriptXML));
                 break;
             } catch (Exception e) {
-                if (count < MAX_RETRIES) {
-                    LOG.warn(LogUtil.getLogMessage("Failed to download script file because of: " + e.toString()
-                            + ". Will try "
-                            + (MAX_RETRIES - count) + " more times.", LogEventType.System));
+                LOG.warn(LogUtil.getLogMessage("Failed to download script file because of: " + e.toString()
+                        + ". Will try "
+                        + (FIBONACCI.length - retryCount) + " more times.", LogEventType.System));
+                if (retryCount < FIBONACCI.length) {
                     try {
-                        Thread.sleep(RETRY_SLEEP);
-                    } catch (InterruptedException e1) {
-                        // ignore
-                    }
+                        Thread.sleep(FIBONACCI[++retryCount] * 1000);
+                    } catch ( InterruptedException ie) { /*Ignore*/ }
                 } else {
                     LOG.error(LogUtil.getLogMessage("Error writing script file: " + e, LogEventType.IO), e);
                     throw new RuntimeException(e);
@@ -413,8 +403,8 @@ public class APITestHarness {
             }
         }
         File dataFile = new File(dataFileDir, dataFileRequest.getFileName());
-        int count = 0;
-        while (count++ < MAX_RETRIES) {
+        int retryCount = 0;
+        while (true) {
             try {
                 URL url = new URL(dataFileRequest.getFileUrl());
                 LOG.info(new ObjectMessage(ImmutableMap.of("Message",
@@ -431,15 +421,13 @@ public class APITestHarness {
                 }
                 break;
             } catch (Exception e) {
-                if (count < MAX_RETRIES) {
-                    LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Failed to download CSV file because of: " + e.toString()
-                            + ". Will try "
-                            + (MAX_RETRIES - count) + " more times.")));
+                LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Failed to download CSV file because of: " + e.toString()
+                        + ". Will try "
+                        + (FIBONACCI.length - retryCount) + " more times.")));
+                if (retryCount < FIBONACCI.length) {
                     try {
-                        Thread.sleep(RETRY_SLEEP);
-                    } catch (InterruptedException e1) {
-                        // ignore
-                    }
+                        Thread.sleep(FIBONACCI[++retryCount] * 1000);
+                    } catch ( InterruptedException ie) { /*Ignore*/ }
                 } else {
                     LOG.error(LogUtil.getLogMessage("Error downloading csv file: " + e, LogEventType.IO), e);
                     throw new RuntimeException(e);
@@ -696,7 +684,7 @@ public class APITestHarness {
 
     public boolean hasMetSimulationTime() {
         if (agentRunData.getSimulationTime() > 0) {
-             if (System.currentTimeMillis() > getSimulationEndTimeMillis()) {
+            if (System.currentTimeMillis() > getSimulationEndTimeMillis()) {
                 if (!loggedSimTime) {
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Simulation time met")));
                     loggedSimTime = true;
@@ -775,13 +763,9 @@ public class APITestHarness {
     public void queueTimingResult(TankResult result) {
     	if (logTiming) {
 		    results.add(result);
-		    //if (results.size() >= BATCH_SIZE) {
 		    if (send.before(new Date())) {
 		        sendBatchToDB(true);
-		        
-				c.setTime(new Date());
-				c.add(Calendar.SECOND, interval);
-				send = new Date(c.getTime().getTime());
+				send = DateUtils.addSeconds(new Date(), interval);
 		    }
     	}
     }

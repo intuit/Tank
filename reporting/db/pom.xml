@@ -15,7 +15,6 @@
   <name>Reporting database support</name>
    
   <dependencies>
-
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>api</artifactId>
@@ -28,26 +27,25 @@
       <version>${project.version}</version>
     </dependency>
 
-     <dependency>
-       <groupId>com.amazonaws</groupId>
-       <artifactId>aws-java-sdk-dynamodb</artifactId>
-     </dependency>
-     
-     <dependency>
-       <groupId>com.amazonaws</groupId>
-       <artifactId>aws-java-sdk-simpledb</artifactId>
-     </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-dynamodb</artifactId>
+    </dependency>
 
-	 <dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-cloudwatchmetrics</artifactId>
+    </dependency>
+
+    <dependency>
 	    <groupId>com.opencsv</groupId>
 	    <artifactId>opencsv</artifactId>
-	 </dependency>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-math3</artifactId>
     </dependency>
-
   </dependencies>
 
 

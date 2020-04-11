@@ -43,12 +43,12 @@ public class GraphiteDatasource implements IDatabase {
 	private HierarchicalConfiguration resultsProviderConfig = config.getVmManagerConfig().getResultsProviderConfig();
 
 	@Override
-	public void createTable(String tableName) {
+	public void initNamespace(String tableName) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void deleteTable(String tableName) {
+	public void removeNamespace(String tableName) {
 		// TODO Auto-generated method stub
 		
 	}
