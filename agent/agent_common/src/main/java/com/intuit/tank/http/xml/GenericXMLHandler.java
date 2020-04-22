@@ -33,6 +33,7 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
 import org.jdom2.input.SAXBuilder;
+import org.jdom2.input.sax.XMLReaders;
 import org.jdom2.output.XMLOutputter;
 import org.jdom2.xpath.XPath;
 import org.xml.sax.InputSource;
@@ -72,7 +73,7 @@ public class GenericXMLHandler implements Cloneable {
             this.xmlFile = xmlFile;
             this.xmlDocument = new org.jdom2.Document();
             SAXBuilder builder = new SAXBuilder();
-            builder.setValidation(false);
+            builder.setXMLReaderFactory(XMLReaders.NONVALIDATING);
             this.xmlDocument = builder.build(this.xmlFile);
             this.namespaces = new HashMap<String, String>();
         } catch (Exception ex) {
@@ -94,7 +95,7 @@ public class GenericXMLHandler implements Cloneable {
                 this.xmlFile = null;
                 this.xmlDocument = new org.jdom2.Document();
                 SAXBuilder builder = new SAXBuilder();
-                builder.setValidation(false);
+                builder.setXMLReaderFactory(XMLReaders.NONVALIDATING);
                 // LOG.debug("XML string to load: "+xmlFile);
                 xmlFile = xmlFile.substring(xmlFile.indexOf("<"));
                 this.xmlDocument = builder.build(new StringReader(xmlFile));
@@ -156,6 +157,7 @@ public class GenericXMLHandler implements Cloneable {
         if (xPathExists(currentPath)) {
             if (currentPath.equals(xPathExpression)) {
                 return (org.jdom2.Element) XPath.selectSingleNode(this.xmlDocument, xPathExpression);
+
             }
             else {
                 return SetElementText(xPathExpression, currentNode + 1);

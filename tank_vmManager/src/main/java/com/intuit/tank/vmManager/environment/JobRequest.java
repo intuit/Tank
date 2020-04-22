@@ -13,7 +13,6 @@ package com.intuit.tank.vmManager.environment;
  * #L%
  */
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.amazonaws.xray.AWSXRay;

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 
 import org.owasp.proxy.http.BufferedRequest;
 import org.owasp.proxy.http.MessageFormatException;
@@ -129,7 +130,7 @@ public class BufferingHttpRequestHandler implements HttpRequestHandler {
             try {
                 MessageUtils.buffer(response, brs, max);
                 interceptor.processResponse(request, brs);
-                new String(brs.getDecodedContent(), "utf-8");
+                new String(brs.getDecodedContent(), StandardCharsets.UTF_8);
                 MessageUtils.stream(brs, response);
             } catch (SizeLimitExceededException slee) {
                 InputStream buffered = new ByteArrayInputStream(brs

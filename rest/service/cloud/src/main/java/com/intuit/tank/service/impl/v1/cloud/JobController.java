@@ -193,7 +193,7 @@ public class JobController {
      * @inheritDoc
      */
     public void stopAgent(String instanceId) {
-        stopAgents(Arrays.asList(instanceId));
+        stopAgents(Collections.singletonList(instanceId));
 
     }
 
@@ -217,7 +217,7 @@ public class JobController {
      * @inheritDoc
      */
     public void pauseAgent(String instanceId) {
-        pauseAgents(Arrays.asList(instanceId));
+        pauseAgents(Collections.singletonList(instanceId));
     }
 
     /**
@@ -240,7 +240,7 @@ public class JobController {
      * @inheritDoc
      */
     public void restartAgent(String instanceId) {
-        restartAgents(Arrays.asList(instanceId));
+        restartAgents(Collections.singletonList(instanceId));
     }
 
     /**
@@ -254,7 +254,7 @@ public class JobController {
      * @inheritDoc
      */
     public void pauseRampInstance(String instanceId) {
-        pauseRampInstances(Arrays.asList(instanceId));
+        pauseRampInstances(Collections.singletonList(instanceId));
     }
 
     /**
@@ -277,7 +277,7 @@ public class JobController {
      * @inheritDoc
      */
     public void resumeRampInstance(String instanceId) {
-        resumeRampInstances(Arrays.asList(instanceId));
+        resumeRampInstances(Collections.singletonList(instanceId));
     }
 
     /**

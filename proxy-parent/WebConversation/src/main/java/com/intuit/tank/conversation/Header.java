@@ -1,6 +1,7 @@
 package com.intuit.tank.conversation;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -31,11 +32,7 @@ public class Header {
         if (value == null) {
             value = "";
         }
-        try {
-            this.valueBytes = value.getBytes(UTF_8);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        this.valueBytes = value.getBytes(StandardCharsets.UTF_8);
     }
 
     /**
@@ -58,11 +55,7 @@ public class Header {
     @XmlTransient
     public String getValue() {
         String value = "";
-        try {
-            value = new String(valueBytes, UTF_8);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        value = new String(valueBytes, StandardCharsets.UTF_8);
         return value;
     }
 
