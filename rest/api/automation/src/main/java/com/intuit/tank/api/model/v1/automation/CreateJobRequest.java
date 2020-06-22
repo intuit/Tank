@@ -51,6 +51,12 @@ public class CreateJobRequest implements Serializable {
     
     @XmlElement(name="stopBehavior")
     private String stopBehavior = StopBehavior.END_OF_TEST.getDisplay();
+
+    @XmlElement(name="vmInstance")
+    private String vmInstance;
+
+    @XmlElement(name="numUsersPerAgent")
+    private int numUsersPerAgent;
     
     @XmlElement(name="jobRegions")
     private Set<CreateJobRegion> jobRegions = new HashSet<CreateJobRegion>();
@@ -109,6 +115,20 @@ public class CreateJobRequest implements Serializable {
      */
     public String getStopBehavior() {
         return stopBehavior;
+    }
+
+    /**
+     * @return the vmInstance
+     */
+    public String getVmInstance() {
+        return vmInstance;
+    }
+
+    /**
+     * @return the numUsersPerAgent
+     */
+    public int getNumUsersPerAgent() {
+        return numUsersPerAgent;
     }
     
     /**
