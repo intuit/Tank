@@ -31,6 +31,7 @@ import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
 import com.amazonaws.regions.Regions;
+import com.amazonaws.util.EC2MetadataUtils;
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.http.TankHttpClient;
 import org.apache.commons.io.FileUtils;
@@ -43,6 +44,7 @@ import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 import com.intuit.tank.AgentServiceClient;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
@@ -67,7 +69,6 @@ import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
-import org.apache.logging.log4j.message.ObjectMessage;
 
 public class APITestHarness {
     private static Logger LOG = LogManager.getLogger(APITestHarness.class);
@@ -212,7 +213,7 @@ public class APITestHarness {
         }
         if (instanceId == null) {
             try {
-                instanceId = AmazonUtil.getInstanceId();
+                instanceId = EC2MetadataUtils.getInstanceId();
                 if (StringUtils.isEmpty(instanceId)) {
                     instanceId = getLocalInstanceId();
                 }
@@ -318,7 +319,7 @@ public class APITestHarness {
         ThreadContext.put("httpHost", baseUrl);
         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Active Profile" + agentRunData.getActiveProfile().getDisplayName())));
         AgentData data = new AgentData(agentRunData.getJobId(), instanceId, instanceUrl, capacity,
-                region, AmazonUtil.getZone());
+                region, EC2MetadataUtils.getAvailabilityZone());
         try {
             AgentTestStartData startData = null;
             int count = 0;
@@ -614,12 +615,8 @@ public class APITestHarness {
             VMRegion region = VMRegion.STANDALONE;
             String secGroups = "unknown";
             if (AmazonUtil.isInAmazon()) {
-                try {
-                    region = AmazonUtil.getVMRegion();
-                    secGroups = AmazonUtil.getMetaData(CloudMetaDataType.security_groups);
-                } catch (IOException e) {
-                    LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error gettting region. using Custom...")));
-                }
+                region = AmazonUtil.getVMRegion();
+                secGroups = EC2MetadataUtils.getSecurityGroups().get(0);
             }
             status = new CloudVmStatus(instanceId, agentRunData.getJobId(), secGroups, JobStatus.Unknown,
                     VMImageType.AGENT, region, VMStatus.running,

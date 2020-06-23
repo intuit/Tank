@@ -34,6 +34,7 @@ import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.VMSize;
 import com.intuit.tank.vm.common.TankConstants;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.message.ObjectMessage;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -55,7 +56,7 @@ public class AmazonUtil {
     public static VMRegion getVMRegion() {
         try {
             String zone = getMetaData(CloudMetaDataType.zone);
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Running in zone " + zone)));
+            ThreadContext.put("zone", zone);
             return VMRegion.getRegionFromZone(zone);
         } catch (IOException ioe) {
             LOG.warn(new ObjectMessage(ImmutableMap.of("Message","Error getting region. using CUSTOM...")));
@@ -82,10 +83,11 @@ public class AmazonUtil {
      * 
      * @return
      */
+    @Deprecated
     public static String getZone() {
         try {
             String zone = getMetaData(CloudMetaDataType.zone);
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message","Running in zone " + zone)));
+            ThreadContext.put("zone", zone);
             return zone;
         } catch (Exception e) {
             LOG.info(new ObjectMessage(ImmutableMap.of("Message","cannot determine zone")));
@@ -151,6 +153,7 @@ public class AmazonUtil {
      * @return the instance Id or null
      */
     @Nonnull
+    @Deprecated
     public static String getInstanceId() {
         try {
             return getMetaData(CloudMetaDataType.instance_id);
@@ -168,6 +171,7 @@ public class AmazonUtil {
      *             if there is an error communicating with the amazon cloud.
      */
     @Nonnull
+    @Deprecated
     public static VMSize getInstanceType() throws IOException {
         String metaData = getMetaData(CloudMetaDataType.instance_type);
         VMSize ret = VMSize.fromRepresentation(metaData);
