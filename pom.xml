@@ -44,10 +44,10 @@
     <version.primefaces-ext>8.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.22.2</version.surefire>
-    <version.jersey>2.29</version.jersey>
+    <version.jersey>2.31</version.jersey>
     <version.junit>5.6.0</version.junit>
     <version.httpclient>4.5.12</version.httpclient>
-    <version.httpclient5>5.0</version.httpclient5>
+    <version.httpclient5>5.0.1</version.httpclient5>
     <version.lucene>8.4.1</version.lucene>
 
     <version.groovy>2.4.17</version.groovy>
@@ -568,7 +568,6 @@
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-core</artifactId>
-        <!-- never versions break jsonlayout -->
         <version>2.13.3</version>
       </dependency>
       <dependency>
@@ -586,7 +585,7 @@
       <dependency>
         <groupId>com.opencsv</groupId>
         <artifactId>opencsv</artifactId>
-        <version>5.1</version>
+        <version>5.2</version>
       </dependency>
 
       <dependency>
