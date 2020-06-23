@@ -315,7 +315,8 @@ public class APITestHarness {
         ThreadContext.put("projectName", agentRunData.getProjectName());
         ThreadContext.put("instanceId", agentRunData.getInstanceId());
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("region", Regions.getCurrentRegion().getName());
+        ThreadContext.put("region", EC2MetadataUtils.getEC2InstanceRegion());
+        ThreadContext.put("zone", EC2MetadataUtils.getAvailabilityZone());
         ThreadContext.put("httpHost", baseUrl);
         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Active Profile" + agentRunData.getActiveProfile().getDisplayName())));
         AgentData data = new AgentData(agentRunData.getJobId(), instanceId, instanceUrl, capacity,
