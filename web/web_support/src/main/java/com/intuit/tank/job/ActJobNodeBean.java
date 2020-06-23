@@ -136,12 +136,7 @@ public class ActJobNodeBean extends JobNodeBean {
 
     @Override
     public boolean hasSubNodes() {
-        if (vmBeans.size() > 0) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return vmBeans.size() > 0;
     }
 
     @Override

@@ -116,7 +116,7 @@ public class ProjectDao extends OwnableDao<Project> {
     }
 
     @Override
-    public Project saveOrUpdate(Project entity) throws HibernateException {
+    public Project saveOrUpdate(@Nonnull Project entity) throws HibernateException {
         entity.setModified(new Date());
         return super.saveOrUpdate(entity);
     }
