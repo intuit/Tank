@@ -30,7 +30,6 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
-import com.amazonaws.regions.Regions;
 import com.amazonaws.util.EC2MetadataUtils;
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.http.TankHttpClient;
@@ -318,7 +317,8 @@ public class APITestHarness {
         ThreadContext.put("region", EC2MetadataUtils.getEC2InstanceRegion());
         ThreadContext.put("zone", EC2MetadataUtils.getAvailabilityZone());
         ThreadContext.put("httpHost", baseUrl);
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Active Profile" + agentRunData.getActiveProfile().getDisplayName())));
+        ThreadContext.put("loggingProfile", agentRunData.getActiveProfile().getDisplayName());
+        
         AgentData data = new AgentData(agentRunData.getJobId(), instanceId, instanceUrl, capacity,
                 region, EC2MetadataUtils.getAvailabilityZone());
         try {
