@@ -5,8 +5,12 @@ env:
     MAVEN_OPTS: "-Xms1g -Xmx2g"
 
 phases:
+  install:
+    runtime-versions:
+      java: corretto8
   build:
     commands:
+      - java -version
       - mvn clean install -P release
 
 artifacts:
