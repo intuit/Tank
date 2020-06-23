@@ -5,8 +5,12 @@ env:
     MAVEN_OPTS: "-Xms1g -Xmx2g"
 
 phases:
+  install:
+    runtime-versions:
+      java: corretto8
   build:
     commands:
+      - java -version
       - mvn clean install -P release
 
 artifacts:
@@ -15,3 +19,7 @@ artifacts:
     - web/web_ui/target/tank.war
     - agent/agent_startup_pkg/target/agent-startup-pkg.zip
   discard-paths: yes
+
+cache:
+  paths:
+    - '/root/.m2/**/*'
