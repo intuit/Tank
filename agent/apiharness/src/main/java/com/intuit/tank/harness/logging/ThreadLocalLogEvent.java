@@ -13,6 +13,7 @@ package com.intuit.tank.harness.logging;
  * #L%
  */
 
+import com.amazonaws.util.EC2MetadataUtils;
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.AmazonUtil;
 import com.intuit.tank.harness.HostInfo;
@@ -41,7 +42,8 @@ public class ThreadLocalLogEvent extends ThreadLocal<LogEvent> {
         ThreadContext.put("projectName", APITestHarness.getInstance().getAgentRunData().getProjectName());
         ThreadContext.put("instanceId", APITestHarness.getInstance().getAgentRunData().getInstanceId());
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("region", AmazonUtil.getVMRegion().getRegion());
+        ThreadContext.put("region", EC2MetadataUtils.getEC2InstanceRegion());
+        ThreadContext.put("zone", EC2MetadataUtils.getAvailabilityZone());
         ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
 
         return logEvent;
