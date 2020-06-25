@@ -18,11 +18,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.List;
-
-import com.intuit.tank.vm.api.enumerated.VMSize;
-import com.intuit.tank.vm.settings.InstanceDescriptionDefaults;
-
 /**
  * The class <code>InstanceDescriptionDefaultsCpTest</code> contains tests for the class
  * <code>{@link InstanceDescriptionDefaults}</code>.

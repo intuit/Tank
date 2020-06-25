@@ -212,7 +212,7 @@ public class APITestHarness {
         }
         if (instanceId == null) {
             try {
-                instanceId = EC2MetadataUtils.getInstanceId();
+                instanceId = AmazonUtil.getInstanceId();
                 if (StringUtils.isEmpty(instanceId)) {
                     instanceId = getLocalInstanceId();
                 }
@@ -314,13 +314,13 @@ public class APITestHarness {
         ThreadContext.put("projectName", agentRunData.getProjectName());
         ThreadContext.put("instanceId", agentRunData.getInstanceId());
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("region", EC2MetadataUtils.getEC2InstanceRegion());
-        ThreadContext.put("zone", EC2MetadataUtils.getAvailabilityZone());
+        ThreadContext.put("region", AmazonUtil.getVMRegion().getName());
+        ThreadContext.put("zone", AmazonUtil.getZone());
         ThreadContext.put("httpHost", baseUrl);
         ThreadContext.put("loggingProfile", agentRunData.getActiveProfile().getDisplayName());
         
         AgentData data = new AgentData(agentRunData.getJobId(), instanceId, instanceUrl, capacity,
-                region, EC2MetadataUtils.getAvailabilityZone());
+                region, AmazonUtil.getZone());
         try {
             AgentTestStartData startData = null;
             int count = 0;
