@@ -114,28 +114,6 @@ public class AmazonUtil {
     }
 
     /**
-     * 
-     * @return
-     */
-    public static String getAWSKeyFromUserData() {
-        String result = getUserDataAsMap().get(TankConstants.KEY_AWS_SECRET_KEY);
-        return StringUtils.isNotEmpty(result)
-                ? result
-                : null;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public static String getAWSKeyIdFromUserData() {
-        String result = getUserDataAsMap().get(TankConstants.KEY_AWS_SECRET_KEY_ID);
-        return StringUtils.isNotEmpty(result)
-                ? result
-                : null;
-    }
-
-    /**
      * Attempts to get the amazon instance-id of the current VM.
      * 
      * @return the instance Id or null
