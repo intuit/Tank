@@ -268,7 +268,7 @@ public class AmazonUtil {
     public static Map<String, String> getUserDataAsMap() {
         try {
             String userData = getResponseString(BASE + USER_DATA);
-            return Splitter.on(System.getProperty("\n")).withKeyValueSeparator("=").split(userData);
+            return Splitter.on(System.getProperty("line.separator")).withKeyValueSeparator("=").split(userData);
         } catch (IOException e) {
             return Collections.emptyMap();
         }
@@ -286,6 +286,6 @@ public class AmazonUtil {
         InputStream is = con.getInputStream();
         return new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
                 .lines()
-                .collect(Collectors.joining("\n"));
+                .collect(Collectors.joining(System.getProperty("line.separator")));
     }
 }
