@@ -271,9 +271,7 @@ public class AmazonUtil {
             if (StringUtils.isNotEmpty(userData)) {
                 return Splitter.on(System.getProperty("line.separator")).withKeyValueSeparator("=").split(userData);
             }
-        } catch (IOException e) {
-            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Probably running locally" + e.toString())));
-        }
+        } catch (IllegalArgumentException | IOException e) { }
         return Collections.emptyMap();
     }
 
