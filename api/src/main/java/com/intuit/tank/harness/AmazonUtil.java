@@ -268,10 +268,13 @@ public class AmazonUtil {
     public static Map<String, String> getUserDataAsMap() {
         try {
             String userData = getResponseString(BASE + USER_DATA);
-            return Splitter.on(System.getProperty("line.separator")).withKeyValueSeparator("=").split(userData);
+            if (StringUtils.isNotEmpty(userData)) {
+                return Splitter.on(System.getProperty("line.separator")).withKeyValueSeparator("=").split(userData);
+            }
         } catch (IOException e) {
-            return Collections.emptyMap();
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Probably running locally" + e.toString())));
         }
+        return Collections.emptyMap();
     }
 
     /**
