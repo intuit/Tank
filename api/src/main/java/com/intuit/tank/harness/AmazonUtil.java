@@ -13,17 +13,21 @@ package com.intuit.tank.harness;
  * #L%
  */
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +35,6 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.common.TankConstants;
-import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.message.ObjectMessage;
 
 /**
@@ -51,7 +54,6 @@ public class AmazonUtil {
     public static VMRegion getVMRegion() {
         try {
             String zone = getMetaData(CloudMetaDataType.zone);
-            ThreadContext.put("zone", zone);
             return VMRegion.getRegionFromZone(zone);
         } catch (IOException ioe) {
             LOG.warn(new ObjectMessage(ImmutableMap.of("Message","Error getting region. using CUSTOM...")));
@@ -169,7 +171,7 @@ public class AmazonUtil {
      */
     @Nonnull
     public static String getMetaData(CloudMetaDataType metaData) throws IOException {
-        return getResponseMessage(BASE + META_DATA + "/" + metaData.getKey());
+        return getResponseString(BASE + META_DATA + "/" + metaData.getKey());
     }
 
     /**
@@ -179,7 +181,7 @@ public class AmazonUtil {
      * @throws IOException
      */
     public static String getUserDataAsString() throws IOException {
-        return getResponseMessage(BASE + USER_DATA);
+        return getResponseString(BASE + USER_DATA);
     }
 
     /**
@@ -262,12 +264,11 @@ public class AmazonUtil {
      * Gets the user data associated with this instance.
      * 
      * @return the user data as a Map
-     * @throws IOException
      */
     public static Map<String, String> getUserDataAsMap() {
         try {
-            String userData = getResponseMessage(BASE + USER_DATA);
-            return Splitter.on(System.getProperty("line.separator")).withKeyValueSeparator("=").split(userData);
+            String userData = getResponseString(BASE + USER_DATA);
+            return Splitter.on(System.getProperty("\n")).withKeyValueSeparator("=").split(userData);
         } catch (IOException e) {
             return Collections.emptyMap();
         }
@@ -278,11 +279,13 @@ public class AmazonUtil {
      * @return
      * @throws IOException
      */
-    private static String getResponseMessage(String url) throws IOException {
+    private static String getResponseString(String url) throws IOException {
         HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
         con.setRequestMethod("GET");
         con.setConnectTimeout(3000);
-        return con.getResponseMessage();
+        InputStream is = con.getInputStream();
+        return new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
+                .lines()
+                .collect(Collectors.joining("\n"));
     }
-
 }
