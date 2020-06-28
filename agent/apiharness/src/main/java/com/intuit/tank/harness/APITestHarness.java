@@ -145,7 +145,7 @@ public class APITestHarness {
         ThreadContext.put("projectName", getInstance().getAgentRunData().getProjectName());
         ThreadContext.put("instanceId", getInstance().getAgentRunData().getInstanceId());
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("region", AmazonUtil.getVMRegion().getRegion());
+        ThreadContext.put("location", AmazonUtil.getZone());
         ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
 
         getInstance().initializeFromArgs(args);
@@ -314,8 +314,7 @@ public class APITestHarness {
         ThreadContext.put("projectName", agentRunData.getProjectName());
         ThreadContext.put("instanceId", agentRunData.getInstanceId());
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("region", AmazonUtil.getVMRegion().getName());
-        ThreadContext.put("zone", AmazonUtil.getZone());
+        ThreadContext.put("location", AmazonUtil.getZone());
         ThreadContext.put("httpHost", baseUrl);
         ThreadContext.put("loggingProfile", agentRunData.getActiveProfile().getDisplayName());
         

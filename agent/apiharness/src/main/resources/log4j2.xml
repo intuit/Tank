@@ -14,8 +14,7 @@
                 <KeyValuePair key="projectName" value="$${ctx:projectName:-unknown}"/>
                 <KeyValuePair key="instanceId" value="$${ctx:instanceId:-unknown}"/>
                 <KeyValuePair key="publicIp" value="$${ctx:publicIp:-unknown}"/>
-                <KeyValuePair key="region" value="$${ctx:region:-unknown}"/>
-                <KeyValuePair key="zone" value="$${ctx:zone:-unknown}"/>
+                <KeyValuePair key="location" value="$${ctx:location:-unknown}"/>
                 <KeyValuePair key="httpHost" value="$${ctx:httpHost:-unknown}"/>
                 <KeyValuePair key="loggingProfile" value="$${ctx:loggingProfile:-unknown}"/>
             </JsonLayout>
