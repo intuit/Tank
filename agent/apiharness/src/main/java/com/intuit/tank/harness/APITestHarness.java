@@ -147,6 +147,7 @@ public class APITestHarness {
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
         ThreadContext.put("location", AmazonUtil.getZone());
         ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
+        ThreadContext.put("loggingProfile", getInstance().getAgentRunData().getActiveProfile().getDisplayName());
 
         getInstance().initializeFromArgs(args);
     }
