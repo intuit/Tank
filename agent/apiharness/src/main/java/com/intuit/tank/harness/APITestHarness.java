@@ -141,13 +141,13 @@ public class APITestHarness {
         }
 
         HostInfo hostInfo = new HostInfo();
-        ThreadContext.put("jobId", getInstance().getAgentRunData().getJobId());
-        ThreadContext.put("projectName", getInstance().getAgentRunData().getProjectName());
-        ThreadContext.put("instanceId", getInstance().getAgentRunData().getInstanceId());
+        ThreadContext.put("jobId", AmazonUtil.getJobId());
+        ThreadContext.put("projectName", AmazonUtil.getProjectName());
+        ThreadContext.put("instanceId", AmazonUtil.getInstanceId());
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
         ThreadContext.put("location", AmazonUtil.getZone());
         ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
-        ThreadContext.put("loggingProfile", getInstance().getAgentRunData().getActiveProfile().getDisplayName());
+        ThreadContext.put("loggingProfile", AmazonUtil.getLoggingProfile().getDisplayName());
 
         getInstance().initializeFromArgs(args);
     }
@@ -303,24 +303,12 @@ public class APITestHarness {
         if (capacity < 0) {
             capacity = AmazonUtil.getCapacity();
         }
-        VMRegion region = VMRegion.STANDALONE;
-        if (AmazonUtil.isInAmazon()) {
-            region = AmazonUtil.getVMRegion();
-        }
         agentRunData.setJobId(AmazonUtil.getJobId());
         agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
-
         LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
-        ThreadContext.put("jobId", agentRunData.getJobId());
-        ThreadContext.put("projectName", agentRunData.getProjectName());
-        ThreadContext.put("instanceId", agentRunData.getInstanceId());
-        ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("location", AmazonUtil.getZone());
-        ThreadContext.put("httpHost", baseUrl);
-        ThreadContext.put("loggingProfile", agentRunData.getActiveProfile().getDisplayName());
-        
+
         AgentData data = new AgentData(agentRunData.getJobId(), instanceId, instanceUrl, capacity,
-                region, AmazonUtil.getZone());
+                AmazonUtil.getVMRegion(), AmazonUtil.getZone());
         try {
             AgentTestStartData startData = null;
             int count = 0;

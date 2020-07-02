@@ -43,6 +43,7 @@ public class ThreadLocalLogEvent extends ThreadLocal<LogEvent> {
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
         ThreadContext.put("location", AmazonUtil.getZone());
         ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
+        ThreadContext.put("loggingProfile", APITestHarness.getInstance().getAgentRunData().getActiveProfile().getDisplayName());
 
         return logEvent;
 
