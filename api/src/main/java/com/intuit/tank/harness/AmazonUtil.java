@@ -93,7 +93,8 @@ public class AmazonUtil {
         try {
             return getMetaData(CloudMetaDataType.public_hostname);
         } catch (IOException e) {
-            return getMetaData(CloudMetaDataType.local_hostname);
+            // returns private IP because private hostname is unresolvable
+            return getMetaData(CloudMetaDataType.local_ipv4);
         }
     }
 
