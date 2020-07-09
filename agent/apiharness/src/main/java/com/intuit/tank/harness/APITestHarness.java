@@ -699,9 +699,9 @@ public class APITestHarness {
             threadGroup.enumerate(threads);
             int activeThreads = (int) Arrays.stream(threads).filter(Objects::nonNull).filter(
                     t -> t.getState() == Thread.State.TIMED_WAITING || t.getState() == Thread.State.WAITING).count();
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Have " + activeThreads + " of " + activeCount
+            LOG.info(LogUtil.getLogMessage("Have " + activeThreads + " of " + activeCount
                     + " active Threads in thread group "
-                    + threadGroup.getName())));
+                    + threadGroup.getName()));
         }
         if (hasMetSimulationTime()) {          // && doneSignal.getCount() != 0) {
             LOG.info(LogUtil.getLogMessage("Max simulation time has been met and there are "
