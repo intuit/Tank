@@ -16,9 +16,6 @@ package com.intuit.tank.vm.settings;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.settings.CloudCredentials;
-import com.intuit.tank.vm.settings.CloudProvider;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -42,10 +39,10 @@ public class CloudCredentialsCpTest {
         CloudCredentials result = new CloudCredentials(config);
 
         assertNotNull(result);
-        assertEquals(null, result.getKey());
-        assertEquals(null, result.getProxyHost());
-        assertEquals(null, result.getProxyPort());
-        assertEquals(null, result.getKeyId());
+        assertNull(result.getKey());
+        assertNull(result.getProxyHost());
+        assertNull(result.getProxyPort());
+        assertNull(result.getKeyId());
     }
 
     /**
@@ -62,7 +59,7 @@ public class CloudCredentialsCpTest {
 
         String result = fixture.getKey();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -79,7 +76,7 @@ public class CloudCredentialsCpTest {
 
         String result = fixture.getKeyId();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -96,7 +93,7 @@ public class CloudCredentialsCpTest {
 
         String result = fixture.getProxyHost();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -113,7 +110,7 @@ public class CloudCredentialsCpTest {
 
         String result = fixture.getProxyPort();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

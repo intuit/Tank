@@ -50,21 +50,16 @@ public class CloudCredentials {
      * @return the keyId
      */
     public String getKeyId() {
-        // first try userData
-        String ret = AmazonUtil.getAWSKeyIdFromUserData();
+        // try to get from property
+        String key = config.getString("secret-key-id-property", "AWS_SECRET_KEY_ID");
+        String ret = System.getProperty(key);
         if (StringUtils.isBlank(ret)) {
-            // try to get from property
-            String key = config.getString("secret-key-id-property", "AWS_SECRET_KEY_ID");
-            ret = System.getProperty(key);
-            if (StringUtils.isBlank(ret)) {
-                ret = System.getenv(key);
-            }
-            if (StringUtils.isBlank(ret)) {
-                // finally get straight from config
-                ret = config.getString("secret-key-id");
-            }
+            ret = System.getenv(key);
         }
-
+        if (StringUtils.isBlank(ret)) {
+            // finally get straight from config
+            ret = config.getString("secret-key-id");
+        }
         return ret;
     }
 
@@ -72,19 +67,15 @@ public class CloudCredentials {
      * @return the key
      */
     public String getKey() {
-        // first try userData
-        String ret = AmazonUtil.getAWSKeyFromUserData();
+        // try to get from property
+        String key = config.getString("secret-key-property", "AWS_SECRET_KEY");
+        String ret = System.getProperty(key);
         if (StringUtils.isBlank(ret)) {
-            // try to get from property
-            String key = config.getString("secret-key-property", "AWS_SECRET_KEY");
-            ret = System.getProperty(key);
-            if (StringUtils.isBlank(ret)) {
-                ret = System.getenv(key);
-            }
-            if (StringUtils.isBlank(ret)) {
-                // finally get straight from config
-                ret = config.getString("secret-key");
-            }
+            ret = System.getenv(key);
+        }
+        if (StringUtils.isBlank(ret)) {
+            // finally get straight from config
+            ret = config.getString("secret-key");
         }
         return ret;
     }

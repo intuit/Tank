@@ -141,12 +141,13 @@ public class APITestHarness {
         }
 
         HostInfo hostInfo = new HostInfo();
-        ThreadContext.put("jobId", getInstance().getAgentRunData().getJobId());
-        ThreadContext.put("projectName", getInstance().getAgentRunData().getProjectName());
-        ThreadContext.put("instanceId", getInstance().getAgentRunData().getInstanceId());
+        ThreadContext.put("jobId", AmazonUtil.getJobId());
+        ThreadContext.put("projectName", AmazonUtil.getProjectName());
+        ThreadContext.put("instanceId", AmazonUtil.getInstanceId());
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("region", AmazonUtil.getVMRegion().getRegion());
+        ThreadContext.put("location", AmazonUtil.getZone());
         ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
+        ThreadContext.put("loggingProfile", AmazonUtil.getLoggingProfile().getDisplayName());
 
         getInstance().initializeFromArgs(args);
     }
@@ -212,7 +213,7 @@ public class APITestHarness {
         }
         if (instanceId == null) {
             try {
-                instanceId = EC2MetadataUtils.getInstanceId();
+                instanceId = AmazonUtil.getInstanceId();
                 if (StringUtils.isEmpty(instanceId)) {
                     instanceId = getLocalInstanceId();
                 }
@@ -302,25 +303,12 @@ public class APITestHarness {
         if (capacity < 0) {
             capacity = AmazonUtil.getCapacity();
         }
-        VMRegion region = VMRegion.STANDALONE;
-        if (AmazonUtil.isInAmazon()) {
-            region = AmazonUtil.getVMRegion();
-        }
         agentRunData.setJobId(AmazonUtil.getJobId());
         agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
-
         LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
-        ThreadContext.put("jobId", agentRunData.getJobId());
-        ThreadContext.put("projectName", agentRunData.getProjectName());
-        ThreadContext.put("instanceId", agentRunData.getInstanceId());
-        ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("region", EC2MetadataUtils.getEC2InstanceRegion());
-        ThreadContext.put("zone", EC2MetadataUtils.getAvailabilityZone());
-        ThreadContext.put("httpHost", baseUrl);
-        ThreadContext.put("loggingProfile", agentRunData.getActiveProfile().getDisplayName());
-        
+
         AgentData data = new AgentData(agentRunData.getJobId(), instanceId, instanceUrl, capacity,
-                region, EC2MetadataUtils.getAvailabilityZone());
+                AmazonUtil.getVMRegion(), AmazonUtil.getZone());
         try {
             AgentTestStartData startData = null;
             int count = 0;
@@ -711,9 +699,9 @@ public class APITestHarness {
             threadGroup.enumerate(threads);
             int activeThreads = (int) Arrays.stream(threads).filter(Objects::nonNull).filter(
                     t -> t.getState() == Thread.State.TIMED_WAITING || t.getState() == Thread.State.WAITING).count();
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Have " + activeThreads + " of " + activeCount
+            LOG.info(LogUtil.getLogMessage("Have " + activeThreads + " of " + activeCount
                     + " active Threads in thread group "
-                    + threadGroup.getName())));
+                    + threadGroup.getName()));
         }
         if (hasMetSimulationTime()) {          // && doneSignal.getCount() != 0) {
             LOG.info(LogUtil.getLogMessage("Max simulation time has been met and there are "

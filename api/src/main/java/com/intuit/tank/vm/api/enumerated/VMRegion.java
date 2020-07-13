@@ -64,7 +64,7 @@ public enum VMRegion {
      * @return
      */
     public static VMRegion getRegionFromZone(String zone) {
-        return Arrays.stream(VMRegion.values()).filter(vmr -> zone.toLowerCase().startsWith(vmr.region.toLowerCase())).findFirst().orElse(VMRegion.US_EAST);
+        return Arrays.stream(VMRegion.values()).filter(vmr -> zone.toLowerCase().startsWith(vmr.region.toLowerCase())).findFirst().orElse(VMRegion.STANDALONE);
     }
 
     /**
