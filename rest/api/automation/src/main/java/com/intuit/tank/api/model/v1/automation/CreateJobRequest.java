@@ -50,7 +50,7 @@ public class CreateJobRequest implements Serializable {
     private int userIntervalIncrement;
     
     @XmlElement(name="stopBehavior")
-    private String stopBehavior = StopBehavior.END_OF_TEST.getDisplay();
+    private String stopBehavior = StopBehavior.END_OF_TEST.name();
 
     @XmlElement(name="vmInstance")
     private String vmInstance;

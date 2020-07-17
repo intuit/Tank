@@ -406,7 +406,7 @@ public class AutomationServiceV1 implements AutomationService {
 		
 		jobConfiguration.setUserIntervalIncrement(request.getUserIntervalIncrement());
 		jobConfiguration.setStopBehavior(StringUtils.isNotEmpty(request.getStopBehavior())
-				? request.getStopBehavior() : StopBehavior.END_OF_SCRIPT_GROUP.getDisplay());
+				? request.getStopBehavior() : StopBehavior.END_OF_SCRIPT_GROUP.name());
 				
 		jobConfiguration.setVmInstanceType(request.getVmInstance());
 		jobConfiguration.setNumUsersPerAgent(request.getNumUsersPerAgent());
