@@ -28,9 +28,9 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>5.1.17.Final</version.hibernate>
-    <version-aws-sdk>1.11.807</version-aws-sdk>
+    <version-aws-sdk>1.11.827</version-aws-sdk>
 
-    <version-tomcat>9.0.36</version-tomcat>
+    <version-tomcat>9.0.37</version-tomcat>
 
     <weld.version>3.1.4.Final</weld.version>
     <cdi.version>2.0</cdi.version>
@@ -41,16 +41,16 @@
     <version.mojarra>2.3.9</version.mojarra>
     <version.jsf-api>2.3</version.jsf-api>
     <version.primefaces>8.0</version.primefaces>
-    <version.primefaces-ext>8.0</version.primefaces-ext>
+    <version.primefaces-ext>8.0.3</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.22.2</version.surefire>
     <version.jersey>2.31</version.jersey>
-    <version.junit>5.6.0</version.junit>
+    <version.junit>5.6.2</version.junit>
     <version.httpclient>4.5.12</version.httpclient>
     <version.httpclient5>5.0.1</version.httpclient5>
-    <version.lucene>8.4.1</version.lucene>
+    <version.lucene>8.6.0</version.lucene>
 
-    <version.groovy>2.4.17</version.groovy>
+    <version.groovy>2.4.20</version.groovy>
     <version.spock>1.3-groovy-2.5</version.spock>
 
     <!-- maven-compiler-plugin -->
@@ -357,7 +357,7 @@
       <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
-        <version>8.0.20</version>
+        <version>8.0.21</version>
       </dependency>
 
       <dependency>
@@ -1148,11 +1148,10 @@
   </reporting>
 
   <repositories>
-
     <repository>
       <id>jboss-repo</id>
       <name>Jboss maven repo</name>
-      <url>http://repository.jboss.org/nexus/content/groups/public</url>
+      <url>https://repository.jboss.org/nexus/content/groups/public</url>
     </repository>
     <repository>
       <id>jboss-public-repository-group</id>
@@ -1167,14 +1166,9 @@
       <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
     </repository>
     <repository>
-      <id>java.net</id>
-      <name>java.net Repository</name>
-      <url>http://download.java.net/maven/2</url>
-    </repository>
-    <repository>
       <id>prime-repo</id>
       <name>PrimeFaces Maven Repository</name>
-      <url>http://repository.primefaces.org</url>
+      <url>https://repository.primefaces.org</url>
       <layout>default</layout>
     </repository>
     <repository>
@@ -1183,26 +1177,12 @@
       <url>https://repository-master.mulesoft.org/nexus/content/groups/public/</url>
     </repository>
     <repository>
-      <id>ibiblio</id>
-      <name>Main Ibiblio Repo</name>
-      <url>http://maven.ibiblio.org/maven2/</url>
-    </repository>
-    <repository>
-      <id>owr</id>
-      <name>ObjectWeb</name>
-      <url>http://maven.ow2.org/maven2/</url>
-    </repository>
-    <repository>
       <id>Maven Central 1</id>
-      <url>http://repo1.maven.org/maven2</url>
-    </repository>
-    <repository>
-      <id>Maven Central 2</id>
-      <url>http://central.maven.org/maven2</url>
+      <url>https://repo1.maven.org/maven2</url>
     </repository>
     <repository>
       <id>Spring Plugins Repository</id>
-      <url>http://repo.spring.io/plugins-release/</url>
+      <url>https://repo.spring.io/plugins-release/</url>
     </repository>
   </repositories>
 
@@ -1217,7 +1197,7 @@
     <pluginRepository>
       <id>Maven Central 2 plugins</id>
       <name>Central</name>
-      <url>http://repo2.maven.org/maven2</url>
+      <url>https://repo2.maven.org/maven2</url>
       <layout>default</layout>
     </pluginRepository>
   </pluginRepositories>

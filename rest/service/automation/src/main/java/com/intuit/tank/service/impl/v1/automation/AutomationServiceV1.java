@@ -378,15 +378,17 @@ public class AutomationServiceV1 implements AutomationService {
 		LOG.info(request.toString());
 		if (StringUtils.isEmpty(request.getProjectName())) {
 			return Response.status(Status.BAD_REQUEST)
-					.entity("Creating a Job requires a name\n").build();
+					.entity("Creating a Job requires an existing Project\n").build();
 		} else {
 			ProjectDao projectDao = new ProjectDao();
 			Project project = projectDao.findByName(request.getProjectName());
 
-			if (project != null) {
-				buildJobConfiguration(request, project);
-				project = projectDao.saveOrUpdateProject(project);
+			if (project == null) {
+				return Response.status(Status.BAD_REQUEST)
+						.entity("Creating a Job requires an existing Project\n").build();
 			}
+			buildJobConfiguration(request, project);
+			project = projectDao.saveOrUpdateProject(project);
 
 			JobInstance job = addJobToQueue(project, request);
 			return Response.ok().entity(Integer.toString(job.getId())).build();

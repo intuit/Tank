@@ -679,7 +679,7 @@ public class ActionProducer {
                     debuggerFrame.start();
                 }
             };
-            ret.putValue(Action.SHORT_DESCRIPTION, "Start debugging script.");
+            ret.putValue(Action.SHORT_DESCRIPTION, "Start Debugging Script.");
             actionMap.put(ACTION_START, ret);
         }
         return ret;
