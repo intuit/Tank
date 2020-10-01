@@ -9,7 +9,10 @@
 
 Intuit Tank is a load test platform that runs in a cloud environment. It currently supports Amazon web interfaces and utilizes services from EC2, S3, CloudWatch (Logs/Metrics).
 
-Intuit Tank has two main components: A controller and agents.
+Intuit Tank has two main components: 
+
+1. A controller 
+2. Agents.
 
 The Controller is the central hub in the deployment. It supports the GUI for managing tests and for orchestrating. It utilizes Apache Tomcat for a web container and communicates with the agents via http. 
 It exposes a RESTful interface for invoking services. Data is stored in a MySql database, on the file system, and reporting metrics can be stored in CloudWatch Metrics, S3, DynamoDB or Wavefront.
