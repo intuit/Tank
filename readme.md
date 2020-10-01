@@ -5,7 +5,7 @@
 [![release](https://img.shields.io/badge/release-2.3.4-yellogreen.svg)](https://github.com/intuit/Tank/releases/tag/2.3.3)
 [![java](https://img.shields.io/badge/java-1.8-blue.svg)](https://aws.amazon.com/corretto/)
 [![tomcat](https://img.shields.io/badge/tomcat-8%20%7C%208.5%20%7C%209-blue.svg)](http://tomcat.apache.org/)
-# Intuit Tank
+# Intuit Tank-An Amazing Platform
 
 Intuit Tank is a load test platform that runs in a cloud environment. It currently supports Amazon web interfaces and utilizes services from EC2, S3, CloudWatch (Logs/Metrics).
 
