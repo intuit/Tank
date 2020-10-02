@@ -99,4 +99,51 @@ public class Group extends BaseEntity {
         return new HashCodeBuilder(29, 45).append(getName()).toHashCode();
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static Builder builderFrom(Group g) {
+        return new Builder(g);
+    }
+    
+    /**
+     * Fluent Builder for Group Builder
+     * 
+     * @author Vaishakh
+     * 
+     */
+    public static class Builder extends GroupBase<Builder> {
+
+        private Builder() {
+            super(new Group());
+        }
+
+        private Builder(Group g) {
+            super(g);
+        }
+
+        public Group build() {
+            return getInstance();
+        }
+    }
+
+    private static class GroupBase<GeneratorT extends GroupBase<GeneratorT>> {
+        private Group instance;
+
+        protected GroupBase(Group aInstance) {
+            instance = aInstance;
+        }
+
+        protected Group getInstance() {
+            return instance;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT name(String aValue) {
+            instance.setName(aValue);
+
+            return (GeneratorT) this;
+        }
+    }
 }

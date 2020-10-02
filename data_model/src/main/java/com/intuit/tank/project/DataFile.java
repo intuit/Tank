@@ -1,5 +1,6 @@
 package com.intuit.tank.project;
 
+
 /*
  * #%L
  * Intuit Tank data model
@@ -118,6 +119,76 @@ public class DataFile extends OwnableEntity implements Comparable<DataFile> {
     @Override
     public int compareTo(DataFile o) {
         return path.compareTo(o.path);
+    }
+    
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static Builder builderFrom(DataFile df) {
+        return new Builder(df);
+    }
+    
+    /**
+     * Fluent Builder for DataFile Builder
+     * 
+     * @author Vaishakh
+     * 
+     */
+    public static class Builder extends DataFileBase<Builder> {
+
+        private Builder() {
+            super(new DataFile());
+        }
+
+        private Builder(DataFile df) {
+            super(df);
+        }
+
+        public DataFile build() {
+            return getInstance();
+        }
+    }
+
+    private static class DataFileBase<GeneratorT extends DataFileBase<GeneratorT>> {
+        private DataFile instance;
+
+        protected DataFileBase(DataFile aInstance) {
+            instance = aInstance;
+        }
+
+        protected DataFile getInstance() {
+            return instance;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT comments(String aValue) {
+            instance.setComments(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT fileName(String aValue) {
+            instance.setFileName(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT path(String aValue) {
+            instance.setPath(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT creator(String aValue) {
+            instance.setCreator(aValue);
+
+            return (GeneratorT) this;
+        }
+        
     }
 
 }

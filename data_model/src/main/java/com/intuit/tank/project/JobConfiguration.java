@@ -212,4 +212,53 @@ public class JobConfiguration extends BaseJob {
     public int hashCode() {
         return new HashCodeBuilder(29, 45).append(getId()).toHashCode();
     }
+    
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static Builder builderFrom(JobConfiguration jc) {
+        return new Builder(jc);
+    }
+
+    /**
+     * Fluent Builder for JobConfiguration Builder
+     * 
+     * @author Vaishakh
+     * 
+     */
+    public static class Builder extends JobConfigurationBase<Builder> {
+
+        private Builder() {
+            super(new JobConfiguration());
+        }
+
+        private Builder(JobConfiguration jc) {
+            super(jc);
+        }
+
+        public JobConfiguration build() {
+            return getInstance();
+        }
+    }
+
+    private static class JobConfigurationBase<GeneratorT extends JobConfigurationBase<GeneratorT>> {
+        private JobConfiguration instance;
+
+        protected JobConfigurationBase(JobConfiguration aInstance) {
+            instance = aInstance;
+        }
+
+        protected JobConfiguration getInstance() {
+            return instance;
+        }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT jobRegion(Set<JobRegion> aValue) {
+            instance.setJobRegions(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+    }
 }
