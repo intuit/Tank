@@ -411,10 +411,10 @@ public class AmazonInstance implements IEnvironmentInstance {
     private String buildNameTag(VMInstanceRequest instanceRequest) {
         StringBuilder sb = new StringBuilder(instanceRequest.getImage().getConfigName());
         if (StringUtils.isNoneEmpty(instanceRequest.getJobId())) {
-            sb.append(" job(" + instanceRequest.getJobId() + ")");
+            sb.append("-job[" + instanceRequest.getJobId() + "]");
         }
         if (StringUtils.isNoneEmpty(config.getInstanceName())) {
-            sb.insert(0, config.getInstanceName() + " ");
+            sb.insert(0, config.getInstanceName() + "-");
         }
         return sb.toString();
     }
