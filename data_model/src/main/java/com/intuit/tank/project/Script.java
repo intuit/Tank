@@ -13,9 +13,12 @@ package com.intuit.tank.project;
  * #L%
  */
 
+import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.PushbackInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -63,11 +66,25 @@ public class Script extends OwnableEntity implements Comparable<Script> {
     @Column(name = "serial_step_id")
     private Integer serializedScriptStepId;
 
+    /**
+     * Check if Blob stream begins with gzip magic number, if true decompress
+     * Deserialize Blob stream back into List of ScriptSteps
+     * 
+     * @return the List of ScriptStep
+     */
     @SuppressWarnings("unchecked")
     public static List<ScriptStep> deserializeBlob(SerializedScriptStep serializedScriptStep) {
         if (serializedScriptStep != null && serializedScriptStep.getSerialzedBlob() != null) {
-            try ( ObjectInputStream os = new ObjectInputStream(serializedScriptStep.getSerialzedBlob().getBinaryStream()) ) {
-                return (List<ScriptStep>) os.readObject();
+            try ( InputStream input = serializedScriptStep.getSerialzedBlob().getBinaryStream() ) {
+
+                PushbackInputStream pb = new PushbackInputStream( input, 2 ); //we need a pushbackstream to look ahead
+                byte [] signature = new byte[2];
+                int len = pb.read( signature ); //read the signature
+                pb.unread( signature, 0, len ); //push back the signature to the stream
+                if( signature[ 0 ] == (byte) 0x1f && signature[ 1 ] == (byte) 0x8b ) //check if matches standard gzip magic number
+                    return (List<ScriptStep>) new ObjectInputStream(new GZIPInputStream( pb )).readObject();
+                else
+                    return (List<ScriptStep>) new ObjectInputStream(pb).readObject();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
