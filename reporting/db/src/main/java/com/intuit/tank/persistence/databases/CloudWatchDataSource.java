@@ -39,6 +39,7 @@ public class CloudWatchDataSource implements IDatabase {
     private static final Logger LOG = LogManager.getLogger(CloudWatchDataSource.class);
 
     private final AmazonCloudWatch cloudWatchClient = AmazonCloudWatchClientBuilder.defaultClient();
+    private static final int MAX_CLOUDWATCH_METRICS_SUPPORTED = 150;
     private static final String namespace = "Intuit/Tank";
 
     @Override
@@ -86,7 +87,8 @@ public class CloudWatchDataSource implements IDatabase {
                         () -> groupResults.stream()
                                 .sorted()
                                 .mapToDouble(Double::valueOf);
-                Collection<Double> sortedList = doubleStream.get().boxed().collect(Collectors.toList());
+                Collection<Double> sortedList = doubleStream.get()
+                        .boxed().limit(MAX_CLOUDWATCH_METRICS_SUPPORTED).collect(Collectors.toList());
                 double[] sortedArray = doubleStream.get().toArray();
                 double sum = doubleStream.get().sum();
 
