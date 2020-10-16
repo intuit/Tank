@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
@@ -174,17 +175,17 @@ public class ScriptDao extends BaseDao<Script> {
         EntityManager em = getEntityManager();
         try {
             begin();
-            SerializedScriptStep serializedScriptStep = serialize(script.getScriptSteps());
+            SerializedScriptStep serializedScriptStep = serialize(script);
             serializedScriptStep.setSerialzedData(
                     Hibernate.getLobCreator(getHibernateSession()).createBlob(serializedScriptStep.getBytes()));
-            SerializedScriptStep serializedSteps = new SerializedScriptStepDao().saveOrUpdate(serializedScriptStep);
+            SerializedScriptStep savedSerializedStep = new SerializedScriptStepDao().saveOrUpdate(serializedScriptStep);
             script.setSerializedScriptStepId(serializedScriptStep.getId());
             if (script.getId() == 0) {
                 em.persist(script);
             } else {
                 script = em.merge(script);
             }
-            LOG.debug("Saved Script Steps with id " + serializedSteps.getId() + " for script " + script.getId());
+            LOG.debug("Saved Script Steps with id " + savedSerializedStep.getId() + " for script " + script.getId());
             commit();
         } catch (Exception e) {
         	rollback();
@@ -198,13 +199,19 @@ public class ScriptDao extends BaseDao<Script> {
         return script;
     }
 
-    public SerializedScriptStep serialize(List<ScriptStep> steps) {
-        try (   ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                ObjectOutputStream s = new ObjectOutputStream(bos) ) {
-            // if (steps.size() > 0) {
-            s.writeObject(steps);
-            return new SerializedScriptStep(bos.toByteArray());
-            // }
+    private SerializedScriptStep serialize(Script script) {
+        SerializedScriptStep serializedScriptStep = new SerializedScriptStepDao().findById(script.getId());
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             GZIPOutputStream gz = new GZIPOutputStream(bos);
+             ObjectOutputStream s = new ObjectOutputStream(gz) ) {
+            s.writeObject(script.getScriptSteps());
+            if ( serializedScriptStep != null) {
+                serializedScriptStep.setBytes(bos.toByteArray());
+                return serializedScriptStep;
+            } else {
+                return new SerializedScriptStep(bos.toByteArray());
+            }
+
         } catch (IOException e) {
             throw new AnnotationException(e.toString());
         }
