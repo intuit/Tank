@@ -200,7 +200,8 @@ public class ScriptDao extends BaseDao<Script> {
     }
 
     private SerializedScriptStep serialize(Script script) {
-        SerializedScriptStep serializedScriptStep = new SerializedScriptStepDao().findById(script.getId());
+        SerializedScriptStep serializedScriptStep =
+                new SerializedScriptStepDao().findById(script.getSerializedScriptStepId());
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              GZIPOutputStream gz = new GZIPOutputStream(bos);
              ObjectOutputStream s = new ObjectOutputStream(gz) ) {
