@@ -69,11 +69,11 @@ public class Script extends OwnableEntity implements Comparable<Script> {
     /**
      * Check if Blob stream begins with gzip magic number, if true decompress
      * Deserialize Blob stream back into List of ScriptSteps
-     * 
+     *
      * @return the List of ScriptStep
      */
     @SuppressWarnings("unchecked")
-    public static List<ScriptStep> deserializeBlob(SerializedScriptStep serializedScriptStep) {
+    private static List<ScriptStep> deserializeBlob(SerializedScriptStep serializedScriptStep) {
         if (serializedScriptStep != null && serializedScriptStep.getSerialzedBlob() != null) {
             try ( InputStream input = serializedScriptStep.getSerialzedBlob().getBinaryStream() ) {
 
@@ -92,18 +92,11 @@ public class Script extends OwnableEntity implements Comparable<Script> {
         return null;
     }
 
-    // /**
-    // * @return the serializedScriptStep
-    // */
-    // public SerializedScriptStep getSerializedScriptStep() {
-    // boolean load = serializedScriptStep == null;
-    //
-    // return serializedScriptStep;
-    // }
     /**
      * @param serializedSteps
+     *          the serializedSteps to be decompressed/deserialized
      */
-    public void setSerializedSteps(SerializedScriptStep serializedSteps) {
+    public void deserializeSteps(SerializedScriptStep serializedSteps) {
         steps = deserializeBlob(serializedSteps);
     }
 

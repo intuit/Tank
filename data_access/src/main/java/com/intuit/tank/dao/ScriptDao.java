@@ -154,7 +154,7 @@ public class ScriptDao extends BaseDao<Script> {
         if (script.getScriptSteps() == null || script.getScriptSteps().isEmpty()) {
             SerializedScriptStep serializedScriptStep = new SerializedScriptStepDao().findById(script
                     .getSerializedScriptStepId());
-            script.setSerializedSteps(serializedScriptStep);
+            script.deserializeSteps(serializedScriptStep);
         }
         return script;
     }
