@@ -19,10 +19,12 @@ package com.intuit.tank.dao;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.validation.ConstraintViolationException;
 
+import com.intuit.tank.project.SerializedScriptStep;
 import com.intuit.tank.test.TestGroups;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -33,6 +35,7 @@ import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.view.filter.ViewFilterType;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
@@ -158,6 +161,24 @@ public class ScriptDaoTest {
         assertEquals(second.getId(), list.get(1).getId());
         assertEquals(third.getId(), list.get(2).getId());
         assertEquals(fourth.getId(), list.get(3).getId());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testCompressScripSteps() {
+
+        Script script = DaoTestUtil.createScript();
+        IntStream.range(0, 500).forEach(i -> script.addStep(DaoTestUtil.createScriptStep()));
+        int id = dao.saveOrUpdate(script).getId();
+
+        Script scriptOut = dao.findById(id);
+        assertNotNull(scriptOut);
+
+        dao.loadScriptSteps(scriptOut);
+        List<ScriptStep> StepsOut = scriptOut.getSteps();
+        assertEquals(500, StepsOut.size());
+
+        dao.delete(id);
     }
 
     @ParameterizedTest

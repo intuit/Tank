@@ -79,12 +79,12 @@ public class Script extends OwnableEntity implements Comparable<Script> {
 
                 PushbackInputStream pb = new PushbackInputStream( input, 2 ); //we need a pushbackstream to look ahead
                 byte [] signature = new byte[2];
-                int len = pb.read( signature ); //read the signature
-                pb.unread( signature, 0, len ); //push back the signature to the stream
+                pb.read( signature ); //read the signature
+                pb.unread( signature ); //push back the signature to the stream
                 if( signature[ 0 ] == (byte) 0x1f && signature[ 1 ] == (byte) 0x8b ) //check if matches standard gzip magic number
                     return (List<ScriptStep>) new ObjectInputStream(new GZIPInputStream( pb )).readObject();
                 else
-                    return (List<ScriptStep>) new ObjectInputStream(pb).readObject();
+                    return (List<ScriptStep>) new ObjectInputStream( pb ).readObject();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

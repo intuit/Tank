@@ -108,7 +108,6 @@ public class ScriptDao extends BaseDao<Script> {
                 }
                 LOG.debug("deleting entity " + entity.toString());
                 em.remove(entity);
-                commit();
             }
             commit();
         } catch (Exception e) {
@@ -200,22 +199,23 @@ public class ScriptDao extends BaseDao<Script> {
     }
 
     private SerializedScriptStep serialize(Script script) {
-        SerializedScriptStep serializedScriptStep =
-                new SerializedScriptStepDao().findById(script.getSerializedScriptStepId());
+        SerializedScriptStep serializedScriptStep = script.getId() != 0 ?
+                new SerializedScriptStepDao().findById(script.getSerializedScriptStepId()) :
+                null;
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              GZIPOutputStream gz = new GZIPOutputStream(bos);
              ObjectOutputStream s = new ObjectOutputStream(gz) ) {
             s.writeObject(script.getScriptSteps());
+            s.close(); //Necessary to get the last few bites written
             if ( serializedScriptStep != null) {
                 serializedScriptStep.setBytes(bos.toByteArray());
-                return serializedScriptStep;
             } else {
-                return new SerializedScriptStep(bos.toByteArray());
+                serializedScriptStep = new SerializedScriptStep(bos.toByteArray());
             }
-
         } catch (IOException e) {
             throw new AnnotationException(e.toString());
         }
+        return serializedScriptStep;
     }
 
     // private String getUniqueProjects(List<ScriptGroupStep> steps) {
