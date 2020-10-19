@@ -166,23 +166,6 @@ public class ScriptTest {
     }
 
     /**
-     * Run the List<ScriptStep> deserializeBlob(SerializedScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 1:34 PM
-     */
-    @Test
-    public void testDeserializeBlob_2()
-        throws Exception {
-        SerializedScriptStep serializedScriptStep = null;
-
-        List<ScriptStep> result = Script.deserializeBlob(serializedScriptStep);
-
-        assertEquals(null, result);
-    }
-
-    /**
      * Run the boolean equals(Object) method test.
      *
      * @throws Exception
@@ -604,7 +587,7 @@ public class ScriptTest {
         fixture.setRuntime(1);
         SerializedScriptStep serializedSteps = new SerializedScriptStep();
 
-        fixture.setSerializedSteps(serializedSteps);
+        fixture.deserializeSteps(serializedSteps);
 
     }
 
