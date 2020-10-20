@@ -87,6 +87,11 @@
         <artifactId>jakarta.xml.bind-api</artifactId>
         <version>${version.jaxb}</version>
       </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>${version.jaxb}</version>
+      </dependency>
   </dependencies>
 
   <distributionManagement>
