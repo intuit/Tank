@@ -31,6 +31,8 @@
     <version.surefire>2.22.2</version.surefire>
     <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+
+    <version.jaxb>2.3.3</version.jaxb>
   </properties>
 
   <build>
@@ -78,6 +80,19 @@
       </plugins>
     </pluginManagement>
   </build>
+
+  <dependencies>
+    <dependency>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>${version.jaxb}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>${version.jaxb}</version>
+      </dependency>
+  </dependencies>
 
   <distributionManagement>
     <repository>
