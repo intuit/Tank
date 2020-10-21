@@ -11,10 +11,7 @@ phases:
   build:
     commands:
       - java -version
-      - mvn clean install -P release
-  post_build:
-    commands:
-      - mvn surefire-report:report #Running this task to execute unit tests and generate report.
+      - mvn clean install surefire-report:report -P release
 
 reports:
   SurefireReports: # CodeBuild will create a report group called "SurefireReports".
