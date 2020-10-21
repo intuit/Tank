@@ -61,8 +61,10 @@ public class JobNotificationDao extends BaseDao<JobNotification> {
             begin();
             AuditReader reader = AuditReaderFactory.get(getEntityManager());
             result = reader.find(JobNotification.class, id, revisionNumber);
-            Hibernate.initialize(result.getLifecycleEvents());
-            result.getLifecycleEvents().contains(JobLifecycleEvent.QUEUE_ADD);
+            if(result != null) {
+                Hibernate.initialize(result.getLifecycleEvents());
+                result.getLifecycleEvents().contains(JobLifecycleEvent.QUEUE_ADD);
+            }
             commit();
         } catch (NoResultException e) {
             rollback();

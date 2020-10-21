@@ -42,7 +42,7 @@ public class UserDaoTest {
 	@Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testUserDao() throws Exception {
-		User u = DaoTestUtil.createUserData("TestUser1", "TestUser1_Password", "TestUser1@intuit.com");
+		User u = DaoTestUtil.createUserData("TestUser1", "TestUser1_Password", "TestUser1@intuit.com", "TestGroup");
 		u = dao.saveOrUpdate(u);
 		
 		//Authenticate user with valid credentials
