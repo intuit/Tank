@@ -19,6 +19,7 @@ package com.intuit.tank.dao;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
@@ -182,6 +183,7 @@ public class ScriptDao extends BaseDao<Script> {
             if (script.getId() == 0) {
                 em.persist(script);
             } else {
+                script.setModified(new Date());
                 script = em.merge(script);
             }
             LOG.debug("Saved Script Steps with id " + savedSerializedStep.getId() + " for script " + script.getId());
