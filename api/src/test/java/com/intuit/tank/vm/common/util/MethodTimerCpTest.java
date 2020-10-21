@@ -19,6 +19,9 @@ import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.common.util.MethodTimer;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -27,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @generatedBy CodePro at 9/3/14 3:41 PM
  */
 public class MethodTimerCpTest {
+    public static final List<String> VALID_VALUES = Arrays.asList(" took 0 ms.", " took 1 ms.", " took 2 ms.");
+    public static final List<String> VALID_NATURAL_VALUES = Arrays.asList(" took 0", " took 1", " took 2");
     /**
      * Run the MethodTimer(Logger,Class,String) constructor test.
      * 
@@ -357,8 +362,8 @@ public class MethodTimerCpTest {
         MethodTimer result = fixture.markAndLog();
 
         assertNotNull(result);
-        assertEquals(" took 0 ms.", result.getTimeMessage());
-        assertEquals(" took 0", result.getNaturalTimeMessage());
+        assertTrue(VALID_VALUES.contains(result.getTimeMessage()));
+        assertTrue(VALID_NATURAL_VALUES.contains(result.getNaturalTimeMessage()));
     }
 
     /**
@@ -378,8 +383,8 @@ public class MethodTimerCpTest {
         MethodTimer result = fixture.markAndLog(message);
 
         assertNotNull(result);
-        assertEquals(" took 0 ms.", result.getTimeMessage());
-        assertEquals(" took 0", result.getNaturalTimeMessage());
+        assertTrue(VALID_VALUES.contains(result.getTimeMessage()));
+        assertTrue(VALID_NATURAL_VALUES.contains(result.getNaturalTimeMessage()));
     }
 
     /**
@@ -398,7 +403,7 @@ public class MethodTimerCpTest {
         MethodTimer result = fixture.start();
 
         assertNotNull(result);
-        assertEquals(" took 0 ms.", result.getTimeMessage());
-        assertEquals(" took 0", result.getNaturalTimeMessage());
+        assertTrue(VALID_VALUES.contains(result.getTimeMessage()));
+        assertTrue(VALID_NATURAL_VALUES.contains(result.getNaturalTimeMessage()));
     }
 }
