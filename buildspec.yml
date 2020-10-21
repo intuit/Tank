@@ -23,7 +23,6 @@ reports:
     base-directory: 'web/web_support/target/surefire-reports' # Location of the reports
 
 artifacts:
-  type: NONE
   files:
     - web/web_ui/target/tank.war
     - agent/agent_startup_pkg/target/agent-startup-pkg.zip

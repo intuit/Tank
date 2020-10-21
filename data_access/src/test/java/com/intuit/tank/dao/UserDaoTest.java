@@ -25,6 +25,7 @@ import com.intuit.tank.project.User;
 import com.intuit.tank.test.TestGroups;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class UserDaoTest {
 	
@@ -42,30 +43,30 @@ public class UserDaoTest {
 	@Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testUserDao() throws Exception {
-		User u = DaoTestUtil.createUserData("TestUser1", "TestUser1_Password", "TestUser1@intuit.com", "TestGroup");
-		u = dao.saveOrUpdate(u);
+		User entity = DaoTestUtil.createUserData("TestUser1", "TestUser1_Password", "TestUser1@intuit.com", "TestGroup");
+		entity = dao.saveOrUpdate(entity);
 		
 		//Authenticate user with valid credentials
 		User result = dao.authenticate("TestUser1", "TestUser1_Password");
-		assertEquals(u.getId(), result.getId());
+		assertEquals(entity.getId(), result.getId());
 		
 		//Authenticate user with invalid credentials
 		result = dao.authenticate("TestUser1", "Wrong_Password");
-		assertEquals(null, result);
+		assertNull(result);
 				
 		//Find user by valid API Token
-		result = dao.findByApiToken(u.getApiToken());
-		assertEquals(u.getId(), result.getId());
+		result = dao.findByApiToken(entity.getApiToken());
+		assertEquals(entity.getId(), result.getId());
 		
 		//Find user by invalid API Token
 		result = dao.findByApiToken("dummy_token");
-		assertEquals(null, result);
+		assertNull(result);
 		
 		//Find user by invalid username
 		result = dao.findByUserName("invalid_username");
-		assertEquals(null, result);
+		assertNull(result);
 		
-		dao.delete(u);
+		dao.delete(entity);
 	}
 	
 }

@@ -33,19 +33,18 @@ public class BaseDaoTest {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testBaseDao() throws Exception {
-        User u = DaoTestUtil.createUserData("TestUser1", "TestUser1_Password", "TestUser1@intuit.com", "TestGroup1");
+        User entity = DaoTestUtil.createUserData("BaseTestUser1", "TestUser1_Password", "BaseTestUser1@intuit.com", "TestGroup1");
         List<User> entities = new ArrayList<User>();
-        entities.add(u);
+        entities.add(entity);
         dao.persistCollection(entities);
         
         List<User> users = dao.findAll();
-        User result = null;
         for(User user: users) {
-            if(user.getEmail().equals(u.getEmail())) {
-                result = user;
+            if(user.getEmail().equals(entity.getEmail())) {
+                assertEquals(entity.getName(), user.getName());
                 break;
             }
         }
-        assertEquals(u.getName(), result.getName());
+        dao.delete(entity);
     }
 }
