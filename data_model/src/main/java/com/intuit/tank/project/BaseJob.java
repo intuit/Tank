@@ -33,7 +33,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 @MappedSuperclass
 public abstract class BaseJob extends BaseEntity {
 
-    public static final String PROPERTY_WORKLOAD_ID = "workload.id";
+    public static final String PROPERTY_WORKLOAD_ID = "workloadId";
     public static final String PROPERTY_PROJECT_ID = "projectId";
     private static final long serialVersionUID = 1L;
 
