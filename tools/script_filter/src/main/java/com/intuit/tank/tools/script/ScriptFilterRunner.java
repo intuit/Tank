@@ -479,6 +479,7 @@ public class ScriptFilterRunner extends JFrame {
             saveBT.setEnabled(true);
         } catch (JAXBException | ParserConfigurationException | SAXException | FileNotFoundException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error reading file", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
