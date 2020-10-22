@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class MethodTimerCpTest {
     public static final List<String> VALID_VALUES = Arrays.asList(" took 0 ms.", " took 1 ms.", " took 2 ms.");
-    public static final List<String> VALID_NATURAL_VALUES = Arrays.asList(" took 0", " took 1", " took 2");
+    public static final List<String> VALID_NATURAL_VALUES = Arrays.asList(" took 0", " took 1ms", " took 2ms");
     /**
      * Run the MethodTimer(Logger,Class,String) constructor test.
      * 
