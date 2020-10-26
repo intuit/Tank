@@ -78,6 +78,18 @@ public class CreateDateComparatorTest {
 
     }
 
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testAscending_1() {
+        CreateDateComparator comp = new CreateDateComparator();
+        List<TestBaseEntity> copied = new ArrayList<CreateDateComparatorTest.TestBaseEntity>(entities);
+        Collections.sort(copied, comp);
+        assertEquals(copied.get(0).position, 0);
+        assertEquals(copied.get(1).position, 1);
+        assertEquals(copied.get(2).position, 2);
+
+    }
+
     /**
      * CreateDateComparatorTest TestBaseEntity
      * 
