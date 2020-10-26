@@ -36,6 +36,11 @@
       <groupId>org.jdom</groupId>
       <artifactId>jdom</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>jakarta.xml.ws</groupId>
+      <artifactId>jakarta.xml.ws-api</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

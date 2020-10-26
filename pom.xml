@@ -50,14 +50,14 @@
     <version.httpclient>4.5.12</version.httpclient>
     <version.httpclient5>5.0.1</version.httpclient5>
     <version.lucene>8.6.0</version.lucene>
+    <version.jaxb>2.3.3</version.jaxb>
 
     <version.groovy>2.4.20</version.groovy>
     <version.spock>1.3-groovy-2.5</version.spock>
 
     <!-- maven-compiler-plugin -->
     <version.compiler.plugin>3.8.1</version.compiler.plugin>
-    <maven.compiler.target>8</maven.compiler.target>
-    <maven.compiler.source>8</maven.compiler.source>
+    <maven.jdk.target>11</maven.jdk.target>
   </properties>
 
 
@@ -347,6 +347,11 @@
       <groupId>javax.servlet.jsp</groupId>
       <artifactId>javax.servlet.jsp-api</artifactId>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
     </dependency>
   </dependencies>
 
@@ -762,11 +767,6 @@
         <version>1.0</version>
       </dependency>
       <dependency>
-        <groupId>javax.xml.bind</groupId>
-        <artifactId>jaxb-api</artifactId>
-        <version>2.3.1</version>
-      </dependency>
-      <dependency>
         <groupId>org.jboss.weld.servlet</groupId>
         <artifactId>weld-servlet-core</artifactId>
         <version>${weld.version}</version>
@@ -829,6 +829,23 @@
         <artifactId>jsr305</artifactId>
         <version>3.0.2</version>
         <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>${version.jaxb}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.xml.ws</groupId>
+        <artifactId>jakarta.xml.ws-api</artifactId>
+        <version>${version.jaxb}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-impl</artifactId>
+        <version>${version.jaxb}</version>
+        <scope>runtime</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -993,8 +1010,7 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${version.compiler.plugin}</version>
           <configuration>
-            <source>${maven.compiler.source}</source>
-            <target>${maven.compiler.target}</target>
+            <release>${maven.jdk.target}</release>
           </configuration>
         </plugin>
         <plugin>

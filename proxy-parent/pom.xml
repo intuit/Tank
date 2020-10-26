@@ -28,6 +28,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <compilerArgument>-XDignore.symbol.file</compilerArgument>
+          <release>11</release>
         </configuration>
       </plugin>
     </plugins>

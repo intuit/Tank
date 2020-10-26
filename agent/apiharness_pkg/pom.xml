@@ -9,23 +9,18 @@
     <version>2.3.5-SNAPSHOT</version>
   </parent>
 
-
   <artifactId>apiharness</artifactId>
 
   <packaging>pom</packaging>
   <name>Apiharness Packaging</name>
 
-
   <dependencies>
-
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>agent</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
-
-
 
   <build>
     <plugins>
