@@ -1,37 +1,48 @@
 package com.intuit.tank.storage;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import com.intuit.tank.vm.settings.CloudCredentials;
+import com.intuit.tank.vm.settings.CloudProvider;
+import com.intuit.tank.vm.settings.TankConfig;
+import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
-
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.util.IOUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.model.AccessControlList;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.intuit.tank.vm.settings.CloudCredentials;
-import com.intuit.tank.vm.settings.CloudProvider;
-import com.intuit.tank.vm.settings.TankConfig;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.SdkField;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
+import software.amazon.awssdk.http.SdkHttpClient;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
+import software.amazon.awssdk.http.apache.ProxyConfiguration;
+import software.amazon.awssdk.http.apache.ProxyConfiguration.Builder;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.CreateBucketResponse;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetBucketAclRequest;
+import software.amazon.awssdk.services.s3.model.GetBucketAclResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketLocationRequest;
+import software.amazon.awssdk.services.s3.model.GetBucketLocationResponse;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
+import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
 
 /**
  * FileStorage that writes to the file system.
@@ -49,7 +60,7 @@ public class S3FileStorage implements FileStorage, Serializable {
     private boolean compress = true;
     private boolean encrypt = true;
 
-    private AmazonS3 s3Client;
+    private S3Client s3Client;
 
     /**
      * @param bucketName
@@ -63,13 +74,21 @@ public class S3FileStorage implements FileStorage, Serializable {
             TankConfig tankConfig = new TankConfig();
             encrypt = tankConfig.isS3EncryptionEnabled();
             CloudCredentials creds = tankConfig.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-            ClientConfiguration config = new ClientConfiguration();
+
+            Builder proxyConf = ProxyConfiguration.builder();
+            String proxyHost = "";
+            String port = "";
+            URI proxy = null;
             if (StringUtils.isNotBlank(System.getProperty("http.proxyHost"))) {
                 try {
-                    config.setProxyHost(System.getProperty("http.proxyHost"));
+                   proxyHost =  System.getProperty("http.proxyHost") ;
                     if (StringUtils.isNotBlank(System.getProperty("http.proxyPort"))) {
-                        config.setProxyPort(Integer.parseInt(System.getProperty("http.proxyPort")));
+                        port = System.getProperty("http.proxyPort");
+                        proxy = new URI(proxyHost+":"+port);
+                    } else {
+                        proxy = new URI(proxyHost);
                     }
+                   proxyConf.endpoint(proxy);
                 } catch (NumberFormatException e) {
                     LOG.error("invalid proxy setup.");
                 }
@@ -77,14 +96,16 @@ public class S3FileStorage implements FileStorage, Serializable {
             }
             assert creds != null;
             if (StringUtils.isNotBlank(creds.getKeyId()) && StringUtils.isNotBlank(creds.getKey())) {
-                BasicAWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
-                this.s3Client = AmazonS3ClientBuilder.standard()
-                        .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                        .withClientConfiguration(config)
+                AwsCredentials awsCredentails = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
+                SdkHttpClient httpClient = (SdkHttpClient) ApacheHttpClient.builder().proxyConfiguration(
+                    proxyConf.build());
+                this.s3Client = S3Client.builder()
+                        .credentialsProvider(StaticCredentialsProvider.create(awsCredentails))
+                        .httpClient(httpClient)
                         .build();
             } else {
-                this.s3Client = AmazonS3ClientBuilder.standard()
-                        .withClientConfiguration(config)
+                this.s3Client = S3Client.builder()
+                    .httpClient(ApacheHttpClient.builder().build())
                         .build();
             }
             createBucket(bucketName);
@@ -110,24 +131,26 @@ public class S3FileStorage implements FileStorage, Serializable {
         String path = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(extraPath + fileData.getPath() + "/" + fileData.getFileName()));
         path = StringUtils.stripStart(path, "/");
         try {
-            ObjectMetadata metaData = new ObjectMetadata();
+
+            PutObjectRequest.Builder objectRequest = PutObjectRequest.builder();
             if (encrypt) {
-                metaData.setSSEAlgorithm(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);     
+
+                objectRequest.serverSideEncryption(ServerSideEncryption.AES256);
             }
             if (fileData.getAttributes() != null) {
-                for (Entry<String, String> entry : fileData.getAttributes().entrySet()) {
-                    metaData.addUserMetadata(entry.getKey(), entry.getValue());
-                }
+                objectRequest.metadata(fileData.getAttributes());
             }
             if (compress) {
                 in = new GZIPInputStream(in);
             }
-            s3Client.putObject(bucketName, path, in, metaData);
+
+            PutObjectResponse out = s3Client.putObject(objectRequest.build(), Paths.get(path));
         } catch (Exception e) {
             LOG.error("Error storing file: " + e, e);
             throw new RuntimeException(e);
         } finally {
-            IOUtils.closeQuietly(in, null);
+            //TODO : ask what to do with it now
+            //IOUtils.closeQuietly(in, null);
         }
     }
 
@@ -137,11 +160,15 @@ public class S3FileStorage implements FileStorage, Serializable {
         path = StringUtils.stripStart(path, "/");
         InputStream ret = null;
         try {
-            S3Object object = s3Client.getObject(bucketName, path);
-            if (object != null) {
-                ret = object.getObjectContent();
+            s3Client.listObjectsV2(ListObjectsV2Request.builder().bucket(bucketName).build());
+            ResponseInputStream<GetObjectResponse> object = s3Client.getObject(
+                GetObjectRequest.builder().bucket(bucketName).key(path).build(),
+                ResponseTransformer.toInputStream());
+            if (object != null ) {
                 if (compress) {
-                    ret = new GZIPInputStream(ret);
+                    ret = new GZIPInputStream(object);
+                } else {
+                    ret = object;
                 }
             }
         } catch (Exception e) {
@@ -152,56 +179,43 @@ public class S3FileStorage implements FileStorage, Serializable {
     }
 
     private void createBucket(String bucketName) {
-        AccessControlList configuration = null;
+        CreateBucketRequest.Builder createBucketRequest = CreateBucketRequest.builder();
+        GetBucketAclResponse acl = null;
         try {
-            configuration = s3Client.getBucketAcl(bucketName);
+            acl = s3Client.getBucketAcl(GetBucketAclRequest.builder().bucket(bucketName).build());
         } catch (Exception e) {
             LOG.info("Bucket " + bucketName + " does not exist.");
         }
-        if (configuration == null) {
-            Bucket bucket = s3Client.createBucket(bucketName);
-            LOG.info("Created bucket " + bucket.getName() + " at " + bucket.getCreationDate());
+        if (acl == null) {
+            CreateBucketResponse bucket = s3Client.createBucket(createBucketRequest.bucket(bucketName).build());
+
+            LOG.info("Created bucket " + bucketName + " at with requestId "+bucket.responseMetadata().requestId());
         }
     }
 
     @Override
     public boolean exists(FileData fileData) {
-        boolean ret = true;
+
         String path = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(extraPath + fileData.getPath() + "/" + fileData.getFileName()));
         path = StringUtils.stripStart(path, "/");
-        try {
-            s3Client.getObjectMetadata(bucketName, path);
-        } catch (AmazonS3Exception e) {
-            ret = false;
-        }
-        return ret;
+        GetBucketLocationResponse bucketLocation = s3Client.getBucketLocation(GetBucketLocationRequest.builder().bucket(bucketName).build());
+        return (bucketLocation.locationConstraintAsString().equalsIgnoreCase(path));
     }
 
     @Override
     public List<FileData> listFileData(String path) {
         List<FileData> ret = new ArrayList<FileData>();
-        try {
-            String prefix = extraPath + path;
-            if (!prefix.endsWith("/")) {
-                prefix = prefix + "/";
+        String prefix = extraPath + path;
+        if (!prefix.endsWith("/")) {
+            prefix = prefix + "/";
+        }
+        prefix = StringUtils.removeStart(prefix, "/");
+        ListObjectsV2Request listObject = ListObjectsV2Request.builder().bucket(bucketName).delimiter("/").prefix(prefix).build();
+        ListObjectsV2Response files = s3Client.listObjectsV2(listObject);
+        for(S3Object file : files.contents()){
+            for(SdkField fileSdk:file.sdkFields()){
+                ret.add(new FileData(fileSdk.locationName(),file.key()));
             }
-            prefix = StringUtils.removeStart(prefix, "/");
-            ListObjectsRequest listObjectsRequest = new ListObjectsRequest().withBucketName(bucketName).withPrefix(prefix);
-            listObjectsRequest.setDelimiter("/");
-            ObjectListing objectListing;
-            do {
-                objectListing = s3Client.listObjects(listObjectsRequest);
-                for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-                    String fileName = FilenameUtils.getName(FilenameUtils.normalize(objectSummary.getKey()));
-                    if (StringUtils.isNotBlank(fileName)) {
-                        ret.add(new FileData(path, fileName));
-                    }
-                }
-                listObjectsRequest.setMarker(objectListing.getNextMarker());
-            } while (objectListing.isTruncated());
-        } catch (AmazonS3Exception e) {
-            LOG.error("Error Listing Files: " + e, e);
-            throw new RuntimeException(e);
         }
         return ret;
     }
@@ -211,8 +225,8 @@ public class S3FileStorage implements FileStorage, Serializable {
         String path = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(fileData.getPath() + "/" + fileData.getFileName()));
         path = StringUtils.stripStart(path, "/");
         try {
-            s3Client.deleteObject(bucketName, path);
-        } catch (AmazonS3Exception e) {
+            s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(path).build());
+        } catch (AwsServiceException | SdkClientException e) {
             return false;
         }
         return true;

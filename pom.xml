@@ -20,6 +20,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+    <!--suppress UnresolvedMavenProperty -->
     <cert.dir>${project.parent.parent.basedir}/certs</cert.dir>
     <cert.keystore>self_signed_certs.ks</cert.keystore>
     <cert.alias>tank</cert.alias>
@@ -28,7 +29,8 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>5.1.17.Final</version.hibernate>
-    <version-aws-sdk>1.11.762</version-aws-sdk>
+    <version-aws-sdk>2.15.14</version-aws-sdk>
+    <version-aws-cloudwatch-metrics>2.0.0-preview-2</version-aws-cloudwatch-metrics>
 
     <version-tomcat>9.0.34</version-tomcat>
 
@@ -697,20 +699,42 @@
         <version>3.6.1</version>
       </dependency>
       <dependency>
-        <groupId>com.amazonaws</groupId>
-        <artifactId>aws-java-sdk-bom</artifactId>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>bom</artifactId>
         <version>${version-aws-sdk}</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
-      <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-xray-recorder-sdk-bom -->
       <dependency>
-        <groupId>com.amazonaws</groupId>
-        <artifactId>aws-xray-recorder-sdk-bom</artifactId>
-        <version>2.4.0</version>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>aws-sdk-java</artifactId>
+        <version>${version-aws-sdk}</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>cloudwatchmetrics</artifactId>
+        <version>${version-aws-cloudwatch-metrics}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>sdk-core</artifactId>
+        <version>${version-aws-sdk}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-xray-recorder-sdk-bom -->
+<!--      <dependency>-->
+<!--        <groupId>com.amazonaws</groupId>-->
+<!--        <artifactId>aws-xray-recorder-sdk-bom</artifactId>-->
+<!--        <version>2.4.0</version>-->
+<!--        <scope>import</scope>-->
+<!--        <type>pom</type>-->
+<!--      </dependency>-->
       <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>

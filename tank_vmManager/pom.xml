@@ -51,25 +51,33 @@
       <artifactId>cdi-api</artifactId>
     </dependency>
 
-     <dependency>
-       <groupId>com.amazonaws</groupId>
-       <artifactId>aws-java-sdk-ec2</artifactId>
-     </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>ec2</artifactId>
+      <version>${version-aws-sdk}</version>
+      <scope>test</scope>
+    </dependency>
 
-     <dependency>
-       <groupId>com.amazonaws</groupId>
-       <artifactId>aws-java-sdk-cloudwatch</artifactId>
-     </dependency>
-
-     <dependency>
-       <groupId>com.amazonaws</groupId>
-       <artifactId>aws-java-sdk-sns</artifactId>
-     </dependency>
 
     <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk-ssm</artifactId>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>cloudwatch</artifactId>
+      <version>${version-aws-sdk}</version>
     </dependency>
+
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>sns</artifactId>
+      <version>${version-aws-sdk}</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>ssm</artifactId>
+      <version>${version-aws-sdk}</version>
+    </dependency>
+
 
     <dependency>
       <groupId>xalan</groupId>

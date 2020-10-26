@@ -45,9 +45,7 @@ public abstract class BaseCommonsXmlConfig implements Serializable {
 
     /**
      * Constructor pulls file out of the jar or reads from disk and sets up refresh policy.
-     * 
-     * @param expressionEngine
-     *            the expression engine to use. Null results in default expression engine
+     *
      */
     protected void readConfig() {
         try {

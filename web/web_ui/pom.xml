@@ -251,23 +251,27 @@
       <scope>runtime</scope>
     </dependency>
 
+
     <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk-cloudwatchmetrics</artifactId>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>cloudwatchmetrics</artifactId>
+      <version>${version-aws-cloudwatch-metrics}</version>
       <scope>runtime</scope>
     </dependency>
 
     <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-xray-recorder-sdk-core</artifactId>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>xray</artifactId>
+      <version>${version-aws-sdk}</version>
       <scope>runtime</scope>
     </dependency>
 
-    <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-xray-recorder-sdk-sql-mysql</artifactId>
-      <scope>runtime</scope>
-    </dependency>
+
+<!--    <dependency>-->
+<!--      <groupId>com.amazonaws</groupId>-->
+<!--      <artifactId>aws-xray-recorder-sdk-sql-mysql</artifactId>-->
+<!--      <scope>runtime</scope>-->
+<!--    </dependency>-->
 
     <!-- enunciate dependencies -->
     <dependency>
