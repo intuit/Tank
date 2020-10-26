@@ -45,10 +45,10 @@ public class InitializeEnvironment {
 
     @Inject
     private TankConfig tankConfig;
-    
+
     @Inject
     private PartitionManager partitionManager;
-    
+
     private IdentityManager identityManager;
     
     boolean initialize = false;
@@ -111,6 +111,7 @@ public class InitializeEnvironment {
                 LOG.error("Error creating default Group: " + e, e);
             }
         }
-
     }
+
+    public void ping() {}
 }
