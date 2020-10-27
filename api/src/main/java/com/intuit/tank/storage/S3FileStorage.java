@@ -19,11 +19,11 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.http.apache.ProxyConfiguration;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.BucketAlreadyExistsException;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -67,30 +67,26 @@ public class S3FileStorage implements FileStorage, Serializable {
             TankConfig tankConfig = new TankConfig();
             this.encrypt = tankConfig.isS3EncryptionEnabled();
             CloudCredentials creds = tankConfig.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-            ApacheHttpClient.Builder httpClientBuilder = ApacheHttpClient.builder();
-            if (StringUtils.isNotBlank(System.getProperty("http.proxyHost"))) {
+            S3ClientBuilder s3ClientBuilder = S3Client.builder();
+            if (creds != null && StringUtils.isNotBlank(System.getProperty("http.proxyHost"))) {
                 try {
                     URIBuilder uriBuilder = new URIBuilder().setHost(System.getProperty("http.proxyHost"));
                     if (StringUtils.isNotBlank(System.getProperty("http.proxyPort"))) {
                         uriBuilder.setPort(Integer.parseInt(System.getProperty("http.proxyPort")));
                     }
-                    httpClientBuilder.proxyConfiguration(
-                            ProxyConfiguration.builder().endpoint(uriBuilder.build()).build());
+                    ApacheHttpClient.Builder httpClientBuilder = ApacheHttpClient.builder()
+                            .proxyConfiguration(
+                                    ProxyConfiguration.builder().endpoint(uriBuilder.build()).build());
+                    s3ClientBuilder.httpClientBuilder(httpClientBuilder);
                 } catch (NumberFormatException e) {
                     LOG.error("invalid proxy setup.");
                 }
             }
-            if (StringUtils.isNotBlank(creds.getKeyId()) && StringUtils.isNotBlank(creds.getKey())) {
+            if (creds != null && StringUtils.isNotBlank(creds.getKeyId()) && StringUtils.isNotBlank(creds.getKey())) {
                 AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
-                this.s3Client = S3Client.builder()
-                        .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                        .httpClientBuilder(httpClientBuilder)
-                        .build();
-            } else {
-                this.s3Client = S3Client.builder()
-                        .httpClientBuilder(httpClientBuilder)
-                        .build();
+                s3ClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
             }
+            s3Client = s3ClientBuilder.build();
             createBucket(bucketName);
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);

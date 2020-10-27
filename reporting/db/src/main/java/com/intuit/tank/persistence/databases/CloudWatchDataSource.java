@@ -5,8 +5,15 @@ import com.intuit.tank.reporting.databases.Item;
 import com.intuit.tank.reporting.databases.PagedDatabaseResult;
 import com.intuit.tank.reporting.databases.TankDatabaseType;
 import com.intuit.tank.results.TankResult;
+import com.intuit.tank.vm.settings.CloudCredentials;
+import com.intuit.tank.vm.settings.CloudProvider;
+import com.intuit.tank.vm.settings.TankConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
@@ -37,9 +44,19 @@ import static java.util.stream.Collectors.toList;
 public class CloudWatchDataSource implements IDatabase {
     private static final Logger LOG = LogManager.getLogger(CloudWatchDataSource.class);
 
-    private final CloudWatchClient cloudWatchClient = CloudWatchClient.builder().build();
+    private CloudWatchClient cloudWatchClient;
     private static final int MAX_CLOUDWATCH_METRICS_SUPPORTED = 150;
     private static final String namespace = "Intuit/Tank";
+
+    public CloudWatchDataSource() {
+        CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
+        if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
+            AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
+            this.cloudWatchClient = CloudWatchClient.builder().credentialsProvider(StaticCredentialsProvider.create(credentials)).build();
+        } else {
+            this.cloudWatchClient = CloudWatchClient.builder().build();
+        }
+    }
 
     @Override
     public void initNamespace(@Nonnull String tableName) {}

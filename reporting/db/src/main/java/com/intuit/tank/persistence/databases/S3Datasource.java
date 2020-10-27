@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.intuit.tank.vm.settings.CloudCredentials;
+import com.intuit.tank.vm.settings.CloudProvider;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +23,9 @@ import com.intuit.tank.reporting.databases.PagedDatabaseResult;
 import com.intuit.tank.reporting.databases.TankDatabaseType;
 import com.intuit.tank.results.TankResult;
 import com.intuit.tank.vm.settings.TankConfig;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
@@ -43,7 +48,7 @@ import static java.util.stream.Collectors.toList;
 public class S3Datasource implements IDatabase {
 	private static final Logger LOG = LogManager.getLogger(S3Datasource.class);
 
-	private final S3Client s3Client = S3Client.builder().build();
+	private S3Client s3Client;
 	private String hostname = "fail";
     private String metricString = "";
 	private String tags = "";
@@ -51,6 +56,16 @@ public class S3Datasource implements IDatabase {
 
 	private HierarchicalConfiguration resultsProviderConfig =
 			new TankConfig().getVmManagerConfig().getResultsProviderConfig();
+
+	public S3Datasource() {
+		CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
+		if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
+			AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
+			this.s3Client = S3Client.builder().credentialsProvider(StaticCredentialsProvider.create(credentials)).build();
+		} else {
+			this.s3Client = S3Client.builder().build();
+		}
+	}
 
 	@Override
 	public void initNamespace(String tableName) {}

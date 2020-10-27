@@ -28,6 +28,7 @@ import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.http.apache.ProxyConfiguration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchClientBuilder;
 import software.amazon.awssdk.services.cloudwatch.model.ComparisonOperator;
 import software.amazon.awssdk.services.cloudwatch.model.DeleteAlarmsRequest;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
@@ -35,6 +36,7 @@ import software.amazon.awssdk.services.cloudwatch.model.MetricAlarm;
 import software.amazon.awssdk.services.cloudwatch.model.PutMetricAlarmRequest;
 import software.amazon.awssdk.services.cloudwatch.model.Statistic;
 import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.SnsClientBuilder;
 import software.amazon.awssdk.services.sns.model.CreateTopicRequest;
 import software.amazon.awssdk.services.sns.model.CreateTopicResponse;
 import software.amazon.awssdk.services.sns.model.ListTopicsRequest;
@@ -76,41 +78,34 @@ public class CloudwatchInstance {
         }
         try {
             CloudCredentials creds = config.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-            ApacheHttpClient.Builder httpClientBuilder = ApacheHttpClient.builder();
-            if (StringUtils.isNotBlank(creds.getProxyHost())) {
+            CloudWatchClientBuilder cloudWatchClientBuilder = CloudWatchClient.builder();
+            SnsClientBuilder snsClientBuilder = SnsClient.builder();
+            if (creds != null && StringUtils.isNotBlank(creds.getProxyHost())) {
                 try {
                     URIBuilder uriBuilder = new URIBuilder().setHost(creds.getProxyHost());
                     if (StringUtils.isNotBlank(creds.getProxyPort())) {
                         uriBuilder.setPort(Integer.parseInt(System.getProperty(creds.getProxyPort())));
                     }
-                    httpClientBuilder.proxyConfiguration(
-                            ProxyConfiguration.builder().endpoint(uriBuilder.build()).build());
+                    ApacheHttpClient.Builder httpClientBuilder = ApacheHttpClient.builder()
+                            .proxyConfiguration(
+                                    ProxyConfiguration.builder().endpoint(uriBuilder.build()).build());
+                    cloudWatchClientBuilder.httpClientBuilder(httpClientBuilder);
+                    snsClientBuilder.httpClientBuilder(httpClientBuilder);
                 } catch (NumberFormatException e) {
                     LOG.error("invalid proxy setup.");
                 }
             }
-            if (StringUtils.isNotBlank(creds.getKeyId()) && StringUtils.isNotBlank(creds.getKey())) {
+            if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
                 AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
-                cloudWatchClient = CloudWatchClient.builder()
-                        .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                        .httpClientBuilder(httpClientBuilder)
-                        .region(Region.of(vmRegion.getRegion()))
-                        .build();
-                snsClient = SnsClient.builder()
-                        .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                        .httpClientBuilder(httpClientBuilder)
-                        .region(Region.of(vmRegion.getRegion()))
-                        .build();
-            } else {
-                cloudWatchClient = CloudWatchClient.builder()
-                        .httpClientBuilder(httpClientBuilder)
-                        .region(Region.of(vmRegion.getRegion()))
-                        .build();
-                snsClient = SnsClient.builder()
-                        .httpClientBuilder(httpClientBuilder)
-                        .region(Region.of(vmRegion.getRegion()))
-                        .build();
+                cloudWatchClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
+                snsClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
             }
+            cloudWatchClient = cloudWatchClientBuilder
+                    .region(Region.of(vmRegion.getRegion()))
+                    .build();
+            snsClient = snsClientBuilder
+                    .region(Region.of(vmRegion.getRegion()))
+                    .build();
         } catch (Exception ex) {
             LOG.error(ex.getMessage());
             throw new RuntimeException(ex);

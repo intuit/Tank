@@ -29,6 +29,7 @@ import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.http.apache.ProxyConfiguration;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.ec2.Ec2ClientBuilder;
 import software.amazon.awssdk.services.ec2.model.Address;
 import software.amazon.awssdk.services.ec2.model.AssociateAddressRequest;
 import software.amazon.awssdk.services.ec2.model.AttachVolumeRequest;
@@ -40,7 +41,6 @@ import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.IamInstanceProfileSpecification;
 import software.amazon.awssdk.services.ec2.model.Instance;
-import software.amazon.awssdk.services.ec2.model.InstanceStateChange;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.Placement;
 import software.amazon.awssdk.services.ec2.model.RebootInstancesRequest;
@@ -51,7 +51,6 @@ import software.amazon.awssdk.services.ec2.model.RunInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.StartInstancesRequest;
 import software.amazon.awssdk.services.ec2.model.StartInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.StopInstancesRequest;
-import software.amazon.awssdk.services.ec2.model.StopInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.Tag;
 import software.amazon.awssdk.services.ec2.model.Tenancy;
 import software.amazon.awssdk.services.ec2.model.TerminateInstancesRequest;
@@ -94,33 +93,28 @@ public class AmazonInstance implements IEnvironmentInstance {
         this.vmRegion = vmRegion;
         try {
             CloudCredentials creds = config.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-            ApacheHttpClient.Builder httpClientBuilder = ApacheHttpClient.builder();
-            if (StringUtils.isNotBlank(creds.getProxyHost())) {
+            Ec2ClientBuilder ec2ClientBuilder = Ec2Client.builder();
+            if (creds != null && StringUtils.isNotBlank(creds.getProxyHost())) {
                 try {
                     URIBuilder uriBuilder = new URIBuilder().setHost(creds.getProxyHost());
                     if (StringUtils.isNotBlank(creds.getProxyPort())) {
                         uriBuilder.setPort(Integer.parseInt(System.getProperty(creds.getProxyPort())));
                     }
-                    httpClientBuilder.proxyConfiguration(
-                            ProxyConfiguration.builder().endpoint(uriBuilder.build()).build());
+                    ApacheHttpClient.Builder httpClientBuilder = ApacheHttpClient.builder()
+                            .proxyConfiguration(
+                                    ProxyConfiguration.builder().endpoint(uriBuilder.build()).build());
+                    ec2ClientBuilder.httpClientBuilder(httpClientBuilder);
                 } catch (NumberFormatException e) {
                     LOG.error("invalid proxy setup.");
                 }
             }
-            if (StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
+            if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
                 AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
-                ec2Client = Ec2Client.builder()
-                        .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                        .httpClientBuilder(httpClientBuilder)
-                        .region(Region.of(vmRegion.getRegion()))
-                        .build();
-            } else {
-                ec2Client = Ec2Client.builder()
-                        .httpClientBuilder(httpClientBuilder)
-                        .region(Region.of(vmRegion.getRegion()))
-                        .build();
+                ec2ClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
             }
-
+            ec2Client = ec2ClientBuilder
+                    .region(Region.of(vmRegion.getRegion()))
+                    .build();
         } catch (Exception ex) {
             LOG.error("Error initializing amazonclient: " + ex, ex);
             throw new RuntimeException(ex);
@@ -134,7 +128,6 @@ public class AmazonInstance implements IEnvironmentInstance {
         RebootInstancesRequest rebootInstancesRequest =
                 RebootInstancesRequest.builder().instanceIds(instanceId).build();
         ec2Client.rebootInstances(rebootInstancesRequest);
-
     }
 
     /**

@@ -103,7 +103,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
      */
     public AmazonDynamoDatabaseDocApi() {
         CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-        if (creds != null && StringUtils.isNotBlank(creds.getKeyId())) {
+        if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
             AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
             this.dynamoDbClient = DynamoDbClient.builder().credentialsProvider(StaticCredentialsProvider.create(credentials)).build();
         } else {
