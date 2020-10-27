@@ -1,7 +1,5 @@
 package com.intuit.tank.persistence.databases;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -17,19 +15,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.intuit.tank.reporting.databases.IDatabase;
 import com.intuit.tank.reporting.databases.Item;
 import com.intuit.tank.reporting.databases.PagedDatabaseResult;
 import com.intuit.tank.reporting.databases.TankDatabaseType;
 import com.intuit.tank.results.TankResult;
 import com.intuit.tank.vm.settings.TankConfig;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import javax.annotation.Nonnull;
 
@@ -45,7 +43,7 @@ import static java.util.stream.Collectors.toList;
 public class S3Datasource implements IDatabase {
 	private static final Logger LOG = LogManager.getLogger(S3Datasource.class);
 
-	private final AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
+	private final S3Client s3Client = S3Client.builder().build();
 	private String hostname = "fail";
     private String metricString = "";
 	private String tags = "";
@@ -89,8 +87,10 @@ public class S3Datasource implements IDatabase {
 			LOG.error("Results Provider Config is Empty. Please update settings.xml to include S3Datasource Configuration");
 		}
 
+		String region = new DefaultAwsRegionProviderChain().getRegion().toString();
+
 		if (StringUtils.endsWith(bucketName, "-")) {
-			bucketName = bucketName.concat(s3Client.getRegionName());
+			bucketName = bucketName.concat(region);
 		}
 
 		StringBuilder sb = new StringBuilder();
@@ -101,7 +101,7 @@ public class S3Datasource implements IDatabase {
 		try {
 			String tagsComplete = " source=" + hostname +
 					" instanceid=" + instance +  
-					" location=" + s3Client.getRegionName() +
+					" location=" + region +
 					" " + tags +
 					" jobid=" + jobId + 
 					System.getProperty("line.separator");
@@ -141,21 +141,19 @@ public class S3Datasource implements IDatabase {
 					.append(tagsComplete);
 			}
 			LOG.trace("Sending to S3: " + sb.toString());
-			InputStream is =  new ByteArrayInputStream(sb.toString().getBytes());
-			ObjectMetadata metaData = new ObjectMetadata();
-			metaData.setContentLength(sb.length());
-			PutObjectRequest putObjectRequest =
-					new PutObjectRequest(bucketName, "TANK-AgentData-" + UUID.randomUUID() + ".log", is, metaData)
-							.withCannedAcl(CannedAccessControlList.BucketOwnerFullControl);
-			s3Client.putObject(putObjectRequest);
-		} catch (AmazonServiceException ase) {
-			LOG.error("AmazonServiceException: which " +
+			PutObjectRequest.Builder request = PutObjectRequest.builder()
+					.bucket(bucketName)
+					.key("TANK-AgentData-" + UUID.randomUUID() + ".log")
+					.acl(ObjectCannedACL.BUCKET_OWNER_FULL_CONTROL);
+			s3Client.putObject(request.build(), RequestBody.fromString(sb.toString()));
+		} catch (SdkClientException ase) {
+			LOG.error("SdkClientException: which " +
             		"means your request made it " +
                     "to Amazon S3, but was rejected with an error response" +
                     " for some reason. bucket=" + bucketName +
                     "," + ase.getMessage(), ase);
-		} catch (AmazonClientException ace) {
-			LOG.error("AmazonClientException: which " +
+		} catch (S3Exception ace) {
+			LOG.error("S3Exception: which " +
             		"means the client encountered " +
                     "an internal error while trying to " +
                     "communicate with S3, " +

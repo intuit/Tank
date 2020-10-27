@@ -30,7 +30,6 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
-import com.amazonaws.util.EC2MetadataUtils;
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.http.TankHttpClient;
 import org.apache.commons.io.FileUtils;
@@ -68,6 +67,7 @@ import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
+import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
 
 public class APITestHarness {
     private static Logger LOG = LogManager.getLogger(APITestHarness.class);

@@ -252,8 +252,8 @@
     </dependency>
 
     <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk-cloudwatchmetrics</artifactId>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>cloudwatch</artifactId>
       <scope>runtime</scope>
     </dependency>
 
