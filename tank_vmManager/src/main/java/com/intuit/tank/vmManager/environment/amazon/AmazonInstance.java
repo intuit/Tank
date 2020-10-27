@@ -188,7 +188,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 }
             }
             if (result.isEmpty()) {
-                InstanceType size = AmazonInstance.getInstanceType(instanceRequest.getSize());
+                InstanceType instanceType = AmazonInstance.getInstanceType(instanceRequest.getSize());
                 VmInstanceType vmType = config.getVmManagerConfig().getInstanceType(instanceRequest.getSize());
                 String keyPair = instanceDescription.getKeypair();
                 if (instanceRequest.getJobId() != null) {
@@ -237,12 +237,11 @@ public class AmazonInstance implements IEnvironmentInstance {
                 RunInstancesRequest.Builder runInstancesRequestTemplate = RunInstancesRequest.builder();
                 Tenancy tenancy = StringUtils.isEmpty(instanceDescription.getTenancy()) ? Tenancy.DEFAULT : Tenancy.fromValue(instanceDescription.getTenancy());
                 runInstancesRequestTemplate.imageId(image)
-                        .instanceType(size.toString())
+                        .instanceType(instanceType.toString())
                         .keyName(keyPair)
                         .placement(Placement.builder().tenancy(tenancy).build())
                         .monitoring(RunInstancesMonitoringEnabled.builder().build())
                         .userData(userData);
-
 
                 Collection<String> c = instanceDescription.getSecurityGroupIds();
                 if (!c.isEmpty()) {
@@ -268,7 +267,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                     int requestCount = Math.min(remaining, MAX_INSTANCE_BATCH_SIZE);
                     try {
                         RunInstancesResponse response = ec2Client.runInstances(
-                                runInstancesRequest.minCount(1).maxCount(MAX_INSTANCE_BATCH_SIZE).build());
+                                runInstancesRequest.minCount(1).maxCount(requestCount).build());
                         result.addAll(new AmazonDataConverter().processReservation(
                                 response.requesterId(), response.instances(), vmRegion));
                         remaining -= response.instances().size();
