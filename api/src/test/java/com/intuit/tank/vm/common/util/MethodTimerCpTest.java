@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.common.util.MethodTimer;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,8 +31,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @generatedBy CodePro at 9/3/14 3:41 PM
  */
 public class MethodTimerCpTest {
-    public static final List<String> VALID_VALUES = Arrays.asList(" took 0 ms.", " took 1 ms.", " took 2 ms.");
-    public static final List<String> VALID_NATURAL_VALUES = Arrays.asList(" took 0", " took 1ms", " took 2ms");
     /**
      * Run the MethodTimer(Logger,Class,String) constructor test.
      * 
@@ -40,6 +39,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testMethodTimer_1()
             throws Exception {
         Logger log = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
@@ -61,6 +61,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testMethodTimer_2()
             throws Exception {
         Logger log = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
@@ -82,6 +83,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testEnd_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -102,6 +104,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testEndAndLog_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -122,6 +125,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testGetMarkTimeMessage_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -141,6 +145,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testGetMarkTimeMessage_2()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -160,6 +165,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testGetNaturalTimeMessage_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -178,6 +184,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testGetNaturalTimeMessage_2()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -196,6 +203,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testGetTimeMessage_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -214,6 +222,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testGetTimeMessage_2()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -232,6 +241,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testLogMark_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer((Logger) null, Object.class, "");
@@ -253,6 +263,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testLogMark_2()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -274,6 +285,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testLogTime_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer((Logger) null, Object.class, "");
@@ -294,6 +306,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testLogTime_2()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -314,6 +327,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testMark_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -334,6 +348,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testMark_2()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -354,6 +369,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testMarkAndLog_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -362,8 +378,8 @@ public class MethodTimerCpTest {
         MethodTimer result = fixture.markAndLog();
 
         assertNotNull(result);
-        assertTrue(VALID_VALUES.contains(result.getTimeMessage()));
-        assertTrue(VALID_NATURAL_VALUES.contains(result.getNaturalTimeMessage()));
+        assertEquals(" took 0 ms.", result.getTimeMessage());
+        assertEquals(" took 0", result.getNaturalTimeMessage());
     }
 
     /**
@@ -374,6 +390,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testMarkAndLog_2()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -383,8 +400,8 @@ public class MethodTimerCpTest {
         MethodTimer result = fixture.markAndLog(message);
 
         assertNotNull(result);
-        assertTrue(VALID_VALUES.contains(result.getTimeMessage()));
-        assertTrue(VALID_NATURAL_VALUES.contains(result.getNaturalTimeMessage()));
+        assertEquals(" took 0 ms.", result.getTimeMessage());
+        assertEquals(" took 0", result.getNaturalTimeMessage());
     }
 
     /**
@@ -395,6 +412,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "CODEBUILD_BUILD_ID", matches = ".*")
     public void testStart_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -403,7 +421,7 @@ public class MethodTimerCpTest {
         MethodTimer result = fixture.start();
 
         assertNotNull(result);
-        assertTrue(VALID_VALUES.contains(result.getTimeMessage()));
-        assertTrue(VALID_NATURAL_VALUES.contains(result.getNaturalTimeMessage()));
+        assertEquals(" took 0 ms.", result.getTimeMessage());
+        assertEquals(" took 0", result.getNaturalTimeMessage());
     }
 }
