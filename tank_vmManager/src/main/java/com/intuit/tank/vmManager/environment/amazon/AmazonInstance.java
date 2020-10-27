@@ -431,9 +431,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         List<String> instanceIdsInRegion = instancesInRegion.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
 
         if (!instanceIdsInRegion.isEmpty()) {
-            TerminateInstancesRequest terminateInstancesRequest =
-                    TerminateInstancesRequest.builder().instanceIds(instanceIds).build();
-            ec2Client.terminateInstances(terminateInstancesRequest);
+            ec2Client.terminateInstances(TerminateInstancesRequest.builder().instanceIds(instanceIdsInRegion).build());
         }
     }
 
@@ -593,9 +591,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         List<String> instanceIdsInRegion = instancesInRegion.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
 
         if (!instanceIdsInRegion.isEmpty()) {
-            StopInstancesRequest stopInstancesRequest = StopInstancesRequest.builder().instanceIds(instanceIds).build();
-            StopInstancesResponse response = ec2Client.stopInstances(stopInstancesRequest);
-            List<InstanceStateChange> stoppingInstances = response.stoppingInstances();
+            ec2Client.stopInstances(StopInstancesRequest.builder().instanceIds(instanceIdsInRegion).build());
         }
     }
 
