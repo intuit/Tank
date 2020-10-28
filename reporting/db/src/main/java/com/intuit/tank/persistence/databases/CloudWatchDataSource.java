@@ -1,24 +1,30 @@
 package com.intuit.tank.persistence.databases;
 
-import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
-import com.amazonaws.services.cloudwatch.AmazonCloudWatchClientBuilder;
-import com.amazonaws.services.cloudwatch.model.Dimension;
-import com.amazonaws.services.cloudwatch.model.MetricDatum;
-import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;;
-import com.amazonaws.services.cloudwatch.model.StandardUnit;
-import com.amazonaws.services.cloudwatch.model.StatisticSet;
 import com.intuit.tank.reporting.databases.IDatabase;
 import com.intuit.tank.reporting.databases.Item;
 import com.intuit.tank.reporting.databases.PagedDatabaseResult;
 import com.intuit.tank.reporting.databases.TankDatabaseType;
 import com.intuit.tank.results.TankResult;
+import com.intuit.tank.vm.settings.CloudCredentials;
+import com.intuit.tank.vm.settings.CloudProvider;
+import com.intuit.tank.vm.settings.TankConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
+import software.amazon.awssdk.services.cloudwatch.model.Dimension;
+import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
+import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
+import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
+import software.amazon.awssdk.services.cloudwatch.model.StatisticSet;
 
 import javax.annotation.Nonnull;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,9 +44,19 @@ import static java.util.stream.Collectors.toList;
 public class CloudWatchDataSource implements IDatabase {
     private static final Logger LOG = LogManager.getLogger(CloudWatchDataSource.class);
 
-    private final AmazonCloudWatch cloudWatchClient = AmazonCloudWatchClientBuilder.defaultClient();
+    private CloudWatchClient cloudWatchClient;
     private static final int MAX_CLOUDWATCH_METRICS_SUPPORTED = 150;
     private static final String namespace = "Intuit/Tank";
+
+    public CloudWatchDataSource() {
+        CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
+        if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
+            AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
+            this.cloudWatchClient = CloudWatchClient.builder().credentialsProvider(StaticCredentialsProvider.create(credentials)).build();
+        } else {
+            this.cloudWatchClient = CloudWatchClient.builder().build();
+        }
+    }
 
     @Override
     public void initNamespace(@Nonnull String tableName) {}
@@ -64,16 +80,18 @@ public class CloudWatchDataSource implements IDatabase {
     @Override
     public void addTimingResults(@Nonnull String tableName, @Nonnull List<TankResult> results, boolean asynch) {
         LOG.trace("Starting addTimingResults with " + results.size() + " items");
-        Date timestamp = results.get(results.size()-1).getTimeStamp();
+        Instant timestamp = results.get(results.size()-1).getTimeStamp().toInstant();
         List<MetricDatum> datumList = new ArrayList<>();
 
-        Dimension instanceId = new Dimension()
-                .withName("InstanceId")
-                .withValue(results.get(0).getInstanceId());
+        Dimension instanceId = Dimension.builder()
+                .name("InstanceId")
+                .value(results.get(0).getInstanceId())
+                .build();
 
-        Dimension jobId = new Dimension()
-                .withName("JobId")
-                .withValue(results.get(0).getJobId());
+        Dimension jobId = Dimension.builder()
+                .name("JobId")
+                .value(results.get(0).getJobId())
+                .build();
         try {
             Map<String, List<Integer>> grouped = results.stream()
                     .collect(groupingBy(TankResult::getRequestName,
@@ -92,33 +110,38 @@ public class CloudWatchDataSource implements IDatabase {
                 double[] sortedArray = doubleStream.get().toArray();
                 double sum = doubleStream.get().sum();
 
-                Dimension request = new Dimension()
-                        .withName("RequestName")
-                        .withValue(entry.getKey());
+                Dimension request = Dimension.builder()
+                        .name("RequestName")
+                        .value(entry.getKey())
+                        .build();
 
-                datumList.add(new MetricDatum()
-                        .withMetricName("ResponseTime")
-                        .withUnit(StandardUnit.Milliseconds)
-                        .withStatisticValues(new StatisticSet()
-                                .withMaximum(sortedArray[size - 1])
-                                .withMinimum(sortedArray[0])
-                                .withSampleCount((double) size)
-                                .withSum(sum))
-                        .withValues(sortedList)
-                        .withTimestamp(timestamp)
-                        .withDimensions(request, instanceId, jobId));
+                datumList.add(MetricDatum.builder()
+                        .metricName("ResponseTime")
+                        .unit(StandardUnit.MILLISECONDS)
+                        .statisticValues(StatisticSet.builder()
+                                .maximum(sortedArray[size - 1])
+                                .minimum(sortedArray[0])
+                                .sampleCount((double) size)
+                                .sum(sum)
+                                .build())
+                        .values(sortedList)
+                        .timestamp(timestamp)
+                        .dimensions(request, instanceId, jobId)
+                        .build());
 
-                datumList.add(new MetricDatum()
-                        .withMetricName("RequestCount")
-                        .withUnit(StandardUnit.Count)
-                        .withValue((double) size)
-                        .withTimestamp(timestamp)
-                        .withDimensions(request, instanceId, jobId));
+                datumList.add(MetricDatum.builder()
+                        .metricName("RequestCount")
+                        .unit(StandardUnit.COUNT)
+                        .value((double) size)
+                        .timestamp(timestamp)
+                        .dimensions(request, instanceId, jobId)
+                        .build());
             }
             LOG.trace("Sending to CloudWatchMetrics: " + datumList.size() + " to " + namespace);
-            PutMetricDataRequest request = new PutMetricDataRequest()
-                    .withNamespace(namespace)
-                    .withMetricData(datumList);
+            PutMetricDataRequest request = PutMetricDataRequest.builder()
+                    .namespace(namespace)
+                    .metricData(datumList)
+                    .build();
 
             cloudWatchClient.putMetricData(request);
         } catch (Exception e) {

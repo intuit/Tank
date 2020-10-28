@@ -24,7 +24,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
-import com.amazonaws.util.StringUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -32,6 +31,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.AmazonUtil;
 import com.intuit.tank.vm.common.TankConstants;
+import software.amazon.awssdk.utils.StringUtils;
 
 public class AgentStartup implements Runnable {
     private static Logger logger = LogManager.getLogger(AgentStartup.class);
@@ -110,7 +110,7 @@ public class AgentStartup implements Runnable {
                 controllerBaseUrl = values[1];
             }
         }
-        if (StringUtils.isNullOrEmpty(controllerBaseUrl)) {
+        if (StringUtils.isEmpty(controllerBaseUrl)) {
             controllerBaseUrl = AmazonUtil.getControllerBaseUrl();
         }
         AgentStartup agentStartup = new AgentStartup(controllerBaseUrl);

@@ -20,11 +20,10 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.amazonaws.services.ec2.model.InstanceStateChange;
-import com.amazonaws.services.ec2.model.Reservation;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.vmManager.VMInformation;
-import com.intuit.tank.vmManager.environment.amazon.AmazonDataConverter;
+import software.amazon.awssdk.services.ec2.model.InstanceStateChange;
+import software.amazon.awssdk.services.ec2.model.Reservation;
 
 /**
  * The class <code>AmazonDataConverterTest</code> contains tests for the class <code>{@link AmazonDataConverter}</code>.
@@ -55,10 +54,10 @@ public class AmazonDataConverterTest {
     public void testProcessReservation_1()
             throws Exception {
         AmazonDataConverter fixture = new AmazonDataConverter();
-        Reservation reservation = new Reservation();
+        Reservation reservation = Reservation.builder().build();
         VMRegion region = VMRegion.ASIA_1;
 
-        List<VMInformation> result = fixture.processReservation(reservation, region);
+        List<VMInformation> result = fixture.processReservation(reservation.requesterId(), reservation.instances(), region);
 
         assertNotNull(result);
         assertEquals(0, result.size());
@@ -75,10 +74,10 @@ public class AmazonDataConverterTest {
     public void testProcessReservation_2()
             throws Exception {
         AmazonDataConverter fixture = new AmazonDataConverter();
-        Reservation reservation = new Reservation();
+        Reservation reservation = Reservation.builder().build();
         VMRegion region = VMRegion.ASIA_1;
 
-        List<VMInformation> result = fixture.processReservation(reservation, region);
+        List<VMInformation> result = fixture.processReservation(reservation.requesterId(), reservation.instances(), region);
 
         assertNotNull(result);
         assertEquals(0, result.size());

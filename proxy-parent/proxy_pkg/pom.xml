@@ -22,6 +22,12 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>proxy-extension</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>software.amazon.awssdk</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.sun.xml.bind</groupId>
