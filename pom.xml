@@ -27,7 +27,7 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>5.1.17.Final</version.hibernate>
+    <version.hibernate>5.4.22.Final</version.hibernate>
     <version.aws-sdk-bom>2.15.14</version.aws-sdk-bom>
     <version.aws-xray-sdk-bom>2.6.1</version.aws-xray-sdk-bom>
 
@@ -358,12 +358,11 @@
 
   <dependencyManagement>
     <!-- This section specifies defaults for dependencies. --><!-- Any subpom can use these dependencies without specifying version -->
-
     <dependencies>
       <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
-        <version>8.0.21</version>
+        <version>8.0.22</version>
       </dependency>
 
       <dependency>
