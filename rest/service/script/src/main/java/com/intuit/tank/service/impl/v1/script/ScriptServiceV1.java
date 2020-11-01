@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
@@ -47,9 +48,9 @@ import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 
 import com.intuit.tank.script.util.ScriptServiceUtil;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.xml.sax.InputSource;
@@ -86,9 +87,6 @@ import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
  * DataFileServiceV1
  * 
  * @author dangleton
- * 
- */
-/**
  * @author hsomani
  * 
  */
@@ -106,6 +104,7 @@ public class ScriptServiceV1 implements ScriptService {
     /**
      * @inheritDoc
      */
+    @Nonnull
     @Override
     public String ping() {
         return "PONG " + getClass().getSimpleName();
@@ -114,10 +113,10 @@ public class ScriptServiceV1 implements ScriptService {
     /**
      * @inheritDoc
      */
+    @Nonnull
     @Override
     public Response updateTankScript(FormDataMultiPart formData) {
-        ScriptTO scriptTo = null;
-        InputStream is = null;
+        InputStream inputStream = null;
         Map<String, List<FormDataBodyPart>> fields = formData.getFields();
         ScriptDao dao = new ScriptDao();
         for (Entry<String, List<FormDataBodyPart>> entry : fields.entrySet()) {
@@ -128,45 +127,29 @@ public class ScriptServiceV1 implements ScriptService {
                 LOG.debug("MediaType " + mediaType);
                 if (MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(mediaType)) {
                     // get the file
-                    is = part.getValueAs(InputStream.class);
+                    inputStream = part.getValueAs(InputStream.class);
                 }
             }
         }
-        ResponseBuilder responseBuilder = null;
-        if (is != null) {
-            try {
-                //Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
-                SAXParserFactory spf = SAXParserFactory.newInstance();
-                spf.setNamespaceAware(true);
-                spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
-                spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-                spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-                
-                Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(is));
-                
-                JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
-                scriptTo = (ScriptTO) ctx.createUnmarshaller().unmarshal(xmlSource);
-                Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
-                if (script.getId() > 0) {
-                    Script existing = dao.findById(script.getId());
-                    if (existing == null) {
-                        LOG.error("Error updating script: Script passed with unknown id.");
-                        throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-                    }
-                    if (!existing.getName().equals(script.getName())) {
-                        LOG.error("Error updating script: Cannot change the name of an existing Script.");
-                        throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-                    }
+        ResponseBuilder responseBuilder = Response.serverError();
+        if (inputStream != null) {
+            ScriptTO scriptTo = ScriptServiceUtil.parseXMLtoScriptTO(inputStream);
+            Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
+            if (script.getId() > 0) {
+                Script existing = dao.findById(script.getId());
+                if (existing == null) {
+                    LOG.error("Error updating script: Script passed with unknown id.");
+                    throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
                 }
-                script = dao.saveOrUpdate(script);
-                responseBuilder = Response.ok();
-                responseBuilder.entity(Integer.toString(script.getId()));
-            } catch (Exception e) {
-                LOG.error("Error unmarshalling script: " + e.getMessage(), e);
-                throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
-            } finally {
-                IOUtils.closeQuietly(is);
+                if (!existing.getName().equals(script.getName())) {
+                    LOG.error("Error updating script: Cannot change the name of an existing Script.");
+                    throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+                }
+                script.setSerializedScriptStepId(existing.getSerializedScriptStepId());
             }
+            script = dao.saveOrUpdate(script);
+            responseBuilder = Response.ok();
+            responseBuilder.entity(Integer.toString(script.getId()));
         }
         return responseBuilder.build();
     }
@@ -174,6 +157,7 @@ public class ScriptServiceV1 implements ScriptService {
     /**
      * @inheritDoc
      */
+    @Nonnull
     @Override
     public Response convertScript(FormDataMultiPart formData) {
         ScriptUploadRequest request = null;
@@ -205,6 +189,7 @@ public class ScriptServiceV1 implements ScriptService {
                             JAXBContext ctx = JAXBContext.newInstance(ScriptUploadRequest.class.getPackage().getName());
                             request = (ScriptUploadRequest) ctx.createUnmarshaller().unmarshal(xmlSource);
                         } catch (JAXBException | ParserConfigurationException | SAXException e) {
+                            LOG.error("Error unmarshalling script: " + e.getMessage() , e);
                             throw new RuntimeException(e);
                         }
                     }
@@ -251,16 +236,17 @@ public class ScriptServiceV1 implements ScriptService {
      * @inheritDoc
      */
     @Override
-    public Response updateScript(Integer id, ScriptTO scriptTo) {
-        Script s = ScriptServiceUtil.transferObjectToScript(scriptTo);
+    public Response updateScript(@Nonnull Integer id, @Nonnull ScriptTO scriptTo) {
+        Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
         ScriptDao dao = new ScriptDao();
-        Script storedScript = dao.findById(id);
+        Script existing = dao.findById(id);
         ResponseBuilder responseBuilder = null;
-        if (storedScript != null) {
+        if (existing != null) {
+            script.setSerializedScriptStepId(existing.getSerializedScriptStepId());
             try {
-                s = dao.saveOrUpdate(s);
+                script = dao.saveOrUpdate(script);
                 URI location = uriInfo.getBaseUriBuilder().path(ScriptService.class)
-                        .path(ScriptService.class.getMethod("getScript", Integer.class)).build(s.getId());
+                        .path(ScriptService.class.getMethod("getScript", Integer.class)).build(script.getId());
                 responseBuilder = Response.created(location);
             } catch (Exception e) {
                 LOG.error("Error building uri: " + e.getMessage(), e);
@@ -276,7 +262,7 @@ public class ScriptServiceV1 implements ScriptService {
      * @inheritDoc
      */
     @Override
-    public Response deleteScript(Integer id) {
+    public Response deleteScript(@Nonnull Integer id) {
         return delete(id);
     }
 
@@ -314,6 +300,7 @@ public class ScriptServiceV1 implements ScriptService {
     /**
      * @inheritDoc
      */
+    @Nonnull
     @Override
     public Response getScriptDescriptions() {
         ResponseBuilder responseBuilder = Response.ok();
@@ -327,6 +314,7 @@ public class ScriptServiceV1 implements ScriptService {
     /**
      * @inheritDoc
      */
+    @Nonnull
     @Override
     public Response newScript(ScriptTO scriptTo) {
         scriptTo.setCreated(null);
@@ -350,7 +338,7 @@ public class ScriptServiceV1 implements ScriptService {
      * @inheritDoc
      */
     @Override
-    public Response getScript(Integer id) {
+    public Response getScript(@Nonnull Integer id) {
         ResponseBuilder responseBuilder = Response.ok();
         ScriptDao dao = new ScriptDao();
         Script script = dao.findById(id);
@@ -388,7 +376,7 @@ public class ScriptServiceV1 implements ScriptService {
      * @inheritDoc
      */
     @Override
-    public Response downloadScript(Integer id) {
+    public Response downloadScript(@Nonnull Integer id) {
         ResponseBuilder responseBuilder = Response.ok();
         ScriptDao dao = new ScriptDao();
         final Script script = dao.findById(id);
@@ -408,8 +396,9 @@ public class ScriptServiceV1 implements ScriptService {
     /**
      * @inheritDoc
      */
+    @Nonnull
     @Override
-    public Response getScriptSteps(Integer id, int start, int numSteps) {
+    public Response getScriptSteps(@Nonnull Integer id, int start, int numSteps) {
         ResponseBuilder responseBuilder = Response.ok();
         ScriptDao dao = new ScriptDao();
         Script script = dao.findById(id);
@@ -440,7 +429,7 @@ public class ScriptServiceV1 implements ScriptService {
      * @inheritDoc
      */
     @Override
-    public Response getScriptDescription(Integer id) {
+    public Response getScriptDescription(@Nonnull Integer id) {
         ResponseBuilder responseBuilder = Response.ok();
         ScriptDao dao = new ScriptDao();
         Script script = dao.findById(id);
@@ -456,8 +445,9 @@ public class ScriptServiceV1 implements ScriptService {
     /**
      * @inheritDoc
      */
+    @Nonnull
     @Override
-    public Response scriptFilterRequest(ScriptFilterRequest filterRequest) {
+    public Response scriptFilterRequest(@Nonnull ScriptFilterRequest filterRequest) {
         ResponseBuilder responseBuilder = null;
         ScriptDao dao = new ScriptDao();
         try {
@@ -479,8 +469,9 @@ public class ScriptServiceV1 implements ScriptService {
     /**
      * @inheritDoc
      */
+    @Nonnull
     @Override
-    public Response getExternalScript(Integer id) {
+    public Response getExternalScript(@Nonnull Integer id) {
         ResponseBuilder responseBuilder = Response.ok();
         ExternalScriptDao dao = new ExternalScriptDao();
         ExternalScript script = dao.findById(id);
@@ -496,6 +487,7 @@ public class ScriptServiceV1 implements ScriptService {
     /**
      * @inheritDoc
      */
+    @Nonnull
     @Override
     public Response getExternalScripts() {
         ResponseBuilder responseBuilder = Response.ok();
@@ -513,6 +505,7 @@ public class ScriptServiceV1 implements ScriptService {
     /**
      * @inheritDoc
      */
+    @Nonnull
     @Override
     public Response saveOrUpdateExternalScript(ExternalScriptTO to) {
         ResponseBuilder responseBuilder = null;
@@ -532,8 +525,7 @@ public class ScriptServiceV1 implements ScriptService {
         return responseBuilder.build();
     }
 
-    private Script descriptorToScript(ScriptDao dao,
-            ScriptDescription sd) {
+    private Script descriptorToScript(ScriptDao dao, ScriptDescription sd) {
         Script script;
         if (sd.getId() != null && sd.getId() != 0) {
             script = dao.findById(sd.getId());
@@ -558,7 +550,7 @@ public class ScriptServiceV1 implements ScriptService {
      * @see com.intuit.tank.api.service.v1.script.ScriptService#deleteFilter(java.lang.Integer)
      */
     @Override
-    public Response deleteFilter(Integer id) {
+    public Response deleteFilter(@Nonnull Integer id) {
         return deleteFilterHelper(id);
     }
 

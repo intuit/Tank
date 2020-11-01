@@ -253,45 +253,6 @@ public class AutomationServiceV1 implements AutomationService {
 		}
 		return Response.ok().entity(newScriptId).build();
 	}
-		
-	/**
-	 * @inheritDoc
-	 */
-	@Override
-	@Nonnull
-	public Response uploadScript(@Nonnull FormDataMultiPart formData) {
-		ResponseBuilder responseBuilder = Response.ok();
-		FormDataBodyPart scriptId = formData.getField("scriptId");
-		FormDataBodyPart newScriptName = formData.getField("scriptName");
-		FormDataBodyPart filePart = formData.getField("file");
-		try (InputStream is = filePart.getValueAs(InputStream.class)) {
-			Script script = null;
-			if ("0".equals(scriptId.getValue())) {
-				script = new Script();
-				script.setName("New");
-				script.setCreator("System");
-			} else {
-				script = new ScriptDao().findById(Integer.parseInt(scriptId.getValue()));
-			}
-			ScriptProcessor scriptProcessor = new ServletInjector<ScriptProcessor>().getManagedBean(servletContext,
-					ScriptProcessor.class);
-
-			scriptProcessor.setScript(script);
-			if (StringUtils.isNotEmpty(newScriptName.getValue())) {
-				script.setName(newScriptName.getValue());
-			}
-			List<ScriptStep> scriptSteps = scriptProcessor.getScriptSteps(new BufferedReader(new InputStreamReader(is)),
-					new ArrayList<>());
-			script = new ScriptDao().saveOrUpdate(script);
-			sendMsg(script, ModificationType.UPDATE);
-			responseBuilder.entity(Integer.toString(script.getId()));
-		} catch (Exception e) {
-			LOG.error("Error starting script: " + e, e);
-			responseBuilder = Response.status(Status.INTERNAL_SERVER_ERROR);
-			responseBuilder.entity("An External Script failed with Exception: " + e.toString());
-		}
-		return responseBuilder.build();
-	}
 
 	/**
 	 * @inheritDoc

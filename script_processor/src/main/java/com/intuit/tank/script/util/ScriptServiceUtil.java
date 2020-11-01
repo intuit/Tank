@@ -28,7 +28,19 @@ import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.RequestDataPhase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -360,4 +372,24 @@ public class ScriptServiceUtil {
         return ret;
     }
 
+    public static ScriptTO parseXMLtoScriptTO(InputStream inputStream) {
+        try {
+            //Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
+            SAXParserFactory spf = SAXParserFactory.newInstance();
+            spf.setNamespaceAware(true);
+            spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
+            Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(inputStream));
+
+            JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
+            return (ScriptTO) ctx.createUnmarshaller().unmarshal(xmlSource);
+        } catch (ParserConfigurationException | JAXBException | SAXException e) {
+            LOG.error("Error unmarshalling script: " + e.getMessage() , e);
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
+    }
 }
