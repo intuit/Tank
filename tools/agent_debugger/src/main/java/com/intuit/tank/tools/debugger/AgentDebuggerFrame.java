@@ -16,20 +16,14 @@ package com.intuit.tank.tools.debugger;
  * #L%
  */
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.HeadlessException;
-import java.awt.KeyboardFocusManager;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -41,15 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.Icon;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.xml.bind.JAXBException;
 
@@ -136,6 +122,9 @@ public class AgentDebuggerFrame extends JFrame {
      */
     public AgentDebuggerFrame(final boolean isStandalone, String serviceUrl) throws HeadlessException {
         super("Intuit Tank Agent Debugger");
+        BufferedImage url, url2, url3;
+        Taskbar.getTaskbar().setIconImage(new ImageIcon(
+                Thread.currentThread().getContextClassLoader().getResource("tankIcon.png")).getImage());
         workingDir = PanelBuilder.createWorkingDir(this, serviceUrl);
         setSize(new Dimension(1024, 800));
         setBounds(new Rectangle(getSize()));
