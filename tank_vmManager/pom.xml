@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>tank-parent</artifactId>
-    <version>2.3.4</version>
+    <version>3.0.0</version>
   </parent>
 
   <artifactId>tank-vm-manager</artifactId>
@@ -52,23 +52,24 @@
     </dependency>
 
      <dependency>
-       <groupId>com.amazonaws</groupId>
-       <artifactId>aws-java-sdk-ec2</artifactId>
+       <groupId>software.amazon.awssdk</groupId>
+       <artifactId>ec2</artifactId>
      </dependency>
-
      <dependency>
-       <groupId>com.amazonaws</groupId>
-       <artifactId>aws-java-sdk-cloudwatch</artifactId>
+       <groupId>software.amazon.awssdk</groupId>
+       <artifactId>cloudwatch</artifactId>
      </dependency>
-
      <dependency>
-       <groupId>com.amazonaws</groupId>
-       <artifactId>aws-java-sdk-sns</artifactId>
+       <groupId>software.amazon.awssdk</groupId>
+       <artifactId>sns</artifactId>
      </dependency>
-
     <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk-ssm</artifactId>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>ssm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>netty-nio-client</artifactId>
     </dependency>
 
     <dependency>

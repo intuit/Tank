@@ -1,5 +1,8 @@
 language: java
 jdk:
-  - openjdk8
+  - openjdk11
+
+env:
+  - SKIP_METHODTIMER_TEST=true
 
 script: mvn clean install -P default,coverage

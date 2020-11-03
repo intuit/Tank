@@ -1,5 +1,6 @@
 package com.intuit.tank.project;
 
+
 /*
  * #%L
  * Intuit Tank data model
@@ -188,6 +189,82 @@ public class User extends BaseEntity {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(29, 45).append(getId()).toHashCode();
+    }
+    
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static Builder builderFrom(User u) {
+        return new Builder(u);
+    }
+    
+    /**
+     * Fluent Builder for User Builder
+     * 
+     * @author Vaishakh
+     * 
+     */
+    public static class Builder extends UserBase<Builder> {
+
+        private Builder() {
+            super(new User());
+        }
+
+        private Builder(User p) {
+            super(p);
+        }
+
+        public User build() {
+            return getInstance();
+        }
+    }
+
+    private static class UserBase<GeneratorT extends UserBase<GeneratorT>> {
+        private User instance;
+
+        protected UserBase(User aInstance) {
+            instance = aInstance;
+        }
+
+        protected User getInstance() {
+            return instance;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT email(String aValue) {
+            instance.setEmail(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT name(String aValue) {
+            instance.setName(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT password(String aValue) {
+            instance.setPassword(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT groups(Set<Group> aValue) {
+            instance.setGroups(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT generateApiToken() {
+            instance.generateApiToken();
+
+            return (GeneratorT) this;
+        }
     }
 
 }

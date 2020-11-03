@@ -1,6 +1,8 @@
 package com.intuit.tank.project;
 
-import com.intuit.tank.project.RevisionedEntity;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /*
  * #%L
@@ -22,4 +24,9 @@ import com.intuit.tank.project.RevisionedEntity;
  * @generatedBy CodePro at 12/15/14 1:34 PM
  */
 public class RevisionedEntityTest {
+
+    @Test
+    public void testEnum() {
+        assertNotNull(RevisionedEntity.DataFile);
+    }
 }

@@ -34,7 +34,7 @@
     </licenses>
 
     <properties>
-        <version.tank-proxy>2.3.4</version.tank-proxy>
+        <version.tank-proxy>3.0.0</version.tank-proxy>
         <!-- Baseline Jenkins version you use to build and test the plugin. Users
     must have this version or newer to run. -->
         <jenkins.version>2.97</jenkins.version>

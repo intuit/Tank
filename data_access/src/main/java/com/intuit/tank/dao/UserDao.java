@@ -59,13 +59,12 @@ public class UserDao extends BaseDao<User> {
     @Nullable
     public User authenticate(@Nonnull String userName, @Nonnull String password) {
         User user = findByUserName(userName);
-        User result = null;
         if (user != null) {
             if (PasswordEncoder.validatePassword(password, user.getPassword())) {
-                result = user;
+                return user;
             }
         }
-        return result;
+        return null;
     }
 
     /**
@@ -91,12 +90,12 @@ public class UserDao extends BaseDao<User> {
             commit();
         } catch (NoResultException nre) {
             rollback();
-            LOG.info("no entity matching username: " + userName, nre);
+            LOG.info("No entity matching username: " + userName);
         } catch (Exception e) {
             rollback();
             String printQuery = (query != null) ? query.toString()
                     : "Failed to connect to database: ";
-            LOG.info("no entity matching query: " + printQuery, e);
+            LOG.info("No entity matching query: " + printQuery, e);
         } finally {
             cleanup();
         }

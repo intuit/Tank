@@ -3,15 +3,29 @@ version: 0.2
 env:
   variables:
     MAVEN_OPTS: "-Xms1g -Xmx2g"
+    SKIP_METHODTIMER_TEST: true
 
 phases:
+  install:
+    runtime-versions:
+      java: corretto11
   build:
     commands:
-      - mvn clean install -P release
+      - java -version
+      - mvn clean install surefire-report:report -P release
+
+reports:
+  SurefireReports: # CodeBuild will create a report group called "SurefireReports".
+    files: #Store all of the files
+      - '**/*'
+    base-directory: 'web/web_support/target/surefire-reports' # Location of the reports
 
 artifacts:
-  type: NONE
   files:
     - web/web_ui/target/tank.war
     - agent/agent_startup_pkg/target/agent-startup-pkg.zip
   discard-paths: yes
+
+cache:
+  paths:
+    - '/root/.m2/**/*'

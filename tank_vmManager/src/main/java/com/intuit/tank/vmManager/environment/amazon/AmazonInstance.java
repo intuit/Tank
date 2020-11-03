@@ -1,41 +1,5 @@
 package com.intuit.tank.vmManager.environment.amazon;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.handlers.AsyncHandler;
-import com.amazonaws.services.ec2.AmazonEC2Async;
-import com.amazonaws.services.ec2.AmazonEC2AsyncClientBuilder;
-import com.amazonaws.services.ec2.model.Address;
-import com.amazonaws.services.ec2.model.AmazonEC2Exception;
-import com.amazonaws.services.ec2.model.AssociateAddressRequest;
-import com.amazonaws.services.ec2.model.AttachVolumeRequest;
-import com.amazonaws.services.ec2.model.CreateTagsRequest;
-import com.amazonaws.services.ec2.model.DescribeAddressesRequest;
-import com.amazonaws.services.ec2.model.DescribeAddressesResult;
-import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
-import com.amazonaws.services.ec2.model.DescribeInstancesResult;
-import com.amazonaws.services.ec2.model.IamInstanceProfileSpecification;
-import com.amazonaws.services.ec2.model.Instance;
-import com.amazonaws.services.ec2.model.InstanceType;
-import com.amazonaws.services.ec2.model.Placement;
-import com.amazonaws.services.ec2.model.RebootInstancesRequest;
-import com.amazonaws.services.ec2.model.Reservation;
-import com.amazonaws.services.ec2.model.RunInstancesRequest;
-import com.amazonaws.services.ec2.model.RunInstancesResult;
-import com.amazonaws.services.ec2.model.StartInstancesRequest;
-import com.amazonaws.services.ec2.model.StartInstancesResult;
-import com.amazonaws.services.ec2.model.StopInstancesRequest;
-import com.amazonaws.services.ec2.model.StopInstancesResult;
-import com.amazonaws.services.ec2.model.Tag;
-import com.amazonaws.services.ec2.model.Tenancy;
-import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
-import com.amazonaws.services.ec2.model.TerminateInstancesResult;
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -57,6 +21,42 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient;
+import software.amazon.awssdk.http.nio.netty.ProxyConfiguration;
+import software.amazon.awssdk.services.ec2.Ec2AsyncClient;
+import software.amazon.awssdk.services.ec2.Ec2AsyncClientBuilder;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.ec2.model.Address;
+import software.amazon.awssdk.services.ec2.model.AssociateAddressRequest;
+import software.amazon.awssdk.services.ec2.model.AttachVolumeRequest;
+import software.amazon.awssdk.services.ec2.model.CreateTagsRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeAddressesRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeAddressesResponse;
+import software.amazon.awssdk.services.ec2.model.DescribeInstancesRequest;
+import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.IamInstanceProfileSpecification;
+import software.amazon.awssdk.services.ec2.model.Instance;
+import software.amazon.awssdk.services.ec2.model.InstanceType;
+import software.amazon.awssdk.services.ec2.model.Placement;
+import software.amazon.awssdk.services.ec2.model.RebootInstancesRequest;
+import software.amazon.awssdk.services.ec2.model.Reservation;
+import software.amazon.awssdk.services.ec2.model.RunInstancesMonitoringEnabled;
+import software.amazon.awssdk.services.ec2.model.RunInstancesRequest;
+import software.amazon.awssdk.services.ec2.model.RunInstancesResponse;
+import software.amazon.awssdk.services.ec2.model.StartInstancesRequest;
+import software.amazon.awssdk.services.ec2.model.StartInstancesResponse;
+import software.amazon.awssdk.services.ec2.model.StopInstancesRequest;
+import software.amazon.awssdk.services.ec2.model.Tag;
+import software.amazon.awssdk.services.ec2.model.Tenancy;
+import software.amazon.awssdk.services.ec2.model.TerminateInstancesRequest;
+import software.amazon.awssdk.services.ec2.model.TerminateInstancesResponse;
+import software.amazon.awssdk.services.ssm.SsmClient;
+import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
+import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -69,8 +69,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -80,7 +80,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     private static final int MAX_INSTANCE_BATCH_SIZE = 10;
     private static Logger LOG = LogManager.getLogger(AmazonInstance.class);
 
-    private AmazonEC2Async asynchEc2Client;
+    private Ec2AsyncClient ec2AsyncClient;
     private VMRegion vmRegion;
 
     private TankConfig config = new TankConfig();
@@ -93,35 +93,27 @@ public class AmazonInstance implements IEnvironmentInstance {
         this.vmRegion = vmRegion;
         try {
             CloudCredentials creds = config.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-            ClientConfiguration clientConfig = new ClientConfiguration();
-            clientConfig.setMaxConnections(2);
-            if (StringUtils.isNotBlank(creds.getProxyHost())) {
+            Ec2AsyncClientBuilder ec2AsyncClientBuilder = Ec2AsyncClient.builder();
+            if (creds != null && StringUtils.isNotBlank(creds.getProxyHost())) {
                 try {
-                    clientConfig.setProxyHost(creds.getProxyHost());
+                    ProxyConfiguration.Builder proxyConfig = ProxyConfiguration.builder().host(creds.getProxyHost());
                     if (StringUtils.isNotBlank(creds.getProxyPort())) {
-                        clientConfig.setProxyPort(Integer.valueOf(creds.getProxyPort()));
+                        proxyConfig.port(Integer.parseInt(System.getProperty(creds.getProxyPort())));
                     }
+                    NettyNioAsyncHttpClient.Builder httpClientBuilder =
+                            NettyNioAsyncHttpClient.builder().proxyConfiguration(proxyConfig.build());
+                    ec2AsyncClientBuilder.httpClientBuilder(httpClientBuilder);
                 } catch (NumberFormatException e) {
                     LOG.error("invalid proxy setup.");
                 }
-
             }
-            if (StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
-                AWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
-                asynchEc2Client = AmazonEC2AsyncClientBuilder
-                        .standard()
-                        .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                        .withClientConfiguration(clientConfig)
-                        .withRegion(vmRegion.getRegion())
-                        .build();
-            } else {
-                asynchEc2Client = AmazonEC2AsyncClientBuilder
-                        .standard()
-                        .withClientConfiguration(clientConfig)
-                        .withRegion(vmRegion.getRegion())
-                        .build();
+            if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
+                AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
+                ec2AsyncClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
             }
-
+            ec2AsyncClient = ec2AsyncClientBuilder
+                    .region(Region.of(vmRegion.getRegion()))
+                    .build();
         } catch (Exception ex) {
             LOG.error("Error initializing amazonclient: " + ex, ex);
             throw new RuntimeException(ex);
@@ -129,11 +121,12 @@ public class AmazonInstance implements IEnvironmentInstance {
     }
 
     public void attachVolume(String volumneId, String instanceId, String device) {
-        AttachVolumeRequest attachVolumeRequest = new AttachVolumeRequest(volumneId, instanceId, device);
-        asynchEc2Client.attachVolume(attachVolumeRequest);
-        RebootInstancesRequest rebootInstancesRequest = new RebootInstancesRequest();
-        rebootInstancesRequest.withInstanceIds(instanceId);
-        asynchEc2Client.rebootInstances(rebootInstancesRequest);
+        AttachVolumeRequest attachVolumeRequest =
+                AttachVolumeRequest.builder().volumeId(volumneId).instanceId(instanceId).device(device).build();
+        ec2AsyncClient.attachVolume(attachVolumeRequest);
+        RebootInstancesRequest rebootInstancesRequest =
+                RebootInstancesRequest.builder().instanceIds(instanceId).build();
+        ec2AsyncClient.rebootInstances(rebootInstancesRequest);
     }
 
     /**
@@ -142,19 +135,14 @@ public class AmazonInstance implements IEnvironmentInstance {
      */
     @Override
     public List<VMInformation> describeInstances(String... instanceIds) {
-        try {
-            HashSet<String> ids = new HashSet<String>(Arrays.asList(instanceIds));
+        HashSet<String> ids = new HashSet<String>(Arrays.asList(instanceIds));
 
-            return asynchEc2Client.describeInstances().getReservations().stream()
-                    .flatMap(reservationDescription -> reservationDescription.getInstances()
-                            .stream()
-                            .filter(instance -> ids.contains(instance.getInstanceId()))
-                            .map(instance -> new AmazonDataConverter().instanceToVmInformation(reservationDescription, instance, vmRegion)))
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            LOG.error("Failed to retrieve instance from Amazon: " + e.getMessage());
-            throw new RuntimeException(e);
-        }
+        return ec2AsyncClient.describeInstances().join().reservations().stream()
+                .flatMap(reservationDescription -> reservationDescription.instances()
+                        .stream()
+                        .filter(instance -> ids.contains(instance.instanceId()))
+                        .map(instance -> new AmazonDataConverter().instanceToVmInformation(reservationDescription.requesterId(), instance, vmRegion)))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -178,17 +166,16 @@ public class AmazonInstance implements IEnvironmentInstance {
                 for (VMInformation vmInfo : instances) {
                     LOG.info("found instance with id " + vmInfo.getInstanceId() + " with state of " + vmInfo.getState());
                     if ("stopped".equalsIgnoreCase(vmInfo.getState())) {
-                        StartInstancesRequest startInstancesRequest = new StartInstancesRequest();
-                        startInstancesRequest.withInstanceIds(vmInfo.getInstanceId());
+                        StartInstancesRequest startInstancesRequest = StartInstancesRequest.builder().instanceIds(vmInfo.getInstanceId()).build();
                         // restart this instance
-                        StartInstancesResult startInstances = asynchEc2Client.startInstances(startInstancesRequest);
-                        result.addAll(new AmazonDataConverter().processStateChange(startInstances.getStartingInstances()));
+                        StartInstancesResponse startInstances = ec2AsyncClient.startInstances(startInstancesRequest).join();
+                        result.addAll(new AmazonDataConverter().processStateChange(startInstances.startingInstances()));
                         break;
                     }
                 }
             }
             if (result.isEmpty()) {
-                InstanceType size = AmazonInstance.getInstanceType(instanceRequest.getSize());
+                InstanceType instanceType = AmazonInstance.getInstanceType(instanceRequest.getSize());
                 VmInstanceType vmType = config.getVmManagerConfig().getInstanceType(instanceRequest.getSize());
                 String keyPair = instanceDescription.getKeypair();
                 if (instanceRequest.getJobId() != null) {
@@ -234,48 +221,48 @@ public class AmazonInstance implements IEnvironmentInstance {
                 String image = getAMI(instanceDescription);
                 LOG.info("Requesting " + remaining + " instances in " + vmRegion.getName() + " with AMI=" + image);
 
-                RunInstancesRequest runInstancesRequestTemplate = new RunInstancesRequest();
-                Tenancy tenancy = StringUtils.isEmpty(instanceDescription.getTenancy()) ? Tenancy.Default : Tenancy.fromValue(instanceDescription.getTenancy());
-                runInstancesRequestTemplate.withImageId(image)
-                                    .withInstanceType(size.toString())
-                					.withKeyName(keyPair)
-                					.withPlacement(new Placement().withTenancy(tenancy))
-                					.withMonitoring(true)
-                					.withUserData(userData);
+                RunInstancesRequest.Builder runInstancesRequestTemplate = RunInstancesRequest.builder();
+                Tenancy tenancy = StringUtils.isEmpty(instanceDescription.getTenancy()) ? Tenancy.DEFAULT : Tenancy.fromValue(instanceDescription.getTenancy());
+                runInstancesRequestTemplate.imageId(image)
+                        .instanceType(instanceType.toString())
+                        .keyName(keyPair)
+                        .placement(Placement.builder().tenancy(tenancy).build())
+                        .monitoring(RunInstancesMonitoringEnabled.builder().build())
+                        .userData(userData);
 
                 Collection<String> c = instanceDescription.getSecurityGroupIds();
                 if (!c.isEmpty()) {
                 	LOG.info("Security Group IDs " + c.toString());
-                    runInstancesRequestTemplate.withSecurityGroupIds(c);
+                    runInstancesRequestTemplate.securityGroupIds(c);
                 } else {
-                    runInstancesRequestTemplate.withSecurityGroups(instanceDescription.getSecurityGroup());
+                    runInstancesRequestTemplate.securityGroups(instanceDescription.getSecurityGroup());
                 }
                 if (StringUtils.isNotBlank(instanceDescription.getIamRole())) {
-                    IamInstanceProfileSpecification iamInstanceProfile = new IamInstanceProfileSpecification().withName(instanceDescription.getIamRole());
-                    runInstancesRequestTemplate.withIamInstanceProfile(iamInstanceProfile);
+                    runInstancesRequestTemplate.iamInstanceProfile(
+                            IamInstanceProfileSpecification.builder().name(instanceDescription.getIamRole()).build());
                 }
                 // add zone info if specified
                 if (!StringUtils.isEmpty(instanceDescription.getZone())) {
-                    runInstancesRequestTemplate.withPlacement(new Placement().withAvailabilityZone(instanceDescription.getZone()));
+                    runInstancesRequestTemplate.placement(Placement.builder().availabilityZone(instanceDescription.getZone()).build());
                 }
                 // Loop to request agent instances
                 List<String> subnetIds = instanceDescription.getSubnetIds();
                 int position = ThreadLocalRandom.current().nextInt(subnetIds.size());
                 while ( !subnetIds.isEmpty() && remaining > 0 ) {
-                    RunInstancesRequest runInstancesRequest = runInstancesRequestTemplate.clone();
-                    runInstancesRequest.withSubnetId(subnetIds.get(position >= subnetIds.size() ? 0 : position++));
+                    RunInstancesRequest.Builder runInstancesRequest = runInstancesRequestTemplate.copy();
+                    runInstancesRequest.subnetId(subnetIds.get(position >= subnetIds.size() ? 0 : position++));
                     int requestCount = Math.min(remaining, MAX_INSTANCE_BATCH_SIZE);
                     try {
-                        RunInstancesResult results =
-                                asynchEc2Client.runInstances(
-                                        runInstancesRequest.withMinCount(1).withMaxCount(requestCount));
-                        result.addAll(new AmazonDataConverter().processReservation(results.getReservation(), vmRegion));
-                        remaining -= results.getReservation().getInstances().size();
-                    } catch (AmazonEC2Exception ae) {
+                        RunInstancesResponse response = ec2AsyncClient.runInstances(
+                                runInstancesRequest.minCount(1).maxCount(requestCount).build()).join();
+                        result.addAll(new AmazonDataConverter().processReservation(
+                                response.requesterId(), response.instances(), vmRegion));
+                        remaining -= response.instances().size();
+                    } catch (Ec2Exception ae) {
                         LOG.error("Amazon issue starting instances: count="
                                 + remaining + " : subnets=" + subnetIds.size() + " : " + ae.getMessage());
                         if(StringUtils.contains(ae.getMessage(), "InsufficientInstanceCapacity")) {
-                            subnetIds.remove(runInstancesRequest.getSubnetId());
+                            subnetIds.remove(runInstancesRequest.build().subnetId());
                         }
                     }
                 }
@@ -283,12 +270,13 @@ public class AmazonInstance implements IEnvironmentInstance {
                 if (instanceRequest.isUseEips()) {
                     Set<Address> availableEips = new HashSet<Address>();
                     synchronized (instanceRequest.getRegion()) {
-                        DescribeAddressesResult describeAddresses = asynchEc2Client.describeAddresses(new DescribeAddressesRequest());
+                        DescribeAddressesResponse describeAddresses =
+                                ec2AsyncClient.describeAddresses(DescribeAddressesRequest.builder().build()).join();
                         Set<String> reserved = config.getVmManagerConfig().getReservedElasticIps();
-                        for (Address address : describeAddresses.getAddresses()) {
+                        for (Address address : describeAddresses.addresses()) {
                             String elasticIPType = instanceDescription.isVPC() ? "vpc" : "standard";
-                            if (elasticIPType.equalsIgnoreCase(address.getDomain()) && StringUtils.isBlank(address.getInstanceId())) {
-                                String ip = address.getPublicIp();
+                            if (elasticIPType.equalsIgnoreCase(address.domainAsString()) && StringUtils.isBlank(address.instanceId())) {
+                                String ip = address.publicIp();
                                 if (!reserved.contains(ip)) {
                                     availableEips.add(address);
                                 }
@@ -319,7 +307,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 // bind to the public ip
                 String instanceId = result.get(0).getInstanceId();
                 // wait for instance to be in running state
-                associateAddress(instanceId, new Address().withPublicIp(instanceDescription.getPublicIp()), null);
+                associateAddress(instanceId, Address.builder().publicIp(instanceDescription.getPublicIp()).build(), null);
                 // reboot(result);
             }
             if (!result.isEmpty()) {
@@ -328,7 +316,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 tagInstance(ids, buildTags(instanceRequest));
             }
 
-        } catch (AmazonEC2Exception ae) {
+        } catch (Ec2Exception ae) {
             LOG.error("Amazon issue starting instances: " + ae.getMessage(), ae);
             throw new RuntimeException(ae);
         } catch (Exception ex) {
@@ -346,25 +334,21 @@ public class AmazonInstance implements IEnvironmentInstance {
     public void tagInstance(final List<String> instanceIds, KeyValuePair... tag) {
         if (tag.length != 0) {
             final List<Tag> tags = Arrays.stream(tag)
-                    .map(pair -> new Tag(pair.getKey(), pair.getValue())).collect(Collectors.toList());
+                    .map(pair -> Tag.builder().key(pair.getKey()).value(pair.getValue()).build()).collect(Collectors.toList());
 
             new Thread( () -> {
                 int count = 0;
                 try {
                     while (++count <= 5 && !instanceIds.isEmpty()) {
-                        Thread.sleep(5000);
-                        CreateTagsRequest createTagsRequest
-                                = new CreateTagsRequest().withResources(instanceIds).withTags(tags);
-                        asynchEc2Client.createTagsAsync(createTagsRequest);
-                        Thread.sleep(1000);
-
-                        Future<DescribeInstancesResult> describeInstances
-                                = asynchEc2Client.describeInstancesAsync(
-                                        new DescribeInstancesRequest().withInstanceIds(instanceIds));
-                        for (Reservation r : describeInstances.get().getReservations()) {
-                            for (Instance i : r.getInstances()) {
-                                if (i.getTags() != null && !i.getTags().isEmpty()) {
-                                    instanceIds.remove(i.getInstanceId());
+                        CreateTagsRequest createTagsRequest = CreateTagsRequest.builder().resources(instanceIds).tags(tags).build();
+                        ec2AsyncClient.createTags(createTagsRequest);
+                        DescribeInstancesResponse response =
+                                ec2AsyncClient.describeInstances(
+                                        DescribeInstancesRequest.builder().instanceIds(instanceIds).build()).join();
+                        for (Reservation reservation : response.reservations()) {
+                            for (Instance instance : reservation.instances()) {
+                                if (instance.tags() != null && !instance.tags().isEmpty()) {
+                                    instanceIds.remove(instance.instanceId());
                                 }
                             }
                         }
@@ -411,10 +395,10 @@ public class AmazonInstance implements IEnvironmentInstance {
     private String buildNameTag(VMInstanceRequest instanceRequest) {
         StringBuilder sb = new StringBuilder(instanceRequest.getImage().getConfigName());
         if (StringUtils.isNoneEmpty(instanceRequest.getJobId())) {
-            sb.append(" job(" + instanceRequest.getJobId() + ")");
+            sb.append("-job[" + instanceRequest.getJobId() + "]");
         }
         if (StringUtils.isNoneEmpty(config.getInstanceName())) {
-            sb.insert(0, config.getInstanceName() + " ");
+            sb.insert(0, config.getInstanceName() + "-");
         }
         return sb.toString();
     }
@@ -422,36 +406,20 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public List<VMInformation> kill(VMRequest request) {
         VMKillRequest killRequest = (VMKillRequest) request;
-        TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest(killRequest.getInstances());
-        TerminateInstancesResult terminateInstances = asynchEc2Client.terminateInstances(terminateInstancesRequest);
-        return new AmazonDataConverter().processStateChange(terminateInstances.getTerminatingInstances());
+        TerminateInstancesRequest terminateInstancesRequest =
+                TerminateInstancesRequest.builder().instanceIds(killRequest.getInstances()).build();
+        TerminateInstancesResponse response = ec2AsyncClient.terminateInstances(terminateInstancesRequest).join();
+        return new AmazonDataConverter().processStateChange(response.terminatingInstances());
     }
 
     @Override
     public void killInstances(List<String> instanceIds) {
-
         // Filter instanceId list to only instances in the client defined region.
         List<VMInformation> instancesInRegion = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
         List<String> instanceIdsInRegion = instancesInRegion.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
 
         if (!instanceIdsInRegion.isEmpty()) {
-            // asynchronous AWS SDK terminate instances.
-            asynchEc2Client.terminateInstancesAsync(
-                    new TerminateInstancesRequest(instanceIdsInRegion),
-                    new AsyncHandler<TerminateInstancesRequest, TerminateInstancesResult>() {
-                        @Override
-                        public void onError(Exception exception) {
-                            LOG.warn("something went wrong killing the instances : {}",
-                                    exception.getLocalizedMessage());
-                        }
-
-                        @Override
-                        public void onSuccess(TerminateInstancesRequest request, TerminateInstancesResult result) {
-                            LOG.trace("instances killed successfully : {}",
-                                    result.getTerminatingInstances());
-                        }
-                    });
-            //return new AmazonDataConverter().processStateChange(terminateInstances.getTerminatingInstances());
+            ec2AsyncClient.terminateInstances(TerminateInstancesRequest.builder().instanceIds(instanceIdsInRegion).build());
         }
     }
 
@@ -462,15 +430,15 @@ public class AmazonInstance implements IEnvironmentInstance {
     public List<VMInformation> findInstancesOfType(VMRegion region, VMImageType type) {
         List<VMInformation> ret = new ArrayList<>();
         try {
-            DescribeInstancesResult instances = asynchEc2Client.describeInstances();
+            DescribeInstancesResponse response = ec2AsyncClient.describeInstances().join();
             InstanceDescription instanceForRegionAndType = config.getVmManagerConfig().getInstanceForRegionAndType(region, type);
-            for (Reservation res : instances.getReservations()) {
-                if (res.getInstances() != null) {
-                    for (com.amazonaws.services.ec2.model.Instance inst : res.getInstances()) {
-                        if ((inst.getState().getName().equalsIgnoreCase("running")
-                                || inst.getState().getName().equalsIgnoreCase("pending"))
-                                && inst.getImageId().equals(instanceForRegionAndType.getAmi())) {
-                            ret.add(new AmazonDataConverter().instanceToVmInformation(res, inst, region));
+            for (Reservation reservation : response.reservations()) {
+                if (reservation.instances() != null) {
+                    for (Instance instance : reservation.instances()) {
+                        if ((instance.state().nameAsString().equalsIgnoreCase("running")
+                                || instance.state().nameAsString().equalsIgnoreCase("pending"))
+                                && instance.imageId().equals(instanceForRegionAndType.getAmi())) {
+                            ret.add(new AmazonDataConverter().instanceToVmInformation(reservation.requesterId(), instance, region));
                         }
                     }
                 }
@@ -486,15 +454,15 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @inheritDoc
      */
     private List<VMInformation> findAllInstancesOfType(VMRegion region, VMImageType type) {
-        List<VMInformation> ret = new ArrayList<VMInformation>();
+        List<VMInformation> ret = new ArrayList<>();
         try {
-            DescribeInstancesResult instances = asynchEc2Client.describeInstances();
+            DescribeInstancesResponse response = ec2AsyncClient.describeInstances().join();
             InstanceDescription instanceForRegionAndType = config.getVmManagerConfig().getInstanceForRegionAndType(region, type);
-            for (Reservation res : instances.getReservations()) {
-                if (res.getInstances() != null) {
-                    for (com.amazonaws.services.ec2.model.Instance inst : res.getInstances()) {
-                        if (inst.getImageId().equals(instanceForRegionAndType.getAmi())) {
-                            ret.add(new AmazonDataConverter().instanceToVmInformation(res, inst, region));
+            for (Reservation reservation : response.reservations()) {
+                if (reservation.instances() != null) {
+                    for (Instance instance : reservation.instances()) {
+                        if (instance.imageId().equals(instanceForRegionAndType.getAmi())) {
+                            ret.add(new AmazonDataConverter().instanceToVmInformation(reservation.requesterId(), instance, region));
                         }
                     }
                 }
@@ -519,7 +487,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         } catch (Exception e) {
             LOG.warn("Error parsing vminstanceType " + size, e);
         }
-        return InstanceType.C52xlarge;
+        return InstanceType.C5_LARGE;
     }
 
     /**
@@ -531,9 +499,9 @@ public class AmazonInstance implements IEnvironmentInstance {
         String name = instanceDescription.getSSMAmi();
         if (StringUtils.isNotEmpty(name)) {
             try {
-                final AWSSimpleSystemsManagement client = AWSSimpleSystemsManagementClientBuilder.defaultClient();
-                GetParameterResult result = client.getParameter(new GetParameterRequest().withName(name));
-                return result.getParameter().getValue();
+                final SsmClient ssmClient = SsmClient.builder().build();
+                GetParameterResponse response = ssmClient.getParameter(GetParameterRequest.builder().name(name).build());
+                return response.parameter().value();
             } catch (Exception e) {
                 LOG.error("Error retriveing AMI from SSM with name " + name + ", default to InstanceRequest", e);
             }
@@ -550,33 +518,32 @@ public class AmazonInstance implements IEnvironmentInstance {
             try {
                 long start = System.currentTimeMillis();
                 int count = 0;
-                LOG.info("Setting ip for instance " + instanceId + " to " + address.getPublicIp());
+                LOG.info("Setting ip for instance " + instanceId + " to " + address.publicIp());
                 while ((System.currentTimeMillis() - start) < ASSOCIATE_IP_MAX_WAIT_MILIS && !associated) {
                     count++;
                     try {
-                       if (address.getAllocationId() == null) {
-                            asynchEc2Client.associateAddressAsync(new AssociateAddressRequest()
-                                                                .withInstanceId(instanceId)
-                                                                .withPublicIp(address.getPublicIp()));
+                        if (address.allocationId() == null) {
+                            ec2AsyncClient.associateAddress(
+                                    AssociateAddressRequest.builder().instanceId(instanceId).publicIp(address.publicIp()).build());
                         } else {
-                            asynchEc2Client.associateAddressAsync(new AssociateAddressRequest()
-                                                                .withInstanceId(instanceId)
-                                                                .withAllocationId(address.getAllocationId()));
+                            ec2AsyncClient.associateAddress(
+                                    AssociateAddressRequest.builder().instanceId(instanceId).allocationId(address.allocationId()).build());
                         }
                         Thread.sleep((new Random().nextInt(10) + 10) * 100L);
-                        Future<DescribeInstancesResult> describeInstances
-                                = asynchEc2Client.describeInstancesAsync(new DescribeInstancesRequest().withInstanceIds(instanceId));
-                        for (Reservation r : describeInstances.get().getReservations()) {
-                            for (Instance i : r.getInstances()) {
-                                if (address.getPublicIp().equals(i.getPublicIpAddress())) {
+                        DescribeInstancesResponse describeInstances =
+                                ec2AsyncClient.describeInstances(
+                                        DescribeInstancesRequest.builder().instanceIds(instanceId).build()).join();
+                        for (Reservation reservation : describeInstances.reservations()) {
+                            for (Instance instance : reservation.instances()) {
+                                if (address.publicIp().equals(instance.publicIpAddress())) {
                                     associated = true;
                                 }
                             }
                         }
                         if (associated) {
-                            LOG.info(instanceId + " associated with " + address.getPublicIp());
+                            LOG.info(instanceId + " associated with " + address.publicIp());
                         } else if (count % 5 == 0) {
-                            LOG.info(instanceId + " not associated yet " + address.getPublicIp() + ". Retrying... count = " + count);
+                            LOG.info(instanceId + " not associated yet " + address.publicIp() + ". Retrying... count = " + count);
                         }
                     } catch (Exception e) {
                         if (count < 5) {
@@ -600,8 +567,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     public void reboot(List<VMInformation> instances) {
         List<String> instanceIds = instances.stream()
                 .map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
-        asynchEc2Client.rebootInstancesAsync(new RebootInstancesRequest(instanceIds));
-        // ec2Interface.rebootInstances(instanceIds);
+        ec2AsyncClient.rebootInstances(RebootInstancesRequest.builder().instanceIds(instanceIds).build());
     }
 
     /**
@@ -614,23 +580,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         List<String> instanceIdsInRegion = instancesInRegion.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
 
         if (!instanceIdsInRegion.isEmpty()) {
-            // asynchronous AWS SDK stop instances.
-            asynchEc2Client.stopInstancesAsync(
-                    new StopInstancesRequest(instanceIdsInRegion),
-                    new AsyncHandler<StopInstancesRequest, StopInstancesResult>() {
-                        @Override
-                        public void onError(Exception exception) {
-                            LOG.warn("something went wrong stopping the instances {}",
-                                    exception.getLocalizedMessage());
-                        }
-
-                        @Override
-                        public void onSuccess(StopInstancesRequest request, StopInstancesResult result) {
-                            LOG.trace("instances stopped successfully {}",
-                                    result.getStoppingInstances());
-                        }
-                    });
-            //return new AmazonDataConverter().processStateChange(stoppingInstances);
+            ec2AsyncClient.stopInstances(StopInstancesRequest.builder().instanceIds(instanceIdsInRegion).build());
         }
     }
 
@@ -659,10 +609,12 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     public String findPublicName(String instanceId) {
         try {
-            DescribeInstancesRequest describeInstancesRequest = new DescribeInstancesRequest().withInstanceIds(instanceId);
-            DescribeInstancesResult result = asynchEc2Client.describeInstances(describeInstancesRequest);
-            if (result.getReservations() != null && result.getReservations().size() == 1) {
-                return result.getReservations().get(0).getInstances().get(0).getPublicDnsName();
+            DescribeInstancesRequest describeInstancesRequest =
+                    DescribeInstancesRequest.builder().instanceIds(instanceId).build();
+            DescribeInstancesResponse response = ec2AsyncClient.describeInstances(describeInstancesRequest).join();
+            if (response.reservations() != null && response.reservations().size() == 1) {
+                Reservation reservation = response.reservations().get(0);
+                return reservation.instances().get(0).publicDnsName();
             }
         } catch (Exception e) {
             LOG.error("Error getting public dns: " + e, e);

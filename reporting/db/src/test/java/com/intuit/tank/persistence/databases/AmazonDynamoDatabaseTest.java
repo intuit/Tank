@@ -5,18 +5,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import com.intuit.tank.reporting.databases.Attribute;
 import com.intuit.tank.reporting.databases.Item;
 import com.intuit.tank.results.TankResult;
@@ -25,6 +19,11 @@ import com.intuit.tank.test.TestGroups;
 import com.intuit.tank.vm.common.util.ReportUtil;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.ListTablesResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -34,7 +33,7 @@ public class AmazonDynamoDatabaseTest {
     private static final String TEST_TABLE = "TestTable";
     private static final int NUM_ENTRIES = 100;
     private AmazonDynamoDatabaseDocApi db;
-    private AmazonDynamoDB dynamoDb;
+    private DynamoDbClient dynamoDbClient;
     
     @BeforeEach
     public void init() {
@@ -46,10 +45,10 @@ public class AmazonDynamoDatabaseTest {
 
     @BeforeEach
     public void before() {
-        AWSCredentials credentials = new BasicAWSCredentials(System.getProperty("AWS_SECRET_KEY_ID"),
+        AwsCredentials credentials = AwsBasicCredentials.create(System.getProperty("AWS_SECRET_KEY_ID"),
                 System.getProperty("AWS_SECRET_KEY"));
-        dynamoDb = AmazonDynamoDBClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
-        db = new AmazonDynamoDatabaseDocApi(dynamoDb);
+        dynamoDbClient = DynamoDbClient.builder().credentialsProvider(StaticCredentialsProvider.create(credentials)).build();
+        db = new AmazonDynamoDatabaseDocApi(dynamoDbClient);
     }
 
 //    @BeforeMethod
@@ -66,8 +65,8 @@ public class AmazonDynamoDatabaseTest {
     @Test
     @Tag(TestGroups.EXPERIMENTAL)
     public void testListTables() {
-        ListTablesResult listTables = dynamoDb.listTables();
-        for (String s : listTables.getTableNames()) {
+        ListTablesResponse listTables = dynamoDbClient.listTables();
+        for (String s : listTables.tableNames()) {
             System.out.println(s);
         }
 

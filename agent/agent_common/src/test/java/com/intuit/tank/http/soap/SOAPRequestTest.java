@@ -2,6 +2,7 @@ package com.intuit.tank.http.soap;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -129,6 +130,7 @@ public class SOAPRequestTest {
      * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
+    @Disabled
     public void testSetKey_1()
         throws Exception {
         SOAPRequest fixture = new SOAPRequest(null, null);

@@ -3,23 +3,23 @@
 <tank-settings>
 
 	<!-- The server side storage directory for datafiles. Can be an absolute 
-		or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-data-files -->
-	<data-file-storage>datafiles</data-file-storage>
+		or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-data-files
+	<data-file-storage>datafiles</data-file-storage> -->
 
 	<!-- The server side storage directory for timing data. Can be an absolute 
 		or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-timing-files -->
-	<timing-file-storage>timing</timing-file-storage>
+	<timing-file-storage>timing</timing-file-storage> -->
 
 	<!-- The server side storage directory for agent files to be sent to agents. 
 		All files in this directory will be sent to each agent. to override the default 
 		agent startup behavior, include a start_wats.sh script with modifications. 
 		Can be an absolute or relative path or an s3 bucket by prefixing a bucket 
-		with s3: e.g. s3:tank-agent-supports -->
-	<jar-file-storage>jars</jar-file-storage>
+		with s3: e.g. s3:tank-agent-supports
+	<jar-file-storage>jars</jar-file-storage> -->
 
 	<!-- The server side storage directory for temp script files. must be local 
-		file system. -->
-	<tmp-file-storage>tmpfiles</tmp-file-storage>
+		file system.
+	<tmp-file-storage>tmpfiles</tmp-file-storage> -->
 
 	<!-- name of this instance (no spaces). used in timing table names. -->
 	<instance-name>tank</instance-name>
@@ -36,7 +36,7 @@
 
 	<!-- if this rest calls require authentication using api key or username/password 
 		or logged in via session -->
-	<rest-security-enabled>true</rest-security-enabled>
+	<rest-security-enabled>false</rest-security-enabled>
 
 	<!-- Products that can be selected by users for categorization -->
 	<products>
@@ -172,9 +172,6 @@
 
 		<!-- Credentials for the cloud provider -->
 		<credentials type="amazon">
-			<!-- Set credentials via system or java properties. -->
-			<secret-key-id-property>AWS_SECRET_KEY_ID</secret-key-id-property>
-			<secret-key-property>AWS_SECRET_KEY</secret-key-property>
 			<!-- Set if you want to specifiy credentials directly here. less secure! -->
 			<!-- <secret-key-id>[AWS_SECRET_KEY_ID]</secret-key-id> <secret-key>[AWS_SECRET_KEY]</secret-key> -->
 			<!-- Set if you need a proxy to talk to amazon services -->
@@ -188,8 +185,10 @@
 		</tags>
 
 		<!-- Instance descriptions for regions -->
-		<instance-descriptions region="US_WEST_1">
+		<instance-descriptions region="US_WEST_2">
 			<instance-descripion name="AGENT">
+				<!-- if using SSM Parameters. recommended over using raw ami -->
+				<!-- <ssm-ami>[SSM-AMI-ID]</ssm-ami> -->
 				<ami>[AMI-ID]</ami>
 				<keypair>[KEYPAIR]</keypair>
 				<!-- if using roles. recommended over using security keys -->
@@ -199,8 +198,9 @@
 			</instance-descripion>
 		</instance-descriptions>
 
-		<instance-descriptions region="US_EAST">
+		<instance-descriptions region="US_EAST_2">
 			<instance-descripion name="AGENT">
+				<ssm-ami>[SSM-AMI-ID]</ssm-ami>
 				<ami>[AMI-ID]</ami>
 				<keypair>[KEYPAIR]</keypair>
 				<!-- if using roles. recommended over using security keys -->
@@ -212,16 +212,11 @@
 
 		<!-- used to set agent instnces and calculate costs. -->
 		<instance-types type="amazon">
-			<type name="c3.large" cost=".105" users="500" cpus="2" ecus="7"
-				mem="3.75" jvmArgs="-Xms2560m -Xmx2560m" />
-			<type name="c3.xlarge" cost=".21" users="2000" cpus="4" ecus="14"
-				mem="7.5" jvmArgs="-Xms6g -Xmx6g" />
-			<type name="c3.2xlarge" cost=".42" users="4000" cpus="8" ecus="28"
-				mem="15" default="true" jvmArgs="-Xms12g -Xmx12g" />
-			<type name="c3.4xlarge" cost=".84" users="8000" cpus="16" ecus="55"
-				mem="30" jvmArgs="-Xms125g -Xmx25g" />
-			<type name="c3.8xlarge" cost="1.68" users="16000" cpus="32"
-				ecus="108" mem="60" jvmArgs="-Xms50g -Xmx50g" />
+			<type name="c5.large" cost=".085" users="500" cpus="2" ecus="8" mem="4" jvmArgs="-Xms2g -Xmx2g -XX:+UseG1GC" />
+			<type name="c5.xlarge" cost=".17" users="2000" cpus="4" ecus="16" mem="8" default="true" jvmArgs="-Xms5g -Xmx5g -XX:+UseG1GC" />
+			<type name="c5.2xlarge" cost=".34" users="4000" cpus="8" ecus="31" mem="16" jvmArgs="-Xms10g -Xmx10g -XX:+UseG1GC" />
+			<type name="c5.4xlarge" cost=".68" users="8000" cpus="16" ecus="61" mem="32" jvmArgs="-Xms25g -Xmx25g -XX:+UseG1GC" />
+			<type name="c5.9xlarge" cost="1.53" users="16000" cpus="36" ecus="139" mem="72" jvmArgs="-Xms50g -Xmx50g -XX:+UseG1GC" />
 		</instance-types>
 
 
@@ -242,13 +237,7 @@
 		<!--Configure the results database implementation if reporting is configured 
 			via com.intuit.tank.reporting.db.DatabaseResultsReporter -->
 		<results>
-			<config>
-				<write-capacity>50</write-capacity>
-				<read-capacity>10</read-capacity>
-			</config>
-			<provider>com.intuit.tank.persistence.databases.AmazonDynamoDatabaseDocApi
-			</provider>
-			<!-- <provider>com.intuit.tank.persistence.databases.AmazonSimpleDatabase</provider> -->
+			<provider>com.intuit.tank.persistence.databases.CloudWatchDataSource</provider>
 		</results>
 	</vm-manager>
 

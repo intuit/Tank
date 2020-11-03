@@ -18,7 +18,6 @@ package com.intuit.tank.admin;
 
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 

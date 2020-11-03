@@ -19,7 +19,9 @@ package com.intuit.tank.dao;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.Date;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
@@ -107,7 +109,6 @@ public class ScriptDao extends BaseDao<Script> {
                 }
                 LOG.debug("deleting entity " + entity.toString());
                 em.remove(entity);
-                commit();
             }
             commit();
         } catch (Exception e) {
@@ -154,7 +155,7 @@ public class ScriptDao extends BaseDao<Script> {
         if (script.getScriptSteps() == null || script.getScriptSteps().isEmpty()) {
             SerializedScriptStep serializedScriptStep = new SerializedScriptStepDao().findById(script
                     .getSerializedScriptStepId());
-            script.setSerializedSteps(serializedScriptStep);
+            script.deserializeSteps(serializedScriptStep);
         }
         return script;
     }
@@ -174,17 +175,18 @@ public class ScriptDao extends BaseDao<Script> {
         EntityManager em = getEntityManager();
         try {
             begin();
-            SerializedScriptStep serializedScriptStep = serialize(script.getScriptSteps());
+            SerializedScriptStep serializedScriptStep = serialize(script);
             serializedScriptStep.setSerialzedData(
                     Hibernate.getLobCreator(getHibernateSession()).createBlob(serializedScriptStep.getBytes()));
-            SerializedScriptStep serializedSteps = new SerializedScriptStepDao().saveOrUpdate(serializedScriptStep);
+            SerializedScriptStep savedSerializedStep = new SerializedScriptStepDao().saveOrUpdate(serializedScriptStep);
             script.setSerializedScriptStepId(serializedScriptStep.getId());
             if (script.getId() == 0) {
                 em.persist(script);
             } else {
+                script.setModified(new Date());
                 script = em.merge(script);
             }
-            LOG.debug("Saved Script Steps with id " + serializedSteps.getId() + " for script " + script.getId());
+            LOG.debug("Saved Script Steps with id " + savedSerializedStep.getId() + " for script " + script.getId());
             commit();
         } catch (Exception e) {
         	rollback();
@@ -198,16 +200,24 @@ public class ScriptDao extends BaseDao<Script> {
         return script;
     }
 
-    public SerializedScriptStep serialize(List<ScriptStep> steps) {
-        try (   ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                ObjectOutputStream s = new ObjectOutputStream(bos) ) {
-            // if (steps.size() > 0) {
-            s.writeObject(steps);
-            return new SerializedScriptStep(bos.toByteArray());
-            // }
+    private SerializedScriptStep serialize(Script script) {
+        SerializedScriptStep serializedScriptStep = script.getId() > 0 ?
+                new SerializedScriptStepDao().findById(script.getSerializedScriptStepId()) :
+                null;
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             GZIPOutputStream gz = new GZIPOutputStream(bos);
+             ObjectOutputStream s = new ObjectOutputStream(gz) ) {
+            s.writeObject(script.getScriptSteps());
+            s.close(); //Necessary to get the last few bites written
+            if ( serializedScriptStep != null) {
+                serializedScriptStep.setBytes(bos.toByteArray());
+            } else {
+                serializedScriptStep = new SerializedScriptStep(bos.toByteArray());
+            }
         } catch (IOException e) {
             throw new AnnotationException(e.toString());
         }
+        return serializedScriptStep;
     }
 
     // private String getUniqueProjects(List<ScriptGroupStep> steps) {

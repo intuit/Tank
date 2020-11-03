@@ -253,45 +253,6 @@ public class AutomationServiceV1 implements AutomationService {
 		}
 		return Response.ok().entity(newScriptId).build();
 	}
-		
-	/**
-	 * @inheritDoc
-	 */
-	@Override
-	@Nonnull
-	public Response uploadScript(@Nonnull FormDataMultiPart formData) {
-		ResponseBuilder responseBuilder = Response.ok();
-		FormDataBodyPart scriptId = formData.getField("scriptId");
-		FormDataBodyPart newScriptName = formData.getField("scriptName");
-		FormDataBodyPart filePart = formData.getField("file");
-		try (InputStream is = filePart.getValueAs(InputStream.class)) {
-			Script script = null;
-			if ("0".equals(scriptId.getValue())) {
-				script = new Script();
-				script.setName("New");
-				script.setCreator("System");
-			} else {
-				script = new ScriptDao().findById(Integer.parseInt(scriptId.getValue()));
-			}
-			ScriptProcessor scriptProcessor = new ServletInjector<ScriptProcessor>().getManagedBean(servletContext,
-					ScriptProcessor.class);
-
-			scriptProcessor.setScript(script);
-			if (StringUtils.isNotEmpty(newScriptName.getValue())) {
-				script.setName(newScriptName.getValue());
-			}
-			List<ScriptStep> scriptSteps = scriptProcessor.getScriptSteps(new BufferedReader(new InputStreamReader(is)),
-					new ArrayList<>());
-			script = new ScriptDao().saveOrUpdate(script);
-			sendMsg(script, ModificationType.UPDATE);
-			responseBuilder.entity(Integer.toString(script.getId()));
-		} catch (Exception e) {
-			LOG.error("Error starting script: " + e, e);
-			responseBuilder = Response.status(Status.INTERNAL_SERVER_ERROR);
-			responseBuilder.entity("An External Script failed with Exception: " + e.toString());
-		}
-		return responseBuilder.build();
-	}
 
 	/**
 	 * @inheritDoc
@@ -378,15 +339,17 @@ public class AutomationServiceV1 implements AutomationService {
 		LOG.info(request.toString());
 		if (StringUtils.isEmpty(request.getProjectName())) {
 			return Response.status(Status.BAD_REQUEST)
-					.entity("Creating a Job requires a name\n").build();
+					.entity("Creating a Job requires an existing Project\n").build();
 		} else {
 			ProjectDao projectDao = new ProjectDao();
 			Project project = projectDao.findByName(request.getProjectName());
 
-			if (project != null) {
-				buildJobConfiguration(request, project);
-				project = projectDao.saveOrUpdateProject(project);
+			if (project == null) {
+				return Response.status(Status.BAD_REQUEST)
+						.entity("Creating a Job requires an existing Project\n").build();
 			}
+			buildJobConfiguration(request, project);
+			project = projectDao.saveOrUpdateProject(project);
 
 			JobInstance job = addJobToQueue(project, request);
 			return Response.ok().entity(Integer.toString(job.getId())).build();
@@ -395,15 +358,21 @@ public class AutomationServiceV1 implements AutomationService {
 
 	private void buildJobConfiguration(@Nonnull CreateJobRequest request, Project project) {
 		JobConfiguration jobConfiguration = project.getWorkloads().get(0).getJobConfiguration();
+
 		if (StringUtils.isNotEmpty(request.getRampTime())) {
             jobConfiguration.setRampTimeExpression(request.getRampTime());
-        }
+		}
+		
 		if (StringUtils.isNotEmpty(request.getSimulationTime())) {
             jobConfiguration.setSimulationTimeExpression(request.getSimulationTime());
-        }
+		}
+		
 		jobConfiguration.setUserIntervalIncrement(request.getUserIntervalIncrement());
 		jobConfiguration.setStopBehavior(StringUtils.isNotEmpty(request.getStopBehavior())
-                ? request.getStopBehavior() : StopBehavior.END_OF_SCRIPT_GROUP.getDisplay());
+				? request.getStopBehavior() : StopBehavior.END_OF_SCRIPT_GROUP.name());
+				
+		jobConfiguration.setVmInstanceType(request.getVmInstance());
+		jobConfiguration.setNumUsersPerAgent(request.getNumUsersPerAgent());
 
 		boolean hasSimTime = jobConfiguration.getSimulationTime() > 0
                 || (StringUtils.isNotBlank(request.getSimulationTime())
@@ -524,6 +493,8 @@ public class AutomationServiceV1 implements AutomationService {
 		jobInstance.setLocation(jc.getLocation());
 		jobInstance.setLoggingProfile(jc.getLoggingProfile());
 		jobInstance.setStopBehavior(jc.getStopBehavior());
+		jobInstance.setVmInstanceType(jc.getVmInstanceType());
+		jobInstance.setNumUsersPerAgent(jc.getNumUsersPerAgent());
 		jobInstance.setReportingMode(jc.getReportingMode());
 		jobInstance.getVariables().putAll(jc.getVariables());
 		// set version info
@@ -598,6 +569,8 @@ public class AutomationServiceV1 implements AutomationService {
 		jobInstance.setLocation(jc.getLocation());
 		jobInstance.setLoggingProfile(jc.getLoggingProfile());
 		jobInstance.setStopBehavior(jc.getStopBehavior());
+		jobInstance.setVmInstanceType(jc.getVmInstanceType());
+		jobInstance.setNumUsersPerAgent(jc.getNumUsersPerAgent());
 		jobInstance.setReportingMode(jc.getReportingMode());
 		jobInstance.getVariables().putAll(jc.getVariables());
 		// set version info

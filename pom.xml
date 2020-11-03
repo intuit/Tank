@@ -4,7 +4,7 @@
 
   <groupId>com.intuit.tank</groupId>
   <artifactId>tank-parent</artifactId>
-  <version>2.3.4</version>
+  <version>3.0.0</version>
 
   <packaging>pom</packaging>
   <name>Tank Parent</name>
@@ -27,36 +27,37 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>5.1.17.Final</version.hibernate>
-    <version-aws-sdk>1.11.762</version-aws-sdk>
+    <version.hibernate>5.4.22.Final</version.hibernate>
+    <version.aws-sdk-bom>2.15.14</version.aws-sdk-bom>
+    <version.aws-xray-sdk-bom>2.6.1</version.aws-xray-sdk-bom>
 
-    <version-tomcat>9.0.34</version-tomcat>
+    <version-tomcat>9.0.39</version-tomcat>
 
-    <weld.version>3.1.3.Final</weld.version>
+    <weld.version>3.1.5.SP1</weld.version>
     <cdi.version>2.0</cdi.version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
-    <version.enunciate>2.12.1</version.enunciate>
+    <version.enunciate>2.13.2</version.enunciate>
 
-    <version.mojarra>2.3.9</version.mojarra>
+    <version.mojarra>2.4.0</version.mojarra>
     <version.jsf-api>2.3</version.jsf-api>
     <version.primefaces>8.0</version.primefaces>
-    <version.primefaces-ext>8.0</version.primefaces-ext>
+    <version.primefaces-ext>8.0.4</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.22.2</version.surefire>
-    <version.jersey>2.29</version.jersey>
-    <version.junit>5.6.0</version.junit>
-    <version.httpclient>4.5.12</version.httpclient>
-    <version.httpclient5>5.0</version.httpclient5>
-    <version.lucene>8.4.1</version.lucene>
+    <version.jersey>2.32</version.jersey>
+    <version.junit>5.6.2</version.junit>
+    <version.httpclient>4.5.13</version.httpclient>
+    <version.httpclient5>5.0.3</version.httpclient5>
+    <version.lucene>8.6.3</version.lucene>
+    <version.jaxb>2.3.3</version.jaxb>
 
-    <version.groovy>2.4.17</version.groovy>
+    <version.groovy>2.4.20</version.groovy>
     <version.spock>1.3-groovy-2.5</version.spock>
 
     <!-- maven-compiler-plugin -->
     <version.compiler.plugin>3.8.1</version.compiler.plugin>
-    <maven.compiler.target>8</maven.compiler.target>
-    <maven.compiler.source>8</maven.compiler.source>
+    <maven.jdk.target>11</maven.jdk.target>
   </properties>
 
 
@@ -292,7 +293,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>test-support</artifactId>
-      <version>2.3.4</version>
+      <version>3.0.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -347,17 +348,21 @@
       <artifactId>javax.servlet.jsp-api</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+    </dependency>
   </dependencies>
 
 
   <dependencyManagement>
     <!-- This section specifies defaults for dependencies. --><!-- Any subpom can use these dependencies without specifying version -->
-
     <dependencies>
       <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
-        <version>8.0.19</version>
+        <version>8.0.22</version>
       </dependency>
 
       <dependency>
@@ -568,8 +573,7 @@
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-core</artifactId>
-        <!-- never versions break jsonlayout -->
-        <version>2.11.2</version>
+        <version>2.13.3</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
@@ -586,7 +590,7 @@
       <dependency>
         <groupId>com.opencsv</groupId>
         <artifactId>opencsv</artifactId>
-        <version>5.1</version>
+        <version>5.2</version>
       </dependency>
 
       <dependency>
@@ -680,12 +684,6 @@
         <version>0.3.11</version>
       </dependency>
       <dependency>
-        <groupId>xerces</groupId>
-        <artifactId>xercesImpl</artifactId>
-        <version>2.12.0</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>xml-apis</groupId>
         <artifactId>xml-apis</artifactId>
         <version>2.0.2</version>
@@ -697,9 +695,9 @@
         <version>3.6.1</version>
       </dependency>
       <dependency>
-        <groupId>com.amazonaws</groupId>
-        <artifactId>aws-java-sdk-bom</artifactId>
-        <version>${version-aws-sdk}</version>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>bom</artifactId>
+        <version>${version.aws-sdk-bom}</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
@@ -707,7 +705,7 @@
       <dependency>
         <groupId>com.amazonaws</groupId>
         <artifactId>aws-xray-recorder-sdk-bom</artifactId>
-        <version>2.4.0</version>
+        <version>${version.aws-xray-sdk-bom}</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
@@ -766,11 +764,6 @@
         <groupId>javax.xml</groupId>
         <artifactId>jsr173</artifactId>
         <version>1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>javax.xml.bind</groupId>
-        <artifactId>jaxb-api</artifactId>
-        <version>2.3.1</version>
       </dependency>
       <dependency>
         <groupId>org.jboss.weld.servlet</groupId>
@@ -835,6 +828,23 @@
         <artifactId>jsr305</artifactId>
         <version>3.0.2</version>
         <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>${version.jaxb}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.xml.ws</groupId>
+        <artifactId>jakarta.xml.ws-api</artifactId>
+        <version>${version.jaxb}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-impl</artifactId>
+        <version>${version.jaxb}</version>
+        <scope>runtime</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -957,7 +967,7 @@
             <dependency>
               <groupId>${project.groupId}</groupId>
               <artifactId>test-support</artifactId>
-              <version>2.3.4</version>
+              <version>3.0.0</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -999,8 +1009,7 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${version.compiler.plugin}</version>
           <configuration>
-            <source>${maven.compiler.source}</source>
-            <target>${maven.compiler.target}</target>
+            <release>${maven.jdk.target}</release>
           </configuration>
         </plugin>
         <plugin>
@@ -1149,11 +1158,10 @@
   </reporting>
 
   <repositories>
-
     <repository>
       <id>jboss-repo</id>
       <name>Jboss maven repo</name>
-      <url>http://repository.jboss.org/nexus/content/groups/public</url>
+      <url>https://repository.jboss.org/nexus/content/groups/public</url>
     </repository>
     <repository>
       <id>jboss-public-repository-group</id>
@@ -1168,14 +1176,9 @@
       <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
     </repository>
     <repository>
-      <id>java.net</id>
-      <name>java.net Repository</name>
-      <url>http://download.java.net/maven/2</url>
-    </repository>
-    <repository>
       <id>prime-repo</id>
       <name>PrimeFaces Maven Repository</name>
-      <url>http://repository.primefaces.org</url>
+      <url>https://repository.primefaces.org</url>
       <layout>default</layout>
     </repository>
     <repository>
@@ -1184,26 +1187,12 @@
       <url>https://repository-master.mulesoft.org/nexus/content/groups/public/</url>
     </repository>
     <repository>
-      <id>ibiblio</id>
-      <name>Main Ibiblio Repo</name>
-      <url>http://maven.ibiblio.org/maven2/</url>
-    </repository>
-    <repository>
-      <id>owr</id>
-      <name>ObjectWeb</name>
-      <url>http://maven.ow2.org/maven2/</url>
-    </repository>
-    <repository>
       <id>Maven Central 1</id>
-      <url>http://repo1.maven.org/maven2</url>
-    </repository>
-    <repository>
-      <id>Maven Central 2</id>
-      <url>http://central.maven.org/maven2</url>
+      <url>https://repo1.maven.org/maven2</url>
     </repository>
     <repository>
       <id>Spring Plugins Repository</id>
-      <url>http://repo.spring.io/plugins-release/</url>
+      <url>https://repo.spring.io/plugins-release/</url>
     </repository>
   </repositories>
 
@@ -1218,7 +1207,7 @@
     <pluginRepository>
       <id>Maven Central 2 plugins</id>
       <name>Central</name>
-      <url>http://repo2.maven.org/maven2</url>
+      <url>https://repo2.maven.org/maven2</url>
       <layout>default</layout>
     </pluginRepository>
   </pluginRepositories>

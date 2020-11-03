@@ -18,6 +18,7 @@ package com.intuit.tank.auth;
 
 import java.io.Serializable;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.faces.context.FacesContext;
@@ -26,6 +27,7 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
 import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.service.InitializeEnvironment;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,13 +63,16 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
     private static final Logger LOG = LogManager.getLogger(TankAuthenticator.class);
 
     @Inject
+    private InitializeEnvironment initializeEnvironment;
+
+    @Inject
     private Identity identity;
     
     @Inject
-    IdentityManager identityManager;
+    private IdentityManager identityManager;
     
     @Inject
-    RelationshipManager relationshipManager;
+    private RelationshipManager relationshipManager;
 
     @Inject
     private DefaultLoginCredentials credentials;
@@ -80,6 +85,11 @@ public class TankAuthenticator extends BaseAuthenticator implements Serializable
     private Event<User> loginEventSrc;
 
     private String uri;
+
+    @PostConstruct
+    public void init() {
+        initializeEnvironment.ping();
+    }
 
     public void authenticate() {
         

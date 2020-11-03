@@ -43,13 +43,12 @@ public enum StopBehavior {
     }
 
     public static StopBehavior fromString(String stopBehavior) {
-        StopBehavior ret = StopBehavior.END_OF_SCRIPT_GROUP;
         try {
-            ret = valueOf(stopBehavior);
+            return valueOf(stopBehavior);
         } catch (Exception e) {
             // bad name return default
+            return StopBehavior.END_OF_SCRIPT_GROUP;
         }
-        return ret;
     }
 
 }

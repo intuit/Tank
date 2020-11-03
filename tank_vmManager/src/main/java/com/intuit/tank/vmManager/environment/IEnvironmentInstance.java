@@ -16,12 +16,12 @@ package com.intuit.tank.vmManager.environment;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import com.amazonaws.services.ec2.model.Address;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.vmManager.VMInformation;
 import com.intuit.tank.vm.vmManager.VMRequest;
 import com.intuit.tank.vmManager.environment.amazon.KeyValuePair;
+import software.amazon.awssdk.services.ec2.model.Address;
 
 /**
  * IEnvironmentInstance Represents an environment to create or act upon in the cloud. TODO: This interface uses mixed

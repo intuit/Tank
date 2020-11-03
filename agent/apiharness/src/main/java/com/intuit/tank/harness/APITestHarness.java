@@ -30,7 +30,6 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
-import com.amazonaws.regions.Regions;
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.http.TankHttpClient;
 import org.apache.commons.io.FileUtils;
@@ -43,6 +42,7 @@ import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 import com.intuit.tank.AgentServiceClient;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
@@ -67,7 +67,7 @@ import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
-import org.apache.logging.log4j.message.ObjectMessage;
+import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
 
 public class APITestHarness {
     private static Logger LOG = LogManager.getLogger(APITestHarness.class);
@@ -141,12 +141,13 @@ public class APITestHarness {
         }
 
         HostInfo hostInfo = new HostInfo();
-        ThreadContext.put("jobId", getInstance().getAgentRunData().getJobId());
-        ThreadContext.put("projectName", getInstance().getAgentRunData().getProjectName());
-        ThreadContext.put("instanceId", getInstance().getAgentRunData().getInstanceId());
+        ThreadContext.put("jobId", AmazonUtil.getJobId());
+        ThreadContext.put("projectName", AmazonUtil.getProjectName());
+        ThreadContext.put("instanceId", AmazonUtil.getInstanceId());
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("region", AmazonUtil.getVMRegion().getRegion());
+        ThreadContext.put("location", AmazonUtil.getZone());
         ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
+        ThreadContext.put("loggingProfile", AmazonUtil.getLoggingProfile().getDisplayName());
 
         getInstance().initializeFromArgs(args);
     }
@@ -302,23 +303,12 @@ public class APITestHarness {
         if (capacity < 0) {
             capacity = AmazonUtil.getCapacity();
         }
-        VMRegion region = VMRegion.STANDALONE;
-        if (AmazonUtil.isInAmazon()) {
-            region = AmazonUtil.getVMRegion();
-        }
         agentRunData.setJobId(AmazonUtil.getJobId());
         agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
-
         LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
-        ThreadContext.put("jobId", agentRunData.getJobId());
-        ThreadContext.put("projectName", agentRunData.getProjectName());
-        ThreadContext.put("instanceId", agentRunData.getInstanceId());
-        ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("region", Regions.getCurrentRegion().getName());
-        ThreadContext.put("httpHost", baseUrl);
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Active Profile" + agentRunData.getActiveProfile().getDisplayName())));
+
         AgentData data = new AgentData(agentRunData.getJobId(), instanceId, instanceUrl, capacity,
-                region, AmazonUtil.getZone());
+                AmazonUtil.getVMRegion(), AmazonUtil.getZone());
         try {
             AgentTestStartData startData = null;
             int count = 0;
@@ -614,12 +604,8 @@ public class APITestHarness {
             VMRegion region = VMRegion.STANDALONE;
             String secGroups = "unknown";
             if (AmazonUtil.isInAmazon()) {
-                try {
-                    region = AmazonUtil.getVMRegion();
-                    secGroups = AmazonUtil.getMetaData(CloudMetaDataType.security_groups);
-                } catch (IOException e) {
-                    LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error gettting region. using Custom...")));
-                }
+                region = AmazonUtil.getVMRegion();
+                secGroups = EC2MetadataUtils.getSecurityGroups().get(0);
             }
             status = new CloudVmStatus(instanceId, agentRunData.getJobId(), secGroups, JobStatus.Unknown,
                     VMImageType.AGENT, region, VMStatus.running,
@@ -713,9 +699,9 @@ public class APITestHarness {
             threadGroup.enumerate(threads);
             int activeThreads = (int) Arrays.stream(threads).filter(Objects::nonNull).filter(
                     t -> t.getState() == Thread.State.TIMED_WAITING || t.getState() == Thread.State.WAITING).count();
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Have " + activeThreads + " of " + activeCount
+            LOG.info(LogUtil.getLogMessage("Have " + activeThreads + " of " + activeCount
                     + " active Threads in thread group "
-                    + threadGroup.getName())));
+                    + threadGroup.getName()));
         }
         if (hasMetSimulationTime()) {          // && doneSignal.getCount() != 0) {
             LOG.info(LogUtil.getLogMessage("Max simulation time has been met and there are "

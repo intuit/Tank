@@ -17,6 +17,8 @@ package com.intuit.tank.dao;
  */
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -26,12 +28,19 @@ import javax.annotation.Nonnull;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
+import com.intuit.tank.project.DataFile;
+import com.intuit.tank.project.Group;
+import com.intuit.tank.project.JobRegion;
+import com.intuit.tank.project.PeriodicData;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.ScriptStep;
+import com.intuit.tank.project.User;
 import com.intuit.tank.project.Workload;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
+import com.intuit.tank.vm.common.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -61,7 +70,7 @@ public class DaoTestUtil {
                 .productName("Test Product Name")
                 .name("Test Project Name " + generateStringOfLength(15)).build();
     }
-
+    
     /**
      * Generate a new Workload object for testing.
      * 
@@ -179,6 +188,75 @@ public class DaoTestUtil {
             }
         }
         fail("Constraint violation did not contain a violation on property " + property);
+    }
+    
+    /**
+     * Generate a new PeriodicData object for testing.
+     * 
+     * @return the PeriodicData
+     */
+    public static PeriodicData createPeriodicData(int jobId, Date timestamp) {
+        return PeriodicData.builder()
+        		.min(1)
+        		.max(5)
+        		.jobId(jobId)
+        		.pageId("Test Page Id "+generateStringOfLength(5))
+        		.timestamp(timestamp)
+                .build();
+    }
+    
+    /**
+     * Generate a new User object for testing.
+     * 
+     * @return the User
+     */
+    public static User createUserData(String userName, String password,String email, String group) {
+    	Set<Group> groups = new HashSet<Group>();
+    	groups.add(createGroupData(group));
+        return User.builder()
+        		.name(userName)
+        		.password(PasswordEncoder.encodePassword(password))
+        		.email(email)
+        		.groups(groups)
+        		.generateApiToken()
+                .build();
+    }
+    
+    /**
+     * Generate a new Group object for testing.
+     * 
+     * @return the Group
+     */
+    public static Group createGroupData(String groupName) {
+        return Group.builder()
+        		.name(groupName)
+                .build();
+    }
+    
+    /**
+     * Generate a new DataFile object for testing.
+     * 
+     * @return the DataFile
+     */
+    public static DataFile createDataFileData(String fileName) {
+        return DataFile.builder()
+        		.fileName(fileName)
+        		.path("/test_path")
+        		.comments("test_comments")
+        		.creator("test_creator")
+                .build();
+    }
+    
+    /**
+     * Generate a new JobRegion object for testing.
+     * 
+     * @return the DataFile
+     */
+    public static JobRegion createJobRegionData(String users) {
+        return JobRegion.builder()
+        		.users(users)
+        		.region(VMRegion.US_WEST_2)
+                .build();
     }
 
 }

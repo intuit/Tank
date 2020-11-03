@@ -23,12 +23,11 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.amazonaws.services.ec2.model.Instance;
-import com.amazonaws.services.ec2.model.InstanceStateChange;
-import com.amazonaws.services.ec2.model.Reservation;
 import com.intuit.tank.vm.api.enumerated.VMProvider;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.vmManager.VMInformation;
+import software.amazon.awssdk.services.ec2.model.Instance;
+import software.amazon.awssdk.services.ec2.model.InstanceStateChange;
 
 /**
  * AmazonDataConverter
@@ -44,8 +43,8 @@ public class AmazonDataConverter {
         try {
             for (InstanceStateChange instance : changes) {
                 VMInformation info = new VMInformation();
-                info.setInstanceId(instance.getInstanceId());
-                info.setState(instance.getCurrentState().getName());
+                info.setInstanceId(instance.instanceId());
+                info.setState(instance.currentState().nameAsString());
                 output.add(info);
             }
 
@@ -60,36 +59,37 @@ public class AmazonDataConverter {
     }
 
     /**
-     * @param data
+     * @param requesterId
      * @param instance
      * @param region
      * @return
      */
-    public VMInformation instanceToVmInformation(Reservation data, Instance instance, VMRegion region) {
+    public VMInformation instanceToVmInformation(String requesterId, Instance instance, VMRegion region) {
         VMInformation info = new VMInformation();
         info.setProvider(VMProvider.Amazon);
-        info.setRequestId(data.getRequesterId());
-        info.setImageId(instance.getImageId());
-        info.setInstanceId(instance.getInstanceId());
-        info.setKeyName(instance.getKeyName());
+        info.setRequestId(requesterId);
+        info.setImageId(instance.imageId());
+        info.setInstanceId(instance.instanceId());
+        info.setKeyName(instance.keyName());
         // info.setLaunchTime();
         info.setRegion(region);
-        info.setPlatform(instance.getPlatform());
-        info.setPrivateDNS(instance.getPrivateDnsName());
-        info.setPublicDNS(instance.getPublicDnsName());
-        info.setState(instance.getState().getName());
-        info.setSize(instance.getInstanceType());
+        info.setPlatform(instance.platformAsString());
+        info.setPrivateDNS(instance.privateDnsName());
+        info.setPublicDNS(instance.publicDnsName());
+        info.setState(instance.state().nameAsString());
+        info.setSize(instance.instanceTypeAsString());
         return info;
     }
 
     /**
-     * @param reservation
+     * @param requesterId
+     * @param instances
      * @param region
      * @return
      */
-    public List<VMInformation> processReservation(Reservation reservation, VMRegion region) {
+    public List<VMInformation> processReservation(String requesterId, List<Instance> instances, VMRegion region) {
         try {
-            return reservation.getInstances().stream().map(instance -> instanceToVmInformation(reservation, instance, region)).collect(Collectors.toList());
+            return instances.stream().map(instance -> instanceToVmInformation(requesterId, instance, region)).collect(Collectors.toList());
         } catch (Exception ex) {
             LOG.error(ex.getMessage());
             throw new RuntimeException(ex);

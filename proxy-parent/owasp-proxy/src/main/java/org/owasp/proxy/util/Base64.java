@@ -22,6 +22,7 @@
 package org.owasp.proxy.util;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * <p>
@@ -1627,7 +1628,7 @@ public class Base64 {
         String encoded = Base64.encodeFromFile(infile);
         try (java.io.OutputStream out = new java.io.BufferedOutputStream(
                 new java.io.FileOutputStream(outfile))) {
-            out.write(encoded.getBytes("US-ASCII")); // Strict, 7-bit output.
+            out.write(encoded.getBytes(StandardCharsets.US_ASCII)); // Strict, 7-bit output.
         } catch (IOException e) {
             throw e; // Catch and release to execute finally{}
         }

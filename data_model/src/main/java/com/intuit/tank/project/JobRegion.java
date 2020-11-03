@@ -143,5 +143,61 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
     public int compareTo(JobRegion o) {
         return this.region.compareTo(o.region);
     }
+   
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static Builder builderFrom(JobRegion jr) {
+        return new Builder(jr);
+    }
+    
+    /**
+     * Fluent Builder for JobRegion Builder
+     * 
+     * @author Vaishakh
+     * 
+     */
+    public static class Builder extends JobRegionBase<Builder> {
+
+        private Builder() {
+            super(new JobRegion());
+        }
+
+        private Builder(JobRegion jr) {
+            super(jr);
+        }
+
+        public JobRegion build() {
+            return getInstance();
+        }
+    }
+
+    private static class JobRegionBase<GeneratorT extends JobRegionBase<GeneratorT>> {
+        private JobRegion instance;
+
+        protected JobRegionBase(JobRegion aInstance) {
+            instance = aInstance;
+        }
+
+        protected JobRegion getInstance() {
+            return instance;
+        }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT users(String aValue) {
+            instance.setUsers(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT region(VMRegion aValue) {
+            instance.setRegion(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+    }
 
 }

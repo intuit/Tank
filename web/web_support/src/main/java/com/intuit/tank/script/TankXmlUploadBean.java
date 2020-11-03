@@ -23,12 +23,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Source;
-import javax.xml.transform.sax.SAXSource;
 
 import com.intuit.tank.script.util.ScriptServiceUtil;
 import org.apache.commons.io.IOUtils;
@@ -40,7 +34,6 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.basic.User;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.file.UploadedFile;
-import org.xml.sax.InputSource;
 
 import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.api.model.v1.script.ScriptTO;
@@ -51,9 +44,6 @@ import com.intuit.tank.project.Script;
 import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.util.UploadedFileIterator;
 import com.intuit.tank.wrapper.FileInputStreamWrapper;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
 
 @Named
 @RequestScoped
@@ -109,50 +99,36 @@ public class TankXmlUploadBean implements Serializable {
         messages.clear();
     }
 
-    public void processScript(InputStream inputStream, String fileName) {
-        try {
-            ScriptDao dao = new ScriptDao();
-            
-            //Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
-            SAXParserFactory spf = SAXParserFactory.newInstance();
-            spf.setNamespaceAware(true);
-            spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-            spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            
-            Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(inputStream));
-            
-            JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
-            ScriptTO scriptTo = (ScriptTO) ctx.createUnmarshaller().unmarshal(xmlSource);
-            Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
-            if (script.getId() > 0) {
-                Script existing = dao.findById(script.getId());
-                if (existing == null) {
-                    LOG.error("Error updating script: Script passed with unknown id.");
-                    messages.error("Script " + fileName + " passed with unknown id.");
-                    return;
-                }
-                if (!existing.getName().equals(script.getName())) {
-                    LOG.error("Error updating script: Cannot change the name of an existing Script.");
-                    messages.error("Cannot change the name of an existing script.");
-                    return;
-                }
-                if (!security.isAdmin() && !security.isOwner(script)) {
-                    LOG.error("Error updating script: Cannot change the name of an existing Script.");
-                    messages.error("You do not have rights to modify " + script.getName() + ".");
-                    return;
-                }
-            } else {
-                script.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
+    private void processScript(InputStream inputStream, String fileName) {
+        ScriptDao dao = new ScriptDao();
+
+        ScriptTO scriptTo = ScriptServiceUtil.parseXMLtoScriptTO(inputStream);
+        Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
+        if (script.getId() > 0) {
+            Script existing = dao.findById(script.getId());
+            if (existing == null) {
+                LOG.error("Error updating script: Script passed with unknown id.");
+                messages.error("Script " + fileName + " passed with unknown id.");
+                return;
             }
-            script = dao.saveOrUpdate(script);
-            LOG.info("Script " + script.getName() + " from file " + fileName + " has been added.");
-            messages.info("Script " + script.getName() + " from file " + fileName + " has been added.");
-            scriptEvent.fire(new ModifiedScriptMessage(script, this));
-        } catch (ParserConfigurationException | JAXBException | SAXException e) {
-            LOG.error("Error unmarshalling script: " + e.getMessage() + " from file " + fileName, e);
-            messages.error("Error unmarshalling script: " + e.toString() + " from file " + fileName);
+            if (!existing.getName().equals(script.getName())) {
+                LOG.error("Error updating script: Cannot change the name of an existing Script.");
+                messages.error("Cannot change the name of an existing script.");
+                return;
+            }
+            if (!security.isAdmin() && !security.isOwner(script)) {
+                LOG.error("Error updating script: Cannot change the name of an existing Script.");
+                messages.error("You do not have rights to modify " + script.getName() + ".");
+                return;
+            }
+            script.setSerializedScriptStepId(existing.getSerializedScriptStepId());
+        } else {
+            script.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
         }
+        script = dao.saveOrUpdate(script);
+        LOG.info("Script " + script.getName() + " from file " + fileName + " has been added.");
+        messages.info("Script " + script.getName() + " from file " + fileName + " has been added.");
+        scriptEvent.fire(new ModifiedScriptMessage(script, this));
     }
 
     public boolean isUseFlash() {

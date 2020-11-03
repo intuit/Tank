@@ -40,12 +40,12 @@ public class AgentDataCpTest {
 
         assertNotNull(result);
         assertEquals(0, result.getUsers());
-        assertEquals(null, result.getZone());
-        assertEquals(null, result.getInstanceId());
-        assertEquals(null, result.getRegion());
-        assertEquals(null, result.getInstanceUrl());
+        assertNull(result.getZone());
+        assertNull(result.getInstanceId());
+        assertNull(result.getRegion());
+        assertNull(result.getInstanceUrl());
         assertEquals(0, result.getCapacity());
-        assertEquals(null, result.getJobId());
+        assertNull(result.getJobId());
     }
 
     /**
@@ -92,7 +92,7 @@ public class AgentDataCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -111,7 +111,7 @@ public class AgentDataCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -130,7 +130,7 @@ public class AgentDataCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -149,7 +149,7 @@ public class AgentDataCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**

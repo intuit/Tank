@@ -83,8 +83,8 @@ public class JobDetailFormatterTest {
 
     @Test
     public void getVmDetails() {
-        String vmDetails = JobDetailFormatter.getVmDetails(new TankConfig(), "c3.xlarge");
-        assertEquals(vmDetails, "c3.xlarge (cpus=4 ecus=14 memory=7.5 cost=$0.21 per hour)");
+        String vmDetails = JobDetailFormatter.getVmDetails(new TankConfig(), "c5.xlarge");
+        assertEquals("c5.xlarge (cpus=4 ecus=16 memory=8.0 cost=$0.17 per hour)", vmDetails);
     }
 
     /**

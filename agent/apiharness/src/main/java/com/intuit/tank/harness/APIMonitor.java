@@ -105,17 +105,14 @@ public class APIMonitor implements Runnable {
      * @return
      */
     private JobStatus calculateJobStatus(WatsAgentStatusResponse agentStatus, JobStatus currentStatus) {
-        if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause) {
-            return JobStatus.Paused;
-        } else if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.stop) {
-            return JobStatus.Stopped;
-        } else if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause_ramp) {
-            return JobStatus.RampPaused;
-        } else if ((currentStatus == JobStatus.Unknown || currentStatus == JobStatus.Starting)
-                && agentStatus.getCurrentNumberUsers() > 0) {
-            return JobStatus.Running;
-        }
-        return currentStatus;
+        WatsAgentCommand cmd = APITestHarness.getInstance().getCmd();
+        return cmd == WatsAgentCommand.pause ? JobStatus.Paused
+                : cmd == WatsAgentCommand.stop ? JobStatus.Stopped
+                : cmd == WatsAgentCommand.pause_ramp ? JobStatus.RampPaused
+                : currentStatus == JobStatus.Unknown
+                    || currentStatus == JobStatus.Starting
+                    && agentStatus.getCurrentNumberUsers() > 0 ? JobStatus.Running
+                : currentStatus;
     }
 
     public static void setDoMonitor(boolean monitor) {

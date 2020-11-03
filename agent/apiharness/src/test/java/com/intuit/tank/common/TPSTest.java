@@ -22,10 +22,6 @@ import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.intuit.tank.persistence.databases.AmazonDynamoDatabaseDocApi;
 import com.intuit.tank.persistence.databases.DatabaseKeys;
 import com.intuit.tank.reporting.api.TPSInfo;
@@ -37,19 +33,22 @@ import com.intuit.tank.vm.common.util.ReportUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 public class TPSTest {
 	private static final Logger LOG = LogManager.getLogger(TPSTest.class);
 
-    private AmazonDynamoDBClient dbclient;
+    private DynamoDbClient dynamoDbClient;
 
     @BeforeAll
     @Tag(TestGroups.EXPERIMENTAL)
     public void init() {
-        ClientConfiguration clientConfig = new ClientConfiguration();
-        AWSCredentials credentials = new BasicAWSCredentials(System.getProperty("AWS_KEY_ID"),
+        AwsCredentials credentials = AwsBasicCredentials.create(System.getProperty("AWS_KEY_ID"),
                 System.getProperty("AWS_KEY"));
-        dbclient = new AmazonDynamoDBClient(credentials, clientConfig);
+        dynamoDbClient = DynamoDbClient.builder().credentialsProvider(StaticCredentialsProvider.create(credentials)).build();
     }
 
     @Test
@@ -57,7 +56,7 @@ public class TPSTest {
     private void sendTps() {
         TPSInfoContainer tpsInfo = createTPsInfo();
         try {
-            IDatabase db = new AmazonDynamoDatabaseDocApi(dbclient);
+            IDatabase db = new AmazonDynamoDatabaseDocApi(dynamoDbClient);
             List<com.intuit.tank.reporting.databases.Item> items = new ArrayList<com.intuit.tank.reporting.databases.Item>();
             for (TPSInfo info : tpsInfo.getTpsInfos()) {
                 com.intuit.tank.reporting.databases.Item item = createItem(info);

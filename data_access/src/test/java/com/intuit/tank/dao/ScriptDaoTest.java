@@ -19,6 +19,7 @@ package com.intuit.tank.dao;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.validation.ConstraintViolationException;
@@ -29,12 +30,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 
-import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.view.filter.ViewFilterType;
+import org.hibernate.PropertyValueException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -82,7 +82,6 @@ public class ScriptDaoTest {
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
-    @Disabled
     public void testChildOrder() throws Exception {
         Script entity = DaoTestUtil.createScript();
         entity.addStep(DaoTestUtil.createScriptStep());
@@ -97,17 +96,17 @@ public class ScriptDaoTest {
             children.add(0, removed);
             persisted = dao.saveOrUpdate(persisted);
             persisted = dao.findById(id);
-            assertFalse(persisted.getScriptSteps().get(0).equals(originalOrder.get(0)));
-            assertTrue(persisted.getScriptSteps().get(0).equals(originalOrder.get(2)));
-            assertTrue(persisted.getScriptSteps().get(1).equals(originalOrder.get(0)));
-            assertTrue(persisted.getScriptSteps().get(2).equals(originalOrder.get(1)));
+            assertNotEquals(originalOrder.get(0), persisted.getScriptSteps().get(0));
+            assertEquals(originalOrder.get(2), persisted.getScriptSteps().get(0));
+            assertEquals(originalOrder.get(0), persisted.getScriptSteps().get(1));
+            assertEquals(originalOrder.get(1), persisted.getScriptSteps().get(2));
 
             originalOrder = new ArrayList<ScriptStep>(persisted.getScriptSteps());
             persisted.getScriptSteps().remove(2);
             persisted.getScriptSteps().remove(0);
             persisted = dao.saveOrUpdate(persisted);
             persisted = dao.findById(id);
-            assertTrue(persisted.getScriptSteps().get(0).equals(originalOrder.get(1)));
+            assertEquals(originalOrder.get(1), persisted.getScriptSteps().get(0));
             assertEquals(1, persisted.getScriptSteps().size());
 
         } finally {
@@ -160,10 +159,27 @@ public class ScriptDaoTest {
         assertEquals(fourth.getId(), list.get(3).getId());
     }
 
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testCompressScripSteps() {
+
+        Script script = DaoTestUtil.createScript();
+        IntStream.range(0, 500).forEach(i -> script.addStep(DaoTestUtil.createScriptStep()));
+        int id = dao.saveOrUpdate(script).getId();
+
+        Script scriptOut = dao.findById(id);
+        assertNotNull(scriptOut);
+
+        dao.loadScriptSteps(scriptOut);
+        List<ScriptStep> StepsOut = scriptOut.getSteps();
+        assertEquals(500, StepsOut.size());
+
+        dao.delete(id);
+    }
+
     @ParameterizedTest
     @Tag(TestGroups.FUNCTIONAL)
     @MethodSource("validations")
-    @Disabled
     public void testValidation(Script entity, String property, String messageContains) throws Exception {
         try {
             dao.saveOrUpdate(entity);
@@ -171,12 +187,17 @@ public class ScriptDaoTest {
         } catch (ConstraintViolationException e) {
             // expected validation
             DaoTestUtil.checkConstraintViolation(e, property, messageContains);
+        } catch (RuntimeException e) {
+            if (e.getCause().getCause() instanceof PropertyValueException) {
+                assertTrue(e.getCause().getCause().getMessage().startsWith("not-null property references a null or transient value"));
+                return;
+            }
+            assertTrue(e.getCause().getCause().getCause().getMessage().startsWith("Value too long for column "));
         }
     }
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
-    @Disabled
     public void testBasicCreateUpdateDelete() throws Exception {
         List<Script> all = dao.findAll();
         int originalSize = all.size();

@@ -1,6 +1,7 @@
 package com.intuit.tank.conversation;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,11 +75,7 @@ public class Request {
     public String getBodyAsString() {
         String ret = null;
         if (body != null) {
-            try {
-                ret = new String(body, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                // swallow this should never occur.
-            }
+            ret = new String(body, StandardCharsets.UTF_8);
         }
         return ret;
     }

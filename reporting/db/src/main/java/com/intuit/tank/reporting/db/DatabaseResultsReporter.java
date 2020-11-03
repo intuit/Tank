@@ -68,7 +68,6 @@ public class DatabaseResultsReporter implements ResultsReporter {
                         .collect(Collectors.toList());
                 if (!items.isEmpty()) {
                     String tableName = getTpsTableName(db);
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Sending " + items.size() + " to TPS Table " + tableName)));
                     db.addItems(tableName, items, false);
                 }
             } catch (Exception t) {

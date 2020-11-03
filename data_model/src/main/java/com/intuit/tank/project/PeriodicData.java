@@ -1,5 +1,6 @@
 package com.intuit.tank.project;
 
+
 /*
  * #%L
  * Intuit Tank data model
@@ -26,6 +27,7 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
 
 @Entity
 @Table(name = "timing_periodic",
@@ -215,6 +217,103 @@ public class PeriodicData extends BaseEntity implements Comparable<PeriodicData>
     @Override
     public int compareTo(PeriodicData o) {
         return new CompareToBuilder().append(timestamp, o.timestamp).toComparison();
+    }
+    
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static Builder builderFrom(PeriodicData p) {
+        return new Builder(p);
+    }
+    
+    /**
+     * Fluent Builder for PeriodicData Builder
+     * 
+     * @author Vaishakh
+     * 
+     */
+    public static class Builder extends PeriodicDataBase<Builder> {
+
+        private Builder() {
+            super(new PeriodicData());
+        }
+
+        private Builder(PeriodicData p) {
+            super(p);
+        }
+
+        public PeriodicData build() {
+            return getInstance();
+        }
+    }
+
+    private static class PeriodicDataBase<GeneratorT extends PeriodicDataBase<GeneratorT>> {
+        private PeriodicData instance;
+
+        protected PeriodicDataBase(PeriodicData aInstance) {
+            instance = aInstance;
+        }
+
+        protected PeriodicData getInstance() {
+            return instance;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT max(double aValue) {
+            instance.setMax(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT min(double aValue) {
+            instance.setMin(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT mean(double aValue) {
+            instance.setMean(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT jobId(int aValue) {
+            instance.setJobId(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT pageId(String aValue) {
+            instance.setPageId(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT timestamp(Date aValue) {
+            instance.setTimestamp(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT period(int aValue) {
+            instance.setPeriod(aValue);
+
+            return (GeneratorT) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public GeneratorT sampleSize(int aValue) {
+            instance.setSampleSize(aValue);
+
+            return (GeneratorT) this;
+        }
     }
 
 }

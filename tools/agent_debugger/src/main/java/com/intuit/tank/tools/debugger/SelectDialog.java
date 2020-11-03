@@ -59,7 +59,7 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
     private JList list;
     private JButton okBT;
     private SELECTION_TYPE selectedObject;
-    private SELECTION_TYPE[] selectedObjects;
+    private List<SELECTION_TYPE> selectedObjects;
     private List<SELECTION_TYPE> items;
     private long timeClicked;
 
@@ -99,7 +99,7 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
         JPanel labelPanel = new JPanel(new GridLayout(singleSelection ? 1 : 2, 1, 0, 5));
         labelPanel.add(new JLabel("Select a " + itemType + "."));
         if (!singleSelection) {
-            String key = System.getProperty("os.name").toLowerCase().indexOf("mac") != -1 ? "⌘" : "control";
+            String key = System.getProperty("os.name").toLowerCase().contains("mac") ? "⌘" : "control";
             System.out.println(key);
             labelPanel.add(new JLabel("Hold down the " + key
                     + " key to select multiple " + itemType + "."));
@@ -128,10 +128,9 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
      * @return the selectedScript
      */
     public List<SELECTION_TYPE> getSelectedObjects() {
-        if (selectedObjects != null) {
-            return (List<SELECTION_TYPE>) Arrays.asList(selectedObjects);
-        }
-        return Collections.emptyList();
+        return (selectedObjects != null) ?
+                selectedObjects :
+                Collections.emptyList();
     }
 
     public void filter(final long timeValue) {
@@ -189,7 +188,7 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
     private void select() {
 
         selectedObject = (SELECTION_TYPE) list.getSelectedValue();
-        selectedObjects = (SELECTION_TYPE[]) list.getSelectedValues();
+        selectedObjects = list.getSelectedValuesList();
         if (selectedObject != null) {
             setVisible(false);
         }

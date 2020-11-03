@@ -410,7 +410,7 @@ public class ScriptFilterRunner extends JFrame {
      * 
      */
     protected void saveXml() {
-        try (Writer fw = new OutputStreamWriter(new FileOutputStream(xmlFile), "UTF-8")) {
+        try (Writer fw = new OutputStreamWriter(new FileOutputStream(xmlFile), StandardCharsets.UTF_8)) {
             // fw = new FileWriter(xmlFile);
             JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
             Marshaller marshaller = ctx.createMarshaller();
@@ -479,6 +479,7 @@ public class ScriptFilterRunner extends JFrame {
             saveBT.setEnabled(true);
         } catch (JAXBException | ParserConfigurationException | SAXException | FileNotFoundException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error reading file", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 

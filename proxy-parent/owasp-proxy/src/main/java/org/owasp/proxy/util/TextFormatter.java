@@ -43,7 +43,7 @@ public class TextFormatter extends Formatter {
         buff.append(sdf.format(new Date(record.getMillis())));
         buff.append(Thread.currentThread().getName());
         String className = record.getSourceClassName();
-        if (className.indexOf(".") > -1) {
+        if (className.contains(".")) {
             className = className.substring(className.lastIndexOf(".") + 1,
                     className.length());
         }

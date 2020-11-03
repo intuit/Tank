@@ -44,13 +44,14 @@ public class SerializedScriptStep extends BaseEntity {
     private byte[] bytes;
 
     /**
-     * @param serialzedData
+     * Constructor
      */
     public SerializedScriptStep() {
     }
 
     /**
      * @param serialzedData
+     *          new constructor for a new script
      */
     public SerializedScriptStep(byte[] serialzedData) {
         this.bytes = serialzedData;
@@ -70,6 +71,14 @@ public class SerializedScriptStep extends BaseEntity {
      */
     public Blob getSerialzedBlob() {
         return serialzedData;
+    }
+
+    /**
+     * @param bytes
+     *          the bytes stored before Blob creation
+     */
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
     }
 
     /**

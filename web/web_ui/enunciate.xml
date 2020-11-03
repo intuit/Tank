@@ -15,8 +15,10 @@
   		<application path="/rest"/>
   	</jaxrs>
     <c disabled="true" />
+    <c-xml-client disable="true"/>
     <obj-c disabled="true" />
     <csharp disabled="true" />
+    <csharp-xml-client disabled="true"/>
     <jaxws-client disabled="true" />
     <java-client disabled="false" generateJsonJar="true" />
     

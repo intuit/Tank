@@ -16,6 +16,8 @@ package com.intuit.tank.tools.script;
  * #L%
  */
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -23,6 +25,8 @@ import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -33,6 +37,8 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 
 /**
@@ -45,9 +51,12 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
 
     private static final long serialVersionUID = 1L;
 
+    private JTextField filterField;
     private JList list;
     private JButton okBT;
     private SELECTION_TYPE selectedObject;
+    private List<SELECTION_TYPE> externalScripts;
+    private long timeClicked;
 
     /**
      * @param f
@@ -55,7 +64,10 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
      */
     public SelectDialog(Frame f, List<SELECTION_TYPE> externalScripts) {
         super(f, true);
+        this.externalScripts = externalScripts;
         setLayout(new BorderLayout());
+        filterField = new JTextField();
+        filterField.addKeyListener(new KeyHandler());
         list = new JList(externalScripts.toArray());
         list.addListSelectionListener( (ListSelectionEvent e) -> okBT.setEnabled(list.getSelectedIndex() != -1));
         list.addMouseListener(new MouseAdapter() {
@@ -74,6 +86,7 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
         add(new JLabel("Select a script."), BorderLayout.NORTH);
 
         JScrollPane sp = new JScrollPane(list);
+        add(filterField, BorderLayout.NORTH);
         add(sp, BorderLayout.CENTER);
         add(createButtonPanel(), BorderLayout.SOUTH);
         setSize(new Dimension(400, 500));
@@ -122,6 +135,41 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
         selectedObject = (SELECTION_TYPE) list.getSelectedValue();
         if (selectedObject != null) {
             setVisible(false);
+        }
+    }
+
+    public void filter(final long timeValue) {
+        new Thread( () -> {
+            try {
+                Thread.sleep(200);
+                if (timeValue == timeClicked) {
+                    SwingUtilities.invokeLater( () -> {
+                        list.setListData(externalScripts.stream().filter(obj -> StringUtils.isBlank(filterField.getText())
+                                || StringUtils.containsIgnoreCase(obj.toString(), filterField.getText()
+                                .trim())).toArray());
+                        list.repaint();
+                    });
+                } else {
+                    System.out.println("skipping...");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    class KeyHandler extends KeyAdapter {
+
+        public void keyPressed(KeyEvent evt) {
+            if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                setVisible(false);
+            }
+        }
+
+        @Override
+        public void keyTyped(KeyEvent arg0) {
+            timeClicked = System.currentTimeMillis();
+            filter(timeClicked);
         }
     }
 

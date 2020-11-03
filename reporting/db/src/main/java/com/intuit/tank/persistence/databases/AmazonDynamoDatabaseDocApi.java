@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -38,40 +36,6 @@ import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Table;
-import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.BatchWriteItemRequest;
-import com.amazonaws.services.dynamodbv2.model.BatchWriteItemResult;
-import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
-import com.amazonaws.services.dynamodbv2.model.Condition;
-import com.amazonaws.services.dynamodbv2.model.ConsumedCapacity;
-import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
-import com.amazonaws.services.dynamodbv2.model.CreateTableResult;
-import com.amazonaws.services.dynamodbv2.model.DeleteRequest;
-import com.amazonaws.services.dynamodbv2.model.DeleteTableRequest;
-import com.amazonaws.services.dynamodbv2.model.DeleteTableResult;
-import com.amazonaws.services.dynamodbv2.model.DescribeTableRequest;
-import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
-import com.amazonaws.services.dynamodbv2.model.KeyType;
-import com.amazonaws.services.dynamodbv2.model.ListTablesRequest;
-import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughputDescription;
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughputExceededException;
-import com.amazonaws.services.dynamodbv2.model.PutRequest;
-import com.amazonaws.services.dynamodbv2.model.QueryRequest;
-import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
-import com.amazonaws.services.dynamodbv2.model.ScanRequest;
-import com.amazonaws.services.dynamodbv2.model.ScanResult;
-import com.amazonaws.services.dynamodbv2.model.TableDescription;
-import com.amazonaws.services.dynamodbv2.model.TableStatus;
-import com.amazonaws.services.dynamodbv2.model.WriteRequest;
 import com.intuit.tank.reporting.databases.Attribute;
 import com.intuit.tank.reporting.databases.IDatabase;
 import com.intuit.tank.reporting.databases.Item;
@@ -83,12 +47,47 @@ import com.intuit.tank.vm.common.util.ReportUtil;
 import com.intuit.tank.vm.settings.CloudCredentials;
 import com.intuit.tank.vm.settings.CloudProvider;
 import com.intuit.tank.vm.settings.TankConfig;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeDefinition;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.BatchWriteItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.ComparisonOperator;
+import software.amazon.awssdk.services.dynamodb.model.Condition;
+import software.amazon.awssdk.services.dynamodb.model.ConsumedCapacity;
+import software.amazon.awssdk.services.dynamodb.model.CreateTableRequest;
+import software.amazon.awssdk.services.dynamodb.model.CreateTableResponse;
+import software.amazon.awssdk.services.dynamodb.model.DeleteRequest;
+import software.amazon.awssdk.services.dynamodb.model.DeleteTableRequest;
+import software.amazon.awssdk.services.dynamodb.model.DeleteTableResponse;
+import software.amazon.awssdk.services.dynamodb.model.DescribeTableRequest;
+import software.amazon.awssdk.services.dynamodb.model.DescribeTableResponse;
+import software.amazon.awssdk.services.dynamodb.model.KeySchemaElement;
+import software.amazon.awssdk.services.dynamodb.model.KeyType;
+import software.amazon.awssdk.services.dynamodb.model.ListTablesRequest;
+import software.amazon.awssdk.services.dynamodb.model.ListTablesResponse;
+import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput;
+import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughputDescription;
+import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughputExceededException;
+import software.amazon.awssdk.services.dynamodb.model.PutRequest;
+import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
+import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
+import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
+import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
+import software.amazon.awssdk.services.dynamodb.model.TableDescription;
+import software.amazon.awssdk.services.dynamodb.model.TableStatus;
+import software.amazon.awssdk.services.dynamodb.model.UpdateTableRequest;
+import software.amazon.awssdk.services.dynamodb.model.WriteRequest;
 
 public class AmazonDynamoDatabaseDocApi implements IDatabase {
 
     private static final int MAX_NUMBER_OF_RETRIES = 5;
-    private AmazonDynamoDB dynamoDb;
-    private TankConfig config = new TankConfig();
+    private final TankConfig config = new TankConfig();
+    private DynamoDbClient dynamoDbClient;
 
     private static final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(10, 50, 60, TimeUnit.SECONDS,
             new ArrayBlockingQueue<Runnable>(50), Executors.defaultThreadFactory(),
@@ -97,27 +96,27 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     protected static final int BATCH_SIZE = 25;
     private static final long MAX_WRITE_UNITS = 1500L;
 
-    private static Logger logger = LogManager.getLogger(AmazonDynamoDatabaseDocApi.class);
+    private static Logger LOG = LogManager.getLogger(AmazonDynamoDatabaseDocApi.class);
 
     /**
      *
      */
     public AmazonDynamoDatabaseDocApi() {
         CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-        if (creds != null && StringUtils.isNotBlank(creds.getKeyId())) {
-            AWSCredentials credentials = new BasicAWSCredentials(creds.getKeyId(), creds.getKey());
-            this.dynamoDb = AmazonDynamoDBClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
+        if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
+            AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
+            this.dynamoDbClient = DynamoDbClient.builder().credentialsProvider(StaticCredentialsProvider.create(credentials)).build();
         } else {
-            this.dynamoDb = AmazonDynamoDBClientBuilder.defaultClient();
+            this.dynamoDbClient = DynamoDbClient.builder().build();
         }
     }
 
     /**
      * 
-     * @param dynamoDb
+     * @param dynamoDbClient
      */
-    public AmazonDynamoDatabaseDocApi(AmazonDynamoDB dynamoDb) {
-        this.dynamoDb = dynamoDb;
+    public AmazonDynamoDatabaseDocApi(DynamoDbClient dynamoDbClient) {
+        this.dynamoDbClient = dynamoDbClient;
     }
 
     /**
@@ -128,34 +127,35 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     public void initNamespace(String tableName) {
         try {
             if (!hasTable(tableName)) {
-                logger.info("Creating table: " + tableName);
+                LOG.info("Creating table: " + tableName);
                 HierarchicalConfiguration resultsProviderConfig = config.getVmManagerConfig()
                         .getResultsProviderConfig();
                 long readCapacity = getCapacity(resultsProviderConfig, "read-capacity", 10L);
                 long writeCapacity = getCapacity(resultsProviderConfig, "write-capacity", 50L);
                 ArrayList<AttributeDefinition> attributeDefinitions = new ArrayList<AttributeDefinition>();
-                attributeDefinitions.add(new AttributeDefinition().withAttributeName(
-                        DatabaseKeys.JOB_ID_KEY.getShortKey()).withAttributeType(ScalarAttributeType.S));
-                attributeDefinitions.add(new AttributeDefinition().withAttributeName(
-                        DatabaseKeys.REQUEST_NAME_KEY.getShortKey()).withAttributeType(ScalarAttributeType.S));
-                ProvisionedThroughput provisionedThroughput = new ProvisionedThroughput().withReadCapacityUnits(
-                        readCapacity).withWriteCapacityUnits(writeCapacity);
-                KeySchemaElement hashKeyElement = new KeySchemaElement().withAttributeName(
-                        DatabaseKeys.JOB_ID_KEY.getShortKey()).withKeyType(KeyType.HASH);
-                KeySchemaElement rangeKeyElement = new KeySchemaElement().withAttributeName(
-                        DatabaseKeys.REQUEST_NAME_KEY.getShortKey()).withKeyType(KeyType.RANGE);
-                CreateTableRequest request = new CreateTableRequest()
-                        .withTableName(tableName)
-                        .withKeySchema(hashKeyElement, rangeKeyElement)
-                        .withAttributeDefinitions(attributeDefinitions)
-                        .withProvisionedThroughput(provisionedThroughput);
+                attributeDefinitions.add(AttributeDefinition.builder().attributeName(
+                        DatabaseKeys.JOB_ID_KEY.getShortKey()).attributeType(ScalarAttributeType.S).build());
+                attributeDefinitions.add(AttributeDefinition.builder().attributeName(
+                        DatabaseKeys.REQUEST_NAME_KEY.getShortKey()).attributeType(ScalarAttributeType.S).build());
+                ProvisionedThroughput provisionedThroughput = ProvisionedThroughput.builder().readCapacityUnits(
+                        readCapacity).writeCapacityUnits(writeCapacity).build();
+                KeySchemaElement hashKeyElement = KeySchemaElement.builder().attributeName(
+                        DatabaseKeys.JOB_ID_KEY.getShortKey()).keyType(KeyType.HASH).build();
+                KeySchemaElement rangeKeyElement = KeySchemaElement.builder().attributeName(
+                        DatabaseKeys.REQUEST_NAME_KEY.getShortKey()).keyType(KeyType.RANGE).build();
+                CreateTableRequest request = CreateTableRequest.builder()
+                        .tableName(tableName)
+                        .keySchema(hashKeyElement, rangeKeyElement)
+                        .attributeDefinitions(attributeDefinitions)
+                        .provisionedThroughput(provisionedThroughput)
+                        .build();
 
-                CreateTableResult result = dynamoDb.createTable(request);
+                CreateTableResponse response = dynamoDbClient.createTable(request);
                 waitForStatus(tableName, TableStatus.ACTIVE);
-                logger.info("Created table: " + result.getTableDescription().getTableName());
+                LOG.info("Created table: " + response.tableDescription().tableName());
             }
         } catch (Exception t) {
-            logger.error(t, t);
+            LOG.error(t, t);
             throw new RuntimeException(t);
         }
     }
@@ -168,7 +168,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
                     return Long.parseLong(string);
                 }
             } catch (Exception e) {
-                logger.error(e.toString());
+                LOG.error(e.toString());
             }
         }
         return defaultValue;
@@ -182,14 +182,14 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     public void removeNamespace(String tableName) {
         try {
             if (hasTable(tableName)) {
-                logger.info("Deleting table: " + tableName);
-                DeleteTableRequest deleteTableRequest = new DeleteTableRequest(tableName);
-                DeleteTableResult result = dynamoDb.deleteTable(deleteTableRequest);
-                logger.info("Deleted table: " + result.getTableDescription().getTableName());
+                LOG.info("Deleting table: " + tableName);
+                DeleteTableRequest deleteTableRequest = DeleteTableRequest.builder().tableName(tableName).build();
+                DeleteTableResponse response = dynamoDbClient.deleteTable(deleteTableRequest);
+                LOG.info("Deleted table: " + response.tableDescription().tableName());
                 waitForDelete(tableName);
             }
         } catch (Exception t) {
-            logger.error(t, t);
+            LOG.error(t, t);
             throw new RuntimeException(t);
         }
     }
@@ -202,14 +202,14 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     public boolean hasTable(String tableName) {
         String nextTableName = null;
         do {
-            ListTablesResult listTables = dynamoDb.listTables(new ListTablesRequest()
-                    .withExclusiveStartTableName(nextTableName));
-            for (String name : listTables.getTableNames()) {
+            ListTablesResponse listTables =
+                    dynamoDbClient.listTables(ListTablesRequest.builder().exclusiveStartTableName(nextTableName).build());
+            for (String name : listTables.tableNames()) {
                 if (tableName.equalsIgnoreCase(name)) {
                     return true;
                 }
             }
-            nextTableName = listTables.getLastEvaluatedTableName();
+            nextTableName = listTables.lastEvaluatedTableName();
         } while (nextTableName != null);
         return false;
     }
@@ -224,13 +224,17 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
         if (!results.isEmpty()) {
             Runnable task = new Runnable() {
                 public void run() {
-                    MethodTimer mt = new MethodTimer(logger, this.getClass(), "addTimingResults (" + results + ")");
+                    MethodTimer mt = new MethodTimer(LOG, this.getClass(), "addTimingResults (" + results + ")");
                     List<WriteRequest> requests;
                     try {
-                        requests = results.stream().map(result -> getTimingAttributes(result)).map(item -> new PutRequest().withItem(item)).map(putRequest -> new WriteRequest().withPutRequest(putRequest)).collect(Collectors.toList());
+                        requests = results.stream()
+                                .map(result -> getTimingAttributes(result))
+                                .map(item -> PutRequest.builder().item(item).build())
+                                .map(putRequest -> WriteRequest.builder().putRequest(putRequest).build())
+                                .collect(Collectors.toList());
                         sendBatch(tableName, requests);
                     } catch (Exception t) {
-                        logger.error("Error adding results: " + t.getMessage(), t);
+                        LOG.error("Error adding results: " + t.getMessage(), t);
                         throw new RuntimeException(t);
                     }
                     mt.endAndLog();
@@ -253,14 +257,14 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
         Set<String> result = new HashSet<String>();
         String nextTableName = null;
         do {
-            ListTablesResult listTables = dynamoDb.listTables(new ListTablesRequest()
-                    .withExclusiveStartTableName(nextTableName));
-            for (String s : listTables.getTableNames()) {
+            ListTablesResponse listTables = dynamoDbClient.listTables(ListTablesRequest.builder()
+                    .exclusiveStartTableName(nextTableName).build());
+            for (String s : listTables.tableNames()) {
                 if (s.matches(regex)) {
                     result.add(s);
                 }
             }
-            nextTableName = listTables.getLastEvaluatedTableName();
+            nextTableName = listTables.lastEvaluatedTableName();
         } while (nextTableName != null);
 
         return result;
@@ -274,46 +278,47 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     public PagedDatabaseResult getPagedItems(String tableName, Object nextToken, String minRange,
             String maxRange, String instanceId, String jobId) {
         Map<String, AttributeValue> lastKeyEvaluated = (Map<String, AttributeValue>) nextToken;
-        ScanRequest scanRequest = new ScanRequest().withTableName(tableName);
+        ScanRequest.Builder scanRequest = ScanRequest.builder().tableName(tableName);
         Map<String, Condition> conditions = new HashMap<String, Condition>();
         if (jobId != null) {
-            Condition jobIdCondition = new Condition();
-            jobIdCondition.withComparisonOperator(ComparisonOperator.EQ)
-                    .withAttributeValueList(new AttributeValue().withS(jobId));
-
+            Condition jobIdCondition = Condition.builder().comparisonOperator(ComparisonOperator.EQ)
+                    .attributeValueList(AttributeValue.builder().s(jobId).build()).build();
             conditions.put(DatabaseKeys.JOB_ID_KEY.getShortKey(), jobIdCondition);
         }
         if (StringUtils.isNotBlank(instanceId)) {
             // add a filter
-            Condition filter = new Condition();
-            filter.withComparisonOperator(ComparisonOperator.EQ).withAttributeValueList(
-                    new AttributeValue().withS(instanceId));
-            scanRequest.addScanFilterEntry(DatabaseKeys.INSTANCE_ID_KEY.getShortKey(), filter);
+            Condition filter = Condition.builder()
+                    .comparisonOperator(ComparisonOperator.EQ)
+                    .attributeValueList(AttributeValue.builder().s(instanceId).build())
+                    .build();
+            Map<String, Condition> map = new HashMap<>();
+            map.put(DatabaseKeys.INSTANCE_ID_KEY.getShortKey(), filter);
+            scanRequest.scanFilter(map);
         }
-        Condition rangeKeyCondition = new Condition();
+        Condition.Builder rangeKeyCondition = Condition.builder();
         if (minRange != null && maxRange != null) {
-            rangeKeyCondition.withComparisonOperator(ComparisonOperator.BETWEEN.toString())
-                    .withAttributeValueList(new AttributeValue().withS(minRange))
-                    .withAttributeValueList(new AttributeValue().withS(maxRange));
-
+            rangeKeyCondition.comparisonOperator(ComparisonOperator.BETWEEN.toString())
+                    .attributeValueList(AttributeValue.builder().s(minRange).build())
+                    .attributeValueList(AttributeValue.builder().s(maxRange).build());
         } else if (minRange != null) {
-            rangeKeyCondition.withComparisonOperator(ComparisonOperator.GE.toString())
-                    .withAttributeValueList(new AttributeValue().withS(minRange));
+            rangeKeyCondition.comparisonOperator(ComparisonOperator.GE.toString())
+                    .attributeValueList(AttributeValue.builder().s(minRange).build());
         } else if (maxRange != null) {
-            rangeKeyCondition.withComparisonOperator(ComparisonOperator.LT.toString())
-                    .withAttributeValueList(new AttributeValue().withS(maxRange));
+            rangeKeyCondition.comparisonOperator(ComparisonOperator.LT.toString())
+                    .attributeValueList(AttributeValue.builder().s(maxRange).build());
         } else {
             rangeKeyCondition = null;
         }
         if (rangeKeyCondition != null) {
-            conditions.put(DatabaseKeys.REQUEST_NAME_KEY.getShortKey(), rangeKeyCondition);
+            conditions.put(DatabaseKeys.REQUEST_NAME_KEY.getShortKey(), rangeKeyCondition.build());
         }
-        scanRequest.withScanFilter(conditions);
-        scanRequest.withExclusiveStartKey(lastKeyEvaluated);
+        scanRequest.scanFilter(conditions);
+        scanRequest.exclusiveStartKey(lastKeyEvaluated);
 
-        ScanResult result = dynamoDb.scan(scanRequest);
-        List<Item> ret = result.getItems().stream().map(this::getItemFromResult).collect(Collectors.toList());
-        return new PagedDatabaseResult(ret, result.getLastEvaluatedKey());
+        ScanResponse response = dynamoDbClient.scan(scanRequest.build());
+        return new PagedDatabaseResult(
+                response.items().stream().map(this::getItemFromResult).collect(Collectors.toList()),
+                response.lastEvaluatedKey());
     }
 
     /**
@@ -346,17 +351,17 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
             final List<Item> items = new ArrayList<Item>(itemList);
             Runnable task = new Runnable() {
                 public void run() {
-                    MethodTimer mt = new MethodTimer(logger, this.getClass(), "addItems (" + items + ")");
+                    MethodTimer mt = new MethodTimer(LOG, this.getClass(), "addItems (" + items + ")");
                     List<WriteRequest> requests;
                     try {
                         requests = items.stream()
                                 .map(item -> itemToMap(item))
-                                .map(toInsert -> new PutRequest().withItem(toInsert))
-                                .map(putRequest -> new WriteRequest().withPutRequest(putRequest))
+                                .map(toInsert -> PutRequest.builder().item(toInsert).build())
+                                .map(putRequest -> WriteRequest.builder().putRequest(putRequest).build())
                                 .collect(Collectors.toList());
                         sendBatch(tableName, requests);
                     } catch (Exception t) {
-                        logger.error("Error adding results: " + t.getMessage(), t);
+                        LOG.error("Error adding results: " + t.getMessage(), t);
                         throw new RuntimeException(t);
                     }
                     mt.endAndLog();
@@ -377,7 +382,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     public void deleteForJob(final String tableName, final String jobId, final boolean asynch) {
         Runnable task = new Runnable() {
             public void run() {
-                MethodTimer mt = new MethodTimer(logger, this.getClass(), "deleteForJob (" + jobId + ")");
+                MethodTimer mt = new MethodTimer(LOG, this.getClass(), "deleteForJob (" + jobId + ")");
 
                 List<Item> items = getItems(tableName, null, null, null, jobId);
                 if (!items.isEmpty()) {
@@ -387,16 +392,16 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
                             String id = item.getAttributes().stream().filter(attr -> DatabaseKeys.REQUEST_NAME_KEY.getShortKey().equals(attr.getName())).findFirst().map(Attribute::getValue).orElse(null);
                             if (id != null) {
                                 Map<String, AttributeValue> keyMap = new HashMap<String, AttributeValue>();
-                                keyMap.put(DatabaseKeys.REQUEST_NAME_KEY.getShortKey(), new AttributeValue().withS(id));
-                                keyMap.put(DatabaseKeys.JOB_ID_KEY.getShortKey(), new AttributeValue().withS(jobId));
-                                DeleteRequest deleteRequest = new DeleteRequest().withKey(keyMap);
-                                WriteRequest writeRequest = new WriteRequest().withDeleteRequest(deleteRequest);
+                                keyMap.put(DatabaseKeys.REQUEST_NAME_KEY.getShortKey(), AttributeValue.builder().s(id).build());
+                                keyMap.put(DatabaseKeys.JOB_ID_KEY.getShortKey(), AttributeValue.builder().s(jobId).build());
+                                DeleteRequest deleteRequest = DeleteRequest.builder().key(keyMap).build();
+                                WriteRequest writeRequest = WriteRequest.builder().deleteRequest(deleteRequest).build();
                                 requests.add(writeRequest);
                             }
                         }
                         sendBatch(tableName, requests);
                     } catch (Exception t) {
-                        logger.error("Error adding results: " + t.getMessage(), t);
+                        LOG.error("Error adding results: " + t.getMessage(), t);
                         throw new RuntimeException(t);
                     }
                 }
@@ -423,13 +428,13 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     public boolean hasJobData(String tableName, String jobId) {
         if (hasTable(tableName)) {
             Map<String, Condition> keyConditions = new HashMap<String, Condition>();
-            Condition jobIdCondition = new Condition().withComparisonOperator(ComparisonOperator.EQ)
-                    .withAttributeValueList(new AttributeValue().withS(jobId));
+            Condition jobIdCondition = Condition.builder().comparisonOperator(ComparisonOperator.EQ)
+                    .attributeValueList(AttributeValue.builder().s(jobId).build()).build();
             keyConditions.put(DatabaseKeys.JOB_ID_KEY.getShortKey(), jobIdCondition);
-            QueryRequest queryRequest = new QueryRequest().withTableName(tableName).withKeyConditions(keyConditions)
-                    .withLimit(1);
+            QueryRequest queryRequest = QueryRequest.builder().tableName(tableName).keyConditions(keyConditions)
+                    .limit(1).build();
 
-            return dynamoDb.query(queryRequest).getCount() > 0;
+            return dynamoDbClient.query(queryRequest).count() > 0;
         }
         return false;
     }
@@ -442,7 +447,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
         List<Attribute> attrs = new ArrayList<Attribute>();
         Item ret = new Item(null, attrs);
         for (Map.Entry<String, AttributeValue> item : attributeMap.entrySet()) {
-            Attribute a = new Attribute(item.getKey(), item.getValue().getS());
+            Attribute a = new Attribute(item.getKey(), item.getValue().s());
             attrs.add(a);
             if (a.getName().equalsIgnoreCase(DatabaseKeys.LOGGING_KEY_KEY.getShortKey())) {
                 ret.setName(a.getValue());
@@ -472,7 +477,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
         if (value == null) {
             value = "";
         }
-        attributes.put(key, new AttributeValue().withS(value));
+        attributes.put(key, AttributeValue.builder().s(value).build());
     }
 
     private void addItemsToTable(String tableName, final BatchWriteItemRequest request) {
@@ -483,41 +488,38 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
         do {
             shouldRetry = false;
             try {
-                BatchWriteItemResult result = dynamoDb.batchWriteItem(request);
-                if (result != null) {
+                BatchWriteItemResponse response = dynamoDbClient.batchWriteItem(request);
+                if (response != null) {
                     try {
-                        List<ConsumedCapacity> consumedCapacity = result.getConsumedCapacity();
+                        List<ConsumedCapacity> consumedCapacity = response.consumedCapacity();
                         for (ConsumedCapacity cap : consumedCapacity) {
-                            logger.info(cap.getCapacityUnits());
+                            LOG.info(cap.capacityUnits());
                         }
                     } catch (Exception e) {
                         // ignore this
                     }
                 }
-            } catch (AmazonServiceException e) {
+            } catch (AwsServiceException e) {
                 if (e instanceof ProvisionedThroughputExceededException) {
                     try {
-                        DynamoDB db = new DynamoDB(dynamoDb);
-                        Table table = db.getTable(tableName);
-                        ProvisionedThroughputDescription oldThroughput = table.getDescription()
-                                .getProvisionedThroughput();
-                        logger.info("ProvisionedThroughputExceeded throughput = " + oldThroughput);
-                        ProvisionedThroughput newThroughput = new ProvisionedThroughput()
-                                .withReadCapacityUnits(
-                                        table.getDescription().getProvisionedThroughput().getReadCapacityUnits())
-                                .withWriteCapacityUnits(
-                                        getIncreasedThroughput(table.getDescription().getProvisionedThroughput()
-                                                .getReadCapacityUnits()));
+                        DescribeTableResponse response =
+                                dynamoDbClient.describeTable(DescribeTableRequest.builder().tableName(tableName).build());
+                        ProvisionedThroughputDescription oldThroughput = response.table().provisionedThroughput();
+                        LOG.info("ProvisionedThroughputExceeded throughput = " + oldThroughput);
+                        ProvisionedThroughput newThroughput = ProvisionedThroughput.builder()
+                                .readCapacityUnits(response.table().provisionedThroughput().readCapacityUnits())
+                                .writeCapacityUnits(getIncreasedThroughput(response.table().provisionedThroughput()
+                                        .readCapacityUnits())).build();
+
                         if (!oldThroughput.equals(newThroughput)) {
-                            logger.info("Updating throughput to " + newThroughput);
-                            table.updateTable(newThroughput);
-                            table.waitForActive();
+                            LOG.info("Updating throughput to " + newThroughput);
+                            dynamoDbClient.updateTable(UpdateTableRequest.builder().provisionedThroughput(newThroughput).build());
                         }
                     } catch (Exception e1) {
-                        logger.error("Error increasing capacity: " + e, e);
+                        LOG.error("Error increasing capacity: " + e, e);
                     }
                 }
-                int status = e.getStatusCode();
+                int status = e.statusCode();
                 if (status == HttpStatus.SC_INTERNAL_SERVER_ERROR
                         || status == HttpStatus.SC_SERVICE_UNAVAILABLE) {
                     shouldRetry = true;
@@ -525,10 +527,10 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
                     try {
                         Thread.sleep(delay);
                     } catch (InterruptedException iex) {
-                        logger.error("Caught InterruptedException exception", iex);
+                        LOG.error("Caught InterruptedException exception", iex);
                     }
                 } else {
-                    logger.error("Error writing to DB: " + e.getMessage());
+                    LOG.error("Error writing to DB: " + e.getMessage());
                     throw new RuntimeException(e);
                 }
             }
@@ -545,7 +547,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     }
 
     private void waitForStatus(String tableName, TableStatus status) {
-        logger.info("Waiting for " + tableName + " to become " + status.toString() + "...");
+        LOG.info("Waiting for " + tableName + " to become " + status.toString() + "...");
 
         long startTime = System.currentTimeMillis();
         long endTime = startTime + (10 * 60 * 1000);
@@ -555,14 +557,14 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
             } catch (Exception e) {
             }
             try {
-                DescribeTableRequest request = new DescribeTableRequest().withTableName(tableName);
-                TableDescription tableDescription = dynamoDb.describeTable(request).getTable();
-                String tableStatus = tableDescription.getTableStatus();
-                logger.debug("  - current state: " + tableStatus);
+                DescribeTableRequest request = DescribeTableRequest.builder().tableName(tableName).build();
+                TableDescription tableDescription = dynamoDbClient.describeTable(request).table();
+                String tableStatus = tableDescription.tableStatusAsString();
+                LOG.debug("  - current state: " + tableStatus);
                 if (tableStatus.equals(status.toString()))
                     return;
-            } catch (AmazonServiceException ase) {
-                if (!ase.getErrorCode().equalsIgnoreCase("ResourceNotFoundException"))
+            } catch (AwsServiceException ase) {
+                if (!ase.awsErrorDetails().errorCode().equalsIgnoreCase("ResourceNotFoundException"))
                     throw ase;
             }
         }
@@ -571,7 +573,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     }
 
     private void waitForDelete(String tableName) {
-        logger.info("Waiting for " + tableName + " to become deleted...");
+        LOG.info("Waiting for " + tableName + " to become deleted...");
 
         long startTime = System.currentTimeMillis();
         long endTime = startTime + (10 * 60 * 1000);
@@ -584,8 +586,8 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
                 if (!hasTable(tableName)) {
                     return;
                 }
-            } catch (AmazonServiceException ase) {
-                if (!ase.getErrorCode().equalsIgnoreCase("ResourceNotFoundException"))
+            } catch (AwsServiceException ase) {
+                if (!ase.awsErrorDetails().errorCode().equalsIgnoreCase("ResourceNotFoundException"))
                     throw ase;
             }
         }
@@ -606,7 +608,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
             throw new RuntimeException("Item does not contain a job ID");
         } else if (!attributes.containsKey(DatabaseKeys.REQUEST_NAME_KEY.getShortKey())) {
             AttributeValue attVal = attributes.get(DatabaseKeys.TIMESTAMP_KEY.getShortKey());
-            String timestamp = attVal != null ? attVal.getS() : ReportUtil.getTimestamp(new Date());
+            String timestamp = attVal != null ? attVal.s() : ReportUtil.getTimestamp(new Date());
             if (attVal == null) {
                 addAttribute(attributes, DatabaseKeys.TIMESTAMP_KEY.getShortKey(), timestamp);
             }
@@ -628,7 +630,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
             List<WriteRequest> batch = requests.subList(i * BATCH_SIZE,
                     Math.min(i * BATCH_SIZE + BATCH_SIZE, requests.size()));
             requestItems.put(tableName, batch);
-            addItemsToTable(tableName, new BatchWriteItemRequest().withRequestItems(requestItems));
+            addItemsToTable(tableName, BatchWriteItemRequest.builder().requestItems(requestItems).build());
         }
     }
 }

@@ -83,23 +83,6 @@ public interface AutomationService {
     Response saveAs(@PathParam("scriptId") String scriptId, @PathParam("name") String name);
     
     /**
-     * Uploads a script to an existing script 
-     * 
-     * @param formData
-     *            Multi-part form data should contain a scriptId with the formKey of scriptId and the
-     *            file data with formKey of file
-     *            Example: curl -X POST -F "scriptId=x" -F "scriptName=xx" -F "file=@tank-script.xml" http://xxx/rest/v1/automation-service/uploadScript
-     * @return Response status code 201 (created) if successful or an error code
-     */
-    @POST
-    @Path("/uploadScript")
-    @Consumes({ MediaType.MULTIPART_FORM_DATA })
-    @Produces({ MediaType.APPLICATION_JSON })
-    @Nonnull
-    @Deprecated
-    Response uploadScript(@Nonnull FormDataMultiPart formData);
-
-    /**
      * Uploads a script to an existing script
      *
      * @param scriptId
@@ -115,6 +98,7 @@ public interface AutomationService {
     @PUT
     @Path("/upload/script")
     @Consumes({ MediaType.MULTIPART_FORM_DATA })
+    @Produces({ MediaType.TEXT_PLAIN })
     @Nonnull
     Response uploadScript(@QueryParam("id") int scriptId,
                           @QueryParam("name") String scriptName,

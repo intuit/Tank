@@ -679,7 +679,7 @@ public class ActionProducer {
                     debuggerFrame.start();
                 }
             };
-            ret.putValue(Action.SHORT_DESCRIPTION, "Start debugging script.");
+            ret.putValue(Action.SHORT_DESCRIPTION, "Start Debugging Script.");
             actionMap.put(ACTION_START, ret);
         }
         return ret;
@@ -875,18 +875,17 @@ public class ActionProducer {
     }
 
     public static Icon getIcon(String string, IconSize size) {
-        ImageIcon ret = null;
         String resourcePath = (size == IconSize.SMALL ? "gfx/16/" : "gfx/32/") + string;
         try {
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
             URL url = cl.getResource(resourcePath);
             // System.out.println("URL is: " + url);
-            ret = new ImageIcon(ImageIO.read(url));
+            return new ImageIcon(ImageIO.read(url));
         } catch (Exception e) {
             // System.out.println("URL is: " + url);
             LOG.error("Error loading image " + resourcePath + ": " + e);
         }
-        return ret;
+        return null;
     }
 
     private void showError(final String msg) {

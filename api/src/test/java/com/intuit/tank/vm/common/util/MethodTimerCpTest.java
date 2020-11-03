@@ -18,6 +18,10 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.common.util.MethodTimer;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,6 +39,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testMethodTimer_1()
             throws Exception {
         Logger log = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
@@ -56,6 +61,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testMethodTimer_2()
             throws Exception {
         Logger log = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
@@ -77,6 +83,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testEnd_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -97,6 +104,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testEndAndLog_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -117,6 +125,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testGetMarkTimeMessage_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -136,6 +145,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testGetMarkTimeMessage_2()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -155,6 +165,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testGetNaturalTimeMessage_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -173,6 +184,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testGetNaturalTimeMessage_2()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -191,6 +203,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testGetTimeMessage_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -209,6 +222,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testGetTimeMessage_2()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -227,6 +241,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testLogMark_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer((Logger) null, Object.class, "");
@@ -248,6 +263,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testLogMark_2()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -269,6 +285,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testLogTime_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer((Logger) null, Object.class, "");
@@ -289,6 +306,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testLogTime_2()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -309,6 +327,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testMark_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -329,6 +348,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testMark_2()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -349,6 +369,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testMarkAndLog_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -369,6 +390,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testMarkAndLog_2()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
@@ -390,6 +412,7 @@ public class MethodTimerCpTest {
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
     public void testStart_1()
             throws Exception {
         MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
