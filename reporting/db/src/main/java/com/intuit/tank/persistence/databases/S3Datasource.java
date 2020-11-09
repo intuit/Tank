@@ -26,10 +26,10 @@ import com.intuit.tank.vm.settings.TankConfig;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.async.AsyncRequestBody;
 import software.amazon.awssdk.core.exception.SdkClientException;
-import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
-import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
@@ -48,7 +48,7 @@ import static java.util.stream.Collectors.toList;
 public class S3Datasource implements IDatabase {
 	private static final Logger LOG = LogManager.getLogger(S3Datasource.class);
 
-	private S3Client s3Client;
+	private S3AsyncClient s3Client;
 	private String hostname = "fail";
     private String metricString = "";
 	private String tags = "";
@@ -61,9 +61,9 @@ public class S3Datasource implements IDatabase {
 		CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
 		if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
 			AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
-			this.s3Client = S3Client.builder().credentialsProvider(StaticCredentialsProvider.create(credentials)).build();
+			this.s3Client = S3AsyncClient.builder().credentialsProvider(StaticCredentialsProvider.create(credentials)).build();
 		} else {
-			this.s3Client = S3Client.builder().build();
+			this.s3Client = S3AsyncClient.builder().build();
 		}
 	}
 
@@ -160,7 +160,7 @@ public class S3Datasource implements IDatabase {
 					.bucket(bucketName)
 					.key("TANK-AgentData-" + UUID.randomUUID() + ".log")
 					.acl(ObjectCannedACL.BUCKET_OWNER_FULL_CONTROL);
-			s3Client.putObject(request.build(), RequestBody.fromString(sb.toString()));
+			s3Client.putObject(request.build(), AsyncRequestBody.fromString(sb.toString()));
 		} catch (SdkClientException ase) {
 			LOG.error("SdkClientException: which " +
             		"means your request made it " +
