@@ -21,7 +21,6 @@
     <module>user</module>
     <module>datafile</module>
     <module>script</module>
-    <module>common</module>
     <module>project</module>
     <module>reporting</module>
     <module>filter</module>
