@@ -16,17 +16,14 @@
 
   <dependencies>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>api</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-      <scope>provided</scope>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
     </dependency>
-
   </dependencies>
 
 </project>

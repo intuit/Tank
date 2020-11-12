@@ -31,12 +31,6 @@
       <artifactId>simple-http</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
   </dependencies>
 
 </project>
