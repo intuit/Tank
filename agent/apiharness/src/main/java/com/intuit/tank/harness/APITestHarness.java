@@ -283,7 +283,7 @@ public class APITestHarness {
             } catch (IOException e) {
                 if (retryCount < FIBONACCI.length) {
                     try {
-                        Thread.sleep(FIBONACCI[++retryCount] * 100);
+                        Thread.sleep(FIBONACCI[retryCount++] * 100);
                     } catch ( InterruptedException ie) { /*Ignore*/ }
                 } else {
                     LOG.error("Error getting amazon host. maybe local.");
@@ -374,7 +374,7 @@ public class APITestHarness {
                         + (FIBONACCI.length - retryCount) + " more times.", LogEventType.System));
                 if (retryCount < FIBONACCI.length) {
                     try {
-                        Thread.sleep(FIBONACCI[++retryCount] * 1000);
+                        Thread.sleep(FIBONACCI[retryCount++] * 1000);
                     } catch ( InterruptedException ie) { /*Ignore*/ }
                 } else {
                     LOG.error(LogUtil.getLogMessage("Error writing script file: " + e, LogEventType.IO), e);
@@ -416,7 +416,7 @@ public class APITestHarness {
                         + (FIBONACCI.length - retryCount) + " more times.")));
                 if (retryCount < FIBONACCI.length) {
                     try {
-                        Thread.sleep(FIBONACCI[++retryCount] * 1000);
+                        Thread.sleep(FIBONACCI[retryCount++] * 1000);
                     } catch ( InterruptedException ie) { /*Ignore*/ }
                 } else {
                     LOG.error(LogUtil.getLogMessage("Error downloading csv file: " + e, LogEventType.IO), e);
