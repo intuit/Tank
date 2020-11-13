@@ -13,12 +13,15 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
-import junit.framework.TestCase;
-
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.test.TestGroups;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MonetaryFunctionsNGTest {
     Variables variables = new Variables();
@@ -27,14 +30,14 @@ public class MonetaryFunctionsNGTest {
     @Tag(TestGroups.FUNCTIONAL)
     public void testIsValid() {
         // Generic Tests
-        TestCase.assertFalse(FunctionHandler.validFunction("#function.monetary"));
-        TestCase.assertFalse(FunctionHandler.validFunction("#function.monetary.bogusFunction"));
+        assertFalse(FunctionHandler.validFunction("#function.monetary"));
+        assertFalse(FunctionHandler.validFunction("#function.monetary.bogusFunction"));
 
-        TestCase.assertTrue(FunctionHandler.validFunction("#function.monetary.randomPositive.5"));
+        assertTrue(FunctionHandler.validFunction("#function.monetary.randomPositive.5"));
 
         // Random Negative Whole Number
-        TestCase.assertFalse(FunctionHandler.validFunction("#function.monetary.randomNegative"));
-        TestCase.assertTrue(FunctionHandler.validFunction("#function.monetary.randomNegative.5"));
+        assertFalse(FunctionHandler.validFunction("#function.monetary.randomNegative"));
+        assertTrue(FunctionHandler.validFunction("#function.monetary.randomNegative.5"));
     }
 
     @Test
@@ -43,8 +46,8 @@ public class MonetaryFunctionsNGTest {
         String command = "#function.monetary.randomPositive.4";
 
         String random = FunctionHandler.executeFunction(command, variables);
-        TestCase.assertNotNull(random);
-        TestCase.assertTrue(random.length() == 7);
+        assertNotNull(random);
+        assertEquals(random.length(), 7);
     }
 
     @Test
@@ -53,7 +56,7 @@ public class MonetaryFunctionsNGTest {
         String command = "#function.monetary.randomNegative.5";
 
         String random = FunctionHandler.executeFunction(command, variables);
-        TestCase.assertNotNull(random);
-        TestCase.assertTrue(random.length() == 9);
+        assertNotNull(random);
+        assertEquals(random.length(), 9);
     }
 }

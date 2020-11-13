@@ -70,7 +70,7 @@ import com.intuit.tank.harness.functions.JexlStringFunctions;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.runner.TestStepContext;
 import com.intuit.tank.tools.debugger.ActionProducer.IconSize;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import com.intuit.tank.vm.common.TankConstants;
 
 /**
@@ -712,7 +712,7 @@ public class AgentDebuggerFrame extends JFrame {
     public void stop() {
         try {
             if (harness != null) {
-                harness.setCommand(WatsAgentCommand.kill);
+                harness.setCommand(AgentCommand.kill);
             }
             if (runningThread != null) {
                 runningThread.interrupt();

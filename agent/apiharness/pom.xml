@@ -86,10 +86,6 @@
       <artifactId>jaxb-impl</artifactId>
       <scope>runtime</scope>
     </dependency>
-    <dependency>
-      <groupId>org.simpleframework</groupId>
-      <artifactId>simple-http</artifactId>
-    </dependency>
   </dependencies>
 
 </project>

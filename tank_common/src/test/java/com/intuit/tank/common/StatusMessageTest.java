@@ -17,8 +17,7 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.common.StatusMessage;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 
 /**
  * The class <code>StatusMessageTest</code> contains tests for the class <code>{@link StatusMessage}</code>.
@@ -56,7 +55,7 @@ public class StatusMessageTest {
     public void testGetBody_1()
             throws Exception {
         StatusMessage fixture = new StatusMessage("");
-        fixture.setStatus(WatsAgentCommand.kill);
+        fixture.setStatus(AgentCommand.kill);
         fixture.setBody("");
 
         String result = fixture.getBody();
@@ -75,7 +74,7 @@ public class StatusMessageTest {
     public void testGetReplyQueue_1()
             throws Exception {
         StatusMessage fixture = new StatusMessage("");
-        fixture.setStatus(WatsAgentCommand.kill);
+        fixture.setStatus(AgentCommand.kill);
         fixture.setBody("");
 
         String result = fixture.getReplyQueue();
@@ -94,10 +93,10 @@ public class StatusMessageTest {
     public void testGetStatus_1()
             throws Exception {
         StatusMessage fixture = new StatusMessage("");
-        fixture.setStatus(WatsAgentCommand.kill);
+        fixture.setStatus(AgentCommand.kill);
         fixture.setBody("");
 
-        WatsAgentCommand result = fixture.getStatus();
+        AgentCommand result = fixture.getStatus();
 
         assertNotNull(result);
         assertEquals("/kill", result.getPath());
@@ -117,7 +116,7 @@ public class StatusMessageTest {
     public void testSetBody_1()
             throws Exception {
         StatusMessage fixture = new StatusMessage("");
-        fixture.setStatus(WatsAgentCommand.kill);
+        fixture.setStatus(AgentCommand.kill);
         fixture.setBody("");
         String body = "";
 
@@ -136,7 +135,7 @@ public class StatusMessageTest {
     public void testSetReplyQueue_1()
             throws Exception {
         StatusMessage fixture = new StatusMessage("");
-        fixture.setStatus(WatsAgentCommand.kill);
+        fixture.setStatus(AgentCommand.kill);
         fixture.setBody("");
         String replyQueue = "";
 
@@ -155,9 +154,9 @@ public class StatusMessageTest {
     public void testSetStatus_1()
             throws Exception {
         StatusMessage fixture = new StatusMessage("");
-        fixture.setStatus(WatsAgentCommand.kill);
+        fixture.setStatus(AgentCommand.kill);
         fixture.setBody("");
-        WatsAgentCommand status = WatsAgentCommand.kill;
+        AgentCommand status = AgentCommand.kill;
 
         fixture.setStatus(status);
 

@@ -64,7 +64,7 @@ import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import com.intuit.tank.vm.perfManager.StandaloneAgentTracker;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.vmManager.JobRequest;
@@ -78,7 +78,7 @@ public class JobManager implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private ExecutorService executor = Executors.newCachedThreadPool();
+    private final ExecutorService executor = Executors.newCachedThreadPool();
 
     private static final Logger LOG = LogManager.getLogger(JobManager.class);
 
@@ -141,7 +141,7 @@ public class JobManager implements Serializable {
 
     private void sendRequest(String instanceUrl, StandaloneAgentRequest standaloneAgentRequest) {
         Client client = ClientBuilder.newClient();
-        WebTarget webTarget = client.target(instanceUrl + WatsAgentCommand.request.getPath());
+        WebTarget webTarget = client.target(instanceUrl + AgentCommand.request.getPath());
         Response response = webTarget.request().post(Entity.entity(standaloneAgentRequest, MediaType.APPLICATION_XML));
         if (response.getStatus() != 200) {
             throw new RuntimeException("failed to start agent: " + response.toString());
@@ -187,7 +187,9 @@ public class JobManager implements Serializable {
             }
             try {
                 LOG.info("Sending start commands on executer.");
-                List<FutureTask<AgentData>> futures = info.agentData.stream().map(agent -> sendCommand(agent, WatsAgentCommand.start, true)).collect(Collectors.toList());
+                List<FutureTask<AgentData>> futures = info.agentData.stream()
+                        .map(agent -> sendCommand(agent, AgentCommand.start, true))
+                        .collect(Collectors.toList());
                 LOG.info("waiting for agentFutures to return.");
                 for (FutureTask<AgentData> future : futures) {
                     AgentData dataFuture = future.get();
@@ -197,7 +199,6 @@ public class JobManager implements Serializable {
                         vmTracker.stopJob(info.jobRequest.getId());
                     }
                 }
-                LOG.info("All agents received start command.");
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error sending start: " + e, e);
                 vmTracker.stopJob(info.jobRequest.getId());
@@ -205,6 +206,7 @@ public class JobManager implements Serializable {
         });
         thread.setDaemon(true);
         thread.start();
+        LOG.info("All agents received start command.");
     }
 
     private CloudVmStatus crateFailureStatus(AgentData data) {
@@ -212,7 +214,7 @@ public class JobManager implements Serializable {
                 data.getRegion(), VMStatus.stopped, new ValidationStatus(), data.getUsers(), 0, null, null);
     }
 
-    public FutureTask<AgentData> sendCommand(String instanceId, WatsAgentCommand cmd) {
+    public FutureTask<AgentData> sendCommand(String instanceId, AgentCommand cmd) {
         AgentData agent = getAgentData(instanceId);
         if (agent != null) {
             return sendCommand(agent, cmd, false);
@@ -221,45 +223,49 @@ public class JobManager implements Serializable {
     }
 
     private AgentData getAgentData(String instanceId) {
-        return agentMap.values().stream().flatMap(info -> info.agentData.stream()).filter(data -> instanceId.equals(data.getInstanceId())).findFirst().orElse(null);
+        return agentMap.values().stream()
+                .flatMap(info -> info.agentData.stream())
+                .filter(data -> instanceId.equals(data.getInstanceId()))
+                .findFirst()
+                .orElse(null);
     }
 
-    private FutureTask<AgentData> sendCommand(final AgentData agent, final WatsAgentCommand cmd, final boolean retry) {
+    private FutureTask<AgentData> sendCommand(final AgentData agent, final AgentCommand cmd, final boolean retry) {
         FutureTask<AgentData> future =
-                new FutureTask<AgentData>( () -> {
-                    int retries = retry ? MAX_RETRIES : 0;
-                    String url = agent.getInstanceUrl() + cmd.getPath();
-                    while (retries >= 0) {
-                        retries--;
-                        try {
-                            LOG.info("Sending command " + cmd + " to url " + url);
-                            new URL(url).getContent();
-                            break;
-                        } catch (Exception e) {
-                            LOG.error("Error sending command " + cmd.name() + " to " + url + ": " + e);
-                            // look up public ip
-                            if (!tankConfig.getStandalone()) {
-                                AmazonInstance amazonInstance = new AmazonInstance(agent.getRegion());
-                                String dns = amazonInstance.findPublicName(agent.getInstanceId());
-                                if (StringUtils.isNotEmpty(dns)) {
-                                    url = "http://" + dns + ":"
-                                            + new TankConfig().getAgentConfig().getAgentPort()
-                                            + cmd.getPath();
-                                }
+            new FutureTask<AgentData>( () -> {
+                int retries = retry ? MAX_RETRIES : 0;
+                String url = agent.getInstanceUrl() + cmd.getPath();
+                while (true) {
+                    retries--;
+                    try {
+                        LOG.info("Sending command " + cmd + " to url " + url);
+                        new URL(url).getContent();
+                        break;
+                    } catch (Exception e) {
+                        LOG.error("Error sending command " + cmd.name() + " to " + url + ": " + e);
+                        // look up public ip
+                        if (!tankConfig.getStandalone()) {
+                            AmazonInstance amazonInstance = new AmazonInstance(agent.getRegion());
+                            String dns = amazonInstance.findPublicName(agent.getInstanceId());
+                            if (StringUtils.isNotEmpty(dns)) {
+                                url = "http://" + dns + ":"
+                                        + new TankConfig().getAgentConfig().getAgentPort()
+                                        + cmd.getPath();
                             }
-                            if (retries >= 0) {
-                                try {
-                                    Thread.sleep(RETRY_SLEEP);
-                                } catch (InterruptedException e1) {
-                                    LOG.error("interrupted: " + e1);
-                                }
-                                continue;
-                            }
-                            return agent;
                         }
+                        if (retries >= 0) {
+                            try {
+                                Thread.sleep(RETRY_SLEEP);
+                            } catch (InterruptedException e1) {
+                                LOG.error("interrupted: " + e1);
+                            }
+                            continue;
+                        }
+                        return agent;
                     }
-                    return null;
-                });
+                }
+                return null;
+            });
         executor.execute(future);
         return future;
 
@@ -346,9 +352,7 @@ public class JobManager implements Serializable {
                     numberOfMachines += JobVmCalculator.getMachinesForAgent(numUsers, request.getNumUsersPerAgent());
                 }
             }
-
         }
-
     }
 
     @PreDestroy

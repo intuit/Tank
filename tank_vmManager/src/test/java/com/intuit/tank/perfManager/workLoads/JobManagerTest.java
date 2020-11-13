@@ -19,11 +19,10 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 
 /**
  * The class <code>JobManagerTest</code> contains tests for the class <code>{@link JobManager}</code>.
@@ -109,7 +108,7 @@ public class JobManagerTest {
             throws Exception {
         JobManager fixture = new JobManager();
         String instanceId = "";
-        WatsAgentCommand cmd = WatsAgentCommand.kill;
+        AgentCommand cmd = AgentCommand.kill;
 
         FutureTask<AgentData> result = fixture.sendCommand(instanceId, cmd);
 
@@ -128,7 +127,7 @@ public class JobManagerTest {
             throws Exception {
         JobManager fixture = new JobManager();
         String instanceId = "";
-        WatsAgentCommand cmd = WatsAgentCommand.kill;
+        AgentCommand cmd = AgentCommand.kill;
 
         FutureTask<AgentData> result = fixture.sendCommand(instanceId, cmd);
 

@@ -25,12 +25,6 @@
       <artifactId>api</artifactId>
       <version>${project.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.simpleframework</groupId>
-      <artifactId>simple-http</artifactId>
-    </dependency>
-
   </dependencies>
 
 </project>

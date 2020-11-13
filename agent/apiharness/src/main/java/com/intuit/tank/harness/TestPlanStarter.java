@@ -20,7 +20,7 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 
 public class TestPlanStarter implements Runnable {
 
@@ -72,10 +72,10 @@ public class TestPlanStarter implements Runnable {
                 }
             }
             // Loop while in pause or pause_ramp state
-            while (APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause_ramp
-            		|| APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause) {
+            while (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
+            		|| APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
                 if (APITestHarness.getInstance().hasMetSimulationTime()) {
-                    APITestHarness.getInstance().setCommand(WatsAgentCommand.stop);
+                    APITestHarness.getInstance().setCommand(AgentCommand.stop);
                     break;
                 } else {
                     try {
@@ -85,8 +85,8 @@ public class TestPlanStarter implements Runnable {
                     }
                 }
             }
-            if ( APITestHarness.getInstance().getCmd() == WatsAgentCommand.stop
-            		|| APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill
+            if ( APITestHarness.getInstance().getCmd() == AgentCommand.stop
+            		|| APITestHarness.getInstance().getCmd() == AgentCommand.kill
                     || APITestHarness.getInstance().hasMetSimulationTime()
                     || APITestHarness.getInstance().isDebug() ) {
                 done = true;

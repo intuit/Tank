@@ -64,7 +64,7 @@ import com.intuit.tank.vm.agent.messages.WatsAgentStatusResponse;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
 import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
@@ -90,7 +90,7 @@ public class APITestHarness {
     private boolean logTiming = true;
     private boolean isLocal = true;
     private boolean started = false;
-    private WatsAgentCommand cmd = WatsAgentCommand.run;
+    private AgentCommand cmd = AgentCommand.run;
     private ArrayList<Thread> sessionThreads = new ArrayList<>();
     private CountDownLatch doneSignal;
     private boolean loggedSimTime;
@@ -722,16 +722,16 @@ public class APITestHarness {
     /**
      * @param newCommand
      */
-    public void setCommand(WatsAgentCommand newCommand) {
-        if (cmd != WatsAgentCommand.stop) {
+    public void setCommand(AgentCommand newCommand) {
+        if (cmd != AgentCommand.stop) {
             cmd = newCommand;
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Got new Command: " + newCommand + " with " + currentNumThreads
                     + " User Threads running.")));
-            APIMonitor.setJobStatus(cmd == WatsAgentCommand.stop ? JobStatus.Stopped
-                    : cmd == WatsAgentCommand.pause ? JobStatus.Paused
-                    : cmd == WatsAgentCommand.resume_ramp || cmd == WatsAgentCommand.run ? JobStatus.Running
+            APIMonitor.setJobStatus(cmd == AgentCommand.stop ? JobStatus.Stopped
+                    : cmd == AgentCommand.pause ? JobStatus.Paused
+                    : cmd == AgentCommand.resume_ramp || cmd == AgentCommand.run ? JobStatus.Running
                     : JobStatus.RampPaused);
-            if (cmd == WatsAgentCommand.pause) {
+            if (cmd == AgentCommand.pause) {
                 for (Thread t : sessionThreads) {
                     t.interrupt();
                 }
@@ -742,7 +742,7 @@ public class APITestHarness {
     /**
      * @return the cmd
      */
-    public WatsAgentCommand getCmd() {
+    public AgentCommand getCmd() {
         return cmd;
     }
 
