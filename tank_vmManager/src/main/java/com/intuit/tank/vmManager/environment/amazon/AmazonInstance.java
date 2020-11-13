@@ -607,14 +607,17 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     }
 
-    public String findPublicName(String instanceId) {
+    public String findDNSName(String instanceId) {
         try {
             DescribeInstancesRequest describeInstancesRequest =
                     DescribeInstancesRequest.builder().instanceIds(instanceId).build();
             DescribeInstancesResponse response = ec2AsyncClient.describeInstances(describeInstancesRequest).join();
             if (response.reservations() != null && response.reservations().size() == 1) {
-                Reservation reservation = response.reservations().get(0);
-                return reservation.instances().get(0).publicDnsName();
+                Instance instance = response.reservations().get(0).instances().get(0);
+                if (StringUtils.isNotEmpty(instance.publicDnsName())) {
+                    return instance.publicDnsName();
+                }
+                return instance.privateDnsName();
             }
         } catch (Exception e) {
             LOG.error("Error getting public dns: " + e, e);

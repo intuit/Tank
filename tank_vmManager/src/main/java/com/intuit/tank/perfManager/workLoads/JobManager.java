@@ -94,7 +94,7 @@ public class JobManager implements Serializable {
     @Inject
     private Instance<WorkLoadFactory> workLoadFactoryInstance;
 
-    private Map<String, JobInfo> agentMap = new HashMap<String, JobInfo>();
+    private Map<String, JobInfo> jobInfoMapLocalCache = new HashMap<String, JobInfo>();
 
     private Map<Integer, Integer> dataFileCountMap = new ConcurrentHashMap<Integer, Integer>();
 
@@ -108,8 +108,8 @@ public class JobManager implements Serializable {
     public synchronized void startJob(int id) {
         IncreasingWorkLoad project = workLoadFactoryInstance.get().getModelRunner(id);
         JobRequest jobRequest = project.getJob();
-        agentMap.put(Integer.toString(id), new JobInfo(jobRequest));
-        if (new TankConfig().getStandalone()) {
+        jobInfoMapLocalCache.put(Integer.toString(id), new JobInfo(jobRequest));
+        if (tankConfig.getStandalone()) {
             JobInstanceDao jobInstanceDao = new JobInstanceDao();
             JobInstance jobInstance = jobInstanceDao.findById(id);
             List<AgentAvailability> agents = standaloneTracker.getAgents(jobRequest.getTotalVirtualUsers());
@@ -150,8 +150,8 @@ public class JobManager implements Serializable {
 
     public AgentTestStartData registerAgentForJob(AgentData agent) {
         AgentTestStartData ret = null;
-        JobInfo jobInfo = agentMap.get(agent.getJobId());
-        // TODO: figure out restarts
+        JobInfo jobInfo = jobInfoMapLocalCache.get(agent.getJobId());
+        // TODO: figure out controller restarts
         if (jobInfo != null) {
             synchronized (jobInfo) {
                 ret = new AgentTestStartData(jobInfo.scripts, jobInfo.getUsers(agent), jobInfo.jobRequest.getRampTime());
@@ -223,11 +223,29 @@ public class JobManager implements Serializable {
     }
 
     private AgentData getAgentData(String instanceId) {
-        return agentMap.values().stream()
+        if (StringUtils.isEmpty(instanceId)) return null;
+
+        return jobInfoMapLocalCache.values().stream()
                 .flatMap(info -> info.agentData.stream())
                 .filter(data -> instanceId.equals(data.getInstanceId()))
                 .findFirst()
-                .orElse(null);
+                .orElse(findAgent(instanceId));
+    }
+    /**
+     * If the controller has been rebooted, and jobInfoMapLocalCache doesn't have a registered agent, then search for the instance in AWS
+     * @param instanceId
+     * @return AgentData
+     */
+    private AgentData findAgent(String instanceId) {
+        for (VMRegion region : tankConfig.getVmManagerConfig().getConfiguredRegions()) {
+            AmazonInstance amazonInstance = new AmazonInstance(region);
+            String instanceUrl = amazonInstance.findDNSName(instanceId);
+            if (StringUtils.isNotEmpty(instanceUrl)) {
+                instanceUrl = "http://" + instanceUrl + ":" + tankConfig.getAgentConfig().getAgentPort();
+                return new AgentData("0", instanceId, instanceUrl, 0, region, "zone");
+            }
+        }
+        return null;
     }
 
     private FutureTask<AgentData> sendCommand(final AgentData agent, final AgentCommand cmd, final boolean retry) {
@@ -246,10 +264,10 @@ public class JobManager implements Serializable {
                         // look up public ip
                         if (!tankConfig.getStandalone()) {
                             AmazonInstance amazonInstance = new AmazonInstance(agent.getRegion());
-                            String dns = amazonInstance.findPublicName(agent.getInstanceId());
-                            if (StringUtils.isNotEmpty(dns)) {
-                                url = "http://" + dns + ":"
-                                        + new TankConfig().getAgentConfig().getAgentPort()
+                            String instanceUrl = amazonInstance.findDNSName(agent.getInstanceId());
+                            if (StringUtils.isNotEmpty(instanceUrl)) {
+                                url = "http://" + instanceUrl + ":"
+                                        + tankConfig.getAgentConfig().getAgentPort()
                                         + cmd.getPath();
                             }
                         }

@@ -112,7 +112,7 @@ public class JobManagerTest {
 
         FutureTask<AgentData> result = fixture.sendCommand(instanceId, cmd);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
