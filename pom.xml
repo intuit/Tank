@@ -28,7 +28,7 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>5.4.22.Final</version.hibernate>
-    <version.aws-sdk-bom>2.15.14</version.aws-sdk-bom>
+    <version.aws-sdk-bom>2.15.28</version.aws-sdk-bom>
     <version.aws-xray-sdk-bom>2.6.1</version.aws-xray-sdk-bom>
 
     <version-tomcat>9.0.39</version-tomcat>
@@ -1128,7 +1128,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.1</version>
         <reportSets>
           <reportSet>
             <reports>
@@ -1140,7 +1140,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.1</version>
       </plugin>
     </plugins>
   </reporting>

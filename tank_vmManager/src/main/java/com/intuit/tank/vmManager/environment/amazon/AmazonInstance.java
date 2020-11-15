@@ -620,7 +620,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 return instance.privateDnsName();
             }
         } catch (Exception e) {
-            LOG.error("Error getting public dns: " + e, e);
+            LOG.error("Error getting public dns in " + vmRegion + ": " + e.getMessage());
         }
         return null;
     }
