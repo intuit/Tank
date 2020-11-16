@@ -39,19 +39,8 @@ public class ActJobNodeBean extends JobNodeBean {
         this.setActiveUsers(String.valueOf(job.getBaselineVirtualUsers()));
         this.setTotalUsers(String.valueOf(job.getTotalVirtualUsers()));
         this.jobDetails = job.getJobDetails();
-
-        if (job.getStartTime() != null) {
-            this.setStartTime(fmt.format(job.getStartTime()));
-        } else {
-            this.setStartTime("");
-        }
-
-        if (job.getEndTime() != null) {
-            this.setEndTime(fmt.format(job.getEndTime()));
-        } else {
-            this.setEndTime("");
-        }
-
+        this.setStartTime(job.getStartTime());
+        this.setEndTime(job.getEndTime());
     }
 
     public ActJobNodeBean(String jobId, CloudVmStatusContainer container, FastDateFormat fmt) {
@@ -64,18 +53,8 @@ public class ActJobNodeBean extends JobNodeBean {
         this.setRegion("");
         this.setActiveUsers("");
         this.setTotalUsers("");
-
-        if (container.getStartTime() != null) {
-            this.setStartTime(fmt.format(container.getStartTime()));
-        } else {
-            this.setStartTime("");
-        }
-
-        if (container.getEndTime() != null) {
-            this.setEndTime(fmt.format(container.getEndTime()));
-        } else {
-            this.setEndTime("");
-        }
+        this.setStartTime(container.getStartTime());
+        this.setEndTime(container.getEndTime());
     }
 
     @Override

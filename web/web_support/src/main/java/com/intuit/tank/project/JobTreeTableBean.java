@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -78,9 +79,10 @@ import com.intuit.tank.vm.common.util.MethodTimer;
  */
 public abstract class JobTreeTableBean implements Serializable {
 
+    private static final Logger LOG = LogManager.getLogger(JobTreeTableBean.class);
     private static final String TOTAL_TPS_SERIES_KEY = "Total TPS";
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LogManager.getLogger(JobTreeTableBean.class);
+    private static final String DEFAULT_TIME_ZONE = "America/Los_Angeles";
 
     private static final int MIN_REFRESH = 10;
     private static final int INITIAL_SIZE = 10;
@@ -121,12 +123,27 @@ public abstract class JobTreeTableBean implements Serializable {
 
     protected TablePreferences tablePrefs;
     protected TableViewState tableState = new TableViewState();
+    private TimeZone timeZone = TimeZone.getTimeZone(DEFAULT_TIME_ZONE);
     private Date lastDate = null;
 
     @PostConstruct
     public void init() {
         tablePrefs = new TablePreferences(preferencesBean.getPreferences().getJobsTableColumns());
         tablePrefs.registerListener(preferencesBean);
+    }
+
+    /**
+     * @return the user TimeZone
+     */
+    public TimeZone getTimeZone() {
+        return timeZone;
+    }
+
+    /**
+     * @param timeZone  the browsers TimeZone
+     */
+    public void setTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
     }
 
     /**
