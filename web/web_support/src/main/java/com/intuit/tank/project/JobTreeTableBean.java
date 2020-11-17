@@ -142,8 +142,8 @@ public abstract class JobTreeTableBean implements Serializable {
     /**
      * @param timeZone  the browsers TimeZone
      */
-    public void setTimeZone(TimeZone timeZone) {
-        this.timeZone = timeZone;
+    public void setTimeZone(String timeZone) {
+        this.timeZone = TimeZone.getTimeZone(timeZone);
     }
 
     /**

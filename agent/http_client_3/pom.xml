@@ -8,10 +8,10 @@
     <version>3.0.1-SNAPSHOT</version>
   </parent>
   
-  <artifactId>http_client_commons_3</artifactId>
+  <artifactId>http_client_apache_3</artifactId>
 
   <packaging>jar</packaging>
-  <name>Http Client for commons apache 3.1</name>
+  <name>Http Client apache 3.1</name>
 
 
 

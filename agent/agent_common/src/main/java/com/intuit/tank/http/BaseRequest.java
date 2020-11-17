@@ -1,5 +1,6 @@
 package com.intuit.tank.http;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,8 +28,9 @@ public abstract class BaseRequest {
     protected int port = -1;
     protected String path = "/";
     protected String contentType = "application/x-www-form-urlencoded";
-    protected String contentTypeCharSet = "UTF-8";
+    protected String contentTypeCharSet = StandardCharsets.UTF_8.toString();
     protected String requestUrl;
+    private boolean async = false;
 
     protected HashMap<String, String> headerInformation = null;
     protected HashMap<String, String> urlVariables = null;
@@ -94,8 +97,6 @@ public abstract class BaseRequest {
     public void setContentType(String contentType) {
         this.contentType = contentType;
     }
-
-   
 
     public TankHttpClient getHttpclient() {
         return httpclient;
@@ -288,11 +289,11 @@ public abstract class BaseRequest {
             }
             // Cookies Information
             if (cookies != null) {
-                for (String c : cookies) {
-                    sb.append(c).append(NEWLINE);
+                for (String cookie : cookies) {
+                    sb.append(cookie).append(NEWLINE);
                 }
             }
-            if (null != body) {
+            if (StringUtils.isNotEmpty(body)) {
                 sb.append("REQUEST SIZE: " + body.getBytes().length).append(NEWLINE);
                 sb.append("REQUEST BODY: " + body).append(NEWLINE);
             }
@@ -311,6 +312,13 @@ public abstract class BaseRequest {
 
     public String getContentTypeCharSet() {
         return contentTypeCharSet;
+    }
+
+    public void setAsync(boolean async) {
+        this.async = async;
+    }
+    public boolean getAsync() {
+        return async;
     }
 
 }
