@@ -21,7 +21,6 @@ import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -349,10 +348,11 @@ public class APITestHarness {
     }
 
     /**
-     * @throws IOException
+     * Download the script url to file "script.xml" and pass the contents to the TestPlanSingleton
+     * @param scriptUrl as incoming script location
      * 
      */
-    public void writeXmlToFile(String scriptUrl) throws IOException {
+    public void writeXmlToFile(String scriptUrl) {
         File file = new File("script.xml");
         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Writing xml to " + file.getAbsolutePath())));
         int retryCount = 0;
@@ -366,9 +366,9 @@ public class APITestHarness {
                 LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Downloading file from url " + scriptUrl + " to file " + file.getAbsolutePath())));
                 FileUtils.copyURLToFile(url, file);
                 String scriptXML = FileUtils.readFileToString(file, "UTF-8");
-                TestPlanSingleton.getInstance().setTestPlans(Collections.singletonList(scriptXML));
+                TestPlanSingleton.getInstance().setTestPlanXML(scriptXML);
                 break;
-            } catch (Exception e) {
+            } catch (IOException e) {
                 LOG.warn(LogUtil.getLogMessage("Failed to download script file because of: " + e.toString()
                         + ". Will try "
                         + (FIBONACCI.length - retryCount) + " more times.", LogEventType.System));
@@ -554,13 +554,7 @@ public class APITestHarness {
                         t.start();
                     }
                 }
-                boolean ramping = true;
-                while (ramping) {
-                    boolean done = true;
-                    for (TestPlanStarter starter : testPlans) {
-                        done = done && starter.isDone();
-                    }
-                    ramping = !done;
+                while (!testPlans.stream().allMatch(TestPlanStarter::isDone)) {
                     Thread.sleep(5000);
                 }
                 // if we broke early, fix our countdown latch
@@ -574,6 +568,8 @@ public class APITestHarness {
 
                 doneSignal.await();
             }
+        } catch (InterruptedException e) {
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Stopped")));
         } catch (Throwable t) {
             LOG.error(new ObjectMessage(ImmutableMap.of("Message", "error executing..." + t)),t);
         } finally {

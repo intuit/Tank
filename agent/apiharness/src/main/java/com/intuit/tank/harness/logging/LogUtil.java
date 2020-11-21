@@ -26,6 +26,8 @@ import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
 import org.apache.logging.log4j.message.ObjectMessage;
 
+import javax.annotation.Nonnull;
+
 /**
  * LogUtil
  * 
@@ -35,13 +37,9 @@ import org.apache.logging.log4j.message.ObjectMessage;
 public final class LogUtil {
 
     private static final Logger LOG = LogManager.getLogger(LogUtil.class);
+    private static final ThreadLocalLogEvent logEventProvider = new ThreadLocalLogEvent();
 
-    private static ThreadLocalLogEvent logEventProvider = new ThreadLocalLogEvent();
-
-    private LogUtil() {
-    }
-
-    public static final LogEvent getLogEvent() {
+    public static LogEvent getLogEvent() {
         return logEventProvider.get();
     }
 
@@ -51,20 +49,21 @@ public final class LogUtil {
      * @param msg
      * @return
      */
-    public static final ObjectMessage getLogMessage(String msg) {
-        return getLogMessage(msg, null);
+    public static ObjectMessage getLogMessage(String msg) {
+        return getLogMessage(msg, LogEventType.System);
     }
 
     /**
      * Returns the message to log. will prepend the jobId to the log message in the form of jobId[id]:
      * 
      * @param msg
+     * @param type
      * @return
      */
-    public static final ObjectMessage getLogMessage(String msg, LogEventType type) {
+    public static ObjectMessage getLogMessage(String msg, @Nonnull LogEventType type) {
         LogEvent logEvent = getLogEvent();
         logEvent.setMessage(msg);
-        logEvent.setEventType(type != null ? type : LogEventType.System);
+        logEvent.setEventType(type);
         return new ObjectMessage(logEvent.buildMessage());
     }
 
@@ -74,7 +73,7 @@ public final class LogUtil {
      * @param msg
      * @return
      */
-    public static final ObjectMessage getLogMessage(String msg, LogEventType type, LoggingProfile profile) {
+    public static ObjectMessage getLogMessage(String msg, LogEventType type, LoggingProfile profile) {
         LogEvent logEvent = getLogEvent();
         LoggingProfile resetProfile = logEvent.getActiveProfile();
         if (null != profile) {
@@ -108,5 +107,4 @@ public final class LogUtil {
         }
         return false;
     }
-
 }

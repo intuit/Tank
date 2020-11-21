@@ -30,14 +30,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
-import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -623,7 +621,7 @@ public class AgentDebuggerFrame extends JFrame {
         return standalone;
     }
 
-    private String buildScriptString() throws JAXBException {
+    private HDWorkload buildHDWorkload() {
         HDWorkload workload = new HDWorkload();
         workload.setName(currentWorkload.getName());
         workload.setDescription(currentWorkload.getDescription());
@@ -635,7 +633,7 @@ public class AgentDebuggerFrame extends JFrame {
             workload.setVariables(variables);
         }
         workload.getPlans().add(currentTestPlan);
-        return JaxbUtil.marshall(workload);
+        return workload;
     }
 
     void fireScriptChanged() {
@@ -736,9 +734,7 @@ public class AgentDebuggerFrame extends JFrame {
         Runnable task = () -> {
             fireStepChanged(-1);
             if (!steps.isEmpty()) {
-                for (DebugStep step : steps) {
-                    step.clear();
-                }
+                steps.stream().forEach(DebugStep::clear);
                 setCurrentStep(-1);
                 for (GutterIconInfo gi : scriptEditorScrollPane.getGutter().getAllTrackingIcons()) {
                     if (gi.getIcon() == errorIcon) {
@@ -755,7 +751,6 @@ public class AgentDebuggerFrame extends JFrame {
                 try {
                     createHarness();
                     runningThread = new Thread(() -> harness.runConcurrentTestPlans());
-
                     runningThread.start();
                 } catch (Exception e) {
                     showError("Error starting test: " + e);
@@ -770,7 +765,7 @@ public class AgentDebuggerFrame extends JFrame {
         new Thread(task).start();
     }
 
-    private void createHarness() throws JAXBException {
+    private void createHarness() {
         APITestHarness.destroyCurrentInstance();
         harness = APITestHarness.getInstance();
         harness.setFlowControllerTemplate(flowController);
@@ -784,7 +779,7 @@ public class AgentDebuggerFrame extends JFrame {
         harness.getAgentRunData().setTotalAgents(1);
         harness.setDebug(true);
 
-        TestPlanSingleton.getInstance().setTestPlans(Collections.singletonList(buildScriptString()));
+        TestPlanSingleton.getInstance().setTestPlan(buildHDWorkload());
         downloadDataFiles();
         JexlIOFunctions.resetStatics();
         JexlStringFunctions.resetStatics();

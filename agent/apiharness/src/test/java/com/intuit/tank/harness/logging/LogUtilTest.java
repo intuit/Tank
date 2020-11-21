@@ -81,7 +81,7 @@ public class LogUtilTest {
     public void testGetLogMessage_2()
             throws Exception {
         String msg = "";
-        LogEventType type = null;
+        LogEventType type = LogEventType.System;
 
         ObjectMessage result = LogUtil.getLogMessage(msg, type);
 
