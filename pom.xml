@@ -27,11 +27,11 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>5.4.22.Final</version.hibernate>
-    <version.aws-sdk-bom>2.15.28</version.aws-sdk-bom>
-    <version.aws-xray-sdk-bom>2.6.1</version.aws-xray-sdk-bom>
+    <version.hibernate>5.4.25.Final</version.hibernate>
+    <version.aws-sdk-bom>2.15.38</version.aws-sdk-bom>
+    <version.aws-xray-sdk-bom>2.8.0</version.aws-xray-sdk-bom>
 
-    <version-tomcat>9.0.39</version-tomcat>
+    <version-tomcat>9.0.40</version-tomcat>
 
     <weld.version>3.1.5.SP1</weld.version>
     <cdi.version>2.0</cdi.version>
