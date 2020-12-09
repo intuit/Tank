@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.UserTokenHandler;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -58,7 +60,6 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultUserTokenHandler;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.logging.log4j.LogManager;
@@ -100,20 +101,21 @@ public class TankHttpClient4 implements TankHttpClient {
         // requests
         context = HttpClientContext.create();
         context.setCredentialsProvider(new BasicCredentialsProvider());
-        context.setUserToken(Thread.currentThread().getName());
+        context.setUserToken(UUID.randomUUID());
         context.setCookieStore(new BasicCookieStore());
         context.setRequestConfig(requestConfig);
     }
 
     public Object createHttpClient() {
+        UserTokenHandler userTokenHandler = (httpContext) -> httpContext.getAttribute(HttpClientContext.USER_TOKEN);
         // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
         return HttpClients.custom()
                 .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                .setUserTokenHandler(DefaultUserTokenHandler.INSTANCE)
+                .setUserTokenHandler(userTokenHandler)
                 .evictIdleConnections(1L, TimeUnit.MINUTES)
                 .evictExpiredConnections()
-                .setMaxConnPerRoute(1024)
-                .setMaxConnTotal(2048)
+                .setMaxConnPerRoute(10240)
+                .setMaxConnTotal(20480)
                 .build();
     }
 

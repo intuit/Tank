@@ -16,7 +16,6 @@ package com.intuit.tank.httpclient5;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.SocketException;
-import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -31,9 +31,9 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.hc.client5.http.UserTokenHandler;
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequests;
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
@@ -45,7 +45,6 @@ import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
 import org.apache.hc.client5.http.cookie.StandardCookieSpec;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
-import org.apache.hc.client5.http.impl.DefaultUserTokenHandler;
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
@@ -99,7 +98,7 @@ public class TankHttpClient5 implements TankHttpClient {
         // requests
         context = HttpClientContext.create();
         context.setCredentialsProvider(new BasicCredentialsProvider());
-        context.setUserToken(Thread.currentThread().getName());
+        context.setUserToken(UUID.randomUUID());
         context.setCookieStore(new BasicCookieStore());
         context.setRequestConfig(requestConfig);
     }
@@ -108,12 +107,13 @@ public class TankHttpClient5 implements TankHttpClient {
         // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
         PoolingAsyncClientConnectionManager cm =
                 PoolingAsyncClientConnectionManagerBuilder.create()
-                        .setMaxConnPerRoute(1024)
-                        .setMaxConnTotal(2048)
+                        .setMaxConnPerRoute(10240)
+                        .setMaxConnTotal(20480)
                         .build();
+        UserTokenHandler userTokenHandler = (httpRoute, httpContext) -> httpContext.getAttribute(HttpClientContext.USER_TOKEN);
         return HttpAsyncClients.custom()
                 .setConnectionManager(cm)
-                .setUserTokenHandler(DefaultUserTokenHandler.INSTANCE)
+                .setUserTokenHandler(userTokenHandler)
                 .build();
     }
 
