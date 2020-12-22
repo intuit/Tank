@@ -65,19 +65,19 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>http_client_commons_3</artifactId>
+      <artifactId>http_client_apache_3</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>http_client_commons_4</artifactId>
+      <artifactId>http_client_apache_4</artifactId>
       <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>http_client_commons_5</artifactId>
+      <artifactId>http_client_apache_5</artifactId>
       <version>${project.version}</version>
     </dependency>
 
