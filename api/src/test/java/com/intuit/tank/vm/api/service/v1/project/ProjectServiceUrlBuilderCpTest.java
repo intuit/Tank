@@ -15,8 +15,6 @@ package com.intuit.tank.vm.api.service.v1.project;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.api.service.v1.project.ProjectServiceUrlBuilder;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

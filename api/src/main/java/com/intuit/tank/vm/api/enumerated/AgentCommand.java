@@ -13,7 +13,7 @@ package com.intuit.tank.vm.api.enumerated;
  * #L%
  */
 
-public enum WatsAgentCommand {
+public enum AgentCommand {
     start("/start"),
     run("/start"),
     stop("/stop"),
@@ -29,7 +29,7 @@ public enum WatsAgentCommand {
     /**
      * @param path
      */
-    private WatsAgentCommand(String path) {
+    private AgentCommand(String path) {
         this.path = path;
     }
 

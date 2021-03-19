@@ -15,9 +15,10 @@ package com.intuit.tank.harness.test.validation;
 
 import com.intuit.tank.test.TestGroups;
 
-import junit.framework.TestCase;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RegularExpressionsTest {
 
@@ -27,6 +28,6 @@ public class RegularExpressionsTest {
         // 2009-02-26T12:44:02.053-08:00
         String regExp = "(20)\\d\\d[-](0[1-9]|1[012])[-](0[1-9]|[12][0-9]|3[01])(T)((0)\\d|(1)\\d|(2)[0-4])[:][0-6]\\d[:][0-6]\\d\\.\\d\\d\\d[-]((0)\\d|(1)\\d|(2)[1-4])[:][0-6]\\d";
 
-        TestCase.assertTrue(RegularExpressions.validFormat(regExp, "2009-02-26T12:44:02.053-08:00"));
+        assertTrue(RegularExpressions.validFormat(regExp, "2009-02-26T12:44:02.053-08:00"));
     }
 }

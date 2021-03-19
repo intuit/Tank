@@ -71,9 +71,9 @@ public class ScriptRunner {
         try ( Reader reader =  new StringReader(script) ){
             ioBean = new ScriptIOBean(inputs, output);
             engine.put("ioBean", ioBean);
-            ioBean.println("Starting test...");
+            ioBean.println("Starting scriptEngine...");
             engine.eval(reader, engine.getContext());
-            ioBean.println("Finished test...");
+            ioBean.println("Finished scriptEngine...");
         } catch (ScriptException e) {
             throw new ScriptException(e.getMessage(), scriptName, e.getLineNumber(), e.getColumnNumber());
         } catch (IOException e) {

@@ -45,8 +45,8 @@ public abstract class JobNodeBean implements Serializable {
     private List<UserDetail> userDetails = new ArrayList<UserDetail>();
     private String totalFails;
     private String totalUsers;
-    private String startTime;
-    private String endTime;
+    private Date startTime;
+    private Date endTime;
     private boolean hasRights = false;
     private Map<Date, List<UserDetail>> statusDetailMap;
     // private Map<Date, Map<String, TPSInfo>> tpsInfoMap;
@@ -280,7 +280,7 @@ public abstract class JobNodeBean implements Serializable {
     /**
      * @return the startTime
      */
-    public String getStartTime() {
+    public Date getStartTime() {
         return startTime;
     }
 
@@ -288,14 +288,14 @@ public abstract class JobNodeBean implements Serializable {
      * @param startTime
      *            the startTime to set
      */
-    public void setStartTime(String startTime) {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
     /**
      * @return the endTime
      */
-    public String getEndTime() {
+    public Date getEndTime() {
         return endTime;
     }
 
@@ -303,7 +303,7 @@ public abstract class JobNodeBean implements Serializable {
      * @param endTime
      *            the endTime to set
      */
-    public void setEndTime(String endTime) {
+    public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
 

@@ -2,7 +2,7 @@ package com.intuit.tank.harness;
 
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -21,7 +21,7 @@ public class AmazonUtilTest {
 	@Test
 	void testGetVMRegion() {
 		VMRegion vmRegion = AmazonUtil.getVMRegion();
-		Assertions.assertNotNull(vmRegion);
+		assertNotNull(vmRegion);
 		assertEquals("Standalone Agent", vmRegion.getDescription());
 		assertEquals("standalone-agent", vmRegion.getRegion());
 	}
@@ -35,21 +35,22 @@ public class AmazonUtilTest {
 	@Test
 	void testGetZone() {
 		String zone = AmazonUtil.getZone();
-		Assertions.assertNotNull(zone);
+		assertNotNull(zone);
 		assertEquals("unknown", zone);
 	}
 
 	@Test
 	void testGetInstanceId() {
 		String instanceId = AmazonUtil.getInstanceId();
-		Assertions.assertNotNull(instanceId);
+		assertNotNull(instanceId);
 		assertEquals("", instanceId);
 	}
 
 	@Test
+	@Disabled
 	void testGetLoggingProfile() {
 		LoggingProfile loggingProfile = AmazonUtil.getLoggingProfile();
-		Assertions.assertNotNull(loggingProfile);
+		assertNotNull(loggingProfile);
 		assertEquals("Standard", loggingProfile.getDisplayName());
 		assertEquals("Logs common fields.", loggingProfile.getDescription());
 	}
@@ -63,7 +64,7 @@ public class AmazonUtilTest {
 	@Test
 	void testGetStopBehavior() {
 		StopBehavior stopBehavior = AmazonUtil.getStopBehavior();
-		Assertions.assertNotNull(stopBehavior);
+		assertNotNull(stopBehavior);
 		assertEquals("Script Group", stopBehavior.getDisplay());
 		assertEquals("Stop after current script group completes.", stopBehavior.getDescription());
 	}
@@ -77,14 +78,14 @@ public class AmazonUtilTest {
 	@Test
 	void testGetControllerBaseUrl() {
 		String url = AmazonUtil.getControllerBaseUrl();
-		Assertions.assertNotNull(url);
+		assertNotNull(url);
 		assertEquals("http://localhost:8080/", url);
 	}
 
 	@Test
 	void testGetUserDataAsMap() {
 		Object o = AmazonUtil.getUserDataAsMap();
-		Assertions.assertNotNull(o);
+		assertNotNull(o);
 	}
 
 }

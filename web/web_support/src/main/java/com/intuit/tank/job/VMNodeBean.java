@@ -38,19 +38,8 @@ public class VMNodeBean extends JobNodeBean {
         this.setUserDetails(vmStatus.getUserDetails());
         this.setTotalUsers(String.valueOf(vmStatus.getTotalUsers()));
         setTps(vmStatus.getTotalTps());
-
-        if (vmStatus.getStartTime() != null) {
-            this.setStartTime(fmt.format(vmStatus.getStartTime()));
-        } else {
-            this.setStartTime("");
-        }
-
-        if (vmStatus.getEndTime() != null) {
-            this.setEndTime(fmt.format(vmStatus.getEndTime()));
-        } else {
-            this.setEndTime("");
-        }
-
+        this.setStartTime(vmStatus.getStartTime());
+        this.setEndTime(vmStatus.getEndTime());
     }
 
     @Override

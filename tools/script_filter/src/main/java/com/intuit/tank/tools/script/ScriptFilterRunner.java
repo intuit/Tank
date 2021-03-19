@@ -16,15 +16,7 @@ package com.intuit.tank.tools.script;
  * #L%
  */
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
-import java.awt.Insets;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowAdapter;
@@ -43,17 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.script.ScriptException;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JToolBar;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.xml.bind.JAXBContext;
@@ -114,6 +96,8 @@ public class ScriptFilterRunner extends JFrame {
      */
     public ScriptFilterRunner(final boolean terminate, String serviceUrl) throws HeadlessException {
         super("Intuit Tank Script Filter Editor");
+        Taskbar.getTaskbar().setIconImage(new ImageIcon(
+                Thread.currentThread().getContextClassLoader().getResource("tankIcon.png")).getImage());
         setSize(new Dimension(1024, 800));
         setBounds(new Rectangle(getSize()));
         setPreferredSize(getSize());

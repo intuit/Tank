@@ -18,10 +18,9 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.harness.functions.FunctionHandler;
 import com.intuit.tank.harness.test.data.Variables;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +29,7 @@ public class DateFunctionsTest {
 
     Variables variables;
 
-    @Before
+    @BeforeEach
     public void setUp() {
     	LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     	Configuration config = ctx.getConfiguration();

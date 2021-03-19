@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>agent-parent</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>agent</artifactId>
@@ -65,19 +65,19 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>http_client_commons_3</artifactId>
+      <artifactId>http_client_apache_3</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>http_client_commons_4</artifactId>
+      <artifactId>http_client_apache_4</artifactId>
       <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>http_client_commons_5</artifactId>
+      <artifactId>http_client_apache_5</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -85,10 +85,6 @@
       <groupId>com.sun.xml.bind</groupId>
       <artifactId>jaxb-impl</artifactId>
       <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.simpleframework</groupId>
-      <artifactId>simple-http</artifactId>
     </dependency>
   </dependencies>
 

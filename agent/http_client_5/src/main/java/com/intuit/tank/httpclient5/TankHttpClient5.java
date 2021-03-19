@@ -13,10 +13,9 @@ package com.intuit.tank.httpclient5;
  * #L%
  */
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.SocketException;
-import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,46 +23,41 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.hc.client5.http.UserTokenHandler;
+import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
+import org.apache.hc.client5.http.async.methods.SimpleHttpRequests;
+import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.NTCredentials;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
-import org.apache.hc.client5.http.classic.methods.HttpDelete;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpOptions;
-import org.apache.hc.client5.http.classic.methods.HttpPut;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
 import org.apache.hc.client5.http.cookie.StandardCookieSpec;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
+import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
-import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManager;
+import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
-import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
-import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.http.cookie.ClientCookie;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,7 +77,7 @@ public class TankHttpClient5 implements TankHttpClient {
 
     private static final Logger LOG = LogManager.getLogger(TankHttpClient5.class);
 
-    private CloseableHttpClient httpclient;
+    private CloseableHttpAsyncClient httpclient;
     private HttpClientContext context;
 
     /**
@@ -104,30 +98,32 @@ public class TankHttpClient5 implements TankHttpClient {
         // requests
         context = HttpClientContext.create();
         context.setCredentialsProvider(new BasicCredentialsProvider());
-        context.setUserToken(Thread.currentThread().getName());
+        context.setUserToken(UUID.randomUUID());
         context.setCookieStore(new BasicCookieStore());
         context.setRequestConfig(requestConfig);
     }
 
     public Object createHttpClient() {
         // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
-        SSLConnectionSocketFactory sslsf =
-                new SSLConnectionSocketFactory(SSLContexts.createDefault(), NoopHostnameVerifier.INSTANCE);
-        HttpClientConnectionManager cm =
-                PoolingHttpClientConnectionManagerBuilder.create()
-                        .setSSLSocketFactory(sslsf)
-                        .setMaxConnPerRoute(1024)
-                        .setMaxConnTotal(2048)
+        PoolingAsyncClientConnectionManager cm =
+                PoolingAsyncClientConnectionManagerBuilder.create()
+                        .setMaxConnPerRoute(10240)
+                        .setMaxConnTotal(20480)
                         .build();
-        return HttpClients.custom().setConnectionManager(cm).build();
+        UserTokenHandler userTokenHandler = (httpRoute, httpContext) -> httpContext.getAttribute(HttpClientContext.USER_TOKEN);
+        return HttpAsyncClients.custom()
+                .setConnectionManager(cm)
+                .setUserTokenHandler(userTokenHandler)
+                .build();
     }
 
     public void setHttpClient(Object httpClient) {
-        if (httpClient instanceof CloseableHttpClient) {
-            this.httpclient = (CloseableHttpClient) httpClient;
+        if (httpClient instanceof CloseableHttpAsyncClient) {
+            this.httpclient = (CloseableHttpAsyncClient) httpClient;
         } else {
-            this.httpclient = (CloseableHttpClient) createHttpClient();
+            this.httpclient = (CloseableHttpAsyncClient) createHttpClient();
         }
+        this.httpclient.start();
     }
 
     public void setConnectionTimeout(long connectionTimeout) {
@@ -140,96 +136,85 @@ public class TankHttpClient5 implements TankHttpClient {
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doGet(com.intuit.tank.http.
+     * com.intuit.tank.httpclient5.TankHttpClient#doGet(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
     public void doGet(BaseRequest request) {
-        HttpGet httpget = new HttpGet(request.getRequestUrl());
-        sendRequest(request, httpget, request.getBody());
+        SimpleHttpRequest httpget = SimpleHttpRequests.get(request.getRequestUrl());
+        sendRequest(request, httpget);
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doPut(com.intuit.tank.http.
+     * com.intuit.tank.httpclient5.TankHttpClient#doPut(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
     public void doPut(BaseRequest request) {
-        HttpPut httpput = new HttpPut(request.getRequestUrl());
-        // Multiple calls can be expensive, so get it once
-        String requestBody = request.getBody();
-        HttpEntity entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
-        httpput.setEntity(entity);
-        sendRequest(request, httpput, requestBody);
+        SimpleHttpRequest httpput = SimpleHttpRequests.put(request.getRequestUrl());
+        httpput.setBody(request.getBody(), ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+        sendRequest(request, httpput);
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doDelete(com.intuit.tank.http.
+     * com.intuit.tank.httpclient5.TankHttpClient#doDelete(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
     public void doDelete(BaseRequest request) {
-        HttpDelete httpdelete = new HttpDelete(request.getRequestUrl());
-        // Multiple calls can be expensive, so get it once
-        String requestBody = request.getBody();
-        String type = request.getHeaderInformation().get("Content-Type");
-        if (StringUtils.isBlank(type)) {
-            request.getHeaderInformation().put("Content-Type", "application/json");
-        }
-        sendRequest(request, httpdelete, requestBody);
+        SimpleHttpRequest httpdelete = SimpleHttpRequests.delete(request.getRequestUrl());
+        sendRequest(request, httpdelete);
     }
     
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doOptions(com.intuit.tank.http.
+     * com.intuit.tank.httpclient5.TankHttpClient#doOptions(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
     public void doOptions(BaseRequest request) {
-    	HttpOptions httpoptions = new HttpOptions(request.getRequestUrl());
-        // Multiple calls can be expensive, so get it once
-        String requestBody = request.getBody();
-        String type = request.getHeaderInformation().get("Content-Type");
-        if (StringUtils.isBlank(type)) {
-            request.getHeaderInformation().put("Content-Type", "application/json");
-        }
-        sendRequest(request, httpoptions, requestBody);
+        SimpleHttpRequest httpoptions = SimpleHttpRequests.options(request.getRequestUrl());
+        sendRequest(request, httpoptions);
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doPost(com.intuit.tank.http.
+     * com.intuit.tank.httpclient5.TankHttpClient#doPost(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
     public void doPost(BaseRequest request) {
-        HttpPost httppost = new HttpPost(request.getRequestUrl());
+        SimpleHttpRequest httppost = SimpleHttpRequests.post(request.getRequestUrl());
         String requestBody = request.getBody();
-        HttpEntity entity = null;
         if (BaseRequest.CONTENT_TYPE_MULTIPART.equalsIgnoreCase(request.getContentType())) {
-            entity = buildParts(request);
+            HttpEntity entity = buildParts(request);
+            try (ByteArrayOutputStream baoStream = new ByteArrayOutputStream() ) {
+                entity.writeTo(baoStream);
+                httppost.setBody(baoStream.toByteArray(), ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+            } catch (IOException e) {
+                LOG.error("Failure to write multipart POST payload.");
+            }
         } else {
-            entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+            httppost.setBody(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
         }
-        httppost.setEntity(entity);
-        sendRequest(request, httppost, requestBody);
+        sendRequest(request, httppost);
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#addAuth(com.intuit.tank.http.
+     * com.intuit.tank.httpclient5.TankHttpClient#addAuth(com.intuit.tank.http.
      * AuthCredentials)
      */
     @Override
@@ -252,7 +237,7 @@ public class TankHttpClient5 implements TankHttpClient {
     /*
      * (non-Javadoc)
      * 
-     * @see com.intuit.tank.httpclient3.TankHttpClient#clearSession()
+     * @see com.intuit.tank.httpclient5.TankHttpClient#clearSession()
      */
     @Override
     public void clearSession() {
@@ -288,46 +273,66 @@ public class TankHttpClient5 implements TankHttpClient {
         }
     }
 
-    private void sendRequest(BaseRequest request, @Nonnull ClassicHttpRequest method, String requestBody) {
-        String uri = null;
-        long waitTime = 0L;
-        try {
-            uri = method.getUri().toString();
-        } catch (URISyntaxException e) {}
-        LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
+    private void sendRequest(BaseRequest request, @Nonnull SimpleHttpRequest method) {
+        LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + method.getRequestUri() + " with requestBody  " + method.getBody(), LogEventType.Informational));
         List<String> cookies = new ArrayList<String>();
         if (context.getCookieStore().getCookies() != null) {
-            cookies = context.getCookieStore().getCookies().stream().map(cookie -> "REQUEST COOKIE: " + cookie.toString()).collect(Collectors.toList());
+            cookies = context.getCookieStore().getCookies().stream()
+                    .map(cookie -> "REQUEST COOKIE: " + cookie.toString())
+                    .collect(Collectors.toList());
         }
-        request.logRequest(uri, requestBody, method.getMethod(), request.getHeaderInformation(), cookies, false);
-        setHeaders(request, method, request.getHeaderInformation());
+        request.logRequest(method.getRequestUri(), method.getBodyText(), method.getMethod(), request.getHeaderInformation(), cookies, false);
+        setHeaders(method, request.getHeaderInformation());
         long startTime = System.currentTimeMillis();
         request.setTimestamp(new Date(startTime));
-        try ( CloseableHttpResponse response = httpclient.execute(method, context) ) {
+        final Future<SimpleHttpResponse> future = httpclient.execute(method, context,
+            new FutureCallback<SimpleHttpResponse>() {
 
-            // read response body
-            byte[] responseBody = new byte[0];
-            // check for no content headers
-            if (response.getCode() != 203 && response.getCode() != 202 && response.getCode() != 204) {
-                try ( InputStream is = response.getEntity().getContent() ) {
-                    responseBody = IOUtils.toByteArray(is);
-                } catch (IOException | NullPointerException e) {
-                    LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
+                @Override
+                public void completed(final SimpleHttpResponse response) {
+                    if (request.getAsync() && response.getCode() != 203 && response.getCode() != 202 && response.getCode() != 204) {
+                        long waitTime = System.currentTimeMillis() - startTime;
+                        processResponse(response.getBodyBytes(), waitTime, request, response.getReasonPhrase(), response.getCode(), response.getHeaders());
+                        if (waitTime != 0) {
+                            doWaitDueToLongResponse(request, waitTime, method.getRequestUri());
+                        }
+                    }
+                }
+
+                @Override
+                public void failed(final Exception ex) {
+                    if (ex instanceof UnknownHostException) {
+                        LOG.error(request.getLogUtil()
+                                .getLogMessage("UnknownHostException to url: " + method.getRequestUri() + " |  error: " + ex.toString(), LogEventType.IO), ex);
+                    }
+                    else if (ex instanceof SocketException) {
+                        LOG.error(request.getLogUtil()
+                                .getLogMessage("SocketException to url: " + method.getRequestUri() + " |  error: " + ex.toString(), LogEventType.IO), ex);
+                    }
+                    else if (ex instanceof Exception) {
+                        LOG.error(request.getLogUtil()
+                                .getLogMessage("Could not do " + method.getMethod() + " to url " + method.getRequestUri() + " |  error: " + ex.toString(), LogEventType.IO), ex);
+                        throw new RuntimeException(ex);
+                    }
+                }
+
+                @Override
+                public void cancelled() {
+                    System.out.println(method.getMethod() + " cancelled");
+                }
+
+            });
+        try {
+            SimpleHttpResponse response = future.get();
+            if (!request.getAsync() && response.getCode() != 203 && response.getCode() != 202 && response.getCode() != 204) {
+                long waitTime = System.currentTimeMillis() - startTime;
+                processResponse(response.getBodyBytes(), waitTime, request, response.getReasonPhrase(), response.getCode(), response.getHeaders());
+                if (waitTime != 0) {
+                    doWaitDueToLongResponse(request, waitTime, method.getRequestUri());
                 }
             }
-            waitTime = System.currentTimeMillis() - startTime;
-            processResponse(responseBody, waitTime, request, response.getReasonPhrase(), response.getCode(), response.getHeaders());
-            
-        } catch (UnknownHostException uhex) {
-            LOG.error(request.getLogUtil().getLogMessage("UnknownHostException to url: " + uri + " |  error: " + uhex.toString(), LogEventType.IO), uhex);
-        } catch (SocketException sex) {
-            LOG.error(request.getLogUtil().getLogMessage("SocketException to url: " + uri + " |  error: " + sex.toString(), LogEventType.IO), sex);
-        } catch (Exception ex) {
-            LOG.error(request.getLogUtil().getLogMessage("Could not do " + method.getMethod() + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO), ex);
-            throw new RuntimeException(ex);
-        }
-        if (waitTime != 0) {
-            doWaitDueToLongResponse(request, waitTime, uri);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error(request.getLogUtil().getLogMessage("Execution Interrupted: " + e.getMessage()), e);
         }
     }
 
@@ -398,21 +403,13 @@ public class TankHttpClient5 implements TankHttpClient {
     /**
      * Set all the header keys
      *
-     * @param request
      * @param method
      * @param headerInformation
      */
-    @SuppressWarnings("rawtypes")
-    private void setHeaders(BaseRequest request, ClassicHttpRequest method, HashMap<String, String> headerInformation) {
-        try {
-            Set set = headerInformation.entrySet();
-
-            for (Object aSet : set) {
-                Map.Entry mapEntry = (Map.Entry) aSet;
-                method.setHeader((String) mapEntry.getKey(), (String) mapEntry.getValue());
-            }
-        } catch (Exception ex) {
-            LOG.warn(request.getLogUtil().getLogMessage("Unable to set header: " + ex.getMessage(), LogEventType.System));
+    private void setHeaders(SimpleHttpRequest method, HashMap<String, String> headerInformation) {
+        for (Object aSet : headerInformation.entrySet()) {
+            Map.Entry mapEntry = (Map.Entry) aSet;
+            method.setHeader((String) mapEntry.getKey(), (String) mapEntry.getValue());
         }
     }
 

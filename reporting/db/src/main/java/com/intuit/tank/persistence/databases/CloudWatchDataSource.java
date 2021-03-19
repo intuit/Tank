@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
 import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
@@ -44,7 +44,7 @@ import static java.util.stream.Collectors.toList;
 public class CloudWatchDataSource implements IDatabase {
     private static final Logger LOG = LogManager.getLogger(CloudWatchDataSource.class);
 
-    private CloudWatchClient cloudWatchClient;
+    private CloudWatchAsyncClient cloudWatchClient;
     private static final int MAX_CLOUDWATCH_METRICS_SUPPORTED = 150;
     private static final String namespace = "Intuit/Tank";
 
@@ -52,9 +52,9 @@ public class CloudWatchDataSource implements IDatabase {
         CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
         if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
             AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
-            this.cloudWatchClient = CloudWatchClient.builder().credentialsProvider(StaticCredentialsProvider.create(credentials)).build();
+            this.cloudWatchClient = CloudWatchAsyncClient.builder().credentialsProvider(StaticCredentialsProvider.create(credentials)).build();
         } else {
-            this.cloudWatchClient = CloudWatchClient.builder().build();
+            this.cloudWatchClient = CloudWatchAsyncClient.builder().build();
         }
     }
 

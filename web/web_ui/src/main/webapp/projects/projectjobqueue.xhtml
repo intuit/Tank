@@ -158,14 +158,18 @@
         style="width:#{projectJobQueueManager.tablePrefs.getSize('startTimeColumn')}px;text-align:right;"
         headerText="Start Time" styleClass="ellipsis min-column-size"
         rendered="#{projectJobQueueManager.tablePrefs.isVisible('startTimeColumn')}">
-        <h:outputText value="#{node.startTime}"  />
+        <h:outputText value="#{node.startTime}">
+          <f:convertDateTime type="both" dateStyle="short" timeStyle="short" timeZone="#{projectJobQueueManager.timeZone}"/>
+        </h:outputText>
       </p:column>
 
       <p:column id="endTimeColumn"
         style="width:#{projectJobQueueManager.tablePrefs.getSize('endTimeColumn')}px;text-align:right;"
         headerText="End Time" styleClass="ellipsis min-column-size"
         rendered="#{projectJobQueueManager.tablePrefs.isVisible('endTimeColumn')}">
-        <h:outputText value="#{node.endTime}" />
+        <h:outputText value="#{node.endTime}">
+          <f:convertDateTime type="both" dateStyle="short" timeStyle="short" timeZone="#{projectJobQueueManager.timeZone}"/>
+        </h:outputText>
       </p:column>
 
       <p:column id="actionsColumn"

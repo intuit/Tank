@@ -46,7 +46,7 @@ import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.runner.method.TestStepRunner;
 import com.intuit.tank.runner.method.TimerMap;
 import com.intuit.tank.script.ScriptConstants;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.common.util.MethodTimer;
 import com.intuit.tank.vm.settings.TankConfig;
@@ -130,7 +130,7 @@ public class TestPlanRunner implements Runnable {
                 int scriptGroupLoop = 0;
                 while (scriptGroupLoop < hdScriptGroup.getLoop()) {
                     List<HDScript> groupSteps = hdScriptGroup.getGroupSteps();
-                    if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill) {
+                    if (APITestHarness.getInstance().getCmd() == AgentCommand.kill) {
                         return;
                     }
                     try {
@@ -183,7 +183,7 @@ public class TestPlanRunner implements Runnable {
                         String gotoGroup = null;
                         List<HDScriptUseCase> useCaseList = hdscript.getUseCase();
                         for (int i = 0; i < useCaseList.size(); i++) {
-                            if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill) {
+                            if (APITestHarness.getInstance().getCmd() == AgentCommand.kill) {
                                 return;
                             }
                             HDScriptUseCase hdScriptUseCase = useCaseList.get(i);
@@ -236,7 +236,7 @@ public class TestPlanRunner implements Runnable {
     }
 
     private boolean shouldStop(RunPhase phase) {
-        if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.stop) {
+        if (APITestHarness.getInstance().getCmd() == AgentCommand.stop) {
             return phase.ordinal() >= APITestHarness.getInstance().getAgentRunData().getStopBehavior().ordinal();
         }
         return false;
@@ -253,9 +253,9 @@ public class TestPlanRunner implements Runnable {
         String gotoGroup = null;
         LogEvent logEvent = LogUtil.getLogEvent();
         for (int i = 0; i < scriptSteps.size(); i++) {
-            while (APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause) {
+            while (APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
                 if (APITestHarness.getInstance().hasMetSimulationTime()) {
-                    APITestHarness.getInstance().setCommand(WatsAgentCommand.stop);
+                    APITestHarness.getInstance().setCommand(AgentCommand.stop);
                     break;
                 } else {
                     try {
@@ -265,7 +265,7 @@ public class TestPlanRunner implements Runnable {
                     }
                 }
             }
-            if (APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill) {
+            if (APITestHarness.getInstance().getCmd() == AgentCommand.kill) {
                 return;
             }
             TestStep testStep = scriptSteps.get(i);

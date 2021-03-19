@@ -26,7 +26,7 @@ import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.reporting.api.TPSInfoContainer;
 import com.intuit.tank.vm.agent.messages.WatsAgentStatusResponse;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 
 public class APIMonitor implements Runnable {
 
@@ -105,10 +105,10 @@ public class APIMonitor implements Runnable {
      * @return
      */
     private JobStatus calculateJobStatus(WatsAgentStatusResponse agentStatus, JobStatus currentStatus) {
-        WatsAgentCommand cmd = APITestHarness.getInstance().getCmd();
-        return cmd == WatsAgentCommand.pause ? JobStatus.Paused
-                : cmd == WatsAgentCommand.stop ? JobStatus.Stopped
-                : cmd == WatsAgentCommand.pause_ramp ? JobStatus.RampPaused
+        AgentCommand cmd = APITestHarness.getInstance().getCmd();
+        return cmd == AgentCommand.pause ? JobStatus.Paused
+                : cmd == AgentCommand.stop ? JobStatus.Stopped
+                : cmd == AgentCommand.pause_ramp ? JobStatus.RampPaused
                 : currentStatus == JobStatus.Unknown
                     || currentStatus == JobStatus.Starting
                     && agentStatus.getCurrentNumberUsers() > 0 ? JobStatus.Running

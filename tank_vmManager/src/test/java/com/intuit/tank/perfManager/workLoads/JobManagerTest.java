@@ -13,17 +13,20 @@ package com.intuit.tank.perfManager.workLoads;
  * #L%
  */
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.FutureTask;
 
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 
 /**
  * The class <code>JobManagerTest</code> contains tests for the class <code>{@link JobManager}</code>.
@@ -105,34 +108,34 @@ public class JobManagerTest {
      * @generatedBy CodePro at 9/10/14 10:40 AM
      */
     @Test
-    public void testSendCommand_1()
-            throws Exception {
+    public void testSendCommand_1() {
         JobManager fixture = new JobManager();
-        String instanceId = "";
-        WatsAgentCommand cmd = WatsAgentCommand.kill;
+        List<String> instanceId = Collections.singletonList("");
+        AgentCommand cmd = AgentCommand.kill;
 
-        FutureTask<AgentData> result = fixture.sendCommand(instanceId, cmd);
+        CompletableFuture<?>[] result = fixture.sendCommand(instanceId, cmd);
 
-        assertEquals(null, result);
+        assertEquals(0, result.length);
     }
 
-    /**
-     * Run the FutureTask<AgentData> sendCommand(String,WatsAgentCommand) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/10/14 10:40 AM
-     */
     @Test
-    public void testSendCommand_2()
-            throws Exception {
+    public void testSendCommand_2() {
         JobManager fixture = new JobManager();
-        String instanceId = "";
-        WatsAgentCommand cmd = WatsAgentCommand.kill;
+        List<String> instanceId = new LinkedList<>();
+        AgentCommand cmd = AgentCommand.kill;
 
-        FutureTask<AgentData> result = fixture.sendCommand(instanceId, cmd);
+        CompletableFuture<?>[] result = fixture.sendCommand(instanceId, cmd);
 
-        assertEquals(null, result);
+        assertEquals(0, result.length);
     }
 
+    @Test
+    public void testGetInstanceUrl() {
+        JobManager fixture = new JobManager();
+        List<String> instanceId = Collections.singletonList("");
+
+        List<String> result = fixture.getInstanceUrl(instanceId);
+
+        assertTrue(result.isEmpty());
+    }
 }

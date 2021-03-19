@@ -14,26 +14,23 @@ package com.intuit.tank.harness;
  */
 
 import java.io.IOException;
-import java.io.PrintStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
 import com.google.common.collect.ImmutableMap;
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpContext;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+import org.apache.http.protocol.HTTP;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
-import org.simpleframework.http.Request;
-import org.simpleframework.http.Response;
-import org.simpleframework.http.core.Container;
-import org.simpleframework.http.core.ContainerSocketProcessor;
-import org.simpleframework.transport.SocketProcessor;
-import org.simpleframework.transport.connect.Connection;
-import org.simpleframework.transport.connect.SocketConnection;
 
 import com.intuit.tank.harness.logging.LogUtil;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 
-public class CommandListener implements Container {
+public class CommandListener {
 
     private static final Logger LOG = LogManager.getLogger(CommandListener.class);
 
@@ -48,13 +45,12 @@ public class CommandListener implements Container {
     public synchronized static void startHttpServer(int port) {
         if (!started) {
             try {
-                Container container = new CommandListener();
-                SocketProcessor processor = new ContainerSocketProcessor(container);
-                Connection connection = new SocketConnection(processor);
-                SocketAddress address = new InetSocketAddress(port);
+                HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+                HttpContext context = server.createContext("/");
+                context.setHandler(CommandListener::handleRequest);
+                server.start();
                 System.out.println("Starting httpserver on port " + port);
                 LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting httpserver on port " + port)));
-                connection.connect(address);
                 started = true;
             } catch (IOException e) {
                 LOG.error(LogUtil.getLogMessage("Error starting httpServer: " + e), e);
@@ -63,54 +59,49 @@ public class CommandListener implements Container {
         }
     }
 
-    @Override
-    public void handle(Request req, Response response) {
+    private static void handleRequest(HttpExchange exchange) {
         try {
-            String msg = "unknown path";
-            String path = req.getPath().getPath();
-            if (path.equals(WatsAgentCommand.start.getPath()) || path.equals(WatsAgentCommand.run.getPath())) {
-                msg = "Starting Test " + APITestHarness.getInstance().getAgentRunData().getJobId();
+            String response = "unknown path";
+            String path = exchange.getRequestURI().getPath();
+            if (path.equals(AgentCommand.start.getPath()) || path.equals(AgentCommand.run.getPath())) {
+                response = "Received command " + path + ", Starting Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
                 startTest();
-            } else if (path.startsWith(WatsAgentCommand.stop.getPath())) {
-                msg = "Stopping Test " + APITestHarness.getInstance().getAgentRunData().getJobId();
-                APITestHarness.getInstance().setCommand(WatsAgentCommand.stop);
-            } else if (path.startsWith(WatsAgentCommand.kill.getPath())) {
-                msg = "Killing Test " + APITestHarness.getInstance().getAgentRunData().getJobId();
+            } else if (path.startsWith(AgentCommand.stop.getPath())) {
+                response = "Received command " + path + ", Stopping Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
+                APITestHarness.getInstance().setCommand(AgentCommand.stop);
+            } else if (path.startsWith(AgentCommand.kill.getPath())) {
+                response = "Received command " + path + ", Killing Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
                 System.exit(0);
-            } else if (path.startsWith(WatsAgentCommand.pause.getPath())) {
-                msg = "Pausing Test " + APITestHarness.getInstance().getAgentRunData().getJobId();
-                APITestHarness.getInstance().setCommand(WatsAgentCommand.pause);
-            } else if (path.startsWith(WatsAgentCommand.pause_ramp.getPath())) {
-                msg = "Pausing Ramp for Test " + APITestHarness.getInstance().getAgentRunData().getJobId();
-                APITestHarness.getInstance().setCommand(WatsAgentCommand.pause_ramp);
-            } else if (path.startsWith(WatsAgentCommand.resume_ramp.getPath())) {
-                msg = "Pausing Test " + APITestHarness.getInstance().getAgentRunData().getJobId();
-                APITestHarness.getInstance().setCommand(WatsAgentCommand.resume_ramp);
-            } else if (path.startsWith(WatsAgentCommand.status.getPath())) {
-                msg = APITestHarness.getInstance().getStatus().toString();
-                APITestHarness.getInstance().setCommand(WatsAgentCommand.resume_ramp);
+            } else if (path.startsWith(AgentCommand.pause.getPath())) {
+                response = "Received command " + path + ", Pausing Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
+                APITestHarness.getInstance().setCommand(AgentCommand.pause);
+            } else if (path.startsWith(AgentCommand.pause_ramp.getPath())) {
+                response = "Received command " + path + ", Pausing Ramp for Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
+                APITestHarness.getInstance().setCommand(AgentCommand.pause_ramp);
+            } else if (path.startsWith(AgentCommand.resume_ramp.getPath())) {
+                response = "Received command " + path + ", Resume Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
+                APITestHarness.getInstance().setCommand(AgentCommand.resume_ramp);
+            } else if (path.startsWith(AgentCommand.status.getPath())) {
+                response = APITestHarness.getInstance().getStatus().toString();
+                APITestHarness.getInstance().setCommand(AgentCommand.resume_ramp);
             }
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", msg )));
-            PrintStream body = response.getPrintStream();
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", response )));
 
-            long time = System.currentTimeMillis();
-
-            response.setContentType("text/plain");
-            response.setDescription("Intuit Tank Agent/2.3.0");
-            response.setDate("Date", time);
-            response.setDate("Last-Modified", time);
-
-            body.println(msg);
-            body.close();
+            exchange.getResponseHeaders().set(HTTP.CONTENT_TYPE, "text/plain");
+            exchange.getResponseHeaders().set(HTTP.SERVER_HEADER,"Intuit Tank Agent/3.0.1");
+            exchange.sendResponseHeaders(200, response.length());
+            OutputStream os = exchange.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+            exchange.close();
         } catch (IOException e) {
-            LOG.error("");
-            response.setCode(500);
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Failed to handle controller command" )), e);
         }
     }
 
-    public void startTest() {
-        Thread t = new Thread( () -> APITestHarness.getInstance().runConcurrentTestPlans());
-        t.setDaemon(true);
-        t.start();
+    public static void startTest() {
+        Thread thread = new Thread( () -> APITestHarness.getInstance().runConcurrentTestPlans());
+        thread.setDaemon(true);
+        thread.start();
     }
 }

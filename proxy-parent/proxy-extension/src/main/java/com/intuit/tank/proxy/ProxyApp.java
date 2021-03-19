@@ -16,12 +16,7 @@ package com.intuit.tank.proxy;
  * #L%
  */
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -135,6 +130,8 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
 
     public ProxyApp() {
         super("Intuit Tank Recording Proxy");
+        Taskbar.getTaskbar().setIconImage(new ImageIcon(
+                Thread.currentThread().getContextClassLoader().getResource("tankIcon.png")).getImage());
         setSize(new Dimension(800, 600));
         setBounds(new Rectangle(getSize()));
         setPreferredSize(getSize());

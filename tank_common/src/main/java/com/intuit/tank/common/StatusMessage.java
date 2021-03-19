@@ -13,11 +13,11 @@ package com.intuit.tank.common;
  * #L%
  */
 
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 
 public class StatusMessage {
     String replyQueue = null;
-    WatsAgentCommand status = WatsAgentCommand.run;
+    AgentCommand status = AgentCommand.run;
     String body = null;
 
     public StatusMessage(String replyQueue) {
@@ -32,11 +32,11 @@ public class StatusMessage {
         this.replyQueue = replyQueue;
     }
 
-    public WatsAgentCommand getStatus() {
+    public AgentCommand getStatus() {
         return status;
     }
 
-    public void setStatus(WatsAgentCommand status) {
+    public void setStatus(AgentCommand status) {
         this.status = status;
     }
 
