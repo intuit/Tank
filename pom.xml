@@ -27,13 +27,12 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>5.4.25.Final</version.hibernate>
-    <version.aws-sdk-bom>2.15.38</version.aws-sdk-bom>
+    <version.hibernate>5.4.30.Final</version.hibernate>
+    <version.aws-sdk-bom>2.16.25</version.aws-sdk-bom>
     <version.aws-xray-sdk-bom>2.8.0</version.aws-xray-sdk-bom>
 
-    <version-tomcat>9.0.40</version-tomcat>
-
-    <weld.version>3.1.5.SP1</weld.version>
+    <version-tomcat>9.0.44</version-tomcat>
+    <weld.version>3.1.6.Final</weld.version>
     <cdi.version>2.0</cdi.version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
@@ -312,7 +311,7 @@
     <dependency>
       <groupId>org.jboss.weld</groupId>
       <artifactId>weld-junit5</artifactId>
-      <version>2.0.1.Final</version>
+      <version>2.0.2.Final</version>
       <scope>test</scope>
     </dependency>
 
