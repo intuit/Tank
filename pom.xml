@@ -40,8 +40,8 @@
 
     <version.mojarra>2.4.0</version.mojarra>
     <version.jsf-api>2.3</version.jsf-api>
-    <version.primefaces>8.0</version.primefaces>
-    <version.primefaces-ext>8.0.4</version.primefaces-ext>
+    <version.primefaces>10.0.0</version.primefaces>
+    <version.primefaces-ext>10.0.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.22.2</version.surefire>
     <version.jersey>2.32</version.jersey>
