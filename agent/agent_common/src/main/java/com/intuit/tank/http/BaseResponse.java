@@ -201,7 +201,7 @@ public abstract class BaseResponse {
             sb.append("RESPONSE HTTP CODE: " + this.httpCode).append(NEWLINE);
             sb.append("RESPONSE HTTP MSG: " + this.rspMessage).append(NEWLINE);
             sb.append("RESPONSE TIME: " + responseTime).append(NEWLINE);
-            sb.append("RESPONSE SIZE: " + responseByteArray.length).append(NEWLINE);
+            sb.append("RESPONSE SIZE: " + getResponseSize()).append(NEWLINE);
             for (Entry<String, String> mapEntry : headers.entrySet()) {
                 sb.append("RESPONSE HEADER: " + (String) mapEntry.getKey() + " = " + (String) mapEntry.getValue()).append(NEWLINE);
             }

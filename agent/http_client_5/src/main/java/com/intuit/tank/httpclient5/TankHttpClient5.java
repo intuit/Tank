@@ -13,6 +13,7 @@ package com.intuit.tank.httpclient5;
  * #L%
  */
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.SocketException;
@@ -28,9 +29,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.hc.client5.http.UserTokenHandler;
@@ -390,6 +393,11 @@ public class TankHttpClient5 implements TankHttpClient {
                 }
             }
             response.setResponseTime(waitTime);
+
+            String contentEncoding = response.getHttpHeader("content-ecncoding");
+            bResponse = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
+                    IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(bResponse))) :
+                    bResponse;
 
             response.setResponseBody(bResponse);
 
