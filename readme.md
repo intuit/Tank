@@ -23,7 +23,7 @@ You may need to increase the default memory settings for maven to build. e.g. ex
 There are several profiles (for the initial build you should build the release profile so that the installation guide is built. e.g. mvn clean install -P release)
 * default -- builds source but does not build the docs or package tools.
 * release -- default plus docs and all tools and signs them using a self signed certificate.
-* clover -- runs clover code coverage.
+* coverage -- runs jacoco code coverage.
 * static-analysis -- runs checkstyle and findbugs.
 
 
