@@ -5,13 +5,13 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>agent-parent</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
   </parent>
 
-  <artifactId>http_client_commons_5</artifactId>
+  <artifactId>http_client_apache_5</artifactId>
 
   <packaging>jar</packaging>
-  <name>Http Client for commons apache 5</name>
+  <name>Http Client apache 5</name>
 
 
 

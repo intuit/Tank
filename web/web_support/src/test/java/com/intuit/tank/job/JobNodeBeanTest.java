@@ -127,12 +127,12 @@ public class JobNodeBeanTest {
             throws Exception {
         JobNodeBean fixture = new ProjectNodeBean(new Project());
 
-        String result = fixture.getEndTime();
+        Date result = fixture.getEndTime();
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.project.Project.<init>(Project.java:77)
-        assertNotNull(result);
+        assertNull(result);
     }
 
     /**
@@ -267,12 +267,12 @@ public class JobNodeBeanTest {
             throws Exception {
         JobNodeBean fixture = new ProjectNodeBean(new Project());
 
-        String result = fixture.getStartTime();
+        Date result = fixture.getStartTime();
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.project.Project.<init>(Project.java:77)
-        assertNotNull(result);
+        assertNull(result);
     }
 
     /**
@@ -560,7 +560,7 @@ public class JobNodeBeanTest {
     public void testSetEndTime_1()
             throws Exception {
         JobNodeBean fixture = new ProjectNodeBean(new Project());
-        String endTime = "";
+        Date endTime = new Date();
 
         fixture.setEndTime(endTime);
 
@@ -720,7 +720,7 @@ public class JobNodeBeanTest {
     public void testSetStartTime_1()
             throws Exception {
         JobNodeBean fixture = new ProjectNodeBean(new Project());
-        String startTime = "";
+        Date startTime = new Date();
 
         fixture.setStartTime(startTime);
 

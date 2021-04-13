@@ -20,10 +20,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import com.intuit.tank.vm.perfManager.AgentChannel;
 
 /**
@@ -35,32 +32,18 @@ import com.intuit.tank.vm.perfManager.AgentChannel;
 
 public class AgentChannelImpl implements AgentChannel {
 
-    private static final Logger LOG = LogManager.getLogger(AgentChannelImpl.class);
-
     @Inject
     private JobManager jobManager;
 
-    public void stopAgents(List<String> instanceIds) { sendCmd(instanceIds, WatsAgentCommand.stop); }
+    public void stopAgents(List<String> instanceIds) { jobManager.sendCommand(instanceIds, AgentCommand.stop); }
 
-    public void pauseAgents(List<String> instanceIds) { sendCmd(instanceIds, WatsAgentCommand.pause); }
+    public void pauseAgents(List<String> instanceIds) { jobManager.sendCommand(instanceIds, AgentCommand.pause); }
 
-    public void pauseRamp(List<String> instanceIds) { sendCmd(instanceIds, WatsAgentCommand.pause_ramp); }
+    public void pauseRamp(List<String> instanceIds) { jobManager.sendCommand(instanceIds, AgentCommand.pause_ramp); }
 
-    public void resumeRamp(List<String> instanceIds) {
-        sendCmd(instanceIds, WatsAgentCommand.resume_ramp);
-    }
+    public void resumeRamp(List<String> instanceIds) { jobManager.sendCommand(instanceIds, AgentCommand.resume_ramp); }
 
-    public void killAgents(List<String> instanceIds) {
-        sendCmd(instanceIds, WatsAgentCommand.kill);
-    }
+    public void killAgents(List<String> instanceIds) { jobManager.sendCommand(instanceIds, AgentCommand.kill); }
 
-    public void restartAgents(List<String> instanceIds) { sendCmd(instanceIds, WatsAgentCommand.resume_ramp); }
-
-    private void sendCmd(List<String> ids, WatsAgentCommand cmd) {
-        for (String instanceId : ids) {
-            LOG.info("sending message " + cmd + " to instance with id " + instanceId);
-            jobManager.sendCommand(instanceId, cmd);
-        }
-    }
-
+    public void restartAgents(List<String> instanceIds) { jobManager.sendCommand(instanceIds, AgentCommand.resume_ramp); }
 }

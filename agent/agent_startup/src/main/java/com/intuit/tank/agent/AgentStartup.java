@@ -83,7 +83,7 @@ public class AgentStartup implements Runnable {
                     logger.error("Error unzipping support files : retryCount="
                             + retryCount + " : " + e.getMessage());
                     if (retryCount < FIBONACCI.length) {
-                        Thread.sleep( FIBONACCI[++retryCount] * 1000 );
+                        Thread.sleep( FIBONACCI[retryCount++] * 1000 );
                     } else throw e;
                 }
             }

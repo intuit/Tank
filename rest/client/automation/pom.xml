@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>client-parent</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
   </parent>
 
   <artifactId>automation-client</artifactId>
@@ -26,12 +26,6 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>automation-api</artifactId>
       <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-      <scope>provided</scope>
     </dependency>
 
   </dependencies>

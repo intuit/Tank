@@ -13,6 +13,7 @@ package com.intuit.tank.harness;
  * #L%
  */
 
+import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.runner.TestPlanRunner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +21,8 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 public class TestPlanStarter implements Runnable {
 
@@ -50,8 +52,8 @@ public class TestPlanStarter implements Runnable {
         // start initial users
         int numInitialUsers = APITestHarness.getInstance().getAgentRunData().getNumStartUsers();
         if (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
-            LOG.info(LogUtil.getLogMessage("Starting initial " + numInitialUsers + " users for plan "
-                    + plan.getTestPlanName() + "..."));
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting initial " + numInitialUsers + " users for plan "
+                    + plan.getTestPlanName() + "...")));
             while (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
                 Thread thread = createThread(httpClient, threadsStarted);
                 APITestHarness.getInstance().threadStarted(thread);
@@ -61,8 +63,8 @@ public class TestPlanStarter implements Runnable {
         }
 
         // start rest of users sleeping between each interval
-        LOG.info(LogUtil.getLogMessage("Starting ramp of additional " + (numThreads - threadsStarted)
-                + " users for plan " + plan.getTestPlanName() + "..."));
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting ramp of additional " + (numThreads - threadsStarted)
+                + " users for plan " + plan.getTestPlanName() + "...")));
         while (!done) {
             if ((threadsStarted - numInitialUsers) % APITestHarness.getInstance().getAgentRunData().getUserInterval() == 0) {
                 try {
@@ -72,10 +74,10 @@ public class TestPlanStarter implements Runnable {
                 }
             }
             // Loop while in pause or pause_ramp state
-            while (APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause_ramp
-            		|| APITestHarness.getInstance().getCmd() == WatsAgentCommand.pause) {
+            while (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
+            		|| APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
                 if (APITestHarness.getInstance().hasMetSimulationTime()) {
-                    APITestHarness.getInstance().setCommand(WatsAgentCommand.stop);
+                    APITestHarness.getInstance().setCommand(AgentCommand.stop);
                     break;
                 } else {
                     try {
@@ -85,8 +87,8 @@ public class TestPlanStarter implements Runnable {
                     }
                 }
             }
-            if ( APITestHarness.getInstance().getCmd() == WatsAgentCommand.stop
-            		|| APITestHarness.getInstance().getCmd() == WatsAgentCommand.kill
+            if ( APITestHarness.getInstance().getCmd() == AgentCommand.stop
+            		|| APITestHarness.getInstance().getCmd() == AgentCommand.kill
                     || APITestHarness.getInstance().hasMetSimulationTime()
                     || APITestHarness.getInstance().isDebug() ) {
                 done = true;

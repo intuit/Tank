@@ -252,6 +252,7 @@ public class Variables {
      *            The string value
      */
     private String processString(String key, String value) {
+
         value = evaluate(value);
         logVariable(key, value);
         return value;

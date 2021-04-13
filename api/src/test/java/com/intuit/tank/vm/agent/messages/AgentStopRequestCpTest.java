@@ -17,8 +17,7 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.vm.agent.messages.AgentStopRequest;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 
 /**
  * The class <code>AgentStopRequestCpTest</code> contains tests for the class <code>{@link AgentStopRequest}</code>.
@@ -49,10 +48,10 @@ public class AgentStopRequestCpTest {
     public void testGetCommand_1()
             throws Exception {
         AgentStopRequest fixture = new AgentStopRequest();
-        fixture.setCommand(WatsAgentCommand.kill);
+        fixture.setCommand(AgentCommand.kill);
         fixture.setId(1);
 
-        WatsAgentCommand result = fixture.getCommand();
+        AgentCommand result = fixture.getCommand();
 
         assertNotNull(result);
         assertEquals("/kill", result.getPath());
@@ -72,7 +71,7 @@ public class AgentStopRequestCpTest {
     public void testGetId_1()
             throws Exception {
         AgentStopRequest fixture = new AgentStopRequest();
-        fixture.setCommand(WatsAgentCommand.kill);
+        fixture.setCommand(AgentCommand.kill);
         fixture.setId(1);
 
         int result = fixture.getId();
@@ -91,9 +90,9 @@ public class AgentStopRequestCpTest {
     public void testSetCommand_1()
             throws Exception {
         AgentStopRequest fixture = new AgentStopRequest();
-        fixture.setCommand(WatsAgentCommand.kill);
+        fixture.setCommand(AgentCommand.kill);
         fixture.setId(1);
-        WatsAgentCommand command = WatsAgentCommand.kill;
+        AgentCommand command = AgentCommand.kill;
 
         fixture.setCommand(command);
 
@@ -110,7 +109,7 @@ public class AgentStopRequestCpTest {
     public void testSetId_1()
             throws Exception {
         AgentStopRequest fixture = new AgentStopRequest();
-        fixture.setCommand(WatsAgentCommand.kill);
+        fixture.setCommand(AgentCommand.kill);
         fixture.setId(1);
         int id = 1;
 

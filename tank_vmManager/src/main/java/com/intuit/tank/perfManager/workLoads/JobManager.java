@@ -13,19 +13,25 @@ package com.intuit.tank.perfManager.workLoads;
  * #L%
  */
 
+import java.io.IOException;
 import java.io.Serializable;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
 import javax.annotation.PreDestroy;
@@ -33,16 +39,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import com.amazonaws.xray.AWSXRay;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.http.protocol.HTTP;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -64,7 +66,7 @@ import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import com.intuit.tank.vm.perfManager.StandaloneAgentTracker;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.vmManager.JobRequest;
@@ -78,7 +80,8 @@ public class JobManager implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private ExecutorService executor = Executors.newCachedThreadPool();
+    private final ExecutorService executor = Executors.newCachedThreadPool();
+    private final HttpClient client = HttpClient.newHttpClient();
 
     private static final Logger LOG = LogManager.getLogger(JobManager.class);
 
@@ -94,7 +97,7 @@ public class JobManager implements Serializable {
     @Inject
     private Instance<WorkLoadFactory> workLoadFactoryInstance;
 
-    private Map<String, JobInfo> agentMap = new HashMap<String, JobInfo>();
+    private Map<String, JobInfo> jobInfoMapLocalCache = new HashMap<String, JobInfo>();
 
     private Map<Integer, Integer> dataFileCountMap = new ConcurrentHashMap<Integer, Integer>();
 
@@ -108,8 +111,8 @@ public class JobManager implements Serializable {
     public synchronized void startJob(int id) {
         IncreasingWorkLoad project = workLoadFactoryInstance.get().getModelRunner(id);
         JobRequest jobRequest = project.getJob();
-        agentMap.put(Integer.toString(id), new JobInfo(jobRequest));
-        if (new TankConfig().getStandalone()) {
+        jobInfoMapLocalCache.put(Integer.toString(id), new JobInfo(jobRequest));
+        if (tankConfig.getStandalone()) {
             JobInstanceDao jobInstanceDao = new JobInstanceDao();
             JobInstance jobInstance = jobInstanceDao.findById(id);
             List<AgentAvailability> agents = standaloneTracker.getAgents(jobRequest.getTotalVirtualUsers());
@@ -140,36 +143,47 @@ public class JobManager implements Serializable {
     }
 
     private void sendRequest(String instanceUrl, StandaloneAgentRequest standaloneAgentRequest) {
-        Client client = ClientBuilder.newClient();
-        WebTarget webTarget = client.target(instanceUrl + WatsAgentCommand.request.getPath());
-        Response response = webTarget.request().post(Entity.entity(standaloneAgentRequest, MediaType.APPLICATION_XML));
-        if (response.getStatus() != 200) {
-            throw new RuntimeException("failed to start agent: " + response.toString());
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            String requestBody = objectMapper
+                    .writeValueAsString(standaloneAgentRequest);
+            var request = HttpRequest.newBuilder()
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .uri(URI.create(instanceUrl + AgentCommand.request.getPath()))
+                    .header(HTTP.CONTENT_TYPE, "application/xml")
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("failed to send standalone start to agent: " + response.toString());
+            }
+        } catch (IOException | InterruptedException e) {
+            LOG.error("Error sending StandaloneAgentRequest : " + e.getMessage(), e);
         }
     }
 
-    public AgentTestStartData registerAgentForJob(AgentData agent) {
+    public AgentTestStartData registerAgentForJob(AgentData agentData) {
         AgentTestStartData ret = null;
-        JobInfo jobInfo = agentMap.get(agent.getJobId());
-        // TODO: figure out restarts
+        JobInfo jobInfo = jobInfoMapLocalCache.get(agentData.getJobId());
+        // TODO: figure out controller restarts
         if (jobInfo != null) {
             synchronized (jobInfo) {
-                ret = new AgentTestStartData(jobInfo.scripts, jobInfo.getUsers(agent), jobInfo.jobRequest.getRampTime());
+                ret = new AgentTestStartData(jobInfo.scripts, jobInfo.getUsers(agentData), jobInfo.jobRequest.getRampTime());
                 ret.setAgentInstanceNum(jobInfo.agentData.size());
                 ret.setDataFiles(getDataFileRequests(jobInfo));
-                ret.setJobId(agent.getJobId());
+                ret.setJobId(agentData.getJobId());
                 ret.setSimulationTime(jobInfo.jobRequest.getSimulationTime());
                 ret.setStartUsers(jobInfo.jobRequest.getBaselineVirtualUsers());
                 ret.setTotalAgents(jobInfo.numberOfMachines);
                 ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement());
-                jobInfo.agentData.add(agent);
-                CloudVmStatus status = vmTracker.getStatus(agent.getInstanceId());
+                jobInfo.agentData.add(agentData);
+                CloudVmStatus status = vmTracker.getStatus(agentData.getInstanceId());
                 if(status != null) {
                     status.setVmStatus(VMStatus.pending);
                     vmTracker.setStatus(status);
                 }
                 if (jobInfo.isFilled()) {
-                    startTest(jobInfo);
+                    new Thread( () -> { startTest(jobInfo); }).start();
                 }
             }
         }
@@ -177,92 +191,118 @@ public class JobManager implements Serializable {
     }
 
     private void startTest(final JobInfo info) {
-        LOG.info("Sending start command asynchronously.");
-        Thread thread = new Thread( () -> {
-            LOG.info("Sleeping for one minute before starting test to give time for all agents to download files.");
-            try {
-                Thread.sleep(30 * 1000);// 30 seconds
-            } catch (InterruptedException e) {
-                // ignore
-            }
-            try {
-                LOG.info("Sending start commands on executer.");
-                List<FutureTask<AgentData>> futures = info.agentData.stream().map(agent -> sendCommand(agent, WatsAgentCommand.start, true)).collect(Collectors.toList());
-                LOG.info("waiting for agentFutures to return.");
-                for (FutureTask<AgentData> future : futures) {
-                    AgentData dataFuture = future.get();
-                    if (dataFuture != null) {
-                        // error happened. TODO: message system that agent did not start.
-                        vmTracker.setStatus(crateFailureStatus(dataFuture));
-                        vmTracker.stopJob(info.jobRequest.getId());
-                    }
+        LOG.info("Sending start commands for job asynchronously.");
+        LOG.info("Sleeping for 30 seconds before starting test, to give time for last agent to process AgentTestStartData.");
+        try {
+            Thread.sleep(RETRY_SLEEP);// 30 seconds
+        } catch (InterruptedException e) {
+            // ignore
+        }
+        try {
+              List<URI> uris = info.agentData.stream()
+                    .map(agentData -> agentData.getInstanceUrl() + AgentCommand.start.getPath())
+                    .map(URI::create)
+                    .collect(Collectors.toList());
+            CompletableFuture<?>[] futures = sendCommand(uris, MAX_RETRIES);
+            for (CompletableFuture<?> future : futures) {
+                HttpResponse response = (HttpResponse) future.get();
+                if (response != null) {
+                    LOG.error("Start Command to " + response.uri() + " returned statusCode " + response.statusCode());
+                    // error happened. TODO: message system that agent did not start.
+                    //vmTracker.setStatus(createFailureStatus(dataFuture));
+                    //vmTracker.stopJob(info.jobRequest.getId());
                 }
-                LOG.info("All agents received start command.");
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Error sending start: " + e, e);
-                vmTracker.stopJob(info.jobRequest.getId());
             }
-        });
-        thread.setDaemon(true);
-        thread.start();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error sending start: " + e, e);
+            vmTracker.stopJob(info.jobRequest.getId());
+        }
     }
 
-    private CloudVmStatus crateFailureStatus(AgentData data) {
+    private CloudVmStatus createFailureStatus(AgentData data) {
         return new CloudVmStatus(data.getInstanceId(), data.getJobId(), null, JobStatus.Unknown, VMImageType.AGENT,
                 data.getRegion(), VMStatus.stopped, new ValidationStatus(), data.getUsers(), 0, null, null);
     }
 
-    public FutureTask<AgentData> sendCommand(String instanceId, WatsAgentCommand cmd) {
-        AgentData agent = getAgentData(instanceId);
-        if (agent != null) {
-            return sendCommand(agent, cmd, false);
+    /**
+     * Convert the List of instanceIds to instanceUrls to instanceUris and pass it to sendCommand(List<URI>, retry) to send asynchttp commands.
+     * @param instanceIds
+     * @param cmd
+     * @return Array of CompletableFuture that will probably never be looked at.
+     */
+    public CompletableFuture<?>[] sendCommand(List<String> instanceIds, AgentCommand cmd) {
+        List<String> instanceUrls = getInstanceUrl(instanceIds);
+        if (!instanceUrls.isEmpty()) {
+            List<URI> uris = instanceUrls.stream()
+                    .map(instanceUrl -> instanceUrl + cmd.getPath())
+                    .map(URI::create)
+                    .collect(Collectors.toList());
+            return sendCommand(uris, 0);
+        }
+        return new CompletableFuture<?>[0];
+    }
+
+    /**
+     * Search the local jobInfo Map Cache to map the instanceId to the instanceUrl.  If not found search AWS with findAgent call
+     * @param instanceIds
+     * @return List of InstanceUrls
+     */
+    protected List<String> getInstanceUrl(List<String> instanceIds) {
+        return instanceIds.stream()
+                .filter(StringUtils::isNotEmpty)
+                .map(instanceId -> jobInfoMapLocalCache.values().stream()
+                        .flatMap(info -> info.agentData.stream())
+                        .filter(data -> instanceId.equals(data.getInstanceId()))
+                        .findFirst()
+                        .orElse(findAgent(instanceId)))
+                .filter(Objects::nonNull)
+                .map(AgentData::getInstanceUrl)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * If the controller has been rebooted, and jobInfoMapLocalCache doesn't have a registered agent, then search for the instance in AWS
+     * @param instanceId
+     * @return AgentData
+     */
+    private AgentData findAgent(String instanceId) {
+        for (VMRegion region : tankConfig.getVmManagerConfig().getConfiguredRegions()) {
+            AmazonInstance amazonInstance = new AmazonInstance(region);
+            String instanceUrl = amazonInstance.findDNSName(instanceId);
+            if (StringUtils.isNotEmpty(instanceUrl)) {
+                instanceUrl = "http://" + instanceUrl + ":" + tankConfig.getAgentConfig().getAgentPort();
+                return new AgentData("0", instanceId, instanceUrl, 0, region, "zone");
+            }
         }
         return null;
     }
 
-    private AgentData getAgentData(String instanceId) {
-        return agentMap.values().stream().flatMap(info -> info.agentData.stream()).filter(data -> instanceId.equals(data.getInstanceId())).findFirst().orElse(null);
-    }
-
-    private FutureTask<AgentData> sendCommand(final AgentData agent, final WatsAgentCommand cmd, final boolean retry) {
-        FutureTask<AgentData> future =
-                new FutureTask<AgentData>( () -> {
-                    int retries = retry ? MAX_RETRIES : 0;
-                    String url = agent.getInstanceUrl() + cmd.getPath();
-                    while (retries >= 0) {
-                        retries--;
-                        try {
-                            LOG.info("Sending command " + cmd + " to url " + url);
-                            new URL(url).getContent();
-                            break;
-                        } catch (Exception e) {
-                            LOG.error("Error sending command " + cmd.name() + " to " + url + ": " + e);
-                            // look up public ip
-                            if (!tankConfig.getStandalone()) {
-                                AmazonInstance amazonInstance = new AmazonInstance(agent.getRegion());
-                                String dns = amazonInstance.findPublicName(agent.getInstanceId());
-                                if (StringUtils.isNotEmpty(dns)) {
-                                    url = "http://" + dns + ":"
-                                            + new TankConfig().getAgentConfig().getAgentPort()
-                                            + cmd.getPath();
+    /**
+     * Send Async http commands
+     * @param instanceUris
+     * @param retry
+     * @return CompletableFuture Array
+     */
+    private CompletableFuture<?>[] sendCommand(final List<URI> instanceUris, final int retry) {
+        List<HttpRequest> requests = instanceUris.stream()
+                .map(uri -> HttpRequest.newBuilder(uri).build())
+                .collect(Collectors.toList());
+        CompletableFuture<?>[] responses = requests.stream()
+                .peek(request -> LOG.info("Sending command to url " + request.uri()))
+                .map(request -> client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                        .whenCompleteAsync((response, t) -> {
+                            if (t != null) {
+                                LOG.error("Error sending command to url " + response.uri() + ": " + t.getMessage(), t);
+                                if (retry > 0) {
+                                    try {
+                                        Thread.sleep(RETRY_SLEEP);// 30 seconds
+                                    } catch (InterruptedException e) {}
+                                    sendCommand(Collections.singletonList(response.uri()), (retry - 1));
                                 }
                             }
-                            if (retries >= 0) {
-                                try {
-                                    Thread.sleep(RETRY_SLEEP);
-                                } catch (InterruptedException e1) {
-                                    LOG.error("interrupted: " + e1);
-                                }
-                                continue;
-                            }
-                            return agent;
-                        }
-                    }
-                    return null;
-                });
-        executor.execute(future);
-        return future;
-
+                        }))
+                .toArray(CompletableFuture<?>[]::new);
+        return responses;
     }
 
     private DataFileRequest[] getDataFileRequests(JobInfo info) {
@@ -346,9 +386,7 @@ public class JobManager implements Serializable {
                     numberOfMachines += JobVmCalculator.getMachinesForAgent(numUsers, request.getNumUsersPerAgent());
                 }
             }
-
         }
-
     }
 
     @PreDestroy

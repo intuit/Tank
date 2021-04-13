@@ -37,8 +37,8 @@ public class ProjectNodeBean extends JobNodeBean {
         this.setActiveUsers("");
         this.setNumFailures(new ValidationStatus());
         this.setTotalUsers("");
-        this.setStartTime("");
-        this.setEndTime("");
+        this.setStartTime(null);
+        this.setEndTime(null);
     }
 
     public ProjectNodeBean(String name) {
@@ -52,8 +52,8 @@ public class ProjectNodeBean extends JobNodeBean {
         this.setActiveUsers("");
         this.setNumFailures(new ValidationStatus());
         this.setTotalUsers("");
-        this.setStartTime("");
-        this.setEndTime("");
+        this.setStartTime(null);
+        this.setEndTime(null);
     }
 
     @Override

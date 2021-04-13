@@ -41,7 +41,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.mail.MailService;
 import com.intuit.tank.vm.settings.MailConfig;
 import com.intuit.tank.vm.settings.MailMessage;
 import com.intuit.tank.vm.settings.TankConfig;

@@ -13,21 +13,19 @@ package com.intuit.tank.http.json;
  * #L%
  */
 
+import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
-import org.json.simple.parser.ContainerFactory;
-import org.json.simple.parser.JSONParser;
 
 import com.intuit.tank.http.BaseResponse;
 
@@ -65,8 +63,7 @@ public class JsonResponse extends BaseResponse {
                 JSONObject jsonResponse = new JSONObject(this.response);
                 return (String) jsonResponse.get(key);
             }
-        } catch (Exception e) {
-        }
+        } catch (Exception e) { }
         try {
             if (this.jsonMap == null) {
                 initialize();
@@ -74,7 +71,7 @@ public class JsonResponse extends BaseResponse {
             String keyTrans = key.replace("@", "");
             // note that indexing is 1 based not zero based
             JXPathContext context = JXPathContext.newContext(this.jsonMap);
-            String output = URLDecoder.decode(String.valueOf(context.getValue(keyTrans)), "UTF-8");
+            String output = URLDecoder.decode(String.valueOf(context.getValue(keyTrans)), StandardCharsets.UTF_8);
             if (output.equalsIgnoreCase("null"))
                 return "";
             return output;
@@ -92,32 +89,14 @@ public class JsonResponse extends BaseResponse {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     private void initialize() {
-
         try {
-            JSONParser parser = new JSONParser();
-            ContainerFactory containerFactory = new ContainerFactory() {
-                public List creatArrayContainer() {
-                    return new LinkedList();
-                }
-
-                public Map createObjectContainer() {
-                    return new LinkedHashMap();
-                }
-            };
             if (!StringUtils.isEmpty(this.response)) {
-                Object parse = parser.parse(this.response, containerFactory);
-                if (parse instanceof List) {
-                    this.jsonMap = new LinkedHashMap();
-                } else {
-                    this.jsonMap = (Map) parse;
-                }
-                this.jsonMap.put("root", parse);
+                this.jsonMap = new ObjectMapper().readValue(this.response, HashMap.class);
             } else {
                 this.jsonMap = new HashMap();
             }
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             logger.warn("Unable to parse the response string as a JSON object: " + this.response, ex);
         }
     }

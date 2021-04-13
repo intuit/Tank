@@ -16,42 +16,26 @@ package com.intuit.tank.tools.debugger;
  * #L%
  */
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.HeadlessException;
-import java.awt.KeyboardFocusManager;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.Icon;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.text.BadLocationException;
-import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -84,7 +68,7 @@ import com.intuit.tank.harness.functions.JexlStringFunctions;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.runner.TestStepContext;
 import com.intuit.tank.tools.debugger.ActionProducer.IconSize;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import com.intuit.tank.vm.common.TankConstants;
 
 /**
@@ -136,6 +120,9 @@ public class AgentDebuggerFrame extends JFrame {
      */
     public AgentDebuggerFrame(final boolean isStandalone, String serviceUrl) throws HeadlessException {
         super("Intuit Tank Agent Debugger");
+        BufferedImage url, url2, url3;
+        Taskbar.getTaskbar().setIconImage(new ImageIcon(
+                Thread.currentThread().getContextClassLoader().getResource("tankIcon.png")).getImage());
         workingDir = PanelBuilder.createWorkingDir(this, serviceUrl);
         setSize(new Dimension(1024, 800));
         setBounds(new Rectangle(getSize()));
@@ -634,7 +621,7 @@ public class AgentDebuggerFrame extends JFrame {
         return standalone;
     }
 
-    private String buildScriptString() throws JAXBException {
+    private HDWorkload buildHDWorkload() {
         HDWorkload workload = new HDWorkload();
         workload.setName(currentWorkload.getName());
         workload.setDescription(currentWorkload.getDescription());
@@ -646,7 +633,7 @@ public class AgentDebuggerFrame extends JFrame {
             workload.setVariables(variables);
         }
         workload.getPlans().add(currentTestPlan);
-        return JaxbUtil.marshall(workload);
+        return workload;
     }
 
     void fireScriptChanged() {
@@ -723,7 +710,7 @@ public class AgentDebuggerFrame extends JFrame {
     public void stop() {
         try {
             if (harness != null) {
-                harness.setCommand(WatsAgentCommand.kill);
+                harness.setCommand(AgentCommand.kill);
             }
             if (runningThread != null) {
                 runningThread.interrupt();
@@ -747,9 +734,7 @@ public class AgentDebuggerFrame extends JFrame {
         Runnable task = () -> {
             fireStepChanged(-1);
             if (!steps.isEmpty()) {
-                for (DebugStep step : steps) {
-                    step.clear();
-                }
+                steps.stream().forEach(DebugStep::clear);
                 setCurrentStep(-1);
                 for (GutterIconInfo gi : scriptEditorScrollPane.getGutter().getAllTrackingIcons()) {
                     if (gi.getIcon() == errorIcon) {
@@ -766,7 +751,6 @@ public class AgentDebuggerFrame extends JFrame {
                 try {
                     createHarness();
                     runningThread = new Thread(() -> harness.runConcurrentTestPlans());
-
                     runningThread.start();
                 } catch (Exception e) {
                     showError("Error starting test: " + e);
@@ -781,7 +765,7 @@ public class AgentDebuggerFrame extends JFrame {
         new Thread(task).start();
     }
 
-    private void createHarness() throws JAXBException {
+    private void createHarness() {
         APITestHarness.destroyCurrentInstance();
         harness = APITestHarness.getInstance();
         harness.setFlowControllerTemplate(flowController);
@@ -795,7 +779,7 @@ public class AgentDebuggerFrame extends JFrame {
         harness.getAgentRunData().setTotalAgents(1);
         harness.setDebug(true);
 
-        TestPlanSingleton.getInstance().setTestPlans(Collections.singletonList(buildScriptString()));
+        TestPlanSingleton.getInstance().setTestPlan(buildHDWorkload());
         downloadDataFiles();
         JexlIOFunctions.resetStatics();
         JexlStringFunctions.resetStatics();

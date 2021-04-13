@@ -15,9 +15,8 @@ package com.intuit.tank.standalone.agent;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -26,22 +25,20 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpContext;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+import org.apache.http.protocol.HTTP;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.simpleframework.http.Request;
-import org.simpleframework.http.Response;
-import org.simpleframework.http.core.Container;
-import org.simpleframework.http.core.ContainerSocketProcessor;
-import org.simpleframework.transport.SocketProcessor;
-import org.simpleframework.transport.connect.Connection;
-import org.simpleframework.transport.connect.SocketConnection;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.intuit.tank.vm.agent.messages.StandaloneAgentRequest;
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 
-public class CommandListener implements Container {
+public class CommandListener {
 
     private static Logger LOG = LogManager.getLogger(CommandListener.class);
 
@@ -54,12 +51,11 @@ public class CommandListener implements Container {
         if (!started) {
             agentStarter = standaloneAgentStartup;
             try {
-                Container container = new CommandListener();
-                SocketProcessor processor = new ContainerSocketProcessor(container);
-                Connection connection = new SocketConnection(processor);
-                SocketAddress address = new InetSocketAddress(port);
+                HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
+                HttpContext context = server.createContext("/");
+                context.setHandler(CommandListener::handleRequest);
+                server.start();
                 System.out.println("Starting httpserver on port " + port);
-                connection.connect(address);
                 started = true;
             } catch (IOException e) {
                 LOG.error("Error starting httpServer: " + e, e);
@@ -68,43 +64,38 @@ public class CommandListener implements Container {
         }
     }
 
-    @Override
-    public void handle(Request req, Response response) {
+    private static void handleRequest(HttpExchange exchange) {
         try {
-            String msg = "unknown path";
+            String response = "unknown path";
             int code = 200;
-            String path = req.getPath().getPath();
-            if (path.equals(WatsAgentCommand.request.getPath())) {
-                msg = "Requesting users ";
-                StandaloneAgentRequest agentRequest = getRequest(req.getInputStream());
+            String path = exchange.getRequestURI().getPath();
+            if (path.equals(AgentCommand.request.getPath())) {
+                response = "Requesting users ";
+                StandaloneAgentRequest agentRequest = getRequest(exchange.getRequestBody());
                 if (agentRequest == null) {
-                    msg = "Invalid StandaloneAgentRequest.";
+                    response = "Invalid StandaloneAgentRequest.";
                     code = 406;
                 } else if (agentRequest.getJobId() != null && agentRequest.getUsers() > 0) {
                     // launch the harness with the specified details.
                     agentStarter.startTest(agentRequest);
                 } else {
-                    msg = "invalid request.";
+                    response = "invalid request.";
                     code = 400;
                 }
             }
-            long time = System.currentTimeMillis();
-            response.setCode(code);
-            response.setContentType("text/plain");
-            response.setDescription("Intuit Tank Agent/2.3.0");
-            response.setDate("Date", time);
-            response.setDate("Last-Modified", time);
-
-            PrintStream body = response.getPrintStream();
-            body.println(msg);
-            body.close();
-        } catch (Exception e) {
+            exchange.getResponseHeaders().set(HTTP.CONTENT_TYPE, "text/plain");
+            exchange.getResponseHeaders().set(HTTP.SERVER_HEADER,"Intuit Tank Agent/3.0.1");
+            exchange.sendResponseHeaders(code, response.length());
+            OutputStream os = exchange.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+            exchange.close();
+        } catch (SAXException| ParserConfigurationException | IOException e) {
             LOG.error("error sending response");
-            response.setCode(500);
         }
     }
 
-    private StandaloneAgentRequest getRequest(InputStream inputStream) throws SAXException, ParserConfigurationException {
+    private static StandaloneAgentRequest getRequest(InputStream inputStream) throws SAXException, ParserConfigurationException {
         try {
         	//Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
         	SAXParserFactory spf = SAXParserFactory.newInstance();

@@ -18,8 +18,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.stream.Stream;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -36,6 +34,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class VariablesTest {
 
@@ -65,8 +65,8 @@ public class VariablesTest {
     public void testVariable_NoPrefix() {
         Variables variables = new Variables();
         variables.addVariable("VariableName_1", "Variable Value_1");
-        TestCase.assertFalse(ValidationUtil.isVariable("VariableName_1"));
-        TestCase.assertFalse(ValidationUtil.isVariable("NOTVARIABLE"));
+        assertFalse(ValidationUtil.isVariable("VariableName_1"));
+        assertFalse(ValidationUtil.isVariable("NOTVARIABLE"));
     }
 
     @Test
@@ -75,8 +75,8 @@ public class VariablesTest {
         // Variables variables = Variables.getInstance();
         Variables variables = new Variables();
         variables.addVariable("VariableName_2", "Variable Value_2");
-        TestCase.assertTrue(ValidationUtil.isVariable("@VariableName_2"));
-        TestCase.assertFalse(ValidationUtil.isVariable("NOTVARIABLE"));
+        assertTrue(ValidationUtil.isVariable("@VariableName_2"));
+        assertFalse(ValidationUtil.isVariable("NOTVARIABLE"));
     }
 
     @ParameterizedTest

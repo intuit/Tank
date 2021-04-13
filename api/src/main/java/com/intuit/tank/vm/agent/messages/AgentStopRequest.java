@@ -15,7 +15,7 @@ package com.intuit.tank.vm.agent.messages;
 
 import java.io.Serializable;
 
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
+import com.intuit.tank.vm.api.enumerated.AgentCommand;
 
 public class AgentStopRequest implements Serializable {
 
@@ -24,7 +24,7 @@ public class AgentStopRequest implements Serializable {
 	 */
     private static final long serialVersionUID = -8919376272310847391L;
     int id;
-    WatsAgentCommand command;
+    AgentCommand command;
 
     public int getId() {
         return id;
@@ -34,11 +34,11 @@ public class AgentStopRequest implements Serializable {
         this.id = id;
     }
 
-    public WatsAgentCommand getCommand() {
+    public AgentCommand getCommand() {
         return command;
     }
 
-    public void setCommand(WatsAgentCommand command) {
+    public void setCommand(AgentCommand command) {
         this.command = command;
     }
 

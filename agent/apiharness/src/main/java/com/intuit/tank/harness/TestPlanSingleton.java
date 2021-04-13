@@ -16,6 +16,7 @@ package com.intuit.tank.harness;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -46,7 +47,6 @@ public class TestPlanSingleton {
     }
 
     public void setTestPlans(String plans) {
-
         List<String> testPlanLists = Arrays.asList(plans.split(","));
 
         workloads = testPlanLists.stream()
@@ -64,11 +64,12 @@ public class TestPlanSingleton {
                 .collect(Collectors.toList());
     }
 
-    public void setTestPlans(List<String> testPlanXmls) {
-        workloads = testPlanXmls.stream()
-                .map(xml -> new WorkloadParser(xml).getWorkload())
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+    public void setTestPlanXML(String testPlanXml) {
+        workloads = Collections.singletonList(new WorkloadParser(testPlanXml).getWorkload());
+    }
+
+    public void setTestPlan(HDWorkload workload) {
+        this.workloads = Collections.singletonList(workload);
     }
 
     public List<HDWorkload> getTestPlans() {

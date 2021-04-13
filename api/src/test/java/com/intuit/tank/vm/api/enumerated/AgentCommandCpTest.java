@@ -15,16 +15,14 @@ package com.intuit.tank.vm.api.enumerated;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.api.enumerated.WatsAgentCommand;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * The class <code>WatsAgentCommandCpTest</code> contains tests for the class <code>{@link WatsAgentCommand}</code>.
+ * The class <code>WatsAgentCommandCpTest</code> contains tests for the class <code>{@link AgentCommand}</code>.
  * 
  * @generatedBy CodePro at 9/3/14 3:41 PM
  */
-public class WatsAgentCommandCpTest {
+public class AgentCommandCpTest {
     /**
      * Run the String getPath() method test.
      * 
@@ -35,7 +33,7 @@ public class WatsAgentCommandCpTest {
     @Test
     public void testGetPath_1()
             throws Exception {
-        WatsAgentCommand fixture = WatsAgentCommand.kill;
+        AgentCommand fixture = AgentCommand.kill;
 
         String result = fixture.getPath();
 

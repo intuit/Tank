@@ -16,9 +16,13 @@ package com.intuit.tank.harness.functions;
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.test.TestGroups;
 
-import junit.framework.TestCase;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NumericFunctionsNGTest {
 
@@ -28,24 +32,24 @@ public class NumericFunctionsNGTest {
     @Tag(TestGroups.FUNCTIONAL)
     public void testIsValid() {
         // Generic Tests
-        TestCase.assertFalse(FunctionHandler.validFunction("#function.numeric"));
-        TestCase.assertFalse(FunctionHandler.validFunction("#function.numeric.bogusFunction"));
+        assertFalse(FunctionHandler.validFunction("#function.numeric"));
+        assertFalse(FunctionHandler.validFunction("#function.numeric.bogusFunction"));
 
         // Random Positive Whole Number
-        TestCase.assertFalse(FunctionHandler.validFunction("#function.numeric.randomPositiveWhole"));
-        TestCase.assertTrue(FunctionHandler.validFunction("#function.numeric.randomPositiveWhole.5"));
+        assertFalse(FunctionHandler.validFunction("#function.numeric.randomPositiveWhole"));
+        assertTrue(FunctionHandler.validFunction("#function.numeric.randomPositiveWhole.5"));
 
         // Random Negative Whole Number
-        TestCase.assertFalse(FunctionHandler.validFunction("#function.numeric.randomNegativeWhole"));
-        TestCase.assertTrue(FunctionHandler.validFunction("#function.numeric.randomNegativeWhole.5"));
+        assertFalse(FunctionHandler.validFunction("#function.numeric.randomNegativeWhole"));
+        assertTrue(FunctionHandler.validFunction("#function.numeric.randomNegativeWhole.5"));
 
         // Random Positive Float Number
-        TestCase.assertFalse(FunctionHandler.validFunction("#function.numeric.randomPositiveFloat"));
-        TestCase.assertTrue(FunctionHandler.validFunction("#function.numeric.randomPositiveFloat.5.3"));
+        assertFalse(FunctionHandler.validFunction("#function.numeric.randomPositiveFloat"));
+        assertTrue(FunctionHandler.validFunction("#function.numeric.randomPositiveFloat.5.3"));
 
         // Random Negative Float Number
-        TestCase.assertFalse(FunctionHandler.validFunction("#function.numeric.randomNegativeFloat"));
-        TestCase.assertTrue(FunctionHandler.validFunction("#function.numeric.randomNegativeFloat.5.4"));
+        assertFalse(FunctionHandler.validFunction("#function.numeric.randomNegativeFloat"));
+        assertTrue(FunctionHandler.validFunction("#function.numeric.randomNegativeFloat.5.4"));
     }
 
     @Test
@@ -54,8 +58,8 @@ public class NumericFunctionsNGTest {
         String command = "#function.numeric.randomPositiveWhole.4";
 
         String random = FunctionHandler.executeFunction(command, variables);
-        TestCase.assertNotNull(random);
-        TestCase.assertTrue(random.length() == 4);
+        assertNotNull(random);
+        assertEquals(random.length(), 4);
     }
 
     @Test
@@ -64,8 +68,8 @@ public class NumericFunctionsNGTest {
         String command = "#function.numeric.randomNegativeWhole.5";
 
         String random = FunctionHandler.executeFunction(command, variables);
-        TestCase.assertNotNull(random);
-        TestCase.assertTrue(random.length() == 6);
+        assertNotNull(random);
+        assertEquals(random.length(), 6);
     }
 
     @Test
@@ -74,8 +78,8 @@ public class NumericFunctionsNGTest {
         String command = "#function.numeric.randomPositiveFloat.5.3";
 
         String random = FunctionHandler.executeFunction(command, variables);
-        TestCase.assertNotNull(random);
-        TestCase.assertTrue(random.length() == 9);
+        assertNotNull(random);
+        assertEquals(random.length(), 9);
     }
 
     @Test
@@ -84,8 +88,8 @@ public class NumericFunctionsNGTest {
         String command = "#function.numeric.randomNegativeFloat.6.4";
 
         String random = FunctionHandler.executeFunction(command, variables);
-        TestCase.assertNotNull(random);
-        TestCase.assertTrue(random.length() == 12);
+        assertNotNull(random);
+        assertEquals(random.length(), 12);
     }
 
     @Test
@@ -94,8 +98,8 @@ public class NumericFunctionsNGTest {
         String command = "#function.numeric.add.4.8";
 
         String sum = FunctionHandler.executeFunction(command, variables);
-        TestCase.assertNotNull(sum);
-        TestCase.assertEquals("12.0", sum);
+        assertNotNull(sum);
+        assertEquals("12.0", sum);
     }
 
     @Test
@@ -104,8 +108,8 @@ public class NumericFunctionsNGTest {
         String command = "#function.numeric.add.4.8.13";
 
         String sum = FunctionHandler.executeFunction(command, variables);
-        TestCase.assertNotNull(sum);
-        TestCase.assertEquals("25.0", sum);
+        assertNotNull(sum);
+        assertEquals("25.0", sum);
     }
 
     @Test
@@ -114,8 +118,8 @@ public class NumericFunctionsNGTest {
         String command = "#function.numeric.subtract.9.3";
 
         String result = FunctionHandler.executeFunction(command, variables);
-        TestCase.assertNotNull(result);
-        TestCase.assertEquals("6.0", result);
+        assertNotNull(result);
+        assertEquals("6.0", result);
     }
 
     @Test
@@ -124,7 +128,7 @@ public class NumericFunctionsNGTest {
         String command = "#function.numeric.subtract.9.3.2";
 
         String result = FunctionHandler.executeFunction(command, variables);
-        TestCase.assertNotNull(result);
-        TestCase.assertEquals("4.0", result);
+        assertNotNull(result);
+        assertEquals("4.0", result);
     }
 }
