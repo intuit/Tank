@@ -28,10 +28,10 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>5.4.30.Final</version.hibernate>
-    <version.aws-sdk-bom>2.16.25</version.aws-sdk-bom>
+    <version.aws-sdk-bom>2.16.41</version.aws-sdk-bom>
     <version.aws-xray-sdk-bom>2.8.0</version.aws-xray-sdk-bom>
 
-    <version-tomcat>9.0.44</version-tomcat>
+    <version-tomcat>9.0.45</version-tomcat>
     <weld.version>3.1.6.Final</weld.version>
     <cdi.version>2.0</cdi.version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
@@ -477,12 +477,6 @@
         <groupId>org.primefaces.extensions</groupId>
         <artifactId>resources-ckeditor</artifactId>
         <version>${version.primefaces-ext}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.ocpsoft</groupId>
-        <artifactId>prettyfaces-jsf2</artifactId>
-        <version>3.3.3</version>
       </dependency>
 
       <dependency>
