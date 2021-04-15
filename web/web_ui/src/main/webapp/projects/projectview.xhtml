@@ -18,8 +18,7 @@
       <ts:toolbar title="Project: #{projectBean.project.name}" toolbarId="actionsTB">
         <f:facet name="actions">
           <h:panelGroup styleClass="toolbar-ui" id="projectActions">
-          <div class="toolbar-ui">
-            <p:commandButton id="tbSaveBtn" value="Save" action="#{projectBean.save()}" 
+            <p:commandButton id="tbSaveBtn" value="Save" action="#{projectBean.save()}"
               title="Save Changes to Project #{projectBean.project.name}" ajax="true"
               update=":mainForm:projectData, :mainForm:messages"
               icon="ui-icon-disk"
@@ -31,7 +30,6 @@
               disabled="#{not projectBean.canEditProject()}" />
             <p:commandButton id="tbCancelBtn" action="#{projectBean.cancel()}" value="Cancel" immediate="true"
               ajax="true" icon="ui-icon-cancel" styleClass="icon-button h-space" />
-			</div>
           </h:panelGroup>
         </f:facet>
       </ts:toolbar>
