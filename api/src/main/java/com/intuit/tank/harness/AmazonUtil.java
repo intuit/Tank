@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.base.Splitter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -152,16 +152,6 @@ public class AmazonUtil {
     }
 
     /**
-     * Gets the user data associated with this instance.
-     * 
-     * @return the user data as a Map
-     * @throws IOException
-     */
-    public static String getUserDataAsString() throws IOException {
-        return getResponseString(BASE + USER_DATA);
-    }
-
-    /**
      * gets the job id form user data
      *
      * @return
@@ -246,7 +236,7 @@ public class AmazonUtil {
         try {
             String userData = getResponseString(BASE + USER_DATA);
             if (StringUtils.isNotEmpty(userData)) {
-                return Splitter.on(System.getProperty("line.separator")).withKeyValueSeparator("=").split(userData);
+                return new ObjectMapper().readValue(userData, Map.class);
             }
         } catch (IllegalArgumentException | IOException e) { }
         return Collections.emptyMap();
@@ -262,8 +252,6 @@ public class AmazonUtil {
         con.setRequestMethod("GET");
         con.setConnectTimeout(3000);
         InputStream is = con.getInputStream();
-        return new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
-                .lines()
-                .collect(Collectors.joining(System.getProperty("line.separator")));
+        return new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8)).toString();
     }
 }

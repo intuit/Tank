@@ -1,5 +1,7 @@
 package com.intuit.tank.vmManager.environment.amazon;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -69,7 +71,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -589,10 +590,13 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @return
      */
     private String buildUserData(@Nonnull Map<String, String> userDataMap) {
-        String sb = userDataMap.entrySet().stream()
-                .map(Object::toString)
-                .collect(Collectors.joining("\n"));
-        return Base64.encodeBase64String(sb.getBytes());
+        try {
+            String sb = new ObjectMapper().writeValueAsString(userDataMap);
+            return Base64.encodeBase64String(sb.getBytes());
+        } catch (JsonProcessingException e) {
+            LOG.error("Failed to convert userDataMap to Json: " + e.getMessage() );
+        }
+        return "";
     }
 
     private static class AssociateContainer {
