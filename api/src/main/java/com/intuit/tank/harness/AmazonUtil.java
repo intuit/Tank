@@ -22,7 +22,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -238,7 +237,9 @@ public class AmazonUtil {
             if (StringUtils.isNotEmpty(userData)) {
                 return new ObjectMapper().readValue(userData, Map.class);
             }
-        } catch (IllegalArgumentException | IOException e) { }
+        } catch (IllegalArgumentException | IOException e) {
+            LOG.error(new ObjectMessage(ImmutableMap.of("Message","Error, unable to parse userData: " + e.getMessage())));
+        }
         return Collections.emptyMap();
     }
 
