@@ -274,7 +274,7 @@
           rowIndexVar="rowIndex" headerSectionClass="rf-tb" bodyRowClass="pointer" class="pad2"
           selection="#{scriptEditor.selectedStepsArr}" selectionMode="multiple" widgetVar="scriptStepTable"
           rendered="#{!scriptSearchBean.searching}" liveResize="false" scrollable="true" scrollHeight="100%"
-          sortBy="#{step.stepIndex}" sortOrder="ascending" paginator="true" rows="50" resizableColumns="true"
+          sortMode="single" paginator="true" rows="50" resizableColumns="true"
           paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}  Rows per Page {RowsPerPageDropdown} Jump to Page {JumpToPageDropdown}"
           rowsPerPageTemplate="25,50,75,100,150,200,500,1000,5000">
 
@@ -294,7 +294,7 @@
           </f:facet>
 
           <p:column id="indexColumn" styleClass="ellipsis" width="#{scriptBean.stepTablePrefs.getSize('indexColumn')}"
-            rendered="#{scriptBean.stepTablePrefs.isVisible('indexColumn')}" sortBy="#{step.stepIndex}"
+            rendered="#{scriptBean.stepTablePrefs.isVisible('indexColumn')}" sortBy="#{step.stepIndex}" sortOrder="asc"
             resizable="false">
             <h:outputText id="indexValue" value="#{step.stepIndex}" />
           </p:column>

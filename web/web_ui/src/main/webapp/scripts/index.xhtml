@@ -62,7 +62,7 @@
       <p:dataTable id="scriptTableId" var="selectable" widgetVar="scriptTable" class="pad2"
         value="#{scriptBean.selectionList}" liveResize="false" scrollable="true" scrollHeight="100%"
         filteredValue="#{scriptBean.filteredData}"
-        sortBy="#{selectable.entity.modified}" sortOrder="descending" paginator="true" rows="25" resizableColumns="true"
+        sortMode="single" paginator="true" rows="25" resizableColumns="true"
         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
         rowsPerPageTemplate="25,50,75,100">
 
@@ -97,8 +97,8 @@
           styleClass="ellipsis min-column-size"
           width="#{scriptBean.tablePrefs.getSize('idColumn')}"
           rendered="#{scriptBean.tablePrefs.isVisible('idColumn')}"
-          filterStyle="width:40px;"
-          filterBy="#{selectable.entity.id}" filterMatchMode="contains">
+          filterStyle="width:40px;" filterBy="#{selectable.entity.id}" filterMatchMode="contains"
+          sortBy="#{selectable.entity.id}">
           <h:outputText value="#{selectable.entity.id}" />
         </p:column>
 
@@ -107,8 +107,8 @@
           styleClass="ellipsis min-column-size"
           width="#{scriptBean.tablePrefs.getSize('nameColumn')}"
           rendered="#{scriptBean.tablePrefs.isVisible('nameColumn')}"
-          filterStyle="width:75px;" filterBy="#{selectable.entity.name}"
-          filterMatchMode="contains">
+          filterStyle="width:75px;" filterBy="#{selectable.entity.name}" filterMatchMode="contains"
+          sortBy="#{selectable.entity.name}">
           <p:commandLink
             action="#{scriptEditor.editScript(selectable.entity)}"
             title="#{selectable.entity.name} (id=#{selectable.entity.id})"
@@ -124,7 +124,8 @@
           filterStyle="width:75px;"
           filterBy="#{selectable.entity.productName}"
           filterOptions="#{projectUtilBean.productNames}"
-          filterMatchMode="exact">
+          filterMatchMode="exact"
+          sortBy="#{selectable.entity.productName}">
           <h:outputText value="#{selectable.entity.productName}" />
         </p:column>
 
@@ -134,7 +135,8 @@
           rendered="#{scriptBean.tablePrefs.isVisible('commentsColumn')}"
           filterStyle="width:75px;"
           filterBy="#{selectable.entity.comments}"
-          filterMatchMode="contains">
+          filterMatchMode="contains"
+          sortBy="#{selectable.entity.comments}">
           <h:outputText value="#{selectable.entity.comments}"
             title="#{selectable.entity.comments}" />
         </p:column>
@@ -145,7 +147,8 @@
           rendered="#{scriptBean.tablePrefs.isVisible('createColumn')}"
           filterStyle="width:75px;"
           filterBy="#{preferencesBean.formatDate(selectable.entity.created)}"
-          filterMatchMode="contains">
+          filterMatchMode="contains"
+          sortBy="#{selectable.entity.created}">
           <h:outputText value="#{selectable.entity.created}"
             converter="#{dateConverter}" />
         </p:column>
@@ -156,7 +159,8 @@
           rendered="#{scriptBean.tablePrefs.isVisible('modifiedColumn')}"
           filterStyle="width:75px;"
           filterBy="#{preferencesBean.formatDate(selectable.entity.modified)}"
-          filterMatchMode="contains">
+          filterMatchMode="contains"
+          sortBy="#{selectable.entity.modified}" sortOrder="desc">
           <h:outputText value="#{selectable.entity.modified}"
             converter="#{dateConverter}" />
         </p:column>
@@ -167,15 +171,14 @@
           rendered="#{scriptBean.tablePrefs.isVisible('ownerColumn')}"
           filterBy="#{selectable.entity.creator}"
           filterMatchMode="exact"
-          filterOptions="#{scriptBean.creatorList}">
+          filterOptions="#{scriptBean.creatorList}"
+          sortBy="#{selectable.entity.creator}">
           <h:outputText value="#{selectable.entity.creator}" />
         </p:column>
 
 
         <p:column id="actionsColumn"
-          styleClass="ellipsis 
-        actions-column-large"
-          width="100"
+          styleClass="ellipsis actions-column-large" width="100"
           rendered="#{scriptBean.tablePrefs.isVisible('actionsColumn')}"
           resizable="false">
 
