@@ -16,6 +16,7 @@ package com.intuit.tank.agent;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.URL;
@@ -34,7 +35,7 @@ import com.intuit.tank.vm.common.TankConstants;
 import software.amazon.awssdk.utils.StringUtils;
 
 public class AgentStartup implements Runnable {
-    private static Logger logger = LogManager.getLogger(AgentStartup.class);
+    private static final Logger logger = LogManager.getLogger(AgentStartup.class);
     private static final String SERVICE_RELATIVE_PATH = "/rest/v1/agent-service";
     private static final String METHOD_SETTINGS = "/settings";
     private static final String API_HARNESS_COMMAND = "./startAgent.sh";
@@ -92,9 +93,12 @@ public class AgentStartup implements Runnable {
             logger.info("Starting apiharness with command: "
                     + API_HARNESS_COMMAND + " -http=" + controllerBaseUrl + " " + jvmArgs);
             Runtime.getRuntime().exec(API_HARNESS_COMMAND + " -http=" + controllerBaseUrl + " " + jvmArgs);
-        } catch (Exception e) {
-            logger.error("Error in AgentStartup " + e, e);
-        }
+        } catch (ConnectException ce) {
+            logger.error("Error creating connection to "
+                    + controllerBaseUrl + " : this is normal during the bake : " + ce.getMessage());
+        } catch (IOException e) {
+            logger.error("Error Executing API Harness Command: " + API_HARNESS_COMMAND + ": " + e, e);
+        } catch (InterruptedException e) {}
     }
 
     public static void main(String[] args) {
@@ -122,9 +126,7 @@ public class AgentStartup implements Runnable {
      */
     private static void usage() {
         System.out.println("Tank Test Startup Usage:");
-        System.out
-                .println("java -cp agent-startup-pkg-1.0-all.jar com/intuit/tank/agent/AgentStartup <options>");
+        System.out.println("java -cp agent-startup-pkg-1.0-all.jar com/intuit/tank/agent/AgentStartup <options>");
         System.out.println("-controller=<controller_base_url>:  The url of the controller to get test info from");
     }
-
 }

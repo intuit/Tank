@@ -13,13 +13,12 @@ package com.intuit.tank.harness;
  * #L%
  */
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
@@ -235,10 +234,10 @@ public class AmazonUtil {
         try {
             String userData = getResponseString(BASE + USER_DATA);
             if (StringUtils.isNotEmpty(userData)) {
-                return new ObjectMapper().readValue(userData, Map.class);
+                return (Map<String,String>) new ObjectMapper().readValue(userData, Map.class);
             }
         } catch (IllegalArgumentException | IOException e) {
-            LOG.error(new ObjectMessage(ImmutableMap.of("Message","Error, unable to parse userData: " + e.getMessage())));
+            LOG.error(new ObjectMessage(ImmutableMap.of("Message","Unable to parse userData: " + e.getMessage())));
         }
         return Collections.emptyMap();
     }
@@ -249,10 +248,14 @@ public class AmazonUtil {
      * @throws IOException
      */
     private static String getResponseString(String url) throws IOException {
-        HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
-        con.setRequestMethod("GET");
-        con.setConnectTimeout(3000);
-        InputStream is = con.getInputStream();
-        return new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8)).toString();
+        HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.body();
+        } catch (InterruptedException e) {
+            LOG.error(new ObjectMessage(ImmutableMap.of("Message","Unable to read userData: " + e.getMessage())));
+        }
+        return "";
     }
 }
