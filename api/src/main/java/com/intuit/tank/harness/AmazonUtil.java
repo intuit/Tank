@@ -237,7 +237,7 @@ public class AmazonUtil {
                 return (Map<String,String>) new ObjectMapper().readValue(userData, Map.class);
             }
         } catch (IllegalArgumentException | IOException e) {
-            LOG.error(new ObjectMessage(ImmutableMap.of("Message","Unable to parse userData: " + e.getMessage())));
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message","Unable to parse tank json: This is normal during the bake process")));
         }
         return Collections.emptyMap();
     }
@@ -252,10 +252,10 @@ public class AmazonUtil {
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.body();
+            if (response.statusCode() == 200) return response.body();
         } catch (InterruptedException e) {
-            LOG.error(new ObjectMessage(ImmutableMap.of("Message","Unable to read userData: " + e.getMessage())));
+            LOG.error(new ObjectMessage(ImmutableMap.of("Message","Unable to read userdata/metadata: " + e.getMessage())));
         }
-        return "";
+        throw new IOException("Bad Response From AWS data");
     }
 }
