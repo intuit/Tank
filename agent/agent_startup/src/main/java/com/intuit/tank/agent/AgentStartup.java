@@ -17,10 +17,8 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -55,14 +53,8 @@ public class AgentStartup implements Runnable {
             URL url = new URL(controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SETTINGS);
             logger.info("Starting up: making call to tank service url to get settings.xml "
                     + url.toExternalForm());
-            try ( InputStream settingsStream = url.openStream() ) {
-                String settings = IOUtils.toString(settingsStream, StandardCharsets.UTF_8);
-                FileUtils.writeStringToFile(new File("settings.xml"), settings, StandardCharsets.UTF_8);
-                logger.info("got settings file...");
-            } catch (ConnectException ce) {
-                logger.error("Error creating connection to "
-                        + controllerBaseUrl + " : this is normal during the bake : " + ce.getMessage());
-            }
+            FileUtils.copyURLToFile(url, new File("settings.xml"));
+            logger.info("got settings file...");
             // Download Support Files
             url = new URL(controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
             logger.info("Making call to tank service url to get support files " + url.toExternalForm());
