@@ -61,7 +61,6 @@ import com.intuit.tank.project.JobValidator;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.qualifier.Modified;
-import com.intuit.tank.script.ScriptConstants;
 import com.intuit.tank.script.util.ScriptFilterUtil;
 import com.intuit.tank.vm.settings.AccessRight;
 

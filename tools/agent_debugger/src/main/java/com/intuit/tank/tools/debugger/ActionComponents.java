@@ -50,7 +50,6 @@ public class ActionComponents implements ScriptChangedListener {
         createMenuBar(actions, standalone);
         createToolBar(testPlanChooser, tankClientChooser, actions, standalone);
         createPopupMenu();
-
     }
 
     /**
@@ -223,7 +222,6 @@ public class ActionComponents implements ScriptChangedListener {
 
     /**
      * 
-     * @param testPlanChooser
      * @param actions
      * @param standalone
      * @return
@@ -276,7 +274,6 @@ public class ActionComponents implements ScriptChangedListener {
 
     public void setCurrentTitle(String string) {
         this.titleLabel.setText(string);
-
     }
 
 }

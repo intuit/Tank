@@ -13,41 +13,153 @@ package com.intuit.tank.script;
  * #L%
  */
 
+import com.intuit.tank.project.ScriptStep;
+import com.intuit.tank.script.replace.ReplaceEntity;
+import com.intuit.tank.script.replace.ReplaceMode;
+import com.intuit.tank.util.Messages;
 import org.jboss.weld.junit5.auto.ActivateScopes;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.picketlink.Identity;
 import org.picketlink.extension.PicketLinkExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
+import java.util.LinkedList;
+import java.util.List;
 
-/**
- * The class <code>ScriptSearchBeanTest</code> contains tests for the class <code>{@link ScriptSearchBean}</code>.
- *
- * @generatedBy CodePro at 12/15/14 3:54 PM
- */
 @EnableAutoWeld
 @AddPackages(Identity.class)
 @AddExtensions(PicketLinkExtension.class)
 @ActivateScopes(ConversationScoped.class)
 public class ScriptSearchBeanTest {
 
-    @Inject
+    @InjectMocks
     private ScriptSearchBean scriptSearchBean;
 
-    /**
-     * Run the ScriptSearchBean() constructor test.
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
+    @Mock
+    private Messages messages;
+
+    @Mock
+    private ScriptEditor editor;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void initService() {
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void closeService() throws Exception {
+        closeable.close();
+    }
+
     @Test
-    public void testScriptSearchBean_1()
-        throws Exception {
+    public void testScriptSearchBean() {
         assertNotNull(scriptSearchBean);
+    }
+
+    @Test
+    public void testReplaceString() {
+        String replaceString = "ReplaceMe";
+        scriptSearchBean.setReplaceString(replaceString);
+        assertEquals(replaceString, scriptSearchBean.getReplaceString());
+    }
+
+    @Test
+    public void testRequestSections() {
+        List<SearchOptionWrapper> requestSections = new LinkedList();
+        scriptSearchBean.setRequestSections(requestSections);
+        assertEquals(requestSections, scriptSearchBean.getRequestSections());
+    }
+
+    @Test
+    public void testThinkTimeSections() {
+        List<SearchOptionWrapper> thinkTimeSections = new LinkedList();
+        scriptSearchBean.setThinkTimeSections(thinkTimeSections);
+        assertEquals(thinkTimeSections, scriptSearchBean.getThinkTimeSections());
+    }
+
+    @Test
+    public void testSleepTimeSections() {
+        List<SearchOptionWrapper> sleepTimeSections = new LinkedList();
+        scriptSearchBean.setSleepTimeSections(sleepTimeSections);
+        assertEquals(sleepTimeSections, scriptSearchBean.getSleepTimeSections());
+    }
+
+    @Test
+    public void testVariableSections() {
+        List<SearchOptionWrapper> variableSections = new LinkedList();
+        scriptSearchBean.setVariableSections(variableSections);
+        assertEquals(variableSections, scriptSearchBean.getVariableSections());
+    }
+
+    @Test
+    public void testReplaceEntity() {
+        List<ReplaceEntity> replaceEntity = new LinkedList();
+        scriptSearchBean.setReplaceEntity(replaceEntity);
+        assertEquals(replaceEntity, scriptSearchBean.getReplaceEntity());
+    }
+
+    @Test
+    public void testSearchQuery() {
+        String searchQuery = "Search Query String";
+        scriptSearchBean.setSearchQuery(searchQuery);
+        assertEquals(searchQuery, scriptSearchBean.getSearchQuery());
+    }
+
+    @Test
+    public void testSearching() {
+        scriptSearchBean.setSearching(true);
+        assertTrue(scriptSearchBean.getSearching());
+
+        scriptSearchBean.toggleSearching();
+        assertFalse(scriptSearchBean.getSearching());
+
+        scriptSearchBean.setSearching(false);
+        assertFalse(scriptSearchBean.getSearching());
+
+        scriptSearchBean.toggleSearching();
+        assertTrue(scriptSearchBean.getSearching());
+    }
+
+    @Test
+    public void testReplaceModeKey() {
+        scriptSearchBean.setReplaceMode(ReplaceMode.KEY);
+        assertEquals(ReplaceMode.KEY, scriptSearchBean.getReplaceMode());
+    }
+
+    @Test
+    public void testReplaceModeValue() {
+        scriptSearchBean.setReplaceMode(ReplaceMode.VALUE);
+        assertEquals(ReplaceMode.VALUE, scriptSearchBean.getReplaceMode());
+    }
+
+    @Test
+    public void testSearch() {
+        assertEquals("success", scriptSearchBean.search());
+    }
+
+    @Test
+    public void testCanel() {
+        assertEquals("success", scriptSearchBean.cancel());
+    }
+
+    @Test
+    public void testRunSearchl() {
+        List<ScriptStep> steps = new LinkedList<>();
+        ScriptStep step = ScriptStep.builder().build();
+        steps.add(step);
+        when(editor.getSteps()).thenReturn(steps);
+        scriptSearchBean.runSearch();
     }
 }

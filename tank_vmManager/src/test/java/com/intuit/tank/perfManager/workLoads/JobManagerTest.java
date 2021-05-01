@@ -54,50 +54,13 @@ public class JobManagerTest {
      * @generatedBy CodePro at 9/10/14 10:40 AM
      */
     @Test
-    public void testRegisterAgentForJob_1()
+    public void testRegisterAgentForJob()
             throws Exception {
         JobManager fixture = new JobManager();
         AgentData agent = new AgentData("", "", "", 1, VMRegion.ASIA_1, "");
-
         AgentTestStartData result = fixture.registerAgentForJob(agent);
 
-        assertEquals(null, result);
-    }
-
-    /**
-     * Run the AgentTestStartData registerAgentForJob(AgentData) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/10/14 10:40 AM
-     */
-    @Test
-    public void testRegisterAgentForJob_2()
-            throws Exception {
-        JobManager fixture = new JobManager();
-        AgentData agent = new AgentData("", "", "", 1, VMRegion.ASIA_1, "");
-
-        AgentTestStartData result = fixture.registerAgentForJob(agent);
-
-        assertEquals(null, result);
-    }
-
-    /**
-     * Run the AgentTestStartData registerAgentForJob(AgentData) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/10/14 10:40 AM
-     */
-    @Test
-    public void testRegisterAgentForJob_3()
-            throws Exception {
-        JobManager fixture = new JobManager();
-        AgentData agent = new AgentData("", "", "", 1, VMRegion.ASIA_1, "");
-
-        AgentTestStartData result = fixture.registerAgentForJob(agent);
-
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

@@ -285,10 +285,9 @@ public class ScriptSearchBean implements Serializable {
         criteria.getCriteria().addAll(newList);
         criteria.setSearchQuery(searchQuery);
         MethodTimer mt = new MethodTimer(LOG, ScriptSearchBean.class, "runSearch");
-        ReplacementFactory rb = new ReplacementFactory();
         for (ScriptStep step : getSteps()) {
             for (Section section : criteria.getCriteria()) {
-                List<ReplaceEntity> identifyReplacement = rb.getReplacementForSection(section)
+                List<ReplaceEntity> identifyReplacement = ReplacementFactory.getReplacementForSection(section)
                         .getReplacements(step, searchQuery, "", SearchMode.all);
                 if (!identifyReplacement.isEmpty()) {
                     searchMatch.add(step);

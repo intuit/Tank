@@ -294,14 +294,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymockclassextension</artifactId>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -773,15 +767,9 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.easymock</groupId>
-        <artifactId>easymock</artifactId>
-        <version>4.0.2</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.easymock</groupId>
-        <artifactId>easymockclassextension</artifactId>
-        <version>3.2</version>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>3.9.0</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -1166,10 +1154,6 @@
     <repository>
       <id>Maven Central 1</id>
       <url>https://repo1.maven.org/maven2</url>
-    </repository>
-    <repository>
-      <id>Spring Plugins Repository</id>
-      <url>https://repo.spring.io/plugins-release/</url>
     </repository>
   </repositories>
 

@@ -13,34 +13,28 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.behavior.Behavior;
-
+import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.PreferencesBean;
+import com.intuit.tank.api.cloud.VMTracker;
+import com.intuit.tank.auth.Security;
+import com.intuit.tank.dao.JobQueueDao;
+import com.intuit.tank.dao.ProjectDao;
+import com.intuit.tank.job.ProjectNodeBean;
+import com.intuit.tank.util.Messages;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.primefaces.event.NodeCollapseEvent;
-import org.primefaces.event.NodeExpandEvent;
-import org.primefaces.extensions.behavior.javascript.JavascriptBehavior;
-import org.primefaces.extensions.component.dynaform.DynaForm;
-import org.primefaces.model.CheckboxTreeNode;
-import org.primefaces.model.TreeNode;
-
-import com.intuit.tank.job.JobNodeBean;
-import com.intuit.tank.job.ProjectNodeBean;
 import com.intuit.tank.prefs.TablePreferences;
 import com.intuit.tank.prefs.TableViewState;
-import com.intuit.tank.project.ColumnPreferences;
-import com.intuit.tank.project.JobQueue;
-import com.intuit.tank.project.JobQueueManager;
-import com.intuit.tank.project.JobTreeTableBean;
-import com.intuit.tank.project.Project;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 /**
  * The class <code>JobTreeTableBeanTest</code> contains tests for the class <code>{@link JobTreeTableBean}</code>.
@@ -48,6 +42,39 @@ import com.intuit.tank.project.Project;
  * @generatedBy CodePro at 12/15/14 3:52 PM
  */
 public class JobTreeTableBeanTest {
+
+    @InjectMocks
+    private JobQueueManager fixture;
+
+    @Mock
+    private VMTracker vmTracker;
+
+    @Mock
+    private Security security;
+
+    @Mock
+    private PreferencesBean preferencesBean;
+
+    @Mock
+    JobQueueDao jobQueueDao;
+
+    @Mock
+    ProjectDao projectDao;
+
+    @Mock
+    Messages messages;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void initService() {
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void closeService() throws Exception {
+        closeable.close();
+    }
 
     /**
      * Run the List<String> getAllTpsKeys() method test.
@@ -57,9 +84,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testGetAllTpsKeys_1()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testGetAllTpsKeys_1() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
 
@@ -75,9 +100,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testGetRefreshInterval_1()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testGetRefreshInterval_1() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
 
@@ -101,9 +124,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testGetRefreshTimeSeconds_1()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testGetRefreshTimeSeconds_1() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
         fixture.setRefreshTimeSeconds("30");
@@ -120,9 +141,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testGetTablePrefs_1()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testGetTablePrefs_1() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
 
@@ -146,9 +165,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testGetTableState_1()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testGetTableState_1() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
 
@@ -172,9 +189,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testIsFilterFinished_1()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testIsFilterFinished_1() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
 
@@ -198,9 +213,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testIsFilterFinished_2()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testIsFilterFinished_2() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
 
@@ -224,9 +237,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testIsRefreshEnabled_1()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testIsRefreshEnabled_1() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
 
@@ -242,9 +253,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testKeysChanged_1()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testKeysChanged_1() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
 
@@ -267,9 +276,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testObserve_1()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testObserve_1() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
         JobQueue queueEvent = new JobQueue();
@@ -293,9 +300,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testSetFilterFinished_1()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testSetFilterFinished_1() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
         boolean filterFinished = true;
@@ -319,9 +324,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testSetFilterFinished_2()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testSetFilterFinished_2() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
         boolean filterFinished = true;
@@ -345,9 +348,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testSetRefreshTimeSeconds_1()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testSetRefreshTimeSeconds_1() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
         String refreshTimeSeconds = "";
@@ -371,9 +372,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testSetRefreshTimeSeconds_2()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testSetRefreshTimeSeconds_2() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
         String refreshTimeSeconds = "";
@@ -397,9 +396,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testSetRefreshTimeSeconds_3()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testSetRefreshTimeSeconds_3() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
         String refreshTimeSeconds = "";
@@ -423,9 +420,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testSetSelectedTpsKeys_1()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testSetSelectedTpsKeys_1() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
         List<String> keys = new LinkedList();
@@ -449,9 +444,7 @@ public class JobTreeTableBeanTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testSetSelectedTpsKeys_2()
-            throws Exception {
-        JobQueueManager fixture = new JobQueueManager();
+    public void testSetSelectedTpsKeys_2() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
         List<String> keys = new LinkedList();
@@ -465,5 +458,34 @@ public class JobTreeTableBeanTest {
         // at com.intuit.tank.dao.ProjectDao.<init>(ProjectDao.java:29)
         // at com.intuit.tank.project.JobTreeTableBean.<init>(JobTreeTableBean.java:96)
         // at com.intuit.tank.project.JobQueueManager.<init>(JobQueueManager.java:8)
+    }
+
+    @Test
+    public void testRefreshData() {
+
+        JobQueue jobQueue = new JobQueue();
+        jobQueue.setProjectId(10);
+        jobQueue.addJob(new JobInstance());
+        Mockito.when(jobQueueDao.findRecent(Mockito.any(Date.class))).thenReturn(List.of(jobQueue));
+        Mockito.when(projectDao.findById(Mockito.anyInt())).thenReturn(new Project());
+
+        AWSXRay.beginSegment("test");
+        fixture.refreshData();
+        AWSXRay.endSegment();
+    }
+
+    @Test
+    public void testCurrentJobInstanceForTPS() {
+        fixture.setCurrentJobInstance(new ProjectNodeBean(new Project()));
+    }
+
+    @Test
+    public void testCurrentJobInstanceForUser() {
+        fixture.setCurrentJobInstanceForUser(new ProjectNodeBean(new Project()));
+    }
+
+    @Test
+    public void testDeleteJobInstance() {
+        fixture.deleteJobInstance(new ProjectNodeBean(new Project()));
     }
 }

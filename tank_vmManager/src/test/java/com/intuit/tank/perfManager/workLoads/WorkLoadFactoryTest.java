@@ -13,12 +13,10 @@ package com.intuit.tank.perfManager.workLoads;
  * #L%
  */
 
+import com.intuit.tank.project.Workload;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import com.intuit.tank.perfManager.workLoads.WorkLoadFactory;
-import com.intuit.tank.project.Workload;
 
 /**
  * The class <code>WorkLoadFactoryTest</code> contains tests for the class <code>{@link WorkLoadFactory}</code>.
@@ -26,16 +24,22 @@ import com.intuit.tank.project.Workload;
  * @generatedBy CodePro at 9/10/14 10:40 AM
  */
 public class WorkLoadFactoryTest {
+
+    private static WorkLoadFactory fixture;
+
+    @BeforeAll
+    public static void constructor() {
+        fixture = new WorkLoadFactory();
+    }
     /**
      * Run the WorkLoadFactory() constructor test.
      * 
      * @generatedBy CodePro at 9/10/14 10:40 AM
      */
     @Test
-    public void testWorkLoadFactory_1()
+    public void testWorkLoadFactory()
             throws Exception {
-        WorkLoadFactory result = new WorkLoadFactory();
-        assertNotNull(result);
+        assertNotNull(fixture);
     }
 
     /**
@@ -46,29 +50,12 @@ public class WorkLoadFactoryTest {
      * @generatedBy CodePro at 9/10/14 10:40 AM
      */
     @Test
-    public void testBuildScriptXml_1()
+    public void testBuildScriptXml()
             throws Exception {
-        WorkLoadFactory fixture = new WorkLoadFactory();
         String jobId = "";
         Workload workload = new Workload();
-
         String result = fixture.buildScriptXml(jobId, workload);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.SecurityException: Cannot write to files while generating test cases
-        // at
-        // com.instantiations.assist.eclipse.junit.CodeProJUnitSecurityManager.checkWrite(CodeProJUnitSecurityManager.java:76)
-        // at java.io.FileOutputStream.<init>(FileOutputStream.java:209)
-        // at java.io.FileOutputStream.<init>(FileOutputStream.java:171)
-        // at org.apache.commons.configuration.AbstractFileConfiguration.save(AbstractFileConfiguration.java:490)
-        // at
-        // org.apache.commons.configuration.AbstractHierarchicalFileConfiguration.save(AbstractHierarchicalFileConfiguration.java:204)
-        // at com.intuit.tank.settings.BaseCommonsXmlConfig.readConfig(BaseCommonsXmlConfig.java:63)
-        // at com.intuit.tank.settings.TankConfig.<init>(TankConfig.java:78)
-        // at
-        // com.intuit.tank.api.service.v1.project.ProjectServiceUrlBuilder.getScriptXmlUrl(ProjectServiceUrlBuilder.java:29)
-        // at com.intuit.tank.perfManager.workLoads.WorkLoadFactory.buildScriptXml(WorkLoadFactory.java:175)
         assertNotNull(result);
     }
-
 }
