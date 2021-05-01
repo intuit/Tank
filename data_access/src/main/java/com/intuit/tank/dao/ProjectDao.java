@@ -139,7 +139,6 @@ public class ProjectDao extends OwnableDao<Project> {
     		commit();
         } catch (Exception e) {
         	rollback();
-            e.printStackTrace();
             LOG.info("No entities for Project id " + id);
     	} finally {
     		cleanup();
@@ -181,11 +180,13 @@ public class ProjectDao extends OwnableDao<Project> {
     @Nullable
     public Project loadScripts(Integer ProjectId) {
     	Project project = findByIdEager(ProjectId);
-        ScriptDao dao = new ScriptDao();
-        for (TestPlan testPlan : project.getWorkloads().get(0).getTestPlans()) {
-            for (ScriptGroup scriptGroup : testPlan.getScriptGroups()) {
-                for (ScriptGroupStep scriptGroupStep : scriptGroup.getScriptGroupSteps()) {
-                    dao.loadScriptSteps(scriptGroupStep.getScript());
+    	if (project != null) {
+            ScriptDao dao = new ScriptDao();
+            for (TestPlan testPlan : project.getWorkloads().get(0).getTestPlans()) {
+                for (ScriptGroup scriptGroup : testPlan.getScriptGroups()) {
+                    for (ScriptGroupStep scriptGroupStep : scriptGroup.getScriptGroupSteps()) {
+                        dao.loadScriptSteps(scriptGroupStep.getScript());
+                    }
                 }
             }
         }

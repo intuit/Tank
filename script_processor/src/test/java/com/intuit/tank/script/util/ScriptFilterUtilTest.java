@@ -16,10 +16,7 @@ package com.intuit.tank.script.util;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -27,6 +24,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.util.ScriptFilterType;
+import com.intuit.tank.vm.api.enumerated.ScriptFilterActionType;
 import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.project.RequestData;
@@ -35,7 +35,8 @@ import com.intuit.tank.project.ScriptFilter;
 import com.intuit.tank.project.ScriptFilterAction;
 import com.intuit.tank.project.ScriptFilterCondition;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.util.ScriptFilterUtil;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 
 /**
  * ScriptFilterUtilTest
@@ -44,8 +45,6 @@ import com.intuit.tank.script.util.ScriptFilterUtil;
  * 
  */
 public class ScriptFilterUtilTest {
-
-
 
     /**
      * Run the ScriptFilterUtil() constructor test.
@@ -78,36 +77,8 @@ public class ScriptFilterUtilTest {
 
     }
 
-    /**
-     * Run the void applyFilter(ScriptFilter,List<ScriptStep>) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
     @Test
-    public void testApplyFilter_2()
-        throws Exception {
-        ScriptFilter filter = new ScriptFilter();
-        filter.setConditions(new HashSet());
-        filter.setActions(new HashSet());
-        filter.setAllConditionsMustPass(true);
-        List<ScriptStep> steps = new LinkedList();
-
-        ScriptFilterUtil.applyFilter(filter, steps);
-
-    }
-
-    /**
-     * Run the void applyFilter(ScriptFilter,List<ScriptStep>) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testApplyFilter_3()
-        throws Exception {
+    public void testApplyFilterNoConditions() {
         ScriptFilter filter = new ScriptFilter();
         filter.setAllConditionsMustPass(true);
         List<ScriptStep> steps = new LinkedList();
@@ -116,64 +87,170 @@ public class ScriptFilterUtilTest {
 
     }
 
-    /**
-     * Run the void applyFilter(ScriptFilter,List<ScriptStep>) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testApplyFilter_4()
-        throws Exception {
+
+    @ParameterizedTest
+    @CsvFileSource(resources = "/testApplyFilterAdd.csv", numLinesToSkip = 1)
+    public void testApplyFilterToScript_Add(String scope, String condition, String actionType, String actionScope) {
         ScriptFilter filter = new ScriptFilter();
-        filter.setConditions(new HashSet());
-        filter.setActions(new HashSet());
+        ScriptFilterCondition scriptFilterCondition = new ScriptFilterCondition();
+        scriptFilterCondition.setScope(scope);
+        scriptFilterCondition.setCondition(condition);
+        scriptFilterCondition.setValue("value");
+        filter.addCondition(scriptFilterCondition);
+        ScriptFilterAction scriptFilterAction = new ScriptFilterAction();
+        scriptFilterAction.setAction(ScriptFilterActionType.valueOf(actionType));
+        scriptFilterAction.setScope(actionScope);
+        scriptFilterAction.setValue("Success, Failure");
+        filter.addAction(scriptFilterAction);
+        filter.setFilterType(ScriptFilterType.INTERNAL);
         filter.setAllConditionsMustPass(true);
-        List<ScriptStep> steps = new LinkedList();
 
-        ScriptFilterUtil.applyFilter(filter, steps);
+        Script script = new Script();
+        ScriptStep step = new ScriptStep();
+        step.setHostname("localhost");
+        step.setSimplePath("/rest/v1");
+        HashSet<RequestData> requestDataHashSet = new HashSet<>();
+        requestDataHashSet.add(new RequestData("key", "value", "type"));
+        step.setQueryStrings(requestDataHashSet);
+        step.setPostDatas(requestDataHashSet);
+        script.addStep(step);
 
+        AWSXRay.beginSegment("test");
+        ScriptFilterUtil.applyFiltersToScript(List.of(filter), script);
+        AWSXRay.endSegment();
     }
 
-    /**
-     * Run the void applyFilter(ScriptFilter,List<ScriptStep>) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testApplyFilter_5()
-        throws Exception {
+    @ParameterizedTest
+    @CsvFileSource(resources = "/testApplyFilterRemove.csv", numLinesToSkip = 1)
+    public void testApplyFilterToScript_Remove(String scope, String condition, String actionType, String actionScope) {
         ScriptFilter filter = new ScriptFilter();
-        filter.setConditions(new HashSet());
-        filter.setActions(new HashSet());
+        ScriptFilterCondition scriptFilterCondition = new ScriptFilterCondition();
+        scriptFilterCondition.setScope(scope);
+        scriptFilterCondition.setCondition(condition);
+        scriptFilterCondition.setValue("value");
+        filter.addCondition(scriptFilterCondition);
+        ScriptFilterAction scriptFilterAction = new ScriptFilterAction();
+        scriptFilterAction.setAction(ScriptFilterActionType.valueOf(actionType));
+        scriptFilterAction.setScope(actionScope);
+        scriptFilterAction.setValue("Success, Failure");
+        filter.addAction(scriptFilterAction);
+        filter.setFilterType(ScriptFilterType.INTERNAL);
         filter.setAllConditionsMustPass(true);
-        List<ScriptStep> steps = new LinkedList();
 
-        ScriptFilterUtil.applyFilter(filter, steps);
+        Script script = new Script();
+        ScriptStep step = new ScriptStep();
+        step.setHostname("localhost");
+        step.setSimplePath("/rest/v1");
+        HashSet<RequestData> requestDataHashSet = new HashSet<>();
+        requestDataHashSet.add(new RequestData("key", "value", "type"));
+        step.setQueryStrings(requestDataHashSet);
+        step.setPostDatas(requestDataHashSet);
+        script.addStep(step);
 
+        AWSXRay.beginSegment("test");
+        ScriptFilterUtil.applyFiltersToScript(List.of(filter), script);
+        AWSXRay.endSegment();
     }
 
-    /**
-     * Run the void applyFilter(ScriptFilter,List<ScriptStep>) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testApplyFilter_6()
-        throws Exception {
+    @ParameterizedTest
+    @CsvFileSource(resources = "/testApplyFilterReplace.csv", numLinesToSkip = 1)
+    public void testApplyFilterToScript_Replace(String scope, String condition, String actionType, String actionScope) {
         ScriptFilter filter = new ScriptFilter();
-        filter.setConditions(new HashSet());
-        filter.setActions(new HashSet());
+        ScriptFilterCondition scriptFilterCondition = new ScriptFilterCondition();
+        scriptFilterCondition.setScope(scope);
+        scriptFilterCondition.setCondition(condition);
+        scriptFilterCondition.setValue("value");
+        filter.addCondition(scriptFilterCondition);
+        ScriptFilterAction scriptFilterAction = new ScriptFilterAction();
+        scriptFilterAction.setAction(ScriptFilterActionType.valueOf(actionType));
+        scriptFilterAction.setScope(actionScope);
+        scriptFilterAction.setValue("Success, Failure");
+        filter.addAction(scriptFilterAction);
+        filter.setFilterType(ScriptFilterType.INTERNAL);
         filter.setAllConditionsMustPass(true);
-        List<ScriptStep> steps = new LinkedList();
 
-        ScriptFilterUtil.applyFilter(filter, steps);
+        Script script = new Script();
+        ScriptStep step = new ScriptStep();
+        step.setHostname("localhost");
+        step.setSimplePath("/rest/v1");
+        HashSet<RequestData> requestDataHashSet = new HashSet<>();
+        requestDataHashSet.add(new RequestData("key", "value", "type"));
+        step.setQueryStrings(requestDataHashSet);
+        step.setPostDatas(requestDataHashSet);
+        step.setResponseData(requestDataHashSet);
+        script.addStep(step);
 
+        AWSXRay.beginSegment("test");
+        ScriptFilterUtil.applyFiltersToScript(List.of(filter), script);
+        AWSXRay.endSegment();
+    }
+
+    @Test
+    public void testApplyFilterNoMatchCondition() {
+        ScriptFilter filter = new ScriptFilter();
+        ScriptFilterCondition scriptFilterCondition = new ScriptFilterCondition();
+        scriptFilterCondition.setScope("Hostname");
+        scriptFilterCondition.setCondition("FAILED NO MATCH");
+        scriptFilterCondition.setValue("value");
+        filter.addCondition(scriptFilterCondition);
+        ScriptFilterAction scriptFilterAction = new ScriptFilterAction();
+        scriptFilterAction.setAction(ScriptFilterActionType.replace);
+        scriptFilterAction.setScope("Hostaname");
+        filter.addAction(scriptFilterAction);
+        filter.setAllConditionsMustPass(true);
+        ScriptStep step = new ScriptStep();
+        step.setHostname("localhost");
+        step.setSimplePath("/rest/v1");
+        step.setQueryStrings(Set.of(new RequestData("key", "value", "type")));
+        step.setPostDatas(Set.of(new RequestData("key", "value", "type")));
+
+        ScriptFilterUtil.applyFilter(filter, List.of(step));
+    }
+
+    @Test
+    public void testApplyFilterHostnameNull() {
+        ScriptFilter filter = new ScriptFilter();
+        ScriptFilterCondition scriptFilterCondition = new ScriptFilterCondition();
+        scriptFilterCondition.setScope("Hostname");
+        scriptFilterCondition.setCondition("Contains");
+        scriptFilterCondition.setValue("value");
+        filter.addCondition(scriptFilterCondition);
+        ScriptFilterAction scriptFilterAction = new ScriptFilterAction();
+        scriptFilterAction.setAction(ScriptFilterActionType.replace);
+        scriptFilterAction.setScope("Hostaname");
+        filter.addAction(scriptFilterAction);
+        filter.setAllConditionsMustPass(true);
+        ScriptStep step = new ScriptStep();
+        step.setHostname(null);
+        step.setSimplePath("/rest/v1");
+        step.setQueryStrings(Set.of(new RequestData("key", "value", "type")));
+        step.setPostDatas(Set.of(new RequestData("key", "value", "type")));
+
+        ScriptFilterUtil.applyFilter(filter, List.of(step));
+    }
+
+    @Test
+    public void testApplyFilterBadScope() {
+        ScriptFilter filter = new ScriptFilter();
+        ScriptFilterCondition scriptFilterCondition = new ScriptFilterCondition();
+        scriptFilterCondition.setScope("FAIL");
+        scriptFilterCondition.setCondition("Contains");
+        scriptFilterCondition.setValue("value");
+        filter.addCondition(scriptFilterCondition);
+        ScriptFilterAction scriptFilterAction = new ScriptFilterAction();
+        scriptFilterAction.setAction(ScriptFilterActionType.replace);
+        scriptFilterAction.setScope("FAIL");
+        filter.addAction(scriptFilterAction);
+        filter.setAllConditionsMustPass(true);
+        ScriptStep step = new ScriptStep();
+        step.setHostname("localhost");
+        step.setSimplePath("/rest/v1");
+        step.setQueryStrings(Set.of(new RequestData("key", "value", "type")));
+        step.setPostDatas(Set.of(new RequestData("key", "value", "type")));
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            ScriptFilterUtil.applyFilter(filter, List.of(step));
+        });
     }
 
     /**
@@ -674,419 +751,6 @@ public class ScriptFilterUtilTest {
     }
 
     /**
-     * Run the ScriptStep doAction(Set<ScriptFilterAction>,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testDoAction_1()
-        throws Exception {
-        Set<ScriptFilterAction> actions = new HashSet();
-        ScriptStep step = new ScriptStep();
-
-        ScriptStep result = ScriptFilterUtil.doAction(actions, step);
-
-        assertEquals(null, result);
-    }
-
-    /**
-     * Run the ScriptStep doAction(Set<ScriptFilterAction>,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testDoAction_2()
-        throws Exception {
-        Set<ScriptFilterAction> actions = new HashSet();
-        ScriptStep step = new ScriptStep();
-
-        ScriptStep result = ScriptFilterUtil.doAction(actions, step);
-
-        assertEquals(null, result);
-    }
-
-    /**
-     * Run the ScriptStep doAction(Set<ScriptFilterAction>,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testDoAction_3()
-        throws Exception {
-        Set<ScriptFilterAction> actions = new HashSet();
-        ScriptStep step = new ScriptStep();
-
-        ScriptStep result = ScriptFilterUtil.doAction(actions, step);
-
-        assertEquals(null, result);
-    }
-
-    /**
-     * Run the ScriptStep doAction(Set<ScriptFilterAction>,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testDoAction_4()
-        throws Exception {
-        Set<ScriptFilterAction> actions = new HashSet();
-        ScriptStep step = new ScriptStep();
-
-        ScriptStep result = ScriptFilterUtil.doAction(actions, step);
-
-        assertEquals(null, result);
-    }
-
-    /**
-     * Run the ScriptStep doAction(Set<ScriptFilterAction>,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testDoAction_5()
-        throws Exception {
-        Set<ScriptFilterAction> actions = new HashSet();
-        ScriptStep step = new ScriptStep();
-
-        ScriptStep result = ScriptFilterUtil.doAction(actions, step);
-
-        assertEquals(null, result);
-    }
-
-    /**
-     * Run the ScriptStep doAction(Set<ScriptFilterAction>,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testDoAction_6()
-        throws Exception {
-        Set<ScriptFilterAction> actions = new HashSet();
-        ScriptStep step = new ScriptStep();
-
-        ScriptStep result = ScriptFilterUtil.doAction(actions, step);
-
-        assertEquals(null, result);
-    }
-
-    /**
-     * Run the ScriptStep doAction(Set<ScriptFilterAction>,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testDoAction_7()
-        throws Exception {
-        Set<ScriptFilterAction> actions = new HashSet();
-        ScriptStep step = new ScriptStep();
-
-        ScriptStep result = ScriptFilterUtil.doAction(actions, step);
-
-        assertEquals(null, result);
-    }
-
-    /**
-     * Run the boolean filterOnField(String,ScriptFilterCondition,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testFilterOnField_1()
-        throws Exception {
-        String filterField = null;
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        ScriptStep currentStep = new ScriptStep();
-
-        boolean result = ScriptFilterUtil.filterOnField(filterField, condition, currentStep);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean filterOnField(String,ScriptFilterCondition,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testFilterOnField_2()
-        throws Exception {
-        String filterField = "";
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        condition.setCondition("");
-        condition.setValue("");
-        ScriptStep currentStep = new ScriptStep();
-
-        boolean result = ScriptFilterUtil.filterOnField(filterField, condition, currentStep);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean filterOnField(String,ScriptFilterCondition,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testFilterOnField_3()
-        throws Exception {
-        String filterField = "";
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        condition.setCondition("");
-        condition.setValue("");
-        ScriptStep currentStep = new ScriptStep();
-
-        boolean result = ScriptFilterUtil.filterOnField(filterField, condition, currentStep);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean filterOnField(String,ScriptFilterCondition,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testFilterOnField_4()
-        throws Exception {
-        String filterField = "";
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        condition.setCondition("");
-        condition.setValue("");
-        ScriptStep currentStep = new ScriptStep();
-
-        boolean result = ScriptFilterUtil.filterOnField(filterField, condition, currentStep);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean filterOnField(String,ScriptFilterCondition,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testFilterOnField_5()
-        throws Exception {
-        String filterField = "";
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        condition.setCondition("");
-        condition.setValue("");
-        ScriptStep currentStep = new ScriptStep();
-
-        boolean result = ScriptFilterUtil.filterOnField(filterField, condition, currentStep);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean filterOnField(String,ScriptFilterCondition,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testFilterOnField_6()
-        throws Exception {
-        String filterField = "";
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        condition.setCondition("");
-        ScriptStep currentStep = new ScriptStep();
-
-        boolean result = ScriptFilterUtil.filterOnField(filterField, condition, currentStep);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean filterOnField(String,ScriptFilterCondition,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testFilterOnField_7()
-        throws Exception {
-        String filterField = "";
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        condition.setCondition("");
-        ScriptStep currentStep = new ScriptStep();
-
-        boolean result = ScriptFilterUtil.filterOnField(filterField, condition, currentStep);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean filterOnField(String,ScriptFilterCondition,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testFilterOnField_8()
-        throws Exception {
-        String filterField = "";
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        condition.setCondition("");
-        ScriptStep currentStep = new ScriptStep();
-
-        boolean result = ScriptFilterUtil.filterOnField(filterField, condition, currentStep);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean filterOnField(String,ScriptFilterCondition,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testFilterOnField_9()
-        throws Exception {
-        String filterField = "";
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        condition.setCondition("");
-        ScriptStep currentStep = new ScriptStep();
-
-        boolean result = ScriptFilterUtil.filterOnField(filterField, condition, currentStep);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean filterOnField(String,ScriptFilterCondition,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testFilterOnField_10()
-        throws Exception {
-        String filterField = "";
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        condition.setCondition("");
-        ScriptStep currentStep = new ScriptStep();
-
-        boolean result = ScriptFilterUtil.filterOnField(filterField, condition, currentStep);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean filterOnField(String,ScriptFilterCondition,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testFilterOnField_11()
-        throws Exception {
-        String filterField = "";
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        condition.setCondition("");
-        condition.setValue("");
-        ScriptStep currentStep = new ScriptStep();
-
-        boolean result = ScriptFilterUtil.filterOnField(filterField, condition, currentStep);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean filterOnField(String,ScriptFilterCondition,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testFilterOnField_12()
-        throws Exception {
-        String filterField = "";
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        condition.setCondition("");
-        condition.setValue("");
-        ScriptStep currentStep = new ScriptStep();
-
-        boolean result = ScriptFilterUtil.filterOnField(filterField, condition, currentStep);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean filterOnField(String,ScriptFilterCondition,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testFilterOnField_13()
-        throws Exception {
-        String filterField = "";
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        condition.setCondition("");
-        condition.setValue("");
-        ScriptStep currentStep = new ScriptStep();
-
-        boolean result = ScriptFilterUtil.filterOnField(filterField, condition, currentStep);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean filterOnField(String,ScriptFilterCondition,ScriptStep) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test
-    public void testFilterOnField_14()
-        throws Exception {
-        String filterField = "";
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        condition.setCondition("");
-        condition.setValue("");
-        ScriptStep currentStep = new ScriptStep();
-
-        boolean result = ScriptFilterUtil.filterOnField(filterField, condition, currentStep);
-
-        assertEquals(false, result);
-    }
-
-    /**
      * Run the boolean filterOnFieldSets(Set<RequestData>,ScriptFilterCondition,ScriptStep,List<ScriptStep>) method test.
      *
      * @throws Exception
@@ -1168,25 +832,5 @@ public class ScriptFilterUtilTest {
         boolean result = ScriptFilterUtil.filterOnFieldSets(fields, condition, currentStep, steps);
 
         assertEquals(false, result);
-    }
-
-  
-
-    /**
-     * Run the boolean testConditions(String,ScriptFilterCondition,ScriptStep,List<ScriptStep>) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:48 PM
-     */
-    @Test()
-    public void testTestConditions_9()
-        throws Exception {
-        String scope = "";
-        ScriptFilterCondition condition = new ScriptFilterCondition();
-        ScriptStep step = new ScriptStep();
-        List<ScriptStep> steps = new LinkedList();
-
-        assertThrows(java.lang.IllegalArgumentException.class, () -> ScriptFilterUtil.testConditions(scope, condition, step, steps));
     }
 }

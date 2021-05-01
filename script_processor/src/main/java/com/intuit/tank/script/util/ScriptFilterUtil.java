@@ -45,7 +45,6 @@ import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.RequestDataType;
 import com.intuit.tank.tools.script.LoggingOutputLogger;
 import com.intuit.tank.tools.script.ScriptRunner;
-import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 import com.intuit.tank.util.ScriptFilterType;
 import com.intuit.tank.vm.api.enumerated.ScriptFilterActionType;
 import com.intuit.tank.vm.script.util.AddActionScope;
@@ -137,11 +136,11 @@ public class ScriptFilterUtil {
     }
 
     /**
-     * 
+     *
      * @param filter
      * @param steps
      */
-    public static void applyFilter(ScriptFilter filter, List<ScriptStep> steps) {
+    protected static void applyFilter(ScriptFilter filter, List<ScriptStep> steps) {
         boolean allConditionsMustPass = filter.getAllConditionsMustPass();
         Set<ScriptStep> stepsToDelete = new HashSet<ScriptStep>();
         SortedMap<Integer, ScriptStep> stepsToAdd = new TreeMap<Integer, ScriptStep>();
@@ -376,14 +375,12 @@ public class ScriptFilterUtil {
      * @return
      */
     private static String getDataType(String value) {
-        String ret = RequestDataType.bodyValidation.name();
-        if (!StringUtils.isEmpty(value) && value.startsWith("=") && !value.startsWith("==")) {
-            ret = RequestDataType.bodyAssignment.name();
-        }
-        return ret;
+        return (!StringUtils.isEmpty(value) && value.startsWith("=") && !value.startsWith("=="))
+                ? RequestDataType.bodyAssignment.name()
+                : RequestDataType.bodyValidation.name();
     }
 
-    static boolean testConditions(String scope, ScriptFilterCondition condition, ScriptStep step,
+    private static boolean testConditions(String scope, ScriptFilterCondition condition, ScriptStep step,
             List<ScriptStep> steps) {
         if (scope.equalsIgnoreCase("Hostname")) {
             return filterOnField(step.getHostname(), condition, step);
@@ -397,7 +394,7 @@ public class ScriptFilterUtil {
         throw new IllegalArgumentException("Unknown scope: " + scope);
     }
 
-    public static boolean filterOnField(String filterField, ScriptFilterCondition condition,
+    private static boolean filterOnField(String filterField, ScriptFilterCondition condition,
             ScriptStep currentStep) {
         if (filterField == null)
             return false;
@@ -469,164 +466,4 @@ public class ScriptFilterUtil {
         }
         return false;
     }
-
-    // actions : replace, remove, add
-    // scope : request, host, path, query string, post data, response data
-    //
-    //
-    public static ScriptStep doAction(Set<ScriptFilterAction> actions, ScriptStep step) {
-
-        for (ScriptFilterAction action : actions) {
-            if (action.getAction() == ScriptFilterActionType.remove) {
-                if (action.getScope().equalsIgnoreCase("request")) {
-                    return step;
-                } else {
-                    logger.warn("Remove Action not available for scope " + action.getScope());
-                }
-            } else if (action.getAction() == ScriptFilterActionType.replace) {
-                doReplaceAction(action, step);
-            } else if (action.getAction() == ScriptFilterActionType.add) {
-                ScriptStep addStep = doAddAction(action, step);
-                if (addStep != null)
-                    return addStep;
-            }
-
-        }
-        return null;
-    }
-
-    private static ScriptStep doAddAction(ScriptFilterAction action, ScriptStep step) {
-
-        if (action.getScope().equalsIgnoreCase("responseData")) {
-            RequestData rd = new RequestData();
-            rd.setType(RequestDataType.responseContent.name());
-            rd.setKey(action.getKey());
-            rd.setValue(action.getValue());
-            getDataType(action.getValue());
-            if (step.getResponseData() == null)
-                step.setResponseData(new HashSet<RequestData>());
-
-            step.getResponseData().add(rd);
-        } else if (action.getScope().equalsIgnoreCase("thinkTime")) {
-            ScriptStep think = new ScriptStep();
-            think.setType("thinkTime");
-            String[] values = action.getValue().split(",");
-
-            RequestData min = new RequestData();
-            min.setType("thinkTime");
-            min.setKey("minTime");
-            min.setValue(values[0]);
-
-            RequestData max = new RequestData();
-            max.setType("thinkTime");
-            max.setKey("maxTime");
-            max.setValue(values[1]);
-
-            Set<RequestData> ds = new HashSet<RequestData>();
-            ds.add(min);
-            ds.add(max);
-            think.setData(ds);
-            think.setComments("ThinkTime " + min.getValue() + "-" + max.getValue());
-            return think;
-        } else if (action.getScope().equalsIgnoreCase("sleepTime")) {
-            ScriptStep sleep = new ScriptStep();
-            sleep.setType("sleep");
-            sleep.setComments("SLEEP " + action.getValue());
-            RequestData data = new RequestData();
-            data.setType("sleep");
-            data.setKey("time");
-            data.setValue(action.getValue());
-            Set<RequestData> ds = new HashSet<RequestData>();
-            ds.add(data);
-            sleep.setData(ds);
-
-            return sleep;
-        } else if (action.getScope().equalsIgnoreCase("responseCookie")) {
-            RequestData rd = new RequestData();
-            rd.setType("responseCookie");
-            rd.setKey(action.getKey());
-            rd.setValue(action.getValue());
-            if (step.getResponseCookies() == null)
-                step.setResponseCookies(new HashSet<RequestData>());
-
-            step.getResponseCookies().add(rd);
-        } else if (action.getScope().equalsIgnoreCase("requestCookie")) {
-            RequestData rd = new RequestData();
-            rd.setType(RequestDataType.requestCookie.name());
-            rd.setKey(action.getKey());
-            rd.setValue(action.getValue());
-            if (step.getRequestCookies() == null)
-                step.setRequestCookies(new HashSet<RequestData>());
-
-            step.getRequestCookies().add(rd);
-        } else {
-            logger.warn("Add Action not available for scope " + action.getScope());
-        }
-        return null;
-    }
-
-    private static void doReplaceAction(ScriptFilterAction action, ScriptStep step) {
-
-        if (action.getScope().equalsIgnoreCase(ReplaceActionScope.queryString.getValue())) {
-            for (RequestData qs : step.getQueryStrings()) {
-                if (qs.getKey().trim().equals(action.getKey())) {
-                    qs.setValue(action.getValue());
-                    qs.setType(RequestDataType.queryString.name());
-                    break;
-                }
-            }
-        } else if (action.getScope().equalsIgnoreCase(ReplaceActionScope.postData.getValue())) {
-            for (RequestData pd : step.getPostDatas()) {
-                if (pd.getKey().trim().equals(action.getKey())) {
-                    pd.setValue(action.getValue());
-                    pd.setType(RequestDataType.requestPostData.name());
-                    break;
-                }
-            }
-        } else if (action.getScope().equalsIgnoreCase(ReplaceActionScope.requestCookie.getValue())) {
-            for (RequestData pd : step.getRequestCookies()) {
-                if (pd.getKey().trim().equals(action.getKey())) {
-                    pd.setValue(action.getValue());
-                    pd.setType(RequestDataType.requestCookie.name());
-                    break;
-                }
-            }
-        } else if (action.getScope().equalsIgnoreCase(ReplaceActionScope.validation.getValue())) {
-            for (RequestData pd : step.getResponseData()) {
-                if (pd.getKey().trim().equals(action.getKey())) {
-                    pd.setValue(action.getValue());
-                    pd.setType(RequestDataType.bodyValidation.name());
-                    break;
-                }
-            }
-        } else if (action.getScope().equalsIgnoreCase(ReplaceActionScope.assignment.getValue())) {
-            for (RequestData pd : step.getResponseData()) {
-                if (pd.getKey().trim().equals(action.getKey())) {
-                    pd.setValue(action.getValue());
-                    pd.setType(RequestDataType.bodyAssignment.name());
-                    break;
-                }
-            }
-        } else if (action.getScope().equalsIgnoreCase(ReplaceActionScope.onfail.getValue())) {
-            step.setOnFail(action.getValue());
-        } else if (action.getScope().equalsIgnoreCase("responseData")) {
-            for (RequestData pd : step.getResponseData()) {
-                if (pd.getKey().trim().equals(action.getKey())) {
-                    pd.setValue(action.getValue());
-                    if (ConverterUtil.isAssignment(pd)) {
-                        pd.setType(RequestDataType.bodyAssignment.name());
-                    }
-                    getDataType(action.getValue());
-                    break;
-                }
-            }
-        } else if (action.getScope().equalsIgnoreCase(ReplaceActionScope.path.getValue())) {
-            step.setSimplePath(action.getValue());
-        } else if (action.getScope().equalsIgnoreCase(ReplaceActionScope.host.getValue())) {
-            step.setHostname(action.getValue());
-        } else {
-            logger.warn("Replace Action not available for scope " + action.getScope());
-        }
-    }
-
 }
