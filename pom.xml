@@ -27,28 +27,28 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>5.4.30.Final</version.hibernate>
-    <version.aws-sdk-bom>2.16.41</version.aws-sdk-bom>
-    <version.aws-xray-sdk-bom>2.8.0</version.aws-xray-sdk-bom>
+    <version.hibernate>5.5.0.Final</version.hibernate>
+    <version.aws-sdk-bom>2.16.78</version.aws-sdk-bom>
+    <version.aws-xray-sdk-bom>2.9.1</version.aws-xray-sdk-bom>
 
-    <version-tomcat>9.0.45</version-tomcat>
-    <weld.version>3.1.6.Final</weld.version>
+    <version-tomcat>9.0.46</version-tomcat>
+    <weld.version>3.1.7.SP1</weld.version>
     <cdi.version>2.0</cdi.version>
     <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
-    <version.enunciate>2.13.2</version.enunciate>
+    <version.enunciate>2.13.3</version.enunciate>
 
     <version.mojarra>2.4.0</version.mojarra>
     <version.jsf-api>2.3</version.jsf-api>
     <version.primefaces>10.0.0</version.primefaces>
-    <version.primefaces-ext>10.0.0</version.primefaces-ext>
+    <version.primefaces-ext>10.0.1</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.22.2</version.surefire>
-    <version.jersey>2.32</version.jersey>
-    <version.junit>5.6.2</version.junit>
+    <version.jersey>2.34</version.jersey>
+    <version.junit>5.7.2</version.junit>
     <version.httpclient>4.5.13</version.httpclient>
-    <version.httpclient5>5.0.3</version.httpclient5>
-    <version.lucene>8.6.3</version.lucene>
+    <version.httpclient5>5.1</version.httpclient5>
+    <version.lucene>8.8.2</version.lucene>
     <version.jaxb>2.3.3</version.jaxb>
 
     <version.groovy>2.4.20</version.groovy>
