@@ -102,7 +102,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -137,7 +136,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -171,7 +169,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -207,7 +204,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -243,7 +239,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -279,7 +274,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -315,7 +309,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -349,7 +342,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -383,7 +375,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -417,7 +408,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -452,7 +442,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -487,7 +476,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -522,7 +510,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -557,7 +544,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -592,7 +578,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -627,7 +612,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -662,7 +646,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -697,7 +680,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -732,7 +714,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -769,7 +750,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -806,7 +786,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -843,7 +822,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -880,7 +858,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -917,7 +894,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -948,7 +924,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -979,7 +954,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1014,7 +988,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1049,7 +1022,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1079,7 +1051,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1114,7 +1085,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1122,41 +1092,6 @@ public class ScriptEditorTest {
         fixture.tablePrefs = new TablePreferences(new LinkedList());
 
         List<ScriptStep> result = fixture.getSelectedSteps();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the ScriptStep[] getSelectedStepsArr() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testGetSelectedStepsArr_1() {
-        fixture.setNumRowsVisible(1);
-        fixture.setVariableValue("");
-        fixture.setCurrentPage(1);
-        fixture.setSleepTime("");
-        fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
-        fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
-        fixture.setMaxThinkTime("");
-        fixture.setVariableKey("");
-        fixture.setCurrentStep(new ScriptStep());
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        ScriptStep[] result = fixture.getSelectedStepsArr();
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -1184,7 +1119,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1219,7 +1153,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1254,7 +1187,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1289,7 +1221,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1324,7 +1255,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1359,7 +1289,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1394,7 +1323,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1429,7 +1357,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1463,7 +1390,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1497,7 +1423,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1533,7 +1458,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1569,7 +1493,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1605,7 +1528,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1641,7 +1563,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1677,7 +1598,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1713,7 +1633,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1748,7 +1667,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1783,7 +1701,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1818,7 +1735,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1854,7 +1770,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1890,7 +1805,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1926,7 +1840,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1962,7 +1875,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1998,7 +1910,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2034,7 +1945,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2070,7 +1980,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2106,7 +2015,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2142,7 +2050,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2176,7 +2083,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2210,7 +2116,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2244,7 +2149,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2278,7 +2182,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2312,7 +2215,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2346,7 +2248,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2380,7 +2281,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2414,7 +2314,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2448,7 +2347,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2482,7 +2380,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2517,7 +2414,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2552,7 +2448,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2587,7 +2482,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2622,7 +2516,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2657,7 +2550,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2692,7 +2584,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2727,7 +2618,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2762,7 +2652,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2797,7 +2686,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2832,7 +2720,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2868,7 +2755,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2903,7 +2789,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2912,76 +2797,6 @@ public class ScriptEditorTest {
         List<ScriptStep> selectedSteps = new LinkedList();
 
         fixture.setSelectedSteps(selectedSteps);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-    }
-
-    /**
-     * Run the void setSelectedStepsArr(ScriptStep[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testSetSelectedStepsArr_1() {
-        fixture.setNumRowsVisible(1);
-        fixture.setVariableValue("");
-        fixture.setCurrentPage(1);
-        fixture.setSleepTime("");
-        fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
-        fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
-        fixture.setMaxThinkTime("");
-        fixture.setVariableKey("");
-        fixture.setCurrentStep(new ScriptStep());
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        ScriptStep[] selectedStepsArr = new ScriptStep[] {};
-
-        fixture.setSelectedStepsArr(selectedStepsArr);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-    }
-
-    /**
-     * Run the void setSelectedStepsArr(ScriptStep[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testSetSelectedStepsArr_2() {
-        fixture.setNumRowsVisible(1);
-        fixture.setVariableValue("");
-        fixture.setCurrentPage(1);
-        fixture.setSleepTime("");
-        fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
-        fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
-        fixture.setMaxThinkTime("");
-        fixture.setVariableKey("");
-        fixture.setCurrentStep(new ScriptStep());
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        ScriptStep[] selectedStepsArr = new ScriptStep[] {};
-
-        fixture.setSelectedStepsArr(selectedStepsArr);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -3008,7 +2823,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -3043,7 +2857,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -3078,7 +2891,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -3113,7 +2925,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
