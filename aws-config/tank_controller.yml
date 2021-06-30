@@ -97,13 +97,13 @@ Resources:
     Metadata:
       AWS::CloudFormation::Init:
         configSets:
-          default: ['pre-install', 'tomcat-install' ]
-        pre-install:
+          default: ['metric-config', 'tomcat-config' ]
+        metric-config:
           packages:
             yum:
               amazon-cloudwatch-agent: []
             rpm:
-              xray-daemon: 'https://s3.dualstack.us-east-2.amazonaws.com/aws-xray-assets.us-east-2/xray-daemon/aws-xray-daemon-3.x.rpm'
+              xray-daemon: !Sub 'https://s3.dualstack.${AWS::Region}.amazonaws.com/aws-xray-assets.us-east-2/xray-daemon/aws-xray-daemon-3.x.rpm'
           groups: {}
           users: {}
           sources: {}
@@ -112,7 +112,9 @@ Resources:
               content: |
                 {"logs":{"force_flush_interval":5,"logs_collected":{
                   "files":{"collect_list":[
-                    {"file_path":"/opt/tomcat/logs/tank.log","log_group_name":"/opt/tomcat/logs/tank.log","log_stream_name":"{instance_id}"},
+                    {"file_path":"/var/log/tomcat/catalina*.log","log_group_name":"/var/log/tomcat/catalina.log","log_stream_name":"{instance_id}"},
+                    {"file_path":"/var/log/tomcat/tank.log","log_group_name":"/var/log/tomcat/tank.log","log_stream_name":"{instance_id}"},
+                    {"file_path":"/var/log/tomcat/gc.log","log_group_name":"/var/log/tomcat/gc.log","log_stream_name":"{instance_id}"},
                     {"file_path":"/var/log/messages","log_group_name":"/var/log/messages","log_stream_name":"{instance_id}"}]}}},
                   "metrics":{"append_dimensions":{"InstanceId":"${aws:InstanceId}","InstanceType":"${aws:InstanceType}"},"metrics_collected":{
                     "disk":{"measurement":["used_percent"],"resources":["/"],"append_dimensions":{"Service":"Tank"},"metrics_collection_interval":60},
@@ -121,88 +123,29 @@ Resources:
               owner: 'cwagent'
               group: 'cwagent'
           commands:
-            000_install_epel:
-              command: 'amazon-linux-extras install epel' #For tomcat-native
+            000_install_tomcat:
+              command: 'amazon-linux-extras install tomcat9'
           services:
               amazon-cloudwatch-agent:
-                enabled: 'true'
-                ensureRunning: 'true'
+                enabled      : true
+                ensureRunning: true
                 files:
                   - "/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/tank-cloudwatch-config.json"
-        tomcat-install:
-          packages:
-            yum:
-              tomcat-native: []
-              java-11-amazon-corretto-headless: []
-          sources:
-            /opt: 'http://archive.apache.org/dist/tomcat/tomcat-9/v9.0.39/bin/apache-tomcat-9.0.39.tar.gz'
+        tomcat-config:
+          packages: {}
+          sources: {}
           files:
-            /etc/init.d/tomcat:
-              content: |
-                #!/bin/bash
-                #
-                # tomcat         Start tomcat
-                #
-                #
-                # chkconfig: 345 88 12
-                # description: start stop tomcat
-                ### BEGIN INIT INFO
-                # Provides: $tomcat
-                ### END INIT INFO
-                # Source function library.
-                . /etc/init.d/functions
-                . /etc/init.d/java_opts
-
-                ulimit -n 50000
-                export CATALINA_HOME=/opt/tomcat
-                RETVAL=0
-                umask 077
-                start() {
-                       cd $CATALINA_HOME
-                       echo -n $"Starting tomcat: "
-                       daemon $CATALINA_HOME/bin/startup.sh
-                       echo
-                       return $RETVAL
-                }
-                stop() {
-                       echo -n $"Shutting down tomcat: "
-                       daemon $CATALINA_HOME/bin/shutdown.sh
-                       echo
-                       return $RETVAL
-                }
-                restart() {
-                       stop
-                       start
-                }
-                case "$1" in
-                 start)
-                       start
-                       ;;
-                 stop)
-                       stop
-                       ;;
-                 restart|reload)
-                       restart
-                       ;;
-                 *)
-                       echo $"Usage: $0 {start|stop|restart}"
-                       exit 1
-                esac
-                exit $?
-              mode: '000755'
-              owner: 'root'
-              group: 'root'
-            /etc/init.d/java_opts:
+            /etc/tomcat/conf.d/catalina_opts.conf:
               content: !Sub
                 - |
-                  export CATALINA_OPTS="-Xms${heap} -Xmx${heap} -XX:+UseG1GC -Dcom.amazonaws.sdk.enableDefaultMetrics=cloudwatchRegion=${AWS::Region} -Xlog:gc=debug:file=/opt/tomcat/logs/gc.log:time,uptime,level,tags:filecount=3,filesize=200m
+                  CATALINA_OPTS="-Xms${heap} -Xmx${heap} -XX:+UseG1GC -Dcom.amazonaws.sdk.enableDefaultMetrics=cloudwatchRegion=${AWS::Region} -Xlog:gc=debug:file=/var/log/tomcat/gc.log:time,uptime,level,tags:filecount=3,filesize=200m"
                 - {
                   heap: !FindInMap [ InstanceMap, !Ref InstanceType, JvmHeap ]
-                  }
+                }
               mode: '000755'
               owner: 'root'
-              group: 'root'
-            /tmp/context.xml:
+              group: 'tomcat'
+            /etc/tomcat/context.xml:
               content: !Sub |
                 <?xml version="1.0" encoding="UTF-8"?>
 
@@ -223,20 +166,16 @@ Resources:
                 </Context>
               mode: '000644'
               owner: 'root'
-              group: 'root'
+              group: 'tomcaat'
           commands:
-            010_tomcat_symboliclink:
-              command: 'ln -snf /opt/apache-tomcat-9.0.39 /opt/tomcat'
-            020_clear_out_builtin:
-              command: 'rm -rf /opt/tomcat/webapps/*'
-            030_download_settings:
-              command: !Sub 'aws s3 cp ${TankSettings} /opt/tomcat/settings.xml'
+            020_download_settings:
+              command: !Sub 'aws s3 cp ${TankSettings} /usr/share/tomcat/settings.xml'
+            030_permissions:
+              command:  'chown root:tomcat /usr/share/tomcat/settings.xml'
             #031_set_publicDNSName:
-            #  command: !Sub 'sed -i "s/localhost:8080/${ControllerInstance.PublicDnsName}:8080/" /opt/tomcat/settings.xml'
+            #  command: !Sub 'sed -i "s/localhost:8080/${ControllerInstance.PublicDnsName}:8080/" /usr/share/tomcat/settings.xml'
             040_download_tank:
-              command: !Sub 'aws s3 cp ${TankWar} /opt/tomcat/webapps/ROOT.war'
-            050_copy_context:
-              command: 'cp /tmp/context.xml /opt/tomcat/conf/context.xml'
+              command: !Sub 'aws s3 cp ${TankWar} /usr/share/tomcat/webapps/ROOT.war'
           services:
             sysvinit:
               tomcat:
