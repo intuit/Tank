@@ -13,20 +13,18 @@ package com.intuit.tank.harness;
  * #L%
  */
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.base.Splitter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -152,16 +150,6 @@ public class AmazonUtil {
     }
 
     /**
-     * Gets the user data associated with this instance.
-     * 
-     * @return the user data as a Map
-     * @throws IOException
-     */
-    public static String getUserDataAsString() throws IOException {
-        return getResponseString(BASE + USER_DATA);
-    }
-
-    /**
      * gets the job id form user data
      *
      * @return
@@ -246,9 +234,11 @@ public class AmazonUtil {
         try {
             String userData = getResponseString(BASE + USER_DATA);
             if (StringUtils.isNotEmpty(userData)) {
-                return Splitter.on(System.getProperty("line.separator")).withKeyValueSeparator("=").split(userData);
+                return (Map<String,String>) new ObjectMapper().readValue(userData, Map.class);
             }
-        } catch (IllegalArgumentException | IOException e) { }
+        } catch (IllegalArgumentException | IOException e) {
+            LOG.warn(new ObjectMessage(ImmutableMap.of("Message","Unable to parse tank json: This is normal during the bake process")));
+        }
         return Collections.emptyMap();
     }
 
@@ -258,12 +248,14 @@ public class AmazonUtil {
      * @throws IOException
      */
     private static String getResponseString(String url) throws IOException {
-        HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
-        con.setRequestMethod("GET");
-        con.setConnectTimeout(3000);
-        InputStream is = con.getInputStream();
-        return new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
-                .lines()
-                .collect(Collectors.joining(System.getProperty("line.separator")));
+        HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) return response.body();
+        } catch (InterruptedException e) {
+            LOG.error(new ObjectMessage(ImmutableMap.of("Message","Unable to read userdata/metadata: " + e.getMessage())));
+        }
+        throw new IOException("Bad Response From AWS data");
     }
 }

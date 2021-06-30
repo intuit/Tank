@@ -43,8 +43,7 @@ xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
         value="#{dataFileBrowser.selectionList}"
          liveResize=" false" scrollable="true"
         filteredValue="#{dataFileBrowser.filteredData}" scrollHeight="100%"
-        sortBy="#{selectableDataFile.entity.created}"
-        sortOrder="descending" paginator="true" rows="25" resizableColumns="true"
+        sortMode="single" paginator="true" rows="25" resizableColumns="true"
         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
         rowsPerPageTemplate="25,50,75,100">
 
@@ -95,7 +94,8 @@ xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
 
           <p:column id="modifiedColumn" headerText="Modified Date" styleClass="ellipsis min-column-size"
             width="#{dataFileBrowser.tablePrefs.getSize('modifiedColumn')}"
-            rendered="#{dataFileBrowser.tablePrefs.isVisible('modifiedColumn')}" sortBy="#{selectableDataFile.entity.modified}"
+            rendered="#{dataFileBrowser.tablePrefs.isVisible('modifiedColumn')}"
+            sortBy="#{selectableDataFile.entity.modified}" sortOrder="desc"
             filterBy="#{preferencesBean.formatDate(selectableDataFile.entity.modified)}"
             filterStyle="width:75px;" filterFunction="#{filterUtil.contains}">
             <h:outputText value="#{selectableDataFile.entity.modified}" converter="#{dateConverter}" />

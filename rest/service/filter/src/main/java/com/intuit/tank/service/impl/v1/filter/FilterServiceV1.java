@@ -57,10 +57,10 @@ public class FilterServiceV1 implements FilterService {
     @Override
     public Response getFilterGroups() {
         ResponseBuilder response = Response.ok();
-        List<FilterGroupTO> ret;
-        ScriptFilterGroupDao dao = new ScriptFilterGroupDao();
-        List<ScriptFilterGroup> all = dao.findAll();
-        ret = all.stream().map(FilterServiceUtil::filterGroupToTO).collect(Collectors.toList());
+        List<ScriptFilterGroup> all = new ScriptFilterGroupDao().findAll();
+        List<FilterGroupTO> ret = all.stream()
+                .map(FilterServiceUtil::filterGroupToTO)
+                .collect(Collectors.toList());
         response.entity(new FilterGroupContainer(ret));
         return response.build();
     }

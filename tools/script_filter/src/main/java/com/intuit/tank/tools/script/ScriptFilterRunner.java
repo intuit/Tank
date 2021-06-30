@@ -238,7 +238,7 @@ public class ScriptFilterRunner extends JFrame {
     /**
      * @return
      */
-    public Component createBottomPanel() {
+    private Component createBottomPanel() {
         loadChooser = new JFileChooser();
         loadChooser.setFileFilter(new FileFilter() {
 

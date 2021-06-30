@@ -16,10 +16,10 @@ package com.intuit.tank;
  * #L%
  */
 
+import org.apache.commons.beanutils.PropertyUtils;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
-
-import com.ocpsoft.shade.org.apache.commons.beanutils.PropertyUtils;
 
 import javax.enterprise.context.Dependent;
 

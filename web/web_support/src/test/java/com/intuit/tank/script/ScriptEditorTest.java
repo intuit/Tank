@@ -16,17 +16,31 @@ package com.intuit.tank.script;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.dao.ScriptDao;
+import com.intuit.tank.filter.FilterBean;
+import com.intuit.tank.util.Messages;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 import com.intuit.tank.converter.ScriptStepHolder;
 import com.intuit.tank.prefs.TablePreferences;
 import com.intuit.tank.prefs.TableViewState;
-import com.intuit.tank.project.ColumnPreferences;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.ScriptEditor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.basic.User;
+
+import javax.enterprise.context.Conversation;
 
 /**
  * The class <code>ScriptEditorTest</code> contains tests for the class <code>{@link ScriptEditor}</code>.
@@ -34,16 +48,37 @@ import com.intuit.tank.script.ScriptEditor;
  * @generatedBy CodePro at 12/15/14 3:54 PM
  */
 public class ScriptEditorTest {
-    /**
-     * Run the ScriptEditor() constructor test.
-     * 
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
+
+    @InjectMocks
+    private ScriptEditor fixture;
+
+    @Mock
+    private IdentityManager identityManager;
+
+    @Mock
+    Messages messages;
+
+    @Mock
+    private FilterBean filterBean;
+
+    @Mock
+    private Conversation conversation;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void initService() {
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void closeService() throws Exception {
+        closeable.close();
+    }
+
     @Test
-    public void testScriptEditor_1()
-            throws Exception {
-        ScriptEditor result = new ScriptEditor();
-        assertNotNull(result);
+    public void testScriptEditor() {
+        assertNotNull(fixture);
     }
 
     /**
@@ -55,9 +90,7 @@ public class ScriptEditorTest {
      */
     @Test
     @Disabled
-    public void testCancel_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testCancel_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -69,7 +102,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -92,9 +124,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testClearOrderList_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testClearOrderList_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -106,7 +136,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -128,9 +157,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testComplete_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testComplete_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -142,7 +169,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -166,9 +192,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testComplete_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testComplete_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -180,7 +204,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -204,9 +227,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testComplete_3()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testComplete_3() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -218,7 +239,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -242,9 +262,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testComplete_4()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testComplete_4() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -256,7 +274,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -280,9 +297,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testCreateScriptDetails_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testCreateScriptDetails_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -294,7 +309,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -316,9 +330,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testDeselectAll_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testDeselectAll_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -330,7 +342,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -352,9 +363,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testEnterFilterMode_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testEnterFilterMode_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -366,7 +375,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -388,9 +396,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetCurrentPage_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetCurrentPage_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -402,7 +408,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -425,9 +430,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetCurrentStep_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetCurrentStep_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -439,7 +442,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -462,9 +464,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetGotoGroupList_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetGotoGroupList_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -476,7 +476,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -499,9 +498,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetMaxThinkTime_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetMaxThinkTime_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -513,7 +510,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -536,9 +532,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetMinThinkTime_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetMinThinkTime_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -550,7 +544,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -573,9 +566,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetNumRowsVisible_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetNumRowsVisible_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -587,7 +578,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -610,9 +600,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetOrderList_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetOrderList_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -624,7 +612,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -647,9 +634,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetOrderList_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetOrderList_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -661,7 +646,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -684,9 +668,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetOrderList_3()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetOrderList_3() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -698,7 +680,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -721,9 +702,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetPrettyString_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetPrettyString_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -735,7 +714,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -760,9 +738,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetPrettyString_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetPrettyString_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -774,7 +750,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -799,9 +774,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetPrettyString_3()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetPrettyString_3() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -813,7 +786,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -838,9 +810,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetPrettyString_4()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetPrettyString_4() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -852,7 +822,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -877,9 +846,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetPrettyString_5()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetPrettyString_5() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -891,7 +858,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -916,9 +882,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetPreviousRequest_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetPreviousRequest_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -930,7 +894,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -949,9 +912,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetPreviousRequest_3()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetPreviousRequest_3() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -963,7 +924,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -982,9 +942,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetSaveAsName_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetSaveAsName_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -996,7 +954,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1019,9 +976,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetScript_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetScript_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1033,7 +988,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1056,9 +1010,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetScriptDetails_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetScriptDetails_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1070,7 +1022,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1088,9 +1039,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetScriptName_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetScriptName_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1102,7 +1051,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1125,9 +1073,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetSelectedSteps_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetSelectedSteps_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1139,7 +1085,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1155,43 +1100,6 @@ public class ScriptEditorTest {
     }
 
     /**
-     * Run the ScriptStep[] getSelectedStepsArr() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testGetSelectedStepsArr_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
-        fixture.setNumRowsVisible(1);
-        fixture.setVariableValue("");
-        fixture.setCurrentPage(1);
-        fixture.setSleepTime("");
-        fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
-        fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
-        fixture.setMaxThinkTime("");
-        fixture.setVariableKey("");
-        fixture.setCurrentStep(new ScriptStep());
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        ScriptStep[] result = fixture.getSelectedStepsArr();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertNotNull(result);
-    }
-
-    /**
      * Run the String getSleepTime() method test.
      * 
      * @throws Exception
@@ -1199,9 +1107,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetSleepTime_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetSleepTime_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1213,7 +1119,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1236,9 +1141,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetSteps_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetSteps_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1250,7 +1153,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1273,9 +1175,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetTablePrefs_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetTablePrefs_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1287,7 +1187,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1310,9 +1209,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetTableState_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetTableState_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1324,7 +1221,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1347,9 +1243,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetVariableKey_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetVariableKey_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1361,7 +1255,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1384,9 +1277,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testGetVariableValue_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testGetVariableValue_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1398,7 +1289,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1421,9 +1311,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testInsert_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testInsert_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1435,7 +1323,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1458,9 +1345,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testInsertThinkTime_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testInsertThinkTime_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1472,7 +1357,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1494,9 +1378,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testInsertVariable_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testInsertVariable_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1508,7 +1390,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1530,9 +1411,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsAggregator_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsAggregator_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1544,7 +1423,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1568,9 +1446,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsAggregator_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsAggregator_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1582,7 +1458,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1606,9 +1481,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsClearVariable_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsClearVariable_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1620,7 +1493,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1644,9 +1516,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsClearVariable_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsClearVariable_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1658,7 +1528,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1682,9 +1551,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsCookieStep_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsCookieStep_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1696,7 +1563,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1720,9 +1586,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsCookieStep_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsCookieStep_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1734,7 +1598,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1758,9 +1621,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsCopyEnabled_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsCopyEnabled_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1772,7 +1633,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1795,9 +1655,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsDeleteEnabled_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsDeleteEnabled_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1809,7 +1667,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1832,9 +1689,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsDeleteEnabled_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsDeleteEnabled_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1846,7 +1701,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1869,9 +1723,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsLogicStep_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsLogicStep_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1883,7 +1735,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1907,9 +1758,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsLogicStep_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsLogicStep_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1921,7 +1770,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1945,9 +1793,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsRequest_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsRequest_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1959,7 +1805,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -1983,9 +1828,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsRequest_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsRequest_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -1997,7 +1840,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2021,9 +1863,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsSleepTime_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsSleepTime_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2035,7 +1875,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2059,9 +1898,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsSleepTime_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsSleepTime_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2073,7 +1910,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2097,9 +1933,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsThinkTime_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsThinkTime_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2111,7 +1945,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2135,9 +1968,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsVariable_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsVariable_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2149,7 +1980,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2173,9 +2003,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsVariable_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testIsVariable_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2187,7 +2015,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2211,9 +2038,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testPopulateGroupList_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testPopulateGroupList_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2225,7 +2050,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2247,9 +2071,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testPopulateGroupList_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testPopulateGroupList_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2261,7 +2083,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2283,9 +2104,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testPopulateGroupList_3()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testPopulateGroupList_3() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2297,7 +2116,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2319,9 +2137,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testPopulateGroupList_4()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testPopulateGroupList_4() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2333,7 +2149,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2355,9 +2170,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testReIndexAndCheck_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testReIndexAndCheck_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2369,7 +2182,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2391,9 +2203,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testReIndexAndCheck_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testReIndexAndCheck_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2405,7 +2215,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2427,9 +2236,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testReIndexAndCheck_3()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testReIndexAndCheck_3() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2441,7 +2248,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2463,9 +2269,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testReindexScriptSteps_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testReindexScriptSteps_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2477,7 +2281,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2499,9 +2302,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testReindexScriptSteps_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testReindexScriptSteps_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2513,7 +2314,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2535,9 +2335,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSelectAll_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSelectAll_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2549,7 +2347,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2571,9 +2368,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetCurrentPage_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetCurrentPage_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2585,7 +2380,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2608,9 +2402,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetCurrentStep_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetCurrentStep_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2622,7 +2414,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2645,9 +2436,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetMaxThinkTime_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetMaxThinkTime_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2659,7 +2448,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2682,9 +2470,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetMinThinkTime_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetMinThinkTime_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2696,7 +2482,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2719,9 +2504,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetNumRowsVisible_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetNumRowsVisible_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2733,7 +2516,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2756,9 +2538,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetOrderList_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetOrderList_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2770,7 +2550,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2793,9 +2572,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetOrderList_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetOrderList_2() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2807,7 +2584,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2830,9 +2606,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetOrderList_3()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetOrderList_3() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2844,7 +2618,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2867,9 +2640,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetOrderList_4()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetOrderList_4() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2881,7 +2652,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2904,9 +2674,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetSaveAsName_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetSaveAsName_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2918,7 +2686,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2941,9 +2708,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetScript_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetScript_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2955,7 +2720,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -2979,9 +2743,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetScriptName_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetScriptName_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -2993,7 +2755,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -3016,9 +2777,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetSelectedSteps_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetSelectedSteps_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -3030,7 +2789,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -3046,80 +2804,6 @@ public class ScriptEditorTest {
     }
 
     /**
-     * Run the void setSelectedStepsArr(ScriptStep[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testSetSelectedStepsArr_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
-        fixture.setNumRowsVisible(1);
-        fixture.setVariableValue("");
-        fixture.setCurrentPage(1);
-        fixture.setSleepTime("");
-        fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
-        fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
-        fixture.setMaxThinkTime("");
-        fixture.setVariableKey("");
-        fixture.setCurrentStep(new ScriptStep());
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        ScriptStep[] selectedStepsArr = new ScriptStep[] {};
-
-        fixture.setSelectedStepsArr(selectedStepsArr);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-    }
-
-    /**
-     * Run the void setSelectedStepsArr(ScriptStep[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testSetSelectedStepsArr_2()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
-        fixture.setNumRowsVisible(1);
-        fixture.setVariableValue("");
-        fixture.setCurrentPage(1);
-        fixture.setSleepTime("");
-        fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
-        fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
-        fixture.setMaxThinkTime("");
-        fixture.setVariableKey("");
-        fixture.setCurrentStep(new ScriptStep());
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        ScriptStep[] selectedStepsArr = new ScriptStep[] {};
-
-        fixture.setSelectedStepsArr(selectedStepsArr);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-    }
-
-    /**
      * Run the void setSleepTime(String) method test.
      * 
      * @throws Exception
@@ -3127,9 +2811,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetSleepTime_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetSleepTime_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -3141,7 +2823,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -3164,9 +2845,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetSteps_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetSteps_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -3178,7 +2857,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -3201,9 +2879,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetVariableKey_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetVariableKey_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -3215,7 +2891,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -3238,9 +2913,7 @@ public class ScriptEditorTest {
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testSetVariableValue_1()
-            throws Exception {
-        ScriptEditor fixture = new ScriptEditor();
+    public void testSetVariableValue_1() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
@@ -3252,7 +2925,6 @@ public class ScriptEditorTest {
         Script script = new Script();
         script.setName("");
         fixture.setScript(script);
-        fixture.setSelectedStepsArr(new ScriptStep[] {});
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
@@ -3265,5 +2937,60 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
+    }
+
+    @Test
+    public void testSaveAsNoName() {
+        fixture.saveAs();
+    }
+
+    @Test
+    public void testSaveAsToSave() {
+        Script script = Script.builder().name("Name").build();
+        fixture.setScript(script);
+        fixture.setSaveAsName("Name");
+        fixture.saveAs();
+    }
+
+    @Test
+    public void testSaveAs() {
+        User user = new User();
+        user.setLoginName("LoginName");
+        when(identityManager.lookupById(eq(User.class), anyString())).thenReturn(user);
+        Script script = Script.builder().name("Name").build();
+        fixture.setScript(script);
+        fixture.setSaveAsName("SaveAsName");
+        fixture.saveAs();
+    }
+
+    @Test
+    public void testPrettyStringJSON() {
+        String input = "[{\"test\": \"fun\"}]";
+        String output = "[\n  {\n    \"test\": \"fun\"\n  }\n]";
+        assertEquals(output, fixture.getPrettyString( input, "json"));
+    }
+
+    @Test
+    public void testPrettyStringXML() {
+        String input = "<test><fun><yes/></fun></test>";
+        String output = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n<test>\n  <fun>\n    <yes/>\n  </fun>\n</test>";
+
+        assertEquals(output, fixture.getPrettyString( input, "xml"));
+    }
+
+    @Test
+    public void testReapplyFilters() {
+        Script script = Script.builder().name("Name").build();
+        fixture.setScript(script);
+        AWSXRay.beginSegment("test");
+        String result = fixture.reapplyFilters();
+        AWSXRay.endSegment();
+
+        assertEquals("success", result);
+    }
+
+    @Test
+    public void testCanel() {
+        assertEquals("success", fixture.cancel());
     }
 }

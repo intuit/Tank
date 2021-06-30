@@ -61,7 +61,6 @@ import com.intuit.tank.project.JobValidator;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.qualifier.Modified;
-import com.intuit.tank.script.ScriptConstants;
 import com.intuit.tank.script.util.ScriptFilterUtil;
 import com.intuit.tank.vm.settings.AccessRight;
 
@@ -137,7 +136,6 @@ public class ScriptEditor implements Serializable {
 
     private List<ScriptStep> selectedSteps = new ArrayList<ScriptStep>();
 
-    private ScriptStep[] selectedStepsArr;
     private List<ScriptStep> steps;
     private List<ScriptStepHolder> orderList;
 
@@ -322,12 +320,10 @@ public class ScriptEditor implements Serializable {
     public void selectAll() {
         this.selectedSteps.clear();
         selectedSteps.addAll(steps);
-        setSelectedStepsArr(steps.toArray(new ScriptStep[0]));
     }
 
     public void deselectAll() {
         this.selectedSteps.clear();
-        setSelectedStepsArr(new ScriptStep[0]);
     }
 
     /**
@@ -806,12 +802,6 @@ public class ScriptEditor implements Serializable {
         this.currentPage = currentPage;
     }
 
-    /**
-     * @return the selectedStepsArr
-     */
-    public ScriptStep[] getSelectedStepsArr() {
-        return selectedStepsArr;
-    }
 
     public void deleteSelected() {
         for (ScriptStep step : selectedSteps) {
@@ -820,7 +810,6 @@ public class ScriptEditor implements Serializable {
         messages.info("Deleted " + selectedSteps.size()
                 + " selected Script Steps.");
         selectedSteps.clear();
-        setSelectedStepsArr(new ScriptStep[0]);
     }
 
     public void copySelected() {
@@ -834,18 +823,6 @@ public class ScriptEditor implements Serializable {
 
     public boolean isDeleteEnabled() {
         return !selectedSteps.isEmpty();
-    }
-
-    /**
-     * @param selectedStepsArr
-     *            the selectedStepsArr to set
-     */
-    public void setSelectedStepsArr(ScriptStep[] selectedStepsArr) {
-        this.selectedStepsArr = selectedStepsArr;
-        if (selectedStepsArr != null) {
-            selectedSteps.clear();
-            selectedSteps.addAll(Arrays.asList(selectedStepsArr));
-        }
     }
 
     /**

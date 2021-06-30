@@ -10,7 +10,7 @@
 
   <ts:toolbar title="Job queue" showRightComponents="true">
     <f:facet name="actions">
-      <h:panelGroup styleClass="toolbar-ui" style="width:600px;">
+      <h:panelGroup styleClass="toolbar-ui">
         <p:selectBooleanCheckbox id="filterFinishedBoxId" value="#{projectJobQueueManager.filterFinished}">
           <p:ajax event="change" update=":mainForm:projectTabPanelID:jobTableId, :mainForm:messages" />
         </p:selectBooleanCheckbox>

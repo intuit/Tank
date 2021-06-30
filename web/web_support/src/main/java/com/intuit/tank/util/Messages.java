@@ -47,8 +47,7 @@ public class Messages {
     }
     
     public boolean isEmpty() {
-    	List<FacesMessage> fm = FacesContext.getCurrentInstance().getMessageList();
-    	return fm.isEmpty();
+    	return FacesContext.getCurrentInstance().getMessageList().isEmpty();
     }
 
     public void clear() {

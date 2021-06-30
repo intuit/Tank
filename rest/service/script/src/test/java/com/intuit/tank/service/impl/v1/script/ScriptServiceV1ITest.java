@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author dangleton
  * 
  */
-public class ScriptServiceV1IT {
+public class ScriptServiceV1ITest {
 
     /**
      * 

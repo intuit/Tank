@@ -18,6 +18,7 @@ package com.intuit.tank.dao;
 
 import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -61,10 +62,12 @@ public class GroupDao extends BaseDao<Group> {
                     .where(cb.equal(root.<String>get(Group.PROPERTY_NAME), name));
             result = em.createQuery(query).getSingleResult();
             commit();
+        } catch (NoResultException e) {
+            rollback();
+            LOG.info("No entities for group " + name);
         } catch (Exception e) {
             rollback();
             e.printStackTrace();
-            LOG.info("No entities for group " + name);
         } finally {
             cleanup();
         }

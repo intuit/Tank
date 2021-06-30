@@ -106,6 +106,8 @@ public abstract class JobTreeTableBean implements Serializable {
 
     private ProjectDao projectDao = new ProjectDao();
 
+    private JobQueueDao jobQueueDao = new JobQueueDao();
+
     private boolean filterFinished = true;
     private String refreshTimeSeconds;
     private int refreshInterval;
@@ -164,7 +166,6 @@ public abstract class JobTreeTableBean implements Serializable {
         if (bean.isDeleteable()) {
             try {
                 JobInstance jobInstance = new JobInstanceDao().findById(Integer.valueOf(bean.getId()));
-                JobQueueDao jobQueueDao = new JobQueueDao();
                 Workload workload = new WorkloadDao().findById(jobInstance.getWorkloadId());
                 JobQueue queue = jobQueueDao.findOrCreateForProjectId(workload.getProject().getId());
                 JobInstance instance = queue.getJobs().stream().filter(job -> job.getId() == jobInstance.getId()).findFirst().orElse(null);
@@ -475,14 +476,13 @@ public abstract class JobTreeTableBean implements Serializable {
         AWSXRay.beginSubsegment("Build.Tree");
         MethodTimer mt = new MethodTimer(LOG, this.getClass(), "buildTree");
         Integer rootJob = getRootJobId();
-        JobQueueDao jqd = new JobQueueDao();
         Set<String> trackerJobs = getTrackerJobIds();
         mt.markAndLog("get tracker jobs");
         Map<Integer, TreeNode> jobNodeMap = new HashMap<Integer, TreeNode>();
         if (rootJob == null || rootJob == 0) {
             AWSXRay.beginSubsegment("Build.Tree.findRecent");
             Date dateMinus1Week = DateUtils.addWeeks(new Date(),-1);
-            List<JobQueue> queuedJobs = jqd.findRecent(dateMinus1Week);
+            List<JobQueue> queuedJobs = jobQueueDao.findRecent(dateMinus1Week);
             AWSXRay.endSubsegment();
             mt.markAndLog("find all active jobs");
             rootNode = new DefaultTreeNode("root", null);
@@ -499,7 +499,7 @@ public abstract class JobTreeTableBean implements Serializable {
                 TreeNode unknownNode = new DefaultTreeNode(new ProjectNodeBean("unknown"), null);
                 for (String id : trackerJobs) {// left over nodes that the tracker is tracking
                     // create job nodes now
-                    createAdhocJobNode(jqd, jobNodeMap, unknownNode, id);
+                    createAdhocJobNode(jobQueueDao, jobNodeMap, unknownNode, id);
                 }
                 if (unknownNode.getChildCount() > 0) {
                     unknownNode.setParent(rootNode);
@@ -508,7 +508,7 @@ public abstract class JobTreeTableBean implements Serializable {
                 mt.markAndLog("Added all unknown Jobs");
             }
         } else {
-            JobQueue jobQueue = jqd.findOrCreateForProjectId(rootJob);
+            JobQueue jobQueue = jobQueueDao.findOrCreateForProjectId(rootJob);
             rootNode = createJobNode(trackerJobs, jobQueue);
         }
         mt.endAndLog();
@@ -572,7 +572,7 @@ public abstract class JobTreeTableBean implements Serializable {
             ProjectNodeBean pnb = new ProjectNodeBean(p);
             boolean hasRights = security.isOwner(p);
             projectNode = new DefaultTreeNode(pnb, null);
-            List<JobInstance> jobs = new ArrayList<JobInstance>(jobQueue.getJobs());
+            List<JobInstance> jobs = new ArrayList<>(jobQueue.getJobs());
             // mt.markAndLog("get jobs");
             jobs.sort(new PropertyComparer<JobInstance>(JobInstance.PROPERTY_ID, SortOrder.DESCENDING));
             int projectActive = 0;

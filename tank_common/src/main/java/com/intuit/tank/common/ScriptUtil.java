@@ -69,7 +69,7 @@ public class ScriptUtil {
     public static Map<String, String> getDeclaredVariables(ScriptStep step) {
         Map<String, String> ret = new HashMap<String, String>();
         if (step.getType().equals("variable")) {
-            addKeys(ret, step.getData(), null);
+            addKeys(ret, step.getData());
         }
         return ret;
     }
@@ -82,12 +82,10 @@ public class ScriptUtil {
         return new ArrayList<ScriptAssignment>();
     }
 
-    private static void addKeys(Map<String, String> ret, Set<RequestData> rds, String type) {
+    private static void addKeys(Map<String, String> ret, Set<RequestData> rds) {
         for (RequestData rd : rds) {
             if (StringUtils.isNotBlank(rd.getKey())) {
-                if (type == null || StringUtils.containsIgnoreCase(rd.getType(), type)) {
-                    ret.put(rd.getKey().trim(), StringUtils.trim(rd.getValue()));
-                }
+                ret.put(rd.getKey().trim(), StringUtils.trim(rd.getValue()));
             }
         }
 
@@ -388,14 +386,14 @@ public class ScriptUtil {
     public static long calculateStepDuration(ScriptStep step, Map<String, String> variables, TankConfig config) {
         long result = 0;
         try {
-            if (step.getType().equalsIgnoreCase("request")) {
+            if (step.getType().equalsIgnoreCase(ScriptConstants.REQUEST)) {
                 result = config.getAgentConfig().getRange(step.getMethod()).getRandomValueWithin();
-            } else if (step.getType().equalsIgnoreCase("variable")) {
+            } else if (step.getType().equalsIgnoreCase(ScriptConstants.VARIABLE)) {
                 Set<RequestData> data = step.getData();
                 for (RequestData requestData : data) {
                     variables.put(requestData.getKey(), requestData.getValue());
                 }
-            } else if (step.getType().equalsIgnoreCase("thinkTime")) {
+            } else if (step.getType().equalsIgnoreCase(ScriptConstants.THINK_TIME)) {
                 String min = "0";
                 String max = "0";
                 Set<RequestData> setData = step.getData();
@@ -417,11 +415,11 @@ public class ScriptUtil {
                     max = s != null ? s : max;
                 }
                 result = ((TimeUtil.parseTimeString(max) + TimeUtil.parseTimeString(min)) / 2);
-            } else if (step.getType().equalsIgnoreCase("sleep")) {
+            } else if (step.getType().equalsIgnoreCase(ScriptConstants.SLEEP)) {
                 Set<RequestData> setData = step.getData();
                 if (null != setData) {
                     for (RequestData d : setData) {
-                        if (d.getKey().equalsIgnoreCase("time")) {
+                        if (d.getKey().equalsIgnoreCase(ScriptConstants.TIME)) {
                             String time = d.getValue();
                             if (ValidationUtil.isAnyVariable(time)) {
                                 String s = (String) variables.get(ValidationUtil.removeAllVariableIdentifier(time));

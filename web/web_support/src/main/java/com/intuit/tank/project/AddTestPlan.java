@@ -22,8 +22,6 @@ import javax.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import com.intuit.tank.util.Messages;
 
-import com.intuit.tank.project.TestPlan;
-
 @Named
 @ConversationScoped
 public class AddTestPlan implements Serializable {
