@@ -293,16 +293,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi</artifactId>
-    </dependency>
-
-    <dependency>
-	    <groupId>com.itextpdf</groupId>
-	    <artifactId>itextpdf</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.jdom</groupId>
       <artifactId>jdom</artifactId>
     </dependency>

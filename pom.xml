@@ -27,8 +27,8 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>5.5.0.Final</version.hibernate>
-    <version.aws-sdk-bom>2.16.78</version.aws-sdk-bom>
+    <version.hibernate>5.5.3.Final</version.hibernate>
+    <version.aws-sdk-bom>2.16.95</version.aws-sdk-bom>
     <version.aws-xray-sdk-bom>2.9.1</version.aws-xray-sdk-bom>
 
     <version-tomcat>9.0.46</version-tomcat>
@@ -38,10 +38,9 @@
 
     <version.enunciate>2.13.3</version.enunciate>
 
-    <version.mojarra>2.4.0</version.mojarra>
-    <version.jsf-api>2.3</version.jsf-api>
+    <version.faces>2.3.9</version.faces>
     <version.primefaces>10.0.0</version.primefaces>
-    <version.primefaces-ext>10.0.1</version.primefaces-ext>
+    <version.primefaces-ext>10.0.2</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.22.2</version.surefire>
     <version.jersey>2.34</version.jersey>
@@ -246,7 +245,7 @@
           <dependency>
             <groupId>org.jboss</groupId>
             <artifactId>jandex</artifactId>
-            <version>2.1.1.Final</version>
+            <version>2.3.0.Final</version>
             <scope>provided</scope>
           </dependency>
         </dependencies>
@@ -431,28 +430,11 @@
         <version>${version.jsr166}</version>
       </dependency>
 
-      <dependency>
-        <groupId>javax.faces</groupId>
-        <artifactId>javax.faces-api</artifactId>
-        <version>${version.jsf-api}</version>
-      </dependency>
-
+      <!-- JSF -->
       <dependency>
         <groupId>org.glassfish</groupId>
         <artifactId>javax.faces</artifactId>
-        <version>${version.mojarra}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.poi</groupId>
-        <artifactId>poi</artifactId>
-        <version>4.1.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.itextpdf</groupId>
-        <artifactId>itextpdf</artifactId>
-        <version>5.5.13.1</version>
+        <version>${version.faces}</version>
       </dependency>
 
       <dependency>
@@ -503,7 +485,7 @@
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jandex</artifactId>
-        <version>2.1.2.Final</version>
+        <version>2.3.0.Final</version>
       </dependency>
 
       <dependency>
@@ -557,7 +539,7 @@
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-core</artifactId>
-        <version>2.13.3</version>
+        <version>2.14.1</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
