@@ -14,14 +14,8 @@ package com.intuit.tank.project;
  */
 
 import org.jboss.weld.junit5.auto.ActivateScopes;
-import org.jboss.weld.junit5.auto.AddExtensions;
-import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.project.CreateProjectBean;
-import org.picketlink.Identity;
-import org.picketlink.extension.PicketLinkExtension;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -34,8 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @generatedBy CodePro at 12/15/14 3:53 PM
  */
 @EnableAutoWeld
-@AddPackages(Identity.class)
-@AddExtensions(PicketLinkExtension.class)
 @ActivateScopes(RequestScoped.class)
 public class CreateProjectBeanTest {
     

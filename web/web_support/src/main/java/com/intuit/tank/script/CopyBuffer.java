@@ -21,10 +21,9 @@ import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Named;
 
-import org.picketlink.idm.model.basic.User;
-
 import com.intuit.tank.auth.Authenticated;
 import com.intuit.tank.project.ScriptStep;
+import com.intuit.tank.project.User;
 
 @Named
 @SessionScoped

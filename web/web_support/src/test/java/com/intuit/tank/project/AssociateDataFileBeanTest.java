@@ -14,20 +14,14 @@ package com.intuit.tank.project;
  */
 
 import org.jboss.weld.junit5.auto.ActivateScopes;
-import org.jboss.weld.junit5.auto.AddExtensions;
-import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.picketlink.Identity;
-import org.picketlink.extension.PicketLinkExtension;
 import org.primefaces.model.DualListModel;
 
 import com.intuit.tank.ModifiedDatafileMessage;
-import com.intuit.tank.project.AssociateDataFileBean;
-import com.intuit.tank.project.DataFile;
 
 import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
@@ -39,8 +33,6 @@ import javax.inject.Inject;
  * @generatedBy CodePro at 12/15/14 3:54 PM
  */
 @EnableAutoWeld
-@AddPackages(Identity.class)
-@AddExtensions(PicketLinkExtension.class)
 @ActivateScopes(ConversationScoped.class)
 public class AssociateDataFileBeanTest {
     

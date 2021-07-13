@@ -34,7 +34,6 @@
     <version-tomcat>9.0.46</version-tomcat>
     <weld.version>3.1.7.SP1</weld.version>
     <cdi.version>2.0</cdi.version>
-    <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
     <version.enunciate>2.13.3</version.enunciate>
 
@@ -430,11 +429,23 @@
         <version>${version.jsr166}</version>
       </dependency>
 
+      <dependency>
+        <groupId>javax.security.enterprise</groupId>
+        <artifactId>javax.security.enterprise-api</artifactId>
+        <version>1.0</version>
+      </dependency>
+
       <!-- JSF -->
       <dependency>
         <groupId>org.glassfish</groupId>
         <artifactId>javax.faces</artifactId>
         <version>${version.faces}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>2.0.1.Final</version>
       </dependency>
 
       <dependency>
@@ -459,15 +470,6 @@
         <groupId>org.primefaces.themes</groupId>
         <artifactId>redmond</artifactId>
         <version>1.0.10</version>
-      </dependency>
-
-      <!-- Dependency Management for PicketLink and Apache Deltaspike. -->
-      <dependency>
-        <groupId>org.picketlink</groupId>
-        <artifactId>picketlink-javaee-6.0</artifactId>
-        <version>${version.picketlink.javaee.bom}</version>
-        <scope>import</scope>
-        <type>pom</type>
       </dependency>
 
       <dependency>
@@ -806,6 +808,18 @@
       <plugins>
 
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.2.0</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+
+        <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>license-maven-plugin</artifactId>
           <version>2.0.0</version>
@@ -963,7 +977,7 @@
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.6</version>
+          <version>0.8.7</version>
         </plugin>
 
         <plugin>
@@ -1027,7 +1041,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.9.0</version>
+        <version>3.9.1</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -1087,7 +1101,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.1.1</version>
+        <version>3.1.2</version>
         <reportSets>
           <reportSet>
             <reports>
@@ -1099,7 +1113,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.1.1</version>
+        <version>3.1.2</version>
       </plugin>
     </plugins>
   </reporting>

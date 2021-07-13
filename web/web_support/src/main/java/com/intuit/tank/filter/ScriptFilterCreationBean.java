@@ -22,14 +22,11 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.intuit.tank.auth.TankSecurityContext;
 import org.apache.commons.lang3.StringUtils;
 import com.intuit.tank.util.Messages;
-import org.picketlink.Identity;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.auth.Security;
-import com.intuit.tank.config.TsLoggedIn;
 import com.intuit.tank.dao.ExternalScriptDao;
 import com.intuit.tank.dao.ScriptFilterDao;
 import com.intuit.tank.project.ExternalScript;
@@ -57,11 +54,8 @@ public class ScriptFilterCreationBean implements Serializable {
     private ExceptionHandler exceptionHandler;
 
     @Inject
-    private Identity identity;
-	
-    @Inject 
-    private IdentityManager identityManager;
-    
+    private TankSecurityContext securityContext;
+
     @Inject
     private Security security;
 
@@ -135,7 +129,7 @@ public class ScriptFilterCreationBean implements Serializable {
     	conversation.begin();
         this.editing = false;
         this.filter = new ScriptFilter();
-        filter.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
+        filter.setCreator(securityContext.getCallerPrincipal().getName());
     }
 
     public void removeCondition(ScriptFilterCondition condition) {
@@ -146,7 +140,6 @@ public class ScriptFilterCreationBean implements Serializable {
         getFilter().getActions().remove(action);
     }
 
-    @TsLoggedIn
     public String save() {
         ScriptFilterDao sfDao = new ScriptFilterDao();
 
@@ -182,7 +175,6 @@ public class ScriptFilterCreationBean implements Serializable {
         return "fail";
     }
 
-    @TsLoggedIn
     public void saveAs() {
         if (StringUtils.isEmpty(saveAsName)) {
             messages.error("You must give the Filter a name.");
@@ -194,7 +186,7 @@ public class ScriptFilterCreationBean implements Serializable {
                 save();
             } else {
                 ScriptFilter copied = new ScriptFilter();
-                copied.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
+                copied.setCreator(securityContext.getCallerPrincipal().getName());
                 copied.setName(saveAsName);
                 copied.setProductName(productName);
                 copied.setAllConditionsMustPass(allConditionsPass);

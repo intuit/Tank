@@ -18,27 +18,20 @@ import com.intuit.tank.script.replace.ReplaceEntity;
 import com.intuit.tank.script.replace.ReplaceMode;
 import com.intuit.tank.util.Messages;
 import org.jboss.weld.junit5.auto.ActivateScopes;
-import org.jboss.weld.junit5.auto.AddExtensions;
-import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.picketlink.Identity;
-import org.picketlink.extension.PicketLinkExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import javax.enterprise.context.ConversationScoped;
-import javax.inject.Inject;
 import java.util.LinkedList;
 import java.util.List;
 
 @EnableAutoWeld
-@AddPackages(Identity.class)
-@AddExtensions(PicketLinkExtension.class)
 @ActivateScopes(ConversationScoped.class)
 public class ScriptSearchBeanTest {
 

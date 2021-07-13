@@ -22,8 +22,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.picketlink</groupId>
-      <artifactId>picketlink</artifactId>
+      <groupId>javax.security.enterprise</groupId>
+      <artifactId>javax.security.enterprise-api</artifactId>
     </dependency>
   </dependencies>
 

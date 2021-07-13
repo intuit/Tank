@@ -25,7 +25,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.intuit.tank.ModifiedUserMessage;
-import com.intuit.tank.config.Admin;
 import com.intuit.tank.dao.PreferencesDao;
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.Preferences;
@@ -109,7 +108,6 @@ public class UserAdmin extends SelectableBean<User> implements Serializable, Mul
      * 
      * @param u
      */
-    @Admin
     public void delete(User u) {
         new UserDao().delete(u);
         userEvent.fire(new ModifiedUserMessage(u, this));

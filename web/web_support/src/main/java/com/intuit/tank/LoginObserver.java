@@ -16,9 +16,8 @@ package com.intuit.tank;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.picketlink.idm.model.basic.User;
-
 import com.intuit.tank.auth.Authenticated;
+import com.intuit.tank.project.User;
 
 public class LoginObserver {
 
@@ -30,6 +29,6 @@ public class LoginObserver {
      * @param user
      */
     public void observeLogin(@Observes @Authenticated User user) {
-        preferencesBean.init(user.getLoginName());
+        preferencesBean.init(user.getName());
     }
 }

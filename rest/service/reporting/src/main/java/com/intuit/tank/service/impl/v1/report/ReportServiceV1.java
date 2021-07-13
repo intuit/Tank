@@ -55,7 +55,6 @@ import com.intuit.tank.reporting.api.TPSReportingPackage;
 import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.reporting.local.ResultsStorage;
 import com.intuit.tank.results.TankResultPackage;
-import com.intuit.tank.service.util.AuthUtil;
 import com.intuit.tank.storage.FileData;
 import com.intuit.tank.storage.FileStorage;
 import com.intuit.tank.storage.FileStorageFactory;
@@ -127,7 +126,7 @@ public class ReportServiceV1 implements ReportService {
      */
     @Override
     public Response deleteTiming(String jobId) {
-        AuthUtil.checkAdmin(servletContext);
+        //AuthUtil.checkAdmin(servletContext);
         ResponseBuilder responseBuilder = Response.noContent();
         try {
             ReportingFactory.getResultsReader().deleteTimingForJob(jobId, true);

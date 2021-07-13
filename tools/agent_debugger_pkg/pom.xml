@@ -25,10 +25,6 @@
 					<groupId>javax.servlet</groupId>
 				</exclusion>
 				<exclusion>
-					<groupId>org.picketlink</groupId>
-					<artifactId>picketlink</artifactId>
-				</exclusion>
-				<exclusion>
 					<groupId>software.amazon.awssdk</groupId>
 					<artifactId>*</artifactId>
 				</exclusion>
