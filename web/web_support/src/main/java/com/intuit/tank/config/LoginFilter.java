@@ -26,7 +26,7 @@ import org.apache.logging.log4j.Logger;
  * 
  */
 public class LoginFilter implements Filter {
-	private static Logger LOG = LogManager.getLogger(LoginFilter.class);
+	private static final Logger LOG = LogManager.getLogger(LoginFilter.class);
 	
     @Inject
     private TankSecurityContext securityContext;

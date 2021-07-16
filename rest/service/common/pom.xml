@@ -22,8 +22,8 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.security.enterprise</groupId>
-      <artifactId>javax.security.enterprise-api</artifactId>
+      <groupId>org.glassfish.soteria</groupId>
+      <artifactId>javax.security.enterprise</artifactId>
     </dependency>
   </dependencies>
 

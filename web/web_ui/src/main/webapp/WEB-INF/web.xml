@@ -79,6 +79,15 @@
       <url-pattern>/tools/*</url-pattern>
   </filter-mapping>
 
+  <filter>
+    <filter-name>AdminFilter</filter-name>
+    <filter-class>com.intuit.tank.config.AdminFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>AdminFilter</filter-name>
+    <url-pattern>/admin/*</url-pattern>
+  </filter-mapping>
+
   <!-- Activate the JSF 2.0 servlet -->
   <servlet>
     <servlet-name>Faces Servlet</servlet-name>

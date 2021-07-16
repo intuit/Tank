@@ -13,7 +13,7 @@
 
 
     <h:form>
-      <p>#{identity.account.loginName}'s session has expired.  Please logout when you are not using TANK.</p>
+      <p>#{security.getName()}'s session has expired.  Please logout when you are not using TANK.</p>
       <h:commandLink action="#{tsAuthenticator.logout}" value="Logout" />
     </h:form>
     

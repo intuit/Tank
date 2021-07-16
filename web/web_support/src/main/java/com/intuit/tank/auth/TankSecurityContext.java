@@ -2,6 +2,7 @@ package com.intuit.tank.auth;
 
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.security.enterprise.AuthenticationStatus;
 import javax.security.enterprise.SecurityContext;
 import javax.security.enterprise.authentication.mechanism.http.AuthenticationParameters;
@@ -13,6 +14,7 @@ import java.security.Principal;
 import java.util.Collections;
 import java.util.Set;
 
+@Named
 @SessionScoped
 public class TankSecurityContext implements SecurityContext, Serializable {
     private static final long serialVersionUID = 1L;

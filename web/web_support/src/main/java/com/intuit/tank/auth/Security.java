@@ -81,4 +81,10 @@ public class Security implements Serializable {
         }
         return false;
     }
+
+    public String getName() {
+        return securityContext.getCallerPrincipal() != null ?
+                securityContext.getCallerPrincipal().getName() :
+                "";
+    }
 }
