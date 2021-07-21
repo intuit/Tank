@@ -60,7 +60,7 @@ public class TimerStep extends TestStep {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

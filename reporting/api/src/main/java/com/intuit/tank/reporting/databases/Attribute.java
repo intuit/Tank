@@ -81,7 +81,7 @@ public class Attribute implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -89,7 +89,7 @@ public class Attribute implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {
@@ -97,7 +97,7 @@ public class Attribute implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {

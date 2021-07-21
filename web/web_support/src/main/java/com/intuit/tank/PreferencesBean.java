@@ -204,7 +204,7 @@ public class PreferencesBean implements Serializable, PreferencesChangedListener
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void prefsChanged() {

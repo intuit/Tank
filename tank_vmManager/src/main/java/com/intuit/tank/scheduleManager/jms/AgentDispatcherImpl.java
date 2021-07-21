@@ -38,7 +38,7 @@ public class AgentDispatcherImpl implements AgentDispatcher {
     private VmMessageProcessor vmProcessor;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void vmManagerRequest(VMRequest vmInfo) {
@@ -47,7 +47,7 @@ public class AgentDispatcherImpl implements AgentDispatcher {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void processAgentsMessage(RequestAgents agentRequest) {
@@ -90,7 +90,7 @@ public class AgentDispatcherImpl implements AgentDispatcher {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void processAgentCompletedResponse(WatsAgentCompletedResponse moObject) {

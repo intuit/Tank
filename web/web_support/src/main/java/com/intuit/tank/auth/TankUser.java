@@ -39,7 +39,7 @@ public class TankUser extends User implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public String getKey() {
         return Integer.toString(userEntity.getId());

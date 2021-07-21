@@ -332,7 +332,7 @@ public abstract class JobNodeBean implements Serializable {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {
@@ -341,7 +341,7 @@ public abstract class JobNodeBean implements Serializable {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {

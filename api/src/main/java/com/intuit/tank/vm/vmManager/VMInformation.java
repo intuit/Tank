@@ -167,7 +167,7 @@ public class VMInformation implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

@@ -35,7 +35,7 @@ public class AgentLoggingOutputLogger implements OutputLogger {
     private static final Logger LOG = LogManager.getLogger(AgentLoggingOutputLogger.class);
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setScrollContent(boolean autoScroll) {
@@ -44,7 +44,7 @@ public class AgentLoggingOutputLogger implements OutputLogger {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void log(String text) {

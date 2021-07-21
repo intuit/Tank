@@ -105,7 +105,7 @@ public class VMNodeBean extends JobNodeBean {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getType() {

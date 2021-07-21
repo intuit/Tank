@@ -53,7 +53,7 @@ public class WatsParseException extends RuntimeException {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getMessage() {

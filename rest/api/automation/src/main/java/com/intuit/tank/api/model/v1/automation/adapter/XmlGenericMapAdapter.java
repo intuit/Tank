@@ -46,7 +46,7 @@ public class XmlGenericMapAdapter extends XmlAdapter<MapType, Map<String, String
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Map<String, String> unmarshal(MapType v) throws Exception {
@@ -61,7 +61,7 @@ public class XmlGenericMapAdapter extends XmlAdapter<MapType, Map<String, String
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public MapType marshal(Map<String, String> v) throws Exception {

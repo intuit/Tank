@@ -55,7 +55,7 @@ public class DatabaseResultsReporter implements ResultsReporter {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void sendTpsResults(final String jobId, final String instanceId, final TPSInfoContainer container,
@@ -84,7 +84,7 @@ public class DatabaseResultsReporter implements ResultsReporter {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void sendTimingResults(String jobId, String instanceId, List<TankResult> results, boolean async) {

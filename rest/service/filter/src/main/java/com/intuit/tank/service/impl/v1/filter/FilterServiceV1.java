@@ -44,7 +44,7 @@ public class FilterServiceV1 implements FilterService {
     // private ServletContext servletContext;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String ping() {
@@ -52,7 +52,7 @@ public class FilterServiceV1 implements FilterService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response getFilterGroups() {

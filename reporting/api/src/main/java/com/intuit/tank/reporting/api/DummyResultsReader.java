@@ -22,7 +22,7 @@ import com.intuit.tank.results.TankResult;
 public class DummyResultsReader implements ResultsReader {
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public List<TankResult> getAllTimingResults(String jobId) {
@@ -30,7 +30,7 @@ public class DummyResultsReader implements ResultsReader {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public PagedTimingResults getPagedTimingResults(String jobId, Object nextToken) {
@@ -38,7 +38,7 @@ public class DummyResultsReader implements ResultsReader {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean hasTimingData(String jobId) {
@@ -46,7 +46,7 @@ public class DummyResultsReader implements ResultsReader {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void deleteTimingForJob(String jobId, boolean asynch) {
@@ -54,7 +54,7 @@ public class DummyResultsReader implements ResultsReader {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Map<Date, Map<String, TPSInfo>> getTpsMapForJob(Date minDate, String... jobId) {
@@ -62,7 +62,7 @@ public class DummyResultsReader implements ResultsReader {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Map<Date, Map<String, TPSInfo>> getTpsMapForInstance(Date minDate, String jobId, String instanceId) {
@@ -70,7 +70,7 @@ public class DummyResultsReader implements ResultsReader {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void config(HierarchicalConfiguration config) {

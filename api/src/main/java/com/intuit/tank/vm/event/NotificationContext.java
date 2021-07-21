@@ -55,7 +55,7 @@ public class NotificationContext implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

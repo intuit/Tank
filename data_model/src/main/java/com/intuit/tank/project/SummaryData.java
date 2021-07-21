@@ -413,7 +413,7 @@ public class SummaryData extends BaseEntity implements Comparable<SummaryData> {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -421,7 +421,7 @@ public class SummaryData extends BaseEntity implements Comparable<SummaryData> {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -429,7 +429,7 @@ public class SummaryData extends BaseEntity implements Comparable<SummaryData> {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {
@@ -437,7 +437,7 @@ public class SummaryData extends BaseEntity implements Comparable<SummaryData> {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int compareTo(SummaryData o) {

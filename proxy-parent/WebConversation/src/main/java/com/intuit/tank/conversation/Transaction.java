@@ -54,7 +54,7 @@ public class Transaction {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

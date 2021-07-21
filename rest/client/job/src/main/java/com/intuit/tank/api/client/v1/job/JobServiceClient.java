@@ -65,7 +65,7 @@ public class JobServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Nullable
     public JobTO getJob(int jobId) throws RestServiceException {
@@ -79,7 +79,7 @@ public class JobServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Nullable
     public List<JobTO> getJobsForProject(int projectId) throws RestServiceException {

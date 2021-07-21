@@ -91,7 +91,7 @@ public class DataItem {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

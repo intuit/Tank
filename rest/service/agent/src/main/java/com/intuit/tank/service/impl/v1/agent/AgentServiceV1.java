@@ -79,7 +79,7 @@ public class AgentServiceV1 implements AgentService {
     private ServletContext servletContext;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Nonnull
     @Override
@@ -88,7 +88,7 @@ public class AgentServiceV1 implements AgentService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response agentReady(AgentData data) {

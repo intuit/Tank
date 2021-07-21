@@ -46,7 +46,7 @@ public class TextAreaOutputLogger extends JTextArea implements OutputLogger {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setScrollContent(boolean autoScroll) {
@@ -56,7 +56,7 @@ public class TextAreaOutputLogger extends JTextArea implements OutputLogger {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void log(String text) {

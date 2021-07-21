@@ -67,7 +67,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public String getSummaryStatus(String jobId) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_REPORTING_SUMMARY_STATUS,
@@ -93,7 +93,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public CloudVmStatus getVmStatus(String instanceId) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_INSTANCE_STATUS, instanceId));
@@ -103,7 +103,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public CloudVmStatusContainer getVmStatusForJob(String jobId) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_JOB_STATUS, jobId));
@@ -113,7 +113,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void setVmStatus(String instanceId, CloudVmStatus status) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_INSTANCE_STATUS, instanceId));
@@ -123,7 +123,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void stopInstance(String instanceId) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_STOP_INSTANCE, instanceId));
@@ -133,7 +133,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void stopInstances(ArrayList<String> instanceIds) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_STOP_INSTANCE));
@@ -142,7 +142,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public CloudVmStatus startReportingProxy(String location) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_REPORTING_START, location));
@@ -152,7 +152,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void stopReportingProxy(String location) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_REPORTING_STOP, location));
@@ -161,7 +161,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public CloudVmStatus getReportingProxyStatus(String location) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_REPORTING_STATUS, location));
@@ -171,7 +171,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void killInstance(String instanceId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_KILL_INSTANCE, instanceId));
@@ -181,7 +181,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void killJob(String jobId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_KILL_JOB, jobId));
@@ -190,7 +190,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void killInstances(List<String> instanceIds) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_KILL_INSTANCE));
@@ -199,7 +199,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void stopJob(String jobId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_STOP_JOB, jobId));
@@ -209,7 +209,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void stopAgent(String instanceId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_STOP_INSTANCE, instanceId));
@@ -218,7 +218,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void stopAgents(List<String> instanceIds) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_STOP_INSTANCE));
@@ -227,7 +227,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void pauseJob(String jobId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_PAUSE_JOB, jobId));
@@ -236,7 +236,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void pauseAgent(String instanceId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_PAUSE_INSTANCE, instanceId));
@@ -245,7 +245,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void pauseAgents(List<String> instanceIds) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_RESTART_INSTANCE));
@@ -254,7 +254,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void restartJob(String jobId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_RESTART_JOB, jobId));
@@ -263,7 +263,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void restartAgent(String instanceId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_RESTART_INSTANCE, instanceId));
@@ -272,7 +272,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void restartAgents(List<String> instanceIds) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_RESTART_INSTANCE));
@@ -281,7 +281,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void pauseRampJob(String jobId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_PAUSE_RAMP_JOB, jobId));
@@ -290,7 +290,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void pauseRampAgent(String instanceId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_PAUSE_RAMP_INSTANCE,
@@ -300,7 +300,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void pauseRampAgents(List<String> instanceIds) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_PAUSE_RAMP_INSTANCE));
@@ -309,7 +309,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void resumeRampJob(String jobId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_RESUME_RAMP_JOB, jobId));
@@ -318,7 +318,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void resumeRampAgent(String instanceId) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_RESUME_RAMP_INSTANCE,
@@ -328,7 +328,7 @@ public class CloudServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void resumeRampAgents(List<String> instanceIds) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(CloudService.METHOD_RESUME_RAMP_INSTANCE));

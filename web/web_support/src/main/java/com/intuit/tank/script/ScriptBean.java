@@ -139,7 +139,7 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void delete(Script script) {
         if (!security.hasRight(AccessRight.DELETE_SCRIPT) && !security.isOwner(script)) {
@@ -156,7 +156,7 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public List<Script> getEntityList(ViewFilterType viewFilter) {
@@ -166,7 +166,7 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean isCurrent() {

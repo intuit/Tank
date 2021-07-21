@@ -216,7 +216,7 @@ public class EmbeddedProxy implements TransactionRecordedListener {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public void transactionProcessed(Transaction t, boolean filtered) {
 		// don't know if we need to do something here

@@ -93,7 +93,7 @@ public class DebuggerFlowController implements FlowController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void startStep(TestStepContext context) {
@@ -101,7 +101,7 @@ public class DebuggerFlowController implements FlowController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void endStep(TestStepContext context) {
@@ -110,7 +110,7 @@ public class DebuggerFlowController implements FlowController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean shouldExecute(TestStepContext context) {
@@ -130,7 +130,7 @@ public class DebuggerFlowController implements FlowController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void nextStep(TestStepContext context) {
@@ -158,7 +158,7 @@ public class DebuggerFlowController implements FlowController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public FlowController cloneController() {

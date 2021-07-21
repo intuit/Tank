@@ -30,7 +30,7 @@ public class JobQueueManager extends JobTreeTableBean {
     private static final long serialVersionUID = 1L;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     protected Integer getRootJobId() {

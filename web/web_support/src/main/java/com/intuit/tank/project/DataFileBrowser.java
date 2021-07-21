@@ -95,7 +95,7 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void delete(DataFile dataFile) {
         if (!security.hasRight(AccessRight.DELETE_DATAFILE) && !security.isOwner(dataFile)) {
@@ -291,7 +291,7 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public List<DataFile> getEntityList(ViewFilterType viewFilter) {
@@ -301,7 +301,7 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean isCurrent() {

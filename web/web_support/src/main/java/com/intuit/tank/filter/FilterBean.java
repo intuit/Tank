@@ -56,7 +56,7 @@ public class FilterBean extends SelectableBean<ScriptFilter> implements Serializ
     private Messages messages;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean isCurrent() {
@@ -64,7 +64,7 @@ public class FilterBean extends SelectableBean<ScriptFilter> implements Serializ
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void delete(ScriptFilter entity) {
@@ -109,7 +109,7 @@ public class FilterBean extends SelectableBean<ScriptFilter> implements Serializ
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public List<ScriptFilter> getEntityList(ViewFilterType viewFilter) {

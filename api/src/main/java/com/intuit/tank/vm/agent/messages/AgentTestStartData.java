@@ -194,7 +194,7 @@ public class AgentTestStartData implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

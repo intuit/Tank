@@ -110,7 +110,7 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public CloudVmStatus getStatus(@Nonnull String instanceId) {
@@ -122,7 +122,7 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void publishEvent(JobEvent event) {
@@ -134,7 +134,7 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setStatus(@Nonnull final CloudVmStatus status) {
@@ -242,7 +242,7 @@ public class VMTrackerImpl implements VMTracker {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void removeStatusForInstance(String instanceId) {
@@ -251,7 +251,7 @@ public class VMTrackerImpl implements VMTracker {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void removeStatusForJob(String jobId) {
@@ -265,7 +265,7 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public CloudVmStatusContainer getVmStatusForJob(String jobId) {
@@ -273,7 +273,7 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean isDevMode() {
@@ -281,7 +281,7 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Set<CloudVmStatusContainer> getAllJobs() {

@@ -98,7 +98,7 @@ public class FilterGroupTO implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

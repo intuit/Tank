@@ -115,7 +115,7 @@ public class AgentData implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -127,7 +127,7 @@ public class AgentData implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {

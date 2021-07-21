@@ -47,7 +47,7 @@ public class ValidationItem extends DataItem {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

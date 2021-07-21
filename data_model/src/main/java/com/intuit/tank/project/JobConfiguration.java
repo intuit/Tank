@@ -185,7 +185,7 @@ public class JobConfiguration extends BaseJob {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -194,7 +194,7 @@ public class JobConfiguration extends BaseJob {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -206,7 +206,7 @@ public class JobConfiguration extends BaseJob {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {

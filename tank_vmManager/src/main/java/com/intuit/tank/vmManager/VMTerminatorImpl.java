@@ -50,7 +50,7 @@ public class VMTerminatorImpl implements VMTerminator {
     private VMTracker vmTracker;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void terminate(@Nonnull String instanceId) {

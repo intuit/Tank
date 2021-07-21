@@ -35,7 +35,7 @@ public class ScriptStepHolderConverter implements Converter {
     private static final Logger LOG = LogManager.getLogger(ScriptStepHolderConverter.class);
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Object getAsObject(FacesContext facesContext, UIComponent uiComponent, String value) {
@@ -50,7 +50,7 @@ public class ScriptStepHolderConverter implements Converter {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getAsString(FacesContext facesContext, UIComponent uiComponent, Object obj) {

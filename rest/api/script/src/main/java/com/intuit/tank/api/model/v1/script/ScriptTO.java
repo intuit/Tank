@@ -81,126 +81,126 @@ public class ScriptTO {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public Integer getId() {
         return id;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void setId(Integer id) {
         this.id = id;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public Date getCreated() {
         return created;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void setCreated(Date created) {
         this.created = created;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public Date getModified() {
         return modified;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void setModified(Date modified) {
         this.modified = modified;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public String getCreator() {
         return creator;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void setCreator(String creator) {
         this.creator = creator;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public String getName() {
         return name;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public int getRuntime() {
         return runtime;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void setRuntime(int runtime) {
         this.runtime = runtime;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public String getProductName() {
         return productName;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void setProductName(String productName) {
         this.productName = productName;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public String getComments() {
         return comments;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void setComments(String comments) {
         this.comments = comments;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public List<ScriptStepTO> getSteps() {
         return steps;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void setSteps(List<ScriptStepTO> steps) {
         this.steps = steps;

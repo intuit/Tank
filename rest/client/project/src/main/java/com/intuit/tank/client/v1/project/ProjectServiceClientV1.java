@@ -65,7 +65,7 @@ public class ProjectServiceClientV1 extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void deleteProject(int projectId) throws RestServiceException {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(

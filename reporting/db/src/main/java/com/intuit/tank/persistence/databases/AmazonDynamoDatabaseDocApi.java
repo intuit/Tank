@@ -121,7 +121,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void initNamespace(String tableName) {
@@ -176,7 +176,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void removeNamespace(String tableName) {
@@ -196,7 +196,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean hasTable(String tableName) {
@@ -216,7 +216,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void addTimingResults(final @Nonnull String tableName, final @Nonnull List<TankResult> results,
@@ -250,7 +250,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Set<String> getTables(String regex) {
@@ -271,7 +271,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -323,7 +323,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Nonnull
     @Override
@@ -343,7 +343,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void addItems(final String tableName, List<Item> itemList, final boolean asynch) {
@@ -376,7 +376,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void deleteForJob(final String tableName, final String jobId, final boolean asynch) {
@@ -422,7 +422,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean hasJobData(String tableName, String jobId) {

@@ -121,7 +121,7 @@ public class AutomationServiceV1 implements AutomationService {
 	private ServletContext servletContext;
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	@Override
 	@Nonnull
@@ -130,7 +130,7 @@ public class AutomationServiceV1 implements AutomationService {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	@Override
 	@Nonnull
@@ -229,7 +229,7 @@ public class AutomationServiceV1 implements AutomationService {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	@Override
 	@Nonnull
@@ -255,7 +255,7 @@ public class AutomationServiceV1 implements AutomationService {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	@Override
 	@Nonnull
@@ -301,7 +301,7 @@ public class AutomationServiceV1 implements AutomationService {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	@Override
 	@Nonnull
@@ -331,7 +331,7 @@ public class AutomationServiceV1 implements AutomationService {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	@Override
 	@Nonnull
@@ -398,7 +398,7 @@ public class AutomationServiceV1 implements AutomationService {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	@Override
 	public Response runJob(String jobId) {
@@ -409,7 +409,7 @@ public class AutomationServiceV1 implements AutomationService {
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	@Override
 	public Response getStatus(String jobId) {

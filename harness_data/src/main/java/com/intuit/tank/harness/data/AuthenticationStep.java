@@ -140,7 +140,7 @@ public class AuthenticationStep extends TestStep {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

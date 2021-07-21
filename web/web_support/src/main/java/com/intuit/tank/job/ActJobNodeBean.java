@@ -71,7 +71,7 @@ public class ActJobNodeBean extends JobNodeBean {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean isDeleteable() {
@@ -144,7 +144,7 @@ public class ActJobNodeBean extends JobNodeBean {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getType() {

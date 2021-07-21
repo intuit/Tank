@@ -68,7 +68,7 @@ public class JobRecipient extends BaseEntity implements Recipient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getAddress() {
@@ -76,14 +76,14 @@ public class JobRecipient extends BaseEntity implements Recipient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void setAddress(String address) {
         this.address = address;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public RecipientType getType() {
@@ -91,14 +91,14 @@ public class JobRecipient extends BaseEntity implements Recipient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void setType(RecipientType type) {
         this.type = type;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -107,7 +107,7 @@ public class JobRecipient extends BaseEntity implements Recipient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -119,7 +119,7 @@ public class JobRecipient extends BaseEntity implements Recipient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {

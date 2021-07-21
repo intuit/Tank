@@ -102,7 +102,7 @@ public class ScriptServiceV1 implements ScriptService {
     private UriInfo uriInfo;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Nonnull
     @Override
@@ -111,7 +111,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Nonnull
     @Override
@@ -155,7 +155,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Nonnull
     @Override
@@ -233,7 +233,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response updateScript(@Nonnull Integer id, @Nonnull ScriptTO scriptTo) {
@@ -259,7 +259,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response deleteScript(@Nonnull Integer id) {
@@ -298,7 +298,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Nonnull
     @Override
@@ -312,7 +312,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Nonnull
     @Override
@@ -335,7 +335,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response getScript(@Nonnull Integer id) {
@@ -352,7 +352,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response downloadHarnessScript(Integer scriptId) {
@@ -373,7 +373,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response downloadScript(@Nonnull Integer id) {
@@ -394,7 +394,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Nonnull
     @Override
@@ -426,7 +426,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response getScriptDescription(@Nonnull Integer id) {
@@ -443,7 +443,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Nonnull
     @Override
@@ -467,7 +467,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Nonnull
     @Override
@@ -485,7 +485,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Nonnull
     @Override
@@ -503,7 +503,7 @@ public class ScriptServiceV1 implements ScriptService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Nonnull
     @Override

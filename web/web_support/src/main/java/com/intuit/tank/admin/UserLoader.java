@@ -41,7 +41,7 @@ public class UserLoader extends EntityVersionLoader<User, ModifiedUserMessage> {
     UserDao userDao;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     protected List<User> getEntities() {

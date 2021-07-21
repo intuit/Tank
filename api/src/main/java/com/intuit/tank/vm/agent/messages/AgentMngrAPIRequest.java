@@ -55,7 +55,7 @@ public class AgentMngrAPIRequest implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

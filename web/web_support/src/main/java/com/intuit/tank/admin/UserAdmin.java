@@ -98,7 +98,7 @@ public class UserAdmin extends SelectableBean<User> implements Serializable, Mul
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public boolean isCurrent() {
         return userLoader.isCurrent(version);

@@ -150,7 +150,7 @@ public class TankResult implements Serializable, Comparable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

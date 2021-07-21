@@ -359,7 +359,7 @@ public class VMInstanceRequest extends VMRequest implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

@@ -122,7 +122,7 @@ public class ProjectNodeBean extends JobNodeBean {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getType() {

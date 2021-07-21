@@ -84,7 +84,7 @@ public abstract class BaseRestClient {
     protected abstract String getServiceBaseUrl();
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public String ping() throws RestServiceException {
         WebTarget webTarget = client.target(baseUrl + METHOD_PING);

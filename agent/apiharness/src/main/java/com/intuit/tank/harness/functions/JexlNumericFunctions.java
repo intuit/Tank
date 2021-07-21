@@ -38,7 +38,7 @@ public class JexlNumericFunctions implements ExpressionContextVisitor {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void visit(JexlContext context) {

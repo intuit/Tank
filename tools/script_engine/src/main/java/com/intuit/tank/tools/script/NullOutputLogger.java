@@ -25,7 +25,7 @@ package com.intuit.tank.tools.script;
 public class NullOutputLogger implements OutputLogger {
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setScrollContent(boolean autoScroll) {
@@ -34,7 +34,7 @@ public class NullOutputLogger implements OutputLogger {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void log(String text) {

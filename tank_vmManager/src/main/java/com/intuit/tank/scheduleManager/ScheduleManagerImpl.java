@@ -31,7 +31,7 @@ public class ScheduleManagerImpl implements ScheduleManager {
     private static Map<String, JobRequestData> elements = new ConcurrentHashMap<String, JobRequestData>();
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void addJob(AgentMngrAPIRequest request) {
@@ -41,7 +41,7 @@ public class ScheduleManagerImpl implements ScheduleManager {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void addAgent(AgentMngrAPIResponse agent) {
@@ -55,7 +55,7 @@ public class ScheduleManagerImpl implements ScheduleManager {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public JobRequestData getJob(String jobId) {

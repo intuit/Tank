@@ -87,7 +87,7 @@ public class AgentWatchdog implements Runnable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -97,7 +97,7 @@ public class AgentWatchdog implements Runnable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void run() {

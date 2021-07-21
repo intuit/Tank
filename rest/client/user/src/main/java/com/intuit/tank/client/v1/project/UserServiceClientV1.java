@@ -66,7 +66,7 @@ public class UserServiceClientV1 extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public List<User> getAllUsers() {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(UserService.METHOD_USERS));
@@ -77,7 +77,7 @@ public class UserServiceClientV1 extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public User getUser(String name) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(UserService.METHOD_USER, name));
@@ -87,7 +87,7 @@ public class UserServiceClientV1 extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public User authenticate(UserCredentials credentials) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(UserService.METHOD_AUTHENTICATE));

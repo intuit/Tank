@@ -156,7 +156,7 @@ public class ScriptGroup extends BaseEntity implements Comparable<ScriptGroup> {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -165,7 +165,7 @@ public class ScriptGroup extends BaseEntity implements Comparable<ScriptGroup> {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -177,7 +177,7 @@ public class ScriptGroup extends BaseEntity implements Comparable<ScriptGroup> {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {

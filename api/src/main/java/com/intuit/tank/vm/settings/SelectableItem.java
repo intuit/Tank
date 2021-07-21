@@ -56,7 +56,7 @@ public class SelectableItem implements Comparable<SelectableItem>, Serializable 
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int compareTo(SelectableItem o) {
