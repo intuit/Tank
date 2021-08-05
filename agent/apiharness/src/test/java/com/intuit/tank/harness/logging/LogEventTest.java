@@ -2,6 +2,7 @@ package com.intuit.tank.harness.logging;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Map;
 
@@ -188,6 +189,45 @@ public class LogEventTest {
         // at org.apache.log4j.LogManager.getLogger(Logger.java:117)
         // at com.intuit.tank.harness.test.data.Variables.<clinit>(Variables.java:36)
         assertNotNull(result);
+    }
+
+    /**
+     * Run String buildMessage() method test and validate password user variable field obfuscated
+     */
+    @Test
+    public void testBuildMessage_4() {
+        LogEvent fixture = new LogEvent();
+        Variables variables = new Variables();
+        String passwordStub = "LoginPassword123";
+        variables.addVariable("password", passwordStub);
+
+        fixture.setHostname("");
+        fixture.setActiveProfile(LoggingProfile.USER_VARIABLE);
+        fixture.setEventType(LogEventType.Http);
+        fixture.setTestPlan(new HDTestPlan());
+        fixture.setValidationStatus("");
+        fixture.setVariables(variables);
+        fixture.setThreadId("");
+        fixture.setPublicIp("");
+        fixture.setProjectName("");
+        fixture.setGroup(new HDScriptGroup());
+        fixture.setJobId("");
+        fixture.setRequest(new MockRequest());
+        fixture.setLoggingKey("");
+        fixture.setTransactionId("");
+        fixture.setStepGroupName("");
+        fixture.setSourceType(SourceType.agent);
+        fixture.setInstanceId("");
+        fixture.setStep((TestStep) null);
+        fixture.setStepIndex("");
+        fixture.setMessage("");
+        fixture.setIteration("");
+        fixture.setScript((HDScript) null);
+
+        Map<String,String> result = fixture.buildMessage();
+        assertNotNull(result);
+        assertTrue(result.containsKey("UserVariables"));
+        assertFalse(result.get("UserVariables").equalsIgnoreCase(passwordStub));
     }
 
     /**
