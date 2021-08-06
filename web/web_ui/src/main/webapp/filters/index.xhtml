@@ -114,7 +114,7 @@
           <p:dataTable id="filterTableId" var="filterEnvelope" value="#{filterBean.selectionList}"
             styleClass="full-width" scrollable="true" scrollHeight="450">
             
-            <p:ajax event="filter" listener="#{filterGroupBean.tableState.onFilter}" update="@this" />
+            <p:ajax event="filter" listener="#{filterBean.tableState.onFilter}" update="@this" />
 
             <p:column id="filterCheckColumn" style="width:25px;">
               <f:facet name="header">
