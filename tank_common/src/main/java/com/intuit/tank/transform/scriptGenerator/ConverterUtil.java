@@ -103,8 +103,10 @@ public class ConverterUtil {
 
     public static HDWorkload convertWorkload(Workload workload, BaseJob job) {
 
-        String name = "TestPlan for " + workload.getProject() != null ? " project " + workload.getProject().getName()
-                : " workload " + workload.getName();
+        String name = "TestPlan for " +
+                workload.getProject() != null ?
+                    "project " + workload.getProject().getName() :
+                    "workload " + workload.getName();
         int id = workload.getProject() != null ? workload.getProject().getId() : workload.getId();
         name += " (id" + id + ")";
 

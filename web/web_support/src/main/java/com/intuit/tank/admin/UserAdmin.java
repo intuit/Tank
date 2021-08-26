@@ -19,8 +19,8 @@ package com.intuit.tank.admin;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -43,7 +43,7 @@ import com.intuit.tank.wrapper.VersionContainer;
  * 
  */
 @Named
-@RequestScoped
+@ViewScoped
 public class UserAdmin extends SelectableBean<User> implements Serializable, Multiselectable<User> {
 
     private static final long serialVersionUID = 1L;
@@ -106,11 +106,11 @@ public class UserAdmin extends SelectableBean<User> implements Serializable, Mul
 
     /**
      * 
-     * @param u
+     * @param user
      */
-    public void delete(User u) {
-        new UserDao().delete(u);
-        userEvent.fire(new ModifiedUserMessage(u, this));
+    public void delete(User user) {
+        new UserDao().delete(user);
+        userEvent.fire(new ModifiedUserMessage(user, this));
     }
 
 }
