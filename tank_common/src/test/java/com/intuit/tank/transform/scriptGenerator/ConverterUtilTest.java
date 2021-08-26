@@ -119,8 +119,8 @@ public class ConverterUtilTest {
         HDWorkload result = ConverterUtil.convertWorkload(workload, job);
 
         assertNotNull(result);
-        assertEquals(" project null (id0)", result.getName());
-        assertEquals(" project null (id0)", result.getDescription());
+        assertEquals("project null (id0)", result.getName());
+        assertEquals("project null (id0)", result.getDescription());
     }
 
     /**
