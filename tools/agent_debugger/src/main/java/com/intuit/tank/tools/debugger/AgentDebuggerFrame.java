@@ -893,8 +893,8 @@ public class AgentDebuggerFrame extends JFrame {
             harness = null;
             scriptEditorTA.setActiveLineRange(-1, -1);
             actionComponents.stop();
+            stopWaiting();
         });
-
     }
 
     public void setDataFiles(List<DataFileDescriptor> selectedObjects) {
