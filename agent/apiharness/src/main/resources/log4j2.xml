@@ -17,6 +17,7 @@
                 <KeyValuePair key="location" value="$${ctx:location:-unknown}"/>
                 <KeyValuePair key="httpHost" value="$${ctx:httpHost:-unknown}"/>
                 <KeyValuePair key="loggingProfile" value="$${ctx:loggingProfile:-unknown}"/>
+                <KeyValuePair key="env" value="$${ctx:env:-unknown}"/>
             </JsonLayout>
 
             <Policies>
