@@ -47,11 +47,11 @@ public class TestPlanSingleton {
     }
 
     public void setTestPlans(String plans) {
-        List<String> testPlanLists = Arrays.asList(plans.split(","));
 
-        workloads = testPlanLists.stream()
+        workloads = Arrays.stream(plans.split(","))
+                .map(File::new)
                 .filter(xmlFile -> {
-                    if (new File(xmlFile).exists()) {
+                    if (xmlFile.exists()) {
                         return true;
                     } else {
                         Exception e = new Exception("File not found");
