@@ -57,4 +57,8 @@ public class JobStatusHelper {
         		|| status.equals(VMStatus.stopping.toString())
 				|| status.equals(VMStatus.rampPaused.toString()));
     }
+
+	public static boolean canBeDeleted(String status) {
+		return (status.equalsIgnoreCase(JobQueueStatus.Created.toString()));
+	}
 }
