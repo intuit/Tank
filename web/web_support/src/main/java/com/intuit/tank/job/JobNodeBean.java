@@ -330,6 +330,8 @@ public abstract class JobNodeBean implements Serializable {
 
     public abstract boolean isRampPausable();
 
+    public abstract boolean isDeletable();
+
     /**
      * 
      * {@inheritDoc}
