@@ -25,9 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.data.HDWorkload;
-import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.harness.parsers.WorkloadParser;
-import com.intuit.tank.logging.LogEventType;
 
 public class TestPlanSingleton {
     private static final Logger LOG = LogManager.getLogger(TestPlanSingleton.class);
@@ -50,15 +48,7 @@ public class TestPlanSingleton {
 
         workloads = Arrays.stream(plans.split(","))
                 .map(File::new)
-                .filter(xmlFile -> {
-                    if (xmlFile.exists()) {
-                        return true;
-                    } else {
-                        Exception e = new Exception("File not found");
-                        LOG.error(LogUtil.getLogMessage(e.getMessage(), LogEventType.System), e);
-                        return false;
-                    }
-                })
+                .filter(File::exists)
                 .map(xml -> new WorkloadParser(xml).getWorkload())
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());

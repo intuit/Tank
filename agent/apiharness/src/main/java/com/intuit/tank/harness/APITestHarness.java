@@ -160,6 +160,7 @@ public class APITestHarness {
             if (values[0].equalsIgnoreCase("-tp")) {
                 testPlans = values[1];
                 if (!AgentUtil.validateTestPlans(testPlans)) {
+                    usage();
                     return;
                 }
             } else if (values[0].equalsIgnoreCase("-ramp")) {
@@ -231,8 +232,7 @@ public class APITestHarness {
             startHttp(controllerBase);
         } else {
             resultsReporter = new DummyResultsReporter();
-            TestPlanSingleton plans = TestPlanSingleton.getInstance();
-            plans.setTestPlans(testPlans);
+            TestPlanSingleton.getInstance().setTestPlans(testPlans);
             runConcurrentTestPlans();
         }
     }
