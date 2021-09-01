@@ -143,6 +143,9 @@ public class ActJobNodeBean extends JobNodeBean {
         return JobStatusHelper.canRampBePaused(getStatus());
     }
 
+    @Override
+    public boolean isDeletable() { return JobStatusHelper.canBeDeleted(getStatus()); }
+
     /**
      * {@inheritDoc}
      */

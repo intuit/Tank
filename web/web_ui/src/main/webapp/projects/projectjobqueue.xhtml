@@ -197,8 +197,9 @@
             ajax="true" update=":mainForm:projectTabPanelID:jobTableId" />
 
           <p:commandButton oncomplete="PF('confirmJobQueueDelete').show();" value="X" ajax="true"
-                         action="#{projectJobQueueManager.setCurrentJobInstance(node)}"
-                         title="Delete" update=":jobQueueDeletePopup">
+                           action="#{projectJobQueueManager.setCurrentJobInstance(node)}"
+                           disabled="#{!(node.isDeletable())}"
+                           title="Delete" update=":jobQueueDeletePopup">
           </p:commandButton>
         </div>
         <div class="float-right">

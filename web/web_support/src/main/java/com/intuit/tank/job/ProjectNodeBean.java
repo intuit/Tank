@@ -121,6 +121,11 @@ public class ProjectNodeBean extends JobNodeBean {
         return false;
     }
 
+    @Override
+    public boolean isDeletable() {
+        return false;
+    }
+
     /**
      * {@inheritDoc}
      */
