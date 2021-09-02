@@ -795,6 +795,8 @@ public class APITestHarness {
         return ret;
     }
 
+    public int getCurrentUsers() { return currentUsers; }
+
     /**
      * @return the started
      */
