@@ -58,17 +58,17 @@ public class AgentRunData {
     }
 
     /**
-     * @return the rampTime
+     * @return the rampTime in milliseconds
      */
-    public long getRampTime() {
+    public long getRampTimeMillis() {
         return rampTime;
     }
 
     /**
      * @param rampTime
-     *            the rampTime to set
+     *            the rampTime to set in milliseconds
      */
-    public void setRampTime(long rampTime) {
+    public void setRampTimeMillis(long rampTime) {
         this.rampTime = rampTime;
     }
 
@@ -195,17 +195,17 @@ public class AgentRunData {
     }
 
     /**
-     * @return the simulationTime
+     * @return the simulationTime in milliseconds
      */
-    public long getSimulationTime() {
+    public long getSimulationTimeMillis() {
         return simulationTime;
     }
 
     /**
      * @param simulationTime
-     *            the simulationTime to set
+     *            the simulationTime to set in milliseconds
      */
-    public void setSimulationTime(long simulationTime) {
+    public void setSimulationTimeMillis(long simulationTime) {
         this.simulationTime = simulationTime;
     }
 

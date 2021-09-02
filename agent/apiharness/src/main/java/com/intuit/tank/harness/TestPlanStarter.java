@@ -123,10 +123,10 @@ public class TestPlanStarter implements Runnable {
     private long calcRampTime() {
         int ramp = (numThreads - APITestHarness.getInstance().getAgentRunData().getNumStartUsers());
         if (ramp > 0) {
-            return (APITestHarness.getInstance().getAgentRunData().getRampTime() *
+            return (APITestHarness.getInstance().getAgentRunData().getRampTimeMillis() *
                     APITestHarness.getInstance().getAgentRunData().getUserInterval())
                     / ramp;
-        } else if (APITestHarness.getInstance().getAgentRunData().getRampTime() > 0) {
+        } else if (APITestHarness.getInstance().getAgentRunData().getRampTimeMillis() > 0) {
             LOG.info(LogUtil.getLogMessage("No Ramp - " + rampDelay, LogEventType.System));
         }
         return 1; //Return minimum wait time 1 millisecond
