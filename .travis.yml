@@ -5,30 +5,25 @@ jdk:
 branches:
   only: 
     - develop
+    - master
 
 env:
-  - SKIP_METHODTIMER_TEST=true
-  - SKIP_GUI_TEST=true
+  global:
+    - SKIP_METHODTIMER_TEST=true
+    - SKIP_GUI_TEST=true
 
-install:
-  - wget https://archive.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz
-  - tar xzvf apache-maven-3.5.4-bin.tar.gz
-  - export PATH=`pwd`/apache-maven-3.5.4/bin:$PATH
-  - mvn -v
-  - ls -al
-  - rm -f agent/http_client_5/src/test/java/com/intuit/tank/httpclient5/TankHttpClient5Test.java
-  - rm -f api/src/test/java/com/intuit/tank/harness/AmazonUtilTest.java
-  - rm -f tools/script_filter/src/test/java/com/intuit/tank/tools/script/ScriptFilterRunnerTest.java
-  - rm -f tools/agent_debugger/src/test/java/com/intuit/tank/tools/debugger/ActionComponentsTest.java
-  - rm -f tools/agent_debugger/src/test/java/com/intuit/tank/tools/debugger/AgentDebuggerFrameTest.java
-  - pwd
-  - ls -al
+before_install:
+  - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
+  - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
+  - echo $TRAVIS_BRANCH
+
+
 before_script:
   - echo "MAVEN_OPTS='-Xmx1g'" > ~/.mavenrc
 
 script:
-   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn --quiet clean install surefire-report:report -P release; fi'
-   - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn --quiet clean install surefire-report:report -P release -Dmaven.test.skip=true; fi'
+   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn --quiet release:clean release:prepare release:perform surefire-report:report; fi'
+   - 'if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn --quiet clean install surefire-report:report -P release -Dmaven.test.skip=true; fi'
    
 after_script:
   - ls web/web_ui/target/tank.war
