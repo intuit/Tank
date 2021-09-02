@@ -189,7 +189,7 @@
                 update=":mainForm:jobTableId" />
               <p:commandButton id="btnDelete" action="#{jobQueueManager.deleteJobInstance(node)}" value="X"
                 onerror="window.location.reload()"
-                rendered="#{node.isDeleteable() and jobQueueManager.canControlJob(node)}" ajax="false" title="Delete"
+                disabled="#{!node.isDeletable() or !jobQueueManager.canControlJob(node)}" ajax="false" title="Delete"
                 update=":mainForm:jobTableId, :mainForm:messages" />
             </div>
             <div class="float-right">

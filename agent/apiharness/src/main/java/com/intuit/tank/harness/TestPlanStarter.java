@@ -94,7 +94,7 @@ public class TestPlanStarter implements Runnable {
                 done = true;
                 break;
             }
-            if (threadGroup.activeCount() < numThreads) {
+            if (APITestHarness.getInstance().getCurrentUsers() < numThreads) {
                 Thread thread = createThread(httpClient, threadsStarted);
                 thread.start();
                 APITestHarness.getInstance().threadStarted(thread);

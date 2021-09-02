@@ -11,15 +11,12 @@ env:
   global:
     - SKIP_METHODTIMER_TEST=true
     - SKIP_GUI_TEST=true
+    - MAVEN_OPTS='-Xmx1g'
 
 before_install:
   - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
   - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
   - echo $TRAVIS_BRANCH
-
-
-before_script:
-  - echo "MAVEN_OPTS='-Xmx1g'" > ~/.mavenrc
 
 script:
    - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn --quiet release:clean release:prepare release:perform surefire-report:report --settings settings.xml; fi'
