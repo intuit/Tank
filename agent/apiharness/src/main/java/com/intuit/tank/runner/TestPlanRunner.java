@@ -230,7 +230,7 @@ public class TestPlanRunner implements Runnable {
      */
     private boolean isCompleted(RunPhase phase, boolean finished) {
         return (shouldStop(phase)
-                || (finished && (APITestHarness.getInstance().getAgentRunData().getSimulationTime() <= 0
+                || (finished && (APITestHarness.getInstance().getAgentRunData().getSimulationTimeMillis() <= 0
                 || APITestHarness.getInstance().hasMetSimulationTime()
                 || APITestHarness.getInstance().isDebug())));
     }

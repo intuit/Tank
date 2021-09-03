@@ -17,8 +17,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.harness.AgentRunData;
-import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.logging.LoggingProfile;
 
 /**
@@ -50,8 +48,8 @@ public class AgentRunDataTest {
     public void testGetActiveProfile_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -83,8 +81,8 @@ public class AgentRunDataTest {
     public void testGetAgentInstanceNum_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -116,8 +114,8 @@ public class AgentRunDataTest {
     public void testGetInstanceId_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -149,8 +147,8 @@ public class AgentRunDataTest {
     public void testGetJobId_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -182,8 +180,8 @@ public class AgentRunDataTest {
     public void testGetMachineName_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -215,8 +213,8 @@ public class AgentRunDataTest {
     public void testGetNumStartUsers_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -248,8 +246,8 @@ public class AgentRunDataTest {
     public void testGetNumUsers_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -283,8 +281,8 @@ public class AgentRunDataTest {
     public void testGetProjectName_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -316,8 +314,8 @@ public class AgentRunDataTest {
     public void testGetRampTime_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -331,7 +329,7 @@ public class AgentRunDataTest {
         fixture.setInstanceId("");
         fixture.setTestPlans("");
 
-        long result = fixture.getRampTime();
+        long result = fixture.getRampTimeMillis();
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.AgentRunData
@@ -349,8 +347,8 @@ public class AgentRunDataTest {
     public void testGetReportingMode_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -382,8 +380,8 @@ public class AgentRunDataTest {
     public void testGetSimulationTime_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -397,7 +395,7 @@ public class AgentRunDataTest {
         fixture.setInstanceId("");
         fixture.setTestPlans("");
 
-        long result = fixture.getSimulationTime();
+        long result = fixture.getSimulationTimeMillis();
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.AgentRunData
@@ -415,8 +413,8 @@ public class AgentRunDataTest {
     public void testGetStopBehavior_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -448,8 +446,8 @@ public class AgentRunDataTest {
     public void testGetTestPlans_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -481,8 +479,8 @@ public class AgentRunDataTest {
     public void testGetTotalAgents_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -514,8 +512,8 @@ public class AgentRunDataTest {
     public void testGetUserInterval_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -547,8 +545,8 @@ public class AgentRunDataTest {
     public void testSetActiveProfile_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -580,8 +578,8 @@ public class AgentRunDataTest {
     public void testSetAgentInstanceNum_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -613,8 +611,8 @@ public class AgentRunDataTest {
     public void testSetInstanceId_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -646,8 +644,8 @@ public class AgentRunDataTest {
     public void testSetJobId_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -679,8 +677,8 @@ public class AgentRunDataTest {
     public void testSetMachineName_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -712,8 +710,8 @@ public class AgentRunDataTest {
     public void testSetNumStartUsers_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -745,8 +743,8 @@ public class AgentRunDataTest {
     public void testSetNumUsers_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -778,8 +776,8 @@ public class AgentRunDataTest {
     public void testSetProjectName_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -811,8 +809,8 @@ public class AgentRunDataTest {
     public void testSetRampTime_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -827,7 +825,7 @@ public class AgentRunDataTest {
         fixture.setTestPlans("");
         long rampTime = 1L;
 
-        fixture.setRampTime(rampTime);
+        fixture.setRampTimeMillis(rampTime);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.AgentRunData
@@ -844,8 +842,8 @@ public class AgentRunDataTest {
     public void testSetReportingMode_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -877,8 +875,8 @@ public class AgentRunDataTest {
     public void testSetSimulationTime_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -893,7 +891,7 @@ public class AgentRunDataTest {
         fixture.setTestPlans("");
         long simulationTime = 1L;
 
-        fixture.setSimulationTime(simulationTime);
+        fixture.setSimulationTimeMillis(simulationTime);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.AgentRunData
@@ -910,8 +908,8 @@ public class AgentRunDataTest {
     public void testSetStopBehavior_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -943,8 +941,8 @@ public class AgentRunDataTest {
     public void testSetTestPlans_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -976,8 +974,8 @@ public class AgentRunDataTest {
     public void testSetTotalAgents_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -1009,8 +1007,8 @@ public class AgentRunDataTest {
     public void testSetUserInterval_1()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
@@ -1042,8 +1040,8 @@ public class AgentRunDataTest {
     public void testSetUserInterval_2()
             throws Exception {
         AgentRunData fixture = new AgentRunData();
-        fixture.setSimulationTime(1L);
-        fixture.setRampTime(1L);
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
         fixture.setNumStartUsers(1);
         fixture.setJobId("");
         fixture.setProjectName("");
