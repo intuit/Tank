@@ -56,48 +56,11 @@ public class TestPlanStarterTest {
     }
 
     @Test
-    public void getThreadStarted_Given_TestPlanStarter_Completion_Returns_Number_Of_Threads_Started() {
-        // Arrange
-        _sut = new TestPlanStarter(_httpClientMock, _hdTestPlanMock, 1, _tankHttpClientClassStub, _threadGroupMock);
-
-        // Act
-        _sut.run();
-
-        // Assert
-        assertEquals(1, _sut.getThreadsStarted());
-    }
-
-    @Test
     public void isDone_Given_TestPlanStarter_Not_Run_Returns_False() {
         // Arrange + Act
         _sut = new TestPlanStarter(_httpClientMock, _hdTestPlanMock, 1, _tankHttpClientClassStub, _threadGroupMock);
 
         // Assert
         assertFalse(_sut.isDone());
-    }
-
-    @Test
-    public void isDone__Given_TestPlanStarter_Completion_Returns_True() {
-        // Arrange
-        _sut = new TestPlanStarter(_httpClientMock, _hdTestPlanMock, 1, _tankHttpClientClassStub, _threadGroupMock);
-
-        // Act
-        _sut.run();
-
-        // Assert
-        assertTrue(_sut.isDone());
-    }
-
-    @Test
-    public void run_Given_Zero_Number_Of_Threads_And_Default_Initialization_Creates_One_Thread() {
-        // Arrange
-        when(_hdTestPlanMock.getUserPercentage()).thenReturn(100);
-        _sut = new TestPlanStarter(_httpClientMock, _hdTestPlanMock, 10, _tankHttpClientClassStub, _threadGroupMock);
-
-        // Act
-        _sut.run();
-
-        // Assert
-        verify(_threadGroupMock, times(1)).getName();
     }
 }

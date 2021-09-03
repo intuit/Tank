@@ -103,7 +103,7 @@ public class APITestHarness {
     private TPSMonitor tpsMonitor;
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
-    
+
     private Date send = new Date();
     private static final int interval = 15; // SECONDS
 
@@ -665,7 +665,7 @@ public class APITestHarness {
     }
 
     public boolean hasMetSimulationTime() {
-        if (agentRunData.getSimulationTimeMillis() >= 0) {
+        if (agentRunData.getSimulationTimeMillis() > 0) {
             if (System.currentTimeMillis() > getSimulationEndTimeMillis()) {
                 if (!loggedSimTime) {
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Simulation time met")));
