@@ -92,15 +92,13 @@ public class TestPlanStarter implements Runnable {
             if ( APITestHarness.getInstance().getCmd() == AgentCommand.stop
             		|| APITestHarness.getInstance().getCmd() == AgentCommand.kill
                     || APITestHarness.getInstance().hasMetSimulationTime()
-                    || APITestHarness.getInstance().isDebug() ) {
+                    || APITestHarness.getInstance().isDebug()
+                    || (agentRunData.getSimulationTimeMillis() == 0 //Run Until: Loops Completed
+                        && System.currentTimeMillis() - APITestHarness.getInstance().getStartTime() > agentRunData.getRampTimeMillis())) {
                 done = true;
                 break;
             }
-            if ((agentRunData.getSimulationTimeMillis() > 0 // Run Until: Simulation Time Met
-                    && APITestHarness.getInstance().getCurrentUsers() < numThreads)
-                || (agentRunData.getSimulationTimeMillis() == 0 //Run Until: Loops Completed
-                    && System.currentTimeMillis() - APITestHarness.getInstance().getStartTime() <= agentRunData.getRampTimeMillis()
-                    && APITestHarness.getInstance().getCurrentUsers() < numThreads)) {
+            if (APITestHarness.getInstance().getCurrentUsers() < numThreads) {
                 createThread(httpClient, threadsStarted);
             }
         }
