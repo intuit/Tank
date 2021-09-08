@@ -14,10 +14,10 @@ env:
     - MAVEN_OPTS='-Xmx1g'
 
 before_install:
-  - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
-  - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
+  - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import --no-tty --batch --yes
+  - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust --no-tty --batch --yes
   - echo $TRAVIS_BRANCH
 
 script:
-   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn --quiet release:clean release:prepare release:perform surefire-report:report --settings settings.xml; fi'
-   - 'if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then mvn --quiet clean install surefire-report:report -P release -Dmaven.test.skip=true; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn --quiet clean install surefire-report:report -P release -Dmaven.test.skip=true; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn --quiet release:clean release:prepare release:perform surefire-report:report --settings settings.xml; fi'
