@@ -19,5 +19,5 @@ before_install:
   - echo $TRAVIS_BRANCH
 
 script:
-  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn --quiet clean install surefire-report:report -P release -Dmaven.test.skip=true; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then mvn --quiet clean install -P default,coverage; fi'
   - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mvn --quiet release:clean release:prepare release:perform surefire-report:report --settings settings.xml; fi'
