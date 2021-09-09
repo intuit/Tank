@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.intuit.tank.harness.StopBehavior;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -211,8 +212,12 @@ public class TestPlanRunner implements Runnable {
                     LOG.info(LogUtil.getLogMessage(mt1.getNaturalTimeMessage()));
                     APITestHarness.getInstance().getUserTracker().remove(hdscript.getName());
                 }
-                if (shouldStop(RunPhase.script)) {
-                    throw new KillScriptException("Stop set to script or less, exiting at script " + hdscript.getName());
+                // If stop command received, and stop behavior is end of script, exit here.
+                if (APITestHarness.getInstance().getCmd() == AgentCommand.stop &&
+                        APITestHarness.getInstance().getAgentRunData().getStopBehavior() == StopBehavior.END_OF_SCRIPT) {
+                    LOG.info(LogUtil.getLogMessage("Stop command received. Stop set to end of script. End of script "
+                            + hdscript.getName() + " reached. Exiting..."));
+                    return;
                 }
             }
         } finally {
@@ -360,8 +365,11 @@ public class TestPlanRunner implements Runnable {
                     throw new GotoScriptException("Go to group " + gotoGroup, gotoGroup);
                 }
             }
-            if (shouldStop(RunPhase.step)) {
-                LOG.info(LogUtil.getLogMessage("Stop set to step, exiting at step " + testStep.getStepIndex()));
+            // If command is stop and stop behavior is end of step, exit the loop.
+            if (APITestHarness.getInstance().getCmd() == AgentCommand.stop &&
+                    APITestHarness.getInstance().getAgentRunData().getStopBehavior() == StopBehavior.END_OF_STEP) {
+                LOG.info(LogUtil.getLogMessage("Stop command received. Stop set to end of step. End of step "
+                        + testStep.getStepIndex() + " reached. Exiting..."));
                 return;
             }
         }
