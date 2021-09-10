@@ -14,8 +14,8 @@ env:
     - MAVEN_OPTS='-Xmx1g'
 
 before_install:
-  - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import --no-tty --batch --yes
-  - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust --no-tty --batch --yes
+  - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+  - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
   - echo $TRAVIS_BRANCH
 
 script:
