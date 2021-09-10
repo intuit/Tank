@@ -146,8 +146,8 @@ public class TestPlanRunner implements Runnable {
                         i = 0;
                         continue mainLoop;
                     }
-                    if (isCompleted(RunPhase.group, finished)) {
-                        LOG.info(LogUtil.getLogMessage("finished or Stop set to group or less, exiting at group " + hdScriptGroup.getName()));
+                    if (isCompleted(StopBehavior.END_OF_SCRIPT_GROUP, finished)) {
+                        LOG.info(LogUtil.getLogMessage("finished or Stop set to end of script group, exiting at group " + hdScriptGroup.getName()));
                         return;
                     }
                     scriptGroupLoop++;
@@ -213,8 +213,7 @@ public class TestPlanRunner implements Runnable {
                     APITestHarness.getInstance().getUserTracker().remove(hdscript.getName());
                 }
                 // If stop command received, and stop behavior is end of script, exit here.
-                if (APITestHarness.getInstance().getCmd() == AgentCommand.stop &&
-                        APITestHarness.getInstance().getAgentRunData().getStopBehavior() == StopBehavior.END_OF_SCRIPT) {
+                if (shouldStop(StopBehavior.END_OF_SCRIPT)) {
                     LOG.info(LogUtil.getLogMessage("Stop command received. Stop set to end of script. End of script "
                             + hdscript.getName() + " reached. Exiting..."));
                     return;
@@ -228,23 +227,21 @@ public class TestPlanRunner implements Runnable {
     /**
      * Check to see if the thread/virtual user should continue for another loop
      * 
-     * @param phase
+     * @param stopBehavior
      * @param finished
      * 
      * @return
      */
-    private boolean isCompleted(RunPhase phase, boolean finished) {
-        return (shouldStop(phase)
+    private boolean isCompleted(StopBehavior stopBehavior, boolean finished) {
+        return (shouldStop(stopBehavior)
                 || (finished && (APITestHarness.getInstance().getAgentRunData().getSimulationTimeMillis() <= 0
                 || APITestHarness.getInstance().hasMetSimulationTime()
                 || APITestHarness.getInstance().isDebug())));
     }
 
-    private boolean shouldStop(RunPhase phase) {
-        if (APITestHarness.getInstance().getCmd() == AgentCommand.stop) {
-            return phase.ordinal() >= APITestHarness.getInstance().getAgentRunData().getStopBehavior().ordinal();
-        }
-        return false;
+    private boolean shouldStop(StopBehavior stopBehavior) {
+        return APITestHarness.getInstance().getCmd() == AgentCommand.stop &&
+                APITestHarness.getInstance().getAgentRunData().getStopBehavior() == stopBehavior;
     }
 
     private boolean checkGotoGroupUseCase(HDScriptUseCase hdScriptUseCase, String gotoGroup) {
@@ -366,8 +363,7 @@ public class TestPlanRunner implements Runnable {
                 }
             }
             // If command is stop and stop behavior is end of step, exit the loop.
-            if (APITestHarness.getInstance().getCmd() == AgentCommand.stop &&
-                    APITestHarness.getInstance().getAgentRunData().getStopBehavior() == StopBehavior.END_OF_STEP) {
+            if (shouldStop(StopBehavior.END_OF_STEP)) {
                 LOG.info(LogUtil.getLogMessage("Stop command received. Stop set to end of step. End of step "
                         + testStep.getStepIndex() + " reached. Exiting..."));
                 return;
