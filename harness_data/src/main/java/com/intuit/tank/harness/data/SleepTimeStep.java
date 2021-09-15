@@ -48,7 +48,7 @@ public class SleepTimeStep extends TestStep {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

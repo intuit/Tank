@@ -37,7 +37,7 @@ public class TimeZoneConverter implements Converter {
     private static final Logger LOG = LogManager.getLogger(TimeZoneConverter.class);
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Object getAsObject(FacesContext facesContext, UIComponent uiComponent, String value) {
@@ -50,7 +50,7 @@ public class TimeZoneConverter implements Converter {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getAsString(FacesContext facesContext, UIComponent uiComponent, Object obj) {

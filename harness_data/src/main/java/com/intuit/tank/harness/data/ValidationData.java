@@ -69,7 +69,7 @@ public class ValidationData extends ResponseData {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

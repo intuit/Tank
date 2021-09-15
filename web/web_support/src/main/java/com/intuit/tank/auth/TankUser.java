@@ -16,8 +16,9 @@ package com.intuit.tank.auth;
  * #L%
  */
 
+import com.intuit.tank.project.User;
+
 import java.io.Serializable;
-import org.picketlink.idm.model.basic.User;
 
 /**
  * TankUser
@@ -33,23 +34,17 @@ public class TankUser extends User implements Serializable {
     /**
      * @param userEntity
      */
-    public TankUser(com.intuit.tank.project.User userEntity) {
+    public TankUser(User userEntity) {
         this.userEntity = userEntity;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public String getKey() {
         return Integer.toString(userEntity.getId());
     }
 
-    /**
-     * @inheritDoc
-     */
-    public String getId() {
-        return userEntity.getName();
-    }
 
     /**
      * @return the userEntity

@@ -81,7 +81,7 @@ public class UserDetail implements Serializable, Comparable<UserDetail> {
     }
     
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

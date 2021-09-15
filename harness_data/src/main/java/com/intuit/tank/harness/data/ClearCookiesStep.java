@@ -47,7 +47,7 @@ public class ClearCookiesStep extends TestStep {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

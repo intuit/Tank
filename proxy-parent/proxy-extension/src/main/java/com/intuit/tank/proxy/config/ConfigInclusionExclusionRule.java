@@ -75,7 +75,7 @@ public class ConfigInclusionExclusionRule {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {
@@ -84,7 +84,7 @@ public class ConfigInclusionExclusionRule {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object o) {
@@ -97,7 +97,7 @@ public class ConfigInclusionExclusionRule {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

@@ -103,7 +103,7 @@ public class APITestHarness {
     private TPSMonitor tpsMonitor;
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
-    
+
     private Date send = new Date();
     private static final int interval = 15; // SECONDS
 
@@ -160,10 +160,11 @@ public class APITestHarness {
             if (values[0].equalsIgnoreCase("-tp")) {
                 testPlans = values[1];
                 if (!AgentUtil.validateTestPlans(testPlans)) {
+                    usage();
                     return;
                 }
             } else if (values[0].equalsIgnoreCase("-ramp")) {
-                agentRunData.setRampTime(Long.parseLong(values[1]) * 60000);
+                agentRunData.setRampTimeMillis(Long.parseLong(values[1]) * 60000);
             } else if (values[0].equalsIgnoreCase("-client")) {
                 tankHttpClientClass = StringUtils.trim(values[1]);
             } else if (values[0].equalsIgnoreCase("-d")) {
@@ -207,7 +208,7 @@ public class APITestHarness {
             } else if (values[0].equalsIgnoreCase("-http")) {
                 controllerBase = (values.length > 1 ? values[1] : null);
             } else if (values[0].equalsIgnoreCase("-time")) {
-                agentRunData.setSimulationTime(Integer.parseInt(values[1]) * 60000);
+                agentRunData.setSimulationTimeMillis(Integer.parseInt(values[1]) * 60000);
             }
         }
         if (instanceId == null) {
@@ -231,8 +232,7 @@ public class APITestHarness {
             startHttp(controllerBase);
         } else {
             resultsReporter = new DummyResultsReporter();
-            TestPlanSingleton plans = TestPlanSingleton.getInstance();
-            plans.setTestPlans(testPlans);
+            TestPlanSingleton.getInstance().setTestPlans(testPlans);
             runConcurrentTestPlans();
         }
     }
@@ -325,10 +325,10 @@ public class APITestHarness {
 
             agentRunData.setNumUsers(startData.getConcurrentUsers());
             agentRunData.setNumStartUsers(startData.getStartUsers());
-            agentRunData.setRampTime(startData.getRampTime());
+            agentRunData.setRampTimeMillis(startData.getRampTime());
             agentRunData.setJobId(startData.getJobId());
             agentRunData.setUserInterval(startData.getUserIntervalIncrement());
-            agentRunData.setSimulationTime(startData.getSimulationTime());
+            agentRunData.setSimulationTimeMillis(startData.getSimulationTime());
             agentRunData.setAgentInstanceNum(startData.getAgentInstanceNum());
             agentRunData.setTotalAgents(startData.getTotalAgents());
 
@@ -483,10 +483,10 @@ public class APITestHarness {
             return;
         }
         tpsMonitor = new TPSMonitor(tankConfig.getAgentConfig().getTPSPeriod());
-        String info = " RAMP_TIME=" + agentRunData.getRampTime() +
+        String info = " RAMP_TIME=" + agentRunData.getRampTimeMillis() +
                 "; agentRunData.getNumUsers()=" + agentRunData.getNumUsers() +
                 "; NUM_START_THREADS=" + agentRunData.getNumStartUsers() +
-                "; simulationTime=" + agentRunData.getSimulationTime();
+                "; simulationTime=" + agentRunData.getSimulationTimeMillis();
         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "starting test with " + info)));
         started = true;
 
@@ -511,7 +511,7 @@ public class APITestHarness {
                     plan.setVariables(hdWorkload.getVariables());
                     ThreadGroup threadGroup = new ThreadGroup("Test Plan Runner Group");
                     threadGroupArray.add(threadGroup);
-                    TestPlanStarter starter = new TestPlanStarter(httpClient, plan, agentRunData.getNumUsers(), tankHttpClientClass, threadGroup);
+                    TestPlanStarter starter = new TestPlanStarter(httpClient, plan, agentRunData.getNumUsers(), tankHttpClientClass, threadGroup, agentRunData);
                     testPlans.add(starter);
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Users for Test Plan " + plan.getTestPlanName() + " at "
                             + plan.getUserPercentage()
@@ -535,7 +535,7 @@ public class APITestHarness {
             startTime = System.currentTimeMillis();
             DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Simulation start: " + df.format(new Date(getStartTime())))));
-            if (agentRunData.getSimulationTime() != 0) {
+            if (agentRunData.getSimulationTimeMillis() != 0) {
                 LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Scheduled Simulation End : "
                         + df.format(new Date(getSimulationEndTimeMillis())))));
                 LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Max Simulation End : "
@@ -630,7 +630,7 @@ public class APITestHarness {
         int ramp = (agentRunData.getNumUsers() - agentRunData.getNumStartUsers());
 
         if (ramp > 0) {
-            ramp = (int) (agentRunData.getRampTime() - (agentRunData.getRampTime() * currentNumThreads) /
+            ramp = (int) (agentRunData.getRampTimeMillis() - (agentRunData.getRampTimeMillis() * currentNumThreads) /
                     (agentRunData.getNumUsers() - agentRunData.getNumStartUsers()));
         }
         return new WatsAgentStatusResponse(System.currentTimeMillis() - startTime,
@@ -661,11 +661,11 @@ public class APITestHarness {
     }
 
     public long getSimulationEndTimeMillis() {
-        return getStartTime() + agentRunData.getSimulationTime();
+        return getStartTime() + agentRunData.getSimulationTimeMillis();
     }
 
     public boolean hasMetSimulationTime() {
-        if (agentRunData.getSimulationTime() > 0) {
+        if (agentRunData.getSimulationTimeMillis() > 0) {
             if (System.currentTimeMillis() > getSimulationEndTimeMillis()) {
                 if (!loggedSimTime) {
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Simulation time met")));
@@ -691,11 +691,7 @@ public class APITestHarness {
     public void checkAgentThreads() {
         for (ThreadGroup threadGroup : threadGroupArray) {
             int activeCount = threadGroup.activeCount();
-            Thread[] threads = new Thread[activeCount];
-            threadGroup.enumerate(threads);
-            int activeThreads = (int) Arrays.stream(threads).filter(Objects::nonNull).filter(
-                    t -> t.getState() == Thread.State.TIMED_WAITING || t.getState() == Thread.State.WAITING).count();
-            LOG.info(LogUtil.getLogMessage("Have " + activeThreads + " of " + activeCount
+            LOG.info(LogUtil.getLogMessage("Have " + threadGroup.activeCount()
                     + " active Threads in thread group "
                     + threadGroup.getName()));
         }
@@ -794,6 +790,8 @@ public class APITestHarness {
         }
         return ret;
     }
+
+    public int getCurrentUsers() { return currentUsers; }
 
     /**
      * @return the started

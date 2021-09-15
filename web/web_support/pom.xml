@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>web-parent</artifactId>
-    <version>3.0.2</version>
+    <version>3.1.0</version>
   </parent>
 
   <artifactId>web-support</artifactId>
@@ -104,18 +104,14 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.faces</groupId>
-      <artifactId>javax.faces-api</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
     </dependency>
 
+    <!-- JSF -->
     <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>javax.faces</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-compress</artifactId>
     </dependency>
 
     <dependency>

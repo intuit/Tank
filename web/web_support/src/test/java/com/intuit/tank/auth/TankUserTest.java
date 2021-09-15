@@ -47,22 +47,6 @@ public class TankUserTest {
     }
 
     /**
-     * Run the String getId() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testGetId_1()
-        throws Exception {
-        TankUser fixture = new TankUser(new User());
-
-        String result = fixture.getId();
-        assertNull(result);
-    }
-
-    /**
      * Run the String getKey() method test.
      *
      * @throws Exception

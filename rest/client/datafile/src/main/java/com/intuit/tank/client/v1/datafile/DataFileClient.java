@@ -65,7 +65,7 @@ public class DataFileClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public List<DataFileDescriptor> getDataFiles() {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(
@@ -77,7 +77,7 @@ public class DataFileClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public DataFileDescriptor getDataFile(Integer id) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(
@@ -88,7 +88,7 @@ public class DataFileClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public String getDataFileDataOffset(Integer id, int offset, int numLines) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(
@@ -101,7 +101,7 @@ public class DataFileClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc "/datafile/{id}/data"
+     * {@inheritDoc} "/datafile/{id}/data"
      */
     public String getDataFileData(Integer id) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(
@@ -112,7 +112,7 @@ public class DataFileClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public InputStream getDataFileDataStream(Integer id) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(
@@ -123,7 +123,7 @@ public class DataFileClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public InputStream getDataFileDataOffsetStream(Integer id, int offset, int numLines) {
     	WebTarget webTarget = client.target(urlBuilder.buildUrl(

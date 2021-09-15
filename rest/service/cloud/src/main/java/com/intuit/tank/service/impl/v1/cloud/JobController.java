@@ -77,7 +77,7 @@ public class JobController {
     private CloudController cloudController;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public String startJob(String jobId) {
         AWSXRay.beginSubsegment("Start.Job." + jobId);
@@ -101,7 +101,7 @@ public class JobController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void killJob(String jobId, boolean fireEvent) {
         List<String> instanceIds = getInstancesForJob(jobId);
@@ -114,14 +114,14 @@ public class JobController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void killJob(String jobId) {
         killJob(jobId, true);
     }
     
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public Set<CloudVmStatusContainer> killAllJobs() {
     	Set<CloudVmStatusContainer> jobs = vmTracker.getAllJobs();
@@ -133,12 +133,12 @@ public class JobController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void killInstance(String instanceId) { killInstances(Collections.singletonList(instanceId)); }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void killInstances(List<String> instanceIds) {
         agentChannel.killAgents(instanceIds);
@@ -165,7 +165,7 @@ public class JobController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public Set<CloudVmStatusContainer> stopAllJobs() {
     	Set<CloudVmStatusContainer> jobs = vmTracker.getAllJobs();
@@ -180,7 +180,7 @@ public class JobController {
     }
     
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void stopJob(String jobId) {
         List<String> instanceIds = getInstancesForJob(jobId);
@@ -190,7 +190,7 @@ public class JobController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void stopAgent(String instanceId) {
         stopAgents(Collections.singletonList(instanceId));
@@ -198,14 +198,14 @@ public class JobController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void stopAgents(List<String> instanceIds) {
         agentChannel.stopAgents(instanceIds);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void pauseJob(String jobId) {
         List<String> instanceIds = getInstancesForJob(jobId);
@@ -214,21 +214,21 @@ public class JobController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void pauseAgent(String instanceId) {
         pauseAgents(Collections.singletonList(instanceId));
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void pauseAgents(List<String> instanceIds) {
         agentChannel.pauseAgents(instanceIds);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void restartJob(String jobId) {
         List<String> instanceIds = getInstancesForJob(jobId);
@@ -237,28 +237,28 @@ public class JobController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void restartAgent(String instanceId) {
         restartAgents(Collections.singletonList(instanceId));
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void restartAgents(List<String> instanceIds) {
         agentChannel.restartAgents(instanceIds);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void pauseRampInstance(String instanceId) {
         pauseRampInstances(Collections.singletonList(instanceId));
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void pauseRampJob(String jobId) {
         List<String> instanceIds = getInstancesForJob(jobId);
@@ -267,21 +267,21 @@ public class JobController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void pauseRampInstances(List<String> instanceIds) {
         agentChannel.pauseRamp(instanceIds);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void resumeRampInstance(String instanceId) {
         resumeRampInstances(Collections.singletonList(instanceId));
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void resumeRampJob(String jobId) {
         List<String> instanceIds = getInstancesForJob(jobId);
@@ -290,7 +290,7 @@ public class JobController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void resumeRampInstances(List<String> instanceIds) {
         agentChannel.resumeRamp(instanceIds);

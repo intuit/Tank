@@ -111,7 +111,7 @@ public class ScriptFilterCondition extends BaseEntity {
     // }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -122,7 +122,7 @@ public class ScriptFilterCondition extends BaseEntity {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -139,7 +139,7 @@ public class ScriptFilterCondition extends BaseEntity {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {

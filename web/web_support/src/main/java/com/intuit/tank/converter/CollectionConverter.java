@@ -33,7 +33,7 @@ import javax.faces.convert.FacesConverter;
 public class CollectionConverter implements Converter {
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Object getAsObject(FacesContext facesContext, UIComponent uiComponent, String value) {
@@ -41,7 +41,7 @@ public class CollectionConverter implements Converter {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getAsString(FacesContext facesContext, UIComponent uiComponent, Object obj) {

@@ -15,7 +15,7 @@ public class PlainTextRequest extends BaseRequest {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getBody() {

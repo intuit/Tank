@@ -56,7 +56,7 @@ public class ScriptLoader extends EntityVersionLoader<Script, ModifiedScriptMess
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     protected List<Script> getEntities() {

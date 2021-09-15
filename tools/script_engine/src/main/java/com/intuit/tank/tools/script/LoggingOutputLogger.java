@@ -29,7 +29,7 @@ public class LoggingOutputLogger implements OutputLogger {
     private static final Logger LOG = LogManager.getLogger(LoggingOutputLogger.class);
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setScrollContent(boolean autoScroll) {
@@ -38,7 +38,7 @@ public class LoggingOutputLogger implements OutputLogger {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void log(String text) {

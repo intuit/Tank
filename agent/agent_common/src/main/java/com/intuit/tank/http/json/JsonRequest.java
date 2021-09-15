@@ -24,7 +24,7 @@ public class JsonRequest extends BaseRequest {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getBody() {
@@ -42,7 +42,7 @@ public class JsonRequest extends BaseRequest {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setKey(String key, String value) {
@@ -51,14 +51,14 @@ public class JsonRequest extends BaseRequest {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setNamespace(String name, String value) {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getKey(String key) {

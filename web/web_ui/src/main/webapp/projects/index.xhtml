@@ -16,9 +16,10 @@
         selectionTracker="#{projectDescriptionBean}" showRightComponents="true" id="mainTB">
         <f:facet name="actions">
         <div class="toolbar-ui">
-          <p:commandButton value="New Project" action="/projects/createProject.xhtml" immediate="true" ajax="true"
-            icon="ui-icon-plus" disabled="#{not createProjectBean.canCreateProject()}" style="margin: 0 10px 0 20px; border-radius:5px">
-          </p:commandButton>
+          <p:linkButton value="New Project" href="#{request.contextPath}/projects/createProject.jsf"
+                        icon="ui-icon-plus" disabled="#{not createProjectBean.canCreateProject()}"
+                        style="margin: 0 10px 0 20px; border-radius:5px">
+          </p:linkButton>
         </div>
         </f:facet>
         <f:facet name="additional-group">

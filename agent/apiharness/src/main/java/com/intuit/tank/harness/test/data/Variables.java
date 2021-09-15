@@ -293,7 +293,7 @@ public class Variables {
         }
 
         /**
-         * @inheritDoc
+         * {@inheritDoc}
          */
         @Override
         public String toString() {

@@ -41,7 +41,7 @@ import com.intuit.tank.dao.UserDao;
 public class UserServiceV1 implements UserService {
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String ping() {
@@ -49,7 +49,7 @@ public class UserServiceV1 implements UserService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response getAllUsers() {
@@ -69,7 +69,7 @@ public class UserServiceV1 implements UserService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response getUser(String name) {
@@ -90,7 +90,7 @@ public class UserServiceV1 implements UserService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response authenticate(UserCredentials credentials) {

@@ -141,7 +141,7 @@ public class ColumnPreferences extends OwnableEntity implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -153,7 +153,7 @@ public class ColumnPreferences extends OwnableEntity implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {
@@ -161,7 +161,7 @@ public class ColumnPreferences extends OwnableEntity implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

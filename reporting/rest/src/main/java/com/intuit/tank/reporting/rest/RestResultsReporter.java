@@ -37,7 +37,7 @@ public class RestResultsReporter implements ResultsReporter {
     private ReportServiceClientV1 client;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void sendTpsResults(final String jobId, final String instanceId, final TPSInfoContainer container,
@@ -58,7 +58,7 @@ public class RestResultsReporter implements ResultsReporter {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void sendTimingResults(final String jobId, final String instanceId, List<TankResult> results, boolean asynch) {

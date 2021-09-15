@@ -204,7 +204,7 @@ public class CloudVmStatusContainer implements Serializable, Comparable<CloudVmS
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int compareTo(CloudVmStatusContainer o) {

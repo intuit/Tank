@@ -130,7 +130,7 @@ public abstract class BaseEntity implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public String reflectionToString() {
         return ToStringBuilder.reflectionToString(this);

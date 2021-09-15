@@ -44,7 +44,7 @@ public class ModifiedDateComparator implements Comparator<BaseEntity> {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int compare(BaseEntity o1, BaseEntity o2) {

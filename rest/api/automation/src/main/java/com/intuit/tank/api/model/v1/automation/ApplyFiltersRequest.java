@@ -84,7 +84,7 @@ public class ApplyFiltersRequest implements Serializable {
     }
     
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -92,7 +92,7 @@ public class ApplyFiltersRequest implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {

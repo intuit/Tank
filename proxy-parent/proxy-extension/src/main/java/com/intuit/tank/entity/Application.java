@@ -104,7 +104,7 @@ public final class Application {
             e.printStackTrace();
         }
         if (proxyConfiguration.isFollowRedirects() && path != null && redirectMap.containsKey(path)) {
-            System.out.println("Found redirection for locaiton " + path);
+            System.out.println("Found redirection for location " + path);
             return redirectMap.get(path);
         } else {
             Transaction t = new Transaction();
@@ -197,11 +197,14 @@ public final class Application {
         if (transaction != null && sessionStarted && !paused) {
             int statusCode = HeaderParser.extractStatusCode(response.getFirstLine());
             HeaderParser hp = new HeaderParser(response);
+
             if (proxyConfiguration.isFollowRedirects() && statusCode == 302) { // redirect
                 String location = hp.getRedirectLocation();
+
                 try {
                     String oldLocation = getLocation(req);
                     Transaction remove = redirectMap.remove(oldLocation);
+
                     if (remove != null) {
                         System.out.println("removing location " + oldLocation + " got transaction "
                                 + remove.getRequest().getFirstLine());
@@ -211,28 +214,32 @@ public final class Application {
                 } catch (MessageFormatException e) {
                     System.out.println("Error extracting path from first line: " + e);
                 }
+
                 System.out.println("Pushing redirect location " + location + " with transaction firstline "
                         + transaction.getRequest().getFirstLine());
+
                 if (!transaction.getRequest().getHeaders().contains(REDIRECT_MARKER)) {
                     transaction.getRequest().addHeader(REDIRECT_MARKER);
                 }
+
                 transaction.getRequest().addHeader(new Header("X-Redirect-Location", location));
                 redirectMap.put(location, transaction);
-            } else {
-                transaction.setResponse(response);
-                boolean filtered = true;
-                if (!shouldInclude(transaction, proxyConfiguration.getBodyInclusions(),
-                        proxyConfiguration.getBodyExclusions(), true)) {
-                    response.setBody(new byte[0]);
-                }
-                if (shouldInclude(transaction, proxyConfiguration.getInclusions(),
-                        proxyConfiguration.getExclusions(), false)) {
-                    marshaller.marshal(transaction, osw);
-                    filtered = false;
-                }
-                if (listener != null) {
-                    listener.transactionProcessed(transaction, filtered);
-                }
+            }
+
+            transaction.setResponse(response);
+            boolean filtered = true;
+
+            if (!shouldInclude(transaction, proxyConfiguration.getBodyInclusions(),
+                    proxyConfiguration.getBodyExclusions(), true)) {
+                response.setBody(new byte[0]);
+            }
+            if (shouldInclude(transaction, proxyConfiguration.getInclusions(),
+                    proxyConfiguration.getExclusions(), false)) {
+                marshaller.marshal(transaction, osw);
+                filtered = false;
+            }
+            if (listener != null) {
+                listener.transactionProcessed(transaction, filtered);
             }
         }
     }

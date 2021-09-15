@@ -95,10 +95,10 @@
             <p:divider />
 
             <p:toolbarGroup align="right" style="width:200px; text-align: right; display: block">
-              <h:panelGroup rendered="#{not identity.loggedIn}" styleClass="ts-header-menu-itm noBg noBorder">
+              <h:panelGroup rendered="#{not tsAuthenticator.loggedIn}" styleClass="ts-header-menu-itm noBg noBorder">
                 <h:outputLink value="#{request.contextPath}/login.jsf">Login</h:outputLink>
               </h:panelGroup>
-              <h:panelGroup rendered="#{identity.loggedIn}" styleClass="ts-header-menu-itm noBg noBorder">
+              <h:panelGroup rendered="#{tsAuthenticator.loggedIn}" styleClass="ts-header-menu-itm noBg noBorder">
                 <h:commandLink action="/tools/account.xhtml" value="Change Password" style="font-size: smaller;" />
                 <br />
                 <h:commandLink action="#{tsAuthenticator.logout}" value="Logout" />

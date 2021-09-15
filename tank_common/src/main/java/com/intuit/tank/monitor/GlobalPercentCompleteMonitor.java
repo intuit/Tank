@@ -38,7 +38,7 @@ public class GlobalPercentCompleteMonitor implements PercentCompleteMonitor, Ser
     private final Map<Integer, Integer> statusMap = new ConcurrentHashMap<Integer, Integer>();
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setSavingStarted(int id) {
@@ -46,7 +46,7 @@ public class GlobalPercentCompleteMonitor implements PercentCompleteMonitor, Ser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setProcessingComplete(int id) {
@@ -54,7 +54,7 @@ public class GlobalPercentCompleteMonitor implements PercentCompleteMonitor, Ser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setError(int id, int errorCode) {
@@ -62,7 +62,7 @@ public class GlobalPercentCompleteMonitor implements PercentCompleteMonitor, Ser
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int getPerctComplete(int id) {

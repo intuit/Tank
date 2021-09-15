@@ -34,7 +34,7 @@ public class LanguageRenderer implements ListCellRenderer {
     JLabel label = new JLabel();
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Component getListCellRendererComponent(JList list,

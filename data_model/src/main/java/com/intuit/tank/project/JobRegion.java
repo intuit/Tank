@@ -74,7 +74,7 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public VMRegion getRegion() {
@@ -90,7 +90,7 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getUsers() {
@@ -109,7 +109,7 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -124,7 +124,7 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {
@@ -132,7 +132,7 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

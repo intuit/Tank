@@ -52,7 +52,7 @@ public class CostingCache {
     //
     //
     // /**
-    // * @inheritDoc
+    // * {@inheritDoc}
     // */
     // @Override
     // public boolean equals(Object obj) {
@@ -65,7 +65,7 @@ public class CostingCache {
     // }
     //
     // /**
-    // * @inheritDoc
+    // * {@inheritDoc}
     // */
     // @Override
     // public int hashCode() {

@@ -86,7 +86,7 @@ public class DataFile extends OwnableEntity implements Comparable<DataFile> {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -94,7 +94,7 @@ public class DataFile extends OwnableEntity implements Comparable<DataFile> {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -106,7 +106,7 @@ public class DataFile extends OwnableEntity implements Comparable<DataFile> {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {
@@ -114,7 +114,7 @@ public class DataFile extends OwnableEntity implements Comparable<DataFile> {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int compareTo(DataFile o) {

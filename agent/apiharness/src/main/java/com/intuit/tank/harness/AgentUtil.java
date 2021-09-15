@@ -14,6 +14,7 @@ package com.intuit.tank.harness;
  */
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,18 +33,14 @@ public class AgentUtil {
      * @return TRUE if all test plans exist; FALSE if one or more do not exist
      */
     public static boolean validateTestPlans(String plans) {
-        String[] testPlanLists = plans.split(",");
-        boolean output = true;
-
-        for (String testPlanList : testPlanLists) {
-            File xmlFile = new File(testPlanList);
-            if (!xmlFile.exists()) {
-                LOG.error(LogUtil.getLogMessage("File not found:  " + testPlanList));
-                System.err.println("File not found:  " + testPlanList);
-                output = false;
-            }
-        }
-        return output;
+        return Arrays.stream(plans.split(","))
+                .allMatch(xmlFilePath -> {
+                    if (new File(xmlFilePath).exists()) {
+                        return true;
+                    }
+                    LOG.error(LogUtil.getLogMessage("File not found:  " + xmlFilePath));
+                    System.err.println("File not found:  " + xmlFilePath);
+                    return false;
+                });
     }
-
 }

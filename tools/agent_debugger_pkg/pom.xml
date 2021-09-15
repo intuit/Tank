@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.intuit.tank</groupId>
 		<artifactId>tools-parent</artifactId>
-		<version>3.0.2</version>
+		<version>3.1.0</version>
 	</parent>
 
 	<artifactId>agent-debugger-package</artifactId>
@@ -23,10 +23,6 @@
 				<exclusion>
 					<artifactId>servlet-api</artifactId>
 					<groupId>javax.servlet</groupId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.picketlink</groupId>
-					<artifactId>picketlink</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>software.amazon.awssdk</groupId>

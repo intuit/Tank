@@ -94,7 +94,7 @@ public class VariableEntry implements Serializable, Comparable<VariableEntry> {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -102,7 +102,7 @@ public class VariableEntry implements Serializable, Comparable<VariableEntry> {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int compareTo(VariableEntry o) {

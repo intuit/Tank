@@ -74,7 +74,7 @@ public class MetricsCalculator {
      * @param jobId
      * @param start
      * @param end
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void retrieveAndCalculateTimingData(@Nonnull String jobId, Date start, Date end) {
         MethodTimer mt = new MethodTimer(LOG, this.getClass(), "retrieveAndCalculateSummaryTimingCsv");

@@ -134,7 +134,7 @@ public class RequestStep extends TestStep implements FailableStep {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

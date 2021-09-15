@@ -38,7 +38,7 @@ public class DataFileConverter implements Converter {
     private static final Logger LOG = LogManager.getLogger(DataFileConverter.class);
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Object getAsObject(FacesContext facesContext, UIComponent uiComponent, String value) {
@@ -53,7 +53,7 @@ public class DataFileConverter implements Converter {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getAsString(FacesContext facesContext, UIComponent uiComponent, Object obj) {

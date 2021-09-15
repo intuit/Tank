@@ -174,7 +174,7 @@ public class WatsAgentStartRequest implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

@@ -72,7 +72,7 @@ public class DataFileLoader extends EntityVersionLoader<DataFile, ModifiedDatafi
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     protected List<DataFile> getEntities() {

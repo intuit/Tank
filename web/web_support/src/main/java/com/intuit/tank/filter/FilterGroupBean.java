@@ -65,7 +65,7 @@ public class FilterGroupBean extends SelectableBean<ScriptFilterGroup> implement
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public List<ScriptFilterGroup> getEntityList(ViewFilterType viewFilter) {
@@ -75,7 +75,7 @@ public class FilterGroupBean extends SelectableBean<ScriptFilterGroup> implement
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean isCurrent() {
@@ -105,7 +105,7 @@ public class FilterGroupBean extends SelectableBean<ScriptFilterGroup> implement
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void selectAll() {
@@ -115,7 +115,7 @@ public class FilterGroupBean extends SelectableBean<ScriptFilterGroup> implement
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void unselectAll() {

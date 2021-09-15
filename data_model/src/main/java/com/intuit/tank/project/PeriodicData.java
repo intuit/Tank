@@ -188,7 +188,7 @@ public class PeriodicData extends BaseEntity implements Comparable<PeriodicData>
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -196,7 +196,7 @@ public class PeriodicData extends BaseEntity implements Comparable<PeriodicData>
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -204,7 +204,7 @@ public class PeriodicData extends BaseEntity implements Comparable<PeriodicData>
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {
@@ -212,7 +212,7 @@ public class PeriodicData extends BaseEntity implements Comparable<PeriodicData>
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int compareTo(PeriodicData o) {

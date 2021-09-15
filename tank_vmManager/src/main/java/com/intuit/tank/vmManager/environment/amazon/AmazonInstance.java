@@ -132,7 +132,7 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public List<VMInformation> describeInstances(String... instanceIds) {
@@ -148,7 +148,7 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     /**
      *
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public List<VMInformation> create(VMRequest request) {
@@ -329,7 +329,7 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     /**
      *
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void tagInstance(final List<String> instanceIds, KeyValuePair... tag) {
@@ -425,7 +425,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public List<VMInformation> findInstancesOfType(VMRegion region, VMImageType type) {
@@ -452,7 +452,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     private List<VMInformation> findAllInstancesOfType(VMRegion region, VMImageType type) {
         List<VMInformation> ret = new ArrayList<>();

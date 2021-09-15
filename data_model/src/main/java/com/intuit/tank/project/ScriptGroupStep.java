@@ -116,7 +116,7 @@ public class ScriptGroupStep extends BaseEntity {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -125,7 +125,7 @@ public class ScriptGroupStep extends BaseEntity {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -137,7 +137,7 @@ public class ScriptGroupStep extends BaseEntity {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {

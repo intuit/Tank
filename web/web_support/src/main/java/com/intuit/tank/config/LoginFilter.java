@@ -14,10 +14,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
-import com.intuit.tank.vm.common.ThreadLocalUsernameProvider;
+import com.intuit.tank.auth.TankSecurityContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.picketlink.Identity;
 
 
 /**
@@ -27,23 +26,25 @@ import org.picketlink.Identity;
  * 
  */
 public class LoginFilter implements Filter {
-	private static Logger LOG = LogManager.getLogger(LoginFilter.class);
+	private static final Logger LOG = LogManager.getLogger(LoginFilter.class);
 	
     @Inject
-    private Identity identity;
+    private TankSecurityContext securityContext;
 
 	@Override
 	public void init(FilterConfig arg0) throws ServletException {}
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		if (!identity.isLoggedIn()) {
+		if (securityContext.getCallerPrincipal() == null) {
+			LOG.warn("Failed to access " + ((HttpServletRequest) request).getRequestURI() + ", lack of permissions");
 			((HttpServletRequest)request).getSession().invalidate();
 			String contextPath = ((HttpServletRequest)request).getContextPath();
-			((HttpServletResponse)response).sendRedirect(contextPath + "/denied.xhtml");
+			((HttpServletResponse)response).sendRedirect(contextPath);
+			return;
 		}
 		try {
-			AWSXRay.getCurrentSegment().setUser(ThreadLocalUsernameProvider.getUsernameProvider().getUserName());
+			AWSXRay.getCurrentSegment().setUser(securityContext.getCallerPrincipal().getName());
 		} catch (SegmentNotFoundException snfe ) { //Ignore
 		} catch (Exception e) {
 			LOG.error("Failed to set User on current segment : " + e.getMessage(), e);

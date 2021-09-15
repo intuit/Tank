@@ -18,7 +18,7 @@ import com.intuit.tank.results.TankResult;
 public class DummyResultsReporter implements ResultsReporter {
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void sendTpsResults(String jobId, String instanceId, TPSInfoContainer container, boolean async) {
@@ -26,7 +26,7 @@ public class DummyResultsReporter implements ResultsReporter {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void sendTimingResults(String jobId, String instanceId, List<TankResult> results, boolean asynch) {
@@ -34,7 +34,7 @@ public class DummyResultsReporter implements ResultsReporter {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void config(HierarchicalConfiguration config) {

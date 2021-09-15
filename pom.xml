@@ -4,7 +4,7 @@
 
   <groupId>com.intuit.tank</groupId>
   <artifactId>tank-parent</artifactId>
-  <version>3.0.2</version>
+  <version>3.1.0</version>
 
   <packaging>pom</packaging>
   <name>Tank Parent</name>
@@ -27,21 +27,19 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>5.5.0.Final</version.hibernate>
-    <version.aws-sdk-bom>2.16.78</version.aws-sdk-bom>
+    <version.hibernate>5.5.3.Final</version.hibernate>
+    <version.aws-sdk-bom>2.16.95</version.aws-sdk-bom>
     <version.aws-xray-sdk-bom>2.9.1</version.aws-xray-sdk-bom>
 
     <version-tomcat>9.0.46</version-tomcat>
     <weld.version>3.1.7.SP1</weld.version>
     <cdi.version>2.0</cdi.version>
-    <version.picketlink.javaee.bom>2.7.1.Final</version.picketlink.javaee.bom>
 
     <version.enunciate>2.13.3</version.enunciate>
 
-    <version.mojarra>2.4.0</version.mojarra>
-    <version.jsf-api>2.3</version.jsf-api>
+    <version.faces>2.3.9</version.faces>
     <version.primefaces>10.0.0</version.primefaces>
-    <version.primefaces-ext>10.0.1</version.primefaces-ext>
+    <version.primefaces-ext>10.0.4</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.22.2</version.surefire>
     <version.jersey>2.34</version.jersey>
@@ -246,7 +244,7 @@
           <dependency>
             <groupId>org.jboss</groupId>
             <artifactId>jandex</artifactId>
-            <version>2.1.1.Final</version>
+            <version>2.3.0.Final</version>
             <scope>provided</scope>
           </dependency>
         </dependencies>
@@ -289,7 +287,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>test-support</artifactId>
-      <version>3.0.2</version>
+      <version>3.1.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -432,27 +430,22 @@
       </dependency>
 
       <dependency>
-        <groupId>javax.faces</groupId>
-        <artifactId>javax.faces-api</artifactId>
-        <version>${version.jsf-api}</version>
+        <groupId>org.glassfish.soteria</groupId>
+        <artifactId>javax.security.enterprise</artifactId>
+        <version>1.0</version>
       </dependency>
 
+      <!-- JSF -->
       <dependency>
         <groupId>org.glassfish</groupId>
         <artifactId>javax.faces</artifactId>
-        <version>${version.mojarra}</version>
+        <version>${version.faces}</version>
       </dependency>
 
       <dependency>
-        <groupId>org.apache.poi</groupId>
-        <artifactId>poi</artifactId>
-        <version>4.1.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.itextpdf</groupId>
-        <artifactId>itextpdf</artifactId>
-        <version>5.5.13.1</version>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>2.0.1.Final</version>
       </dependency>
 
       <dependency>
@@ -479,15 +472,6 @@
         <version>1.0.10</version>
       </dependency>
 
-      <!-- Dependency Management for PicketLink and Apache Deltaspike. -->
-      <dependency>
-        <groupId>org.picketlink</groupId>
-        <artifactId>picketlink-javaee-6.0</artifactId>
-        <version>${version.picketlink.javaee.bom}</version>
-        <scope>import</scope>
-        <type>pom</type>
-      </dependency>
-
       <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
@@ -503,7 +487,7 @@
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jandex</artifactId>
-        <version>2.1.2.Final</version>
+        <version>2.3.0.Final</version>
       </dependency>
 
       <dependency>
@@ -515,7 +499,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.20</version>
+        <version>1.21</version>
       </dependency>
 
       <dependency>
@@ -557,7 +541,7 @@
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-core</artifactId>
-        <version>2.13.3</version>
+        <version>2.14.1</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
@@ -824,6 +808,18 @@
       <plugins>
 
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.2.0</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+
+        <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>license-maven-plugin</artifactId>
           <version>2.0.0</version>
@@ -933,7 +929,7 @@
             <dependency>
               <groupId>${project.groupId}</groupId>
               <artifactId>test-support</artifactId>
-              <version>3.0.2</version>
+              <version>3.1.0</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -981,7 +977,7 @@
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.6</version>
+          <version>0.8.7</version>
         </plugin>
 
         <plugin>
@@ -1045,7 +1041,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.9.0</version>
+        <version>3.9.1</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -1105,7 +1101,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.1.1</version>
+        <version>3.1.2</version>
         <reportSets>
           <reportSet>
             <reports>
@@ -1117,7 +1113,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.1.1</version>
+        <version>3.1.2</version>
       </plugin>
     </plugins>
   </reporting>

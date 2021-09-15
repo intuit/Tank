@@ -88,7 +88,7 @@ public class ScriptFilterGroup extends OwnableEntity implements Comparable<Scrip
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -98,7 +98,7 @@ public class ScriptFilterGroup extends OwnableEntity implements Comparable<Scrip
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -110,7 +110,7 @@ public class ScriptFilterGroup extends OwnableEntity implements Comparable<Scrip
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {
@@ -118,7 +118,7 @@ public class ScriptFilterGroup extends OwnableEntity implements Comparable<Scrip
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int compareTo(ScriptFilterGroup other) {

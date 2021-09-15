@@ -30,7 +30,7 @@ public class StringOutputLogger implements OutputLogger, Serializable {
     private StringBuilder sb = new StringBuilder();
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setScrollContent(boolean autoScroll) {
@@ -39,7 +39,7 @@ public class StringOutputLogger implements OutputLogger, Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void log(String text) {

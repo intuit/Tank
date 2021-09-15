@@ -66,7 +66,7 @@ public class CloudServiceV1 implements CloudService {
     private static Hashtable<String, Stack<Integer>> stackMap = new Hashtable<String, Stack<Integer>>();
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String ping() {
@@ -74,7 +74,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String userIdFromRange(String jobId, int minValue, int maxValue) {
@@ -102,7 +102,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response getSummaryStatus(String jobId) {
@@ -127,7 +127,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response getVmStatus(String instanceId) {
@@ -148,7 +148,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setVmStatus(final String instanceId, final CloudVmStatus status) {
@@ -164,7 +164,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response getVmStatusForJob(String jobId) {
@@ -185,7 +185,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String startJob(String jobId) {
@@ -196,7 +196,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void killJob(String jobId) {
@@ -208,7 +208,7 @@ public class CloudServiceV1 implements CloudService {
     
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Set<CloudVmStatusContainer> killAllJobs() {
@@ -218,7 +218,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void killInstance(String instanceId) {
@@ -229,7 +229,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void killInstances(List<String> instanceIds) {
@@ -239,7 +239,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Set<CloudVmStatusContainer> stopAllJobs() {
@@ -249,7 +249,7 @@ public class CloudServiceV1 implements CloudService {
     }
     
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void stopJob(String jobId) {
@@ -260,7 +260,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void stopAgent(String instanceId) {
@@ -272,7 +272,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void stopAgents(List<String> instanceIds) {
@@ -282,7 +282,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void pauseJob(String jobId) {
@@ -293,7 +293,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void pauseAgent(String instanceId) {
@@ -304,7 +304,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void pauseAgents(List<String> instanceIds) {
@@ -314,7 +314,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void restartJob(String jobId) {
@@ -325,7 +325,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void restartAgent(String instanceId) {
@@ -336,7 +336,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void restartAgents(List<String> instanceIds) {
@@ -346,7 +346,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void pauseRampInstance(String instanceId) {
@@ -357,7 +357,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void pauseRampJob(String jobId) {
@@ -368,7 +368,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void pauseRampInstances(List<String> instanceIds) {
@@ -378,7 +378,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void resumeRampInstance(String instanceId) {
@@ -389,7 +389,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void resumeRampJob(String jobId) {
@@ -400,7 +400,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void resumeRampInstances(List<String> instanceIds) {
@@ -410,7 +410,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getCostingForDates(String startDate, String endDate) {
@@ -426,7 +426,7 @@ public class CloudServiceV1 implements CloudService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getCostingForDates(String timePeriod) {

@@ -76,7 +76,7 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
     static private Hashtable<String, Stack<Integer>> stackMap = new Hashtable<String, Stack<Integer>>();
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void visit(JexlContext context) {

@@ -31,26 +31,28 @@ public class TestPlanStarter implements Runnable {
     private final Object httpClient;
     private final HDTestPlan plan;
     private final int numThreads;
-    private final ThreadGroup threadGroup;
     private final String tankHttpClientClass;
+    private final ThreadGroup threadGroup;
+    private final AgentRunData agentRunData;
     private int threadsStarted = 0;
     private final long rampDelay;
 
     private boolean done = false;
 
-    public TestPlanStarter(Object httpClient, HDTestPlan plan, int numThreads, String tankHttpClientClass, ThreadGroup threadGroup) {
+    public TestPlanStarter(Object httpClient, HDTestPlan plan, int numThreads, String tankHttpClientClass, ThreadGroup threadGroup, AgentRunData agentRunData) {
         super();
         this.httpClient = httpClient;
         this.plan = plan;
-        this.threadGroup = threadGroup;
         this.tankHttpClientClass = tankHttpClientClass;
         this.numThreads = (int) Math.max(1, Math.floor(numThreads * (plan.getUserPercentage() / 100D)));
+        this.threadGroup = threadGroup;
+        this.agentRunData = agentRunData;
         this.rampDelay = calcRampTime();
     }
 
     public void run() {
         // start initial users
-        int numInitialUsers = APITestHarness.getInstance().getAgentRunData().getNumStartUsers();
+        int numInitialUsers = agentRunData.getNumStartUsers();
         if (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting initial " + numInitialUsers + " users for plan "
                     + plan.getTestPlanName() + "...")));
@@ -66,7 +68,7 @@ public class TestPlanStarter implements Runnable {
         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting ramp of additional " + (numThreads - threadsStarted)
                 + " users for plan " + plan.getTestPlanName() + "...")));
         while (!done) {
-            if ((threadsStarted - numInitialUsers) % APITestHarness.getInstance().getAgentRunData().getUserInterval() == 0) {
+            if ((threadsStarted - numInitialUsers) % agentRunData.getUserInterval() == 0) {
                 try {
                     Thread.sleep(rampDelay);
                 } catch (InterruptedException e) {
@@ -90,15 +92,14 @@ public class TestPlanStarter implements Runnable {
             if ( APITestHarness.getInstance().getCmd() == AgentCommand.stop
             		|| APITestHarness.getInstance().getCmd() == AgentCommand.kill
                     || APITestHarness.getInstance().hasMetSimulationTime()
-                    || APITestHarness.getInstance().isDebug() ) {
+                    || APITestHarness.getInstance().isDebug()
+                    || (agentRunData.getSimulationTimeMillis() == 0 //Run Until: Loops Completed
+                        && System.currentTimeMillis() - APITestHarness.getInstance().getStartTime() > agentRunData.getRampTimeMillis())) {
                 done = true;
                 break;
             }
-            if (threadGroup.activeCount() < numThreads) {
-                Thread thread = createThread(httpClient, threadsStarted);
-                thread.start();
-                APITestHarness.getInstance().threadStarted(thread);
-                threadsStarted++;
+            if (APITestHarness.getInstance().getCurrentUsers() < numThreads) {
+                createThread(httpClient, threadsStarted);
             }
         }
         done = true;
@@ -121,12 +122,12 @@ public class TestPlanStarter implements Runnable {
     }
 
     private long calcRampTime() {
-        int ramp = (numThreads - APITestHarness.getInstance().getAgentRunData().getNumStartUsers());
+        int ramp = (numThreads - agentRunData.getNumStartUsers());
         if (ramp > 0) {
-            return (APITestHarness.getInstance().getAgentRunData().getRampTime() *
-                    APITestHarness.getInstance().getAgentRunData().getUserInterval())
+            return (agentRunData.getRampTimeMillis() *
+                    agentRunData.getUserInterval())
                     / ramp;
-        } else if (APITestHarness.getInstance().getAgentRunData().getRampTime() > 0) {
+        } else if (agentRunData.getRampTimeMillis() > 0) {
             LOG.info(LogUtil.getLogMessage("No Ramp - " + rampDelay, LogEventType.System));
         }
         return 1; //Return minimum wait time 1 millisecond
@@ -137,6 +138,9 @@ public class TestPlanStarter implements Runnable {
         Thread thread = new Thread(threadGroup, session, "AGENT");
         thread.setDaemon(true);// system won't shut down normally until all user threads stop
         session.setUniqueName(threadGroup.getName() + "-" + thread.getId());
+        thread.start();
+        APITestHarness.getInstance().threadStarted(thread);
+        threadsStarted++;
         return thread;
     }
 }

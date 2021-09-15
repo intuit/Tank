@@ -23,12 +23,9 @@ import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.picketlink.Identity;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.basic.User;
-
 import com.intuit.tank.admin.UserAdmin;
 import com.intuit.tank.auth.Security;
+import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.project.OwnableEntity;
 import com.intuit.tank.view.filter.ViewFilterType;
 
@@ -51,10 +48,7 @@ public class OwnerUtilBean implements Serializable {
     Security security;
     
     @Inject
-    Identity identity;
-	
-    @Inject 
-    private IdentityManager identityManager;
+    TankSecurityContext securityContext;
 
     public boolean isOwnable(Object obj) {
         return obj instanceof OwnableEntity;
@@ -69,7 +63,7 @@ public class OwnerUtilBean implements Serializable {
         if (isOwnable(obj)) {
             OwnableEntity entity = (OwnableEntity) obj;
             if ((entity.getCreator()).isEmpty()) {
-                entity.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
+                entity.setCreator(securityContext.getCallerPrincipal().getName());
             }
             if (security.isOwner((OwnableEntity) entity) || security.isAdmin()) {
                 retVal = true;

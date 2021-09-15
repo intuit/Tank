@@ -22,19 +22,13 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.util.Messages;
-import org.picketlink.Identity;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.ModifiedProjectMessage;
 import com.intuit.tank.ProjectBean;
 import com.intuit.tank.auth.Security;
-import com.intuit.tank.config.TsLoggedIn;
 import com.intuit.tank.dao.ProjectDao;
-import com.intuit.tank.project.Project;
-import com.intuit.tank.project.TestPlan;
-import com.intuit.tank.project.Workload;
 import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.util.ExceptionHandler;
 import com.intuit.tank.vm.api.enumerated.ScriptDriver;
@@ -47,10 +41,7 @@ public class CreateProjectBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Inject
-    private Identity identity;
-	
-    @Inject 
-    private IdentityManager identityManager;
+    private TankSecurityContext securityContext;
     
     @Inject
     private Security security;
@@ -136,7 +127,6 @@ public class CreateProjectBean implements Serializable {
     /**
      * 
      */
-    @TsLoggedIn
     public String createNewProject() {
         Project project = new Project();
         Workload workload = new Workload();
@@ -153,7 +143,7 @@ public class CreateProjectBean implements Serializable {
         project.setScriptDriver(ScriptDriver.valueOf(scriptDriver));
         project.setComments(getComments());
         project.setProductName(getProductName());
-        project.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
+        project.setCreator(securityContext.getCallerPrincipal().getName());
         try {
             project = new ProjectDao().saveOrUpdateProject(project);
             projectEvent.fire(new ModifiedProjectMessage(project, this));

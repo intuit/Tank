@@ -165,7 +165,7 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void transactionProcessed(Transaction t, boolean filtered) {
         model.addTransaction(t, filtered);
@@ -396,7 +396,7 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
             }
 
             /**
-             * @inheritDoc
+             * {@inheritDoc}
              */
             @Override
             public void mousePressed(MouseEvent e) {
@@ -410,7 +410,7 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
             }
 
             /**
-             * @inheritDoc
+             * {@inheritDoc}
              */
             @Override
             public void mouseReleased(MouseEvent e) {

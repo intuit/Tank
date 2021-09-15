@@ -47,8 +47,6 @@ public class WindowUtil {
      * 
      * @param toCenter
      *            the container to center
-     * @param parent
-     *            the parent to center on.
      */
     public static void centerOnParent(Container toCenter) {
         centerOn(toCenter, toCenter.getParent());

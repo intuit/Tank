@@ -32,7 +32,7 @@ public class ProjectJobQueueManager extends JobTreeTableBean {
     private ProjectBean projectBean;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     protected Integer getRootJobId() {

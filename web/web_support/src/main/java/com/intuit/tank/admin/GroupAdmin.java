@@ -26,7 +26,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.intuit.tank.PropertyComparer;
-import com.intuit.tank.config.Admin;
 import com.intuit.tank.dao.GroupDao;
 import com.intuit.tank.project.Group;
 import com.intuit.tank.wrapper.SelectableWrapper;
@@ -71,7 +70,6 @@ public class GroupAdmin implements Serializable {
      * 
      * @param group
      */
-    @Admin
     public void delete(Group group) {
         new GroupDao().delete(group);
     }

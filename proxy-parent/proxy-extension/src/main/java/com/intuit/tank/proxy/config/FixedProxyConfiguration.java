@@ -47,7 +47,7 @@ public class FixedProxyConfiguration implements ProxyConfiguration {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int getPort() {
@@ -55,7 +55,7 @@ public class FixedProxyConfiguration implements ProxyConfiguration {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean isFollowRedirects() {
@@ -69,7 +69,7 @@ public class FixedProxyConfiguration implements ProxyConfiguration {
     
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String getOutputFile() {
@@ -77,7 +77,7 @@ public class FixedProxyConfiguration implements ProxyConfiguration {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Set<ConfigInclusionExclusionRule> getExclusions() {
@@ -85,7 +85,7 @@ public class FixedProxyConfiguration implements ProxyConfiguration {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Set<ConfigInclusionExclusionRule> getInclusions() {
@@ -93,7 +93,7 @@ public class FixedProxyConfiguration implements ProxyConfiguration {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Set<ConfigInclusionExclusionRule> getBodyInclusions() {
@@ -101,7 +101,7 @@ public class FixedProxyConfiguration implements ProxyConfiguration {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Set<ConfigInclusionExclusionRule> getBodyExclusions() {

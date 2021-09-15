@@ -330,9 +330,11 @@ public abstract class JobNodeBean implements Serializable {
 
     public abstract boolean isRampPausable();
 
+    public abstract boolean isDeletable();
+
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {
@@ -341,7 +343,7 @@ public abstract class JobNodeBean implements Serializable {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {

@@ -103,7 +103,7 @@ public class CookieStep extends TestStep {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

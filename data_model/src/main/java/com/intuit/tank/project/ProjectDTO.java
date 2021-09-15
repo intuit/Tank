@@ -87,7 +87,7 @@ public class ProjectDTO implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

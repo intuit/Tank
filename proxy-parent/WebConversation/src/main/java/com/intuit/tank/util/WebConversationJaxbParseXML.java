@@ -29,14 +29,14 @@ public class WebConversationJaxbParseXML {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public List<Transaction> parse(String xml) throws WatsParseException {
         return parse(new StringReader(xml));
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public List<Transaction> parse(Reader reader) throws WatsParseException {
         try {

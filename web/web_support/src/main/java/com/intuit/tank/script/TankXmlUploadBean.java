@@ -24,21 +24,18 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.script.util.ScriptServiceUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.intuit.tank.util.Messages;
-import org.picketlink.Identity;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.basic.User;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.file.UploadedFile;
 
 import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.api.model.v1.script.ScriptTO;
 import com.intuit.tank.auth.Security;
-import com.intuit.tank.config.TsLoggedIn;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.qualifier.Modified;
@@ -59,10 +56,7 @@ public class TankXmlUploadBean implements Serializable {
     private Event<ModifiedScriptMessage> scriptEvent;
 
     @Inject
-    private Identity identity;
-    
-    @Inject
-    private IdentityManager identityManager;
+    private TankSecurityContext securityContext;
 
     @Inject
     private Messages messages;
@@ -73,7 +67,6 @@ public class TankXmlUploadBean implements Serializable {
     public TankXmlUploadBean() {
     }
 
-    @TsLoggedIn
     public void handleFileUpload(FileUploadEvent event) throws Exception {
         UploadedFile item = event.getFile();
 
@@ -123,7 +116,7 @@ public class TankXmlUploadBean implements Serializable {
             }
             script.setSerializedScriptStepId(existing.getSerializedScriptStepId());
         } else {
-            script.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
+            script.setCreator(securityContext.getCallerPrincipal().getName());
         }
         script = dao.saveOrUpdate(script);
         LOG.info("Script " + script.getName() + " from file " + fileName + " has been added.");

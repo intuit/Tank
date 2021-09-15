@@ -102,7 +102,7 @@ public class LogicStep extends TestStep implements FailableStep {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

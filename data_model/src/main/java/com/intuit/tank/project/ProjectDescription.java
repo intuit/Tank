@@ -198,7 +198,7 @@ public class ProjectDescription extends OwnableEntity {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -207,7 +207,7 @@ public class ProjectDescription extends OwnableEntity {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -219,7 +219,7 @@ public class ProjectDescription extends OwnableEntity {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {

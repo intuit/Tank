@@ -3,7 +3,8 @@ jdk:
   - openjdk11
 
 env:
-  - SKIP_METHODTIMER_TEST=true
-  - SKIP_GUI_TEST=true
+  global:
+    - SKIP_METHODTIMER_TEST=true
+    - SKIP_GUI_TEST=true
 
 script: mvn clean install -P default,coverage

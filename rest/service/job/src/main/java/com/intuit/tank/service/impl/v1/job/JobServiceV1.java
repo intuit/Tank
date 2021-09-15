@@ -52,7 +52,7 @@ public class JobServiceV1 implements JobService {
     // private ServletContext servletContext;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String ping() {
@@ -60,7 +60,7 @@ public class JobServiceV1 implements JobService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response getJob(int jobId) {
@@ -76,7 +76,7 @@ public class JobServiceV1 implements JobService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response getJobsForProject(int projectId) {

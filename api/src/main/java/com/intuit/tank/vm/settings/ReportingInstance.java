@@ -92,7 +92,7 @@ public class ReportingInstance extends InstanceDescription {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

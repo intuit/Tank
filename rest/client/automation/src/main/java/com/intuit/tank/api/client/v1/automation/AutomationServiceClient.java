@@ -70,7 +70,7 @@ public class AutomationServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public String runAutomationJob(AutomationRequest request, File xmlFile)
             throws RestServiceException {
@@ -89,7 +89,7 @@ public class AutomationServiceClient extends BaseRestClient {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public String runAutomationJob(AutomationRequest request,
             InputStream xmlFileStream) {

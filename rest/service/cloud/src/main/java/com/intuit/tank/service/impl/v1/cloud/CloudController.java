@@ -64,14 +64,14 @@ public class CloudController {
     private VMChannel channel;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public CloudVmStatus getVmStatus(String instanceId) {
         return vmTracker.getStatus(instanceId);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void setVmStatus(final String instanceId, final CloudVmStatus status) {
         vmTracker.setStatus(status);
@@ -84,7 +84,7 @@ public class CloudController {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public CloudVmStatusContainer getVmStatusForJob(String jobId) {
         return vmTracker.getVmStatusForJob(jobId);

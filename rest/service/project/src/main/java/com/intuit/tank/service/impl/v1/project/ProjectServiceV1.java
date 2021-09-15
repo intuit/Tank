@@ -87,7 +87,7 @@ public class ProjectServiceV1 implements ProjectService {
     private ServletContext servletContext;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String ping() {
@@ -95,7 +95,7 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response deleteProject(int projectId) {
@@ -103,7 +103,7 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response deleteProjectPost(int projectId) {
@@ -138,7 +138,7 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public StreamingOutput getTestScriptForJob(String jobId) {
@@ -169,7 +169,7 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public StreamingOutput getTestScriptForProject(Integer projectId) {
@@ -182,7 +182,7 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response downloadTestScriptForJob(String jobId) {
@@ -195,7 +195,7 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response downloadTestScriptForProject(Integer projectId) {
@@ -215,7 +215,7 @@ public class ProjectServiceV1 implements ProjectService {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Response getProjectNames() {

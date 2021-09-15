@@ -22,8 +22,6 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
 
 import com.intuit.tank.dao.GroupDao;
 import com.intuit.tank.dao.UserDao;
@@ -45,17 +43,11 @@ public class InitializeEnvironment {
 
     @Inject
     private TankConfig tankConfig;
-
-    @Inject
-    private PartitionManager partitionManager;
-
-    private IdentityManager identityManager;
     
     boolean initialize = false;
 
     @PostConstruct
     public void init() {
-    	identityManager = this.partitionManager.createIdentityManager();
         createDefaultGroups();
         createDefaultUsers();
         initialize = true;
@@ -103,8 +95,6 @@ public class InitializeEnvironment {
                     groupDao.saveOrUpdate(new Group(g));
                     LOG.info("Created Group " + g);
                 } else {
-                    identityManager.add(new org.picketlink.idm.model.basic.Role(g));
-//                    identityManager.add(new org.picketlink.idm.model.basic.Group(g));
                     LOG.info("Initialized Role " + g);
                 }
             } catch (Exception e) {

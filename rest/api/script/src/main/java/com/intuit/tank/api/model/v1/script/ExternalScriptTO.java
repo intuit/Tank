@@ -173,7 +173,7 @@ public class ExternalScriptTO implements Serializable {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

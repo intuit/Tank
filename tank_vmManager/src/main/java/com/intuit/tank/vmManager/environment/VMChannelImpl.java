@@ -41,7 +41,7 @@ public class VMChannelImpl implements VMChannel {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public List<VMInformation> findInstancesOfType(VMRegion region, VMImageType type) {
@@ -50,7 +50,7 @@ public class VMChannelImpl implements VMChannel {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void terminateInstances(@Nonnull List<String> instanceIds) {
@@ -60,7 +60,7 @@ public class VMChannelImpl implements VMChannel {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void stopInstances(@Nonnull List<String> instanceIds) {
@@ -70,7 +70,7 @@ public class VMChannelImpl implements VMChannel {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public List<VMInformation> startInstances(@Nonnull VMInstanceRequest request) {

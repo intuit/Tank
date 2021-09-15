@@ -158,7 +158,7 @@ public class JSONBuilder {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public String toJsonString(int indent) {
         try {
@@ -169,7 +169,7 @@ public class JSONBuilder {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

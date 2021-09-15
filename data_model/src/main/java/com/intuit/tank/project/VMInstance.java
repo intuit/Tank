@@ -151,7 +151,7 @@ public class VMInstance extends BaseEntity {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -160,7 +160,7 @@ public class VMInstance extends BaseEntity {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -180,7 +180,7 @@ public class VMInstance extends BaseEntity {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {

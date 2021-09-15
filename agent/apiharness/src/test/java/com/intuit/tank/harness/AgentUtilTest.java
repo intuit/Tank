@@ -11,7 +11,7 @@ import com.intuit.tank.test.TestGroups;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class AgentUtilTest {
@@ -22,10 +22,29 @@ public class AgentUtilTest {
      */
     @Test
     @Tag(TestGroups.FUNCTIONAL)
-    public void validateTestPlans() {
+    public void validateTestPlans_Empty() {
     	boolean result = AgentUtil.validateTestPlans("");
-    	assertNotNull(result, "result cannot be null");
+    	assertFalse(result, "TestPlan list should not be null");
     }
 
-	
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void validateTestPlans_Good() {
+        boolean result = AgentUtil.validateTestPlans("src/test/resources/TEST_H.xml");
+        assertTrue(result, "Test file should exists");
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void validateTestPlans_Bad() {
+        boolean result = AgentUtil.validateTestPlans("NOTFOUND.xml");
+        assertFalse(result, "File should not be found");
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void validateTestPlans_Bad2() {
+        boolean result = AgentUtil.validateTestPlans("src/test/resources/TEST_H.xml, NOTFOUND.xml");
+        assertFalse(result, "Contains a File Not Found in list");
+    }
 }

@@ -83,7 +83,7 @@ public class AutomationJobRegion implements Serializable, RegionRequest {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -92,7 +92,7 @@ public class AutomationJobRegion implements Serializable, RegionRequest {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -104,7 +104,7 @@ public class AutomationJobRegion implements Serializable, RegionRequest {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {

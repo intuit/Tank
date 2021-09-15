@@ -23,12 +23,10 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.intuit.tank.auth.TankSecurityContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.picketlink.Identity;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.PreferencesBean;
@@ -59,10 +57,7 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
     private ScriptLoader scriptLoader;
 
     @Inject
-    private Identity identity;
-    
-    @Inject
-    private IdentityManager identityManager;
+    private TankSecurityContext securityContext;
 
     @Inject
     private Security security;
@@ -144,7 +139,7 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public void delete(Script script) {
         if (!security.hasRight(AccessRight.DELETE_SCRIPT) && !security.isOwner(script)) {
@@ -161,7 +156,7 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public List<Script> getEntityList(ViewFilterType viewFilter) {
@@ -171,7 +166,7 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean isCurrent() {
@@ -197,7 +192,7 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
                 return;
             } else {
                 Script copyScript = ScriptUtil.copyScript(
-                		identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName(),
+                		securityContext.getCallerPrincipal().getName(),
                 		saveAsName, script);
                 copyScript = new ScriptDao().saveOrUpdate(copyScript);
                 scriptEvent.fire(new ModifiedScriptMessage(copyScript, this));

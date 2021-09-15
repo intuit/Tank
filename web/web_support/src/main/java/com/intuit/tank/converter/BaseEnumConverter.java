@@ -38,7 +38,7 @@ public abstract class BaseEnumConverter<T extends Enum<T>> implements Converter 
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Object getAsObject(FacesContext facesContext, UIComponent uiComponent, String value) {
@@ -46,7 +46,7 @@ public abstract class BaseEnumConverter<T extends Enum<T>> implements Converter 
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     @Override

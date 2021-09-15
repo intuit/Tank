@@ -51,7 +51,7 @@ public class ScriptStep extends Request implements Comparable<ScriptStep>, Seria
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int compareTo(ScriptStep o) {
@@ -59,7 +59,7 @@ public class ScriptStep extends Request implements Comparable<ScriptStep>, Seria
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
@@ -69,7 +69,7 @@ public class ScriptStep extends Request implements Comparable<ScriptStep>, Seria
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean equals(Object obj) {
@@ -81,7 +81,7 @@ public class ScriptStep extends Request implements Comparable<ScriptStep>, Seria
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int hashCode() {

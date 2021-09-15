@@ -48,7 +48,7 @@ public class DatabaseResultsReader implements ResultsReader {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public List<TankResult> getAllTimingResults(String jobId) {
@@ -64,7 +64,7 @@ public class DatabaseResultsReader implements ResultsReader {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public PagedTimingResults getPagedTimingResults(String jobId, Object nextToken) {
@@ -86,7 +86,7 @@ public class DatabaseResultsReader implements ResultsReader {
 
     /**
      * 
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean hasTimingData(String jobId) {

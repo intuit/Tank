@@ -8,14 +8,12 @@
   template="/WEB-INF/templates/tank.xhtml">
   <ui:define name="content">
     <p:growl globalOnly="true" id="messages" />
-    
-    <h:inputHidden value="#{tsAuthenticator.getUri()}" />
 
     <div class="vertical-spacer" />
 
 
     <h:form>
-      <p>#{identity.account.loginName}'s session has expired.  Please logout when you are not using TANK.</p>
+      <p>#{security.getName()}'s session has expired.  Please logout when you are not using TANK.</p>
       <h:commandLink action="#{tsAuthenticator.logout}" value="Logout" />
     </h:form>
     

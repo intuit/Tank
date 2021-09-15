@@ -26,17 +26,14 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.intuit.tank.auth.TankSecurityContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.intuit.tank.util.Messages;
-import org.picketlink.Identity;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.basic.User;
 
 import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.auth.Security;
-import com.intuit.tank.config.TsLoggedIn;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.filter.FilterBean;
 import com.intuit.tank.filter.FilterGroupBean;
@@ -72,10 +69,7 @@ public class ScriptCreationBean implements Serializable {
     private ScriptProcessor scriptProcessor;
 
     @Inject
-    private Identity identity;
-    
-    @Inject
-    private IdentityManager identityManager;
+    private TankSecurityContext securityContext;
     
     @Inject
     private Security security;
@@ -208,7 +202,6 @@ public class ScriptCreationBean implements Serializable {
     /**
      * Saves the script in the database.
      */
-    @TsLoggedIn
     public String save() {
         String retVal = null;
         if (validate()) {
@@ -216,7 +209,7 @@ public class ScriptCreationBean implements Serializable {
             try {
                 Script script = new Script();
                 script.setName(getName());
-                script.setCreator(identityManager.lookupById(User.class, identity.getAccount().getId()).getLoginName());
+                script.setCreator(securityContext.getCallerPrincipal().getName());
                 script.setProductName(productName);
                 if (getCreationMode().equals("Upload Script")) {
                     UploadedFileIterator uploadedFileIterator = new UploadedFileIterator(item, "xml");

@@ -29,8 +29,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import com.intuit.tank.util.Messages;
-import org.picketlink.Identity;
-import org.picketlink.idm.IdentityManager;
 
 import com.intuit.tank.admin.Deleted;
 import com.intuit.tank.dao.PreferencesDao;
@@ -53,10 +51,7 @@ public class AccountModify implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Inject
-    private Identity identity;
-    
-    @Inject 
-    private IdentityManager identityManager;
+    private TankSecurityContext securityContext;
 
     private String passwordConfirm;
 
@@ -74,8 +69,8 @@ public class AccountModify implements Serializable {
     @PostConstruct
     public void init() {
         try {
-            if (identity.isLoggedIn()) {
-            	String loginName = identityManager.lookupById(org.picketlink.idm.model.basic.User.class, identity.getAccount().getId()).getLoginName();
+            if (securityContext.getCallerPrincipal() != null) {
+            	String loginName = securityContext.getCallerPrincipal().getName();
             	user = new UserDao().findByUserName(loginName);
             }
         } catch (Exception e) {
