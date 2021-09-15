@@ -16,7 +16,7 @@ mkdir $INSTALL_DIR/tomcat/db 2>/dev/null
 mkdir $INSTALL_DIR/tomcat/jars 2>/dev/null
 
 echo "downloading and extracting agent-standalone..."
-wget -O /tmp/agent-standalone-pkg.zip https://github.com/intuit/Tank/releases/download/3.1.0/agent-standalone-pkg.zip 2>/dev/null
+wget -O /tmp/agent-standalone-pkg.zip https://github.com/intuit/Tank/releases/download/3.1.1-SNAPSHOT/agent-standalone-pkg.zip 2>/dev/null
 unzip -q -d $INSTALL_DIR /tmp/agent-standalone-pkg 2>/dev/null
 rm -f /tmp/agent-standalone-pkg 2>/dev/null
 
@@ -26,7 +26,7 @@ wget -O /$INSTALL_DIR/tomcat/settings.xml https://github.com/intuit/Tank/blob/ma
 
 echo "downloading and installing tank war file..."
 rm -fr $INSTALL_DIR/tomcat/webapps/docs $INSTALL_DIR/tomcat/webapps/examples $INSTALL_DIR/tomcat/webapps/ROOT 2>/dev/null
-wget -O $INSTALL_DIR/tomcat/webapps/ROOT.war https://github.com/intuit/Tank/releases/download/3.1.0/tank.war 2>/dev/null
+wget -O $INSTALL_DIR/tomcat/webapps/ROOT.war https://github.com/intuit/Tank/releases/download/3.1.1-SNAPSHOT/tank.war 2>/dev/null
 
 echo "Creating context file at $INSTALL_DIR/start.sh ..."
 cat << EOF > $INSTALL_DIR/tomcat/conf/context.xml

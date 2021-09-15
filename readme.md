@@ -1,6 +1,6 @@
 ![](https://raw.githubusercontent.com/intuit/tank/master/assets/TankLogo.gif)
 
-[![Build Status](https://travis-ci.org/intuit/Tank.svg?branch=master)](https://travis-ci.org/intuit/Tank)
+[![Build Status](https://api.travis-ci.com/intuit/Tank.svg?branch=master)](https://app.travis-ci.com/intuit/Tank)
 ![Build Status](https://codebuild.us-east-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiT1Nuc1prblk5Y0E3a05mRjF0QUtBblI0Rk1zTjZyZi9NMWNCaFg4cGlzL1dFN0xVMHgzcGt1ZCtBdFZjNWpMRkhXbGN2T1ZKSmpZbGQ3YjhyaWkzdkJBPSIsIml2UGFyYW1ldGVyU3BlYyI6IlpGbU5vTHM2cHQrbUowOVkiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 [![GitHub release](https://img.shields.io/github/release/intuit/tank.svg)](https://github.com/intuit/Tank/releases)
 [![java](https://img.shields.io/badge/java-11-blue.svg)](https://aws.amazon.com/corretto/)
