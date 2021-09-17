@@ -19,17 +19,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-
-import org.owasp.proxy.http.BufferedRequest;
-import org.owasp.proxy.http.MessageFormatException;
 
 import com.intuit.tank.conversation.Header;
 import com.intuit.tank.conversation.Request;
@@ -50,14 +45,12 @@ public final class Application {
     private boolean sessionStarted = false;
     private TransactionRecordedListener listener;
     private boolean paused;
-    private Map<String, Transaction> redirectMap;
     public static final Header REDIRECT_MARKER = new Header("X-PROXY-APP", "redirectCollapse");
 
     private ProxyConfiguration proxyConfiguration;
 
     public Application(ProxyConfiguration proxyConfiguration) {
         this.proxyConfiguration = proxyConfiguration;
-        this.redirectMap = new HashMap<String, Transaction>();
     }
 
     public void resumeSession() {
@@ -95,22 +88,10 @@ public final class Application {
         }
     }
 
-    public synchronized Transaction setRequestForCurrentTransaction(Request request, BufferedRequest req) {
-        // check if url is in redirectMap
-        String path = null;
-        try {
-            path = getLocation(req);
-        } catch (MessageFormatException e) {
-            e.printStackTrace();
-        }
-        if (proxyConfiguration.isFollowRedirects() && path != null && redirectMap.containsKey(path)) {
-            System.out.println("Found redirection for location " + path);
-            return redirectMap.get(path);
-        } else {
-            Transaction t = new Transaction();
-            t.setRequest(request);
-            return t;
-        }
+    public synchronized Transaction setRequestForCurrentTransaction(Request request) {
+        Transaction transaction = new Transaction();
+        transaction.setRequest(request);
+        return transaction;
     }
 
     /**
@@ -191,8 +172,7 @@ public final class Application {
         return ret;
     }
 
-    public synchronized void setResponseForCurrentTransaction(Transaction transaction, Response response,
-            BufferedRequest req)
+    public synchronized void setResponseForCurrentTransaction(Transaction transaction, Response response)
             throws JAXBException {
         if (transaction != null && sessionStarted && !paused) {
             int statusCode = HeaderParser.extractStatusCode(response.getFirstLine());
@@ -200,20 +180,6 @@ public final class Application {
 
             if (proxyConfiguration.isFollowRedirects() && statusCode == 302) { // redirect
                 String location = hp.getRedirectLocation();
-
-                try {
-                    String oldLocation = getLocation(req);
-                    Transaction remove = redirectMap.remove(oldLocation);
-
-                    if (remove != null) {
-                        System.out.println("removing location " + oldLocation + " got transaction "
-                                + remove.getRequest().getFirstLine());
-                    } else {
-                        System.out.println("could not remove location " + oldLocation);
-                    }
-                } catch (MessageFormatException e) {
-                    System.out.println("Error extracting path from first line: " + e);
-                }
 
                 System.out.println("Pushing redirect location " + location + " with transaction firstline "
                         + transaction.getRequest().getFirstLine());
@@ -223,7 +189,6 @@ public final class Application {
                 }
 
                 transaction.getRequest().addHeader(new Header("X-Redirect-Location", location));
-                redirectMap.put(location, transaction);
             }
 
             transaction.setResponse(response);
@@ -244,18 +209,7 @@ public final class Application {
         }
     }
 
-    /**
-     * @param req
-     * @throws MessageFormatException
-     */
-    private String getLocation(BufferedRequest req) throws MessageFormatException {
-        StringBuilder sb = new StringBuilder().append(req.isSsl() ? "https://" : "http://");
-        sb.append(req.getHeader("Host"));
-        sb.append(HeaderParser.extractLocation(req.getStartLine()));
-        return sb.toString();
-    }
-
-    public void endSession() throws JAXBException, IOException {
+    public void endSession() throws IOException {
         if (sessionStarted) {
             osw.write("\n");
             osw.write("</sns:session>");
