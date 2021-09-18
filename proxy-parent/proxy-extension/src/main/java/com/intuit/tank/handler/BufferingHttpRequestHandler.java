@@ -151,17 +151,17 @@ public class BufferingHttpRequestHandler implements HttpRequestHandler {
     }
 
     private Transaction storeRequest(final BufferedRequest brq) throws MessageFormatException {
-        Request r = new Request();
-        r.setBody(brq.getDecodedContent());
-        r.setFirstLine(brq.getStartLine());
-        r.setProtocol(brq.isSsl() ? Protocol.https : Protocol.http);
+        Request request = new Request();
+        request.setBody(brq.getDecodedContent());
+        request.setFirstLine(brq.getStartLine());
+        request.setProtocol(brq.isSsl() ? Protocol.https : Protocol.http);
 
         NamedValue[] headers = brq.getHeaders();
         for (NamedValue namedValue : headers) {
-            r.getHeaders().add(new Header(namedValue.getName(), namedValue.getValue()));
+            request.getHeaders().add(new Header(namedValue.getName(), namedValue.getValue()));
         }
 
-        return application.setRequestForCurrentTransaction(r, brq);
+        return application.setRequestForCurrentTransaction(request);
     }
 
     private void handleResponse(final BufferedRequest request,
@@ -184,7 +184,7 @@ public class BufferingHttpRequestHandler implements HttpRequestHandler {
                 }
                 interceptor.processResponse(request, brs);
 
-                storeResponse(transaction, brs, request);
+                storeResponse(transaction, brs);
                 MessageUtils.stream(brs, response);
             } catch (SizeLimitExceededException slee) {
                 InputStream buffered = new ByteArrayInputStream(brs
@@ -214,12 +214,12 @@ public class BufferingHttpRequestHandler implements HttpRequestHandler {
                         }
 
                     });
-            storeResponse(transaction, brs, request);
+            storeResponse(transaction, brs);
         }
 
     }
 
-    private void storeResponse(Transaction transaction, MutableBufferedResponse brs, BufferedRequest request)
+    private void storeResponse(Transaction transaction, MutableBufferedResponse brs)
             throws MessageFormatException {
 
         Response response = new Response();
@@ -231,7 +231,7 @@ public class BufferingHttpRequestHandler implements HttpRequestHandler {
         }
         try {
             if (transaction != null) {
-                application.setResponseForCurrentTransaction(transaction, response, request);
+                application.setResponseForCurrentTransaction(transaction, response);
             }
         } catch (JAXBException e) {
             // TODO Auto-generated catch block
