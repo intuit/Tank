@@ -3,6 +3,7 @@ package com.intuit.tank.storage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -46,47 +47,38 @@ public class FileSystemFileStorage implements FileStorage, Serializable {
     }
 
     @Override
-    public void storeFileData(FileData fileData, InputStream in) {
-        File f = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + fileData.getFileName()));
-        if (!f.getParentFile().exists()) {
-            f.getParentFile().mkdirs();
+    public void storeFileData(FileData fileData, InputStream input) {
+        File file = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + fileData.getFileName()));
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
         }
-        OutputStream out = null;
-        try {
-            out = new FileOutputStream(f);
-            if (compress) {
-                out = new GZIPOutputStream(out);
-            }
-            IOUtils.copy(in, out);
-        } catch (Exception e) {
+        try (OutputStream output = compress ?
+                new GZIPOutputStream(new FileOutputStream(file)) :
+                new FileOutputStream(file) ) {
+            IOUtils.copy(input, output);
+        } catch (IOException e) {
             LOG.error("Error storing file: " + e, e);
             throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(out);
         }
     }
 
     @Override
     public InputStream readFileData(FileData fileData) {
-        File f = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + fileData.getFileName()));
-        InputStream ret = null;
+        File file = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + fileData.getFileName()));
         try {
-            ret = new FileInputStream(f);
-            if (compress) {
-                ret = new GZIPInputStream(ret);
-            }
-
-        } catch (Exception e) {
+            return compress ?
+                    new GZIPInputStream(new FileInputStream(file)) :
+                    new FileInputStream(file);
+        } catch (IOException e) {
             LOG.error("Error storing file: " + e, e);
             throw new RuntimeException(e);
         }
-        return ret;
     }
 
     @Override
     public boolean exists(FileData fileData) {
-        File f = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + fileData.getFileName()));
-        return f.exists();
+        File file = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + fileData.getFileName()));
+        return file.exists();
     }
 
     @Override
@@ -100,8 +92,7 @@ public class FileSystemFileStorage implements FileStorage, Serializable {
 
     @Override
     public boolean delete(FileData fileData) {
-        File f = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + fileData.getFileName()));
-        return f.delete();
+        File file = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + fileData.getFileName()));
+        return file.delete();
     }
-
 }
