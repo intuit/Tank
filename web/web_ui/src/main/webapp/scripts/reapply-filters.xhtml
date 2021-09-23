@@ -91,6 +91,14 @@
               <h:outputText value="#{filterGroupEnvelope.entity.name}" title="#{filterGroupEnvelope.entity.name}" />
             </p:column>
 
+            <p:column id="idColumn" filterBy="#{filterGroupEnvelope.entity.id}" filterFunction="#{filterUtil.equals}"
+                      sortBy="#{filterGroupEnvelope.entity.id}" style="width:50px;">
+              <f:facet name="header">
+                <h:outputText value="ID" />
+              </f:facet>
+              <h:outputText value="#{filterGroupEnvelope.entity.id}" title="#{filterGroupEnvelope.entity.id}" />
+            </p:column>
+
             <p:column id="productColumn" filterBy="#{filterGroupEnvelope.entity.productName}"
                       filterOptions="#{projectUtilBean.productNames}" filterMatchMode="exact"
                       sortBy="#{filterGroupEnvelope.entity.productName}">
@@ -131,6 +139,14 @@
                   <h:outputText value="Name" />
                 </f:facet>
                 <h:outputText value="#{filterEnvelope.entity.name}" title="#{filterEnvelope.entity.name}" />
+              </p:column>
+
+              <p:column id="filterIdColumn" filterBy="#{filterEnvelope.entity.id}" filterFunction="#{filterUtil.equals}"
+                style="width:50px;" sortBy="#{filterEnvelope.entity.id}">
+                <f:facet name="header">
+                  <h:outputText value="ID" />
+                </f:facet>
+                <h:outputText value="#{filterEnvelope.entity.id}" title="#{filterEnvelope.entity.id}" />
               </p:column>
   
               <p:column id="filterProductColumn" filterBy="#{filterEnvelope.entity.productName}"

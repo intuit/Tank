@@ -47,4 +47,15 @@ public class FilterUtil {
         }
         return StringUtils.containsIgnoreCase(value.toString(), filterText);
     }
+
+    public boolean equals(Object value, Object filter, Locale locale) {
+        String filterText = (filter == null) ? null : filter.toString().trim();
+        if (StringUtils.isBlank(filterText)) {
+            return true;
+        }
+        if (value == null) {
+            return false;
+        }
+        return StringUtils.equalsIgnoreCase(value.toString(), filterText);
+    }
 }
