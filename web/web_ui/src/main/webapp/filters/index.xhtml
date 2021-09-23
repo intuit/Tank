@@ -60,6 +60,17 @@
               </p:commandLink>
             </p:column>
 
+            <p:column id="idColumn" filterBy="#{filterGroupEnvelope.entity.id}" filterFunction="#{filterUtil.equals}"
+              sortBy="#{filterGroupEnvelope.entity.id}" style="width:50px;">
+              <f:facet name="header">
+                <h:outputText value="ID" />
+              </f:facet>
+              <p:commandLink action="#{filterGroupCreationBean.editFilterGroup(filterGroupEnvelope.entity)}"
+                styleClass="pointer" title="Edit #{filterGroupEnvelope.entity.id}" ajax="true">
+                <h:outputText value="#{filterGroupEnvelope.entity.id}" title="#{filterGroupEnvelope.entity.id}" />
+              </p:commandLink>
+            </p:column>
+
             <p:column id="productColumn" filterBy="#{filterGroupEnvelope.entity.productName}"
               filterOptions="#{projectUtilBean.productNames}" filterMatchMode="exact"
               sortBy="#{filterGroupEnvelope.entity.productName}" responsivePriority="4" width="47%">
@@ -134,6 +145,17 @@
               <p:commandLink action="#{scriptFilterCreationBean.editFilter(filterEnvelope.entity)}" styleClass="pointer"
                 title="Edit #{filterEnvelope.entity.name}" ajax="true">
                 <h:outputText value="#{filterEnvelope.entity.name}" title="#{filterEnvelope.entity.name} (id=#{filterEnvelope.entity.id})" />
+              </p:commandLink>
+            </p:column>
+
+            <p:column id="filterIdColumn" filterBy="#{filterEnvelope.entity.id}" filterFunction="#{filterUtil.equals}"
+              style="width:50px;" sortBy="#{filterEnvelope.entity.id}">
+              <f:facet name="header">
+                <h:outputText value="ID" />
+              </f:facet>
+              <p:commandLink action="#{scriptFilterCreationBean.editFilter(filterEnvelope.entity)}" styleClass="pointer"
+                title="Edit #{filterEnvelope.entity.id}" ajax="true">
+                <h:outputText value="#{filterEnvelope.entity.id}" title="#{filterEnvelope.entity.id}" />
               </p:commandLink>
             </p:column>
 
