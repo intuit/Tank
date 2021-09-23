@@ -38,7 +38,7 @@
 
             <p:ajax event="filter" listener="#{filterGroupBean.tableState.onFilter}" update="@this" />
 
-            <p:column id="checkColumn" responsivePriority="2" width="2%" >
+            <p:column id="checkColumn" responsivePriority="2" width="2%">
               <f:facet name="header">
                 <h:outputText value="" />
               </f:facet>
@@ -46,11 +46,21 @@
                 <p:ajax event="change" listener="#{filterBean.processSelection(filterGroupEnvelope)}"
                   update=":filterAndFilterGroupForm:filterTableId, :filterAndFilterGroupForm:groupBar:deleteSelectedBtn, :filterAndFilterGroupForm:filterBar:deleteSelectedBtn" />
               </p:selectBooleanCheckbox>
+            </p:column>
 
+            <p:column id="idColumn" filterBy="#{filterGroupEnvelope.entity.id}" filterFunction="#{filterUtil.equals}"
+                      sortBy="#{filterGroupEnvelope.entity.id}" responsivePriority="5" width="2%">
+              <f:facet name="header">
+                <h:outputText value="ID" />
+              </f:facet>
+              <p:commandLink action="#{filterGroupCreationBean.editFilterGroup(filterGroupEnvelope.entity)}"
+                             styleClass="pointer" title="Edit #{filterGroupEnvelope.entity.id}" ajax="true">
+                <h:outputText value="#{filterGroupEnvelope.entity.id}" title="#{filterGroupEnvelope.entity.id}" />
+              </p:commandLink>
             </p:column>
 
             <p:column id="nameColumn" filterBy="#{filterGroupEnvelope.entity.name}" filterFunction="#{filterUtil.contains}"
-              sortBy="#{filterGroupEnvelope.entity.name}" responsivePriority="1" width="47%">
+              sortBy="#{filterGroupEnvelope.entity.name}" responsivePriority="1" width="46%">
               <f:facet name="header">
                 <h:outputText value="Name" />
               </f:facet>
@@ -60,20 +70,9 @@
               </p:commandLink>
             </p:column>
 
-            <p:column id="idColumn" filterBy="#{filterGroupEnvelope.entity.id}" filterFunction="#{filterUtil.equals}"
-              sortBy="#{filterGroupEnvelope.entity.id}" style="width:50px;">
-              <f:facet name="header">
-                <h:outputText value="ID" />
-              </f:facet>
-              <p:commandLink action="#{filterGroupCreationBean.editFilterGroup(filterGroupEnvelope.entity)}"
-                styleClass="pointer" title="Edit #{filterGroupEnvelope.entity.id}" ajax="true">
-                <h:outputText value="#{filterGroupEnvelope.entity.id}" title="#{filterGroupEnvelope.entity.id}" />
-              </p:commandLink>
-            </p:column>
-
             <p:column id="productColumn" filterBy="#{filterGroupEnvelope.entity.productName}"
               filterOptions="#{projectUtilBean.productNames}" filterMatchMode="exact"
-              sortBy="#{filterGroupEnvelope.entity.productName}" responsivePriority="4" width="47%">
+              sortBy="#{filterGroupEnvelope.entity.productName}" responsivePriority="4" width="46%">
               <f:facet name="header">
                 <h:outputText value="Product" />
               </f:facet>
@@ -134,11 +133,21 @@
               <p:selectBooleanCheckbox value="#{filterEnvelope.selected}" id="filterSelectBox">
                 <p:ajax event="change" update=":filterAndFilterGroupForm:filterBar:deleteSelectedBtn" />
               </p:selectBooleanCheckbox>
+            </p:column>
 
+            <p:column id="filterIdColumn" filterBy="#{filterEnvelope.entity.id}" filterFunction="#{filterUtil.equals}"
+                      sortBy="#{filterEnvelope.entity.id}" responsivePriority="5" width="2%">
+              <f:facet name="header">
+                <h:outputText value="ID" />
+              </f:facet>
+              <p:commandLink action="#{scriptFilterCreationBean.editFilter(filterEnvelope.entity)}" styleClass="pointer"
+                             title="Edit #{filterEnvelope.entity.id}" ajax="true">
+                <h:outputText value="#{filterEnvelope.entity.id}" title="#{filterEnvelope.entity.id}" />
+              </p:commandLink>
             </p:column>
 
             <p:column id="filterNameColumn" filterBy="#{filterEnvelope.entity.name}" filterFunction="#{filterUtil.contains}"
-                      responsivePriority="1" width="47%" sortBy="#{filterEnvelope.entity.name}">
+                      responsivePriority="1" width="46%" sortBy="#{filterEnvelope.entity.name}">
               <f:facet name="header">
                 <h:outputText value="Name" />
               </f:facet>
@@ -148,20 +157,10 @@
               </p:commandLink>
             </p:column>
 
-            <p:column id="filterIdColumn" filterBy="#{filterEnvelope.entity.id}" filterFunction="#{filterUtil.equals}"
-              style="width:50px;" sortBy="#{filterEnvelope.entity.id}">
-              <f:facet name="header">
-                <h:outputText value="ID" />
-              </f:facet>
-              <p:commandLink action="#{scriptFilterCreationBean.editFilter(filterEnvelope.entity)}" styleClass="pointer"
-                title="Edit #{filterEnvelope.entity.id}" ajax="true">
-                <h:outputText value="#{filterEnvelope.entity.id}" title="#{filterEnvelope.entity.id}" />
-              </p:commandLink>
-            </p:column>
 
             <p:column id="filterProductColumn" filterBy="#{filterEnvelope.entity.productName}"
               filterOptions="#{projectUtilBean.productNames}" filterMatchMode="exact"
-              sortBy="#{filterEnvelope.entity.productName}" responsivePriority="4" width="47%">
+              sortBy="#{filterEnvelope.entity.productName}" responsivePriority="4" width="46%">
               <f:facet name="header">
                 <h:outputText value="Products" />
               </f:facet>
