@@ -413,7 +413,7 @@ thead,.o_tls_caption,.o_table_sorted_column_header,.header-background-color {
   height: 300px;
 }
 
-.overflow-auto {
+.overflow-scroll {
   overflow: scroll;
 }
 

@@ -62,16 +62,16 @@
 
         <div class="vertical-spacer" />
 
-        <div class="height500 overflow-auto">
-          <p:dataTable id="filterTableId" value="#{filterGroupCreationBean.selectionList}" var="filter">
+        <div class="overflow-scroll" style="height:90vh">
+          <p:dataTable id="filterTableId" value="#{filterGroupCreationBean.selectionList}" var="filter" scrollable="true" scrollHeight="90%">
 
-            <p:column id="includeColumn" width="70">
+            <p:column id="includeColumn" responsivePriority="3" width="2%">
               <p:selectBooleanCheckbox value="#{filter.selected}" />
             </p:column>
-            <p:column id="nameColumn" headerText="Name" sortBy="#{filter.entity.name}">
+            <p:column id="nameColumn" headerText="Name" sortBy="#{filter.entity.name}" responsivePriority="1" width="49%">
               <h:outputText value="#{filter.entity.name}" />
             </p:column>
-            <p:column id="productColumn" headerText="Product" sortBy="#{filter.entity.productName}">
+            <p:column id="productColumn" headerText="Product" sortBy="#{filter.entity.productName}" responsivePriority="2" width="49%">
               <h:outputText value="#{filter.entity.productName}" />
             </p:column>
           </p:dataTable>
