@@ -222,8 +222,19 @@ public class TankHttpUtilTest {
         assertNotNull(result);
     }
 
-   
+    /**
+     * Test empty and null url variables.
+     * @throws Exception
+     */
+    @Test
+    public void testGetQueryString_7() throws Exception {
+        Map<String, String> urlVariables = new HashMap();
+        urlVariables.put("val1", "");
+        urlVariables.put("val2", null);
 
+        String result = TankHttpUtil.getQueryString(urlVariables);
+        assertNotNull(result);
+        assertEquals( "?val2&val1", result);
+    }
 
-    
 }
