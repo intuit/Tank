@@ -53,7 +53,7 @@ public class TankHttpUtil {
             return "?" + urlVariables.entrySet().stream()
                     .map(entry -> {
                         try {
-                            if (entry.getValue() == null || entry.getValue() == "") {
+                            if (StringUtils.isBlank(entry.getValue())) {
                                 return URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.name());
                             } else {
                                 return URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.name())
