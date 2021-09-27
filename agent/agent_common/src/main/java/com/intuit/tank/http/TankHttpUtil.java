@@ -53,9 +53,13 @@ public class TankHttpUtil {
             return "?" + urlVariables.entrySet().stream()
                     .map(entry -> {
                         try {
-                            return URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.name())
-                                    + "="
-                                    + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.name());
+                            if (StringUtils.isBlank(entry.getValue())) {
+                                return URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.name());
+                            } else {
+                                return URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.name())
+                                        + "="
+                                        + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.name());
+                            }
                         } catch (UnsupportedEncodingException ex) {
                             LOG.warn("Unable to set query string value: " + ex.getMessage());
                         }
