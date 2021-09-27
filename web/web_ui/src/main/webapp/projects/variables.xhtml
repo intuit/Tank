@@ -33,8 +33,9 @@
         <f:facet name="header">
           <h:outputText value="Key" />
         </f:facet>
-        <h:outputText value="#{variable.key}" editor="true" styleClass="ellipsis" style="width:300px;" >
-        </h:outputText>
+        <p:inplace label="#{variable.key}" styleClass="ellipsis" editor="true" style="width:300px;">
+          <h:inputText value="#{variable.key}" id="keyTF" style="width:225px;" />
+        </p:inplace>
       </p:column>
 
       <p:column id="valueCol" style="width: 300px;" resizable="false">
