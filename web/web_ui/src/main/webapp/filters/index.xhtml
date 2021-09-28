@@ -38,7 +38,7 @@
 
             <p:ajax event="filter" listener="#{filterGroupBean.tableState.onFilter}" update="@this" />
 
-            <p:column id="checkColumn" responsivePriority="2" width="2%">
+            <p:column id="checkColumn" responsivePriority="2" width="25px">
               <f:facet name="header">
                 <h:outputText value="" />
               </f:facet>
@@ -49,7 +49,7 @@
             </p:column>
 
             <p:column id="idColumn" filterBy="#{filterGroupEnvelope.entity.id}" filterFunction="#{filterUtil.equals}"
-                      sortBy="#{filterGroupEnvelope.entity.id}" responsivePriority="5" width="2%">
+                      sortBy="#{filterGroupEnvelope.entity.id}" responsivePriority="5" width="50px">
               <f:facet name="header">
                 <h:outputText value="ID" />
               </f:facet>
@@ -126,7 +126,7 @@
             
             <p:ajax event="filter" listener="#{filterBean.tableState.onFilter}" update="@this" />
 
-            <p:column id="filterCheckColumn" responsivePriority="2" width="2%">
+            <p:column id="filterCheckColumn" responsivePriority="2" width="25px">
               <f:facet name="header">
                 <h:outputText value="" />
               </f:facet>
@@ -136,7 +136,7 @@
             </p:column>
 
             <p:column id="filterIdColumn" filterBy="#{filterEnvelope.entity.id}" filterFunction="#{filterUtil.equals}"
-                      sortBy="#{filterEnvelope.entity.id}" responsivePriority="5" width="2%">
+                      sortBy="#{filterEnvelope.entity.id}" responsivePriority="5" width="50px">
               <f:facet name="header">
                 <h:outputText value="ID" />
               </f:facet>
