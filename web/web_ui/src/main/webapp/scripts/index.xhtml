@@ -252,6 +252,7 @@
           <p:fileUpload id="fileUploadControl" oncomplete="PF('xmlUploadDialog').hide()"
                         listener="#{tankXmlUploadBean.handleFileUpload}" mode="advanced"
                         allowTypes="/(\.|\/)(xml|zip)$/" update=":mainForm:scriptTableId" multiple="true" />
+          <p:poll interval="#{session.maxInactiveInterval - 10}" async="true" />
           <div class="vertical-spacer" />
         </p:outputPanel>
       </h:form>
