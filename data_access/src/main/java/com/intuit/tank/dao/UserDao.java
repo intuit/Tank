@@ -27,6 +27,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 
 import com.intuit.tank.project.User;
+import com.intuit.tank.project.UserProperty;
 import com.intuit.tank.vm.common.PasswordEncoder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,15 +41,13 @@ import org.apache.logging.log4j.Logger;
 @Dependent
 public class UserDao extends BaseDao<User> {
     private static final Logger LOG = LogManager.getLogger(UserDao.class);
-    /**
-     * @param entityClass
-     */
+
     public UserDao() {
         super();
     }
 
     /**
-     * Authenticats the user with the given credentials.
+     * Authenticates user with given credentials.
      * 
      * @param userName
      *            the userName
@@ -75,32 +74,20 @@ public class UserDao extends BaseDao<User> {
      * @return the user or null if no user with the name found.
      */
     public User findByUserName(@Nonnull String userName) {
-        User user = null;
-        CriteriaQuery<User> query = null;
-        EntityManager em = getEntityManager();
-        try {
-            begin();
-            CriteriaBuilder cb = em.getCriteriaBuilder();
-            query = cb.createQuery(User.class);
-            Root<User> root = query.from(User.class);
-            root.fetch(User.PROPERTY_GROUPS, JoinType.INNER);
-            query.select(root)
-                    .where(cb.equal(root.<String>get(User.PROPERTY_NAME), userName));
-            user = em.createQuery(query).getSingleResult();
-            commit();
-        } catch (NoResultException nre) {
-            rollback();
-            LOG.info("No entity matching username: " + userName);
-        } catch (Exception e) {
-            rollback();
-            String printQuery = (query != null) ? query.toString()
-                    : "Failed to connect to database: ";
-            LOG.info("No entity matching query: " + printQuery, e);
-        } finally {
-            cleanup();
-        }
-        return user;
+        return findUserInformationInternal(UserProperty.PROPERTY_NAME, userName);
     }
+
+    /**
+     * finds the user by email.
+     *
+     * @param email
+     *            the email to search
+     * @return the user or null if no user with the name found.
+     */
+    public User findByEmail(@Nonnull String email) {
+        return findUserInformationInternal(UserProperty.PROPERTY_EMAIL, email);
+    }
+
     /**
      * finds the user by the apiToken.
      * 
@@ -109,6 +96,10 @@ public class UserDao extends BaseDao<User> {
      * @return the user or null if no user with the apiToken.
      */
     public User findByApiToken(@Nonnull String apiToken) {
+        return findUserInformationInternal(UserProperty.PROPERTY_TOKEN, apiToken);
+    }
+
+    private User findUserInformationInternal(UserProperty userProperty, String userIdentifier) {
         User user = null;
         CriteriaQuery<User> query = null;
         EntityManager em = getEntityManager();
@@ -119,12 +110,12 @@ public class UserDao extends BaseDao<User> {
             Root<User> root = query.from(User.class);
             root.fetch(User.PROPERTY_GROUPS, JoinType.INNER);
             query.select(root)
-                    .where(cb.equal(root.<String>get(User.PROPERTY_TOKEN), apiToken));
+                    .where(cb.equal(root.<String>get(userProperty.value), userIdentifier));
             user = em.createQuery(query).getSingleResult();
             commit();
         } catch (NoResultException nre) {
             rollback();
-            LOG.info("no entity matching apiToken: " + apiToken, nre);
+            LOG.info("No entity matching " + userProperty.value + ": " + userIdentifier, nre);
         } catch (Exception e) {
             rollback();
             String printQuery = (query != null) ? query.toString()
