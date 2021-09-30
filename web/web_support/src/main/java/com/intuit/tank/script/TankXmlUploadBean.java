@@ -68,6 +68,9 @@ public class TankXmlUploadBean implements Serializable {
     }
 
     public void handleFileUpload(FileUploadEvent event) throws Exception {
+        LOG.info("Success! " + event.getFile().getFileName() + " is uploaded.");
+        messages.info("Success! " + event.getFile().getFileName() + " is uploaded.");
+
         UploadedFile item = event.getFile();
 
         if (item != null) {
