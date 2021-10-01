@@ -98,8 +98,12 @@ public class TankXmlUploadBean implements Serializable {
     private void processScript(InputStream inputStream, String fileName) {
         ScriptDao dao = new ScriptDao();
 
+        LOG.info("Parsing xml script " + fileName + "to TO");
         ScriptTO scriptTo = ScriptServiceUtil.parseXMLtoScriptTO(inputStream);
+        LOG.info("Parsed xml script " + fileName + "to TO");
         Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
+        LOG.info("Parsing TO to script " + fileName);
+
         if (script.getId() > 0) {
             Script existing = dao.findById(script.getId());
             if (existing == null) {
