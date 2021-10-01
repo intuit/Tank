@@ -189,6 +189,7 @@ public class ScriptDao extends BaseDao<Script> {
             LOG.debug("Saved Script Steps with id " + savedSerializedStep.getId() + " for script " + script.getId());
             commit();
         } catch (Exception e) {
+            LOG.error("Error saving script " + script.getName() + " Exception: " + e.toString());
         	rollback();
             e.printStackTrace();
             throw new RuntimeException(e);
