@@ -98,14 +98,17 @@ public class TankXmlUploadBean implements Serializable {
     private void processScript(InputStream inputStream, String fileName) {
         ScriptDao dao = new ScriptDao();
 
-        LOG.info("Parsing xml script " + fileName + "to TO");
+        LOG.info("debug: Parsing xml script " + fileName + "to TO");
         ScriptTO scriptTo = ScriptServiceUtil.parseXMLtoScriptTO(inputStream);
-        LOG.info("Parsed xml script " + fileName + "to TO");
+        LOG.info("debug: Parsed xml script " + fileName + "to TO");
         Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
-        LOG.info("Parsing TO to script " + fileName);
+        LOG.info("debug: Parsing TO to script " + fileName);
 
         if (script.getId() > 0) {
+            LOG.info("debug: finding script by id " + fileName);
             Script existing = dao.findById(script.getId());
+            LOG.info("debug: found script by id " + script.getId() );
+
             if (existing == null) {
                 LOG.error("Error updating script: Script passed with unknown id.");
                 messages.error("Script " + fileName + " passed with unknown id.");
@@ -122,10 +125,14 @@ public class TankXmlUploadBean implements Serializable {
                 return;
             }
             script.setSerializedScriptStepId(existing.getSerializedScriptStepId());
+
         } else {
             script.setCreator(securityContext.getCallerPrincipal().getName());
         }
+        LOG.info("debug: saving script " + script.getName());
         script = dao.saveOrUpdate(script);
+        LOG.info("debug: saved script " + script.getName());
+
         LOG.info("Script " + script.getName() + " from file " + fileName + " has been added.");
         messages.info("Script " + script.getName() + " from file " + fileName + " has been added.");
         scriptEvent.fire(new ModifiedScriptMessage(script, this));
