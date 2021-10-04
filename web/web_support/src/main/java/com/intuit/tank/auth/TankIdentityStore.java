@@ -56,4 +56,21 @@ public class TankIdentityStore implements IdentityStore {
         LOG.warn("Failed to login " + login.getCaller());
         return CredentialValidationResult.INVALID_RESULT;
     }
+
+    public CredentialValidationResult validateSSOUser(User user) {
+        try {
+            AWSXRay.getCurrentSegment().setUser(user.getName());
+
+            List<String> userRoles = new ArrayList<>();
+            for (Group g : user.getGroups()) {
+                userRoles.add(g.getName());
+            }
+            loginEventSrc.fire(user);
+
+            return new CredentialValidationResult(user.getName(), new HashSet<>(userRoles));
+        } catch(Exception e) {
+            LOG.warn("Failed to login " + user.getName());
+            return CredentialValidationResult.INVALID_RESULT;
+        }
+    }
 }

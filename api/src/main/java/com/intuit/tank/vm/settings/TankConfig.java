@@ -56,6 +56,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
     private static final String KEY_LOCATIONS_NODE = "locations";
     private static final String KEY_LOGIC_STEP_NODE = "logic-step";
     private static final String KEY_REPORTING_NODE = "reporting";
+    private static final String KEY_OIDC_SSO_NODE = "oidc-sso";
 
     private static String configName = CONFIG_NAME;
 
@@ -83,6 +84,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
     private SecurityConfig securityConfig;
     private LogicStepConfig logicStepConfig;
     private ReportingConfig reportingConfig;
+    private OidcSsoConfig oidcSsoConfig;
 
     /**
      * protected constructor to implement the singleton pattern
@@ -229,6 +231,14 @@ public class TankConfig extends BaseCommonsXmlConfig {
     }
 
     /**
+     * @return the oidcSsoConfig
+     */
+    public OidcSsoConfig getOidcSsoConfig() {
+        checkReload();
+        return oidcSsoConfig;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -255,6 +265,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
                 KEY_LOGIC_STEP_NODE));
         reportingConfig = new ReportingConfig(BaseCommonsXmlConfig.getChildConfigurationAt(configuration,
                 KEY_REPORTING_NODE));
+        oidcSsoConfig = new OidcSsoConfig(BaseCommonsXmlConfig.getChildConfigurationAt(configuration, KEY_OIDC_SSO_NODE));
     }
 
 }
