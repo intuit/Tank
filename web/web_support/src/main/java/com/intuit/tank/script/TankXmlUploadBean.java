@@ -115,7 +115,8 @@ public class TankXmlUploadBean implements Serializable {
                 return;
             }
             if (!existing.getName().equals(script.getName())) {
-                LOG.error("Error updating script: Cannot change the name of an existing Script.");
+                LOG.error("Error updating script: Cannot change the name of an existing Script. Existing: " +
+                        existing.getName() + " Uploaded: " + script.getName());
                 messages.error("Cannot change the name of an existing script.");
                 return;
             }
