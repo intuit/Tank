@@ -68,6 +68,9 @@ public class TankXmlUploadBean implements Serializable {
     }
 
     public void handleFileUpload(FileUploadEvent event) throws Exception {
+        LOG.info("Success! " + event.getFile().getFileName() + " is uploaded.");
+        messages.info("Success! " + event.getFile().getFileName() + " is uploaded.");
+
         UploadedFile item = event.getFile();
 
         if (item != null) {
@@ -97,28 +100,33 @@ public class TankXmlUploadBean implements Serializable {
 
         ScriptTO scriptTo = ScriptServiceUtil.parseXMLtoScriptTO(inputStream);
         Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
+
         if (script.getId() > 0) {
             Script existing = dao.findById(script.getId());
+
             if (existing == null) {
                 LOG.error("Error updating script: Script passed with unknown id.");
                 messages.error("Script " + fileName + " passed with unknown id.");
                 return;
             }
             if (!existing.getName().equals(script.getName())) {
-                LOG.error("Error updating script: Cannot change the name of an existing Script.");
+                LOG.error("Error updating script: Cannot change the name of an existing Script. Existing: " +
+                        existing.getName() + " Uploaded: " + script.getName());
                 messages.error("Cannot change the name of an existing script.");
                 return;
             }
             if (!security.isAdmin() && !security.isOwner(script)) {
-                LOG.error("Error updating script: Cannot change the name of an existing Script.");
+                LOG.error("Error updating script: Cannot change the name of an existing Script. Admin or owner privilege required.");
                 messages.error("You do not have rights to modify " + script.getName() + ".");
                 return;
             }
             script.setSerializedScriptStepId(existing.getSerializedScriptStepId());
+
         } else {
             script.setCreator(securityContext.getCallerPrincipal().getName());
         }
         script = dao.saveOrUpdate(script);
+
         LOG.info("Script " + script.getName() + " from file " + fileName + " has been added.");
         messages.info("Script " + script.getName() + " from file " + fileName + " has been added.");
         scriptEvent.fire(new ModifiedScriptMessage(script, this));
