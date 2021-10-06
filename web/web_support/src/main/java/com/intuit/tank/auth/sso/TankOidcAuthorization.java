@@ -67,11 +67,12 @@ public class TankOidcAuthorization {
 
         LOG.info("Request Access Token from Authorization server");
         HttpResponse<String> httpPostResponse = _webHttpClient.Post(AUTHENTICATION_URL, oidcRequestParameters);
+
         return _gson.fromJson(httpPostResponse.body(), Token.class);
     }
 
     public UserInfo DecodeIdToken(Token token) {
-        if (token == null) {
+        if (token == null || token.getIdToken() == null) {
             LOG.warn("DecodeIdToken: Missing Token Information");
             throw new IllegalArgumentException("DecodeIdToken: Missing Token Information");
         }

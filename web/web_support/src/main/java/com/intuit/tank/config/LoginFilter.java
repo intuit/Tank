@@ -14,6 +14,9 @@ import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.auth.sso.TankSsoHandler;
+import com.intuit.tank.vm.settings.OidcSsoConfig;
+import com.intuit.tank.vm.settings.TankConfig;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,6 +36,14 @@ public class LoginFilter extends HttpFilter {
 	@Inject
 	private TankSsoHandler _tankSsoHandler;
 
+	@Inject
+	private TankConfig _tankConfig;
+
+	private String AUTHENTICATION_URL;
+	private String CLIENT_SECRET_VALUE;
+	private String CLIENT_ID_VALUE;
+	private String REDIRECT_URL_VALUE;
+
 	@Override
 	public void init(FilterConfig arg0) throws ServletException {}
 
@@ -50,6 +61,34 @@ public class LoginFilter extends HttpFilter {
 		}
 
 		if (_securityContext.getCallerPrincipal() == null) {
+			OidcSsoConfig _oidcSsoConfig = _tankConfig.getOidcSsoConfig();
+
+			if (_oidcSsoConfig != null ||
+				_oidcSsoConfig.getAuthenticationUrl() != null ||
+				_oidcSsoConfig.getClientSecret() != null ||
+				_oidcSsoConfig.getClientId() != null ||
+				_oidcSsoConfig.getRedirectUrl() != null) {
+
+				AUTHENTICATION_URL = _oidcSsoConfig.getAuthenticationUrl();
+				CLIENT_SECRET_VALUE = _oidcSsoConfig.getClientSecret();
+				CLIENT_ID_VALUE = _oidcSsoConfig.getClientId();
+				REDIRECT_URL_VALUE = _oidcSsoConfig.getRedirectUrl();
+
+				// Temp
+				URIBuilder builder = new URIBuilder()
+						.setScheme("https")
+						.setHost("federatesys.intuit.com/as/token.oauth2")
+						.addParameter("client_id", CLIENT_ID_VALUE)
+						.addParameter("response_type", "code")
+						.addParameter("redirect_uri", REDIRECT_URL_VALUE)
+						.addParameter("scope", "openid+email+profile+groups")
+						.addParameter("state", "af0ifjsldkj");
+
+				var authenticationUrl = builder.toString();
+
+				response.sendRedirect(authenticationUrl);
+			}
+
 			LOG.warn("Failed to access " + (request).getRequestURI() + ", lack of permissions");
 			InvalidateAndRedirect(request, response);
 			return;
