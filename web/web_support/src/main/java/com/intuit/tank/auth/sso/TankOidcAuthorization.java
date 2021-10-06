@@ -6,6 +6,7 @@ import com.intuit.tank.auth.sso.models.Token;
 import com.intuit.tank.http.WebHttpClient;
 import com.intuit.tank.vm.settings.OidcSsoConfig;
 import com.intuit.tank.vm.settings.TankConfig;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,6 +16,7 @@ import java.net.http.HttpResponse;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * TankOidcAuthorization
@@ -24,19 +26,6 @@ import java.util.Map;
 public class TankOidcAuthorization {
     private static final Logger LOG = LogManager.getLogger(TankOidcAuthorization.class);
 
-    private static final String CLIENT_ID_KEY = "client_id";
-    private static final String CLIENT_SECRET_KEY = "client_secret";
-    private static final String CONTENT_TYPE_KEY = "content-type";
-    private static final String CONTENT_TYPE_VALUE = "application/x-www-form-urlencoded";
-    private static final String GRANT_TYPE_KEY = "grant_type";
-    private static final String GRANT_TYPE_VALUE = "authorization_code";
-    private static final String GRANT_CODE_KEY = "code";
-    private static final String REDIRECT_URL_KEY = "redirect_uri";
-
-    private String AUTHENTICATION_URL;
-    private String CLIENT_SECRET_VALUE;
-    private String CLIENT_ID_VALUE;
-    private String REDIRECT_URL_VALUE;
     private Gson _gson = new Gson();
 
     @Inject
@@ -51,22 +40,24 @@ public class TankOidcAuthorization {
             throw new IllegalArgumentException("Missing Authorization Code");
         }
 
-        OidcSsoConfig _oidcSsoConfig = _tankConfig.getOidcSsoConfig();
+        OidcSsoConfig oidcSsoConfig = _tankConfig.getOidcSsoConfig();
 
-        if (_oidcSsoConfig == null) {
+        if (Objects.requireNonNull(oidcSsoConfig).getConfiguration() == null) {
             LOG.warn("GetAccessToken: OIDC Config Null");
             throw new IllegalArgumentException("OIDC Config Not Properly Configured");
         }
 
-        AUTHENTICATION_URL = _oidcSsoConfig.getAuthenticationUrl();
-        CLIENT_SECRET_VALUE = _oidcSsoConfig.getClientSecret();
-        CLIENT_ID_VALUE = _oidcSsoConfig.getClientId();
-        REDIRECT_URL_VALUE = _oidcSsoConfig.getRedirectUrl();
+        URIBuilder builder = new URIBuilder()
+                .setScheme(OidcConstants.HTTPS_SCHEME)
+                .setHost(oidcSsoConfig.getIssuer())
+                .setPath(oidcSsoConfig.getTokenEndpoint());
 
-        Map<Object, Object> oidcRequestParameters = getOidcRequestParameters(authorizationCode);
+        var authenticationUrl = builder.toString();
+
+        Map<Object, Object> oidcRequestParameters = getOidcRequestParameters(oidcSsoConfig, authorizationCode);
 
         LOG.info("Request Access Token from Authorization server");
-        HttpResponse<String> httpPostResponse = _webHttpClient.Post(AUTHENTICATION_URL, oidcRequestParameters);
+        HttpResponse<String> httpPostResponse = _webHttpClient.Post(authenticationUrl, oidcRequestParameters);
 
         return _gson.fromJson(httpPostResponse.body(), Token.class);
     }
@@ -87,15 +78,19 @@ public class TankOidcAuthorization {
         return userInfo;
     }
 
-    private Map<Object, Object> getOidcRequestParameters(String authorizationCode) {
+    private Map<Object, Object> getOidcRequestParameters(OidcSsoConfig oidcSsoConfig, String authorizationCode) {
+        if(Objects.requireNonNull(oidcSsoConfig).getConfiguration() == null) {
+            throw new IllegalArgumentException("Missing OIDC SSO Config");
+        }
+
         Map<Object, Object> requestParameters = new HashMap<>();
 
-        requestParameters.put(CLIENT_ID_KEY, CLIENT_ID_VALUE);
-        requestParameters.put(CLIENT_SECRET_KEY, CLIENT_SECRET_VALUE);
-        requestParameters.put(CONTENT_TYPE_KEY, CONTENT_TYPE_VALUE);
-        requestParameters.put(GRANT_TYPE_KEY, GRANT_TYPE_VALUE);
-        requestParameters.put(GRANT_CODE_KEY, authorizationCode);
-        requestParameters.put(REDIRECT_URL_KEY, REDIRECT_URL_VALUE);
+        requestParameters.put(OidcConstants.CLIENT_ID_KEY, oidcSsoConfig.getClientId());
+        requestParameters.put(OidcConstants.CLIENT_SECRET_KEY, oidcSsoConfig.getClientSecret());
+        requestParameters.put(OidcConstants.CONTENT_TYPE_KEY, OidcConstants.CONTENT_TYPE_VALUE);
+        requestParameters.put(OidcConstants.GRANT_TYPE_KEY, OidcConstants.GRANT_TYPE_VALUE);
+        requestParameters.put(OidcConstants.GRANT_CODE_KEY, authorizationCode);
+        requestParameters.put(OidcConstants.REDIRECT_URL_KEY, oidcSsoConfig.getRedirectUrl());
 
         return requestParameters;
     }

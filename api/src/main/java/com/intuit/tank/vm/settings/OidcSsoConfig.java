@@ -8,34 +8,57 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  * @author Shawn Park
  */
 public class OidcSsoConfig {
-    private static final String KEY_AUTHENTICATION_URL = "authentication-url";
+    private static final String KEY_AUTHORIZATION_ENDPOINT = "authorization-endpoint";
+    private static final String KEY_AUTHORIZATION_URL = "authorization-url";
     private static final String KEY_CLIENT_SECRET = "client-secret";
     private static final String KEY_CLIENT_ID = "client-id";
+    private static final String KEY_ISSUER = "issuer";
     private static final String KEY_REDIRECT_URL = "redirect-url";
+    private static final String KEY_TOKEN_ENDPOINT = "token-endpoint";
 
-    private final HierarchicalConfiguration _config;
+    private final HierarchicalConfiguration config;
 
     public OidcSsoConfig(HierarchicalConfiguration config) {
-        this._config = config;
+        this.config = config;
     }
 
     /**
-     * @return Authentication URL
+     * @return Authorization Endpoint
      */
-    public String getAuthenticationUrl() { return _config.getString(KEY_AUTHENTICATION_URL); }
+    public String getAuthorizationEndpoint() { return config.getString(KEY_AUTHORIZATION_ENDPOINT); }
 
     /**
-     * @return Client Secret
+     * @return Authorization Url
      */
-    public String getClientSecret() { return _config.getString(KEY_CLIENT_SECRET); }
+    public String getAuthorizationUrl() { return config.getString(KEY_AUTHORIZATION_URL); }
 
     /**
      * @return Client ID
      */
-    public String getClientId() { return _config.getString(KEY_CLIENT_ID); }
+    public String getClientId() { return config.getString(KEY_CLIENT_ID); }
+
+    /**
+     * @return Client Secret
+     */
+    public String getClientSecret() { return config.getString(KEY_CLIENT_SECRET); }
+
+    /**
+     * @return Hierarchical Config
+     */
+    public HierarchicalConfiguration getConfiguration() { return config; }
+
+    /**
+     * @return Issuer
+     */
+    public String getIssuer() { return config.getString(KEY_ISSUER); }
 
     /**
      * @return Redirect URL
      */
-    public String getRedirectUrl() { return _config.getString(KEY_REDIRECT_URL); }
+    public String getRedirectUrl() { return config.getString(KEY_REDIRECT_URL); }
+
+    /**
+     * @return Token Endpoint
+     */
+    public String getTokenEndpoint() { return config.getString(KEY_TOKEN_ENDPOINT); }
 }

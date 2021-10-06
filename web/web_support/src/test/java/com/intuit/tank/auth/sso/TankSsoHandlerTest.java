@@ -6,6 +6,8 @@ import com.intuit.tank.auth.sso.models.Token;
 import com.intuit.tank.auth.sso.models.UserInfo;
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.User;
+import com.intuit.tank.vm.settings.OidcSsoConfig;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +17,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -26,6 +28,10 @@ import static org.mockito.Mockito.*;
  */
 public class TankSsoHandlerTest {
 
+    @Mock
+    private OidcSsoConfig _oidcSsoConfigMock;
+    @Mock
+    private HierarchicalConfiguration _hierarchicalConfigurationMock;
     @Mock
     private TankOidcAuthorization _tankOidcAuthorizationMock;
     @Mock
@@ -63,7 +69,43 @@ public class TankSsoHandlerTest {
         closeable.close();
     }
 
-    //region Happy Path
+    //region GetOnLoadAuthorizationRequest Happy Path
+
+    @Test
+    public void GetOnLoadAuthorizationRequest_Given_AuthorizationCode_Call_To_Get_AccessToken() {
+        // Arrange
+        when(_oidcSsoConfigMock.getConfiguration()).thenReturn(_hierarchicalConfigurationMock);
+        when(_oidcSsoConfigMock.getAuthorizationUrl()).thenReturn("https://www.authorization-url.com/auth");
+        when(_oidcSsoConfigMock.getClientId()).thenReturn("client-id");
+        when(_oidcSsoConfigMock.getRedirectUrl()).thenReturn("https://www.redirect-url.com");
+
+        // Act
+        var authorizationRequestString = _sut.GetOnLoadAuthorizationRequest(_oidcSsoConfigMock);
+
+        // Assert
+        assertNotNull(authorizationRequestString);
+        assertFalse(authorizationRequestString.isEmpty());
+        assertFalse(authorizationRequestString.isBlank());
+    }
+
+    //endregion
+
+    //region GetOnLoadAuthorizationRequest Negative Case
+
+    @Test
+    public void GetOnLoadAuthorizationRequest_Given_Null_Config_Throws_IllegalArgumentException() {
+        // Arrange
+        when(_oidcSsoConfigMock.getConfiguration()).thenReturn(null);
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            _sut.GetOnLoadAuthorizationRequest(_oidcSsoConfigMock);
+        });
+    }
+
+    //endregion
+
+    //region HandleSsoAuthorization Happy Path
 
     @Test
     public void HandleSsoAuthorization_Given_AuthorizationCode_Call_To_Get_AccessToken() throws IOException {
@@ -148,7 +190,7 @@ public class TankSsoHandlerTest {
 
     //endregion
 
-    //region Negative Case
+    //region HandleSsoAuthorization Negative Case
 
     @Test
     public void HandleSsoAuthorization_Given_Invalid_AuthorizationCode_Throws_Exception() throws IllegalArgumentException {

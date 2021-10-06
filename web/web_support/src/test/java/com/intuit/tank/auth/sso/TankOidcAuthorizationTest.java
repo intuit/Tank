@@ -5,6 +5,7 @@ import com.intuit.tank.auth.sso.models.UserInfo;
 import com.intuit.tank.http.WebHttpClient;
 import com.intuit.tank.vm.settings.OidcSsoConfig;
 import com.intuit.tank.vm.settings.TankConfig;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,8 @@ public class TankOidcAuthorizationTest {
     private WebHttpClient _webHttpClientMock;
     @Mock
     private TankConfig _tankConfigMock;
+    @Mock
+    private HierarchicalConfiguration _hierarchicalConfigurationMock;
     @Mock
     private OidcSsoConfig _oidcSsoConfigMock;
     @Mock
@@ -104,7 +107,8 @@ public class TankOidcAuthorizationTest {
     public void GetAccessToken_Given_Authorization_Code_HTTP_Posts_To_Authentication_Server() throws IOException {
         // Arrange
         when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
-        when(_oidcSsoConfigMock.getAuthenticationUrl()).thenReturn("Test-Auth-Url");
+        when(_oidcSsoConfigMock.getConfiguration()).thenReturn(_hierarchicalConfigurationMock);
+        when(_oidcSsoConfigMock.getAuthorizationEndpoint()).thenReturn("Test-Auth-Url");
         when(_oidcSsoConfigMock.getClientSecret()).thenReturn("Test-Client-Secret");
         when(_oidcSsoConfigMock.getClientId()).thenReturn("Test-Client-Id");
         when(_oidcSsoConfigMock.getRedirectUrl()).thenReturn("Test-Redirect-Url");
@@ -122,7 +126,8 @@ public class TankOidcAuthorizationTest {
     public void GetAccessToken_Given_Authorization_Code_Returns_Access_Token() throws IOException {
         // Arrange
         when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
-        when(_oidcSsoConfigMock.getAuthenticationUrl()).thenReturn("Test-Auth-Url");
+        when(_oidcSsoConfigMock.getConfiguration()).thenReturn(_hierarchicalConfigurationMock);
+        when(_oidcSsoConfigMock.getAuthorizationEndpoint()).thenReturn("Test-Auth-Url");
         when(_oidcSsoConfigMock.getClientSecret()).thenReturn("Test-Client-Secret");
         when(_oidcSsoConfigMock.getClientId()).thenReturn("Test-Client-Id");
         when(_oidcSsoConfigMock.getRedirectUrl()).thenReturn("Test-Redirect-Url");
@@ -149,7 +154,8 @@ public class TankOidcAuthorizationTest {
     @Test
     public void GetAccessToken_Given_Invalid_OidcConfig_Throws_Exception() throws IllegalArgumentException {
         // Arrange
-        when(_tankConfigMock.getOidcSsoConfig()).thenReturn(null);
+        when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
+        when(_oidcSsoConfigMock.getConfiguration()).thenReturn(null);
 
         // Act + Assert
         assertThrows(IllegalArgumentException.class, () -> {

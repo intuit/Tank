@@ -4,6 +4,7 @@ import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.auth.sso.TankSsoHandler;
 import com.intuit.tank.vm.settings.OidcSsoConfig;
 import com.intuit.tank.vm.settings.TankConfig;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,8 @@ public class LoginFilterTest {
     @Mock
     private TankSecurityContext _tankSecurityContextMock;
     @Mock
+    private HierarchicalConfiguration _hierarchicalConfigurationMock;
+    @Mock
     private TankSsoHandler _tankSsoHandlerMock;
     @Mock
     private HttpServletRequest _httpServletRequestMock;
@@ -48,8 +51,9 @@ public class LoginFilterTest {
     @Mock
     private OidcSsoConfig _oidcSsoConfigMock;
 
-    private final String CONTEXT_PATH_STUB = "testContextPath";
     private final String AUTH_CODE_STUB = "testAuthCodeParameter";
+    private final String Auth_REQUEST = "testAuthRequest";
+    private final String CONTEXT_PATH_STUB = "testContextPath";
 
     @InjectMocks
     private LoginFilter _sut;
@@ -67,11 +71,43 @@ public class LoginFilterTest {
     }
 
     @Test
+    public void DoFilter_Given_Onload_With_SSO_Config_Constructs_Authorization_Request() throws IOException, ServletException {
+        // Arrange
+        when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
+        when(_oidcSsoConfigMock.getConfiguration()).thenReturn(_hierarchicalConfigurationMock);
+        when(_tankSecurityContextMock.getCallerPrincipal()).thenReturn(null);
+        when(_tankSsoHandlerMock.GetOnLoadAuthorizationRequest(any(OidcSsoConfig.class))).thenReturn(Auth_REQUEST);
+
+        // Act
+        _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
+
+        // Assert
+        verify(_tankSsoHandlerMock, times(1)).GetOnLoadAuthorizationRequest(any(OidcSsoConfig.class));
+    }
+
+    @Test
+    public void DoFilter_Given_Onload_Without_SSO_Config_Redirects_To_Standard_Login_Page() throws IOException, ServletException {
+        // Arrange
+        when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
+        when(_oidcSsoConfigMock.getConfiguration()).thenReturn(null);
+        when(_tankSecurityContextMock.getCallerPrincipal()).thenReturn(null);
+        when(_httpServletRequestMock.getSession()).thenReturn(_mockHttpSession);
+        when(_httpServletRequestMock.getContextPath()).thenReturn(CONTEXT_PATH_STUB);
+
+        // Act
+        _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
+
+        // Assert
+        verify(_httpServletResponseMock, times(1)).sendRedirect(any(String.class));
+    }
+
+    @Test
     public void DoFilter_Given_Authorization_Code_Parameter_Call_SSO_Handler() throws IOException, ServletException {
         // Arrange
+        when(_tankSecurityContextMock.getCallerPrincipal()).thenReturn(_principalMock);
         when(_httpServletRequestMock.getParameter(any(String.class))).thenReturn(AUTH_CODE_STUB);
         when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
-        when(_oidcSsoConfigMock.getRedirectUrl()).thenReturn("Test-Redirect-Url");
+        when(_oidcSsoConfigMock.getConfiguration()).thenReturn(_hierarchicalConfigurationMock);
 
         // Act
         _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
@@ -95,17 +131,17 @@ public class LoginFilterTest {
     @Test
     public void DoFilter_Given_IllegalArgumentException_Redirects() throws IOException, ServletException {
         // Arrange
+        when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
+        when(_tankSecurityContextMock.getCallerPrincipal()).thenReturn(_principalMock);
         when(_httpServletRequestMock.getParameter(any(String.class))).thenReturn(AUTH_CODE_STUB);
         when(_httpServletRequestMock.getSession()).thenReturn(_mockHttpSession);
         when(_httpServletRequestMock.getContextPath()).thenReturn(CONTEXT_PATH_STUB);
-        when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
-        when(_oidcSsoConfigMock.getRedirectUrl()).thenReturn("Test-Redirect-Url");
         doThrow(new IllegalArgumentException()).when(_tankSsoHandlerMock).HandleSsoAuthorization(any(String.class));
 
         // Act
         _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
 
         // Assert
-        verify(_httpServletResponseMock, times(2)).sendRedirect(any(String.class));
+        verify(_httpServletResponseMock, times(1)).sendRedirect(any(String.class));
     }
 }

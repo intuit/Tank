@@ -1,6 +1,7 @@
 package com.intuit.tank.config;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.servlet.FilterChain;
@@ -13,10 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.intuit.tank.auth.TankSecurityContext;
+import com.intuit.tank.auth.sso.OidcConstants;
 import com.intuit.tank.auth.sso.TankSsoHandler;
 import com.intuit.tank.vm.settings.OidcSsoConfig;
 import com.intuit.tank.vm.settings.TankConfig;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,7 +29,6 @@ import org.apache.logging.log4j.Logger;
  */
 public class LoginFilter extends HttpFilter {
 	private static final Logger LOG = LogManager.getLogger(LoginFilter.class);
-	private static final String AUTHCODEKEY = "code";
 
     @Inject
     private TankSecurityContext _securityContext;
@@ -39,18 +39,35 @@ public class LoginFilter extends HttpFilter {
 	@Inject
 	private TankConfig _tankConfig;
 
-	private String AUTHENTICATION_URL;
-	private String CLIENT_SECRET_VALUE;
-	private String CLIENT_ID_VALUE;
-	private String REDIRECT_URL_VALUE;
-
 	@Override
 	public void init(FilterConfig arg0) throws ServletException {}
 
+	private boolean firstOnloadFlag = true;
+
+	// TODO :: VALIDATE OLD LOGIN WHEN SSO CONFIG ABSENT
 	@Override
 	public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-		String authorizationCode = request.getParameter(AUTHCODEKEY);
+		OidcSsoConfig oidcSsoConfig = _tankConfig.getOidcSsoConfig();
 
+		// Handle Onload Request to Authorization Server
+		if (_securityContext.getCallerPrincipal() == null) {
+			if(Objects.requireNonNull(oidcSsoConfig).getConfiguration() != null)  {
+				String authorizationRequest = _tankSsoHandler.GetOnLoadAuthorizationRequest(oidcSsoConfig);
+				response.sendRedirect(authorizationRequest);
+				return;
+			}
+
+			if (firstOnloadFlag) {
+				firstOnloadFlag = false;
+				LOG.warn("Failed to access " + (request).getRequestURI() + ", lack of permissions");
+				InvalidateAndRedirect(request, response);
+				return;
+			}
+		}
+
+		String authorizationCode = request.getParameter(OidcConstants.AUTH_CODE_PARAMETER_KEY);
+
+		// Handle Redirect From Authorization Server
 		if (authorizationCode != null) {
 			try {
 				_tankSsoHandler.HandleSsoAuthorization(authorizationCode);
@@ -59,47 +76,11 @@ public class LoginFilter extends HttpFilter {
 				InvalidateAndRedirect(request, response);
 			}
 
-			OidcSsoConfig _oidcSsoConfig = _tankConfig.getOidcSsoConfig();
-
-			if (_oidcSsoConfig != null || _oidcSsoConfig.getRedirectUrl() != null) {
-				REDIRECT_URL_VALUE = _oidcSsoConfig.getRedirectUrl();
+			if (Objects.requireNonNull(oidcSsoConfig).getConfiguration() != null ) {
+				String REDIRECT_URL_VALUE = oidcSsoConfig.getRedirectUrl();
 				response.sendRedirect(REDIRECT_URL_VALUE);
 			}
 
-			return;
-		}
-
-		if (_securityContext.getCallerPrincipal() == null) {
-			OidcSsoConfig _oidcSsoConfig = _tankConfig.getOidcSsoConfig();
-
-			if (_oidcSsoConfig != null ||
-				_oidcSsoConfig.getAuthenticationUrl() != null ||
-				_oidcSsoConfig.getClientSecret() != null ||
-				_oidcSsoConfig.getClientId() != null ||
-				_oidcSsoConfig.getRedirectUrl() != null) {
-
-				AUTHENTICATION_URL = _oidcSsoConfig.getAuthenticationUrl();
-				CLIENT_SECRET_VALUE = _oidcSsoConfig.getClientSecret();
-				CLIENT_ID_VALUE = _oidcSsoConfig.getClientId();
-				REDIRECT_URL_VALUE = _oidcSsoConfig.getRedirectUrl();
-
-				// Temp
-				URIBuilder builder = new URIBuilder()
-						.setScheme("https")
-						.setHost("federatesys.intuit.com/as/token.oauth2")
-						.addParameter("client_id", CLIENT_ID_VALUE)
-						.addParameter("response_type", "code")
-						.addParameter("redirect_uri", REDIRECT_URL_VALUE)
-						.addParameter("scope", "openid+email+profile+groups")
-						.addParameter("state", "af0ifjsldkj");
-
-				var authenticationUrl = builder.toString();
-
-				response.sendRedirect(authenticationUrl);
-			}
-
-			LOG.warn("Failed to access " + (request).getRequestURI() + ", lack of permissions");
-			InvalidateAndRedirect(request, response);
 			return;
 		}
 
@@ -117,7 +98,7 @@ public class LoginFilter extends HttpFilter {
 
 	private void InvalidateAndRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		request.getSession().invalidate();
-		String contextPath = request.getContextPath();
+		String contextPath = request.getContextPath() + "/login.jsf";
 		response.sendRedirect(contextPath);
 	}
 }
