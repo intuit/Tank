@@ -2,6 +2,8 @@ package com.intuit.tank.config;
 
 import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.auth.sso.TankSsoHandler;
+import com.intuit.tank.vm.settings.OidcSsoConfig;
+import com.intuit.tank.vm.settings.TankConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +43,10 @@ public class LoginFilterTest {
     private FilterChain _filterChainResponseMock;
     @Mock
     private Principal _principalMock;
+    @Mock
+    private TankConfig _tankConfigMock;
+    @Mock
+    private OidcSsoConfig _oidcSsoConfigMock;
 
     private final String CONTEXT_PATH_STUB = "testContextPath";
     private final String AUTH_CODE_STUB = "testAuthCodeParameter";
@@ -64,6 +70,8 @@ public class LoginFilterTest {
     public void DoFilter_Given_Authorization_Code_Parameter_Call_SSO_Handler() throws IOException, ServletException {
         // Arrange
         when(_httpServletRequestMock.getParameter(any(String.class))).thenReturn(AUTH_CODE_STUB);
+        when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
+        when(_oidcSsoConfigMock.getRedirectUrl()).thenReturn("Test-Redirect-Url");
 
         // Act
         _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
@@ -90,12 +98,14 @@ public class LoginFilterTest {
         when(_httpServletRequestMock.getParameter(any(String.class))).thenReturn(AUTH_CODE_STUB);
         when(_httpServletRequestMock.getSession()).thenReturn(_mockHttpSession);
         when(_httpServletRequestMock.getContextPath()).thenReturn(CONTEXT_PATH_STUB);
+        when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
+        when(_oidcSsoConfigMock.getRedirectUrl()).thenReturn("Test-Redirect-Url");
         doThrow(new IllegalArgumentException()).when(_tankSsoHandlerMock).HandleSsoAuthorization(any(String.class));
 
         // Act
         _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
 
         // Assert
-        verify(_httpServletResponseMock, times(1)).sendRedirect(any(String.class));
+        verify(_httpServletResponseMock, times(2)).sendRedirect(any(String.class));
     }
 }
