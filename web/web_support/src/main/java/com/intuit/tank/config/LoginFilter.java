@@ -50,6 +50,7 @@ public class LoginFilter extends HttpFilter {
 	@Override
 	public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
 		String authorizationCode = request.getParameter(AUTHCODEKEY);
+
 		if (authorizationCode != null) {
 			try {
 				_tankSsoHandler.HandleSsoAuthorization(authorizationCode);
@@ -57,6 +58,14 @@ public class LoginFilter extends HttpFilter {
 				LOG.error("Failed SSO due to missing argument", e);
 				InvalidateAndRedirect(request, response);
 			}
+
+			OidcSsoConfig _oidcSsoConfig = _tankConfig.getOidcSsoConfig();
+
+			if (_oidcSsoConfig != null || _oidcSsoConfig.getRedirectUrl() != null) {
+				REDIRECT_URL_VALUE = _oidcSsoConfig.getRedirectUrl();
+				response.sendRedirect(REDIRECT_URL_VALUE);
+			}
+
 			return;
 		}
 
