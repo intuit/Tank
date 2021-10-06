@@ -14,7 +14,6 @@ import java.io.Serializable;
 @Data
 @ToString
 public class Token implements Serializable {
-
     @SerializedName("access_token")
     private String accessToken;
 

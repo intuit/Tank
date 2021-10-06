@@ -3,12 +3,10 @@ package com.intuit.tank.config;
 import java.io.IOException;
 
 import javax.inject.Inject;
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,7 +23,7 @@ import org.apache.logging.log4j.Logger;
  * @author Kevin McGoldrick
  * 
  */
-public class LoginFilter implements Filter {
+public class LoginFilter extends HttpFilter {
 	private static final Logger LOG = LogManager.getLogger(LoginFilter.class);
 	private static final String AUTHCODEKEY = "code";
 
@@ -39,20 +37,24 @@ public class LoginFilter implements Filter {
 	public void init(FilterConfig arg0) throws ServletException {}
 
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+	public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
 		String authorizationCode = request.getParameter(AUTHCODEKEY);
 		if (authorizationCode != null) {
-			_tankSsoHandler.HandleSsoAuthorization(authorizationCode);
+			try {
+				_tankSsoHandler.HandleSsoAuthorization(authorizationCode);
+			} catch(IllegalArgumentException e) {
+				LOG.error("Failed SSO due to missing argument", e);
+				InvalidateAndRedirect(request, response);
+			}
 			return;
 		}
 
 		if (_securityContext.getCallerPrincipal() == null) {
-			LOG.warn("Failed to access " + ((HttpServletRequest) request).getRequestURI() + ", lack of permissions");
-			((HttpServletRequest)request).getSession().invalidate();
-			String contextPath = ((HttpServletRequest)request).getContextPath();
-			((HttpServletResponse)response).sendRedirect(contextPath);
+			LOG.warn("Failed to access " + (request).getRequestURI() + ", lack of permissions");
+			InvalidateAndRedirect(request, response);
 			return;
 		}
+
 		try {
 			AWSXRay.getCurrentSegment().setUser(_securityContext.getCallerPrincipal().getName());
 		} catch (SegmentNotFoundException snfe ) { //Ignore
@@ -65,4 +67,9 @@ public class LoginFilter implements Filter {
 	@Override
 	public void destroy() {}
 
+	private void InvalidateAndRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		request.getSession().invalidate();
+		String contextPath = request.getContextPath();
+		response.sendRedirect(contextPath);
+	}
 }

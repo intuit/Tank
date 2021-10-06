@@ -54,6 +54,7 @@ public class TankOidcAuthorizationTest {
      }
      */
     private final String ID_TOKEN_STUB = "eyJhbGciOiJSUzI1NiIsImtpZCI6ImFCWlY5TlhmRjZhRnBZUHBlYUkwWVVMZVhqcyJ9.eyJzdWIiOiI1MDAwMjMzNjc1MSIsImlzcyI6Imh0dHBzOi8vZmVkZXJhdGVzeXMuaW50dWl0LmNvbSIsImV4cCI6MTYzMjc4Nzk4NywiYWNyIjoidXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmFjOmNsYXNzZXM6VGVsZXBob255IiwiYXV0aF90aW1lIjoxNjMyNzgwOTE0LCJuYW1lIjoiVGVzdCBVc2VyIiwiZ3JvdXBzIjpbIlVTQS1FbXBsb3llZXMiXSwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlck5hbWUiLCJnaXZlbl9uYW1lIjoiVGVzdCIsImZhbWlseV9uYW1lIjoiVXNlciIsImVtYWlsIjoidGVzdF91c2VyQGludHVpdC5jb20ifQ==.J7nDDhwhKLDQJtPp-KFiElW9kozTl2_advritySU4d4K1mh8zF8jkHdlCvIZuHNHKLT5cqqGpBONFHAO3-KP5ebgplm3IRtG7essdQbZTTSN0j7TaahomCV2fp4_KEQX2lgfAD4UkBrIFk9VlmmrUypZ55Zqmo96tsnC2Uv9Opmf3rFFjERPiHrDTu-6vqBIlJdzjYUuehTN6kzQM1uZAsgvACKMaJZaW8WP1zyp0aXuII3JHFavB7c-XSIX767uERIbOozsYW2RDDe8ZZuz7rdLVjdsgjDdigqBZ2QaTpdB6KbCNRH4JzBMZ1mwqgfIptSAdegHYK-ub7MMYoun2A";
+    private final Token TOKEN_STUB = new Token();
     private final String AUTHORIZATION_CODE_STUB = "testAuthorizationCode";
     private final String ACCESS_TOKEN_STUB = "{\"access_token\":\"000000000000\",\"id_token\":\"ey0000000000000000\",\"token_type\":\"Bearer\",\"expires_in\":3599}\n";
 
@@ -65,6 +66,8 @@ public class TankOidcAuthorizationTest {
     @BeforeEach
     public void SetUp() {
         closeable = MockitoAnnotations.openMocks(this);
+        TOKEN_STUB.setIdToken(ID_TOKEN_STUB);
+        TOKEN_STUB.setAccessToken(ACCESS_TOKEN_STUB);
     }
 
     @AfterEach
@@ -77,7 +80,7 @@ public class TankOidcAuthorizationTest {
     @Test
     public void DecodeIdToken_Given_ID_Token_Returns_Valid_UserInfo() {
         // Arrange + Act
-        UserInfo userInfoResponse = _sut.DecodeIdToken(ID_TOKEN_STUB);
+        UserInfo userInfoResponse = _sut.DecodeIdToken(TOKEN_STUB);
 
         // Assert
         assertNotNull(userInfoResponse);
@@ -86,12 +89,11 @@ public class TankOidcAuthorizationTest {
     }
 
     @Test
-    public void DecodeIdToken_Given_Error_Returns_Null() {
-        // Arrange + Act
-        UserInfo userInfoResponse = _sut.DecodeIdToken(null);
-
-        // Assert
-        assertNull(userInfoResponse);
+    public void DecodeIdToken_Given_Invalid_Token_Throws_Exception() {
+        // Arrange + Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            _sut.DecodeIdToken(null);
+        });
     }
 
     //endregion
@@ -134,6 +136,25 @@ public class TankOidcAuthorizationTest {
         assertNotNull(accessTokenResponse);
         assertNotNull(accessTokenResponse.getAccessToken());
         assertNotNull(accessTokenResponse.getIdToken());
+    }
+
+    @Test
+    public void GetAccessToken_Given_Invalid_Authorization_Code_Throws_Exception() throws IllegalArgumentException{
+        // Arrange + Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            _sut.GetAccessToken(null);
+        });
+    }
+
+    @Test
+    public void GetAccessToken_Given_Invalid_OidcConfig_Throws_Exception() throws IllegalArgumentException {
+        // Arrange
+        when(_tankConfigMock.getOidcSsoConfig()).thenReturn(null);
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            _sut.GetAccessToken(AUTHORIZATION_CODE_STUB);
+        });
     }
 
     //endregion

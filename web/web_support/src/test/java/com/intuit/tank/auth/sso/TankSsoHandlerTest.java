@@ -15,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -68,7 +69,7 @@ public class TankSsoHandlerTest {
     public void HandleSsoAuthorization_Given_AuthorizationCode_Call_To_Get_AccessToken() throws IOException {
         // Arrange
         when(_tankOidcAuthorizationMock.GetAccessToken(any(String.class))).thenReturn(TOKEN_STUB);
-        when(_tankOidcAuthorizationMock.DecodeIdToken(any(String.class))).thenReturn(USERINFO_STUB);
+        when(_tankOidcAuthorizationMock.DecodeIdToken(any(Token.class))).thenReturn(USERINFO_STUB);
 
         // Act
         _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB);
@@ -81,20 +82,20 @@ public class TankSsoHandlerTest {
     public void HandleSsoAuthorization_Given_AccessToken_Call_To_Decode_To_UserInfo() throws IOException {
         // Arrange
         when(_tankOidcAuthorizationMock.GetAccessToken(any(String.class))).thenReturn(TOKEN_STUB);
-        when(_tankOidcAuthorizationMock.DecodeIdToken(any(String.class))).thenReturn(USERINFO_STUB);
+        when(_tankOidcAuthorizationMock.DecodeIdToken(any(Token.class))).thenReturn(USERINFO_STUB);
 
         // Act
         _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB);
 
         // Assert
-        verify(_tankOidcAuthorizationMock, times(1)).DecodeIdToken(any(String.class));
+        verify(_tankOidcAuthorizationMock, times(1)).DecodeIdToken(any(Token.class));
     }
 
     @Test
     public void HandleSsoAuthorization_Any_SSO_User_Call_To_Check_If_User_Exists() throws IOException {
         // Arrange
         when(_tankOidcAuthorizationMock.GetAccessToken(any(String.class))).thenReturn(TOKEN_STUB);
-        when(_tankOidcAuthorizationMock.DecodeIdToken(any(String.class))).thenReturn(USERINFO_STUB);
+        when(_tankOidcAuthorizationMock.DecodeIdToken(any(Token.class))).thenReturn(USERINFO_STUB);
 
         // Act
         _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB);
@@ -107,7 +108,7 @@ public class TankSsoHandlerTest {
     public void HandleSsoAuthorization_Given_New_User_Call_To_Create_New_User() throws IOException {
         // Arrange
         when(_tankOidcAuthorizationMock.GetAccessToken(any(String.class))).thenReturn(TOKEN_STUB);
-        when(_tankOidcAuthorizationMock.DecodeIdToken(any(String.class))).thenReturn(USERINFO_STUB);
+        when(_tankOidcAuthorizationMock.DecodeIdToken(any(Token.class))).thenReturn(USERINFO_STUB);
         when(_userDaoMock.findByEmail(any(String.class))).thenReturn(null);
 
         // Act
@@ -121,7 +122,7 @@ public class TankSsoHandlerTest {
     public void HandleSsoAuthorization_Given_Existing_User_Does_Not_Call_To_Create_New_User() throws IOException {
         // Arrange
         when(_tankOidcAuthorizationMock.GetAccessToken(any(String.class))).thenReturn(TOKEN_STUB);
-        when(_tankOidcAuthorizationMock.DecodeIdToken(any(String.class))).thenReturn(USERINFO_STUB);
+        when(_tankOidcAuthorizationMock.DecodeIdToken(any(Token.class))).thenReturn(USERINFO_STUB);
         when(_userDaoMock.findByEmail(any(String.class))).thenReturn(USER_STUB);
 
         // Act
@@ -135,7 +136,7 @@ public class TankSsoHandlerTest {
     public void HandleSsoAuthorization_Given_Any_User_Call_To_Populate_Security_Context() throws IOException {
         // Arrange
         when(_tankOidcAuthorizationMock.GetAccessToken(any(String.class))).thenReturn(TOKEN_STUB);
-        when(_tankOidcAuthorizationMock.DecodeIdToken(any(String.class))).thenReturn(USERINFO_STUB);
+        when(_tankOidcAuthorizationMock.DecodeIdToken(any(Token.class))).thenReturn(USERINFO_STUB);
         when(_userDaoMock.findByEmail(any(String.class))).thenReturn(USER_STUB);
 
         // Act
@@ -150,20 +151,19 @@ public class TankSsoHandlerTest {
     //region Negative Case
 
     @Test
-    public void HandleSsoAuthorization_Given_Invalid_AuthorizationCode_Skips_SSO_Call_Through() throws IOException {
-        // Arrange
-        when(_tankOidcAuthorizationMock.GetAccessToken(any(String.class))).thenReturn(TOKEN_STUB);
-        when(_tankOidcAuthorizationMock.DecodeIdToken(any(String.class))).thenReturn(USERINFO_STUB);
+    public void HandleSsoAuthorization_Given_Invalid_AuthorizationCode_Throws_Exception() throws IllegalArgumentException {
+        // Arrange + Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            _sut.HandleSsoAuthorization(null);
+        });
+    }
 
-        // Act
-        _sut.HandleSsoAuthorization(null);
-
-        // Assert
-        verify(_tankOidcAuthorizationMock, times(0)).GetAccessToken(any(String.class));
-        verify(_tankOidcAuthorizationMock, times(0)).DecodeIdToken(any(String.class));
-        verify(_userDaoMock, times(0)).findByEmail(any(String.class));
-        verify(_userCreateMock, times(0)).CreateUser(any(UserInfo.class));
-        verify(_tankSecurityContextMock, times(0)).ssoSecurityContext(any(User.class));
+    @Test
+    public void HandleSsoAuthorization_Given_Invalid_OidcConfig_Throws_Exception() throws IllegalArgumentException {
+        // Arrange + Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB);
+        });
     }
 
     //endregion

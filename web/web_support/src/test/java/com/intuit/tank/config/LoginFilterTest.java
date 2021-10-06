@@ -11,8 +11,9 @@ import org.mockito.MockitoAnnotations;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.Principal;
 
@@ -31,13 +32,18 @@ public class LoginFilterTest {
     @Mock
     private TankSsoHandler _tankSsoHandlerMock;
     @Mock
-    private ServletRequest _servletRequestMock;
+    private HttpServletRequest _httpServletRequestMock;
     @Mock
-    private ServletResponse _servletResponseMock;
+    private HttpServletResponse _httpServletResponseMock;
+    @Mock
+    private HttpSession _mockHttpSession;
     @Mock
     private FilterChain _filterChainResponseMock;
     @Mock
     private Principal _principalMock;
+
+    private final String CONTEXT_PATH_STUB = "testContextPath";
+    private final String AUTH_CODE_STUB = "testAuthCodeParameter";
 
     @InjectMocks
     private LoginFilter _sut;
@@ -57,10 +63,10 @@ public class LoginFilterTest {
     @Test
     public void DoFilter_Given_Authorization_Code_Parameter_Call_SSO_Handler() throws IOException, ServletException {
         // Arrange
-        when(_servletRequestMock.getParameter(any(String.class))).thenReturn("testAuthCodeParameter");
+        when(_httpServletRequestMock.getParameter(any(String.class))).thenReturn(AUTH_CODE_STUB);
 
         // Act
-        _sut.doFilter(_servletRequestMock, _servletResponseMock, _filterChainResponseMock);
+        _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
 
         // Assert
         verify(_tankSsoHandlerMock, times(1)).HandleSsoAuthorization(any(String.class));
@@ -72,9 +78,24 @@ public class LoginFilterTest {
         when(_tankSecurityContextMock.getCallerPrincipal()).thenReturn(_principalMock);
 
         // Act
-        _sut.doFilter(_servletRequestMock, _servletResponseMock, _filterChainResponseMock);
+        _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
 
         // Assert
         verify(_tankSsoHandlerMock, times(0)).HandleSsoAuthorization(any(String.class));
+    }
+
+    @Test
+    public void DoFilter_Given_IllegalArgumentException_Redirects() throws IOException, ServletException {
+        // Arrange
+        when(_httpServletRequestMock.getParameter(any(String.class))).thenReturn(AUTH_CODE_STUB);
+        when(_httpServletRequestMock.getSession()).thenReturn(_mockHttpSession);
+        when(_httpServletRequestMock.getContextPath()).thenReturn(CONTEXT_PATH_STUB);
+        doThrow(new IllegalArgumentException()).when(_tankSsoHandlerMock).HandleSsoAuthorization(any(String.class));
+
+        // Act
+        _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
+
+        // Assert
+        verify(_httpServletResponseMock, times(1)).sendRedirect(any(String.class));
     }
 }

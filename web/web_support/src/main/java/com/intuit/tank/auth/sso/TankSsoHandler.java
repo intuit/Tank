@@ -30,11 +30,15 @@ public class TankSsoHandler {
 
     public void HandleSsoAuthorization(String authorizationCode) throws IOException {
         if (authorizationCode == null || authorizationCode.isEmpty() || authorizationCode.isBlank()) {
-            return;
+            throw new IllegalArgumentException("Missing Authorization Code");
         }
 
         Token token = _tankOidcAuthorization.GetAccessToken(authorizationCode);
-        UserInfo userInfo = _tankOidcAuthorization.DecodeIdToken(token.getIdToken());
+        UserInfo userInfo = _tankOidcAuthorization.DecodeIdToken(token);
+
+        if (userInfo == null || userInfo.getEmail() == null) {
+            throw new IllegalArgumentException("Missing User Information");
+        }
 
         User user = _userDao.findByEmail(userInfo.getEmail());
 

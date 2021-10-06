@@ -46,7 +46,17 @@ public class TankOidcAuthorization {
     private TankConfig _tankConfig;
 
     public Token GetAccessToken(String authorizationCode) throws IOException {
+        if (authorizationCode == null || authorizationCode.isEmpty() || authorizationCode.isBlank()) {
+            LOG.warn("GetAccessToken: Mission Authorization Code");
+            throw new IllegalArgumentException("Missing Authorization Code");
+        }
+
         OidcSsoConfig _oidcSsoConfig = _tankConfig.getOidcSsoConfig();
+
+        if (_oidcSsoConfig == null) {
+            LOG.warn("GetAccessToken: OIDC Config Null");
+            throw new IllegalArgumentException("OIDC Config Not Properly Configured");
+        }
 
         AUTHENTICATION_URL = _oidcSsoConfig.getAuthenticationUrl();
         CLIENT_SECRET_VALUE = _oidcSsoConfig.getClientSecret();
@@ -55,22 +65,25 @@ public class TankOidcAuthorization {
 
         Map<Object, Object> oidcRequestParameters = getOidcRequestParameters(authorizationCode);
 
+        LOG.info("Request Access Token from Authorization server");
         HttpResponse<String> httpPostResponse = _webHttpClient.Post(AUTHENTICATION_URL, oidcRequestParameters);
         return _gson.fromJson(httpPostResponse.body(), Token.class);
     }
 
-    public UserInfo DecodeIdToken(String idToken) {
-        try {
-            var truncatedEncodedIdTokenString = idToken.substring(idToken.indexOf('.')+1, idToken.lastIndexOf('.'));
-
-            byte[] decodedIdTokenBuffer = Base64.getDecoder().decode(truncatedEncodedIdTokenString);
-            String decodedUserInfoString = new String(decodedIdTokenBuffer);
-
-            return _gson.fromJson(decodedUserInfoString, UserInfo.class);
-        } catch(Exception e) {
-            LOG.error("Error decoding ID token", e);
-            return null;
+    public UserInfo DecodeIdToken(Token token) {
+        if (token == null) {
+            LOG.warn("DecodeIdToken: Missing Token Information");
+            throw new IllegalArgumentException("DecodeIdToken: Missing Token Information");
         }
+
+        var truncatedEncodedIdTokenString = token.getIdToken().substring(token.getIdToken().indexOf('.')+1, token.getIdToken().lastIndexOf('.'));
+
+        byte[] decodedIdTokenBuffer = Base64.getDecoder().decode(truncatedEncodedIdTokenString);
+        String decodedUserInfoString = new String(decodedIdTokenBuffer);
+
+        UserInfo userInfo = _gson.fromJson(decodedUserInfoString, UserInfo.class);
+        LOG.info("Decoding ID Token to UserInfo for " + userInfo.getUsername());
+        return userInfo;
     }
 
     private Map<Object, Object> getOidcRequestParameters(String authorizationCode) {
