@@ -44,26 +44,9 @@ public class LoginFilter extends HttpFilter {
 
 	private boolean firstOnloadFlag = true;
 
-	// TODO :: VALIDATE OLD LOGIN WHEN SSO CONFIG ABSENT
 	@Override
 	public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
 		OidcSsoConfig oidcSsoConfig = _tankConfig.getOidcSsoConfig();
-
-		// Handle Onload Request to Authorization Server
-		if (_securityContext.getCallerPrincipal() == null) {
-			if(Objects.requireNonNull(oidcSsoConfig).getConfiguration() != null)  {
-				String authorizationRequest = _tankSsoHandler.GetOnLoadAuthorizationRequest(oidcSsoConfig);
-				response.sendRedirect(authorizationRequest);
-				return;
-			}
-
-			if (firstOnloadFlag) {
-				firstOnloadFlag = false;
-				LOG.warn("Failed to access " + (request).getRequestURI() + ", lack of permissions");
-				InvalidateAndRedirect(request, response);
-				return;
-			}
-		}
 
 		String authorizationCode = request.getParameter(OidcConstants.AUTH_CODE_PARAMETER_KEY);
 
@@ -82,6 +65,22 @@ public class LoginFilter extends HttpFilter {
 			}
 
 			return;
+		}
+
+		// Handle Onload Request to Authorization Server
+		if (_securityContext.getCallerPrincipal() == null) {
+			if(Objects.requireNonNull(oidcSsoConfig).getConfiguration() != null)  {
+				String authorizationRequest = _tankSsoHandler.GetOnLoadAuthorizationRequest(oidcSsoConfig);
+				response.sendRedirect(authorizationRequest);
+				return;
+			}
+
+			if (firstOnloadFlag) {
+				firstOnloadFlag = false;
+				LOG.warn("Failed to access " + (request).getRequestURI() + ", lack of permissions");
+				InvalidateAndRedirect(request, response);
+				return;
+			}
 		}
 
 		try {
