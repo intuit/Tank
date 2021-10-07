@@ -57,6 +57,9 @@ public class LoginFilter extends HttpFilter {
 			} catch(IllegalArgumentException e) {
 				LOG.error("Failed SSO due to missing argument", e);
 				InvalidateAndRedirect(request, response);
+			} catch(Exception e) {
+				LOG.error("Failed SSO due to unhandled exception", e);
+				InvalidateAndRedirect(request, response);
 			}
 
 			if (Objects.requireNonNull(oidcSsoConfig).getConfiguration() != null ) {

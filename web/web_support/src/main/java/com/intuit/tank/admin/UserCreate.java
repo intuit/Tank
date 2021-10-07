@@ -19,7 +19,6 @@ import java.util.Set;
  */
 public class UserCreate {
     private static final Logger LOG = LogManager.getLogger(UserCreate.class);
-    private static final String TEMPSSOPASSWORD = "sso-password";
 
     private User _user;
 
@@ -27,28 +26,27 @@ public class UserCreate {
     private UserDao _userDao;
 
     public User CreateUser(UserInfo userInfo) {
-        try {
-            Set<String> defaultGroupsStringSet = new TankConfig().getSecurityConfig().getDefaultGroups();
-
-            _user = User.builder()
-                    .name(userInfo.getUsername())
-                    .password(PasswordEncoder.encodePassword(TEMPSSOPASSWORD))
-                    .email(userInfo.getEmail())
-                    .build();
-
-
-            _userDao.saveOrUpdate(_user);
-
-            for (String g : defaultGroupsStringSet) {
-                _user.addGroup(new GroupDao().getOrCreateGroup(g));
-            }
-
-            _userDao.saveOrUpdate(_user);
-
-            return _user;
-        } catch (Exception e) {
-            LOG.error("Failed to create user for: " + userInfo, e);
-            throw e;
+        if(userInfo == null || userInfo.getUsername() == null || userInfo.getEmail() == null) {
+            LOG.error("CreateUser: UserInfo cannot be null");
+            throw new IllegalArgumentException("In User Creation, UserInfo cannot be null");
         }
+
+        Set<String> defaultGroupsStringSet = new TankConfig().getSecurityConfig().getDefaultGroups();
+
+        _user = User.builder()
+                .name(userInfo.getUsername())
+                .email(userInfo.getEmail())
+                .password(java.util.UUID.randomUUID().toString())
+                .build();
+
+        _userDao.saveOrUpdate(_user);
+
+        for (String g : defaultGroupsStringSet) {
+            _user.addGroup(new GroupDao().getOrCreateGroup(g));
+        }
+
+        _userDao.saveOrUpdate(_user);
+
+        return _user;
     }
 }
