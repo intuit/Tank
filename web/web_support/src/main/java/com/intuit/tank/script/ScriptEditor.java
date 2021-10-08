@@ -263,7 +263,9 @@ public class ScriptEditor implements Serializable {
      * @param scpt
      */
     public String editScript(Script scpt) {
-        conversation.begin();
+        if (conversation != null && conversation.isTransient()) {
+            conversation.begin();
+        }
         AWSXRay.createSubsegment("Open.Script." + scpt.getName(), (subsegment) -> {
             subsegment.putAnnotation("script", scpt.getName());
             this.script = new ScriptDao().findById(scpt.getId());
