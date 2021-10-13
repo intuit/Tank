@@ -18,6 +18,7 @@ package com.intuit.tank.auth;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.enterprise.context.RequestScoped;
 import javax.faces.context.FacesContext;
@@ -33,6 +34,8 @@ import javax.validation.constraints.Size;
 
 import com.intuit.tank.auth.sso.TankSsoHandler;
 import com.intuit.tank.util.Messages;
+import com.intuit.tank.vm.settings.OidcSsoConfig;
+import com.intuit.tank.vm.settings.TankConfig;
 
 /**
  * TankAuthenticator
@@ -57,6 +60,9 @@ public class TankAuthenticator implements Serializable {
 
     @Inject
     private Messages messages;
+
+    @Inject
+    private TankConfig _tankConfig;
 
     @Inject
     private TankSsoHandler _tankSsoHandler;
@@ -99,6 +105,12 @@ public class TankAuthenticator implements Serializable {
     public boolean isloggedIn() {
         return securityContext.getCallerPrincipal() != null;
     }
+
+    public boolean isssoLogin() {
+        OidcSsoConfig oidcSsoConfig = _tankConfig.getOidcSsoConfig();
+        return Objects.requireNonNull(oidcSsoConfig).getConfiguration() != null;
+    }
+
 
     public String logout() {
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
