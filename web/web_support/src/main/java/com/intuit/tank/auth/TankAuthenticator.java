@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
+import com.intuit.tank.auth.sso.TankSsoHandler;
 import com.intuit.tank.util.Messages;
 
 /**
@@ -57,6 +58,9 @@ public class TankAuthenticator implements Serializable {
     @Inject
     private Messages messages;
 
+    @Inject
+    private TankSsoHandler _tankSsoHandler;
+
     public void login() throws IOException {
 
         switch (continueAuthentication()) {
@@ -73,6 +77,11 @@ public class TankAuthenticator implements Serializable {
                 break;
             case NOT_DONE:
         }
+    }
+
+    public void ssoLogin() throws IOException {
+        String authorizationRequest = _tankSsoHandler.GetOnLoadAuthorizationRequest();
+        FacesContext.getCurrentInstance().getExternalContext().redirect(authorizationRequest);
     }
 
     private AuthenticationStatus continueAuthentication() {

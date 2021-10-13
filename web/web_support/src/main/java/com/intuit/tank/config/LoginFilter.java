@@ -70,14 +70,7 @@ public class LoginFilter extends HttpFilter {
 			return;
 		}
 
-		// Handle Onload Request to Authorization Server
 		if (_securityContext.getCallerPrincipal() == null) {
-			if(Objects.requireNonNull(oidcSsoConfig).getConfiguration() != null)  {
-				String authorizationRequest = _tankSsoHandler.GetOnLoadAuthorizationRequest(oidcSsoConfig);
-				response.sendRedirect(authorizationRequest);
-				return;
-			}
-
 			if (firstOnloadFlag) {
 				firstOnloadFlag = false;
 				LOG.warn("Failed to access " + (request).getRequestURI() + ", lack of permissions");

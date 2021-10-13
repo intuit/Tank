@@ -52,7 +52,6 @@ public class LoginFilterTest {
     private OidcSsoConfig _oidcSsoConfigMock;
 
     private final String AUTH_CODE_STUB = "testAuthCodeParameter";
-    private final String Auth_REQUEST = "testAuthRequest";
     private final String CONTEXT_PATH_STUB = "testContextPath";
 
     @InjectMocks
@@ -68,21 +67,6 @@ public class LoginFilterTest {
     @AfterEach
     void closeService() throws Exception {
         closeable.close();
-    }
-
-    @Test
-    public void DoFilter_Given_Onload_With_SSO_Config_Constructs_Authorization_Request() throws IOException, ServletException {
-        // Arrange
-        when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
-        when(_oidcSsoConfigMock.getConfiguration()).thenReturn(_hierarchicalConfigurationMock);
-        when(_tankSecurityContextMock.getCallerPrincipal()).thenReturn(null);
-        when(_tankSsoHandlerMock.GetOnLoadAuthorizationRequest(any(OidcSsoConfig.class))).thenReturn(Auth_REQUEST);
-
-        // Act
-        _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
-
-        // Assert
-        verify(_tankSsoHandlerMock, times(1)).GetOnLoadAuthorizationRequest(any(OidcSsoConfig.class));
     }
 
     @Test
