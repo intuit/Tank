@@ -7,8 +7,11 @@ import com.intuit.tank.auth.sso.models.UserInfo;
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.User;
 import com.intuit.tank.vm.settings.OidcSsoConfig;
+import com.intuit.tank.vm.settings.TankConfig;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
@@ -19,6 +22,8 @@ import java.util.Objects;
  *
  * @author Shawn Park
  */
+@Named("ssoHandler")
+@RequestScoped
 public class TankSsoHandler {
     @Inject
     private TankOidcAuthorization _tankOidcAuthorization;
@@ -32,20 +37,25 @@ public class TankSsoHandler {
     @Inject
     private UserCreate _userCreate;
 
-    public String GetOnLoadAuthorizationRequest(OidcSsoConfig oidcSsoConfig) {
-            if (Objects.requireNonNull(oidcSsoConfig).getConfiguration() == null ) {
-                throw new IllegalArgumentException("Missing OIDC SSO Config");
-            }
+    @Inject
+    private TankConfig _tankConfig;
 
-            URI uri = UriBuilder
-                    .fromUri(oidcSsoConfig.getAuthorizationUrl())
-                    .queryParam(OidcConstants.CLIENT_ID_KEY, oidcSsoConfig.getClientId())
-                    .queryParam(OidcConstants.RESPONSE_TYPE_KEY, OidcConstants.RESPONSE_TYPE_VALUE)
-                    .queryParam(OidcConstants.REDIRECT_URL_KEY, oidcSsoConfig.getRedirectUrl())
-                    .queryParam(OidcConstants.SCOPE_KEY, OidcConstants.SCOPE_VALUE)
-                    .queryParam(OidcConstants.STATE_KEY, OidcConstants.STATE_VALUE).build();
+    public String GetOnLoadAuthorizationRequest() {
+        OidcSsoConfig oidcSsoConfig = _tankConfig.getOidcSsoConfig();
 
-            return oidcSsoConfig.getAuthorizationUrl() + "?" + uri.getQuery();
+        if (Objects.requireNonNull(oidcSsoConfig).getConfiguration() == null ) {
+            throw new IllegalArgumentException("Missing OIDC SSO Config");
+        }
+
+        URI uri = UriBuilder
+                .fromUri(oidcSsoConfig.getAuthorizationUrl())
+                .queryParam(OidcConstants.CLIENT_ID_KEY, oidcSsoConfig.getClientId())
+                .queryParam(OidcConstants.RESPONSE_TYPE_KEY, OidcConstants.RESPONSE_TYPE_VALUE)
+                .queryParam(OidcConstants.REDIRECT_URL_KEY, oidcSsoConfig.getRedirectUrl())
+                .queryParam(OidcConstants.SCOPE_KEY, OidcConstants.SCOPE_VALUE)
+                .queryParam(OidcConstants.STATE_KEY, OidcConstants.STATE_VALUE).build();
+
+        return oidcSsoConfig.getAuthorizationUrl() + "?" + uri.getQuery();
     }
 
     public void HandleSsoAuthorization(String authorizationCode) throws IOException {

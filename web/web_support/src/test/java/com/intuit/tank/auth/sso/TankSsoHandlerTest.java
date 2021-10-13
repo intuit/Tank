@@ -7,6 +7,7 @@ import com.intuit.tank.auth.sso.models.UserInfo;
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.User;
 import com.intuit.tank.vm.settings.OidcSsoConfig;
+import com.intuit.tank.vm.settings.TankConfig;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +29,8 @@ import static org.mockito.Mockito.*;
  */
 public class TankSsoHandlerTest {
 
+    @Mock
+    private TankConfig _tankConfigMock;
     @Mock
     private OidcSsoConfig _oidcSsoConfigMock;
     @Mock
@@ -74,13 +77,14 @@ public class TankSsoHandlerTest {
     @Test
     public void GetOnLoadAuthorizationRequest_Given_AuthorizationCode_Call_To_Get_AccessToken() {
         // Arrange
+        when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
         when(_oidcSsoConfigMock.getConfiguration()).thenReturn(_hierarchicalConfigurationMock);
         when(_oidcSsoConfigMock.getAuthorizationUrl()).thenReturn("https://www.authorization-url.com/auth");
         when(_oidcSsoConfigMock.getClientId()).thenReturn("client-id");
         when(_oidcSsoConfigMock.getRedirectUrl()).thenReturn("https://www.redirect-url.com");
 
         // Act
-        var authorizationRequestString = _sut.GetOnLoadAuthorizationRequest(_oidcSsoConfigMock);
+        var authorizationRequestString = _sut.GetOnLoadAuthorizationRequest();
 
         // Assert
         assertNotNull(authorizationRequestString);
@@ -95,11 +99,12 @@ public class TankSsoHandlerTest {
     @Test
     public void GetOnLoadAuthorizationRequest_Given_Null_Config_Throws_IllegalArgumentException() {
         // Arrange
+        when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
         when(_oidcSsoConfigMock.getConfiguration()).thenReturn(null);
 
         // Act + Assert
         assertThrows(IllegalArgumentException.class, () -> {
-            _sut.GetOnLoadAuthorizationRequest(_oidcSsoConfigMock);
+            _sut.GetOnLoadAuthorizationRequest();
         });
     }
 

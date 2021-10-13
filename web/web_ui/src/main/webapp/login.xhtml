@@ -10,13 +10,18 @@
     <div class="vertical-spacer" />
 
     <h:form id="login" rendered="#{not tsAuthenticator.loggedIn}" styleClass="ui-login-box">
+      <p:commandButton rendered="#{tsAuthenticator.ssoLogin}" icon="pi pi-angle-double-right" value="Sign in with SSO" action="#{tsAuthenticator.ssoLogin}" style="padding:8px; width:100%" />
+      <p:outputPanel rendered="#{tsAuthenticator.ssoLogin}" style="margin-top: 10%; margin-bottom:10%">
+        <hr style="width: 100%"> </hr>
+        <p style="font-size: 12px;color: #ffffff; text-align: center">OR</p>
+        <hr style="width: 100%"> </hr>
+      </p:outputPanel>
       <p:growl globalOnly="true" id="messages" sticky="true"/>
       <p:outputLabel value="Username" style="font-size: 10px;color: #ffffff; width:100%" />
       <h:inputText id="username" value="#{tsAuthenticator.username}" styleClass="formInput" style="padding:8px; width: 340px"/>
       <p:outputLabel value="Password" style="font-size: 10px;color: #ffffff; width:100%" />
       <h:inputSecret id="password" value="#{tsAuthenticator.password}" styleClass="formInput" style="padding:8px; width: 340px; margin: 0 0 14px"/>
       <p:commandButton id="login" action="#{tsAuthenticator.login}" value="Login" ajax="false" style="padding:8px; width:100%"/>
-     
       <h:inputHidden id="timeZone" value="#{preferencesBean.clientTimeZone}" converter="tsTimeZoneConverter" />
       <h:outputScript library="js" name="jstz-1.0.4.min.js" />
       <script type="text/javascript">
