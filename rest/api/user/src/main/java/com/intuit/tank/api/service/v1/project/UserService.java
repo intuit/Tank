@@ -40,12 +40,10 @@ import com.intuit.tank.api.model.v1.user.UserCredentials;
 public interface UserService {
 
     public static final String SERVICE_RELATIVE_PATH = "/v1/user-service";
-
     public static final String METHOD_PING = "/ping";
-
     public static final String METHOD_AUTHENTICATE = "/authenticate";
     public static final String METHOD_USER = "/user";
-
+    public static final String METHOD_USER_EMAIL = "/user/email";
     public static final String METHOD_USERS = "/users";
 
     /**
@@ -60,12 +58,7 @@ public interface UserService {
     public String ping();
 
     /**
-     * Deletes The specified project.
-     * 
-     * @param projectId
-     *            the id of the project to delete.
-     * @return Response containing a status code 204 (no content) if successful and 400 (bad request) if id cannot be
-     *         found.
+     * Get All Basic User information
      */
     @Path(UserService.METHOD_USERS)
     @Produces({ MediaType.APPLICATION_XML })
@@ -74,23 +67,31 @@ public interface UserService {
     public Response getAllUsers();
 
     /**
-     * 
-     * @param name
-     * @return
+     * Get Basic USER information by USERNAME
+     * @param username Username
+     * @return User information
      */
-    @Path(UserService.METHOD_USER + "/{name}")
+    @Path(UserService.METHOD_USER + "/{username}")
     @Produces({ MediaType.APPLICATION_XML })
     @GET
     @Nullable
-    public Response getUser(@PathParam("name") String name);
+    public Response getUserByUsername(@PathParam("username") String username);
 
     /**
-     * Deletes The specified project.
-     * 
-     * @param projectId
-     *            the id of the project to delete.
-     * @return Response containing a status code 204 (no content) if successful and 400 (bad request) if id cannot be
-     *         found.
+     * Get Basic USER information by EMAIL
+     * @param email User email
+     * @return User information
+     */
+    @Path(UserService.METHOD_USER_EMAIL + "/{email}")
+    @Produces({ MediaType.APPLICATION_XML })
+    @GET
+    @Nullable
+    public Response getUserByEmail(@PathParam("email") String email);
+
+    /**
+     * Authenticate user given credentials
+     * @param credentials User Credentials
+     * @return User information
      */
     @Path(UserService.METHOD_AUTHENTICATE)
     @Produces({ MediaType.APPLICATION_XML })

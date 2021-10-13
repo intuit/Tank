@@ -29,7 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class UserDaoTest {
 	
-	private UserDao dao;
+	private UserDao _sut;
+
+	private static final String userNameStub = "TestUser1";
+	private static final String userPasswordStub = "TestUser1_Password";
+	private static final String userEmailStub = "TestUser1@intuit.com";
+	private static final String userGroupStub = "TestGroup";
 	
 	@BeforeEach
     public void configure() {
@@ -37,36 +42,48 @@ public class UserDaoTest {
     	Configuration config = ctx.getConfiguration();
     	config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
     	ctx.updateLoggers();
-        dao = new UserDao();
+        _sut = new UserDao();
     }
 	
 	@Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testUserDao() throws Exception {
-		User entity = DaoTestUtil.createUserData("TestUser1", "TestUser1_Password", "TestUser1@intuit.com", "TestGroup");
-		entity = dao.saveOrUpdate(entity);
+		User entity = DaoTestUtil.createUserData(userNameStub, userPasswordStub, userEmailStub, userGroupStub);
+		entity = _sut.saveOrUpdate(entity);
 		
 		//Authenticate user with valid credentials
-		User result = dao.authenticate("TestUser1", "TestUser1_Password");
+		User result = _sut.authenticate(userNameStub, userPasswordStub);
 		assertEquals(entity.getId(), result.getId());
 		
 		//Authenticate user with invalid credentials
-		result = dao.authenticate("TestUser1", "Wrong_Password");
+		result = _sut.authenticate(userNameStub, "Wrong_Password");
 		assertNull(result);
 				
 		//Find user by valid API Token
-		result = dao.findByApiToken(entity.getApiToken());
+		result = _sut.findByApiToken(entity.getApiToken());
 		assertEquals(entity.getId(), result.getId());
 		
 		//Find user by invalid API Token
-		result = dao.findByApiToken("dummy_token");
+		result = _sut.findByApiToken("dummy_token");
 		assertNull(result);
-		
+
+		//Find user by valid username
+		result = _sut.findByUserName(userNameStub);
+		assertEquals(entity.getId(), result.getId());
+
 		//Find user by invalid username
-		result = dao.findByUserName("invalid_username");
+		result = _sut.findByUserName("invalid_username");
+		assertNull(result);
+
+		//Find user by valid email
+		result = _sut.findByEmail(userEmailStub);
+		assertEquals(entity.getId(), result.getId());
+
+		//Find user by invalid username
+		result = _sut.findByEmail("invalid_email@intuit.com");
 		assertNull(result);
 		
-		dao.delete(entity);
+		_sut.delete(entity);
 	}
-	
+
 }

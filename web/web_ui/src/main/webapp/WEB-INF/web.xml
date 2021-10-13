@@ -70,6 +70,7 @@
   <!-- Set the login filter to secure all the pages in the /secured/* path of the application  -->
   <filter-mapping>
       <filter-name>LoginFilter</filter-name>
+      <url-pattern>/login.jsf</url-pattern>
       <url-pattern>/admin/*</url-pattern>
       <url-pattern>/projects/*</url-pattern>
       <url-pattern>/scripts/*</url-pattern>

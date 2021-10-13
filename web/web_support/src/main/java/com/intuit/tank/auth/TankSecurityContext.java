@@ -1,5 +1,6 @@
 package com.intuit.tank.auth;
 
+import com.intuit.tank.project.User;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -57,6 +58,19 @@ public class TankSecurityContext implements SecurityContext, Serializable {
             userRoles = credentialValidationResult.getCallerGroups();
             return AuthenticationStatus.SUCCESS;
         }
+        return AuthenticationStatus.SEND_FAILURE;
+    }
+
+    public AuthenticationStatus ssoSecurityContext(User user) {
+        CredentialValidationResult credentialValidationResult = tankIdentityStore.validateSSOUser(user);
+
+        if (credentialValidationResult != null &&
+                credentialValidationResult != CredentialValidationResult.INVALID_RESULT) {
+            principal = credentialValidationResult.getCallerPrincipal();
+            userRoles = credentialValidationResult.getCallerGroups();
+            return AuthenticationStatus.SUCCESS;
+        }
+
         return AuthenticationStatus.SEND_FAILURE;
     }
 }

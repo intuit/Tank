@@ -72,10 +72,10 @@ public class UserServiceV1 implements UserService {
      * {@inheritDoc}
      */
     @Override
-    public Response getUser(String name) {
+    public Response getUserByUsername(String username) {
         ResponseBuilder responseBuilder = Response.ok();
         try {
-            com.intuit.tank.project.User user = new UserDao().findByUserName(name);
+            com.intuit.tank.project.User user = new UserDao().findByUserName(username);
             if (user != null) {
                 responseBuilder.entity(UserServiceUtil.userToTransferObject(user));
             } else {
@@ -84,6 +84,24 @@ public class UserServiceV1 implements UserService {
         } catch (Exception e) {
             responseBuilder.status(Status.INTERNAL_SERVER_ERROR);
             responseBuilder.entity("Cannot look up user: " + e.toString());
+            throw new WebApplicationException(responseBuilder.build());
+        }
+        return responseBuilder.build();
+    }
+
+    @Override
+    public Response getUserByEmail(String email) {
+        ResponseBuilder responseBuilder = Response.ok();
+        try {
+            com.intuit.tank.project.User user = new UserDao().findByEmail(email);
+            if (user != null) {
+                responseBuilder.entity(UserServiceUtil.userToTransferObject(user));
+            } else {
+                responseBuilder.status(Status.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            responseBuilder.status(Status.INTERNAL_SERVER_ERROR);
+            responseBuilder.entity("Cannot look up email: " + e.toString());
             throw new WebApplicationException(responseBuilder.build());
         }
         return responseBuilder.build();
