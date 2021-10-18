@@ -231,9 +231,9 @@
       message="Are you sure you want to delete Script #{scriptBean.selectedScript.entity.name}?">
       <h:form id="confirmDeletemainForm">
         <p:commandButton value="OK" id="confirmDeleteOkBtn"
-          action="#{scriptBean.delete(scriptBean.selectedScript.entity)}"
-          onsuccess="PF('confirmDelete').hide()"
-          update=":mainForm:scriptTableId" ajax="true" />
+                         action="#{scriptBean.delete(scriptBean.selectedScript.entity)}"
+                         onsuccess="PF('confirmDelete').hide();"
+                         update=":mainForm:scriptTableId, :mainForm:messages" ajax="true" />
         <h:panelGroup styleClass="horizontal-spacer" />
         <p:commandButton value="Cancel"
           onclick="PF('confirmDelete').hide();" type="button">
@@ -249,9 +249,9 @@
           <h:outputText styleClass="pa"
             value="Intuit Tank supports only .xml files as Scripts but can accept .zip files. Zip files will be searched recursively for all .xml files." />
           <div class="vertical-spacer" />
-          <p:fileUpload id="fileUploadControl" oncomplete="PF('xmlUploadDialog').hide()"
+          <p:fileUpload id="fileUploadControl" oncomplete="PF('xmlUploadDialog').hide();"
                         listener="#{tankXmlUploadBean.handleFileUpload}" mode="advanced"
-                        allowTypes="/(\.|\/)(xml|zip)$/" update=":mainForm:scriptTableId" multiple="true" />
+                        allowTypes="/(\.|\/)(xml|zip)$/" update=":mainForm:scriptTableId, :mainForm:messages" multiple="true" />
           <p:poll interval="#{Math.toIntExact(session.maxInactiveInterval - 10)}" async="true" />
           <div class="vertical-spacer" />
         </p:outputPanel>
@@ -268,7 +268,7 @@
         </f:facet>
         <p:commandButton value="OK" id="SaveAsOk" ajax="true"
           action="#{scriptBean.saveAs(scriptBean.selectedScript.entity)}"
-          update=":mainForm:scriptTableId"
+          update=":mainForm:scriptTableId, :mainForm:messages"
           onsuccess="PF('saveAsConfirm').hide();" />
         <h:panelGroup styleClass="horizontal-spacer" />
         <p:commandButton value="Cancel"
