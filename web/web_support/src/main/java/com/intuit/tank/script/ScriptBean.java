@@ -148,6 +148,8 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
             try {
                 new ScriptDao().delete(script.getId());
                 scriptEvent.fire(new ModifiedScriptMessage(script, this));
+                messages.info("Script " + script.getName() + " has been deleted.");
+                refresh();
             } catch (Exception e) {
                 LOG.error("Error deleting Script: " + e.toString());
                 exceptionHandler.handle(e);
@@ -162,7 +164,8 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
     public List<Script> getEntityList(ViewFilterType viewFilter) {
         VersionContainer<Script> container = scriptLoader.getVersionContainer(viewFilter);
         this.version = container.getVersion();
-        return container.getEntities();
+        List<Script> all = new ScriptDao().findFiltered(viewFilter);
+        return all;
     }
 
     /**
@@ -195,6 +198,7 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
                 		securityContext.getCallerPrincipal().getName(),
                 		saveAsName, script);
                 copyScript = new ScriptDao().saveOrUpdate(copyScript);
+                refresh();
                 scriptEvent.fire(new ModifiedScriptMessage(copyScript, this));
                 messages.info("Script " + originalName + " has been saved as "
                         + copyScript.getName() + ".");
