@@ -98,7 +98,8 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
     public List<Project> getEntityList(ViewFilterType viewFilter) {
         VersionContainer<Project> container = projectLoader.getVersionContainer(viewFilter);
         this.version = container.getVersion();
-        return container.getEntities();
+        List<Project> all = new ProjectDao().findFiltered(viewFilter);
+        return all;
     }
 
     /**
@@ -129,6 +130,7 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
                 new ProjectDao().delete(project);
                 messages.info("Project " + project.getName() + " has been removed.");
                 projectEvent.fire(new ModifiedProjectMessage(project, this));
+                refresh();
             } catch (Exception e) {
 
             }
