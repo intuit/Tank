@@ -14,7 +14,6 @@ package com.intuit.tank.script;
  */
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
