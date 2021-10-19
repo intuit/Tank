@@ -166,7 +166,6 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
         VersionContainer<Script> container = scriptLoader.getVersionContainer(viewFilter);
         this.version = container.getVersion();
         List<Script> all = new ScriptDao().findFiltered(viewFilter);
-        Collections.sort(all);
         return all;
     }
 
