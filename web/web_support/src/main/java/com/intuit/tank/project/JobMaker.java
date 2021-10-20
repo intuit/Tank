@@ -24,6 +24,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -82,6 +83,9 @@ public class JobMaker implements Serializable {
     private JobInstance proposedJobInstance;
 
     private String jobDetails;
+
+    @Inject
+    private TankSecurityContext securityContext;
 
     /**
      * 
@@ -288,6 +292,7 @@ public class JobMaker implements Serializable {
             Workload workload = projectBean.getWorkload();
             proposedJobInstance = new JobInstance(workload, getName());
             proposedJobInstance.setLoggingProfile(getLoggingProfile());
+            proposedJobInstance.setCreator(securityContext.getCallerPrincipal().getName());
             proposedJobInstance.setScheduledTime(new Date());
             proposedJobInstance.setUseEips(isUseEips());
             proposedJobInstance.setTankClientClass(getTankClientClass());

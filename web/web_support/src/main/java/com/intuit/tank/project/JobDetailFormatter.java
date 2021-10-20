@@ -89,6 +89,7 @@ public class JobDetailFormatter {
             addProperty(sb, "Name", StringUtils.isBlank(proposedJobInstance.getName()) ? "Name cannot be null"
                     : proposedJobInstance.getName(), StringUtils.isBlank(proposedJobInstance.getName()) ? "error"
                     : null);
+            addProperty(sb, "Creator", proposedJobInstance.getCreator());
             addProperty(sb, "Workload Type", proposedJobInstance.getIncrementStrategy().name());
             addProperty(sb, "Tank Http Client", config.getAgentConfig().getTankClientName(proposedJobInstance.getTankClientClass()));
             addProperty(sb, "Agent VM Type", getVmDetails(config, proposedJobInstance.getVmInstanceType()));
