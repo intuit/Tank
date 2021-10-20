@@ -288,6 +288,7 @@ public class JobMaker implements Serializable {
             Workload workload = projectBean.getWorkload();
             proposedJobInstance = new JobInstance(workload, getName());
             proposedJobInstance.setLoggingProfile(getLoggingProfile());
+            proposedJobInstance.setCreator(projectBean.getProject().getCreator());
             proposedJobInstance.setScheduledTime(new Date());
             proposedJobInstance.setUseEips(isUseEips());
             proposedJobInstance.setTankClientClass(getTankClientClass());
