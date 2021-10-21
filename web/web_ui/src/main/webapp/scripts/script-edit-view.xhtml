@@ -276,7 +276,8 @@
           rendered="#{!scriptSearchBean.searching}" liveResize="false" scrollable="true" scrollHeight="100%"
           sortMode="single" paginator="true" rows="50" resizableColumns="true"
           paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}  Rows per Page {RowsPerPageDropdown} Jump to Page {JumpToPageDropdown}"
-          rowsPerPageTemplate="25,50,75,100,150,200,500,1000,5000">
+                     currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                     rowsPerPageTemplate="25,50,75,100,150,200,500,1000,5000">
 
           <p:ajax event="rowSelect" immediate="false" process="scriptStepTableId" global="false"
             update=":scriptBrowserForm:titleToolbar:updateGroup" listener="#{aggregatorEditor.aggregateCheck()}" />
