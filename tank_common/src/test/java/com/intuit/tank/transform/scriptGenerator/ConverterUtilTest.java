@@ -468,7 +468,7 @@ public class ConverterUtilTest {
     @Test
     public void testGetWorkloadXML_1() throws Exception {
         HDWorkload hdWorkload = new HDWorkload();
-        AWSXRay.beginDummySegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
+        AWSXRay.getGlobalRecorder().beginNoOpSegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
         String result = ConverterUtil.getWorkloadXML(hdWorkload);
         AWSXRay.endSegment();
 
