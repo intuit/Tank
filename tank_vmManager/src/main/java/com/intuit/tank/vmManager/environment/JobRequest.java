@@ -47,10 +47,6 @@ public class JobRequest implements Runnable {
         this.vmTracker = tracker;
     }
 
-    public void setTraceEntity(Entity entity) {
-        AWSXRay.getGlobalRecorder().setTraceEntity(entity);
-    }
-
     @Override
     public void run() {
         try {

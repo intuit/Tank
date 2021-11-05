@@ -21,7 +21,7 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class VMQueue {
 
-    private ExecutorService executor = Executors.newCachedThreadPool();
+    private final ExecutorService executor = Executors.newCachedThreadPool();
 
     public VMQueue clone() throws CloneNotSupportedException {
         throw new CloneNotSupportedException();
