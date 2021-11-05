@@ -28,8 +28,8 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>5.5.3.Final</version.hibernate>
-    <version.aws-sdk-bom>2.16.95</version.aws-sdk-bom>
-    <version.aws-xray-sdk-bom>2.9.1</version.aws-xray-sdk-bom>
+    <version.aws-sdk-bom>2.17.75</version.aws-sdk-bom>
+    <version.aws-xray-sdk-bom>2.10.0</version.aws-xray-sdk-bom>
 
     <version-tomcat>9.0.46</version-tomcat>
     <weld.version>3.1.7.SP1</weld.version>
@@ -664,6 +664,11 @@
         <version>${version.aws-xray-sdk-bom}</version>
         <scope>import</scope>
         <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.13.0</version>
       </dependency>
       <dependency>
         <groupId>org.json</groupId>
