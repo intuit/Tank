@@ -69,7 +69,7 @@ public class NotificationRunner implements Runnable {
      */
     @Override
     public void run() {
-        AWSXRay.beginDummySegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
+        AWSXRay.getGlobalRecorder().beginNoOpSegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
         if (NumberUtils.isDigits(jobEvent.getJobId())) {
             JobInstance job = new JobInstanceDao().findById(Integer.valueOf(jobEvent.getJobId()));
             if (job != null) {

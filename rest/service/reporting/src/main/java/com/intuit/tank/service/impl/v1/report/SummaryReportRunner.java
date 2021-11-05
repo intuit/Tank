@@ -78,7 +78,7 @@ public class SummaryReportRunner implements Runnable {
      */
     @Override
     public void run() {
-        AWSXRay.beginDummySegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
+        AWSXRay.getGlobalRecorder().beginNoOpSegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
         String jobId = jobEvent.getJobId();
         generateSummary(jobEvent.getJobId());
         jobEventProducer.fire(new JobEvent(jobId, getSummaryEventMessage(),

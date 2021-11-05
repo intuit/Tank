@@ -35,10 +35,6 @@ public class KillInstance implements Runnable {
         this.request = request;
     }
 
-    public void setTraceEntity(Entity entity) {
-        AWSXRay.getGlobalRecorder().setTraceEntity(entity);
-    }
-
     @Override
     public void run() {
         IEnvironmentInstance environment = this.getEnvironment();
