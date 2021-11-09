@@ -82,7 +82,7 @@ public class AgentWatchdog implements Runnable {
         VmManagerConfig vmManagerConfig = new TankConfig().getVmManagerConfig();
         this.maxWaitForResponse = vmManagerConfig.getMaxAgentReportMills(1000 * 60 * 5); // 5 minutes
         this.maxWaitForStart = vmManagerConfig.getMaxAgentStartMills(1000 * 60 * 3);     // 3 minutes
-        this.maxRestarts = vmManagerConfig.getMaxRestarts(2);
+        this.maxRestarts = vmManagerConfig.getMaxRestarts(20);
         this.sleepTime = vmManagerConfig.getWatchdogSleepTime(30 * 1000);               // 30 seconds
     }
 
@@ -113,12 +113,9 @@ public class AgentWatchdog implements Runnable {
                     LOG.info("Checking for " + instances.size() + " running agents...");
                     removeRunningInstances(instances);
                     if (!instances.isEmpty()) {
-                        if (shouldRelaunchInstances()) {
-                            relaunch(instances);
-                        } else {
-                            LOG.info("Waiting for " + instances.size() + " agents to start: "
-                                    + getInstanceIdList(instances));
-                        }
+                        relaunch(instances);
+                        LOG.info("Waiting for " + instances.size() + " agents to start: "
+                                + getInstanceIdList(instances));
                         Thread.sleep(sleepTime);
                         continue;
                     } else {
@@ -136,12 +133,9 @@ public class AgentWatchdog implements Runnable {
                 LOG.info("Checking for " + instances.size() + " reporting agents...");
                 removeReportingInstances(jobId, instances);
                 if (!instances.isEmpty()) {
-                    if (shouldRebootInstances()) {
-                        reboot(instances);
-                    } else {
-                        LOG.info("Waiting for " + instances.size() + " agents to report: "
-                                + getInstanceIdList(instances));
-                    }
+                    reboot(instances);
+                    LOG.info("Waiting for " + instances.size() + " agents to report: "
+                            + getInstanceIdList(instances));
                     Thread.sleep(sleepTime);
                     continue;
                 } else {
