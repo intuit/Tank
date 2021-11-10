@@ -82,7 +82,7 @@ public class AgentWatchdog implements Runnable {
         VmManagerConfig vmManagerConfig = new TankConfig().getVmManagerConfig();
         this.maxWaitForResponse = vmManagerConfig.getMaxAgentReportMills(1000 * 60 * 5); // 5 minutes
         this.maxWaitForStart = vmManagerConfig.getMaxAgentStartMills(1000 * 60 * 3);     // 3 minutes
-        this.maxRestarts = vmManagerConfig.getMaxRestarts(20);
+        this.maxRestarts = 20; vmManagerConfig.getMaxRestarts(20);
         this.sleepTime = vmManagerConfig.getWatchdogSleepTime(30 * 1000);               // 30 seconds
     }
 
@@ -139,7 +139,7 @@ public class AgentWatchdog implements Runnable {
                     LOG.info("Waiting for " + instances.size() + " agents to report: "
                             + getInstanceIdList(instances));
                     Thread.sleep(sleepTime);
-                    checkForStart = true;
+                    //checkForStart = true;
                     continue;
                 } else {
                     LOG.info("All Agents Reported back.");
