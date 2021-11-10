@@ -111,7 +111,7 @@ public class AgentWatchdog implements Runnable {
                 }
                 if (checkForStart) {
                     // Pause to allow instances to start
-                    Thread.sleep(sleepTime);
+                    //Thread.sleep(sleepTime);
                     LOG.info("Checking for " + instances.size() + " running agents...");
                     removeRunningInstances(instances);
                     if (!instances.isEmpty()) {
@@ -139,6 +139,7 @@ public class AgentWatchdog implements Runnable {
                     LOG.info("Waiting for " + instances.size() + " agents to report: "
                             + getInstanceIdList(instances));
                     Thread.sleep(sleepTime);
+                    checkForStart = true;
                     continue;
                 } else {
                     LOG.info("All Agents Reported back.");
