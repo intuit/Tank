@@ -170,7 +170,7 @@ public class AgentWatchdog implements Runnable {
         if (rebootCount <= maxRestarts) {
 
             String msg = "Have " + instances.size()
-                    + " agents that started but failed to report status correctly. rebooting "
+                    + " agents that started but failed to report status correctly. Rebooting. "
                     + getInstanceIdList(instances);
             vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.AGENT_RESTARTED));
             LOG.info(msg);
@@ -222,7 +222,7 @@ public class AgentWatchdog implements Runnable {
         restartCount++;
         if (restartCount <= maxRestarts) {
             startTime = System.currentTimeMillis();
-            String msg = "Have " + instances.size() + " agents that failed to start correctly. Restarting "
+            String msg = "Have " + instances.size() + " agents that failed to start correctly. Relaunching. "
                     + getInstanceIdList(instances);
             vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.AGENT_REBOOTED));
             LOG.info(msg);
