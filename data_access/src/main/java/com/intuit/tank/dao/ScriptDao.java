@@ -168,8 +168,6 @@ public class ScriptDao extends BaseDao<Script> {
     public Script saveOrUpdate(Script script) {
         MethodTimer mt = new MethodTimer(LOG, getClass(), "saveOrUpdate").start();
         int size = script.getScriptSteps().size();
-        //ScriptUtil.setScriptStepLabels(script);
-        // try {
         LOG.info("persisting script " + script.getName() + " with id " + script.getId()
                 + " into database");
         EntityManager em = getEntityManager();
