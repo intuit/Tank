@@ -140,6 +140,8 @@ public class AgentWatchdog implements Runnable {
                 if (!instances.isEmpty()) {
                     if (shouldRebootInstances()) {
                         checkForStart = true;
+                        // TODO Pending instances have not been removed, therefore they will be restarted.
+//                         Problem with removing them is we still need to check that they have reported
                         removePendingInstances(instances);
                         relaunch(instances);
                     }
