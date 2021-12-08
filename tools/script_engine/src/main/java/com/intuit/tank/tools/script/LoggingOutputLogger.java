@@ -63,10 +63,10 @@ public class LoggingOutputLogger implements OutputLogger {
      * @param text
      * @return
      */
-    private String redactSSN(String text) {
+    public String redactSSN(String text) {
         Pattern ssnDetector = Pattern.compile("\"ssn\":\"\\d{9}\"");
         Matcher m = ssnDetector.matcher(text);
-        return m.replaceAll("\"ssn\":{SSN_REDACTED}");
+        return m.replaceAll("\"ssn\":\"{SSN_REDACTED}\"");
     }
 
 }
