@@ -82,7 +82,7 @@ public class AgentWatchdog implements Runnable {
         VmManagerConfig vmManagerConfig = new TankConfig().getVmManagerConfig();
         this.maxWaitForResponse = vmManagerConfig.getMaxAgentReportMills(1000 * 60 * 5); // 5 minutes
         this.maxWaitForStart = vmManagerConfig.getMaxAgentStartMills(1000 * 60 * 3);     // 3 minutes
-        this.maxRestarts = 20; vmManagerConfig.getMaxRestarts(20);
+        this.maxRestarts = 20; //vmManagerConfig.getMaxRestarts(20);
         this.sleepTime = vmManagerConfig.getWatchdogSleepTime(30 * 1000);               // 30 seconds
     }
 
@@ -140,6 +140,7 @@ public class AgentWatchdog implements Runnable {
                 if (!instances.isEmpty()) {
                     if (shouldRebootInstances()) {
                         checkForStart = true;
+                        removePendingInstances(instances);
                         relaunch(instances);
                     }
                     LOG.info("Waiting for " + instances.size() + " agents to report: "
@@ -227,7 +228,7 @@ public class AgentWatchdog implements Runnable {
                     + getInstanceIdList(instances);
             vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.AGENT_REBOOTED));
             LOG.info(msg);
-            // relaunch instances and remove old onesn from vmTracker
+            // relaunch instances and remove old ones from vmTracker
             // kill them first just to be sure
             List<String> instanceIds = instances.stream()
                     .map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
@@ -311,6 +312,16 @@ public class AgentWatchdog implements Runnable {
      */
     private boolean shouldRebootInstances() {
         return startTime + maxWaitForResponse < System.currentTimeMillis();
+    }
+
+
+    private void removePendingInstances(List<VMInformation> instances) {
+        List<VMInformation> foundInstances = amazonInstance.describeInstances(instances.stream().map(VMInformation::getInstanceId).toArray(String[]::new));
+        for (VMInformation info : foundInstances) {
+            if ("pending".equalsIgnoreCase(info.getState())) {
+                removeInstance(info.getInstanceId(), instances);
+            }
+        }
     }
 
     /**
