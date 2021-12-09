@@ -19,6 +19,9 @@ package com.intuit.tank.tools.script;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * LoggingOutputLogger
  * 
@@ -42,8 +45,7 @@ public class LoggingOutputLogger implements OutputLogger {
      */
     @Override
     public void log(String text) {
-        LOG.info(text);
-
+        LOG.info(redactSSN(text));
     }
 
     @Override
@@ -54,6 +56,17 @@ public class LoggingOutputLogger implements OutputLogger {
     @Override
     public void error(String text) {
         LOG.error(text);
+    }
+
+    /**
+     * Redacts SSNs of the form `"ssn":"#########"`
+     * @param text
+     * @return
+     */
+    public String redactSSN(String text) {
+        Pattern ssnDetector = Pattern.compile("((\"ssn\")|(\"social\")):\"\\d{3}(-?)\\d{2}(-?)\\d{4}\"");
+        Matcher m = ssnDetector.matcher(text);
+        return m.replaceAll("\"ssn\":\"{SSN_REDACTED}\"");
     }
 
 }
