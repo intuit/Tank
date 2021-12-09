@@ -844,4 +844,19 @@ public class ScriptFilterUtilTest {
         assertEquals(redactingLogger.redactSSN(logMessage), redactedLogMessage);
     }
 
+    @Test
+    public void testRedactSSN2() {
+        String logMessage = "Request Post data KEY fuegoNavInformation -- Value {\"nav\":\"Continue\",\"type\":\"launchTopic\",\"topicId\":\"W2_IMPORT\",\"additionalNavData\":{\"op\":\"EDIT\",\"topic\":\"irsw2\",\"param\":{\"callingTopic\":\"irsw2\",\"firstname\":\"Joe\",\"lastname\":\"REFSAL\",\"SpouseCopyIndPP\":\"false\",\"AddressableName\":\"your\",\"storage\":\"return\",\"isYOYTransfer\":\"true\",\"uuid\":\"85b223de-7d66-4e4a-872e-81270edaaf8c\",\"ssn\":\"011-22-0772\",\"ein\":\"\",\"filingStatusCd\":\"1\",\"totalW2Instances\":\"0\"}}}";
+        String redactedLogMessage = "Request Post data KEY fuegoNavInformation -- Value {\"nav\":\"Continue\",\"type\":\"launchTopic\",\"topicId\":\"W2_IMPORT\",\"additionalNavData\":{\"op\":\"EDIT\",\"topic\":\"irsw2\",\"param\":{\"callingTopic\":\"irsw2\",\"firstname\":\"Joe\",\"lastname\":\"REFSAL\",\"SpouseCopyIndPP\":\"false\",\"AddressableName\":\"your\",\"storage\":\"return\",\"isYOYTransfer\":\"true\",\"uuid\":\"85b223de-7d66-4e4a-872e-81270edaaf8c\",\"ssn\":\"{SSN_REDACTED}\",\"ein\":\"\",\"filingStatusCd\":\"1\",\"totalW2Instances\":\"0\"}}}";
+        LoggingOutputLogger redactingLogger = new LoggingOutputLogger();
+        assertEquals(redactingLogger.redactSSN(logMessage), redactedLogMessage);
+    }
+
+    @Test
+    public void testRedactSSN3() {
+        String logMessage = "Request Post data KEY fuegoNavInformation -- Value {\"nav\":\"Continue\",\"type\":\"launchTopic\",\"topicId\":\"W2_IMPORT\",\"additionalNavData\":{\"op\":\"EDIT\",\"topic\":\"irsw2\",\"param\":{\"callingTopic\":\"irsw2\",\"firstname\":\"Joe\",\"lastname\":\"REFSAL\",\"SpouseCopyIndPP\":\"false\",\"AddressableName\":\"your\",\"storage\":\"return\",\"isYOYTransfer\":\"true\",\"uuid\":\"85b223de-7d66-4e4a-872e-81270edaaf8c\",\"social\":\"011220772\",\"ein\":\"\",\"filingStatusCd\":\"1\",\"totalW2Instances\":\"0\"}}}";
+        String redactedLogMessage = "Request Post data KEY fuegoNavInformation -- Value {\"nav\":\"Continue\",\"type\":\"launchTopic\",\"topicId\":\"W2_IMPORT\",\"additionalNavData\":{\"op\":\"EDIT\",\"topic\":\"irsw2\",\"param\":{\"callingTopic\":\"irsw2\",\"firstname\":\"Joe\",\"lastname\":\"REFSAL\",\"SpouseCopyIndPP\":\"false\",\"AddressableName\":\"your\",\"storage\":\"return\",\"isYOYTransfer\":\"true\",\"uuid\":\"85b223de-7d66-4e4a-872e-81270edaaf8c\",\"ssn\":\"{SSN_REDACTED}\",\"ein\":\"\",\"filingStatusCd\":\"1\",\"totalW2Instances\":\"0\"}}}";
+        LoggingOutputLogger redactingLogger = new LoggingOutputLogger();
+        assertEquals(redactingLogger.redactSSN(logMessage), redactedLogMessage);
+    }
 }
