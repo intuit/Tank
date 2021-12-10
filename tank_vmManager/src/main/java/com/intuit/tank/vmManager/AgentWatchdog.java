@@ -140,9 +140,6 @@ public class AgentWatchdog implements Runnable {
                 if (!instances.isEmpty()) {
                     if (shouldRebootInstances()) {
                         checkForStart = true;
-                        // TODO Pending instances have not been removed, therefore they will be restarted.
-//                         Problem with removing them is we still need to check that they have reported
-                        removePendingInstances(instances);
                         relaunch(instances);
                     }
                     LOG.info("Waiting for " + instances.size() + " agents to report: "
@@ -155,7 +152,6 @@ public class AgentWatchdog implements Runnable {
                             "All Agents Reported Back and are ready to start load.", JobLifecycleEvent.AGENT_REPORTED));
                     stopped = true;
                 }
-
             }
         } catch (Exception e) {
             LOG.error("Error in Watchdog: " + e.toString(), e);
@@ -314,16 +310,6 @@ public class AgentWatchdog implements Runnable {
      */
     private boolean shouldRebootInstances() {
         return startTime + maxWaitForResponse < System.currentTimeMillis();
-    }
-
-
-    private void removePendingInstances(List<VMInformation> instances) {
-        List<VMInformation> foundInstances = amazonInstance.describeInstances(instances.stream().map(VMInformation::getInstanceId).toArray(String[]::new));
-        for (VMInformation info : foundInstances) {
-            if ("pending".equalsIgnoreCase(info.getState())) {
-                removeInstance(info.getInstanceId(), instances);
-            }
-        }
     }
 
     /**
