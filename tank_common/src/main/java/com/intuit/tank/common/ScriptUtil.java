@@ -160,6 +160,7 @@ public class ScriptUtil {
         boolean copy = script.getId() == 0;
         if (script.getScriptSteps() != null) {
             for (ScriptStep step : script.getScriptSteps()) {
+                step.setStepIndex(i++);
                 if (copy || step.getUuid() == null) {
                     step.setUuid(UUID.randomUUID().toString());
                 }

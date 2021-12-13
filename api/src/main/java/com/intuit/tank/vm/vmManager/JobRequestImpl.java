@@ -266,7 +266,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
                 .append("baselineVirtualUsers", baselineVirtualUsers)
                 .append("userIntervalIncrement", userIntervalIncrement)
                 .append("reportingMode", reportingMode)
-                .append("regions", ToStringBuilder.reflectionToString(regions))
+                .append("regions", regions)
                 .toString();
     }
 

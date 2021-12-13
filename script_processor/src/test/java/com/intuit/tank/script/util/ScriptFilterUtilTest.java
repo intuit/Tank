@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.tools.script.LoggingOutputLogger;
+import com.intuit.tank.tools.script.OutputLogger;
 import com.intuit.tank.util.ScriptFilterType;
 import com.intuit.tank.vm.api.enumerated.ScriptFilterActionType;
 import org.junit.jupiter.api.Test;
@@ -832,5 +834,29 @@ public class ScriptFilterUtilTest {
         boolean result = ScriptFilterUtil.filterOnFieldSets(fields, condition, currentStep, steps);
 
         assertEquals(false, result);
+    }
+
+    @Test
+    public void testRedactSSN() {
+        String logMessage = "Request Post data KEY fuegoNavInformation -- Value {\"nav\":\"Continue\",\"type\":\"launchTopic\",\"topicId\":\"W2_IMPORT\",\"additionalNavData\":{\"op\":\"EDIT\",\"topic\":\"irsw2\",\"param\":{\"callingTopic\":\"irsw2\",\"firstname\":\"Joe\",\"lastname\":\"REFSAL\",\"SpouseCopyIndPP\":\"false\",\"AddressableName\":\"your\",\"storage\":\"return\",\"isYOYTransfer\":\"true\",\"uuid\":\"85b223de-7d66-4e4a-872e-81270edaaf8c\",\"ssn\":\"011220772\",\"ein\":\"\",\"filingStatusCd\":\"1\",\"totalW2Instances\":\"0\"}}}";
+        String redactedLogMessage = "Request Post data KEY fuegoNavInformation -- Value {\"nav\":\"Continue\",\"type\":\"launchTopic\",\"topicId\":\"W2_IMPORT\",\"additionalNavData\":{\"op\":\"EDIT\",\"topic\":\"irsw2\",\"param\":{\"callingTopic\":\"irsw2\",\"firstname\":\"Joe\",\"lastname\":\"REFSAL\",\"SpouseCopyIndPP\":\"false\",\"AddressableName\":\"your\",\"storage\":\"return\",\"isYOYTransfer\":\"true\",\"uuid\":\"85b223de-7d66-4e4a-872e-81270edaaf8c\",\"ssn\":\"{SSN_REDACTED}\",\"ein\":\"\",\"filingStatusCd\":\"1\",\"totalW2Instances\":\"0\"}}}";
+        LoggingOutputLogger redactingLogger = new LoggingOutputLogger();
+        assertEquals(redactingLogger.redactSSN(logMessage), redactedLogMessage);
+    }
+
+    @Test
+    public void testRedactSSN2() {
+        String logMessage = "Request Post data KEY fuegoNavInformation -- Value {\"nav\":\"Continue\",\"type\":\"launchTopic\",\"topicId\":\"W2_IMPORT\",\"additionalNavData\":{\"op\":\"EDIT\",\"topic\":\"irsw2\",\"param\":{\"callingTopic\":\"irsw2\",\"firstname\":\"Joe\",\"lastname\":\"REFSAL\",\"SpouseCopyIndPP\":\"false\",\"AddressableName\":\"your\",\"storage\":\"return\",\"isYOYTransfer\":\"true\",\"uuid\":\"85b223de-7d66-4e4a-872e-81270edaaf8c\",\"ssn\":\"011-22-0772\",\"ein\":\"\",\"filingStatusCd\":\"1\",\"totalW2Instances\":\"0\"}}}";
+        String redactedLogMessage = "Request Post data KEY fuegoNavInformation -- Value {\"nav\":\"Continue\",\"type\":\"launchTopic\",\"topicId\":\"W2_IMPORT\",\"additionalNavData\":{\"op\":\"EDIT\",\"topic\":\"irsw2\",\"param\":{\"callingTopic\":\"irsw2\",\"firstname\":\"Joe\",\"lastname\":\"REFSAL\",\"SpouseCopyIndPP\":\"false\",\"AddressableName\":\"your\",\"storage\":\"return\",\"isYOYTransfer\":\"true\",\"uuid\":\"85b223de-7d66-4e4a-872e-81270edaaf8c\",\"ssn\":\"{SSN_REDACTED}\",\"ein\":\"\",\"filingStatusCd\":\"1\",\"totalW2Instances\":\"0\"}}}";
+        LoggingOutputLogger redactingLogger = new LoggingOutputLogger();
+        assertEquals(redactingLogger.redactSSN(logMessage), redactedLogMessage);
+    }
+
+    @Test
+    public void testRedactSSN3() {
+        String logMessage = "Request Post data KEY fuegoNavInformation -- Value {\"nav\":\"Continue\",\"type\":\"launchTopic\",\"topicId\":\"W2_IMPORT\",\"additionalNavData\":{\"op\":\"EDIT\",\"topic\":\"irsw2\",\"param\":{\"callingTopic\":\"irsw2\",\"firstname\":\"Joe\",\"lastname\":\"REFSAL\",\"SpouseCopyIndPP\":\"false\",\"AddressableName\":\"your\",\"storage\":\"return\",\"isYOYTransfer\":\"true\",\"uuid\":\"85b223de-7d66-4e4a-872e-81270edaaf8c\",\"social\":\"011220772\",\"ein\":\"\",\"filingStatusCd\":\"1\",\"totalW2Instances\":\"0\"}}}";
+        String redactedLogMessage = "Request Post data KEY fuegoNavInformation -- Value {\"nav\":\"Continue\",\"type\":\"launchTopic\",\"topicId\":\"W2_IMPORT\",\"additionalNavData\":{\"op\":\"EDIT\",\"topic\":\"irsw2\",\"param\":{\"callingTopic\":\"irsw2\",\"firstname\":\"Joe\",\"lastname\":\"REFSAL\",\"SpouseCopyIndPP\":\"false\",\"AddressableName\":\"your\",\"storage\":\"return\",\"isYOYTransfer\":\"true\",\"uuid\":\"85b223de-7d66-4e4a-872e-81270edaaf8c\",\"ssn\":\"{SSN_REDACTED}\",\"ein\":\"\",\"filingStatusCd\":\"1\",\"totalW2Instances\":\"0\"}}}";
+        LoggingOutputLogger redactingLogger = new LoggingOutputLogger();
+        assertEquals(redactingLogger.redactSSN(logMessage), redactedLogMessage);
     }
 }
