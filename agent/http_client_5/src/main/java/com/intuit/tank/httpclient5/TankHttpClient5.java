@@ -193,7 +193,7 @@ public class TankHttpClient5 implements TankHttpClient {
     public void doPost(BaseRequest request) {
         SimpleHttpRequest httppost = SimpleHttpRequests.post(request.getRequestUrl());
         String requestBody = request.getBody();
-        if (request.getContentType().toLowerCase().contains(BaseRequest.CONTENT_TYPE_MULTIPART)) {
+        if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
             HttpEntity entity = buildParts(request);
             try (ByteArrayOutputStream baoStream = new ByteArrayOutputStream() ) {
                 entity.writeTo(baoStream);
