@@ -27,26 +27,26 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>5.5.3.Final</version.hibernate>
-    <version.aws-sdk-bom>2.17.75</version.aws-sdk-bom>
+    <version.hibernate>5.6.2.Final</version.hibernate>
+    <version.software.amazon.awssdk>2.17.99</version.software.amazon.awssdk>
     <version.aws-xray-sdk-bom>2.10.0</version.aws-xray-sdk-bom>
 
-    <version-tomcat>9.0.46</version-tomcat>
-    <weld.version>3.1.7.SP1</weld.version>
+    <version-tomcat>9.0.56</version-tomcat>
+    <weld.version>3.1.8.Final</weld.version>
     <cdi.version>2.0</cdi.version>
 
     <version.enunciate>2.13.3</version.enunciate>
 
     <version.faces>2.3.9</version.faces>
-    <version.primefaces>10.0.0</version.primefaces>
-    <version.primefaces-ext>10.0.4</version.primefaces-ext>
+    <version.primefaces>11.0.0</version.primefaces>
+    <version.primefaces-ext>11.0.0</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.22.2</version.surefire>
     <version.jersey>2.34</version.jersey>
-    <version.junit>5.7.2</version.junit>
+    <version.junit>5.8.2</version.junit>
     <version.httpclient>4.5.13</version.httpclient>
-    <version.httpclient5>5.1</version.httpclient5>
-    <version.lucene>8.8.2</version.lucene>
+    <version.httpclient5>5.1.2</version.httpclient5>
+    <version.lucene>8.11.0</version.lucene>
     <version.jaxb>2.3.3</version.jaxb>
 
     <version.groovy>2.4.20</version.groovy>
@@ -541,7 +541,7 @@
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-core</artifactId>
-        <version>2.14.1</version>
+        <version>2.15.0</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
@@ -653,7 +653,7 @@
       <dependency>
         <groupId>software.amazon.awssdk</groupId>
         <artifactId>bom</artifactId>
-        <version>${version.aws-sdk-bom}</version>
+        <version>${version.software.amazon.awssdk}</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
