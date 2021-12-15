@@ -61,6 +61,7 @@ public class TestPlanStarter implements Runnable {
                 thread.start();
                 APITestHarness.getInstance().threadStarted(thread);
                 threadsStarted++;
+                threadsStarted++;
             }
         }
 
