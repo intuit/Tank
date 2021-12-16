@@ -18,13 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -199,7 +193,7 @@ public class TankHttpClient5 implements TankHttpClient {
     public void doPost(BaseRequest request) {
         SimpleHttpRequest httppost = SimpleHttpRequests.post(request.getRequestUrl());
         String requestBody = request.getBody();
-        if (BaseRequest.CONTENT_TYPE_MULTIPART.equalsIgnoreCase(request.getContentType())) {
+        if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
             HttpEntity entity = buildParts(request);
             try (ByteArrayOutputStream baoStream = new ByteArrayOutputStream() ) {
                 entity.writeTo(baoStream);

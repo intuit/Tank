@@ -17,14 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -213,7 +206,7 @@ public class TankHttpClient4 implements TankHttpClient {
         HttpPost httppost = new HttpPost(request.getRequestUrl());
         String requestBody = request.getBody();
         HttpEntity entity = null;
-        if (BaseRequest.CONTENT_TYPE_MULTIPART.equalsIgnoreCase(request.getContentType())) {
+        if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
             entity = buildParts(request);
         } else {
             entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));

@@ -192,7 +192,7 @@ public class TankHttpClient3 implements TankHttpClient {
             PostMethod httppost = new PostMethod(request.getRequestUrl());
             String requestBody = request.getBody();
             RequestEntity entity = null;
-            if (BaseRequest.CONTENT_TYPE_MULTIPART.equalsIgnoreCase(request.getContentType())) {
+            if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
                 List<Part> parts = buildParts(request);
 
                 entity = new MultipartRequestEntity(parts.toArray(new Part[0]), httppost.getParams());
