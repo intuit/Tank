@@ -130,7 +130,7 @@ public class TestPlanStarter implements Runnable {
         return 1; //Return minimum wait time 1 millisecond
     }
 
-    private Thread createThread(Object httpClient, int threadNumber) {
+    private void createThread(Object httpClient, int threadNumber) {
         TestPlanRunner session = new TestPlanRunner(httpClient, plan, threadNumber, tankHttpClientClass);
         Thread thread = new Thread(threadGroup, session, "AGENT");
         thread.setDaemon(true);// system won't shut down normally until all user threads stop
@@ -138,6 +138,5 @@ public class TestPlanStarter implements Runnable {
         thread.start();
         APITestHarness.getInstance().threadStarted(thread);
         threadsStarted++;
-        return thread;
     }
 }
