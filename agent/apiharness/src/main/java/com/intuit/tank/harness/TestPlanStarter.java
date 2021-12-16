@@ -57,13 +57,7 @@ public class TestPlanStarter implements Runnable {
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting initial " + numInitialUsers + " users for plan "
                     + plan.getTestPlanName() + "...")));
             while (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
-                Thread thread = createThread(httpClient, threadsStarted);
-                thread.start();
-                APITestHarness.getInstance().threadStarted(thread);
-                threadsStarted++;
-                APITestHarness.getInstance().threadStarted(thread);
-                thread.start();
-                threadsStarted++;
+                createThread(httpClient, threadsStarted);
             }
         }
 
@@ -141,6 +135,9 @@ public class TestPlanStarter implements Runnable {
         Thread thread = new Thread(threadGroup, session, "AGENT");
         thread.setDaemon(true);// system won't shut down normally until all user threads stop
         session.setUniqueName(threadGroup.getName() + "-" + thread.getId());
+        thread.start();
+        APITestHarness.getInstance().threadStarted(thread);
+        threadsStarted++;
         return thread;
     }
 }
