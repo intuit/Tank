@@ -1113,7 +1113,7 @@
                 action="#{logicStepEditor.logicTestData.newMapValue(logicStepEditor.logicTestData.varMap)}"
                 onsuccess="PF('inputVarDialog').hide();PF('inputVarDialog').show();" update=":inputVarForm:inputVarGroup" />
               <p:dataTable value="#{logicStepEditor.logicTestData.variables}" var="var" id="testVarTable"
-                styleClass="striped highlight" resizableColumns="true"
+                lazy="false" styleClass="striped highlight" resizableColumns="true"
                 emptyMessage="Click 'Add Variable' to add new values">
 
                 <p:column width="100" headerText="name">
