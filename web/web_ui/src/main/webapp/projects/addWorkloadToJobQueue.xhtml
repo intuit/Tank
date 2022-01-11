@@ -115,6 +115,13 @@
           </div>
         </h:panelGroup>
 
+        <ui:fragment rendered="#{not projectBean.canEditProject()}">
+          <div id="userPermissionsDiv" class="formRow">
+            User does not have permission to create a job.
+            Contact a Tank Admin to elevate permissions.
+          </div>
+        </ui:fragment>
+
         <div id="submitJobDiv" class="formRow">
           <div class="formButton">
             <p:commandButton id="submitJobButton"
