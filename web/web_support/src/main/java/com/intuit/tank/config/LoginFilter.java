@@ -77,13 +77,13 @@ public class LoginFilter extends HttpFilter {
 				InvalidateAndRedirect(request, response);
 				return;
 			}
-		}
-
-		try {
-			AWSXRay.getCurrentSegment().setUser(_securityContext.getCallerPrincipal().getName());
-		} catch (SegmentNotFoundException snfe ) { //Ignore
-		} catch (Exception e) {
-			LOG.error("Failed to set User on current segment : " + e.getMessage(), e);
+		} else {
+			try {
+				AWSXRay.getCurrentSegment().setUser(_securityContext.getCallerPrincipal().getName());
+			} catch (SegmentNotFoundException snfe) { //Ignore
+			} catch (Exception e) {
+				LOG.error("Failed to set User on current segment : " + e.getMessage(), e);
+			}
 		}
         chain.doFilter(request, response);
 	}
