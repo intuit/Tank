@@ -107,6 +107,8 @@ public class AgentWatchdog implements Runnable {
         AWSXRay.getGlobalRecorder().beginNoOpSegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
         try {
             startedInstances = new ArrayList<VMInformation>(vmInfo);
+            runningInstances = new ArrayList<VMInformation>();
+            reportedInstances = new ArrayList<VMInformation>();
             while (restartCount <= maxRestarts && !stopped) {
                 if (!vmTracker.isRunning(instanceRequest.getJobId())) {
                     LOG.info("vmTracker is running.  Breaking from loop.");
