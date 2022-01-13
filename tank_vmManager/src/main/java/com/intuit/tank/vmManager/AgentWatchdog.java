@@ -194,6 +194,7 @@ public class AgentWatchdog implements Runnable {
             throw new RuntimeException("Job appears to have been stopped. Exiting...");
         }
         for (CloudVmStatus status : vmStatusForJob.getStatuses()) {
+            LOG.info("checking vmstatus: " + status.getVmStatus());
             if (status.getVmStatus() == VMStatus.running
                     || (status.getJobStatus() != JobStatus.Unknown && status.getJobStatus() != JobStatus.Starting)) {
                 VMInformation removedInstance = removeInstance(runningInstances, status.getInstanceId());
