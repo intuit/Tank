@@ -181,40 +181,39 @@ public class AgentWatchdog implements Runnable {
         String jobId = instanceRequest.getJobId();
         CloudVmStatusContainer vmStatusForJob = vmTracker.getVmStatusForJob(jobId);
         if (vmStatusForJob != null && vmStatusForJob.getEndTime() == null) {
-            for (CloudVmStatus status : vmStatusForJob.getStatuses()) {
-                if (status.getVmStatus() == VMStatus.running
-                        || (status.getJobStatus() != JobStatus.Unknown && status.getJobStatus() != JobStatus.Starting)) {
-                    VMInformation removedInstance = removeInstance(runningInstances, status.getInstanceId());
-                    addInstance(reportedInstances, removedInstance);                }
-            }
-        } else {
             stopped = true;
             throw new RuntimeException("Job appears to have been stopped. Exiting...");
         }
-    }
-
-    private void reboot(List<VMInformation> instances) {
-        rebootCount++;
-        if (rebootCount <= maxRestarts) {
-
-            String msg = "Have " + instances.size()
-                    + " agents that started but failed to report status correctly. Rebooting. "
-                    + getInstanceIdList(instances);
-            vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.AGENT_RESTARTED));
-            LOG.info(msg);
-            startTime = System.currentTimeMillis();
-            amazonInstance.reboot(instances);
-            checkForStart = true;
-        } else {
-            stopped = true;
-            String msg = "Have "
-                    + instances.size()
-                    + " agents that failed to report correctly and have exceeded the maximum number of restarts. Killing job.";
-            vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.JOB_KILLED));
-            LOG.info(msg);
-            killJob();
+        for (CloudVmStatus status : vmStatusForJob.getStatuses()) {
+            if (status.getVmStatus() == VMStatus.running
+                    || (status.getJobStatus() != JobStatus.Unknown && status.getJobStatus() != JobStatus.Starting)) {
+                VMInformation removedInstance = removeInstance(runningInstances, status.getInstanceId());
+                addInstance(reportedInstances, removedInstance);                }
         }
     }
+
+//    private void reboot(List<VMInformation> instances) {
+//        rebootCount++;
+//        if (rebootCount <= maxRestarts) {
+//
+//            String msg = "Have " + instances.size()
+//                    + " agents that started but failed to report status correctly. Rebooting. "
+//                    + getInstanceIdList(instances);
+//            vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.AGENT_RESTARTED));
+//            LOG.info(msg);
+//            startTime = System.currentTimeMillis();
+//            amazonInstance.reboot(instances);
+//            checkForStart = true;
+//        } else {
+//            stopped = true;
+//            String msg = "Have "
+//                    + instances.size()
+//                    + " agents that failed to report correctly and have exceeded the maximum number of restarts. Killing job.";
+//            vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.JOB_KILLED));
+//            LOG.info(msg);
+//            killJob();
+//        }
+//    }
 
     private String getInstanceIdList(List<VMInformation> instances) {
         return StringUtils.join(instances, ", ");
@@ -228,11 +227,12 @@ public class AgentWatchdog implements Runnable {
                     + getInstanceIdList(instances);
             vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.AGENT_REBOOTED));
             LOG.info(msg);
-            // relaunch instances and remove old ones from vmTracker
-            // kill them first just to be sure
+            // Relaunch instances and remove old ones from vmTracker
+            // Kill instances first
             List<String> instanceIds = instances.stream()
                     .map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
             amazonInstance.killInstances(instanceIds);
+            // Set terminated status on the DAO
             VMImageDao dao = new VMImageDao();
             for (VMInformation info : instances) {
                 vmInfo.remove(info);
@@ -304,16 +304,10 @@ public class AgentWatchdog implements Runnable {
                 VMStatus.terminated, new ValidationStatus(), 0, 0, null, null);
     }
 
-    /**
-     * @return
-     */
     private boolean shouldRelaunchInstances() {
         return startTime + maxWaitForStart < System.currentTimeMillis();
     }
 
-    /**
-     * @return
-     */
     private boolean shouldRebootInstances() {
         return startTime + maxWaitForResponse < System.currentTimeMillis();
     }
