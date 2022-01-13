@@ -248,7 +248,7 @@ public class AgentWatchdog implements Runnable {
             // Set instance request to have same number of instances as those not started/running
             instanceRequest.setNumberOfInstances(instances.size());
             // Delete all the instances present
-            //instances.clear();
+            instances.clear();
             // Add new instances
             List<VMInformation> newVms = new AmazonInstance(instanceRequest.getRegion()).create(instanceRequest);
             for (VMInformation newInfo : newVms) {
