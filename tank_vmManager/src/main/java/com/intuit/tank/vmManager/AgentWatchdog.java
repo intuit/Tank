@@ -86,6 +86,12 @@ public class AgentWatchdog implements Runnable {
         this.maxWaitForStart = 1000 * 60 * 3; //vmManagerConfig.getMaxAgentStartMills(1000 * 60 * 3);     // 3 minutes
         this.maxRestarts = 20;
         this.sleepTime = vmManagerConfig.getWatchdogSleepTime(30 * 1000);               // 30 seconds
+
+        LOG.info("AgentWatchdog settings: "
+                + "\nmaxWaitForResponse: " + maxWaitForResponse
+                + "\nmaxWaitForStart: " + maxWaitForStart
+                + "\nmaxRestarts: " + maxRestarts
+                + "\nsleepTime: " + sleepTime);
     }
 
     /**
@@ -110,10 +116,10 @@ public class AgentWatchdog implements Runnable {
             runningInstances = new ArrayList<VMInformation>();
             reportedInstances = new ArrayList<VMInformation>();
             while (restartCount <= maxRestarts && !stopped) {
-                if (!vmTracker.isRunning(instanceRequest.getJobId())) {
-                    LOG.info("vmTracker is running.  Breaking from loop.");
-                    break;
-                }
+//                if (!vmTracker.isRunning(instanceRequest.getJobId())) {
+//                    LOG.info("vmTracker is running.  Breaking from loop.");
+//                    break;
+//                }
                 // First check for running instances
                 checkForRunningInstances();
                 LOG.info(runningInstances.size() + " instances running. Waiting for remaining " + startedInstances.size() + " agents to start running.");
@@ -155,6 +161,7 @@ public class AgentWatchdog implements Runnable {
             }
         } catch (Exception e) {
             LOG.error("Error in Watchdog: " + e.toString(), e);
+            // TODO Terminate all instances
         } finally {
             LOG.info("Exiting Watchdog " + this.toString());
             AWSXRay.endSegment();
@@ -225,7 +232,7 @@ public class AgentWatchdog implements Runnable {
         restartCount++;
         if (restartCount <= maxRestarts) {
             startTime = System.currentTimeMillis();
-            String msg = "Have " + instances.size() + " agents that failed to start correctly. Relaunching. "
+            String msg = "Have " + instances.size() + " agents that failed to start or report correctly. Relaunching. "
                     + getInstanceIdList(instances);
             vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.AGENT_REBOOTED));
             LOG.info(msg);
@@ -271,15 +278,9 @@ public class AgentWatchdog implements Runnable {
                     + " agents that failed to start correctly and have exceeded the maximum number of restarts. Killing job.";
             vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.JOB_ABORTED));
             LOG.info(msg);
-            killJob();
+            // TODO Do we have to kill jobs here?
+            throw new RuntimeException("Killing jobs and exiting");
         }
-    }
-
-    /**
-     * 
-     */
-    private void killJob() {
-        throw new RuntimeException("Killing jobs and exiting");
     }
 
     /**
@@ -299,8 +300,8 @@ public class AgentWatchdog implements Runnable {
      * @return
      */
     private CloudVmStatus createTerminatedVmStatus(VMInformation info) {
-        LOG.info(info);
-        LOG.info(instanceRequest);
+//        LOG.info(info);
+//        LOG.info(instanceRequest);
         return new CloudVmStatus(info.getInstanceId(), instanceRequest.getJobId(), "unknown",
                 JobStatus.Stopped, VMImageType.AGENT, instanceRequest.getRegion(),
                 VMStatus.terminated, new ValidationStatus(), 0, 0, null, null);
