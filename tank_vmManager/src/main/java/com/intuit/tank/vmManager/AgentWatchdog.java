@@ -68,6 +68,7 @@ public class AgentWatchdog implements Runnable {
     private int restartCount;
     private int rebootCount;
     private AmazonInstance amazonInstance;
+    private int expectedInstanceCount;
 
     /**
      * @param instanceRequest
@@ -86,6 +87,7 @@ public class AgentWatchdog implements Runnable {
         this.maxWaitForStart = 1000 * 60 * 3; //vmManagerConfig.getMaxAgentStartMills(1000 * 60 * 3);     // 3 minutes
         this.maxRestarts = 20;
         this.sleepTime = vmManagerConfig.getWatchdogSleepTime(30 * 1000);               // 30 seconds
+        this.expectedInstanceCount = vmInfo.size();
 
         LOG.info("AgentWatchdog settings: "
                 + "\nmaxWaitForResponse: " + maxWaitForResponse
@@ -144,7 +146,7 @@ public class AgentWatchdog implements Runnable {
                 LOG.info(runningInstances.size() + " instances running. " + reportedInstances.size() + " instances reported. Waiting for remaining " + runningInstances.size() + " agents to report back...");
                 // When runningInstances is empty all instances have reported back.
                 // If not, check if its time for a restart.
-                if (!runningInstances.isEmpty()) {
+                if (!runningInstances.isEmpty() || reportedInstances.size() < expectedInstanceCount) {
                     if (shouldRebootInstances()) {
                         relaunch(runningInstances);
                         startTime = System.currentTimeMillis();
@@ -236,48 +238,7 @@ public class AgentWatchdog implements Runnable {
 
     private void relaunch(ArrayList<VMInformation> instances) {
         restartCount++;
-        if (restartCount <= maxRestarts) {
-            String msg = "Have " + instances.size() + " agents that failed to start or report correctly. Relaunching. "
-                    + getInstanceIdList(instances);
-            vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.AGENT_REBOOTED));
-            LOG.info(msg);
-            // Relaunch instances and remove old ones from vmTracker
-            // Kill instances first
-            List<String> instanceIds = instances.stream()
-                    .map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
-            amazonInstance.killInstances(instanceIds);
-            // Set terminated status on the DAO
-            VMImageDao dao = new VMImageDao();
-            for (VMInformation info : instances) {
-                vmInfo.remove(info); // TODO Remove if line 264 is removed
-                vmTracker.setStatus(createTerminatedVmStatus(info));
-                VMInstance image = dao.getImageByInstanceId(info.getInstanceId());
-                if (image != null) {
-                    image.setStatus(VMStatus.terminated.name());
-                    dao.saveOrUpdate(image);
-                }
-            }
-            LOG.info("Setting number of instances to relaunch to: " + instances.size());
-            // Set instance request to have same number of instances as those not started/running
-            instanceRequest.setNumberOfInstances(instances.size());
-            // Delete all the instances present
-            instances.clear();
-            // Add new instances
-            List<VMInformation> newVms = new AmazonInstance(instanceRequest.getRegion()).create(instanceRequest);
-            for (VMInformation newInfo : newVms) {
-                vmInfo.add(newInfo); // TODO Does this update the gui or is it safe to delete?
-                // Add directly to started instances since these are restarted from scratch
-                startedInstances.add(newInfo);
-                vmTracker.setStatus(createCloudStatus(instanceRequest, newInfo));
-                LOG.info("Added image (" + newInfo.getInstanceId() + ") to VMImage table");
-                try {
-                    dao.addImageFromInfo(instanceRequest.getJobId(), newInfo,
-                            instanceRequest.getRegion());
-                } catch (Exception e) {
-                    LOG.warn("Error persisting VM Image: " + e);
-                }
-            }
-        } else {
+        if (restartCount > maxRestarts) {
             stopped = true;
             String msg = "Have "
                     + this.startedInstances.size()
@@ -286,6 +247,47 @@ public class AgentWatchdog implements Runnable {
             LOG.info(msg);
             // TODO Do we have to kill jobs here?
             throw new RuntimeException("Killing jobs and exiting");
+        }
+        String msg = "Have " + instances.size() + " agents that failed to start or report correctly. Relaunching. "
+                + getInstanceIdList(instances);
+        vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.AGENT_REBOOTED));
+        LOG.info(msg);
+        // Relaunch instances and remove old ones from vmTracker
+        // Kill instances first
+        List<String> instanceIds = instances.stream()
+                .map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
+        amazonInstance.killInstances(instanceIds);
+        // Set terminated status on the DAO
+        VMImageDao dao = new VMImageDao();
+        for (VMInformation info : instances) {
+            vmInfo.remove(info); // TODO Remove if line 264 is removed
+            vmTracker.setStatus(createTerminatedVmStatus(info));
+            VMInstance image = dao.getImageByInstanceId(info.getInstanceId());
+            if (image != null) {
+                image.setStatus(VMStatus.terminated.name());
+                dao.saveOrUpdate(image);
+            }
+        }
+        LOG.info("Setting number of instances to relaunch to: " + instances.size());
+        // Set instance request to have same number of instances as those not started/running
+        instanceRequest.setNumberOfInstances(instances.size());
+        // Delete all the instances present that have been terminated
+        instances.clear();
+        // Create and send instance start request
+        List<VMInformation> newVms = new AmazonInstance(instanceRequest.getRegion()).create(instanceRequest);
+        // Add new instances
+        for (VMInformation newInfo : newVms) {
+            vmInfo.add(newInfo); // TODO Does this update the gui or is it safe to delete?
+            // Add directly to started instances since these are restarted from scratch
+            startedInstances.add(newInfo);
+            vmTracker.setStatus(createCloudStatus(instanceRequest, newInfo));
+            LOG.info("Added image (" + newInfo.getInstanceId() + ") to VMImage table");
+            try {
+                dao.addImageFromInfo(instanceRequest.getJobId(), newInfo,
+                        instanceRequest.getRegion());
+            } catch (Exception e) {
+                LOG.warn("Error persisting VM Image: " + e);
+            }
         }
     }
 
