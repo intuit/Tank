@@ -146,6 +146,7 @@ public class AgentWatchdog implements Runnable {
                 LOG.info(runningInstances.size() + " instances running. " + reportedInstances.size() + " instances reported. Waiting for remaining " + runningInstances.size() + " agents to report back...");
                 // When runningInstances is empty all instances have reported back.
                 // If not, check if its time for a restart.
+                LOG.info( reportedInstances.size() + "   " + expectedInstanceCount); // TODO delete
                 if (!runningInstances.isEmpty() || reportedInstances.size() < expectedInstanceCount) {
                     if (shouldRebootInstances()) {
                         relaunch(runningInstances);
@@ -289,6 +290,10 @@ public class AgentWatchdog implements Runnable {
                 LOG.warn("Error persisting VM Image: " + e);
             }
         }
+        LOG.info("At end of relaunch"
+                + "\nstartedInstances: " + startedInstances.size()
+                + "\nrunningInstances" + runningInstances.size()
+                + "\nreportedInstances: " + reportedInstances.size());
     }
 
     /**
