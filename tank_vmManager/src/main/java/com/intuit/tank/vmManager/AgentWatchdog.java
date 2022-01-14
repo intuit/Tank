@@ -147,7 +147,7 @@ public class AgentWatchdog implements Runnable {
                 // When runningInstances is empty all instances have reported back.
                 // If not, check if its time for a restart.
                 LOG.info( reportedInstances.size() + "   " + expectedInstanceCount); // TODO delete
-                if (!runningInstances.isEmpty() || reportedInstances.size() < expectedInstanceCount) {
+                if (!runningInstances.isEmpty() && reportedInstances.size() < expectedInstanceCount) {
                     if (shouldRebootInstances()) {
                         relaunch(runningInstances);
                         startTime = System.currentTimeMillis();
