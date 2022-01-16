@@ -447,7 +447,7 @@ public abstract class JobTreeTableBean implements Serializable {
         return rootNode;
     }
 
-    private void refreshCurrentJobInstance(TreeNode rootNode2) {
+    private void refreshCurrentJobInstance(TreeNode<TreeNode> rootNode2) {
         JobNodeBean currJob = getCurrentJobInstance();
         if (currJob != null && currJob.equals(rootNode2.getData())) {
             setCurrentJobInstance((JobNodeBean) rootNode2.getData());
@@ -459,7 +459,7 @@ public abstract class JobTreeTableBean implements Serializable {
         }
     }
 
-    private void updateExpansionStatus(TreeNode rootNode2) {
+    private void updateExpansionStatus(TreeNode<TreeNode> rootNode2) {
         for (TreeNode node : rootNode2.getChildren()) {
             updateExpansionStatus(node);
             if (node.getData() != null) {

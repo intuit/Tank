@@ -1113,7 +1113,7 @@
                 action="#{logicStepEditor.logicTestData.newMapValue(logicStepEditor.logicTestData.varMap)}"
                 onsuccess="PF('inputVarDialog').hide();PF('inputVarDialog').show();" update=":inputVarForm:inputVarGroup" />
               <p:dataTable value="#{logicStepEditor.logicTestData.variables}" var="var" id="testVarTable"
-                styleClass="striped highlight" resizableColumns="true"
+                lazy="false" styleClass="striped highlight" resizableColumns="true"
                 emptyMessage="Click 'Add Variable' to add new values">
 
                 <p:column width="100" headerText="name">
@@ -1144,7 +1144,7 @@
                 action="#{logicStepEditor.logicTestData.newMapValue(logicStepEditor.logicTestData.requestHeaderMap)}"
                 onsuccess="PF('inputVarDialog').hide();PF('inputVarDialog').show();" update=":inputVarForm:inputVarGroup" />
               <p:dataTable value="#{logicStepEditor.logicTestData.requestHeaders}" var="var" id="testRequestHeaderTable"
-                styleClass="striped highlight" resizableColumns="true"
+                lazy="false" styleClass="striped highlight" resizableColumns="true"
                 emptyMessage="Click 'Add Request Header' to add new values">
 
                 <p:column width="100" headerText="name">
@@ -1176,7 +1176,7 @@
                 onsuccess="PF('inputVarDialog').hide();PF('inputVarDialog').show();" update=":inputVarForm:inputVarGroup" />
               <p:dataTable value="#{logicStepEditor.logicTestData.responseHeaders}" var="var"
                 id="testResponseHeaderTable" emptyMessage="Click 'Add Response Header' to add new values"
-                styleClass="striped highlight" resizableColumns="true">
+                lazy="false" styleClass="striped highlight" resizableColumns="true">
 
                 <p:column width="100" headerText="name">
                   <h:outputText value="#{var.key}" />
