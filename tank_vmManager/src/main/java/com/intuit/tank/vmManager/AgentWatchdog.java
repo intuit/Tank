@@ -62,7 +62,6 @@ public class AgentWatchdog implements Runnable {
     private VMInstanceRequest instanceRequest;
     private List<VMInformation> vmInfo;
     private ArrayList<VMInformation> startedInstances;
-    private ArrayList<VMInformation> runningInstances;
     private ArrayList<VMInformation> reportedInstances;
     private boolean stopped;
     private long startTime;
@@ -137,7 +136,6 @@ public class AgentWatchdog implements Runnable {
         AWSXRay.getGlobalRecorder().beginNoOpSegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
         try {
             startedInstances = new ArrayList<VMInformation>(vmInfo);
-            runningInstances = new ArrayList<VMInformation>();
             reportedInstances = new ArrayList<VMInformation>();
             while (restartCount <= maxRestarts && !stopped) {
 //                if (!vmTracker.isRunning(instanceRequest.getJobId())) {
@@ -145,37 +143,37 @@ public class AgentWatchdog implements Runnable {
 //                    break;
 //                }
                 // First check for running instances
-                checkForRunningInstances();
-                LOG.info(runningInstances.size() + " instances running. " + reportedInstances.size() + " instances reported. Waiting for remaining " + startedInstances.size() + " agents to start running.");
-                // When started instances is empty all instances have started.
-                // If not, check if we should restart.
-                if (!startedInstances.isEmpty()) {
-                    if (shouldRelaunchInstances()) {
-                        relaunch(startedInstances);
-                        startTime = System.currentTimeMillis();
-                    }
-                    LOG.info("Waiting for " + startedInstances.size() + " agents to start: "
-                            + getInstanceIdList(startedInstances));
-                    Thread.sleep(sleepTime);
-                    continue;
-                } else {
-                    LOG.info("All Agents Running.");
-                    vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), "All Agents Started.",
-                            JobLifecycleEvent.AGENT_STARTED));
-                }
+//                checkForRunningInstances();
+//                LOG.info(runningInstances.size() + " instances running. " + reportedInstances.size() + " instances reported. Waiting for remaining " + startedInstances.size() + " agents to start running.");
+//                // When started instances is empty all instances have started.
+//                // If not, check if we should restart.
+//                if (!startedInstances.isEmpty()) {
+//                    if (shouldRelaunchInstances()) {
+//                        relaunch(startedInstances);
+//                        startTime = System.currentTimeMillis();
+//                    }
+//                    LOG.info("Waiting for " + startedInstances.size() + " agents to start: "
+//                            + getInstanceIdList(startedInstances));
+//                    Thread.sleep(sleepTime);
+//                    continue;
+//                } else {
+//                    LOG.info("All Agents Running.");
+//                    vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), "All Agents Started.",
+//                            JobLifecycleEvent.AGENT_STARTED));
+//                }
                 // Now check for reporting instances
                 checkForReportingInstances();
-                LOG.info(runningInstances.size() + " instances running. " + reportedInstances.size() + " instances reported. Waiting for remaining " + runningInstances.size() + " agents to report back...");
+                LOG.info(startedInstances.size() + " instances started. " + reportedInstances.size() + " instances reported. Waiting for remaining " + startedInstances.size() + " agents to report back...");
                 // When runningInstances is empty all instances have reported back.
                 // If not, check if its time for a restart.
                 LOG.info( reportedInstances.size() + "   " + expectedInstanceCount); // TODO delete
-                if (!runningInstances.isEmpty() && reportedInstances.size() < expectedInstanceCount) {
+                if (!startedInstances.isEmpty() && reportedInstances.size() < expectedInstanceCount) {
                     if (shouldRebootInstances()) {
-                        relaunch(runningInstances);
+                        relaunch(startedInstances);
                         startTime = System.currentTimeMillis();
                     }
-                    LOG.info("Waiting for " + runningInstances.size() + " agents to report: "
-                            + getInstanceIdList(runningInstances));
+                    LOG.info("Waiting for " + startedInstances.size() + " agents to report: "
+                            + getInstanceIdList(startedInstances));
                     Thread.sleep(sleepTime);
                     continue;
                 } else {
@@ -194,26 +192,27 @@ public class AgentWatchdog implements Runnable {
         }
     }
 
-    private void checkForRunningInstances() {
-        CloudVmStatusContainer vmStatusForJob = vmTracker.getVmStatusForJob(instanceRequest.getJobId());
-        // First check if the job is stopped.
-        if (vmStatusForJob == null || vmStatusForJob.getEndTime() != null) {
-            stopped = true;
-            throw new RuntimeException("Job appears to have been stopped. Exiting...");
-        }
-        // Then collect the started instances and check for those in "running" status.
-        // Remove them from startedInstances and add to runningInstances.
-        List<VMInformation> foundInstances = amazonInstance.describeInstances(startedInstances.stream().map(VMInformation::getInstanceId).toArray(String[]::new));
-        for (VMInformation info : foundInstances) {
-            LOG.info("checking info.getState: " + info.getState());
-            // TODO Does this: Checks the state of the machine.
-            if ("running".equalsIgnoreCase(info.getState())) {
-                removeInstance(startedInstances, info.getInstanceId());
-                addInstance(runningInstances, info);
-            }
-        }
-    }
+//    private void checkForRunningInstances() {
+//        CloudVmStatusContainer vmStatusForJob = vmTracker.getVmStatusForJob(instanceRequest.getJobId());
+//        // First check if the job is stopped.
+//        if (vmStatusForJob == null || vmStatusForJob.getEndTime() != null) {
+//            stopped = true;
+//            throw new RuntimeException("Job appears to have been stopped. Exiting...");
+//        }
+//        // Then collect the started instances and check for those in "running" status.
+//        // Remove them from startedInstances and add to runningInstances.
+//        List<VMInformation> foundInstances = amazonInstance.describeInstances(startedInstances.stream().map(VMInformation::getInstanceId).toArray(String[]::new));
+//        for (VMInformation info : foundInstances) {
+//            LOG.info("checking info.getState: " + info.getState());
+//            // TODO Does this: Checks the state of the machine.
+//            if ("running".equalsIgnoreCase(info.getState())) {
+//                removeInstance(startedInstances, info.getInstanceId());
+//                addInstance(runningInstances, info);
+//            }
+//        }
+//    }
 
+// replace the ones that arent in pending/running state
     private void checkForReportingInstances() {
         String jobId = instanceRequest.getJobId();
         CloudVmStatusContainer vmStatusForJob = vmTracker.getVmStatusForJob(jobId);
@@ -224,9 +223,9 @@ public class AgentWatchdog implements Runnable {
         for (CloudVmStatus status : vmStatusForJob.getStatuses()) {
             LOG.info("checking vmstatus: " + status.getVmStatus());
             // TODO Does this: Checks the state of Tank job.
-            if (status.getVmStatus() == VMStatus.running) {
+            if (status.getVmStatus() == VMStatus.pending || status.getVmStatus() == VMStatus.running) {
 //                    || (status.getJobStatus() != JobStatus.Unknown && status.getJobStatus() != JobStatus.Starting)) {
-                VMInformation removedInstance = removeInstance(runningInstances, status.getInstanceId());
+                VMInformation removedInstance = removeInstance(startedInstances, status.getInstanceId());
                 addInstance(reportedInstances, removedInstance);
             }
         }
@@ -314,7 +313,6 @@ public class AgentWatchdog implements Runnable {
         }
         LOG.info("At end of relaunch"
                 + "\nstartedInstances: " + startedInstances.size()
-                + "\nrunningInstances" + runningInstances.size()
                 + "\nreportedInstances: " + reportedInstances.size());
     }
 
