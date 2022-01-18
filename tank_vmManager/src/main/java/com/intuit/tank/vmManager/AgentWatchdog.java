@@ -52,6 +52,7 @@ import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 public class AgentWatchdog implements Runnable {
 
     private static final Logger LOG = LogManager.getLogger(AgentWatchdog.class);
+    private static final VmManagerConfig vmManagerConfig = new TankConfig().getVmManagerConfig();
 
     private long sleepTime;
     private long maxWaitForStart;
@@ -71,22 +72,41 @@ public class AgentWatchdog implements Runnable {
     private int expectedInstanceCount;
 
     /**
+     * Constructor
+     *
      * @param instanceRequest
      * @param vmInfo
      * @param vmTracker
      */
     public AgentWatchdog(VMInstanceRequest instanceRequest, List<VMInformation> vmInfo, VMTracker vmTracker) {
+        this(instanceRequest, vmInfo, vmTracker,
+                new AmazonInstance(instanceRequest.getRegion()),
+                vmManagerConfig.getWatchdogSleepTime(30 * 1000),  // 30 seconds
+                vmManagerConfig.getMaxAgentReportMills(1000 * 60 * 3) // 3 minutes
+        );
+    }
+
+    /**
+     * Constructor
+     *
+     * @param instanceRequest
+     * @param vmInfo
+     * @param vmTracker
+     * @param amazonInstance
+     * @param maxWaitForResponse
+     */
+    public AgentWatchdog(VMInstanceRequest instanceRequest, List<VMInformation> vmInfo, VMTracker vmTracker, AmazonInstance amazonInstance, long sleepTime, long maxWaitForResponse) {
         this.instanceRequest = instanceRequest;
         this.vmInfo = vmInfo;
         this.vmTracker = vmTracker;
         this.startTime = System.currentTimeMillis();
-        this.amazonInstance = new AmazonInstance(instanceRequest.getRegion());
+        this.amazonInstance = amazonInstance;
 
         VmManagerConfig vmManagerConfig = new TankConfig().getVmManagerConfig();
-        this.maxWaitForResponse = 1000 * 60 * 3; //vmManagerConfig.getMaxAgentReportMills(1000 * 60 * 5); // 5 minutes
+        this.maxWaitForResponse = maxWaitForResponse;
         this.maxWaitForStart = 1000 * 60 * 3; //vmManagerConfig.getMaxAgentStartMills(1000 * 60 * 3);     // 3 minutes
         this.maxRestarts = 20;
-        this.sleepTime = vmManagerConfig.getWatchdogSleepTime(30 * 1000);               // 30 seconds
+        this.sleepTime = sleepTime;
         this.expectedInstanceCount = vmInfo.size();
 
         LOG.info("AgentWatchdog settings: "
@@ -101,7 +121,9 @@ public class AgentWatchdog implements Runnable {
      */
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("sleepTime", sleepTime).append("maxWaitForStart", maxWaitForStart)
+        return new ToStringBuilder(this)
+                .append("sleepTime", sleepTime)
+                .append("maxWaitForStart", maxWaitForStart)
                 .append("maxWaitForResponse", maxWaitForResponse)
                 .append("maxRestarts", maxRestarts).toString();
     }
@@ -275,7 +297,7 @@ public class AgentWatchdog implements Runnable {
         // Delete all the instances present that have been terminated
         instances.clear();
         // Create and send instance start request
-        List<VMInformation> newVms = new AmazonInstance(instanceRequest.getRegion()).create(instanceRequest);
+        List<VMInformation> newVms = amazonInstance.create(instanceRequest);
         // Add new instances
         for (VMInformation newInfo : newVms) {
             vmInfo.add(newInfo); // TODO Does this update the gui or is it safe to delete?
