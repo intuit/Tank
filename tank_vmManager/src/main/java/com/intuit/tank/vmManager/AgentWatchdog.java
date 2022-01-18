@@ -166,8 +166,8 @@ public class AgentWatchdog implements Runnable {
                 LOG.info(startedInstances.size() + " instances started. " + reportedInstances.size() + " instances reported. Waiting for remaining " + startedInstances.size() + " agents to report back...");
                 // When runningInstances is empty all instances have reported back.
                 // If not, check if its time for a restart.
-                LOG.info( reportedInstances.size() + "   " + expectedInstanceCount); // TODO delete
-                if (!startedInstances.isEmpty() && reportedInstances.size() < expectedInstanceCount) {
+                LOG.info(reportedInstances.size() + "   " + expectedInstanceCount); // TODO delete
+                if (!startedInstances.isEmpty()) { // && reportedInstances.size() < expectedInstanceCount) {
                     if (shouldRebootInstances()) {
                         relaunch(startedInstances);
                         startTime = System.currentTimeMillis();
@@ -223,7 +223,8 @@ public class AgentWatchdog implements Runnable {
         for (CloudVmStatus status : vmStatusForJob.getStatuses()) {
             LOG.info("checking vmstatus: " + status.getVmStatus());
             // TODO Does this: Checks the state of Tank job.
-            if (status.getVmStatus() == VMStatus.pending || status.getVmStatus() == VMStatus.running) {
+            if (status.getVmStatus() == VMStatus.running) {
+//            if (status.getVmStatus() == VMStatus.pending || status.getVmStatus() == VMStatus.running) {
 //                    || (status.getJobStatus() != JobStatus.Unknown && status.getJobStatus() != JobStatus.Starting)) {
                 VMInformation removedInstance = removeInstance(startedInstances, status.getInstanceId());
                 addInstance(reportedInstances, removedInstance);
