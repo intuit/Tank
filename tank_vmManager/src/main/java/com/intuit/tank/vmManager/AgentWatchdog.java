@@ -102,7 +102,7 @@ public class AgentWatchdog implements Runnable {
         this.amazonInstance = amazonInstance;
 
         VmManagerConfig vmManagerConfig = new TankConfig().getVmManagerConfig();
-        this.maxWaitForResponse = maxWaitForResponse;
+        this.maxWaitForResponse = 1000 * 60 * 3; //maxWaitForResponse;
         this.maxWaitForStart = 1000 * 60 * 3; //vmManagerConfig.getMaxAgentStartMills(1000 * 60 * 3);     // 3 minutes
         this.maxRestarts = 20;
         this.sleepTime = sleepTime;
@@ -168,7 +168,7 @@ public class AgentWatchdog implements Runnable {
                 // If not, check if its time for a restart.
                 LOG.info(reportedInstances.size() + "   " + expectedInstanceCount); // TODO delete
                 if (!startedInstances.isEmpty()) { // && reportedInstances.size() < expectedInstanceCount) {
-                    if (shouldRebootInstances()) {
+                    if (shouldRelaunchInstances()) {
                         relaunch(startedInstances);
                         startTime = System.currentTimeMillis();
                     }
@@ -227,7 +227,9 @@ public class AgentWatchdog implements Runnable {
 //            if (status.getVmStatus() == VMStatus.pending || status.getVmStatus() == VMStatus.running) {
 //                    || (status.getJobStatus() != JobStatus.Unknown && status.getJobStatus() != JobStatus.Starting)) {
                 VMInformation removedInstance = removeInstance(startedInstances, status.getInstanceId());
-                addInstance(reportedInstances, removedInstance);
+                if (removedInstance != null) {
+                    addInstance(reportedInstances, removedInstance);
+                }
             }
         }
     }
@@ -343,10 +345,6 @@ public class AgentWatchdog implements Runnable {
 
     private boolean shouldRelaunchInstances() {
         return startTime + maxWaitForStart < System.currentTimeMillis();
-    }
-
-    private boolean shouldRebootInstances() {
-        return startTime + maxWaitForResponse < System.currentTimeMillis();
     }
 
     private static void addInstance(List<VMInformation> instances, VMInformation info) {
