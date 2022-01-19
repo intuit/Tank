@@ -101,7 +101,7 @@ public class AgentWatchdogTest {
 //        verify(amazonInstanceMock, times(1)).describeInstances("i-123456789");
         verify(amazonInstanceMock, never()).killInstances(Mockito.anyList());
         verify(amazonInstanceMock, never()).reboot(Mockito.anyList());
-        verify(cloudVmStatusContainerMock, times(2)).getEndTime();
-        verify(cloudVmStatusContainerMock, times(2)).getStatuses();
+        verify(cloudVmStatusContainerMock, times(3)).getEndTime();
+        verify(cloudVmStatusContainerMock, times(3)).getStatuses();
     }
 }
