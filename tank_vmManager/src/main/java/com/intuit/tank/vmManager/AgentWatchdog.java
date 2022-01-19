@@ -221,7 +221,7 @@ public class AgentWatchdog implements Runnable {
             throw new RuntimeException("Job appears to have been stopped. Exiting...");
         }
         for (CloudVmStatus status : vmStatusForJob.getStatuses()) {
-            LOG.info("checking vmstatus: " + status.getVmStatus());
+            //LOG.info("checking vmstatus: " + status.getVmStatus());
             // TODO Does this: Checks the state of Tank job.
             if (status.getVmStatus() == VMStatus.running) {
 //            if (status.getVmStatus() == VMStatus.pending || status.getVmStatus() == VMStatus.running) {
@@ -313,8 +313,8 @@ public class AgentWatchdog implements Runnable {
             }
         }
         LOG.info("At end of relaunch"
-                + "\nstartedInstances: " + startedInstances.size()
-                + "\nreportedInstances: " + reportedInstances.size());
+                + " startedInstances: " + startedInstances.size()
+                + " reportedInstances: " + reportedInstances.size());
     }
 
     /**
