@@ -66,7 +66,6 @@ public class AgentWatchdog implements Runnable {
     private boolean stopped;
     private long startTime;
     private int restartCount;
-    private int rebootCount;
     private AmazonInstance amazonInstance;
     private int expectedInstanceCount;
 
@@ -166,7 +165,6 @@ public class AgentWatchdog implements Runnable {
                 LOG.info(startedInstances.size() + " instances started. " + reportedInstances.size() + " instances reported. Waiting for remaining " + startedInstances.size() + " agents to report back...");
                 // When runningInstances is empty all instances have reported back.
                 // If not, check if its time for a restart.
-                LOG.info(reportedInstances.size() + "   " + expectedInstanceCount); // TODO delete
                 if (!startedInstances.isEmpty()) { // && reportedInstances.size() < expectedInstanceCount) {
                     if (shouldRelaunchInstances()) {
                         relaunch(startedInstances);
@@ -263,6 +261,7 @@ public class AgentWatchdog implements Runnable {
 
     private void relaunch(ArrayList<VMInformation> instances) {
         restartCount++;
+        LOG.info("Restart Count: " + restartCount);
         if (restartCount > maxRestarts) {
             stopped = true;
             String msg = "Have "
