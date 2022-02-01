@@ -770,10 +770,10 @@ public class ScriptEditor implements Serializable {
     private int getInsertIndex() {
         int ret = steps.size();
         if (!selectedSteps.isEmpty()) {
-            // Get the last selected step, find its index, and return index right after
+            // Get the first selected step, find its index, and return index right before
             Collections.sort(selectedSteps, Comparator.comparing(ScriptStep::getStepIndex));
-            ScriptStep lastSelectedStep = selectedSteps.get(selectedSteps.size()-1);
-            ret = Math.min(ret, steps.indexOf(lastSelectedStep) + 1);
+            ScriptStep firstSelectedStep = selectedSteps.get(0);
+            ret = Math.min(ret, steps.indexOf(firstSelectedStep));
         }
         return ret;
     }
