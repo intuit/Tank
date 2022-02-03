@@ -16,9 +16,7 @@ package com.intuit.tank.dao;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -82,6 +80,32 @@ public class ScriptDaoTest {
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
+    public void testSavesInProperOrder() {
+        // Create test script and add 3 steps
+        Script entity = DaoTestUtil.createScript();
+        entity.addStep(DaoTestUtil.createScriptStep(0));
+        entity.addStep(DaoTestUtil.createScriptStep(1));
+        entity.addStep(DaoTestUtil.createScriptStep(2));
+        // Reverse the order of the steps, as would happen in the UI if sorting
+        Collections.sort(entity.getScriptSteps(), Comparator.comparing(ScriptStep::getStepIndex).reversed());
+        // Save steps, this should sort them in ascending order
+        Script persisted = dao.saveOrUpdate(entity);
+        // Lookup saved script
+        Integer id = persisted.getId();
+        try {
+            persisted = dao.findById(id);
+            // Make sure steps are in ascending order
+            assertEquals(0, persisted.getScriptSteps().get(0).getStepIndex());
+            assertEquals(1, persisted.getScriptSteps().get(1).getStepIndex());
+            assertEquals(2, persisted.getScriptSteps().get(2).getStepIndex());
+        } finally {
+            // Delete it
+            dao.delete(id);
+        }
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testChildOrder() throws Exception {
         Script entity = DaoTestUtil.createScript();
         entity.addStep(DaoTestUtil.createScriptStep());
@@ -91,6 +115,7 @@ public class ScriptDaoTest {
         Integer id = persisted.getId();
         try {
             List<ScriptStep> children = persisted.getScriptSteps();
+            // Create a copy of persisted script steps
             ArrayList<ScriptStep> originalOrder = new ArrayList<ScriptStep>(children);
             ScriptStep removed = children.remove(2);
             children.add(0, removed);

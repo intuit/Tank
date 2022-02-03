@@ -134,6 +134,14 @@ public class DaoTestUtil {
                 .build();
     }
 
+    public static ScriptStep createScriptStep(int stepIndex) {
+        return ScriptStep.builder()
+                .stepIndex(stepIndex)
+                .comments("Test Comments")
+                .hostname("www.test.com")
+                .build();
+    }
+
     /**
      * gets a
      * 
