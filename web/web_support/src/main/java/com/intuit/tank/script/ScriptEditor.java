@@ -15,11 +15,7 @@ package com.intuit.tank.script;
 
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Conversation;
@@ -767,15 +763,17 @@ public class ScriptEditor implements Serializable {
         ScriptUtil.updateStepLabel(step);
         this.steps.add(getInsertIndex(), step);
         clearOrderList();
-        step.setStepIndex(this.steps.size());
+        step.setStepIndex(steps.indexOf(step));
+        ScriptUtil.setScriptStepLabels(this.script);
     }
 
     private int getInsertIndex() {
         int ret = steps.size();
         if (!selectedSteps.isEmpty()) {
-            for (ScriptStep s : selectedSteps) {
-                ret = Math.min(ret, steps.indexOf(s));
-            }
+            // Get the first selected step, find its index, and return index right before
+            Collections.sort(selectedSteps, Comparator.comparing(ScriptStep::getStepIndex));
+            ScriptStep firstSelectedStep = selectedSteps.get(0);
+            ret = Math.min(ret, steps.indexOf(firstSelectedStep));
         }
         return ret;
     }
