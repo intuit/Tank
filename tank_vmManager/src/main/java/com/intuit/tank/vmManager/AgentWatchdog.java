@@ -101,7 +101,7 @@ public class AgentWatchdog implements Runnable {
 
         VmManagerConfig vmManagerConfig = new TankConfig().getVmManagerConfig();
         this.maxWaitForResponse = vmManagerConfig.getMaxAgentReportMills(1000 * 60 * 3); // 3 minutes
-        this.maxRestarts = 20; //vmManagerConfig.getMaxRestarts(10);
+        this.maxRestarts = vmManagerConfig.getMaxRestarts(3);
         this.sleepTime = sleepTime;
         this.expectedInstanceCount = vmInfo.size();
 
