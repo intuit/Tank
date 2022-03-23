@@ -34,6 +34,7 @@ public class TestPlanStarter implements Runnable {
     private final String tankHttpClientClass;
     private final ThreadGroup threadGroup;
     private final AgentRunData agentRunData;
+    private final double userPercentage;
     private int threadsStarted = 0;
     private final long rampDelay;
 
@@ -48,6 +49,7 @@ public class TestPlanStarter implements Runnable {
         this.threadGroup = threadGroup;
         this.agentRunData = agentRunData;
         this.rampDelay = calcRampTime();
+        this.userPercentage = (plan.getUserPercentage() / 100D);
     }
 
     public void run() {
@@ -95,7 +97,8 @@ public class TestPlanStarter implements Runnable {
                 done = true;
                 break;
             }
-            if (APITestHarness.getInstance().getCurrentUsers() < numThreads) {
+
+            if (Math.ceil(APITestHarness.getInstance().getCurrentUsers() * this.userPercentage) < numThreads) {
                 createThread(httpClient, threadsStarted);
             }
         }
