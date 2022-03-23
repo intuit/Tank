@@ -98,7 +98,8 @@ public class TestPlanStarter implements Runnable {
                 break;
             }
 
-            if (Math.ceil(APITestHarness.getInstance().getCurrentUsers() * this.userPercentage) < numThreads) {
+//            if (Math.ceil(APITestHarness.getInstance().getCurrentUsers() * this.userPercentage) < numThreads) {
+            if (this.threadsStarted < numThreads) {
                 createThread(httpClient, threadsStarted);
             }
         }
