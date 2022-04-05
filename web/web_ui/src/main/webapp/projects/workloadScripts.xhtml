@@ -65,6 +65,7 @@
           <div class="float-left">
             <p:commandButton ajax="true" value="Insert Script Group" update=":scriptGroupPopupID" immediate="true"
               action="#{workloadScripts.initCurrentGroup}" oncomplete="PF('scriptGroupPopup').show();"
+                             actionListener="#{workloadScripts.setInsertIndex(-1)}"
               icon="ui-icon-document" style="margin: 0 0 0 10px; border-radius:5px"
               styleClass="icon-button h-space" />
           </div>
@@ -118,9 +119,9 @@
               </p:commandLink>
 
               <p:commandLink update=":scriptGroupPopupID" ajax="true"
-                action="#{workloadScripts.initCurrentGroup(testPlan)}" immediate="true"
+                action="#{workloadScripts.initCurrentGroup()}" immediate="true"
+                             actionListener="#{workloadScripts.setInsertIndex(rowIndex)}"
                 oncomplete="PF('scriptGroupPopup').show();">
-                <f:param name="insertIndex" value="#{rowIndex}" />
                 <h:graphicImage library="gfx" name="16/application_add.png" width="16px" height="16px"
                   style="padding: 2px;" title="Insert Script Group before #{group.name}." />
               </p:commandLink>
