@@ -54,7 +54,7 @@
     <version.spock>1.3-groovy-2.5</version.spock>
 
     <!-- maven-compiler-plugin -->
-    <version.compiler.plugin>3.8.1</version.compiler.plugin>
+    <version.compiler.plugin>3.10.1</version.compiler.plugin>
     <maven.jdk.target>11</maven.jdk.target>
   </properties>
 
@@ -828,6 +828,11 @@
 
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1148,14 +1153,12 @@
     </repository>
     <repository>
       <id>jboss-public-repository-group</id>
-      <name>JBoss
-        Public Maven Repository Group</name>
+      <name>JBoss Public Maven Repository Group</name>
       <url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
     </repository>
     <repository>
       <id>thirdparty-releases</id>
-      <name>JBoss Thirdparty
-        Releases</name>
+      <name>JBoss Thirdparty Releases</name>
       <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
     </repository>
     <repository>
@@ -1184,9 +1187,9 @@
       <layout>default</layout>
     </pluginRepository>
     <pluginRepository>
-      <id>Maven Central 2 plugins</id>
-      <name>Central</name>
-      <url>https://repo2.maven.org/maven2</url>
+      <id>jboss-public-repository-group</id>
+      <name>JBoss Public Maven Repository Group</name>
+      <url>https://repository.jboss.org/nexus/content/groups/public/</url>
       <layout>default</layout>
     </pluginRepository>
   </pluginRepositories>
