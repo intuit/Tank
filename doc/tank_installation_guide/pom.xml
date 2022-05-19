@@ -39,7 +39,6 @@
         <plugin>
           <groupId>org.jboss.maven.plugins</groupId>
           <artifactId>maven-jdocbook-plugin</artifactId>
-          <version>2.3.7</version>
           <extensions>true</extensions>
           <configuration>
             <sourceDirectory>${project.basedir}</sourceDirectory>
@@ -86,7 +85,6 @@
                   <pluginExecutionFilter>
                     <groupId>org.jboss.maven.plugins</groupId>
                     <artifactId>maven-jdocbook-plugin</artifactId>
-                    <versionRange>[2.3.7,)</versionRange>
                     <goals>
                       <goal>resources</goal>
                       <goal>generate</goal>
