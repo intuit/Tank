@@ -90,6 +90,12 @@
       <artifactId>validation-api</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.aayushatharva.brotli4j</groupId>
+      <artifactId>brotli4j</artifactId>
+      <version>1.7.1</version>
+    </dependency>
+
   </dependencies>
 
 </project>
