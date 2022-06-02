@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.aayushatharva.brotli4j.decoder.BrotliInputStream;
+import org.brotli.dec.BrotliInputStream;
 import org.owasp.proxy.io.ChunkedInputStream;
 import org.owasp.proxy.io.ChunkingInputStream;
 import org.owasp.proxy.io.CopyInputStream;
@@ -116,7 +116,7 @@ public class MessageUtils {
             } else if (BROTLI.equalsIgnoreCase(algo)) {
                 try {
                     content = new BrotliInputStream(content);
-                } catch (IOException| UnsatisfiedLinkError e) {}
+                } catch (IOException e) {}
             } else if (IDENTITY.equalsIgnoreCase(algo)) {
                 // nothing to do
             } else
@@ -188,7 +188,7 @@ public class MessageUtils {
             } else if (BROTLI.equalsIgnoreCase(algo)) {
                 try {
                     content = new BrotliInputStream(content);
-                } catch (IOException| UnsatisfiedLinkError e) {}
+                } catch (IOException e) {}
             } else if (IDENTITY.equalsIgnoreCase(algo)) {
                 // nothing to do
             } else

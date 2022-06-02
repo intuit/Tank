@@ -91,9 +91,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.aayushatharva.brotli4j</groupId>
-      <artifactId>brotli4j</artifactId>
-      <version>1.7.1</version>
+      <groupId>org.brotli</groupId>
+      <artifactId>dec</artifactId>
+      <version>0.1.2</version>
     </dependency>
 
   </dependencies>
