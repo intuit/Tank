@@ -181,7 +181,7 @@ public final class Application {
             if (proxyConfiguration.isFollowRedirects() && statusCode == 302) { // redirect
                 String location = hp.getRedirectLocation();
 
-                System.out.println("Pushing redirect location " + location + " with transaction firstline "
+                System.out.println("Pushing redirect location " + location + "\n\twith transaction firstline "
                         + transaction.getRequest().getFirstLine());
 
                 if (!transaction.getRequest().getHeaders().contains(REDIRECT_MARKER)) {
