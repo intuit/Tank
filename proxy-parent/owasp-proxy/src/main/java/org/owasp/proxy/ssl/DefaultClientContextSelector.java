@@ -129,7 +129,7 @@ public class DefaultClientContextSelector implements SSLContextSelector {
                 trusted.put(certs[0], certs);
             } catch (CertificateException ce) {
                 untrusted.put(certs[0], certs);
-                System.err.printf("Untrusted client certificate for %s", dn);
+                System.err.printf("Untrusted client certificate for %s\n", dn);
             }
         }
 
@@ -143,7 +143,7 @@ public class DefaultClientContextSelector implements SSLContextSelector {
                 trusted.put(certs[0], certs);
             } catch (CertificateException ce) {
                 untrusted.put(certs[0], certs);
-                System.err.printf("Untrusted server certificate for %s", dn);
+                System.err.printf("Untrusted server certificate for %s\n", dn);
             }
         }
     }

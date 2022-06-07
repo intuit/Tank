@@ -49,4 +49,6 @@ public class HttpConstants {
 
     public final static String DEFLATE = "deflate";
 
+    public final static String BROTLI = "br";
+
 }

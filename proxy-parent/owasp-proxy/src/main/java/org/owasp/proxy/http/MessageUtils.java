@@ -21,6 +21,7 @@
 
 package org.owasp.proxy.http;
 
+import static org.owasp.proxy.http.HttpConstants.BROTLI;
 import static org.owasp.proxy.http.HttpConstants.CHUNKED;
 import static org.owasp.proxy.http.HttpConstants.CONTENT_ENCODING;
 import static org.owasp.proxy.http.HttpConstants.CONTENT_LENGTH;
@@ -35,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.brotli.dec.BrotliInputStream;
 import org.owasp.proxy.io.ChunkedInputStream;
 import org.owasp.proxy.io.ChunkingInputStream;
 import org.owasp.proxy.io.CopyInputStream;
@@ -111,6 +113,10 @@ public class MessageUtils {
                 content = new DeflaterInputStream(content);
             } else if (GZIP.equalsIgnoreCase(algo)) {
                 content = new GunzipInputStream(content);
+            } else if (BROTLI.equalsIgnoreCase(algo)) {
+                try {
+                    content = new BrotliInputStream(content);
+                } catch (IOException e) {}
             } else if (IDENTITY.equalsIgnoreCase(algo)) {
                 // nothing to do
             } else
@@ -179,6 +185,10 @@ public class MessageUtils {
                 content = new ChunkingInputStream(content);
             } else if (GZIP.equalsIgnoreCase(algo)) {
                 content = new GzipInputStream(content);
+            } else if (BROTLI.equalsIgnoreCase(algo)) {
+                try {
+                    content = new BrotliInputStream(content);
+                } catch (IOException e) {}
             } else if (IDENTITY.equalsIgnoreCase(algo)) {
                 // nothing to do
             } else
