@@ -14,12 +14,12 @@ This new doc site, being built on mkdocs-material,
 
 # Installation and ops
 ## Running on local 
-Get into the `mkdocs` folder. 
-Install dependencies from Requirements file:  `pip install -r requirements.txt`
+Get into the root directory. 
+Install dependencies from Requirements file:  `pip install -r docs-requirements.txt`
 Run locally using comamnd: `python3 -m mkdocs serve`
 
 ## Publishing the docs site
-Publish docs site using command: `mkdocs gh-deploy --force`
+Publish docs site using command: `python3 -m mkdocs gh-deploy --force`
 
 ## References
 Detailed documentation for mkdocs-material is available under https://squidfunk.github.io/mkdocs-material/
