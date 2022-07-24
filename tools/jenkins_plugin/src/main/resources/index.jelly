@@ -1,4 +1,0 @@
-<?jelly escape-by-default='true'?>
-<div>
-	This plugin will start up a Tank Proxy Recorder before a build, and stop the proxy after a build, granting you to collect load-test scripts via automation.
-</div>
