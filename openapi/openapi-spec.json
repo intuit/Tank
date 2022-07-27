@@ -1,0 +1,4010 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Tank Web App",
+    "license": {
+      "name": "EPL-1.0",
+      "url": "https://github.com/intuit/Tank/blob/master/License.md"
+    },
+    "contact": {
+      "name": "Intuit CX3 SRE Team",
+      "url": "https://qa-tank.perf.a.intuit.com/docs/index.jsf"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://tank.perf.a.intuit.com/rest/",
+      "description": "Intuit Tank (PROD)"
+    },
+    {
+      "url": "https://qa-tank.perf.a.intuit.com/rest/",
+      "description": "Intuit Tank (QA)"
+    }
+  ],
+  "paths": {
+    "/v1/agent-service/headers": {
+      "get": {
+        "summary": "Agent Service Headers",
+        "tags": [
+          "Agent Service"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AgentServiceHeaderElement"
+          }
+        },
+        "operationId": "get-agent-service-headers",
+        "parameters": [],
+        "description": "Gets the settings file"
+      },
+      "parameters": []
+    },
+    "/v1/agent-service/ping": {
+      "get": {
+        "summary": "Agent Service Ping",
+        "operationId": "get-agent-service-ping",
+        "description": "Test method to test if the service is up.",
+        "tags": [
+          "Agent Service"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "examples": {
+                "example-1": {
+                  "value": "health-check"
+                }
+              }
+            }
+          },
+          "description": "Non-null String value.\n"
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/v1/automation-service/applyFilters": {
+      "parameters": [],
+      "post": {
+        "summary": "Apply Filters",
+        "operationId": "post-automation-service-applyFilters",
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "description": "AutomationService Services for Automation integration.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "scriptId": {
+                    "type": "string"
+                  },
+                  "filterIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "filterGroupIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "x-examples": {
+                  "example-1": {
+                    "scriptId": "...",
+                    "filterIds": [
+                      12345,
+                      12345
+                    ],
+                    "filterGroupIds": [
+                      12345,
+                      12345
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Automation Service"
+        ]
+      }
+    },
+    "/v1/automation-service/createJob": {
+      "post": {
+        "summary": "Create Job",
+        "operationId": "post-automation-service-createJo",
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "description": "Creates a job and returns the JobId",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "rampTime": {
+                    "type": "string"
+                  },
+                  "simulationTime": {
+                    "type": "string"
+                  },
+                  "jobRegions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "region": {
+                          "type": "string"
+                        },
+                        "users": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "x-examples": {
+                  "example-1": {
+                    "name": "xx",
+                    "rampTime": "12m",
+                    "simulationTime": "0",
+                    "jobRegions": [
+                      {
+                        "region": "us-west-1",
+                        "users": "100"
+                      },
+                      {
+                        "region": "us-east-1",
+                        "users": "300"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Automation Service"
+        ]
+      },
+      "parameters": []
+    },
+    "/v1/automation-service/ping": {
+      "get": {
+        "summary": "Ping",
+        "tags": [
+          "Automation Service"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "operationId": "get-automation-service-ping",
+        "description": "Test method to test if the service is up.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Accept",
+            "description": "text/plain"
+          }
+        ]
+      },
+      "parameters": []
+    },
+    "/v1/automation-service/run-job": {
+      "post": {
+        "summary": "Run Job",
+        "operationId": "post-automation-service-run-job",
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "description": "Creates an in memory job and runs it.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Content-type",
+            "description": "multipart/form-data"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Accept",
+            "description": "text/plain"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          },
+          "description": "Multi-part form data should contain a AutomationRequest with the formKey of automationRequest and the file data with formKey of file"
+        },
+        "tags": [
+          "Automation Service"
+        ]
+      },
+      "parameters": []
+    },
+    "/v1/automation-service/run/{jobId}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "jobId",
+          "in": "path",
+          "required": true,
+          "description": "Job ID"
+        }
+      ],
+      "get": {
+        "summary": "Run a Job by ID",
+        "tags": [
+          "Automation Service"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "operationId": "get-automation-service-run-jobId",
+        "description": "Runs Job based on the provided jobid",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Accept",
+            "description": "application/json"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Content-Type",
+            "description": "*/*"
+          }
+        ]
+      }
+    },
+    "/v1/automation-service/status/{jobId}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "jobId",
+          "in": "path",
+          "required": true,
+          "description": "Job ID"
+        }
+      ],
+      "get": {
+        "summary": "Job Status",
+        "tags": [
+          "Automation Service"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "operationId": "get-automation-service-status-jobId",
+        "description": "Checks status of provided jobid",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Content-Type",
+            "description": "*/*"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Accept",
+            "description": "application/json"
+          }
+        ]
+      }
+    },
+    "/v1/automation-service/upload/script/{fileFormDataContentDisposition}/{fileInputStream}/{id}/{name}": {
+      "put": {
+        "summary": "Upload Script",
+        "operationId": "put-v1-automation-service-upload-script",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "": {
+            "description": "scriptid"
+          }
+        },
+        "description": "Uploads a script to an existing script",
+        "tags": [
+          "Automation Service"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Content-type",
+            "description": "multipart/form-data"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Accept",
+            "description": "text/plain"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Content-Encoding",
+            "description": "..."
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {},
+          "name": "fileFormDataContentDisposition",
+          "in": "path",
+          "description": "formdata/upload file metadata\t"
+        },
+        {
+          "schema": {},
+          "name": "fileInputStream",
+          "in": "path",
+          "description": "formdata/upload file inputStream"
+        },
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "query/Script id to replace"
+        },
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "name",
+          "in": "path",
+          "description": "query/new name for script"
+        }
+      ]
+    },
+    "/v1/cloud-service/ping": {
+      "get": {
+        "summary": "Ping",
+        "tags": [
+          "Cloud Service"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "operationId": "get-v1-cloud-service-ping",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Content-type",
+            "description": "*/*"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Accept",
+            "description": "application/json"
+          }
+        ],
+        "description": "string (JSON) : Non-null String value."
+      }
+    },
+    "/v1/cloud-service/agent/pause": {
+      "get": {
+        "summary": "Pause Agent",
+        "tags": [
+          "Cloud Service"
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "operationId": "get-v1-cloud-service-agent-pause",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Content-type",
+            "description": "application/json"
+          }
+        ],
+        "description": "Pauses the agent"
+      }
+    },
+    "/v1/cloud-service/agent/restart": {
+      "post": {
+        "summary": "Restart Agent",
+        "operationId": "post-v1-cloud-service-agent-restart",
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "description": "Restarts the Agent",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Content-Type",
+            "description": "application/json"
+          }
+        ],
+        "tags": [
+          "Cloud Service"
+        ]
+      }
+    },
+    "/v1/cloud-service/agent/stop": {
+      "post": {
+        "summary": "Stop Agent",
+        "operationId": "post-v1-cloud-service-agent-stop",
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "description": "Stops the Agent",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Content-Type",
+            "description": "application/json"
+          }
+        ],
+        "tags": [
+          "Cloud Service"
+        ]
+      }
+    },
+    "/v1/cloud-service/costing/custom/{endDate}/{startDate}": {
+      "get": {
+        "summary": "Custom Costing",
+        "tags": [
+          "Cloud Service"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "text/html"
+              }
+            }
+          }
+        },
+        "operationId": "get-v1-cloud-service-costing-custom",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Content-Type",
+            "description": "*/*"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Accept",
+            "description": "text/html"
+          }
+        ],
+        "description": "Custom Costing API"
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "endDate",
+          "in": "path",
+          "description": "query"
+        },
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "startDate",
+          "in": "path",
+          "description": "query"
+        }
+      ]
+    },
+    "/v1/cloud-service/costing/predefined/{timePeriod}": {
+      "get": {
+        "summary": "Predefined Costing",
+        "tags": [
+          "Cloud Service"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "text/html"
+              }
+            }
+          }
+        },
+        "operationId": "get-v1-cloud-service-costing-predefined",
+        "description": "Predefine Costing API",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Content-Type",
+            "description": "*/*"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "default": "text/html"
+            },
+            "in": "header",
+            "name": "Accept",
+            "description": "text/html"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "example": "aws-portal-current-bill-period",
+            "default": "aws-portal-current-bill-period"
+          },
+          "name": "timePeriod",
+          "in": "path",
+          "required": true,
+          "description": "query"
+        }
+      ]
+    },
+    "/v1/cloud-service/instance/kill": {
+      "post": {
+        "summary": "Kill Instance",
+        "operationId": "post-v1-cloud-service-instance-kill",
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "description": "Kill Instance API",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "default": "application/json"
+            },
+            "in": "header",
+            "name": "Content-Type",
+            "description": "application/json"
+          }
+        ],
+        "tags": [
+          "Cloud Service"
+        ]
+      }
+    },
+    "/v1/user-service/user/email/{email}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "email",
+          "in": "path",
+          "required": true,
+          "description": "User email"
+        }
+      ],
+      "get": {
+        "summary": "User information by Email",
+        "tags": [
+          "User Service"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "default": "application/xml"
+                },
+                "description": "application/xml"
+              }
+            }
+          }
+        },
+        "operationId": "get-v1-user-service-user-email-email",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Content-Type",
+            "description": "*/*"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "default": "application/xml"
+            },
+            "in": "header",
+            "name": "Accept",
+            "description": "application/xml"
+          }
+        ],
+        "description": "Get Basic USER information by EMAIL"
+      }
+    },
+    "/v1/user-service/user/{username}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "username",
+          "in": "path",
+          "required": true,
+          "description": "Username"
+        }
+      ],
+      "get": {
+        "summary": "User information by username",
+        "tags": [
+          "User Service"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "default": "application/xml"
+                },
+                "description": "application/xml"
+              }
+            }
+          }
+        },
+        "operationId": "get-v1-user-service-user-username",
+        "description": "Get Basic USER information by USERNAME\n\n"
+      }
+    },
+    "/v1/user-service/ping": {
+      "get": {
+        "summary": "Ping",
+        "tags": [
+          "User Service"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "default": "text/plain"
+                },
+                "description": "text/plain"
+              }
+            }
+          }
+        },
+        "operationId": "get-v1-user-service-ping",
+        "description": "Test method to test if the service is up.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Content-Type",
+            "description": "*/*"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "default": "text/plain"
+            },
+            "in": "header",
+            "name": "Accept",
+            "description": "text/plain"
+          }
+        ]
+      }
+    },
+    "/v1/user-service/authenticate": {
+      "post": {
+        "summary": "Authenticate user credentials",
+        "operationId": "post-v1-user-service-authenticate",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "default": "application/xml"
+                },
+                "description": "application/xml"
+              }
+            }
+          }
+        },
+        "description": "Authenticate user given credentials\n\n",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "default": "application/xml"
+            },
+            "in": "header",
+            "name": "Content-Type",
+            "description": "application/xml"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "default": "application/xml"
+            },
+            "in": "header",
+            "name": "Accept",
+            "description": "application/xml"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/xml": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {
+                "example-1": {
+                  "value": "<UserCredentials xmlns=\"urn:wats/domain/project/v1\">\n  <name>...</name>\n  <pass>...</pass>\n</UserCredentials>\n"
+                }
+              }
+            }
+          },
+          "description": "UserCredentials (XML)"
+        },
+        "tags": [
+          "User Service"
+        ]
+      }
+    },
+    "/v1/script-service/script/description/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "the id of the script description to fetch"
+        }
+      ],
+      "get": {
+        "summary": "Script Description",
+        "tags": [
+          "Script Service"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "created": {
+                      "type": "integer"
+                    },
+                    "modified": {
+                      "type": "integer"
+                    },
+                    "creator": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "runtime": {
+                      "type": "integer"
+                    },
+                    "productName": {
+                      "type": "string"
+                    },
+                    "comments": {
+                      "type": "string"
+                    }
+                  },
+                  "x-examples": {
+                    "example-1": {
+                      "id": 12345,
+                      "created": 12345,
+                      "modified": 12345,
+                      "creator": "...",
+                      "name": "...",
+                      "runtime": 12345,
+                      "productName": "...",
+                      "comments": "..."
+                    }
+                  }
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "id": 12345,
+                      "created": 12345,
+                      "modified": 12345,
+                      "creator": "...",
+                      "name": "...",
+                      "runtime": 12345,
+                      "productName": "...",
+                      "comments": "..."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-v1-script-service-script-description-id",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Content-Type",
+            "description": "*/*"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "default": "application/json"
+            },
+            "in": "header",
+            "name": "Accept",
+            "description": "application/json"
+          }
+        ],
+        "description": "Gets a single Script Description.\n\n"
+      }
+    },
+    "/v1/script-service/script/update": {
+      "post": {
+        "summary": "Update Script",
+        "operationId": "post-v1-script-service-script-update",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "default": "ext/plain"
+                },
+                "description": "text/plain"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "default": "application/json"
+            },
+            "in": "header",
+            "name": "Content-Type",
+            "description": "application/json"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "default": "text/plain"
+            },
+            "in": "header",
+            "name": "Accept",
+            "description": "text/plain"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fields": {
+                    "type": "object",
+                    "properties": {
+                      "property1": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "formDataContentDisposition": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "parameters": {
+                                  "type": "object",
+                                  "properties": {
+                                    "property1": {
+                                      "type": "string"
+                                    },
+                                    "property2": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "readDate": {
+                                  "type": "integer"
+                                },
+                                "fileName": {
+                                  "type": "string"
+                                },
+                                "creationDate": {
+                                  "type": "integer"
+                                },
+                                "modificationDate": {
+                                  "type": "integer"
+                                },
+                                "size": {
+                                  "type": "integer"
+                                }
+                              }
+                            },
+                            "value": {
+                              "type": "string"
+                            },
+                            "contentDisposition": {
+                              "type": "object",
+                              "properties": {
+                                "parameters": {
+                                  "type": "object",
+                                  "properties": {
+                                    "property1": {
+                                      "type": "string"
+                                    },
+                                    "property2": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "readDate": {
+                                  "type": "integer"
+                                },
+                                "fileName": {
+                                  "type": "string"
+                                },
+                                "creationDate": {
+                                  "type": "integer"
+                                },
+                                "modificationDate": {
+                                  "type": "integer"
+                                },
+                                "size": {
+                                  "type": "integer"
+                                }
+                              }
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "simple": {
+                              "type": "boolean"
+                            },
+                            "messageBodyWorkers": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "entity": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "providers": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "mediaType": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string"
+                                },
+                                "subtype": {
+                                  "type": "string"
+                                },
+                                "parameters": {
+                                  "type": "object",
+                                  "properties": {
+                                    "property1": {
+                                      "type": "string"
+                                    },
+                                    "property2": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "wildcardSubtype": {
+                                  "type": "boolean"
+                                },
+                                "wildcardType": {
+                                  "type": "boolean"
+                                }
+                              }
+                            },
+                            "parameterizedHeaders": {
+                              "type": "object",
+                              "properties": {
+                                "property1": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "value": {
+                                        "type": "string"
+                                      },
+                                      "parameters": {
+                                        "type": "object",
+                                        "properties": {
+                                          "property1": {
+                                            "type": "string"
+                                          },
+                                          "property2": {
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "property2": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "value": {
+                                        "type": "string"
+                                      },
+                                      "parameters": {
+                                        "type": "object",
+                                        "properties": {
+                                          "property1": {
+                                            "type": "string"
+                                          },
+                                          "property2": {
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "headers": {
+                              "type": "object",
+                              "properties": {
+                                "property1": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "property2": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "parent": {
+                              "type": "object",
+                              "properties": {
+                                "entity": {
+                                  "type": "object",
+                                  "properties": {}
+                                },
+                                "bodyParts": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {}
+                                  }
+                                },
+                                "messageBodyWorkers": {
+                                  "type": "object",
+                                  "properties": {}
+                                },
+                                "contentDisposition": {
+                                  "type": "object",
+                                  "properties": {}
+                                },
+                                "providers": {
+                                  "type": "object",
+                                  "properties": {}
+                                },
+                                "mediaType": {
+                                  "type": "object",
+                                  "properties": {}
+                                },
+                                "parameterizedHeaders": {
+                                  "type": "object",
+                                  "properties": {
+                                    "property1": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {}
+                                      }
+                                    },
+                                    "property2": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {}
+                                      }
+                                    }
+                                  }
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "properties": {
+                                    "property1": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "property2": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "parent": {
+                                  "type": "object",
+                                  "properties": {}
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "property2": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "formDataContentDisposition": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "parameters": {
+                                  "type": "object",
+                                  "properties": {
+                                    "property1": {
+                                      "type": "string"
+                                    },
+                                    "property2": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "readDate": {
+                                  "type": "integer"
+                                },
+                                "fileName": {
+                                  "type": "string"
+                                },
+                                "creationDate": {
+                                  "type": "integer"
+                                },
+                                "modificationDate": {
+                                  "type": "integer"
+                                },
+                                "size": {
+                                  "type": "integer"
+                                }
+                              }
+                            },
+                            "value": {
+                              "type": "string"
+                            },
+                            "contentDisposition": {
+                              "type": "object",
+                              "properties": {
+                                "parameters": {
+                                  "type": "object",
+                                  "properties": {
+                                    "property1": {
+                                      "type": "string"
+                                    },
+                                    "property2": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "readDate": {
+                                  "type": "integer"
+                                },
+                                "fileName": {
+                                  "type": "string"
+                                },
+                                "creationDate": {
+                                  "type": "integer"
+                                },
+                                "modificationDate": {
+                                  "type": "integer"
+                                },
+                                "size": {
+                                  "type": "integer"
+                                }
+                              }
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "simple": {
+                              "type": "boolean"
+                            },
+                            "messageBodyWorkers": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "entity": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "providers": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "mediaType": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string"
+                                },
+                                "subtype": {
+                                  "type": "string"
+                                },
+                                "parameters": {
+                                  "type": "object",
+                                  "properties": {
+                                    "property1": {
+                                      "type": "string"
+                                    },
+                                    "property2": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "wildcardSubtype": {
+                                  "type": "boolean"
+                                },
+                                "wildcardType": {
+                                  "type": "boolean"
+                                }
+                              }
+                            },
+                            "parameterizedHeaders": {
+                              "type": "object",
+                              "properties": {
+                                "property1": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "value": {
+                                        "type": "string"
+                                      },
+                                      "parameters": {
+                                        "type": "object",
+                                        "properties": {
+                                          "property1": {
+                                            "type": "string"
+                                          },
+                                          "property2": {
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "property2": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "value": {
+                                        "type": "string"
+                                      },
+                                      "parameters": {
+                                        "type": "object",
+                                        "properties": {
+                                          "property1": {
+                                            "type": "string"
+                                          },
+                                          "property2": {
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "headers": {
+                              "type": "object",
+                              "properties": {
+                                "property1": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "property2": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "parent": {
+                              "type": "object",
+                              "properties": {
+                                "entity": {
+                                  "type": "object",
+                                  "properties": {}
+                                },
+                                "bodyParts": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {}
+                                  }
+                                },
+                                "messageBodyWorkers": {
+                                  "type": "object",
+                                  "properties": {}
+                                },
+                                "contentDisposition": {
+                                  "type": "object",
+                                  "properties": {}
+                                },
+                                "providers": {
+                                  "type": "object",
+                                  "properties": {}
+                                },
+                                "mediaType": {
+                                  "type": "object",
+                                  "properties": {}
+                                },
+                                "parameterizedHeaders": {
+                                  "type": "object",
+                                  "properties": {
+                                    "property1": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {}
+                                      }
+                                    },
+                                    "property2": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {}
+                                      }
+                                    }
+                                  }
+                                },
+                                "headers": {
+                                  "type": "object",
+                                  "properties": {
+                                    "property1": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "property2": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "parent": {
+                                  "type": "object",
+                                  "properties": {}
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "entity": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "bodyParts": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "messageBodyWorkers": {
+                          "type": "object",
+                          "properties": {}
+                        },
+                        "entity": {
+                          "type": "object",
+                          "properties": {}
+                        },
+                        "contentDisposition": {
+                          "type": "object",
+                          "properties": {
+                            "parameters": {
+                              "type": "object",
+                              "properties": {
+                                "property1": {
+                                  "type": "string"
+                                },
+                                "property2": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "readDate": {
+                              "type": "integer"
+                            },
+                            "fileName": {
+                              "type": "string"
+                            },
+                            "creationDate": {
+                              "type": "integer"
+                            },
+                            "modificationDate": {
+                              "type": "integer"
+                            },
+                            "size": {
+                              "type": "integer"
+                            }
+                          }
+                        },
+                        "providers": {
+                          "type": "object",
+                          "properties": {}
+                        },
+                        "mediaType": {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string"
+                            },
+                            "subtype": {
+                              "type": "string"
+                            },
+                            "parameters": {
+                              "type": "object",
+                              "properties": {
+                                "property1": {
+                                  "type": "string"
+                                },
+                                "property2": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "wildcardSubtype": {
+                              "type": "boolean"
+                            },
+                            "wildcardType": {
+                              "type": "boolean"
+                            }
+                          }
+                        },
+                        "parameterizedHeaders": {
+                          "type": "object",
+                          "properties": {
+                            "property1": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "value": {
+                                    "type": "string"
+                                  },
+                                  "parameters": {
+                                    "type": "object",
+                                    "properties": {
+                                      "property1": {
+                                        "type": "string"
+                                      },
+                                      "property2": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "property2": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "value": {
+                                    "type": "string"
+                                  },
+                                  "parameters": {
+                                    "type": "object",
+                                    "properties": {
+                                      "property1": {
+                                        "type": "string"
+                                      },
+                                      "property2": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "headers": {
+                          "type": "object",
+                          "properties": {
+                            "property1": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "property2": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "parent": {
+                          "type": "object",
+                          "properties": {
+                            "entity": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "bodyParts": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {}
+                              }
+                            },
+                            "messageBodyWorkers": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "contentDisposition": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "providers": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "mediaType": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "parameterizedHeaders": {
+                              "type": "object",
+                              "properties": {
+                                "property1": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {}
+                                  }
+                                },
+                                "property2": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {}
+                                  }
+                                }
+                              }
+                            },
+                            "headers": {
+                              "type": "object",
+                              "properties": {
+                                "property1": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "property2": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "parent": {
+                              "type": "object",
+                              "properties": {}
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "messageBodyWorkers": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "contentDisposition": {
+                    "type": "object",
+                    "properties": {
+                      "parameters": {
+                        "type": "object",
+                        "properties": {
+                          "property1": {
+                            "type": "string"
+                          },
+                          "property2": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "readDate": {
+                        "type": "integer"
+                      },
+                      "fileName": {
+                        "type": "string"
+                      },
+                      "creationDate": {
+                        "type": "integer"
+                      },
+                      "modificationDate": {
+                        "type": "integer"
+                      },
+                      "size": {
+                        "type": "integer"
+                      }
+                    }
+                  },
+                  "providers": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "mediaType": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "subtype": {
+                        "type": "string"
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "properties": {
+                          "property1": {
+                            "type": "string"
+                          },
+                          "property2": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "wildcardSubtype": {
+                        "type": "boolean"
+                      },
+                      "wildcardType": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "parameterizedHeaders": {
+                    "type": "object",
+                    "properties": {
+                      "property1": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "string"
+                            },
+                            "parameters": {
+                              "type": "object",
+                              "properties": {
+                                "property1": {
+                                  "type": "string"
+                                },
+                                "property2": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "property2": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "string"
+                            },
+                            "parameters": {
+                              "type": "object",
+                              "properties": {
+                                "property1": {
+                                  "type": "string"
+                                },
+                                "property2": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "headers": {
+                    "type": "object",
+                    "properties": {
+                      "property1": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "property2": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "parent": {
+                    "type": "object",
+                    "properties": {
+                      "entity": {
+                        "type": "object",
+                        "properties": {}
+                      },
+                      "bodyParts": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "messageBodyWorkers": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "entity": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "contentDisposition": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "providers": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "mediaType": {
+                              "type": "object",
+                              "properties": {}
+                            },
+                            "parameterizedHeaders": {
+                              "type": "object",
+                              "properties": {
+                                "property1": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {}
+                                  }
+                                },
+                                "property2": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {}
+                                  }
+                                }
+                              }
+                            },
+                            "headers": {
+                              "type": "object",
+                              "properties": {
+                                "property1": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "property2": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "parent": {
+                              "type": "object",
+                              "properties": {}
+                            }
+                          }
+                        }
+                      },
+                      "messageBodyWorkers": {
+                        "type": "object",
+                        "properties": {}
+                      },
+                      "contentDisposition": {
+                        "type": "object",
+                        "properties": {
+                          "parameters": {
+                            "type": "object",
+                            "properties": {
+                              "property1": {
+                                "type": "string"
+                              },
+                              "property2": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "readDate": {
+                            "type": "integer"
+                          },
+                          "fileName": {
+                            "type": "string"
+                          },
+                          "creationDate": {
+                            "type": "integer"
+                          },
+                          "modificationDate": {
+                            "type": "integer"
+                          },
+                          "size": {
+                            "type": "integer"
+                          }
+                        }
+                      },
+                      "providers": {
+                        "type": "object",
+                        "properties": {}
+                      },
+                      "mediaType": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string"
+                          },
+                          "subtype": {
+                            "type": "string"
+                          },
+                          "parameters": {
+                            "type": "object",
+                            "properties": {
+                              "property1": {
+                                "type": "string"
+                              },
+                              "property2": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "wildcardSubtype": {
+                            "type": "boolean"
+                          },
+                          "wildcardType": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "parameterizedHeaders": {
+                        "type": "object",
+                        "properties": {
+                          "property1": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "value": {
+                                  "type": "string"
+                                },
+                                "parameters": {
+                                  "type": "object",
+                                  "properties": {
+                                    "property1": {
+                                      "type": "string"
+                                    },
+                                    "property2": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "property2": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "value": {
+                                  "type": "string"
+                                },
+                                "parameters": {
+                                  "type": "object",
+                                  "properties": {
+                                    "property1": {
+                                      "type": "string"
+                                    },
+                                    "property2": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "headers": {
+                        "type": "object",
+                        "properties": {
+                          "property1": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "property2": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "parent": {
+                        "type": "object",
+                        "properties": {}
+                      }
+                    }
+                  }
+                },
+                "x-examples": {
+                  "example-1": {
+                    "fields": {
+                      "property1": [
+                        {
+                          "formDataContentDisposition": {
+                            "name": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "value": "...",
+                          "contentDisposition": {
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "name": "...",
+                          "simple": true,
+                          "messageBodyWorkers": {},
+                          "entity": {},
+                          "providers": {},
+                          "mediaType": {
+                            "type": "...",
+                            "subtype": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "wildcardSubtype": true,
+                            "wildcardType": true
+                          },
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ],
+                            "property2": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {
+                            "entity": {},
+                            "bodyParts": [
+                              {},
+                              {}
+                            ],
+                            "messageBodyWorkers": {},
+                            "contentDisposition": {},
+                            "providers": {},
+                            "mediaType": {},
+                            "parameterizedHeaders": {
+                              "property1": [
+                                {},
+                                {}
+                              ],
+                              "property2": [
+                                {},
+                                {}
+                              ]
+                            },
+                            "headers": {
+                              "property1": [
+                                "...",
+                                "..."
+                              ],
+                              "property2": [
+                                "...",
+                                "..."
+                              ]
+                            },
+                            "parent": {}
+                          }
+                        },
+                        {
+                          "formDataContentDisposition": {
+                            "name": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "value": "...",
+                          "contentDisposition": {
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "name": "...",
+                          "simple": true,
+                          "messageBodyWorkers": {},
+                          "entity": {},
+                          "providers": {},
+                          "mediaType": {
+                            "type": "...",
+                            "subtype": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "wildcardSubtype": true,
+                            "wildcardType": true
+                          },
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ],
+                            "property2": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {
+                            "entity": {},
+                            "bodyParts": [
+                              {},
+                              {}
+                            ],
+                            "messageBodyWorkers": {},
+                            "contentDisposition": {},
+                            "providers": {},
+                            "mediaType": {},
+                            "parameterizedHeaders": {
+                              "property1": [
+                                {},
+                                {}
+                              ],
+                              "property2": [
+                                {},
+                                {}
+                              ]
+                            },
+                            "headers": {
+                              "property1": [
+                                "...",
+                                "..."
+                              ],
+                              "property2": [
+                                "...",
+                                "..."
+                              ]
+                            },
+                            "parent": {}
+                          }
+                        }
+                      ],
+                      "property2": [
+                        {
+                          "formDataContentDisposition": {
+                            "name": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "value": "...",
+                          "contentDisposition": {
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "name": "...",
+                          "simple": true,
+                          "messageBodyWorkers": {},
+                          "entity": {},
+                          "providers": {},
+                          "mediaType": {
+                            "type": "...",
+                            "subtype": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "wildcardSubtype": true,
+                            "wildcardType": true
+                          },
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ],
+                            "property2": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {
+                            "entity": {},
+                            "bodyParts": [
+                              {},
+                              {}
+                            ],
+                            "messageBodyWorkers": {},
+                            "contentDisposition": {},
+                            "providers": {},
+                            "mediaType": {},
+                            "parameterizedHeaders": {
+                              "property1": [
+                                {},
+                                {}
+                              ],
+                              "property2": [
+                                {},
+                                {}
+                              ]
+                            },
+                            "headers": {
+                              "property1": [
+                                "...",
+                                "..."
+                              ],
+                              "property2": [
+                                "...",
+                                "..."
+                              ]
+                            },
+                            "parent": {}
+                          }
+                        },
+                        {
+                          "formDataContentDisposition": {
+                            "name": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "value": "...",
+                          "contentDisposition": {
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "name": "...",
+                          "simple": true,
+                          "messageBodyWorkers": {},
+                          "entity": {},
+                          "providers": {},
+                          "mediaType": {
+                            "type": "...",
+                            "subtype": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "wildcardSubtype": true,
+                            "wildcardType": true
+                          },
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ],
+                            "property2": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {
+                            "entity": {},
+                            "bodyParts": [
+                              {},
+                              {}
+                            ],
+                            "messageBodyWorkers": {},
+                            "contentDisposition": {},
+                            "providers": {},
+                            "mediaType": {},
+                            "parameterizedHeaders": {
+                              "property1": [
+                                {},
+                                {}
+                              ],
+                              "property2": [
+                                {},
+                                {}
+                              ]
+                            },
+                            "headers": {
+                              "property1": [
+                                "...",
+                                "..."
+                              ],
+                              "property2": [
+                                "...",
+                                "..."
+                              ]
+                            },
+                            "parent": {}
+                          }
+                        }
+                      ]
+                    },
+                    "entity": {},
+                    "bodyParts": [
+                      {
+                        "messageBodyWorkers": {},
+                        "entity": {},
+                        "contentDisposition": {
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          },
+                          "type": "...",
+                          "readDate": 12345,
+                          "fileName": "...",
+                          "creationDate": 12345,
+                          "modificationDate": 12345,
+                          "size": 12345
+                        },
+                        "providers": {},
+                        "mediaType": {
+                          "type": "...",
+                          "subtype": "...",
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          },
+                          "wildcardSubtype": true,
+                          "wildcardType": true
+                        },
+                        "parameterizedHeaders": {
+                          "property1": [
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            },
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            }
+                          ],
+                          "property2": [
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            },
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            }
+                          ]
+                        },
+                        "headers": {
+                          "property1": [
+                            "...",
+                            "..."
+                          ],
+                          "property2": [
+                            "...",
+                            "..."
+                          ]
+                        },
+                        "parent": {
+                          "entity": {},
+                          "bodyParts": [
+                            {},
+                            {}
+                          ],
+                          "messageBodyWorkers": {},
+                          "contentDisposition": {},
+                          "providers": {},
+                          "mediaType": {},
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {},
+                              {}
+                            ],
+                            "property2": [
+                              {},
+                              {}
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {}
+                        }
+                      },
+                      {
+                        "messageBodyWorkers": {},
+                        "entity": {},
+                        "contentDisposition": {
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          },
+                          "type": "...",
+                          "readDate": 12345,
+                          "fileName": "...",
+                          "creationDate": 12345,
+                          "modificationDate": 12345,
+                          "size": 12345
+                        },
+                        "providers": {},
+                        "mediaType": {
+                          "type": "...",
+                          "subtype": "...",
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          },
+                          "wildcardSubtype": true,
+                          "wildcardType": true
+                        },
+                        "parameterizedHeaders": {
+                          "property1": [
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            },
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            }
+                          ],
+                          "property2": [
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            },
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            }
+                          ]
+                        },
+                        "headers": {
+                          "property1": [
+                            "...",
+                            "..."
+                          ],
+                          "property2": [
+                            "...",
+                            "..."
+                          ]
+                        },
+                        "parent": {
+                          "entity": {},
+                          "bodyParts": [
+                            {},
+                            {}
+                          ],
+                          "messageBodyWorkers": {},
+                          "contentDisposition": {},
+                          "providers": {},
+                          "mediaType": {},
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {},
+                              {}
+                            ],
+                            "property2": [
+                              {},
+                              {}
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {}
+                        }
+                      }
+                    ],
+                    "messageBodyWorkers": {},
+                    "contentDisposition": {
+                      "parameters": {
+                        "property1": "...",
+                        "property2": "..."
+                      },
+                      "type": "...",
+                      "readDate": 12345,
+                      "fileName": "...",
+                      "creationDate": 12345,
+                      "modificationDate": 12345,
+                      "size": 12345
+                    },
+                    "providers": {},
+                    "mediaType": {
+                      "type": "...",
+                      "subtype": "...",
+                      "parameters": {
+                        "property1": "...",
+                        "property2": "..."
+                      },
+                      "wildcardSubtype": true,
+                      "wildcardType": true
+                    },
+                    "parameterizedHeaders": {
+                      "property1": [
+                        {
+                          "value": "...",
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          }
+                        },
+                        {
+                          "value": "...",
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          }
+                        }
+                      ],
+                      "property2": [
+                        {
+                          "value": "...",
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          }
+                        },
+                        {
+                          "value": "...",
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          }
+                        }
+                      ]
+                    },
+                    "headers": {
+                      "property1": [
+                        "...",
+                        "..."
+                      ],
+                      "property2": [
+                        "...",
+                        "..."
+                      ]
+                    },
+                    "parent": {
+                      "entity": {},
+                      "bodyParts": [
+                        {
+                          "messageBodyWorkers": {},
+                          "entity": {},
+                          "contentDisposition": {},
+                          "providers": {},
+                          "mediaType": {},
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {},
+                              {}
+                            ],
+                            "property2": [
+                              {},
+                              {}
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {}
+                        },
+                        {
+                          "messageBodyWorkers": {},
+                          "entity": {},
+                          "contentDisposition": {},
+                          "providers": {},
+                          "mediaType": {},
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {},
+                              {}
+                            ],
+                            "property2": [
+                              {},
+                              {}
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {}
+                        }
+                      ],
+                      "messageBodyWorkers": {},
+                      "contentDisposition": {
+                        "parameters": {
+                          "property1": "...",
+                          "property2": "..."
+                        },
+                        "type": "...",
+                        "readDate": 12345,
+                        "fileName": "...",
+                        "creationDate": 12345,
+                        "modificationDate": 12345,
+                        "size": 12345
+                      },
+                      "providers": {},
+                      "mediaType": {
+                        "type": "...",
+                        "subtype": "...",
+                        "parameters": {
+                          "property1": "...",
+                          "property2": "..."
+                        },
+                        "wildcardSubtype": true,
+                        "wildcardType": true
+                      },
+                      "parameterizedHeaders": {
+                        "property1": [
+                          {
+                            "value": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            }
+                          },
+                          {
+                            "value": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            }
+                          }
+                        ],
+                        "property2": [
+                          {
+                            "value": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            }
+                          },
+                          {
+                            "value": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            }
+                          }
+                        ]
+                      },
+                      "headers": {
+                        "property1": [
+                          "...",
+                          "..."
+                        ],
+                        "property2": [
+                          "...",
+                          "..."
+                        ]
+                      },
+                      "parent": {}
+                    }
+                  }
+                }
+              },
+              "examples": {
+                "example-1": {
+                  "value": {
+                    "fields": {
+                      "property1": [
+                        {
+                          "formDataContentDisposition": {
+                            "name": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "value": "...",
+                          "contentDisposition": {
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "name": "...",
+                          "simple": true,
+                          "messageBodyWorkers": {},
+                          "entity": {},
+                          "providers": {},
+                          "mediaType": {
+                            "type": "...",
+                            "subtype": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "wildcardSubtype": true,
+                            "wildcardType": true
+                          },
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ],
+                            "property2": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {
+                            "entity": {},
+                            "bodyParts": [
+                              {},
+                              {}
+                            ],
+                            "messageBodyWorkers": {},
+                            "contentDisposition": {},
+                            "providers": {},
+                            "mediaType": {},
+                            "parameterizedHeaders": {
+                              "property1": [
+                                {},
+                                {}
+                              ],
+                              "property2": [
+                                {},
+                                {}
+                              ]
+                            },
+                            "headers": {
+                              "property1": [
+                                "...",
+                                "..."
+                              ],
+                              "property2": [
+                                "...",
+                                "..."
+                              ]
+                            },
+                            "parent": {}
+                          }
+                        },
+                        {
+                          "formDataContentDisposition": {
+                            "name": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "value": "...",
+                          "contentDisposition": {
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "name": "...",
+                          "simple": true,
+                          "messageBodyWorkers": {},
+                          "entity": {},
+                          "providers": {},
+                          "mediaType": {
+                            "type": "...",
+                            "subtype": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "wildcardSubtype": true,
+                            "wildcardType": true
+                          },
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ],
+                            "property2": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {
+                            "entity": {},
+                            "bodyParts": [
+                              {},
+                              {}
+                            ],
+                            "messageBodyWorkers": {},
+                            "contentDisposition": {},
+                            "providers": {},
+                            "mediaType": {},
+                            "parameterizedHeaders": {
+                              "property1": [
+                                {},
+                                {}
+                              ],
+                              "property2": [
+                                {},
+                                {}
+                              ]
+                            },
+                            "headers": {
+                              "property1": [
+                                "...",
+                                "..."
+                              ],
+                              "property2": [
+                                "...",
+                                "..."
+                              ]
+                            },
+                            "parent": {}
+                          }
+                        }
+                      ],
+                      "property2": [
+                        {
+                          "formDataContentDisposition": {
+                            "name": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "value": "...",
+                          "contentDisposition": {
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "name": "...",
+                          "simple": true,
+                          "messageBodyWorkers": {},
+                          "entity": {},
+                          "providers": {},
+                          "mediaType": {
+                            "type": "...",
+                            "subtype": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "wildcardSubtype": true,
+                            "wildcardType": true
+                          },
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ],
+                            "property2": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {
+                            "entity": {},
+                            "bodyParts": [
+                              {},
+                              {}
+                            ],
+                            "messageBodyWorkers": {},
+                            "contentDisposition": {},
+                            "providers": {},
+                            "mediaType": {},
+                            "parameterizedHeaders": {
+                              "property1": [
+                                {},
+                                {}
+                              ],
+                              "property2": [
+                                {},
+                                {}
+                              ]
+                            },
+                            "headers": {
+                              "property1": [
+                                "...",
+                                "..."
+                              ],
+                              "property2": [
+                                "...",
+                                "..."
+                              ]
+                            },
+                            "parent": {}
+                          }
+                        },
+                        {
+                          "formDataContentDisposition": {
+                            "name": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "value": "...",
+                          "contentDisposition": {
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "type": "...",
+                            "readDate": 12345,
+                            "fileName": "...",
+                            "creationDate": 12345,
+                            "modificationDate": 12345,
+                            "size": 12345
+                          },
+                          "name": "...",
+                          "simple": true,
+                          "messageBodyWorkers": {},
+                          "entity": {},
+                          "providers": {},
+                          "mediaType": {
+                            "type": "...",
+                            "subtype": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            },
+                            "wildcardSubtype": true,
+                            "wildcardType": true
+                          },
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ],
+                            "property2": [
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              },
+                              {
+                                "value": "...",
+                                "parameters": {
+                                  "property1": "...",
+                                  "property2": "..."
+                                }
+                              }
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {
+                            "entity": {},
+                            "bodyParts": [
+                              {},
+                              {}
+                            ],
+                            "messageBodyWorkers": {},
+                            "contentDisposition": {},
+                            "providers": {},
+                            "mediaType": {},
+                            "parameterizedHeaders": {
+                              "property1": [
+                                {},
+                                {}
+                              ],
+                              "property2": [
+                                {},
+                                {}
+                              ]
+                            },
+                            "headers": {
+                              "property1": [
+                                "...",
+                                "..."
+                              ],
+                              "property2": [
+                                "...",
+                                "..."
+                              ]
+                            },
+                            "parent": {}
+                          }
+                        }
+                      ]
+                    },
+                    "entity": {},
+                    "bodyParts": [
+                      {
+                        "messageBodyWorkers": {},
+                        "entity": {},
+                        "contentDisposition": {
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          },
+                          "type": "...",
+                          "readDate": 12345,
+                          "fileName": "...",
+                          "creationDate": 12345,
+                          "modificationDate": 12345,
+                          "size": 12345
+                        },
+                        "providers": {},
+                        "mediaType": {
+                          "type": "...",
+                          "subtype": "...",
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          },
+                          "wildcardSubtype": true,
+                          "wildcardType": true
+                        },
+                        "parameterizedHeaders": {
+                          "property1": [
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            },
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            }
+                          ],
+                          "property2": [
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            },
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            }
+                          ]
+                        },
+                        "headers": {
+                          "property1": [
+                            "...",
+                            "..."
+                          ],
+                          "property2": [
+                            "...",
+                            "..."
+                          ]
+                        },
+                        "parent": {
+                          "entity": {},
+                          "bodyParts": [
+                            {},
+                            {}
+                          ],
+                          "messageBodyWorkers": {},
+                          "contentDisposition": {},
+                          "providers": {},
+                          "mediaType": {},
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {},
+                              {}
+                            ],
+                            "property2": [
+                              {},
+                              {}
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {}
+                        }
+                      },
+                      {
+                        "messageBodyWorkers": {},
+                        "entity": {},
+                        "contentDisposition": {
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          },
+                          "type": "...",
+                          "readDate": 12345,
+                          "fileName": "...",
+                          "creationDate": 12345,
+                          "modificationDate": 12345,
+                          "size": 12345
+                        },
+                        "providers": {},
+                        "mediaType": {
+                          "type": "...",
+                          "subtype": "...",
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          },
+                          "wildcardSubtype": true,
+                          "wildcardType": true
+                        },
+                        "parameterizedHeaders": {
+                          "property1": [
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            },
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            }
+                          ],
+                          "property2": [
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            },
+                            {
+                              "value": "...",
+                              "parameters": {
+                                "property1": "...",
+                                "property2": "..."
+                              }
+                            }
+                          ]
+                        },
+                        "headers": {
+                          "property1": [
+                            "...",
+                            "..."
+                          ],
+                          "property2": [
+                            "...",
+                            "..."
+                          ]
+                        },
+                        "parent": {
+                          "entity": {},
+                          "bodyParts": [
+                            {},
+                            {}
+                          ],
+                          "messageBodyWorkers": {},
+                          "contentDisposition": {},
+                          "providers": {},
+                          "mediaType": {},
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {},
+                              {}
+                            ],
+                            "property2": [
+                              {},
+                              {}
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {}
+                        }
+                      }
+                    ],
+                    "messageBodyWorkers": {},
+                    "contentDisposition": {
+                      "parameters": {
+                        "property1": "...",
+                        "property2": "..."
+                      },
+                      "type": "...",
+                      "readDate": 12345,
+                      "fileName": "...",
+                      "creationDate": 12345,
+                      "modificationDate": 12345,
+                      "size": 12345
+                    },
+                    "providers": {},
+                    "mediaType": {
+                      "type": "...",
+                      "subtype": "...",
+                      "parameters": {
+                        "property1": "...",
+                        "property2": "..."
+                      },
+                      "wildcardSubtype": true,
+                      "wildcardType": true
+                    },
+                    "parameterizedHeaders": {
+                      "property1": [
+                        {
+                          "value": "...",
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          }
+                        },
+                        {
+                          "value": "...",
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          }
+                        }
+                      ],
+                      "property2": [
+                        {
+                          "value": "...",
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          }
+                        },
+                        {
+                          "value": "...",
+                          "parameters": {
+                            "property1": "...",
+                            "property2": "..."
+                          }
+                        }
+                      ]
+                    },
+                    "headers": {
+                      "property1": [
+                        "...",
+                        "..."
+                      ],
+                      "property2": [
+                        "...",
+                        "..."
+                      ]
+                    },
+                    "parent": {
+                      "entity": {},
+                      "bodyParts": [
+                        {
+                          "messageBodyWorkers": {},
+                          "entity": {},
+                          "contentDisposition": {},
+                          "providers": {},
+                          "mediaType": {},
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {},
+                              {}
+                            ],
+                            "property2": [
+                              {},
+                              {}
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {}
+                        },
+                        {
+                          "messageBodyWorkers": {},
+                          "entity": {},
+                          "contentDisposition": {},
+                          "providers": {},
+                          "mediaType": {},
+                          "parameterizedHeaders": {
+                            "property1": [
+                              {},
+                              {}
+                            ],
+                            "property2": [
+                              {},
+                              {}
+                            ]
+                          },
+                          "headers": {
+                            "property1": [
+                              "...",
+                              "..."
+                            ],
+                            "property2": [
+                              "...",
+                              "..."
+                            ]
+                          },
+                          "parent": {}
+                        }
+                      ],
+                      "messageBodyWorkers": {},
+                      "contentDisposition": {
+                        "parameters": {
+                          "property1": "...",
+                          "property2": "..."
+                        },
+                        "type": "...",
+                        "readDate": 12345,
+                        "fileName": "...",
+                        "creationDate": 12345,
+                        "modificationDate": 12345,
+                        "size": 12345
+                      },
+                      "providers": {},
+                      "mediaType": {
+                        "type": "...",
+                        "subtype": "...",
+                        "parameters": {
+                          "property1": "...",
+                          "property2": "..."
+                        },
+                        "wildcardSubtype": true,
+                        "wildcardType": true
+                      },
+                      "parameterizedHeaders": {
+                        "property1": [
+                          {
+                            "value": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            }
+                          },
+                          {
+                            "value": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            }
+                          }
+                        ],
+                        "property2": [
+                          {
+                            "value": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            }
+                          },
+                          {
+                            "value": "...",
+                            "parameters": {
+                              "property1": "...",
+                              "property2": "..."
+                            }
+                          }
+                        ]
+                      },
+                      "headers": {
+                        "property1": [
+                          "...",
+                          "..."
+                        ],
+                        "property2": [
+                          "...",
+                          "..."
+                        ]
+                      },
+                      "parent": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Script Service"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "responses": {
+      "AgentServiceHeaderElement": {
+        "description": "Example response",
+        "content": {
+          "application/xml": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "headers": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "x-examples": {
+                "example-1": {
+                  "headers": [
+                    {
+                      "key": "key",
+                      "value": "value"
+                    }
+                  ]
+                }
+              }
+            },
+            "examples": {
+              "example-1": {
+                "value": "<headers xmlns=\"urn:wats/domain/agent/v1\">\n  <headers>\n    <header>\n      <key>...</key>\n      <value>...</value>\n    </header>\n  </headers>\n</headers>"
+              },
+              "example-2": {
+                "value": {
+                  "headers": [
+                    {
+                      "key": "string",
+                      "value": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "multipart/form-data": {
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "text/html": {
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        },
+        "headers": {}
+      }
+    }
+  }
+}
