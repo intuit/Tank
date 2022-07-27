@@ -14,9 +14,12 @@ This new doc site, being built on mkdocs-material,
 
 # Installation and ops
 ## Running on local 
-Get into the root directory. 
-Install dependencies from Requirements file:  `pip install -r docs-requirements.txt`
-Run locally using comamnd: `python3 -m mkdocs serve`
+* Get into the root directory. 
+* Create a Virtual Environment and Activate it 
+    * `python3 -m venv venv` 
+    * `source venv/bin/activate`
+* From the activated Virtual Env, install dependencies from Requirements file:  `pip install -r docs-requirements.txt`
+* Check if docs work locally using comamnd: `python3 -m mkdocs serve`
 
 ## Publishing the docs site
 Publish docs site using command: `python3 -m mkdocs gh-deploy --force`
