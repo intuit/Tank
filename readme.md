@@ -16,6 +16,9 @@ It exposes a RESTful interface for invoking services. Data is stored in a MySql 
 
 Agents are instantiated on demand and exist for the duration of a test. They communicate with the controller via RESTful interfaces.
 
+## Documentation
+You can find all the Documentation for Tank at [Tank Documentation](https://intuit.github.io/Tank/) 
+
 ## Building Intuit Tank
 Intuit Tank uses Maven and should be able to be built using public repositories. 
 You may need to increase the default memory settings for maven to build. e.g. export MAVEN_OPTS="-Xmx1g"
