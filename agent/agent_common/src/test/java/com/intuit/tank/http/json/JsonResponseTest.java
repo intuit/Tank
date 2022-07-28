@@ -13,12 +13,16 @@ package com.intuit.tank.http.json;
  * #L%
  */
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.stream.Stream;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -218,48 +222,43 @@ public class JsonResponseTest {
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.json.JsonResponse
     }
     
-/*    @Test
+    @Test
     public void testJsonResponseBody() throws Exception{
     	
     	JsonResponse fixture = new JsonResponse();
     	fixture.setResponseBody(readFile("src/test/resources/json-response.json"));
-    	
-    	String[] keys = {"/data/data/returns/IRS1040/Return/ReturnData/PPPerson/SpouseFilerInfoPP/FieldAttributes/UUID",
-    			"/data/data/returns/IRS1040/Return/ReturnData/PPPerson/TaxpayerFilerInfoPP/UUID",
-    			"/data/data/returns/IRS1040/Return/ReturnData/IRS1040/DependentWorksheetPP[1]/UUID",
-    			"/data/data/returns/IRS1040/Return/ReturnData/PPReturnInformation/ForeignAddressPP/UUID",
-    			"/data/data/returns/IRS1040/Return/ReturnHeader/Filer/SpouseFullNamePP/UUID",
-    			"/data/data/returns/IRS1040/UUID",
-    			"/data/data/returns/IRS1040/Return/ReturnData/UUID",
-    			"/data/data/returns/IRS1040/Return/ReturnData/PPPerson/SpouseFilerInfoPP/PersonFullNamePP/UUID",
-    			"/data/data/returns/IRS1040/Return/ReturnData/PPPerson/TaxpayerFilerInfoPP/PersonFullNamePP/UUID",
-    			"/data/data/returns/IRS1040/Return/UUID",
-    			"/data/data/returns/IRS1040/Return/ReturnData/PPPerson/TaxpayerFilerInfoPP/FieldAttributes/UUID",
-    			"/data/data/returns/IRS1040/Return/ReturnData/PPPerson/SpouseFilerInfoPP/UUID",
-    			"/data/data/returns/IRS1040/Return/ReturnData/PPReturnInformation/USAddressPP/UUID",
-    			"/data/data/returns/IRS1040/Return/ReturnHeader/Filer/PrimaryFullNamePP/UUID"};
-    	
-    	for (String key : keys){
-    		System.out.println(key + ": " + fixture.getValue(key));
-    	}
+
+        Stream<Pair<String, String>> keys = Stream.of(
+                new ImmutablePair<>("/data/data/returns/IRS1040/Return/ReturnData/PPPerson/SpouseFilerInfoPP/FieldAttributes/UUID", "de7f702f-e40b-4f16-8a7d-e4263f11421d"),
+                new ImmutablePair<>("/data/data/returns/IRS1040/Return/ReturnData/PPPerson/TaxpayerFilerInfoPP/UUID","9adb0166-41bf-4a67-84f5-01bf5701c624"),
+                new ImmutablePair<>("/data/data/returns/IRS1040/Return/ReturnData/IRS1040/DependentWorksheetPP[1]/UUID","66f978bf-0d16-4763-83a2-5c0b4fa6e213"),
+                new ImmutablePair<>("/data/data/returns/IRS1040/Return/ReturnData/PPReturnInformation/ForeignAddressPP/UUID","16824515-d8f2-4166-a6b3-f6f16d8fd64e"),
+                new ImmutablePair<>("/data/data/returns/IRS1040/Return/ReturnHeader/Filer/SpouseFullNamePP/UUID","aef7336e-060a-4bc9-b0a0-d9a2d0af2e83"),
+                new ImmutablePair<>("/data/data/returns/IRS1040/UUID","1b183386-08e6-4df1-bf03-2429c30d2967"),
+                new ImmutablePair<>("/data/data/returns/IRS1040/Return/ReturnData/UUID","9883fbf9-167a-4068-98e3-8b1c4e71c8aa"),
+                new ImmutablePair<>("/data/data/returns/IRS1040/Return/ReturnData/PPPerson/SpouseFilerInfoPP/PersonFullNamePP/UUID","a1c55da1-d836-4514-92ce-8fabf2b0e6b1"),
+                new ImmutablePair<>("/data/data/returns/IRS1040/Return/ReturnData/PPPerson/TaxpayerFilerInfoPP/PersonFullNamePP/UUID","e52fc783-1b2a-48c8-9947-c00c7b7b739d"),
+                new ImmutablePair<>("/data/data/returns/IRS1040/Return/UUID","34e18e3e-c1d7-4b42-a1ce-65f7bded0399"),
+                new ImmutablePair<>("/data/data/returns/IRS1040/Return/ReturnData/PPPerson/TaxpayerFilerInfoPP/FieldAttributes/UUID", "646d7378-a1cb-4486-a1f1-a95d90a8587d"),
+                new ImmutablePair<>("/data/data/returns/IRS1040/Return/ReturnData/PPPerson/SpouseFilerInfoPP/UUID","ab93c631-d915-4fd7-936b-75b15514ad9d"),
+                new ImmutablePair<>("/data/data/returns/IRS1040/Return/ReturnData/PPReturnInformation/USAddressPP/UUID","56a3e532-4129-448e-bb55-1a66d6c2c9d3"),
+                new ImmutablePair<>("/data/data/returns/IRS1040/Return/ReturnHeader/Filer/PrimaryFullNamePP/UUID","3e3fb606-feb4-4bbd-8d81-d31e469a8620")
+        );
+
+        keys.forEach(pair -> assertEquals(pair.getValue(), fixture.getValue(pair.getKey())));
     }
-*/    
     
     private String readFile( String file ) throws IOException {
-        BufferedReader reader = new BufferedReader( new FileReader (file));
-        String         line = null;
-        StringBuilder  stringBuilder = new StringBuilder();
-        String         ls = System.getProperty("line.separator");
 
-        try {
-            while( ( line = reader.readLine() ) != null ) {
-                stringBuilder.append( line );
-                stringBuilder.append( ls );
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line = null;
+            StringBuilder stringBuilder = new StringBuilder();
+            String ls = System.getProperty("line.separator");
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+                stringBuilder.append(ls);
             }
-
             return stringBuilder.toString();
-        } finally {
-            reader.close();
         }
     }
 }
