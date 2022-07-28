@@ -1,0 +1,56 @@
+site_name: Tank docs
+repo_url: https://github.com/intuit/Tank
+repo_name: intuit/Tank
+plugins:    
+    - search
+    - awesome-pages:
+        collapse_single_pages: true    
+markdown_extensions:
+  - md_in_html
+  - attr_list
+  - def_list
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg  
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true   
+theme:
+  favicon: assets/TankLogo.svg
+  features:
+    - navigation.top
+    - navigation.tabs    
+    - navigation.tracking
+    - navigation.tabs.sticky
+    - header.autohide
+  name: material
+  
+  palette:  
+    - scheme: default  
+      primary: orange
+      accent: teal
+      toggle:
+        icon: material/toggle-switch-off-outline 
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: orange
+      toggle:        
+        icon: material/toggle-switch
+        name: Switch to light mode
+  font:
+    code: Roboto Mono
+  logo: assets/TankLogo.svg  
+    
+extra:
+  social:
+    - icon: fontawesome/brands/slack 
+      link: https://twitter.com/squidfunk
