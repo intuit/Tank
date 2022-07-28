@@ -48,13 +48,7 @@ public class JsonResponseTest {
     @Test
     public void testJsonResponse_1()
             throws Exception {
-
         JsonResponse result = new JsonResponse();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.ExceptionInInitializerError
-        // at org.apache.log4j.LogManager.getLogger(Logger.java:117)
-        // at com.intuit.tank.http.BaseResponse.<clinit>(BaseResponse.java:18)
         assertNotNull(result);
     }
 
@@ -68,12 +62,7 @@ public class JsonResponseTest {
     @Test
     public void testJsonResponse_2()
             throws Exception {
-        String resp = "";
-
-        JsonResponse result = new JsonResponse(resp);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.json.JsonResponse
+        JsonResponse result = new JsonResponse("");
         assertNotNull(result);
     }
 
@@ -89,137 +78,15 @@ public class JsonResponseTest {
             throws Exception {
         JsonResponse fixture = new JsonResponse();
         fixture.setResponseBody(new byte[] {});
-        String key = "0";
 
-        String result = fixture.getValue(key);
+        assertNotNull(fixture.getValue("0"));
+        assertNotNull(fixture.getValue(""));
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.json.JsonResponse
-        assertNotNull(result);
-    }
+        fixture.setResponseBody("{\"password\": \"P@ssw0rd\"}");
 
-    /**
-     * Run the String getValue(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testGetValue_2()
-            throws Exception {
-        JsonResponse fixture = new JsonResponse();
-        fixture.setResponseBody(new byte[] {});
-        String key = "0";
-
-        String result = fixture.getValue(key);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.json.JsonResponse
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String getValue(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testGetValue_3()
-            throws Exception {
-        JsonResponse fixture = new JsonResponse();
-        fixture.setResponseBody(new byte[] {});
-        String key = "0";
-
-        String result = fixture.getValue(key);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.json.JsonResponse
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String getValue(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testGetValue_4()
-            throws Exception {
-        JsonResponse fixture = new JsonResponse();
-        fixture.setResponseBody(new byte[] {});
-        String key = "";
-
-        String result = fixture.getValue(key);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.json.JsonResponse
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String getValue(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testGetValue_5()
-            throws Exception {
-        JsonResponse fixture = new JsonResponse();
-        fixture.setResponseBody(new byte[] {});
-        String key = "";
-
-        String result = fixture.getValue(key);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.json.JsonResponse
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the void setResponseBody(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testSetResponseBody_1()
-            throws Exception {
-        JsonResponse fixture = new JsonResponse();
-        fixture.setResponseBody(new byte[] {});
-        String body = "";
-
-        fixture.setResponseBody(body);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.json.JsonResponse
-    }
-
-    /**
-     * Run the void setResponseBody(byte[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testSetResponseBody_2()
-            throws Exception {
-        JsonResponse fixture = new JsonResponse();
-        fixture.setResponseBody(new byte[] {});
-        byte[] byteArray = new byte[] {};
-
-        fixture.setResponseBody(byteArray);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.json.JsonResponse
+        assertEquals("{\"password\": \"P@ssw0rd\"}", fixture.getResponseBody());
+        assertNotNull(fixture.getValue("0"));
+        assertNotNull(fixture.getValue(""));
     }
     
     @Test
