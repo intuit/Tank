@@ -63,7 +63,7 @@ public class JsonResponse extends BaseResponse {
                 JSONObject jsonResponse = new JSONObject(this.response);
                 return (String) jsonResponse.get(key);
             }
-        } catch (Exception e) { }
+        } catch (NumberFormatException ignored) { }
         try {
             if (this.jsonMap == null) {
                 initialize();
@@ -82,8 +82,7 @@ public class JsonResponse extends BaseResponse {
 
     private String cleanString(String input) {
         try {
-            String output = StringUtils.remove(input.trim(), "@");
-            return StringUtils.remove(output,"(\r\n)+");
+            return StringUtils.remove(input.trim(),"(\r\n)+");
         } catch (Exception ex) {
             return input;
         }
