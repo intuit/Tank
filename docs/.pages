@@ -5,3 +5,4 @@ nav:
     - administration.md
     - supplemental-tools.md    
     - Set-up and Installation: installation-guide
+    - Tank API Reference: apispec.md

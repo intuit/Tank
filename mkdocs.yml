@@ -2,7 +2,8 @@ site_name: Tank docs
 repo_url: https://github.com/intuit/Tank
 repo_name: intuit/Tank
 plugins:    
-    - search
+    - search    
+    - swagger-ui-tag
     - awesome-pages:
         collapse_single_pages: true    
 markdown_extensions:
