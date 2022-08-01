@@ -1,861 +1,450 @@
 
-<!doctype html>
-<html lang="en" class="no-js">
-  <head>
-    
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      
-      
-      
-      <link rel="icon" href="../../assets/TankLogo.svg">
-      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.2.13">
-    
-    
-      
-        <title>Set-up & Installation - Tank docs</title>
-      
-    
-    
-      <link rel="stylesheet" href="../../assets/stylesheets/main.e411adfe.min.css">
-      
-        
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.cc9b2e1e.min.css">
-        
-      
-    
-    
-    
-      
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
-    
-    
-    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-    
-      
+<!DOCTYPE html>
 
-    
-    
-  </head>
-  
-  
-    
-    
-      
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="orange" data-md-color-accent="teal">
-  
-    
-    
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
-    
-    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
-    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
-    <div data-md-component="skip">
-      
-        
-        <a href="#set-up-installation" class="md-skip">
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<link href="../../assets/TankLogo.svg" rel="icon"/>
+<meta content="mkdocs-1.3.1, mkdocs-material-8.2.13" name="generator"/>
+<title>Set-up &amp; Installation - Tank docs</title>
+<link href="../../assets/stylesheets/main.e411adfe.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.cc9b2e1e.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="teal" data-md-color-primary="orange" data-md-color-scheme="default" dir="ltr">
+<script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#set-up-installation">
           Skip to content
         </a>
-      
-    </div>
-    <div data-md-component="announce">
-      
-    </div>
-    
-    
-      
-
-  
-
+</div>
+<div data-md-component="announce">
+</div>
 <header class="md-header md-header--lifted" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Tank docs" class="md-header__button md-logo" aria-label="Tank docs" data-md-component="logo">
-      
-  <img src="../../assets/TankLogo.svg" alt="logo">
-
-    </a>
-    <label class="md-header__button md-icon" for="__drawer">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
-    </label>
-    <div class="md-header__title" data-md-component="header-title">
-      <div class="md-header__ellipsis">
-        <div class="md-header__topic">
-          <span class="md-ellipsis">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Tank docs" class="md-header__button md-logo" data-md-component="logo" href="../.." title="Tank docs">
+<img alt="logo" src="../../assets/TankLogo.svg"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
             Tank docs
           </span>
-        </div>
-        <div class="md-header__topic" data-md-component="header-topic">
-          <span class="md-ellipsis">
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
             
-              Set-up & Installation
+              Set-up &amp; Installation
             
           </span>
-        </div>
-      </div>
-    </div>
-    
-      <form class="md-header__option" data-md-component="palette">
-        
-          
-          
-          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="orange" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
-          
-            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-            </label>
-          
-        
-          
-          
-          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
-          
-            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
-            </label>
-          
-        
-      </form>
-    
-    
-    
-      <label class="md-header__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
-      </label>
-      <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
-      <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-      </label>
-      <nav class="md-search__options" aria-label="Search">
-        
-        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
-        </button>
-      </nav>
-      
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="search-result">
-          <div class="md-search-result__meta">
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="teal" data-md-color-media="" data-md-color-primary="orange" data-md-color-scheme="default" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_2" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="orange" data-md-color-media="" data-md-color-primary="teal" data-md-color-scheme="slate" id="__palette_2" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"></path></svg>
+</label>
+</form>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"></path></svg>
+</button>
+</nav>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
-        </div>
-      </div>
-    </div>
-  </div>
+<ol class="md-search-result__list"></ol>
 </div>
-    
-    
-      <div class="md-header__source">
-        <a href="https://github.com/intuit/Tank" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
-  </div>
-  <div class="md-source__repository">
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/intuit/Tank" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+</div>
+<div class="md-source__repository">
     intuit/Tank
   </div>
 </a>
-      </div>
-    
-  </nav>
-  
-    
-      
-<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
-  <div class="md-tabs__inner md-grid">
-    <ul class="md-tabs__list">
-      
-        
-  
-  
-
-
-  <li class="md-tabs__item">
-    <a href="../.." class="md-tabs__link">
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-tabs__inner md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../..">
       Welcome to Intuit Tank
     </a>
-  </li>
-
-      
-        
-  
-  
-
-
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../../key-concepts/projects/" class="md-tabs__link">
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../key-concepts/projects/">
         Key Concepts
       </a>
-    </li>
-  
-
-      
-        
-  
-  
-
-
-  <li class="md-tabs__item">
-    <a href="../../roles/" class="md-tabs__link">
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../roles/">
       Roles and Permissions
     </a>
-  </li>
-
-      
-        
-  
-  
-
-
-  <li class="md-tabs__item">
-    <a href="../../administration/" class="md-tabs__link">
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../administration/">
       Administration
     </a>
-  </li>
-
-      
-        
-  
-  
-
-
-  <li class="md-tabs__item">
-    <a href="../../supplemental-tools/" class="md-tabs__link">
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../supplemental-tools/">
       Supplemental Tools
     </a>
-  </li>
-
-      
-        
-  
-  
-    
-  
-
-
-  <li class="md-tabs__item">
-    <a href="./" class="md-tabs__link md-tabs__link--active">
-      Set-up & Installation
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link md-tabs__link--active" href="./">
+      Set-up &amp; Installation
     </a>
-  </li>
-
-      
-    </ul>
-  </div>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../apispec/">
+      Tank API Reference
+    </a>
+</li>
+</ul>
+</div>
 </nav>
-    
-  
 </header>
-    
-    <div class="md-container" data-md-component="container">
-      
-      
-        
-      
-      <main class="md-main" data-md-component="main">
-        <div class="md-main__inner md-grid">
-          
-            
-              
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-  
-
-
-<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
-  <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Tank docs" class="md-nav__button md-logo" aria-label="Tank docs" data-md-component="logo">
-      
-  <img src="../../assets/TankLogo.svg" alt="logo">
-
-    </a>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Tank docs" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="Tank docs">
+<img alt="logo" src="../../assets/TankLogo.svg"/>
+</a>
     Tank docs
   </label>
-  
-    <div class="md-nav__source">
-      <a href="https://github.com/intuit/Tank" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
-  </div>
-  <div class="md-source__repository">
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/intuit/Tank" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+</div>
+<div class="md-source__repository">
     intuit/Tank
   </div>
 </a>
-    </div>
-  
-  <ul class="md-nav__list" data-md-scrollfix>
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
         Welcome to Intuit Tank
       </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
-      
-      
-      
-      
-        <label class="md-nav__link" for="__nav_2">
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2">
           Key Concepts
           <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" aria-label="Key Concepts" data-md-level="1">
-        <label class="md-nav__title" for="__nav_2">
-          <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Key Concepts" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
           Key Concepts
         </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../key-concepts/projects/" class="md-nav__link">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/projects/">
         Projects
       </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../key-concepts/scripts/" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/scripts/">
         Scripts
       </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../key-concepts/filters/" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/filters/">
         Filters and Filter Groups
       </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../key-concepts/functions_variables/" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/functions_variables/">
         Functions and Variables
       </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_5" type="checkbox" id="__nav_2_5" >
-      
-      
-      
-      
-        <label class="md-nav__link" for="__nav_2_5">
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_5" id="__nav_2_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2_5">
           Types Of In-built Functions
           <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" aria-label="Types Of In-built Functions" data-md-level="2">
-        <label class="md-nav__title" for="__nav_2_5">
-          <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Types Of In-built Functions" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_5">
+<span class="md-nav__icon md-icon"></span>
           Types Of In-built Functions
         </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../key-concepts/io-functions/" class="md-nav__link">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/io-functions/">
         IO Functions
       </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../key-concepts/string-functions/" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/string-functions/">
         String Functions
       </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../key-concepts/date-functions/" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/date-functions/">
         Date Functions
       </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../key-concepts/monetary-functions/" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/monetary-functions/">
         Monetary Functions
       </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../key-concepts/numeric-functions/" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/numeric-functions/">
         Numeric Functions
       </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../key-concepts/tax-functions/" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/tax-functions/">
         Tax Functions
       </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../key-concepts/datafiles/" class="md-nav__link">
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/datafiles/">
         Data Files
       </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../roles/" class="md-nav__link">
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../roles/">
         Roles and Permissions
       </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../administration/" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../administration/">
         Administration
       </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../supplemental-tools/" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../supplemental-tools/">
         Supplemental Tools
       </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-    
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Set-up & Installation
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+          Set-up &amp; Installation
           <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        Set-up & Installation
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+        Set-up &amp; Installation
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#preface" class="md-nav__link">
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#preface">
     Preface
   </a>
-  
-    <nav class="md-nav" aria-label="Preface">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#cloud-services-used" class="md-nav__link">
+<nav aria-label="Preface" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cloud-services-used">
     Cloud Services Used
   </a>
-  
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#environment" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#environment">
     Environment
   </a>
-  
-    <nav class="md-nav" aria-label="Environment">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#retrieve-security-credentials" class="md-nav__link">
+<nav aria-label="Environment" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieve-security-credentials">
     Retrieve Security Credentials
   </a>
-  
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#creating-essential-resources" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#creating-essential-resources">
     Creating Essential Resources
   </a>
-  
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#standalone-deployment" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#standalone-deployment">
     Standalone Deployment
   </a>
-  
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#deployment-strategy" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deployment-strategy">
     Deployment Strategy
   </a>
-  
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration">
     Configuration
   </a>
-  
-    <nav class="md-nav" aria-label="Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#configuration-entries" class="md-nav__link">
+<nav aria-label="Configuration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration-entries">
     Configuration Entries
   </a>
-  
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-    </ul>
-  
+</ul>
 </nav>
-      
-    </li>
-  
-
-    
-  </ul>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../apispec/">
+        Tank API Reference
+      </a>
+</li>
+</ul>
 </nav>
-                  </div>
-                </div>
-              </div>
-            
-            
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#preface" class="md-nav__link">
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#preface">
     Preface
   </a>
-  
-    <nav class="md-nav" aria-label="Preface">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#cloud-services-used" class="md-nav__link">
+<nav aria-label="Preface" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cloud-services-used">
     Cloud Services Used
   </a>
-  
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#environment" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#environment">
     Environment
   </a>
-  
-    <nav class="md-nav" aria-label="Environment">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#retrieve-security-credentials" class="md-nav__link">
+<nav aria-label="Environment" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#retrieve-security-credentials">
     Retrieve Security Credentials
   </a>
-  
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#creating-essential-resources" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#creating-essential-resources">
     Creating Essential Resources
   </a>
-  
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#standalone-deployment" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#standalone-deployment">
     Standalone Deployment
   </a>
-  
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#deployment-strategy" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deployment-strategy">
     Deployment Strategy
   </a>
-  
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration">
     Configuration
   </a>
-  
-    <nav class="md-nav" aria-label="Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#configuration-entries" class="md-nav__link">
+<nav aria-label="Configuration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration-entries">
     Configuration Entries
   </a>
-  
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
+</ul>
 </nav>
-                  </div>
-                </div>
-              </div>
-            
-          
-          <div class="md-content" data-md-component="content">
-            <article class="md-content__inner md-typeset">
-              
-                
-  <a href="https://github.com/intuit/Tank/edit/master/docs/installation-guide/installation.md" title="Edit this page" class="md-content__button md-icon">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
-  </a>
-
-
-
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<a class="md-content__button md-icon" href="https://github.com/intuit/Tank/edit/master/docs/installation-guide/installation.md" title="Edit this page">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"></path></svg>
+</a>
 <h1 id="set-up-installation">Set-up &amp; Installation</h1>
 <h2 id="preface">Preface</h2>
 <p>The purpose of this guide is to describe the IT concepts and strategies employed by Tank.</p>
-<p>Tank is meant to be an integrated testing solution for driving load against production systems. It includes a central controller for coordinating test agents and driving the UI for setting up and reporting on the tests. <br />
+<p>Tank is meant to be an integrated testing solution for driving load against production systems. It includes a central controller for coordinating test agents and driving the UI for setting up and reporting on the tests. <br/>
 The agents are instantiated on demand and terminated when they are no longer needed. This helps keep the costs of running large tests to a minimum.  </p>
 <p>Tank is meant to be a load test solution and is not currently optimized for functional testing. This does not mean that it is not useful for functional testing, but many of the paradigms and toolsets needed for functional testing may be lacking.  </p>
 <h3 id="cloud-services-used">Cloud Services Used</h3>
 <p>Tank uses a gamut of Cloud Service to fulfill the mission of Load Testing. The below section (expand for more info) gives a brief on each of the cloud services.</p>
 <details class="abstract">
 <summary>Cloud Services used</summary>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:5"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><input id="__tabbed_1_5" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">EC2</label><label for="__tabbed_1_2">S3</label><label for="__tabbed_1_3">DynamoDB</label><label for="__tabbed_1_4">RDS</label><label for="__tabbed_1_5">IAM</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:5"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><input id="__tabbed_1_3" name="__tabbed_1" type="radio"><input id="__tabbed_1_4" name="__tabbed_1" type="radio"><input id="__tabbed_1_5" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">EC2</label><label for="__tabbed_1_2">S3</label><label for="__tabbed_1_3">DynamoDB</label><label for="__tabbed_1_4">RDS</label><label for="__tabbed_1_5">IAM</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Elastic Compute Cloud (<code>EC2</code>) is the service that is used to create compute resources to drive load (agents). There are several parts of this service used.</p>
@@ -881,13 +470,13 @@ The agents are instantiated on demand and terminated when they are no longer nee
 <p>Identity and Access Management is used to control access and permissions to cloud resources.</p>
 </div>
 </div>
-</div>
+</input></input></input></input></input></div>
 </details>
 <h2 id="environment">Environment</h2>
 <details class="tip">
 <summary>Payment set-up for creating Cloud Account</summary>
 <p>You will need a Credit Card or arrange payment in order to complete the following steps.  </p>
-<div class="highlight"><pre><span></span><code>* Go to http://aws.amazon.com/ and click on the &quot;Sign Up&quot; button.
+<div class="highlight"><pre><span></span><code>* Go to http://aws.amazon.com/ and click on the "Sign Up" button.
 * Complete all steps for creating an account.
 </code></pre></div>
 </details>
@@ -895,7 +484,7 @@ The agents are instantiated on demand and terminated when they are no longer nee
 <p>Thera are two methods of setting up access to resources from the controller and agent instances.  </p>
 <div class="admonition abstract">
 <p class="admonition-title">Access Mechanism</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">IAM role</label><label for="__tabbed_2_2">Access Keys</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio"><input id="__tabbed_2_2" name="__tabbed_2" type="radio"><div class="tabbed-labels"><label for="__tabbed_2_1">IAM role</label><label for="__tabbed_2_2">Access Keys</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Use IAM roles to start the instances giving them access to the needed resources. If you use this method, just make sure you start your resources with the appropriate roles.</p>
@@ -911,12 +500,12 @@ The agents are instantiated on demand and terminated when they are no longer nee
 </ul>
 </div>
 </div>
-</div>
+</input></input></div>
 </div>
 <h3 id="creating-essential-resources">Creating Essential Resources</h3>
 <div class="admonition abstract">
 <p class="admonition-title">Creating Essential Resources</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:6"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><input id="__tabbed_3_4" name="__tabbed_3" type="radio" /><input id="__tabbed_3_5" name="__tabbed_3" type="radio" /><input id="__tabbed_3_6" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Key Pair</label><label for="__tabbed_3_2">Security Group</label><label for="__tabbed_3_3">RDS Instance</label><label for="__tabbed_3_4">Base AMI</label><label for="__tabbed_3_5">Controller Instance and its AMI</label><label for="__tabbed_3_6">Agent AMI</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:6"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio"><input id="__tabbed_3_2" name="__tabbed_3" type="radio"/><input id="__tabbed_3_3" name="__tabbed_3" type="radio"/><input id="__tabbed_3_4" name="__tabbed_3" type="radio"/><input id="__tabbed_3_5" name="__tabbed_3" type="radio"/><input id="__tabbed_3_6" name="__tabbed_3" type="radio"/><div class="tabbed-labels"><label for="__tabbed_3_1">Key Pair</label><label for="__tabbed_3_2">Security Group</label><label for="__tabbed_3_3">RDS Instance</label><label for="__tabbed_3_4">Base AMI</label><label for="__tabbed_3_5">Controller Instance and its AMI</label><label for="__tabbed_3_6">Agent AMI</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>The keypair is used to ssh into the instances that get started. Do not lose these keys as they cannot be retrieved form AWS.</p>
@@ -1012,20 +601,20 @@ The agents are instantiated on demand and terminated when they are no longer nee
 </ul>
 </div>
 </div>
-</div>
+</input></div>
 </div>
 <h2 id="standalone-deployment">Standalone Deployment</h2>
 <p>For standalone deployments, you will need to install the controller, database, and as many agent machines as needed. These steps assume that you have java installed on all machines needed.  </p>
 <details class="abstract">
 <summary>Standalone deployment</summary>
-<div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Install Server Components</label><label for="__tabbed_4_2">Create Agents</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio"/><input id="__tabbed_4_2" name="__tabbed_4" type="radio"/><div class="tabbed-labels"><label for="__tabbed_4_1">Install Server Components</label><label for="__tabbed_4_2">Create Agents</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>On the machine that wil server as the controller.</p>
 <ul>
 <li>Download and Install <code>Tomcat 6x</code> from apache <code>http://tomcat.apache.org/download-60.cgi</code></li>
-<li>Download mysql connector and install in <code>TOMCAT_HOME/lib</code> 
-    <code>wget http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.30.tar.gz</code></li>
+<li>Download mysql connector and install in <code>TOMCAT_HOME/lib</code>
+<code>wget http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.30.tar.gz</code></li>
 <li>Uncompress and move the jar file <code>mysql-connector-java-nnnn.jar</code> to <code>TOMCAT_HOME/lib</code></li>
 <li>Download Weld support jar and install in TOMCAT_HOME/lib <code>wget -O TOMCAT_HOME/lib http://central.maven.org/maven2/org/jboss/weld/servlet/weld-tomcat-support/1.0.1-Final/weld-tomcat-support-1.0.1-Final.jar</code></li>
 <li>Build the project <code>mvn clean install -P release</code></li>
@@ -1038,16 +627,16 @@ The agents are instantiated on demand and terminated when they are no longer nee
 <li>Add variable declarations to <code>/etc/profile</code> and add the following <code>export WATS_PROPERTIES=[TS_HOME]/conf</code></li>
 <li>Start and stop tomcat to initialize the system. Ensure that the settings file is created in $WATS_PROPERTIES and that the database tables are created.</li>
 <li>Edit the <code>settings.xml</code> file. Change the standalone entry to true and change any other settings.</li>
-<li>Add Datasource definition to <code>server.xml</code>. Edit the file <code>[TOMCAT_HOME]/conf/server.xml</code>. Inside the <GlobalNamingResources> tag add the following replacing values appropriately.<br />
+<li>Add Datasource definition to <code>server.xml</code>. Edit the file <code>[TOMCAT_HOME]/conf/server.xml</code>. Inside the <globalnamingresources> tag add the following replacing values appropriately.<br/>
 <code>&lt;Resource name="jdbc/watsDS" auth="Container"
             type="javax.sql.DataSource"
             maxActive="100" maxIdle="30" maxWait="10000"
             username="admin"  password="replace_password_here"
             driverClassName="com.mysql.jdbc.Driver"
-            url="jdbc:mysql://replace_host_name_here:3306/replace_db_name_here?autoReconnect=true" /&gt;</code></li>
-<li>Add Datasource definition to context.xml. Edit the file [TOMCAT_HOME]/conf/context.xml. Inside the <Context> tag add the following:<br />
+            url="jdbc:mysql://replace_host_name_here:3306/replace_db_name_here?autoReconnect=true" /&gt;</code></globalnamingresources></li>
+<li>Add Datasource definition to context.xml. Edit the file [TOMCAT_HOME]/conf/context.xml. Inside the <context> tag add the following:<br/>
 <code>&lt;ResourceLink global='jdbc/watsDS' name='jdbc/watsDS'
-            type="javax.sql.Datasource" /&gt;</code></li>
+            type="javax.sql.Datasource" /&gt;</code></context></li>
 </ul>
 </div>
 <div class="tabbed-block">
@@ -1079,414 +668,441 @@ The agents are instantiated on demand and terminated when they are no longer nee
 <h3 id="configuration-entries">Configuration Entries</h3>
 <details class="abstract">
 <summary>Configuration Entries</summary>
-<div class="tabbed-set tabbed-alternate" data-tabs="5:4"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><input id="__tabbed_5_3" name="__tabbed_5" type="radio" /><input id="__tabbed_5_4" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Global Configuration Entries</label><label for="__tabbed_5_2">Agent Configuration Entries</label><label for="__tabbed_5_3">VM Manager Entries</label><label for="__tabbed_5_4">Security and Access control Entries</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:4"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio"/><input id="__tabbed_5_2" name="__tabbed_5" type="radio"/><input id="__tabbed_5_3" name="__tabbed_5" type="radio"/><input id="__tabbed_5_4" name="__tabbed_5" type="radio"/><div class="tabbed-labels"><label for="__tabbed_5_1">Global Configuration Entries</label><label for="__tabbed_5_2">Agent Configuration Entries</label><label for="__tabbed_5_3">VM Manager Entries</label><label for="__tabbed_5_4">Security and Access control Entries</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>    <span class="cm">&lt;!-- The server side storage directory for datafiles. </span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cm">        Can be an absolute or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-data-files --&gt;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="nt">&lt;data-file-storage&gt;</span>datafiles<span class="nt">&lt;/data-file-storage&gt;</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="cm">&lt;!-- The server side storage directory for timing data.</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="cm">        Can be an absolute or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-timing-files --&gt;</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="nt">&lt;timing-file-storage&gt;</span>timing<span class="nt">&lt;/timing-file-storage&gt;</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="cm">&lt;!-- The server side storage directory for agent files to be sent to agents. All files in this directory will be sent to each agent.</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="cm">        to override the default agent startup behavior, include a start_wats.sh script with modifications.</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="cm">        Can be an absolute or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-agent-supports --&gt;</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="nt">&lt;jar-file-storage&gt;</span>jars<span class="nt">&lt;/jar-file-storage&gt;</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        <span class="cm">&lt;!-- The server side storage directory for temp script files. must be local file system. --&gt;</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="nt">&lt;tmp-file-storage&gt;</span>tmpfiles<span class="nt">&lt;/tmp-file-storage&gt;</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>        <span class="cm">&lt;!-- name of this instance (no spaces). used in timing table names. --&gt;</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>        <span class="nt">&lt;instance-name&gt;</span>tank<span class="nt">&lt;/instance-name&gt;</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>        <span class="cm">&lt;!-- The baseUrl for the controller. Must include the context e.g. tank) --&gt;</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        <span class="nt">&lt;controller-base-url&gt;</span>http://localhost:8080/tank<span class="nt">&lt;/controller-base-url&gt;</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>        <span class="cm">&lt;!-- if this instance is a standalone instance and should not start agents automatically. --&gt;</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>        <span class="nt">&lt;standalone&gt;</span>false<span class="nt">&lt;/standalone&gt;</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>        <span class="cm">&lt;!-- if this rest calls require authentication using api key or username/password or logged in via session --&gt;</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>        <span class="nt">&lt;rest-security-enabled&gt;</span>true<span class="nt">&lt;/rest-security-enabled&gt;</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>        <span class="cm">&lt;!-- Products that can be selected by users for categorization --&gt;</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>        <span class="nt">&lt;products&gt;</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>        <span class="nt">&lt;product</span> <span class="na">name=</span><span class="s">&quot;&quot;</span><span class="nt">&gt;</span>All Products<span class="nt">&lt;/product&gt;</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>        <span class="nt">&lt;product</span> <span class="na">name=</span><span class="s">&quot;MyProduct&quot;</span><span class="nt">&gt;</span>My Product<span class="nt">&lt;/product&gt;</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>        <span class="nt">&lt;/products&gt;</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>        <span class="cm">&lt;!-- Locations used for informational purposes only. --&gt;</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>        <span class="nt">&lt;locations&gt;</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>        <span class="nt">&lt;location</span> <span class="na">name=</span><span class="s">&quot;unspecified&quot;</span> <span class="na">displayName=</span><span class="s">&quot;Unspecified&quot;</span> <span class="nt">/&gt;</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>        <span class="nt">&lt;location</span> <span class="na">name=</span><span class="s">&quot;san_diego&quot;</span> <span class="na">displayName=</span><span class="s">&quot;San Diego\, CA&quot;</span> <span class="nt">/&gt;</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>        <span class="nt">&lt;/locations&gt;</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>
-<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>        <span class="cm">&lt;!-- mail configuration for notifications --&gt;</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>        <span class="nt">&lt;mail&gt;</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>        <span class="nt">&lt;mail.smtp.host&gt;</span>localhost<span class="nt">&lt;/mail.smtp.host&gt;</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>        <span class="nt">&lt;mail.smtp.port&gt;</span>25<span class="nt">&lt;/mail.smtp.port&gt;</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>        <span class="nt">&lt;from-email&gt;</span>do_not_reply@myCompany.com<span class="nt">&lt;/from-email&gt;</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>        <span class="nt">&lt;/mail&gt;</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>
-<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>        <span class="nt">&lt;reporting&gt;</span>
-<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>        <span class="nt">&lt;provider&gt;</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>        <span class="cm">&lt;!-- Reporter that uses key value database. currently DynamoDB --&gt;</span>
-<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>        <span class="nt">&lt;reporter&gt;</span>com.intuit.tank.reporting.db.DatabaseResultsReporter<span class="nt">&lt;/reporter&gt;</span>
-<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a>        <span class="nt">&lt;reader&gt;</span>com.intuit.tank.reporting.db.DatabaseResultsReader<span class="nt">&lt;/reader&gt;</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a>        <span class="nt">&lt;config&gt;&lt;/config&gt;</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>
-<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a>        <span class="nt">&lt;/provider&gt;</span>
-<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>
-<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a>        <span class="cm">&lt;!-- Use this for Rest reporting directly to the controller. </span>
-<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a><span class="cm">        Only for standalone or all in one. will over tax the controller if used for large load --&gt;</span>
-<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a>        <span class="cm">&lt;!-- &lt;provider&gt;</span>
-<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a><span class="cm">        &lt;reporter&gt;com.intuit.tank.reporting.rest.RestResultsReporter&lt;/reporter&gt;</span>
-<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a><span class="cm">        &lt;reader&gt;com.intuit.tank.reporting.rest.RestResultsReader&lt;/reader&gt;</span>
-<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a><span class="cm">        &lt;/provider&gt; --&gt;</span>
-<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a>    <span class="nt">&lt;/reporting&gt;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>    <span class="cm">&lt;!-- The server side storage directory for datafiles. </span>
+<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="cm">        Can be an absolute or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-data-files --&gt;</span>
+<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>        <span class="nt">&lt;data-file-storage&gt;</span>datafiles<span class="nt">&lt;/data-file-storage&gt;</span>
+<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>
+<a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>        <span class="cm">&lt;!-- The server side storage directory for timing data.</span>
+<a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="cm">        Can be an absolute or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-timing-files --&gt;</span>
+<a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a>        <span class="nt">&lt;timing-file-storage&gt;</span>timing<span class="nt">&lt;/timing-file-storage&gt;</span>
+<a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a>
+<a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a>        <span class="cm">&lt;!-- The server side storage directory for agent files to be sent to agents. All files in this directory will be sent to each agent.</span>
+<a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="cm">        to override the default agent startup behavior, include a start_wats.sh script with modifications.</span>
+<a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="cm">        Can be an absolute or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-agent-supports --&gt;</span>
+<a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a>        <span class="nt">&lt;jar-file-storage&gt;</span>jars<span class="nt">&lt;/jar-file-storage&gt;</span>
+<a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a>
+<a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a>        <span class="cm">&lt;!-- The server side storage directory for temp script files. must be local file system. --&gt;</span>
+<a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a>        <span class="nt">&lt;tmp-file-storage&gt;</span>tmpfiles<span class="nt">&lt;/tmp-file-storage&gt;</span>
+<a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a>
+<a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a>        <span class="cm">&lt;!-- name of this instance (no spaces). used in timing table names. --&gt;</span>
+<a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a>        <span class="nt">&lt;instance-name&gt;</span>tank<span class="nt">&lt;/instance-name&gt;</span>
+<a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a>
+<a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a>        <span class="cm">&lt;!-- The baseUrl for the controller. Must include the context e.g. tank) --&gt;</span>
+<a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a>        <span class="nt">&lt;controller-base-url&gt;</span>http://localhost:8080/tank<span class="nt">&lt;/controller-base-url&gt;</span>
+<a href="#__codelineno-0-22" id="__codelineno-0-22" name="__codelineno-0-22"></a>
+<a href="#__codelineno-0-23" id="__codelineno-0-23" name="__codelineno-0-23"></a>        <span class="cm">&lt;!-- if this instance is a standalone instance and should not start agents automatically. --&gt;</span>
+<a href="#__codelineno-0-24" id="__codelineno-0-24" name="__codelineno-0-24"></a>        <span class="nt">&lt;standalone&gt;</span>false<span class="nt">&lt;/standalone&gt;</span>
+<a href="#__codelineno-0-25" id="__codelineno-0-25" name="__codelineno-0-25"></a>
+<a href="#__codelineno-0-26" id="__codelineno-0-26" name="__codelineno-0-26"></a>        <span class="cm">&lt;!-- if this rest calls require authentication using api key or username/password or logged in via session --&gt;</span>
+<a href="#__codelineno-0-27" id="__codelineno-0-27" name="__codelineno-0-27"></a>        <span class="nt">&lt;rest-security-enabled&gt;</span>true<span class="nt">&lt;/rest-security-enabled&gt;</span>
+<a href="#__codelineno-0-28" id="__codelineno-0-28" name="__codelineno-0-28"></a>
+<a href="#__codelineno-0-29" id="__codelineno-0-29" name="__codelineno-0-29"></a>        <span class="cm">&lt;!-- Products that can be selected by users for categorization --&gt;</span>
+<a href="#__codelineno-0-30" id="__codelineno-0-30" name="__codelineno-0-30"></a>        <span class="nt">&lt;products&gt;</span>
+<a href="#__codelineno-0-31" id="__codelineno-0-31" name="__codelineno-0-31"></a>        <span class="nt">&lt;product</span> <span class="na">name=</span><span class="s">""</span><span class="nt">&gt;</span>All Products<span class="nt">&lt;/product&gt;</span>
+<a href="#__codelineno-0-32" id="__codelineno-0-32" name="__codelineno-0-32"></a>        <span class="nt">&lt;product</span> <span class="na">name=</span><span class="s">"MyProduct"</span><span class="nt">&gt;</span>My Product<span class="nt">&lt;/product&gt;</span>
+<a href="#__codelineno-0-33" id="__codelineno-0-33" name="__codelineno-0-33"></a>        <span class="nt">&lt;/products&gt;</span>
+<a href="#__codelineno-0-34" id="__codelineno-0-34" name="__codelineno-0-34"></a>
+<a href="#__codelineno-0-35" id="__codelineno-0-35" name="__codelineno-0-35"></a>        <span class="cm">&lt;!-- Locations used for informational purposes only. --&gt;</span>
+<a href="#__codelineno-0-36" id="__codelineno-0-36" name="__codelineno-0-36"></a>        <span class="nt">&lt;locations&gt;</span>
+<a href="#__codelineno-0-37" id="__codelineno-0-37" name="__codelineno-0-37"></a>        <span class="nt">&lt;location</span> <span class="na">name=</span><span class="s">"unspecified"</span> <span class="na">displayName=</span><span class="s">"Unspecified"</span> <span class="nt">/&gt;</span>
+<a href="#__codelineno-0-38" id="__codelineno-0-38" name="__codelineno-0-38"></a>        <span class="nt">&lt;location</span> <span class="na">name=</span><span class="s">"san_diego"</span> <span class="na">displayName=</span><span class="s">"San Diego\, CA"</span> <span class="nt">/&gt;</span>
+<a href="#__codelineno-0-39" id="__codelineno-0-39" name="__codelineno-0-39"></a>        <span class="nt">&lt;/locations&gt;</span>
+<a href="#__codelineno-0-40" id="__codelineno-0-40" name="__codelineno-0-40"></a>
+<a href="#__codelineno-0-41" id="__codelineno-0-41" name="__codelineno-0-41"></a>        <span class="cm">&lt;!-- mail configuration for notifications --&gt;</span>
+<a href="#__codelineno-0-42" id="__codelineno-0-42" name="__codelineno-0-42"></a>        <span class="nt">&lt;mail&gt;</span>
+<a href="#__codelineno-0-43" id="__codelineno-0-43" name="__codelineno-0-43"></a>        <span class="nt">&lt;mail.smtp.host&gt;</span>localhost<span class="nt">&lt;/mail.smtp.host&gt;</span>
+<a href="#__codelineno-0-44" id="__codelineno-0-44" name="__codelineno-0-44"></a>        <span class="nt">&lt;mail.smtp.port&gt;</span>25<span class="nt">&lt;/mail.smtp.port&gt;</span>
+<a href="#__codelineno-0-45" id="__codelineno-0-45" name="__codelineno-0-45"></a>        <span class="nt">&lt;from-email&gt;</span>do_not_reply@myCompany.com<span class="nt">&lt;/from-email&gt;</span>
+<a href="#__codelineno-0-46" id="__codelineno-0-46" name="__codelineno-0-46"></a>        <span class="nt">&lt;/mail&gt;</span>
+<a href="#__codelineno-0-47" id="__codelineno-0-47" name="__codelineno-0-47"></a>
+<a href="#__codelineno-0-48" id="__codelineno-0-48" name="__codelineno-0-48"></a>        <span class="nt">&lt;reporting&gt;</span>
+<a href="#__codelineno-0-49" id="__codelineno-0-49" name="__codelineno-0-49"></a>        <span class="nt">&lt;provider&gt;</span>
+<a href="#__codelineno-0-50" id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="cm">&lt;!-- Reporter that uses key value database. currently DynamoDB --&gt;</span>
+<a href="#__codelineno-0-51" id="__codelineno-0-51" name="__codelineno-0-51"></a>        <span class="nt">&lt;reporter&gt;</span>com.intuit.tank.reporting.db.DatabaseResultsReporter<span class="nt">&lt;/reporter&gt;</span>
+<a href="#__codelineno-0-52" id="__codelineno-0-52" name="__codelineno-0-52"></a>        <span class="nt">&lt;reader&gt;</span>com.intuit.tank.reporting.db.DatabaseResultsReader<span class="nt">&lt;/reader&gt;</span>
+<a href="#__codelineno-0-53" id="__codelineno-0-53" name="__codelineno-0-53"></a>        <span class="nt">&lt;config&gt;&lt;/config&gt;</span>
+<a href="#__codelineno-0-54" id="__codelineno-0-54" name="__codelineno-0-54"></a>
+<a href="#__codelineno-0-55" id="__codelineno-0-55" name="__codelineno-0-55"></a>        <span class="nt">&lt;/provider&gt;</span>
+<a href="#__codelineno-0-56" id="__codelineno-0-56" name="__codelineno-0-56"></a>
+<a href="#__codelineno-0-57" id="__codelineno-0-57" name="__codelineno-0-57"></a>        <span class="cm">&lt;!-- Use this for Rest reporting directly to the controller. </span>
+<a href="#__codelineno-0-58" id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="cm">        Only for standalone or all in one. will over tax the controller if used for large load --&gt;</span>
+<a href="#__codelineno-0-59" id="__codelineno-0-59" name="__codelineno-0-59"></a>        <span class="cm">&lt;!-- &lt;provider&gt;</span>
+<a href="#__codelineno-0-60" id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="cm">        &lt;reporter&gt;com.intuit.tank.reporting.rest.RestResultsReporter&lt;/reporter&gt;</span>
+<a href="#__codelineno-0-61" id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="cm">        &lt;reader&gt;com.intuit.tank.reporting.rest.RestResultsReader&lt;/reader&gt;</span>
+<a href="#__codelineno-0-62" id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="cm">        &lt;/provider&gt; --&gt;</span>
+<a href="#__codelineno-0-63" id="__codelineno-0-63" name="__codelineno-0-63"></a>    <span class="nt">&lt;/reporting&gt;</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>    <span class="nt">&lt;agent-config&gt;</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>        <span class="cm">&lt;!-- Times used when calculating estimated run time --&gt;</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="nt">&lt;duration-simulation&gt;</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>            <span class="nt">&lt;simulation</span> <span class="na">for=</span><span class="s">&quot;post&quot;</span> <span class="na">min=</span><span class="s">&quot;500&quot;</span> <span class="na">max=</span><span class="s">&quot;1000&quot;</span> <span class="nt">/&gt;</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>            <span class="nt">&lt;simulation</span> <span class="na">for=</span><span class="s">&quot;get&quot;</span> <span class="na">min=</span><span class="s">&quot;50&quot;</span> <span class="na">max=</span><span class="s">&quot;300&quot;</span> <span class="nt">/&gt;</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>            <span class="nt">&lt;simulation</span> <span class="na">for=</span><span class="s">&quot;process&quot;</span> <span class="na">min=</span><span class="s">&quot;10&quot;</span> <span class="na">max=</span><span class="s">&quot;50&quot;</span> <span class="nt">/&gt;</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="nt">&lt;/duration-simulation&gt;</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="cm">&lt;!-- Where to store csv files on the agent --&gt;</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="nt">&lt;agent-data-file-storage&gt;</span>/tmp<span class="nt">&lt;/agent-data-file-storage&gt;</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="cm">&lt;!-- port that controller talks to agent on --&gt;</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="nt">&lt;agent-http-port&gt;</span>8090<span class="nt">&lt;/agent-http-port&gt;</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="cm">&lt;!-- Max size of response body to log on error --&gt;</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="nt">&lt;max-body-report-size&gt;</span>5000<span class="nt">&lt;/max-body-report-size&gt;</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="cm">&lt;!-- time to wait before re-establishing ssl --&gt;</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="nt">&lt;ssl-timeout&gt;</span>360000<span class="nt">&lt;/ssl-timeout&gt;</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>        <span class="cm">&lt;!-- connection timeout setting. set to zero to not have a timeout --&gt;</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>        <span class="nt">&lt;connection-timeout&gt;</span>15000<span class="nt">&lt;/connection-timeout&gt;</span>
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>        <span class="nt">&lt;status_report_interval_milis&gt;</span>30000<span class="nt">&lt;/status_report_interval_milis&gt;</span>
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>        <span class="cm">&lt;!-- Max response time before waiting additional time between requests. (in ms.) --&gt;</span>
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>        <span class="nt">&lt;max-response-time&gt;</span>5000<span class="nt">&lt;/max-response-time&gt;</span>
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>        <span class="cm">&lt;!-- Max time to wait if if response was too slow. Helps prevent backups if server is running too slow. (in ms.) --&gt;</span>
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>        <span class="nt">&lt;max-failed-wait-time&gt;</span>180000<span class="nt">&lt;/max-failed-wait-time&gt;</span>
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>
-<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>        <span class="cm">&lt;!-- Max amount of time after simulation time to run the test. --&gt;</span>
-<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>        <span class="nt">&lt;over-simulation-max-time&gt;</span>7200000<span class="nt">&lt;/over-simulation-max-time&gt;</span>
-<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>
-<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>        <span class="cm">&lt;!-- set to true to log each post request. --&gt;</span>
-<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>        <span class="nt">&lt;log-post-request&gt;</span>false<span class="nt">&lt;/log-post-request&gt;</span>
-<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>
-<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>        <span class="cm">&lt;!-- set to true to log each post response. --&gt;</span>
-<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>        <span class="nt">&lt;log-post-response&gt;</span>false<span class="nt">&lt;/log-post-response&gt;</span>
-<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>
-<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>        <span class="cm">&lt;!-- set to true to log each variable set or unset. --&gt;</span>
-<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>        <span class="nt">&lt;log-variables&gt;</span>false<span class="nt">&lt;/log-variables&gt;</span>
-<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>
-<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>        <span class="cm">&lt;!-- Mime type rgex for logging of response body on error. --&gt;</span>
-<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>        <span class="nt">&lt;valid-mime-types&gt;</span>
-<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>            <span class="nt">&lt;mime-type-regex&gt;</span>.*text.*<span class="nt">&lt;/mime-type-regex&gt;</span>
-<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>            <span class="nt">&lt;mime-type-regex&gt;</span>.*json.*<span class="nt">&lt;/mime-type-regex&gt;</span>
-<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>            <span class="nt">&lt;mime-type-regex&gt;</span>.*xml.*<span class="nt">&lt;/mime-type-regex&gt;</span>
-<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>        <span class="nt">&lt;/valid-mime-types&gt;</span>
-<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>
-<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a>        <span class="cm">&lt;!-- add any headers that should be added to each request --&gt;</span>
-<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a>        <span class="nt">&lt;request-headers&gt;</span>
-<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a>            <span class="nt">&lt;header</span> <span class="na">key=</span><span class="s">&quot;test_flag&quot;</span><span class="nt">&gt;</span>test_flag<span class="nt">&lt;/header&gt;</span>
-<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>        <span class="nt">&lt;/request-headers&gt;</span>
-<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>
-<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a>        <span class="cm">&lt;!-- configured TankHttpClients. --&gt;</span>
-<a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>        <span class="nt">&lt;tank-http-clients&gt;</span>
-<a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>            <span class="nt">&lt;tank-client</span> <span class="na">name=</span><span class="s">&quot;Apache HttpClient 3.1&quot;</span><span class="nt">&gt;</span>com.intuit.tank.httpclient3.TankHttpClient3<span class="nt">&lt;/tank-client&gt;</span>
-<a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>            <span class="nt">&lt;tank-client</span> <span class="na">name=</span><span class="s">&quot;Apache HttpClient 4.5&quot;</span><span class="nt">&gt;</span>com.intuit.tank.httpclient4.TankHttpClient4<span class="nt">&lt;/tank-client&gt;</span>
-<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>            <span class="nt">&lt;tank-client</span> <span class="na">name=</span><span class="s">&quot;OkHttp Client 2.5&quot;</span><span class="nt">&gt;</span>com.intuit.tank.okhttpclient.TankOkHttpClient<span class="nt">&lt;/tank-client&gt;</span>
-<a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a>        <span class="nt">&lt;/tank-http-clients&gt;</span>
-<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>        <span class="nt">&lt;default-tank-client&gt;</span>Apache HttpClient 4.5<span class="nt">&lt;/default-tank-client&gt;</span>
-<a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a>
-<a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a>        <span class="nt">&lt;/agent-config&gt;</span>            
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>    <span class="nt">&lt;agent-config&gt;</span>
+<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>        <span class="cm">&lt;!-- Times used when calculating estimated run time --&gt;</span>
+<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a>        <span class="nt">&lt;duration-simulation&gt;</span>
+<a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>            <span class="nt">&lt;simulation</span> <span class="na">for=</span><span class="s">"post"</span> <span class="na">min=</span><span class="s">"500"</span> <span class="na">max=</span><span class="s">"1000"</span> <span class="nt">/&gt;</span>
+<a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a>            <span class="nt">&lt;simulation</span> <span class="na">for=</span><span class="s">"get"</span> <span class="na">min=</span><span class="s">"50"</span> <span class="na">max=</span><span class="s">"300"</span> <span class="nt">/&gt;</span>
+<a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a>            <span class="nt">&lt;simulation</span> <span class="na">for=</span><span class="s">"process"</span> <span class="na">min=</span><span class="s">"10"</span> <span class="na">max=</span><span class="s">"50"</span> <span class="nt">/&gt;</span>
+<a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a>        <span class="nt">&lt;/duration-simulation&gt;</span>
+<a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a>
+<a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a>        <span class="cm">&lt;!-- Where to store csv files on the agent --&gt;</span>
+<a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a>        <span class="nt">&lt;agent-data-file-storage&gt;</span>/tmp<span class="nt">&lt;/agent-data-file-storage&gt;</span>
+<a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a>
+<a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a>        <span class="cm">&lt;!-- port that controller talks to agent on --&gt;</span>
+<a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a>        <span class="nt">&lt;agent-http-port&gt;</span>8090<span class="nt">&lt;/agent-http-port&gt;</span>
+<a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a>
+<a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a>        <span class="cm">&lt;!-- Max size of response body to log on error --&gt;</span>
+<a href="#__codelineno-1-16" id="__codelineno-1-16" name="__codelineno-1-16"></a>        <span class="nt">&lt;max-body-report-size&gt;</span>5000<span class="nt">&lt;/max-body-report-size&gt;</span>
+<a href="#__codelineno-1-17" id="__codelineno-1-17" name="__codelineno-1-17"></a>
+<a href="#__codelineno-1-18" id="__codelineno-1-18" name="__codelineno-1-18"></a>        <span class="cm">&lt;!-- time to wait before re-establishing ssl --&gt;</span>
+<a href="#__codelineno-1-19" id="__codelineno-1-19" name="__codelineno-1-19"></a>        <span class="nt">&lt;ssl-timeout&gt;</span>360000<span class="nt">&lt;/ssl-timeout&gt;</span>
+<a href="#__codelineno-1-20" id="__codelineno-1-20" name="__codelineno-1-20"></a>
+<a href="#__codelineno-1-21" id="__codelineno-1-21" name="__codelineno-1-21"></a>        <span class="cm">&lt;!-- connection timeout setting. set to zero to not have a timeout --&gt;</span>
+<a href="#__codelineno-1-22" id="__codelineno-1-22" name="__codelineno-1-22"></a>        <span class="nt">&lt;connection-timeout&gt;</span>15000<span class="nt">&lt;/connection-timeout&gt;</span>
+<a href="#__codelineno-1-23" id="__codelineno-1-23" name="__codelineno-1-23"></a>
+<a href="#__codelineno-1-24" id="__codelineno-1-24" name="__codelineno-1-24"></a>        <span class="nt">&lt;status_report_interval_milis&gt;</span>30000<span class="nt">&lt;/status_report_interval_milis&gt;</span>
+<a href="#__codelineno-1-25" id="__codelineno-1-25" name="__codelineno-1-25"></a>
+<a href="#__codelineno-1-26" id="__codelineno-1-26" name="__codelineno-1-26"></a>        <span class="cm">&lt;!-- Max response time before waiting additional time between requests. (in ms.) --&gt;</span>
+<a href="#__codelineno-1-27" id="__codelineno-1-27" name="__codelineno-1-27"></a>        <span class="nt">&lt;max-response-time&gt;</span>5000<span class="nt">&lt;/max-response-time&gt;</span>
+<a href="#__codelineno-1-28" id="__codelineno-1-28" name="__codelineno-1-28"></a>
+<a href="#__codelineno-1-29" id="__codelineno-1-29" name="__codelineno-1-29"></a>        <span class="cm">&lt;!-- Max time to wait if if response was too slow. Helps prevent backups if server is running too slow. (in ms.) --&gt;</span>
+<a href="#__codelineno-1-30" id="__codelineno-1-30" name="__codelineno-1-30"></a>        <span class="nt">&lt;max-failed-wait-time&gt;</span>180000<span class="nt">&lt;/max-failed-wait-time&gt;</span>
+<a href="#__codelineno-1-31" id="__codelineno-1-31" name="__codelineno-1-31"></a>
+<a href="#__codelineno-1-32" id="__codelineno-1-32" name="__codelineno-1-32"></a>        <span class="cm">&lt;!-- Max amount of time after simulation time to run the test. --&gt;</span>
+<a href="#__codelineno-1-33" id="__codelineno-1-33" name="__codelineno-1-33"></a>        <span class="nt">&lt;over-simulation-max-time&gt;</span>7200000<span class="nt">&lt;/over-simulation-max-time&gt;</span>
+<a href="#__codelineno-1-34" id="__codelineno-1-34" name="__codelineno-1-34"></a>
+<a href="#__codelineno-1-35" id="__codelineno-1-35" name="__codelineno-1-35"></a>        <span class="cm">&lt;!-- set to true to log each post request. --&gt;</span>
+<a href="#__codelineno-1-36" id="__codelineno-1-36" name="__codelineno-1-36"></a>        <span class="nt">&lt;log-post-request&gt;</span>false<span class="nt">&lt;/log-post-request&gt;</span>
+<a href="#__codelineno-1-37" id="__codelineno-1-37" name="__codelineno-1-37"></a>
+<a href="#__codelineno-1-38" id="__codelineno-1-38" name="__codelineno-1-38"></a>        <span class="cm">&lt;!-- set to true to log each post response. --&gt;</span>
+<a href="#__codelineno-1-39" id="__codelineno-1-39" name="__codelineno-1-39"></a>        <span class="nt">&lt;log-post-response&gt;</span>false<span class="nt">&lt;/log-post-response&gt;</span>
+<a href="#__codelineno-1-40" id="__codelineno-1-40" name="__codelineno-1-40"></a>
+<a href="#__codelineno-1-41" id="__codelineno-1-41" name="__codelineno-1-41"></a>        <span class="cm">&lt;!-- set to true to log each variable set or unset. --&gt;</span>
+<a href="#__codelineno-1-42" id="__codelineno-1-42" name="__codelineno-1-42"></a>        <span class="nt">&lt;log-variables&gt;</span>false<span class="nt">&lt;/log-variables&gt;</span>
+<a href="#__codelineno-1-43" id="__codelineno-1-43" name="__codelineno-1-43"></a>
+<a href="#__codelineno-1-44" id="__codelineno-1-44" name="__codelineno-1-44"></a>        <span class="cm">&lt;!-- Mime type rgex for logging of response body on error. --&gt;</span>
+<a href="#__codelineno-1-45" id="__codelineno-1-45" name="__codelineno-1-45"></a>        <span class="nt">&lt;valid-mime-types&gt;</span>
+<a href="#__codelineno-1-46" id="__codelineno-1-46" name="__codelineno-1-46"></a>            <span class="nt">&lt;mime-type-regex&gt;</span>.*text.*<span class="nt">&lt;/mime-type-regex&gt;</span>
+<a href="#__codelineno-1-47" id="__codelineno-1-47" name="__codelineno-1-47"></a>            <span class="nt">&lt;mime-type-regex&gt;</span>.*json.*<span class="nt">&lt;/mime-type-regex&gt;</span>
+<a href="#__codelineno-1-48" id="__codelineno-1-48" name="__codelineno-1-48"></a>            <span class="nt">&lt;mime-type-regex&gt;</span>.*xml.*<span class="nt">&lt;/mime-type-regex&gt;</span>
+<a href="#__codelineno-1-49" id="__codelineno-1-49" name="__codelineno-1-49"></a>        <span class="nt">&lt;/valid-mime-types&gt;</span>
+<a href="#__codelineno-1-50" id="__codelineno-1-50" name="__codelineno-1-50"></a>
+<a href="#__codelineno-1-51" id="__codelineno-1-51" name="__codelineno-1-51"></a>        <span class="cm">&lt;!-- add any headers that should be added to each request --&gt;</span>
+<a href="#__codelineno-1-52" id="__codelineno-1-52" name="__codelineno-1-52"></a>        <span class="nt">&lt;request-headers&gt;</span>
+<a href="#__codelineno-1-53" id="__codelineno-1-53" name="__codelineno-1-53"></a>            <span class="nt">&lt;header</span> <span class="na">key=</span><span class="s">"test_flag"</span><span class="nt">&gt;</span>test_flag<span class="nt">&lt;/header&gt;</span>
+<a href="#__codelineno-1-54" id="__codelineno-1-54" name="__codelineno-1-54"></a>        <span class="nt">&lt;/request-headers&gt;</span>
+<a href="#__codelineno-1-55" id="__codelineno-1-55" name="__codelineno-1-55"></a>
+<a href="#__codelineno-1-56" id="__codelineno-1-56" name="__codelineno-1-56"></a>        <span class="cm">&lt;!-- configured TankHttpClients. --&gt;</span>
+<a href="#__codelineno-1-57" id="__codelineno-1-57" name="__codelineno-1-57"></a>        <span class="nt">&lt;tank-http-clients&gt;</span>
+<a href="#__codelineno-1-58" id="__codelineno-1-58" name="__codelineno-1-58"></a>            <span class="nt">&lt;tank-client</span> <span class="na">name=</span><span class="s">"Apache HttpClient 3.1"</span><span class="nt">&gt;</span>com.intuit.tank.httpclient3.TankHttpClient3<span class="nt">&lt;/tank-client&gt;</span>
+<a href="#__codelineno-1-59" id="__codelineno-1-59" name="__codelineno-1-59"></a>            <span class="nt">&lt;tank-client</span> <span class="na">name=</span><span class="s">"Apache HttpClient 4.5"</span><span class="nt">&gt;</span>com.intuit.tank.httpclient4.TankHttpClient4<span class="nt">&lt;/tank-client&gt;</span>
+<a href="#__codelineno-1-60" id="__codelineno-1-60" name="__codelineno-1-60"></a>            <span class="nt">&lt;tank-client</span> <span class="na">name=</span><span class="s">"OkHttp Client 2.5"</span><span class="nt">&gt;</span>com.intuit.tank.okhttpclient.TankOkHttpClient<span class="nt">&lt;/tank-client&gt;</span>
+<a href="#__codelineno-1-61" id="__codelineno-1-61" name="__codelineno-1-61"></a>        <span class="nt">&lt;/tank-http-clients&gt;</span>
+<a href="#__codelineno-1-62" id="__codelineno-1-62" name="__codelineno-1-62"></a>        <span class="nt">&lt;default-tank-client&gt;</span>Apache HttpClient 4.5<span class="nt">&lt;/default-tank-client&gt;</span>
+<a href="#__codelineno-1-63" id="__codelineno-1-63" name="__codelineno-1-63"></a>
+<a href="#__codelineno-1-64" id="__codelineno-1-64" name="__codelineno-1-64"></a>        <span class="nt">&lt;/agent-config&gt;</span>            
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>    <span class="nt">&lt;vm-manager&gt;</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>        <span class="nt">&lt;default-region&gt;</span>US_EAST<span class="nt">&lt;/default-region&gt;</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        <span class="cm">&lt;!-- &lt;default-region&gt;US_WEST_1&lt;/default-region&gt; --&gt;</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        <span class="cm">&lt;!-- set to true to default use of available eips for agents --&gt;</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="nt">&lt;use-agent-elastic-ips&gt;</span>false<span class="nt">&lt;/use-agent-elastic-ips&gt;</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="cm">&lt;!-- reserved eips will not be used --&gt;</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="nt">&lt;reserved-elastic-ips&gt;</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>            <span class="cm">&lt;!-- &lt;eip&gt;0.0.0.0&lt;/eip&gt; --&gt;</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="nt">&lt;/reserved-elastic-ips&gt;</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="cm">&lt;!-- Default instance description items. can be overridden in instance descriptions. --&gt;</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="nt">&lt;default-instance-description&gt;</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>            <span class="nt">&lt;security-group&gt;</span>security_group<span class="nt">&lt;/security-group&gt;</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>            <span class="nt">&lt;keypair&gt;</span>myKey<span class="nt">&lt;/keypair&gt;</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>            <span class="cm">&lt;!--  if using roles. recommended over using security keys --&gt;</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>            <span class="cm">&lt;!-- &lt;iam-role&gt;role&lt;/iam-role&gt; --&gt;</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>            <span class="cm">&lt;!--  optional if running ni a subnet in a vpc, use the subnetIds --&gt;</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>            <span class="cm">&lt;!-- &lt;vpc-subnet&gt;subnet-472b9f30&lt;/vpc-subnet&gt;</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="cm">            &lt;security-group-ids&gt;sg-1234aaa, sg-1234bbb&lt;/security-group-ids&gt; --&gt;</span>
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>            <span class="nt">&lt;reuse-instances&gt;</span>false<span class="nt">&lt;/reuse-instances&gt;</span>
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>        <span class="nt">&lt;/default-instance-description&gt;</span>
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>
-<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>        <span class="cm">&lt;!-- Credentials for the cloud provider. It is recommended that users us IAM Roles for accessing services insead of embedding AWS keys --&gt;</span>
-<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>        <span class="nt">&lt;credentials</span> <span class="na">type=</span><span class="s">&quot;amazon&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>        <span class="cm">&lt;!-- Set credentials via system or java properties. --&gt;</span>
-<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>            <span class="nt">&lt;secret-key-id-property&gt;</span>AWS_SECRET_KEY_ID<span class="nt">&lt;/secret-key-id-property&gt;</span>
-<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>            <span class="nt">&lt;secret-key-property&gt;</span>AWS_SECRET_KEY<span class="nt">&lt;/secret-key-property&gt;</span>
-<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>            <span class="cm">&lt;!-- Set if you want to specifiy credentials directly here. less secure! --&gt;</span>
-<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>            <span class="cm">&lt;!-- </span>
-<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="cm">            &lt;secret-key-id&gt;[AWS_SECRET_KEY_ID]&lt;/secret-key-id&gt;</span>
-<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a><span class="cm">            &lt;secret-key&gt;[AWS_SECRET_KEY]&lt;/secret-key&gt;</span>
-<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="cm">            --&gt;</span>
-<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>            <span class="cm">&lt;!-- Set if you need a proxy to talk to amazon services --&gt;</span>
-<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>            <span class="cm">&lt;!-- </span>
-<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="cm">            &lt;proxy-host&gt;&lt;/proxy-host&gt;</span>
-<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span class="cm">            &lt;proxy-port&gt;80&lt;/proxy-port&gt;</span>
-<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a><span class="cm">            --&gt;</span>
-<a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a>        <span class="nt">&lt;/credentials&gt;</span>
-<a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a>
-<a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a>        <span class="cm">&lt;!-- Instance descriptions for regions --&gt;</span>
-<a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a>        <span class="nt">&lt;instance-descriptions</span> <span class="na">region=</span><span class="s">&quot;US_WEST_1&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a>            <span class="nt">&lt;instance-descripion</span> <span class="na">name=</span><span class="s">&quot;AGENT&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-2-43" name="__codelineno-2-43" href="#__codelineno-2-43"></a>            <span class="nt">&lt;ami&gt;</span>[AMI-ID]<span class="nt">&lt;/ami&gt;</span>
-<a id="__codelineno-2-44" name="__codelineno-2-44" href="#__codelineno-2-44"></a>            <span class="nt">&lt;keypair&gt;</span>[KEYPAIR]<span class="nt">&lt;/keypair&gt;</span>
-<a id="__codelineno-2-45" name="__codelineno-2-45" href="#__codelineno-2-45"></a>            <span class="cm">&lt;!--  if using roles. recommended over using security keys --&gt;</span>
-<a id="__codelineno-2-46" name="__codelineno-2-46" href="#__codelineno-2-46"></a>            <span class="cm">&lt;!-- &lt;iam-role&gt;role&lt;/iam-role&gt; --&gt;</span>
-<a id="__codelineno-2-47" name="__codelineno-2-47" href="#__codelineno-2-47"></a>            <span class="cm">&lt;!--  optional if running ni a subnet in a vpc, use the subnetIds --&gt;</span>
-<a id="__codelineno-2-48" name="__codelineno-2-48" href="#__codelineno-2-48"></a>            <span class="cm">&lt;!-- &lt;vpc-subnet&gt;subnet-472b9f30&lt;/vpc-subnet&gt;</span>
-<a id="__codelineno-2-49" name="__codelineno-2-49" href="#__codelineno-2-49"></a><span class="cm">            &lt;security-group-ids&gt;sg-1234aaa, sg-1234bbb&lt;/security-group-ids&gt; --&gt;</span>
-<a id="__codelineno-2-50" name="__codelineno-2-50" href="#__codelineno-2-50"></a>            <span class="nt">&lt;/instance-descripion&gt;</span>
-<a id="__codelineno-2-51" name="__codelineno-2-51" href="#__codelineno-2-51"></a>        <span class="nt">&lt;/instance-descriptions&gt;</span>
-<a id="__codelineno-2-52" name="__codelineno-2-52" href="#__codelineno-2-52"></a>
-<a id="__codelineno-2-53" name="__codelineno-2-53" href="#__codelineno-2-53"></a>        <span class="nt">&lt;instance-descriptions</span> <span class="na">region=</span><span class="s">&quot;US_EAST&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-2-54" name="__codelineno-2-54" href="#__codelineno-2-54"></a>            <span class="nt">&lt;instance-descripion</span> <span class="na">name=</span><span class="s">&quot;AGENT&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-2-55" name="__codelineno-2-55" href="#__codelineno-2-55"></a>            <span class="nt">&lt;ami&gt;</span>[AMI-ID]<span class="nt">&lt;/ami&gt;</span>
-<a id="__codelineno-2-56" name="__codelineno-2-56" href="#__codelineno-2-56"></a>            <span class="nt">&lt;keypair&gt;</span>[KEYPAIR]<span class="nt">&lt;/keypair&gt;</span>
-<a id="__codelineno-2-57" name="__codelineno-2-57" href="#__codelineno-2-57"></a>            <span class="cm">&lt;!--  if using roles. recommended over using security keys --&gt;</span>
-<a id="__codelineno-2-58" name="__codelineno-2-58" href="#__codelineno-2-58"></a>            <span class="cm">&lt;!-- &lt;iam-role&gt;role&lt;/iam-role&gt; --&gt;</span>
-<a id="__codelineno-2-59" name="__codelineno-2-59" href="#__codelineno-2-59"></a>            <span class="cm">&lt;!--  optional if running ni a subnet in a vpc, use the subnetIds --&gt;</span>
-<a id="__codelineno-2-60" name="__codelineno-2-60" href="#__codelineno-2-60"></a>            <span class="cm">&lt;!-- &lt;vpc-subnet&gt;subnet-472b9f30&lt;/vpc-subnet&gt;</span>
-<a id="__codelineno-2-61" name="__codelineno-2-61" href="#__codelineno-2-61"></a><span class="cm">            &lt;security-group-ids&gt;sg-1234aaa, sg-1234bbb&lt;/security-group-ids&gt; --&gt;</span>
-<a id="__codelineno-2-62" name="__codelineno-2-62" href="#__codelineno-2-62"></a>            <span class="nt">&lt;/instance-descripion&gt;</span>
-<a id="__codelineno-2-63" name="__codelineno-2-63" href="#__codelineno-2-63"></a>        <span class="nt">&lt;/instance-descriptions&gt;</span>
-<a id="__codelineno-2-64" name="__codelineno-2-64" href="#__codelineno-2-64"></a>
-<a id="__codelineno-2-65" name="__codelineno-2-65" href="#__codelineno-2-65"></a>        <span class="cm">&lt;!-- allowed instance types and their costs. update costs as necessary --&gt;</span>
-<a id="__codelineno-2-66" name="__codelineno-2-66" href="#__codelineno-2-66"></a>        <span class="nt">&lt;instance-types</span> <span class="na">type=</span><span class="s">&quot;amazon&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-2-67" name="__codelineno-2-67" href="#__codelineno-2-67"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">&quot;c3.large&quot;</span> <span class="na">cost=</span><span class="s">&quot;.105&quot;</span> <span class="na">users=</span><span class="s">&quot;500&quot;</span> <span class="na">cpus=</span><span class="s">&quot;2&quot;</span> <span class="na">ecus=</span><span class="s">&quot;7&quot;</span> <span class="na">mem=</span><span class="s">&quot;3.75&quot;</span> <span class="na">jvmArgs=</span><span class="s">&quot;-Xms2560m -Xmx2560m&quot;</span> <span class="nt">/&gt;</span>
-<a id="__codelineno-2-68" name="__codelineno-2-68" href="#__codelineno-2-68"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">&quot;c3.xlarge&quot;</span> <span class="na">cost=</span><span class="s">&quot;.21&quot;</span> <span class="na">users=</span><span class="s">&quot;2000&quot;</span> <span class="na">cpus=</span><span class="s">&quot;4&quot;</span> <span class="na">ecus=</span><span class="s">&quot;14&quot;</span> <span class="na">mem=</span><span class="s">&quot;7.5&quot;</span> <span class="na">jvmArgs=</span><span class="s">&quot;-Xms6g -Xmx6g&quot;</span> <span class="nt">/&gt;</span>
-<a id="__codelineno-2-69" name="__codelineno-2-69" href="#__codelineno-2-69"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">&quot;c3.2xlarge&quot;</span> <span class="na">cost=</span><span class="s">&quot;.42&quot;</span> <span class="na">users=</span><span class="s">&quot;4000&quot;</span> <span class="na">cpus=</span><span class="s">&quot;8&quot;</span> <span class="na">ecus=</span><span class="s">&quot;28&quot;</span> <span class="na">mem=</span><span class="s">&quot;15&quot;</span> <span class="na">default=</span><span class="s">&quot;true&quot;</span> <span class="na">jvmArgs=</span><span class="s">&quot;-Xms12g -Xmx12g&quot;</span> <span class="nt">/&gt;</span>
-<a id="__codelineno-2-70" name="__codelineno-2-70" href="#__codelineno-2-70"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">&quot;c3.4xlarge&quot;</span> <span class="na">cost=</span><span class="s">&quot;.84&quot;</span> <span class="na">users=</span><span class="s">&quot;8000&quot;</span> <span class="na">cpus=</span><span class="s">&quot;16&quot;</span> <span class="na">ecus=</span><span class="s">&quot;55&quot;</span> <span class="na">mem=</span><span class="s">&quot;30&quot;</span> <span class="na">jvmArgs=</span><span class="s">&quot;-Xms125g -Xmx25g&quot;</span> <span class="nt">/&gt;</span>
-<a id="__codelineno-2-71" name="__codelineno-2-71" href="#__codelineno-2-71"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">&quot;c3.8xlarge&quot;</span> <span class="na">cost=</span><span class="s">&quot;1.68&quot;</span> <span class="na">users=</span><span class="s">&quot;16000&quot;</span> <span class="na">cpus=</span><span class="s">&quot;32&quot;</span> <span class="na">ecus=</span><span class="s">&quot;108&quot;</span> <span class="na">mem=</span><span class="s">&quot;60&quot;</span> <span class="na">jvmArgs=</span><span class="s">&quot;-Xms50g -Xmx50g&quot;</span> <span class="nt">/&gt;</span>
-<a id="__codelineno-2-72" name="__codelineno-2-72" href="#__codelineno-2-72"></a>        <span class="nt">&lt;/instance-types&gt;</span>
-<a id="__codelineno-2-73" name="__codelineno-2-73" href="#__codelineno-2-73"></a>
-<a id="__codelineno-2-74" name="__codelineno-2-74" href="#__codelineno-2-74"></a>        <span class="cm">&lt;!-- watchdog is used to check if all agents start correctly. --&gt;</span>
-<a id="__codelineno-2-75" name="__codelineno-2-75" href="#__codelineno-2-75"></a>        <span class="nt">&lt;watchdog&gt;</span>
-<a id="__codelineno-2-76" name="__codelineno-2-76" href="#__codelineno-2-76"></a>            <span class="cm">&lt;!-- The maximum amount of time to wait for the agents to start before restarting --&gt;</span>
-<a id="__codelineno-2-77" name="__codelineno-2-77" href="#__codelineno-2-77"></a>            <span class="nt">&lt;max-time-for-agent-start&gt;</span>3m<span class="nt">&lt;/max-time-for-agent-start&gt;</span>
-<a id="__codelineno-2-78" name="__codelineno-2-78" href="#__codelineno-2-78"></a>            <span class="cm">&lt;!-- The maximum amount of time to wait for the agents to report to the controller before restarting --&gt;</span>
-<a id="__codelineno-2-79" name="__codelineno-2-79" href="#__codelineno-2-79"></a>            <span class="nt">&lt;max-time-for-agent-report&gt;</span>5m<span class="nt">&lt;/max-time-for-agent-report&gt;</span>
-<a id="__codelineno-2-80" name="__codelineno-2-80" href="#__codelineno-2-80"></a>            <span class="cm">&lt;!-- the maximum number of restarts before stopping test --&gt;</span>
-<a id="__codelineno-2-81" name="__codelineno-2-81" href="#__codelineno-2-81"></a>            <span class="nt">&lt;max-restarts&gt;</span>2<span class="nt">&lt;/max-restarts&gt;</span>
-<a id="__codelineno-2-82" name="__codelineno-2-82" href="#__codelineno-2-82"></a>            <span class="cm">&lt;!-- The amount of time to wait between checking for agent start --&gt;</span>
-<a id="__codelineno-2-83" name="__codelineno-2-83" href="#__codelineno-2-83"></a>            <span class="nt">&lt;sleep-time-between-check&gt;</span>30s<span class="nt">&lt;/sleep-time-between-check&gt;</span>
-<a id="__codelineno-2-84" name="__codelineno-2-84" href="#__codelineno-2-84"></a>        <span class="nt">&lt;/watchdog&gt;</span>
-<a id="__codelineno-2-85" name="__codelineno-2-85" href="#__codelineno-2-85"></a>
-<a id="__codelineno-2-86" name="__codelineno-2-86" href="#__codelineno-2-86"></a>        <span class="cm">&lt;!--Configure the results database implementation if reporting is configured via com.intuit.tank.reporting.db.DatabaseResultsReporter --&gt;</span>
-<a id="__codelineno-2-87" name="__codelineno-2-87" href="#__codelineno-2-87"></a>        <span class="nt">&lt;results&gt;</span>
-<a id="__codelineno-2-88" name="__codelineno-2-88" href="#__codelineno-2-88"></a>        <span class="nt">&lt;config&gt;</span>
-<a id="__codelineno-2-89" name="__codelineno-2-89" href="#__codelineno-2-89"></a>            <span class="nt">&lt;write-capacity&gt;</span>50<span class="nt">&lt;/write-capacity&gt;</span>
-<a id="__codelineno-2-90" name="__codelineno-2-90" href="#__codelineno-2-90"></a>            <span class="nt">&lt;read-capacity&gt;</span>10<span class="nt">&lt;/read-capacity&gt;</span>
-<a id="__codelineno-2-91" name="__codelineno-2-91" href="#__codelineno-2-91"></a>        <span class="nt">&lt;/config&gt;</span>
-<a id="__codelineno-2-92" name="__codelineno-2-92" href="#__codelineno-2-92"></a>        <span class="nt">&lt;provider&gt;</span>com.intuit.tank.persistence.databases.AmazonDynamoDatabaseDocApi<span class="nt">&lt;/provider&gt;</span>
-<a id="__codelineno-2-93" name="__codelineno-2-93" href="#__codelineno-2-93"></a>        <span class="cm">&lt;!-- &lt;provider&gt;com.intuit.tank.persistence.databases.AmazonSimpleDatabase&lt;/provider&gt; --&gt;</span>
-<a id="__codelineno-2-94" name="__codelineno-2-94" href="#__codelineno-2-94"></a>        <span class="nt">&lt;/results&gt;</span>
-<a id="__codelineno-2-95" name="__codelineno-2-95" href="#__codelineno-2-95"></a>
-<a id="__codelineno-2-96" name="__codelineno-2-96" href="#__codelineno-2-96"></a>        <span class="nt">&lt;/vm-manager&gt;</span>        
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>    <span class="nt">&lt;vm-manager&gt;</span>
+<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>        <span class="nt">&lt;default-region&gt;</span>US_EAST<span class="nt">&lt;/default-region&gt;</span>
+<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a>        <span class="cm">&lt;!-- &lt;default-region&gt;US_WEST_1&lt;/default-region&gt; --&gt;</span>
+<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a>        <span class="cm">&lt;!-- set to true to default use of available eips for agents --&gt;</span>
+<a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a>        <span class="nt">&lt;use-agent-elastic-ips&gt;</span>false<span class="nt">&lt;/use-agent-elastic-ips&gt;</span>
+<a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a>        <span class="cm">&lt;!-- reserved eips will not be used --&gt;</span>
+<a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a>        <span class="nt">&lt;reserved-elastic-ips&gt;</span>
+<a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a>            <span class="cm">&lt;!-- &lt;eip&gt;0.0.0.0&lt;/eip&gt; --&gt;</span>
+<a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a>        <span class="nt">&lt;/reserved-elastic-ips&gt;</span>
+<a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a>
+<a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a>        <span class="cm">&lt;!-- Default instance description items. can be overridden in instance descriptions. --&gt;</span>
+<a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a>        <span class="nt">&lt;default-instance-description&gt;</span>
+<a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a>            <span class="nt">&lt;security-group&gt;</span>security_group<span class="nt">&lt;/security-group&gt;</span>
+<a href="#__codelineno-2-14" id="__codelineno-2-14" name="__codelineno-2-14"></a>            <span class="nt">&lt;keypair&gt;</span>myKey<span class="nt">&lt;/keypair&gt;</span>
+<a href="#__codelineno-2-15" id="__codelineno-2-15" name="__codelineno-2-15"></a>            <span class="cm">&lt;!--  if using roles. recommended over using security keys --&gt;</span>
+<a href="#__codelineno-2-16" id="__codelineno-2-16" name="__codelineno-2-16"></a>            <span class="cm">&lt;!-- &lt;iam-role&gt;role&lt;/iam-role&gt; --&gt;</span>
+<a href="#__codelineno-2-17" id="__codelineno-2-17" name="__codelineno-2-17"></a>            <span class="cm">&lt;!--  optional if running ni a subnet in a vpc, use the subnetIds --&gt;</span>
+<a href="#__codelineno-2-18" id="__codelineno-2-18" name="__codelineno-2-18"></a>            <span class="cm">&lt;!-- &lt;vpc-subnet&gt;subnet-472b9f30&lt;/vpc-subnet&gt;</span>
+<a href="#__codelineno-2-19" id="__codelineno-2-19" name="__codelineno-2-19"></a><span class="cm">            &lt;security-group-ids&gt;sg-1234aaa, sg-1234bbb&lt;/security-group-ids&gt; --&gt;</span>
+<a href="#__codelineno-2-20" id="__codelineno-2-20" name="__codelineno-2-20"></a>            <span class="nt">&lt;reuse-instances&gt;</span>false<span class="nt">&lt;/reuse-instances&gt;</span>
+<a href="#__codelineno-2-21" id="__codelineno-2-21" name="__codelineno-2-21"></a>        <span class="nt">&lt;/default-instance-description&gt;</span>
+<a href="#__codelineno-2-22" id="__codelineno-2-22" name="__codelineno-2-22"></a>
+<a href="#__codelineno-2-23" id="__codelineno-2-23" name="__codelineno-2-23"></a>        <span class="cm">&lt;!-- Credentials for the cloud provider. It is recommended that users us IAM Roles for accessing services insead of embedding AWS keys --&gt;</span>
+<a href="#__codelineno-2-24" id="__codelineno-2-24" name="__codelineno-2-24"></a>        <span class="nt">&lt;credentials</span> <span class="na">type=</span><span class="s">"amazon"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-2-25" id="__codelineno-2-25" name="__codelineno-2-25"></a>        <span class="cm">&lt;!-- Set credentials via system or java properties. --&gt;</span>
+<a href="#__codelineno-2-26" id="__codelineno-2-26" name="__codelineno-2-26"></a>            <span class="nt">&lt;secret-key-id-property&gt;</span>AWS_SECRET_KEY_ID<span class="nt">&lt;/secret-key-id-property&gt;</span>
+<a href="#__codelineno-2-27" id="__codelineno-2-27" name="__codelineno-2-27"></a>            <span class="nt">&lt;secret-key-property&gt;</span>AWS_SECRET_KEY<span class="nt">&lt;/secret-key-property&gt;</span>
+<a href="#__codelineno-2-28" id="__codelineno-2-28" name="__codelineno-2-28"></a>            <span class="cm">&lt;!-- Set if you want to specifiy credentials directly here. less secure! --&gt;</span>
+<a href="#__codelineno-2-29" id="__codelineno-2-29" name="__codelineno-2-29"></a>            <span class="cm">&lt;!-- </span>
+<a href="#__codelineno-2-30" id="__codelineno-2-30" name="__codelineno-2-30"></a><span class="cm">            &lt;secret-key-id&gt;[AWS_SECRET_KEY_ID]&lt;/secret-key-id&gt;</span>
+<a href="#__codelineno-2-31" id="__codelineno-2-31" name="__codelineno-2-31"></a><span class="cm">            &lt;secret-key&gt;[AWS_SECRET_KEY]&lt;/secret-key&gt;</span>
+<a href="#__codelineno-2-32" id="__codelineno-2-32" name="__codelineno-2-32"></a><span class="cm">            --&gt;</span>
+<a href="#__codelineno-2-33" id="__codelineno-2-33" name="__codelineno-2-33"></a>            <span class="cm">&lt;!-- Set if you need a proxy to talk to amazon services --&gt;</span>
+<a href="#__codelineno-2-34" id="__codelineno-2-34" name="__codelineno-2-34"></a>            <span class="cm">&lt;!-- </span>
+<a href="#__codelineno-2-35" id="__codelineno-2-35" name="__codelineno-2-35"></a><span class="cm">            &lt;proxy-host&gt;&lt;/proxy-host&gt;</span>
+<a href="#__codelineno-2-36" id="__codelineno-2-36" name="__codelineno-2-36"></a><span class="cm">            &lt;proxy-port&gt;80&lt;/proxy-port&gt;</span>
+<a href="#__codelineno-2-37" id="__codelineno-2-37" name="__codelineno-2-37"></a><span class="cm">            --&gt;</span>
+<a href="#__codelineno-2-38" id="__codelineno-2-38" name="__codelineno-2-38"></a>        <span class="nt">&lt;/credentials&gt;</span>
+<a href="#__codelineno-2-39" id="__codelineno-2-39" name="__codelineno-2-39"></a>
+<a href="#__codelineno-2-40" id="__codelineno-2-40" name="__codelineno-2-40"></a>        <span class="cm">&lt;!-- Instance descriptions for regions --&gt;</span>
+<a href="#__codelineno-2-41" id="__codelineno-2-41" name="__codelineno-2-41"></a>        <span class="nt">&lt;instance-descriptions</span> <span class="na">region=</span><span class="s">"US_WEST_1"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-2-42" id="__codelineno-2-42" name="__codelineno-2-42"></a>            <span class="nt">&lt;instance-descripion</span> <span class="na">name=</span><span class="s">"AGENT"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-2-43" id="__codelineno-2-43" name="__codelineno-2-43"></a>            <span class="nt">&lt;ami&gt;</span>[AMI-ID]<span class="nt">&lt;/ami&gt;</span>
+<a href="#__codelineno-2-44" id="__codelineno-2-44" name="__codelineno-2-44"></a>            <span class="nt">&lt;keypair&gt;</span>[KEYPAIR]<span class="nt">&lt;/keypair&gt;</span>
+<a href="#__codelineno-2-45" id="__codelineno-2-45" name="__codelineno-2-45"></a>            <span class="cm">&lt;!--  if using roles. recommended over using security keys --&gt;</span>
+<a href="#__codelineno-2-46" id="__codelineno-2-46" name="__codelineno-2-46"></a>            <span class="cm">&lt;!-- &lt;iam-role&gt;role&lt;/iam-role&gt; --&gt;</span>
+<a href="#__codelineno-2-47" id="__codelineno-2-47" name="__codelineno-2-47"></a>            <span class="cm">&lt;!--  optional if running ni a subnet in a vpc, use the subnetIds --&gt;</span>
+<a href="#__codelineno-2-48" id="__codelineno-2-48" name="__codelineno-2-48"></a>            <span class="cm">&lt;!-- &lt;vpc-subnet&gt;subnet-472b9f30&lt;/vpc-subnet&gt;</span>
+<a href="#__codelineno-2-49" id="__codelineno-2-49" name="__codelineno-2-49"></a><span class="cm">            &lt;security-group-ids&gt;sg-1234aaa, sg-1234bbb&lt;/security-group-ids&gt; --&gt;</span>
+<a href="#__codelineno-2-50" id="__codelineno-2-50" name="__codelineno-2-50"></a>            <span class="nt">&lt;/instance-descripion&gt;</span>
+<a href="#__codelineno-2-51" id="__codelineno-2-51" name="__codelineno-2-51"></a>        <span class="nt">&lt;/instance-descriptions&gt;</span>
+<a href="#__codelineno-2-52" id="__codelineno-2-52" name="__codelineno-2-52"></a>
+<a href="#__codelineno-2-53" id="__codelineno-2-53" name="__codelineno-2-53"></a>        <span class="nt">&lt;instance-descriptions</span> <span class="na">region=</span><span class="s">"US_EAST"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-2-54" id="__codelineno-2-54" name="__codelineno-2-54"></a>            <span class="nt">&lt;instance-descripion</span> <span class="na">name=</span><span class="s">"AGENT"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-2-55" id="__codelineno-2-55" name="__codelineno-2-55"></a>            <span class="nt">&lt;ami&gt;</span>[AMI-ID]<span class="nt">&lt;/ami&gt;</span>
+<a href="#__codelineno-2-56" id="__codelineno-2-56" name="__codelineno-2-56"></a>            <span class="nt">&lt;keypair&gt;</span>[KEYPAIR]<span class="nt">&lt;/keypair&gt;</span>
+<a href="#__codelineno-2-57" id="__codelineno-2-57" name="__codelineno-2-57"></a>            <span class="cm">&lt;!--  if using roles. recommended over using security keys --&gt;</span>
+<a href="#__codelineno-2-58" id="__codelineno-2-58" name="__codelineno-2-58"></a>            <span class="cm">&lt;!-- &lt;iam-role&gt;role&lt;/iam-role&gt; --&gt;</span>
+<a href="#__codelineno-2-59" id="__codelineno-2-59" name="__codelineno-2-59"></a>            <span class="cm">&lt;!--  optional if running ni a subnet in a vpc, use the subnetIds --&gt;</span>
+<a href="#__codelineno-2-60" id="__codelineno-2-60" name="__codelineno-2-60"></a>            <span class="cm">&lt;!-- &lt;vpc-subnet&gt;subnet-472b9f30&lt;/vpc-subnet&gt;</span>
+<a href="#__codelineno-2-61" id="__codelineno-2-61" name="__codelineno-2-61"></a><span class="cm">            &lt;security-group-ids&gt;sg-1234aaa, sg-1234bbb&lt;/security-group-ids&gt; --&gt;</span>
+<a href="#__codelineno-2-62" id="__codelineno-2-62" name="__codelineno-2-62"></a>            <span class="nt">&lt;/instance-descripion&gt;</span>
+<a href="#__codelineno-2-63" id="__codelineno-2-63" name="__codelineno-2-63"></a>        <span class="nt">&lt;/instance-descriptions&gt;</span>
+<a href="#__codelineno-2-64" id="__codelineno-2-64" name="__codelineno-2-64"></a>
+<a href="#__codelineno-2-65" id="__codelineno-2-65" name="__codelineno-2-65"></a>        <span class="cm">&lt;!-- allowed instance types and their costs. update costs as necessary --&gt;</span>
+<a href="#__codelineno-2-66" id="__codelineno-2-66" name="__codelineno-2-66"></a>        <span class="nt">&lt;instance-types</span> <span class="na">type=</span><span class="s">"amazon"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-2-67" id="__codelineno-2-67" name="__codelineno-2-67"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">"c3.large"</span> <span class="na">cost=</span><span class="s">".105"</span> <span class="na">users=</span><span class="s">"500"</span> <span class="na">cpus=</span><span class="s">"2"</span> <span class="na">ecus=</span><span class="s">"7"</span> <span class="na">mem=</span><span class="s">"3.75"</span> <span class="na">jvmArgs=</span><span class="s">"-Xms2560m -Xmx2560m"</span> <span class="nt">/&gt;</span>
+<a href="#__codelineno-2-68" id="__codelineno-2-68" name="__codelineno-2-68"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">"c3.xlarge"</span> <span class="na">cost=</span><span class="s">".21"</span> <span class="na">users=</span><span class="s">"2000"</span> <span class="na">cpus=</span><span class="s">"4"</span> <span class="na">ecus=</span><span class="s">"14"</span> <span class="na">mem=</span><span class="s">"7.5"</span> <span class="na">jvmArgs=</span><span class="s">"-Xms6g -Xmx6g"</span> <span class="nt">/&gt;</span>
+<a href="#__codelineno-2-69" id="__codelineno-2-69" name="__codelineno-2-69"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">"c3.2xlarge"</span> <span class="na">cost=</span><span class="s">".42"</span> <span class="na">users=</span><span class="s">"4000"</span> <span class="na">cpus=</span><span class="s">"8"</span> <span class="na">ecus=</span><span class="s">"28"</span> <span class="na">mem=</span><span class="s">"15"</span> <span class="na">default=</span><span class="s">"true"</span> <span class="na">jvmArgs=</span><span class="s">"-Xms12g -Xmx12g"</span> <span class="nt">/&gt;</span>
+<a href="#__codelineno-2-70" id="__codelineno-2-70" name="__codelineno-2-70"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">"c3.4xlarge"</span> <span class="na">cost=</span><span class="s">".84"</span> <span class="na">users=</span><span class="s">"8000"</span> <span class="na">cpus=</span><span class="s">"16"</span> <span class="na">ecus=</span><span class="s">"55"</span> <span class="na">mem=</span><span class="s">"30"</span> <span class="na">jvmArgs=</span><span class="s">"-Xms125g -Xmx25g"</span> <span class="nt">/&gt;</span>
+<a href="#__codelineno-2-71" id="__codelineno-2-71" name="__codelineno-2-71"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">"c3.8xlarge"</span> <span class="na">cost=</span><span class="s">"1.68"</span> <span class="na">users=</span><span class="s">"16000"</span> <span class="na">cpus=</span><span class="s">"32"</span> <span class="na">ecus=</span><span class="s">"108"</span> <span class="na">mem=</span><span class="s">"60"</span> <span class="na">jvmArgs=</span><span class="s">"-Xms50g -Xmx50g"</span> <span class="nt">/&gt;</span>
+<a href="#__codelineno-2-72" id="__codelineno-2-72" name="__codelineno-2-72"></a>        <span class="nt">&lt;/instance-types&gt;</span>
+<a href="#__codelineno-2-73" id="__codelineno-2-73" name="__codelineno-2-73"></a>
+<a href="#__codelineno-2-74" id="__codelineno-2-74" name="__codelineno-2-74"></a>        <span class="cm">&lt;!-- watchdog is used to check if all agents start correctly. --&gt;</span>
+<a href="#__codelineno-2-75" id="__codelineno-2-75" name="__codelineno-2-75"></a>        <span class="nt">&lt;watchdog&gt;</span>
+<a href="#__codelineno-2-76" id="__codelineno-2-76" name="__codelineno-2-76"></a>            <span class="cm">&lt;!-- The maximum amount of time to wait for the agents to start before restarting --&gt;</span>
+<a href="#__codelineno-2-77" id="__codelineno-2-77" name="__codelineno-2-77"></a>            <span class="nt">&lt;max-time-for-agent-start&gt;</span>3m<span class="nt">&lt;/max-time-for-agent-start&gt;</span>
+<a href="#__codelineno-2-78" id="__codelineno-2-78" name="__codelineno-2-78"></a>            <span class="cm">&lt;!-- The maximum amount of time to wait for the agents to report to the controller before restarting --&gt;</span>
+<a href="#__codelineno-2-79" id="__codelineno-2-79" name="__codelineno-2-79"></a>            <span class="nt">&lt;max-time-for-agent-report&gt;</span>5m<span class="nt">&lt;/max-time-for-agent-report&gt;</span>
+<a href="#__codelineno-2-80" id="__codelineno-2-80" name="__codelineno-2-80"></a>            <span class="cm">&lt;!-- the maximum number of restarts before stopping test --&gt;</span>
+<a href="#__codelineno-2-81" id="__codelineno-2-81" name="__codelineno-2-81"></a>            <span class="nt">&lt;max-restarts&gt;</span>2<span class="nt">&lt;/max-restarts&gt;</span>
+<a href="#__codelineno-2-82" id="__codelineno-2-82" name="__codelineno-2-82"></a>            <span class="cm">&lt;!-- The amount of time to wait between checking for agent start --&gt;</span>
+<a href="#__codelineno-2-83" id="__codelineno-2-83" name="__codelineno-2-83"></a>            <span class="nt">&lt;sleep-time-between-check&gt;</span>30s<span class="nt">&lt;/sleep-time-between-check&gt;</span>
+<a href="#__codelineno-2-84" id="__codelineno-2-84" name="__codelineno-2-84"></a>        <span class="nt">&lt;/watchdog&gt;</span>
+<a href="#__codelineno-2-85" id="__codelineno-2-85" name="__codelineno-2-85"></a>
+<a href="#__codelineno-2-86" id="__codelineno-2-86" name="__codelineno-2-86"></a>        <span class="cm">&lt;!--Configure the results database implementation if reporting is configured via com.intuit.tank.reporting.db.DatabaseResultsReporter --&gt;</span>
+<a href="#__codelineno-2-87" id="__codelineno-2-87" name="__codelineno-2-87"></a>        <span class="nt">&lt;results&gt;</span>
+<a href="#__codelineno-2-88" id="__codelineno-2-88" name="__codelineno-2-88"></a>        <span class="nt">&lt;config&gt;</span>
+<a href="#__codelineno-2-89" id="__codelineno-2-89" name="__codelineno-2-89"></a>            <span class="nt">&lt;write-capacity&gt;</span>50<span class="nt">&lt;/write-capacity&gt;</span>
+<a href="#__codelineno-2-90" id="__codelineno-2-90" name="__codelineno-2-90"></a>            <span class="nt">&lt;read-capacity&gt;</span>10<span class="nt">&lt;/read-capacity&gt;</span>
+<a href="#__codelineno-2-91" id="__codelineno-2-91" name="__codelineno-2-91"></a>        <span class="nt">&lt;/config&gt;</span>
+<a href="#__codelineno-2-92" id="__codelineno-2-92" name="__codelineno-2-92"></a>        <span class="nt">&lt;provider&gt;</span>com.intuit.tank.persistence.databases.AmazonDynamoDatabaseDocApi<span class="nt">&lt;/provider&gt;</span>
+<a href="#__codelineno-2-93" id="__codelineno-2-93" name="__codelineno-2-93"></a>        <span class="cm">&lt;!-- &lt;provider&gt;com.intuit.tank.persistence.databases.AmazonSimpleDatabase&lt;/provider&gt; --&gt;</span>
+<a href="#__codelineno-2-94" id="__codelineno-2-94" name="__codelineno-2-94"></a>        <span class="nt">&lt;/results&gt;</span>
+<a href="#__codelineno-2-95" id="__codelineno-2-95" name="__codelineno-2-95"></a>
+<a href="#__codelineno-2-96" id="__codelineno-2-96" name="__codelineno-2-96"></a>        <span class="nt">&lt;/vm-manager&gt;</span>        
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>    <span class="nt">&lt;security&gt;</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>        <span class="cm">&lt;!-- groups that can be assigned to users. set isDefault to tru to have these selected when creating new users --&gt;</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        <span class="nt">&lt;groups&gt;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>            <span class="nt">&lt;group&gt;</span>admin<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>            <span class="nt">&lt;group</span> <span class="na">isDefault=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>user<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>            <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>            <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>            <span class="nt">&lt;group&gt;</span>job-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>            <span class="nt">&lt;group</span> <span class="na">isDefault=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>guest<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="nt">&lt;/groups&gt;</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="cm">&lt;!-- restrictions set which groups can perform which actions. --&gt;</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>        <span class="nt">&lt;restrictions&gt;</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>            <span class="cm">&lt;!-- Project permissions --&gt;</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">&quot;CREATE_PROJECT&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>            <span class="nt">&lt;groups&gt;</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>                <span class="nt">&lt;group&gt;</span>user<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">&quot;DELETE_PROJECT&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>            <span class="nt">&lt;groups&gt;</span>
-<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">&quot;EDIT_PROJECT&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>            <span class="nt">&lt;groups&gt;</span>
-<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a>            <span class="cm">&lt;!-- Script permissions --&gt;</span>
-<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">&quot;CREATE_SCRIPT&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a>            <span class="nt">&lt;groups&gt;</span>
-<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>                <span class="nt">&lt;group&gt;</span>user<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">&quot;DELETE_SCRIPT&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a>            <span class="nt">&lt;groups&gt;</span>
-<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">&quot;EDIT_SCRIPT&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a>            <span class="nt">&lt;groups&gt;</span>
-<a id="__codelineno-3-44" name="__codelineno-3-44" href="#__codelineno-3-44"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-45" name="__codelineno-3-45" href="#__codelineno-3-45"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a id="__codelineno-3-46" name="__codelineno-3-46" href="#__codelineno-3-46"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a id="__codelineno-3-47" name="__codelineno-3-47" href="#__codelineno-3-47"></a>            <span class="cm">&lt;!-- Filter permissions --&gt;</span>
-<a id="__codelineno-3-48" name="__codelineno-3-48" href="#__codelineno-3-48"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">&quot;CREATE_FILTER&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-3-49" name="__codelineno-3-49" href="#__codelineno-3-49"></a>            <span class="nt">&lt;groups&gt;</span>
-<a id="__codelineno-3-50" name="__codelineno-3-50" href="#__codelineno-3-50"></a>                <span class="nt">&lt;group&gt;</span>user<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-51" name="__codelineno-3-51" href="#__codelineno-3-51"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-52" name="__codelineno-3-52" href="#__codelineno-3-52"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a id="__codelineno-3-53" name="__codelineno-3-53" href="#__codelineno-3-53"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a id="__codelineno-3-54" name="__codelineno-3-54" href="#__codelineno-3-54"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">&quot;DELETE_FILTER&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-3-55" name="__codelineno-3-55" href="#__codelineno-3-55"></a>            <span class="nt">&lt;groups&gt;</span>
-<a id="__codelineno-3-56" name="__codelineno-3-56" href="#__codelineno-3-56"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-57" name="__codelineno-3-57" href="#__codelineno-3-57"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a id="__codelineno-3-58" name="__codelineno-3-58" href="#__codelineno-3-58"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a id="__codelineno-3-59" name="__codelineno-3-59" href="#__codelineno-3-59"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">&quot;EDIT_FILTER&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-3-60" name="__codelineno-3-60" href="#__codelineno-3-60"></a>            <span class="nt">&lt;groups&gt;</span>
-<a id="__codelineno-3-61" name="__codelineno-3-61" href="#__codelineno-3-61"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-62" name="__codelineno-3-62" href="#__codelineno-3-62"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a id="__codelineno-3-63" name="__codelineno-3-63" href="#__codelineno-3-63"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a id="__codelineno-3-64" name="__codelineno-3-64" href="#__codelineno-3-64"></a>            <span class="cm">&lt;!-- Data File permissions --&gt;</span>
-<a id="__codelineno-3-65" name="__codelineno-3-65" href="#__codelineno-3-65"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">&quot;CREATE_DATAFILE&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-3-66" name="__codelineno-3-66" href="#__codelineno-3-66"></a>            <span class="nt">&lt;groups&gt;</span>
-<a id="__codelineno-3-67" name="__codelineno-3-67" href="#__codelineno-3-67"></a>                <span class="nt">&lt;group&gt;</span>user<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-68" name="__codelineno-3-68" href="#__codelineno-3-68"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-69" name="__codelineno-3-69" href="#__codelineno-3-69"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-70" name="__codelineno-3-70" href="#__codelineno-3-70"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a id="__codelineno-3-71" name="__codelineno-3-71" href="#__codelineno-3-71"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a id="__codelineno-3-72" name="__codelineno-3-72" href="#__codelineno-3-72"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">&quot;DELETE_DATAFILE&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-3-73" name="__codelineno-3-73" href="#__codelineno-3-73"></a>            <span class="nt">&lt;groups&gt;</span>
-<a id="__codelineno-3-74" name="__codelineno-3-74" href="#__codelineno-3-74"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-75" name="__codelineno-3-75" href="#__codelineno-3-75"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-76" name="__codelineno-3-76" href="#__codelineno-3-76"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a id="__codelineno-3-77" name="__codelineno-3-77" href="#__codelineno-3-77"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a id="__codelineno-3-78" name="__codelineno-3-78" href="#__codelineno-3-78"></a>            <span class="cm">&lt;!-- Job permissions --&gt;</span>
-<a id="__codelineno-3-79" name="__codelineno-3-79" href="#__codelineno-3-79"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">&quot;CONTROL_JOB&quot;</span><span class="nt">&gt;</span>
-<a id="__codelineno-3-80" name="__codelineno-3-80" href="#__codelineno-3-80"></a>            <span class="nt">&lt;groups&gt;</span>
-<a id="__codelineno-3-81" name="__codelineno-3-81" href="#__codelineno-3-81"></a>                <span class="nt">&lt;group&gt;</span>job-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-82" name="__codelineno-3-82" href="#__codelineno-3-82"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-83" name="__codelineno-3-83" href="#__codelineno-3-83"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a id="__codelineno-3-84" name="__codelineno-3-84" href="#__codelineno-3-84"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a id="__codelineno-3-85" name="__codelineno-3-85" href="#__codelineno-3-85"></a>        <span class="nt">&lt;/restrictions&gt;</span>
-<a id="__codelineno-3-86" name="__codelineno-3-86" href="#__codelineno-3-86"></a>        <span class="cm">&lt;!-- Define users to be created on startup if they do not exist. --&gt;</span>
-<a id="__codelineno-3-87" name="__codelineno-3-87" href="#__codelineno-3-87"></a>        <span class="nt">&lt;users&gt;</span>
-<a id="__codelineno-3-88" name="__codelineno-3-88" href="#__codelineno-3-88"></a>            <span class="nt">&lt;user&gt;</span>
-<a id="__codelineno-3-89" name="__codelineno-3-89" href="#__codelineno-3-89"></a>            <span class="nt">&lt;name&gt;</span>admin<span class="nt">&lt;/name&gt;</span>
-<a id="__codelineno-3-90" name="__codelineno-3-90" href="#__codelineno-3-90"></a>            <span class="nt">&lt;password&gt;</span>admin<span class="nt">&lt;/password&gt;</span>
-<a id="__codelineno-3-91" name="__codelineno-3-91" href="#__codelineno-3-91"></a>            <span class="nt">&lt;email&gt;</span>email@company.com<span class="nt">&lt;/email&gt;</span>
-<a id="__codelineno-3-92" name="__codelineno-3-92" href="#__codelineno-3-92"></a>            <span class="nt">&lt;group&gt;</span>admin<span class="nt">&lt;/group&gt;</span>
-<a id="__codelineno-3-93" name="__codelineno-3-93" href="#__codelineno-3-93"></a>            <span class="nt">&lt;/user&gt;</span>
-<a id="__codelineno-3-94" name="__codelineno-3-94" href="#__codelineno-3-94"></a>        <span class="nt">&lt;/users&gt;</span>
-<a id="__codelineno-3-95" name="__codelineno-3-95" href="#__codelineno-3-95"></a>        <span class="nt">&lt;/security&gt;</span>                    
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>    <span class="nt">&lt;security&gt;</span>
+<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a>        <span class="cm">&lt;!-- groups that can be assigned to users. set isDefault to tru to have these selected when creating new users --&gt;</span>
+<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a>        <span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a>            <span class="nt">&lt;group&gt;</span>admin<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a>            <span class="nt">&lt;group</span> <span class="na">isDefault=</span><span class="s">"true"</span><span class="nt">&gt;</span>user<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a>            <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a>            <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a>            <span class="nt">&lt;group&gt;</span>job-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a>            <span class="nt">&lt;group</span> <span class="na">isDefault=</span><span class="s">"true"</span><span class="nt">&gt;</span>guest<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a>        <span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a>        <span class="cm">&lt;!-- restrictions set which groups can perform which actions. --&gt;</span>
+<a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a>        <span class="nt">&lt;restrictions&gt;</span>
+<a href="#__codelineno-3-13" id="__codelineno-3-13" name="__codelineno-3-13"></a>            <span class="cm">&lt;!-- Project permissions --&gt;</span>
+<a href="#__codelineno-3-14" id="__codelineno-3-14" name="__codelineno-3-14"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"CREATE_PROJECT"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-3-15" id="__codelineno-3-15" name="__codelineno-3-15"></a>            <span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-3-16" id="__codelineno-3-16" name="__codelineno-3-16"></a>                <span class="nt">&lt;group&gt;</span>user<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-17" id="__codelineno-3-17" name="__codelineno-3-17"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-18" id="__codelineno-3-18" name="__codelineno-3-18"></a>            <span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-3-19" id="__codelineno-3-19" name="__codelineno-3-19"></a>            <span class="nt">&lt;/restriction&gt;</span>
+<a href="#__codelineno-3-20" id="__codelineno-3-20" name="__codelineno-3-20"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"DELETE_PROJECT"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-3-21" id="__codelineno-3-21" name="__codelineno-3-21"></a>            <span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-3-22" id="__codelineno-3-22" name="__codelineno-3-22"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-23" id="__codelineno-3-23" name="__codelineno-3-23"></a>            <span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-3-24" id="__codelineno-3-24" name="__codelineno-3-24"></a>            <span class="nt">&lt;/restriction&gt;</span>
+<a href="#__codelineno-3-25" id="__codelineno-3-25" name="__codelineno-3-25"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"EDIT_PROJECT"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-3-26" id="__codelineno-3-26" name="__codelineno-3-26"></a>            <span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-3-27" id="__codelineno-3-27" name="__codelineno-3-27"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-28" id="__codelineno-3-28" name="__codelineno-3-28"></a>            <span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-3-29" id="__codelineno-3-29" name="__codelineno-3-29"></a>            <span class="nt">&lt;/restriction&gt;</span>
+<a href="#__codelineno-3-30" id="__codelineno-3-30" name="__codelineno-3-30"></a>            <span class="cm">&lt;!-- Script permissions --&gt;</span>
+<a href="#__codelineno-3-31" id="__codelineno-3-31" name="__codelineno-3-31"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"CREATE_SCRIPT"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-3-32" id="__codelineno-3-32" name="__codelineno-3-32"></a>            <span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-3-33" id="__codelineno-3-33" name="__codelineno-3-33"></a>                <span class="nt">&lt;group&gt;</span>user<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-34" id="__codelineno-3-34" name="__codelineno-3-34"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-35" id="__codelineno-3-35" name="__codelineno-3-35"></a>            <span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-3-36" id="__codelineno-3-36" name="__codelineno-3-36"></a>            <span class="nt">&lt;/restriction&gt;</span>
+<a href="#__codelineno-3-37" id="__codelineno-3-37" name="__codelineno-3-37"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"DELETE_SCRIPT"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-3-38" id="__codelineno-3-38" name="__codelineno-3-38"></a>            <span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-3-39" id="__codelineno-3-39" name="__codelineno-3-39"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-40" id="__codelineno-3-40" name="__codelineno-3-40"></a>            <span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-3-41" id="__codelineno-3-41" name="__codelineno-3-41"></a>            <span class="nt">&lt;/restriction&gt;</span>
+<a href="#__codelineno-3-42" id="__codelineno-3-42" name="__codelineno-3-42"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"EDIT_SCRIPT"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-3-43" id="__codelineno-3-43" name="__codelineno-3-43"></a>            <span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-3-44" id="__codelineno-3-44" name="__codelineno-3-44"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-45" id="__codelineno-3-45" name="__codelineno-3-45"></a>            <span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-3-46" id="__codelineno-3-46" name="__codelineno-3-46"></a>            <span class="nt">&lt;/restriction&gt;</span>
+<a href="#__codelineno-3-47" id="__codelineno-3-47" name="__codelineno-3-47"></a>            <span class="cm">&lt;!-- Filter permissions --&gt;</span>
+<a href="#__codelineno-3-48" id="__codelineno-3-48" name="__codelineno-3-48"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"CREATE_FILTER"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-3-49" id="__codelineno-3-49" name="__codelineno-3-49"></a>            <span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-3-50" id="__codelineno-3-50" name="__codelineno-3-50"></a>                <span class="nt">&lt;group&gt;</span>user<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-51" id="__codelineno-3-51" name="__codelineno-3-51"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-52" id="__codelineno-3-52" name="__codelineno-3-52"></a>            <span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-3-53" id="__codelineno-3-53" name="__codelineno-3-53"></a>            <span class="nt">&lt;/restriction&gt;</span>
+<a href="#__codelineno-3-54" id="__codelineno-3-54" name="__codelineno-3-54"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"DELETE_FILTER"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-3-55" id="__codelineno-3-55" name="__codelineno-3-55"></a>            <span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-3-56" id="__codelineno-3-56" name="__codelineno-3-56"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-57" id="__codelineno-3-57" name="__codelineno-3-57"></a>            <span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-3-58" id="__codelineno-3-58" name="__codelineno-3-58"></a>            <span class="nt">&lt;/restriction&gt;</span>
+<a href="#__codelineno-3-59" id="__codelineno-3-59" name="__codelineno-3-59"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"EDIT_FILTER"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-3-60" id="__codelineno-3-60" name="__codelineno-3-60"></a>            <span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-3-61" id="__codelineno-3-61" name="__codelineno-3-61"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-62" id="__codelineno-3-62" name="__codelineno-3-62"></a>            <span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-3-63" id="__codelineno-3-63" name="__codelineno-3-63"></a>            <span class="nt">&lt;/restriction&gt;</span>
+<a href="#__codelineno-3-64" id="__codelineno-3-64" name="__codelineno-3-64"></a>            <span class="cm">&lt;!-- Data File permissions --&gt;</span>
+<a href="#__codelineno-3-65" id="__codelineno-3-65" name="__codelineno-3-65"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"CREATE_DATAFILE"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-3-66" id="__codelineno-3-66" name="__codelineno-3-66"></a>            <span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-3-67" id="__codelineno-3-67" name="__codelineno-3-67"></a>                <span class="nt">&lt;group&gt;</span>user<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-68" id="__codelineno-3-68" name="__codelineno-3-68"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-69" id="__codelineno-3-69" name="__codelineno-3-69"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-70" id="__codelineno-3-70" name="__codelineno-3-70"></a>            <span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-3-71" id="__codelineno-3-71" name="__codelineno-3-71"></a>            <span class="nt">&lt;/restriction&gt;</span>
+<a href="#__codelineno-3-72" id="__codelineno-3-72" name="__codelineno-3-72"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"DELETE_DATAFILE"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-3-73" id="__codelineno-3-73" name="__codelineno-3-73"></a>            <span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-3-74" id="__codelineno-3-74" name="__codelineno-3-74"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-75" id="__codelineno-3-75" name="__codelineno-3-75"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-76" id="__codelineno-3-76" name="__codelineno-3-76"></a>            <span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-3-77" id="__codelineno-3-77" name="__codelineno-3-77"></a>            <span class="nt">&lt;/restriction&gt;</span>
+<a href="#__codelineno-3-78" id="__codelineno-3-78" name="__codelineno-3-78"></a>            <span class="cm">&lt;!-- Job permissions --&gt;</span>
+<a href="#__codelineno-3-79" id="__codelineno-3-79" name="__codelineno-3-79"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"CONTROL_JOB"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-3-80" id="__codelineno-3-80" name="__codelineno-3-80"></a>            <span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-3-81" id="__codelineno-3-81" name="__codelineno-3-81"></a>                <span class="nt">&lt;group&gt;</span>job-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-82" id="__codelineno-3-82" name="__codelineno-3-82"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-83" id="__codelineno-3-83" name="__codelineno-3-83"></a>            <span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-3-84" id="__codelineno-3-84" name="__codelineno-3-84"></a>            <span class="nt">&lt;/restriction&gt;</span>
+<a href="#__codelineno-3-85" id="__codelineno-3-85" name="__codelineno-3-85"></a>        <span class="nt">&lt;/restrictions&gt;</span>
+<a href="#__codelineno-3-86" id="__codelineno-3-86" name="__codelineno-3-86"></a>        <span class="cm">&lt;!-- Define users to be created on startup if they do not exist. --&gt;</span>
+<a href="#__codelineno-3-87" id="__codelineno-3-87" name="__codelineno-3-87"></a>        <span class="nt">&lt;users&gt;</span>
+<a href="#__codelineno-3-88" id="__codelineno-3-88" name="__codelineno-3-88"></a>            <span class="nt">&lt;user&gt;</span>
+<a href="#__codelineno-3-89" id="__codelineno-3-89" name="__codelineno-3-89"></a>            <span class="nt">&lt;name&gt;</span>admin<span class="nt">&lt;/name&gt;</span>
+<a href="#__codelineno-3-90" id="__codelineno-3-90" name="__codelineno-3-90"></a>            <span class="nt">&lt;password&gt;</span>admin<span class="nt">&lt;/password&gt;</span>
+<a href="#__codelineno-3-91" id="__codelineno-3-91" name="__codelineno-3-91"></a>            <span class="nt">&lt;email&gt;</span>email@company.com<span class="nt">&lt;/email&gt;</span>
+<a href="#__codelineno-3-92" id="__codelineno-3-92" name="__codelineno-3-92"></a>            <span class="nt">&lt;group&gt;</span>admin<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-3-93" id="__codelineno-3-93" name="__codelineno-3-93"></a>            <span class="nt">&lt;/user&gt;</span>
+<a href="#__codelineno-3-94" id="__codelineno-3-94" name="__codelineno-3-94"></a>        <span class="nt">&lt;/users&gt;</span>
+<a href="#__codelineno-3-95" id="__codelineno-3-95" name="__codelineno-3-95"></a>        <span class="nt">&lt;/security&gt;</span>                    
 </code></pre></div>
 </div>
 </div>
 </div>
 </details>
-
-              
-            </article>
-          </div>
-        </div>
-        
-          <a href="#" class="md-top md-icon" data-md-component="top" data-md-state="hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+</article>
+</div>
+</div>
+<a class="md-top md-icon" data-md-component="top" data-md-state="hidden" href="#">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"></path></svg>
             Back to top
           </a>
-        
-      </main>
-      
-        <footer class="md-footer">
-  
-    <nav class="md-footer__inner md-grid" aria-label="Footer">
-      
-        
-        <a href="../../supplemental-tools/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Supplemental Tools" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
+</main>
+<footer class="md-footer">
+<nav aria-label="Footer" class="md-footer__inner md-grid">
+<a aria-label="Previous: Supplemental Tools" class="md-footer__link md-footer__link--prev" href="../../supplemental-tools/" rel="prev">
+<div class="md-footer__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
+</div>
+<div class="md-footer__title">
+<div class="md-ellipsis">
+<span class="md-footer__direction">
                 Previous
               </span>
               Supplemental Tools
             </div>
-          </div>
-        </a>
-      
-      
-    </nav>
-  
-  <div class="md-footer-meta md-typeset">
-    <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
+</div>
+</a>
+<a aria-label="Next: Tank API Reference" class="md-footer__link md-footer__link--next" href="../../apispec/" rel="next">
+<div class="md-footer__title">
+<div class="md-ellipsis">
+<span class="md-footer__direction">
+                Next
+              </span>
+              Tank API Reference
+            </div>
+</div>
+<div class="md-footer__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"></path></svg>
+</div>
+</a>
+</nav>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
   
   
     Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
       Material for MkDocs
     </a>
-  
 </div>
-      
-        <div class="md-social">
-  
-    
-    
-      
-      
-    
-    <a href="https://twitter.com/squidfunk" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"/></svg>
-    </a>
-  
+<div class="md-social">
+<a class="md-social__link" href="https://twitter.com/squidfunk" rel="noopener" target="_blank" title="twitter.com">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"></path></svg>
+</a>
 </div>
-      
-    </div>
-  </div>
+</div>
+</div>
 </footer>
-      
-    </div>
-    <div class="md-dialog" data-md-component="dialog">
-      <div class="md-dialog__inner md-typeset"></div>
-    </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tabs", "navigation.tracking", "navigation.tabs.sticky", "header.autohide"], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
-    
-    
-      <script src="../../assets/javascripts/bundle.ed9748b7.min.js"></script>
-      
-    
-  </body>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tabs", "navigation.tracking", "navigation.tabs.sticky", "header.autohide"], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+<script src="../../assets/javascripts/bundle.ed9748b7.min.js"></script>
+<script>document$.subscribe(() => {
+            window.update_swagger_ui_iframe_height = function (id) {
+                var iFrameID = document.getElementById(id);
+                if (iFrameID) {
+                    full_height = (iFrameID.contentWindow.document.body.scrollHeight + 80) + "px";
+                    iFrameID.height = full_height;
+                    iFrameID.style.height = full_height;
+                }
+            }
+        
+            window.scheme = document.body.getAttribute("data-md-color-scheme")
+            const options = {
+                childList: true,
+                attributes: true,
+                characterData: false,
+                subtree: false,
+                attributeFilter: ['data-md-color-scheme'],
+                attributeOldValue: false,
+                characterDataOldValue: false
+            };
+            function color_scheme_callback(mutations) {
+                for (let mutation of mutations) {
+                    if (mutation.attributeName === "data-md-color-scheme") {
+                        scheme = document.body.getAttribute("data-md-color-scheme")
+                        var iframe_list = document.getElementsByClassName("swagger-ui-iframe")
+                        for(var i = 0; i < iframe_list.length; i++) {
+                            var ele = iframe_list.item(i);
+                            if (ele) {
+                                if (scheme === "slate") {
+                                    ele.contentWindow.enable_dark_mode();
+                                } else {
+                                    ele.contentWindow.disable_dark_mode();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            observer = new MutationObserver(color_scheme_callback);
+            observer.observe(document.body, options);
+            })</script></body>
 </html>
