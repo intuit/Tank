@@ -269,6 +269,12 @@
       <scope>runtime</scope>
     </dependency>
 
+    <dependency>
+      <groupId>javax.servlet.jsp.jstl</groupId>
+      <artifactId>jstl-api</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
     <!-- enunciate dependencies -->
     <dependency>
 	  <groupId>com.webcohesion.enunciate</groupId>
