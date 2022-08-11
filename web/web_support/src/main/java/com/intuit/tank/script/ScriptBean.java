@@ -167,6 +167,7 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
         this.version = container.getVersion();
         ScriptDao scriptDao = new ScriptDao();
         List<Script> all = scriptDao.findFiltered(viewFilter);
+        // adds script steps; needed when doing a 'save as'
         List<Script> scriptsWithSteps = all
                 .stream()
                 .map(script -> scriptDao.loadScriptSteps(script))
