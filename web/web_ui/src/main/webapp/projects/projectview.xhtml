@@ -67,6 +67,19 @@
 
           <div class="formRow">
             <div class="formLabelDiv">
+              <h:outputLabel for="productNameCB" value="Product Name" styleClass="formLabel" />
+            </div>
+            <div class="formInputDiv">
+              <p:selectOneMenu id="productNameCB" value="#{projectBean.project.productName}"
+                               styleClass="formInput inputWidthMedium">
+                <f:selectItems value="#{projectUtilBean.productNames}" />
+              </p:selectOneMenu>
+            </div>
+          </div>
+
+
+          <div class="formRow">
+            <div class="formLabelDiv">
               <h:outputLabel for="simTimeTF" value="Simulation Time" styleClass="formLabel required" />
             </div>
             <div class="formInputDiv">
