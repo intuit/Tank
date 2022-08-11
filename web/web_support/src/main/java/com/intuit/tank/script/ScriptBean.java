@@ -15,6 +15,7 @@ package com.intuit.tank.script;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
@@ -164,8 +165,14 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
     public List<Script> getEntityList(ViewFilterType viewFilter) {
         VersionContainer<Script> container = scriptLoader.getVersionContainer(viewFilter);
         this.version = container.getVersion();
-        List<Script> all = new ScriptDao().findFiltered(viewFilter);
-        return all;
+        ScriptDao scriptDao = new ScriptDao();
+        List<Script> all = scriptDao.findFiltered(viewFilter);
+        // adds script steps; needed when doing a 'save as'
+        List<Script> scriptsWithSteps = all
+                .stream()
+                .map(script -> scriptDao.loadScriptSteps(script))
+                .collect(Collectors.toList());
+        return scriptsWithSteps;
     }
 
     /**
