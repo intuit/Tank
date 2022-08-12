@@ -197,7 +197,10 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
                 Script copyScript = ScriptUtil.copyScript(
                 		securityContext.getCallerPrincipal().getName(),
                 		saveAsName, script);
-                copyScript = new ScriptDao().saveOrUpdate(copyScript);
+                ScriptDao scriptDao = new ScriptDao();
+                copyScript.setSerializedScriptStepId(script.getSerializedScriptStepId());
+                copyScript = scriptDao.loadScriptSteps(copyScript);
+                copyScript = scriptDao.saveOrUpdate(copyScript);
                 refresh();
                 scriptEvent.fire(new ModifiedScriptMessage(copyScript, this));
                 messages.info("Script " + originalName + " has been saved as "
