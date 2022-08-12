@@ -194,10 +194,12 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
                 messages.error("You did not change the script name.");
                 return;
             } else {
+                ScriptDao scriptDao = new ScriptDao();
+                script = scriptDao.loadScriptSteps(script);
                 Script copyScript = ScriptUtil.copyScript(
                 		securityContext.getCallerPrincipal().getName(),
                 		saveAsName, script);
-                copyScript = new ScriptDao().saveOrUpdate(copyScript);
+                copyScript = scriptDao.saveOrUpdate(copyScript);
                 refresh();
                 scriptEvent.fire(new ModifiedScriptMessage(copyScript, this));
                 messages.info("Script " + originalName + " has been saved as "
