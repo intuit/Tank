@@ -1,8 +1,12 @@
 package com.intuit.tank.harness;
 
 import com.intuit.tank.harness.data.HDTestPlan;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClientBuilder;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -19,12 +23,21 @@ public class TestPlanStarterTest {
 
     private TestPlanStarter _sut;
 
+    private MockedStatic<CloudWatchAsyncClient> mock_CloudWatchAsyncClient;
+
     @BeforeEach
     public void SetUp() {
         _httpClientMock = mock(Object.class);
         _hdTestPlanMock = mock(HDTestPlan.class);
         _threadGroupMock = mock(ThreadGroup.class);
         _agentRunData = mock(AgentRunData.class);
+        mock_CloudWatchAsyncClient = mockStatic(CloudWatchAsyncClient.class);
+        when(CloudWatchAsyncClient.builder()).thenReturn(mock(CloudWatchAsyncClientBuilder.class));
+    }
+
+    @AfterEach
+    public void clearStaticMock() {
+        mock_CloudWatchAsyncClient.close();
     }
 
     @Test
