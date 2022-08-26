@@ -41,6 +41,7 @@ public class TestPlanStarter implements Runnable {
 
     private final CloudWatchAsyncClient cloudWatchClient;
     private static final String namespace = "Intuit/Tank";
+    private final Dimension testPlan;
     private final Dimension instanceId;
     private final Dimension jobId;
     private Date send = new Date();
@@ -67,11 +68,14 @@ public class TestPlanStarter implements Runnable {
         this.agentRunData = agentRunData;
         this.rampDelay = calcRampTime();
         this.cloudWatchClient = CloudWatchAsyncClient.builder().build();
+        this.testPlan = Dimension.builder()
+                .name("testPlan")
+                .value(plan.getTestPlanName())
+                .build();
         this.instanceId = Dimension.builder()
                 .name("InstanceId")
                 .value(AmazonUtil.getInstanceId())
                 .build();
-
         this.jobId = Dimension.builder()
                 .name("JobId")
                 .value(AmazonUtil.getJobId())
@@ -136,14 +140,14 @@ public class TestPlanStarter implements Runnable {
                         .unit(StandardUnit.COUNT)
                         .value((double) this.threadsStarted)
                         .timestamp(timestamp)
-                        .dimensions(instanceId, jobId)
+                        .dimensions(testPlan, instanceId, jobId)
                         .build());
                 datumList.add(MetricDatum.builder()
                         .metricName("targetThreads")
                         .unit(StandardUnit.COUNT)
                         .value((double) numThreads)
                         .timestamp(timestamp)
-                        .dimensions(instanceId, jobId)
+                        .dimensions(testPlan, instanceId, jobId)
                         .build());
                 PutMetricDataRequest request = PutMetricDataRequest.builder()
                         .namespace(namespace)
