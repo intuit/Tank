@@ -21,16 +21,16 @@ public class FileStorageFactory {
 
     public static FileStorage getFileStorage(@Nonnull String base, boolean compress) {
         String key = base + compress;
-        FileStorage ret = storageMap.get(key);
-        if (ret == null) {
-            if (base.startsWith("s3:")) {
-                String s = StringUtils.removeStart(FilenameUtils.normalizeNoEndSeparator(base.substring(3)), "/");
-                ret = new S3FileStorage(s, compress);
+        FileStorage fileStorage = storageMap.get(key);
+        if (fileStorage == null) {
+            if (StringUtils.startsWithIgnoreCase(base, "s3:")) {
+                String bucketName = StringUtils.removeStart(FilenameUtils.normalizeNoEndSeparator(base.substring(3)), "/");
+                fileStorage = new S3FileStorage(bucketName, compress);
             } else {
-                ret = new FileSystemFileStorage(base, compress);
+                fileStorage = new FileSystemFileStorage(base, compress);
             }
-            storageMap.put(key, ret);
+            storageMap.put(key, fileStorage);
         }
-        return ret;
+        return fileStorage;
     }
 }

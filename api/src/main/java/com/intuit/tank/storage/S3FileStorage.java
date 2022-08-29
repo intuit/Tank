@@ -99,8 +99,8 @@ public class S3FileStorage implements FileStorage, Serializable {
             bucketName = name;
             extraPath = "";
         } else {
-            bucketName = name.substring(0, name.indexOf('/'));
-            extraPath = name.substring(name.indexOf('/'));
+            bucketName = StringUtils.substringBefore(name, "/");
+            extraPath = StringUtils.substringAfter(name, bucketName + "/");
         }
         extraPath = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(extraPath + "/"));
     }
