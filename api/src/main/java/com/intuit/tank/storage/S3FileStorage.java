@@ -87,7 +87,7 @@ public class S3FileStorage implements FileStorage, Serializable {
                 s3ClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
             }
             s3Client = s3ClientBuilder.build();
-            createBucket(bucketName);
+            createBucket(this.bucketName);
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);
             throw new RuntimeException(ex);
@@ -96,13 +96,13 @@ public class S3FileStorage implements FileStorage, Serializable {
 
     private void parseBucketName(String name) {
         if (name.indexOf('/') == -1) {
-            bucketName = name;
-            extraPath = "";
+            this.bucketName = name;
+            this.extraPath = "";
         } else {
-            bucketName = StringUtils.substringBefore(name, "/");
-            extraPath = StringUtils.substringAfter(name, bucketName + "/");
+            this.bucketName = StringUtils.substringBefore(name, "/");
+            this.extraPath = StringUtils.substringAfter(name, this.bucketName + "/");
         }
-        extraPath = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(extraPath + "/"));
+        this.extraPath = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(this.extraPath + "/"));
     }
 
     @Override
@@ -139,12 +139,13 @@ public class S3FileStorage implements FileStorage, Serializable {
     }
 
     private void createBucket(String bucketName) {
+        System.out.println(bucketName);
         try {
             s3Client.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
             LOG.info("Created bucket " + bucketName + " at " + "now");
         } catch (BucketAlreadyExistsException baee) {//Good
-        } catch (S3Exception e) {
-            LOG.error("Error creating bucket: " + e, e);
+        } catch (S3Exception | IllegalArgumentException e) {
+            LOG.error("Error creating bucket: " + bucketName + " " + e, e);
         }
     }
 
