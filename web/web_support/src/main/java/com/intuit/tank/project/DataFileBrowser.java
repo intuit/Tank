@@ -106,7 +106,7 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
                 messages.info("Datafile " + dataFile.getPath() + " has been deleted.");
                 dataFileEvent.fire(new ModifiedDatafileMessage(dataFile, this));
             } catch (Exception e) {
-
+                messages.error("Failed to delete file " + dataFile.getPath() + "because of " + e);
             }
         }
     }
