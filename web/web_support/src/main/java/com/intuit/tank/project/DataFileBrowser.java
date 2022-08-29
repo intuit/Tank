@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.SessionScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -54,7 +54,7 @@ import com.intuit.tank.wrapper.SelectableWrapper;
 import com.intuit.tank.wrapper.VersionContainer;
 
 @Named
-@SessionScoped
+@RequestScoped
 public class DataFileBrowser extends SelectableBean<DataFile> implements Serializable, Multiselectable<DataFile> {
 	private static final Logger LOG = LogManager.getLogger(DataFileBrowser.class);
     private static final long serialVersionUID = 1L;

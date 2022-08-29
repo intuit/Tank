@@ -24,18 +24,7 @@ import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.http.apache.ProxyConfiguration;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
-import software.amazon.awssdk.services.s3.model.BucketAlreadyExistsException;
-import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
-import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
-import software.amazon.awssdk.services.s3.model.S3Object;
-import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
+import software.amazon.awssdk.services.s3.model.*;
 
 /**
  * FileStorage that writes to the file system.
@@ -143,7 +132,7 @@ public class S3FileStorage implements FileStorage, Serializable {
         try {
             s3Client.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
             LOG.info("Created bucket " + bucketName + " at " + "now");
-        } catch (BucketAlreadyExistsException baee) {//Good
+        } catch (BucketAlreadyExistsException | BucketAlreadyOwnedByYouException baee) {//Good
         } catch (S3Exception | IllegalArgumentException e) {
             LOG.error("Error creating bucket: " + bucketName + " " + e, e);
         }
