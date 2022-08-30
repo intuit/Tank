@@ -17,14 +17,32 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 
 import com.intuit.tank.test.TestGroups;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class FileStorageFactoryTest {
+
+    @Mock
+    private MockedStatic<S3Client> mockStatic_S3Client;
+
+    @Mock
+    private S3Client mock_S3Client;
+
+    @Mock
+    private S3ClientBuilder mock_S3ClientBuilder;
     
     @BeforeEach
     public void init() {
@@ -32,6 +50,17 @@ public class FileStorageFactoryTest {
     	Configuration config = ctx.getConfiguration();
     	config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
     	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
+        mockStatic_S3Client = mockStatic(S3Client.class);
+        mock_S3ClientBuilder = mock(S3ClientBuilder.class);
+        mock_S3Client = mock(S3Client.class);
+        when(S3Client.builder()).thenReturn(mock_S3ClientBuilder);
+        when(mock_S3ClientBuilder.build()).thenReturn(mock_S3Client);
+
+    }
+
+    @AfterEach
+    public void clearStaticMock() {
+        mockStatic_S3Client.close();
     }
 
     @Test
@@ -58,7 +87,7 @@ public class FileStorageFactoryTest {
 
         assertTrue(storage.exists(fd));
         storage.delete(fd);
-        assertTrue(!storage.exists(fd));
+        assertFalse(storage.exists(fd));
     }
 
     @Test
@@ -86,32 +115,32 @@ public class FileStorageFactoryTest {
         }
         assertTrue(storage.exists(fd));
         storage.delete(fd);
-        assertTrue(!storage.exists(fd));
+        assertFalse(storage.exists(fd));
     }
 
-    /**
-     * set the enviroment variables AWS_SECRET_KEY_ID and AWS_SECRET_KEY before
-     * running this test.
-     * 
-     * @throws Exception
-     */
     @Test
-    @Tag(TestGroups.EXPERIMENTAL)
+    @Tag(TestGroups.FUNCTIONAL)
     public void testS3FileStorage() throws Exception {
         String s = "This is a test";
 
         ByteArrayInputStream bis = new ByteArrayInputStream(s.getBytes());
-        FileStorage storage = FileStorageFactory.getFileStorage("s3:systemstorage", false);
+        FileStorage storage = FileStorageFactory.getFileStorage("s3:systemstorage/extra/", false);
+        assertTrue(storage instanceof S3FileStorage);
+        verify(mock_S3Client, times(1))
+                .createBucket(CreateBucketRequest.builder().bucket("systemstorage").build());
+
         FileData fd = new FileData("", "test.txt");
         storage.storeFileData(fd, bis);
-
-        try ( InputStream in = storage.readFileData(fd) ) {
-            String fromService = IOUtils.toString(in, StandardCharsets.UTF_8);
-            assertEquals(s, fromService);
-        }
+        verify(mock_S3Client, times(1))
+                .putObject(PutObjectRequest.builder()
+                        .bucket("systemstorage")
+                        .key(any())
+                        .build(), any(RequestBody.class));
         assertTrue(storage.exists(fd));
+
         storage.delete(fd);
-        assertTrue(!storage.exists(fd));
+        verify(mock_S3Client, times(1))
+                .deleteObject(DeleteObjectRequest.builder().bucket("systemstorage").key(any()).build());
     }
 
     /**
