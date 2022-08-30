@@ -183,11 +183,10 @@
           resizable="false">
 
           <p:commandLink title="Delete #{selectable.entity.name}"
-            oncomplete="PF('confirmDelete').show();" ajax="true"
-            action="#{scriptBean.setSelectedScript(selectable)}"
-            update=":confirmDeleteDialogId">
-            <h:graphicImage library="gfx" name="16/delete.png"
-              width="16px" height="16px" style="padding: 2px;" />
+                         oncomplete="PF('confirmDelete').show();" ajax="true"
+                         action="#{scriptBean.setSelectedScript(selectable)}"
+                         update=":confirmDeleteDialogId">
+            <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
           </p:commandLink>
 
           <p:commandLink id="btnOpen"
@@ -235,9 +234,7 @@
                          onsuccess="PF('confirmDelete').hide();"
                          update=":mainForm:scriptTableId, :mainForm:messages" ajax="true" />
         <h:panelGroup styleClass="horizontal-spacer" />
-        <p:commandButton value="Cancel"
-          onclick="PF('confirmDelete').hide();" type="button">
-        </p:commandButton>
+        <p:commandButton value="Cancel" onclick="PF('confirmDelete').hide();" type="button"/>
       </h:form>
     </p:confirmDialog>
 
