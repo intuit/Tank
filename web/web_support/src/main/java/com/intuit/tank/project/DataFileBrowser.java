@@ -107,6 +107,7 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
                 dataFileEvent.fire(new ModifiedDatafileMessage(dataFile, this));
             } catch (Exception e) {
                 messages.error("Failed to delete file " + dataFile.getPath() + "because of " + e);
+                LOG.error("Failed to delete file " + dataFile.getPath() + "because of " + e, e);
             }
         }
     }
@@ -141,7 +142,7 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
     }
 
     /**
-     * @param viewDatafile
+     * @param viewDatafileId
      *            the viewDatafile to set
      */
     public void setViewDatafileId(int viewDatafileId) {

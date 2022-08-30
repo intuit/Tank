@@ -181,7 +181,8 @@ public class S3FileStorage implements FileStorage, Serializable {
 
     @Override
     public boolean delete(FileData fileData) {
-        String key = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(fileData.getPath() + "/" + fileData.getFileName()));
+        String key = FilenameUtils.separatorsToUnix(
+                FilenameUtils.normalize(extraPath + fileData.getPath() + "/" + fileData.getFileName()));
         key = StringUtils.stripStart(key, "/");
         try {
             s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(key).build());
