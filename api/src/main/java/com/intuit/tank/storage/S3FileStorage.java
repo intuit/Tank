@@ -24,18 +24,7 @@ import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.http.apache.ProxyConfiguration;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
-import software.amazon.awssdk.services.s3.model.BucketAlreadyExistsException;
-import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
-import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
-import software.amazon.awssdk.services.s3.model.S3Object;
-import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
+import software.amazon.awssdk.services.s3.model.*;
 
 /**
  * FileStorage that writes to the file system.
@@ -87,7 +76,7 @@ public class S3FileStorage implements FileStorage, Serializable {
                 s3ClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
             }
             s3Client = s3ClientBuilder.build();
-            createBucket(bucketName);
+            createBucket(this.bucketName);
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);
             throw new RuntimeException(ex);
@@ -96,13 +85,13 @@ public class S3FileStorage implements FileStorage, Serializable {
 
     private void parseBucketName(String name) {
         if (name.indexOf('/') == -1) {
-            bucketName = name;
-            extraPath = "";
+            this.bucketName = name;
+            this.extraPath = "";
         } else {
-            bucketName = name.substring(0, name.indexOf('/'));
-            extraPath = name.substring(name.indexOf('/'));
+            this.bucketName = StringUtils.substringBefore(name, "/");
+            this.extraPath = StringUtils.substringAfter(name, this.bucketName + "/");
         }
-        extraPath = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(extraPath + "/"));
+        this.extraPath = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(this.extraPath + "/"));
     }
 
     @Override
@@ -139,12 +128,13 @@ public class S3FileStorage implements FileStorage, Serializable {
     }
 
     private void createBucket(String bucketName) {
+        System.out.println(bucketName);
         try {
             s3Client.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
             LOG.info("Created bucket " + bucketName + " at " + "now");
-        } catch (BucketAlreadyExistsException baee) {//Good
-        } catch (S3Exception e) {
-            LOG.error("Error creating bucket: " + e, e);
+        } catch (BucketAlreadyExistsException | BucketAlreadyOwnedByYouException baee) {//Good
+        } catch (S3Exception | IllegalArgumentException e) {
+            LOG.error("Error creating bucket: " + bucketName + " " + e, e);
         }
     }
 
@@ -191,7 +181,8 @@ public class S3FileStorage implements FileStorage, Serializable {
 
     @Override
     public boolean delete(FileData fileData) {
-        String key = FilenameUtils.separatorsToUnix(FilenameUtils.normalize(fileData.getPath() + "/" + fileData.getFileName()));
+        String key = FilenameUtils.separatorsToUnix(
+                FilenameUtils.normalize(extraPath + fileData.getPath() + "/" + fileData.getFileName()));
         key = StringUtils.stripStart(key, "/");
         try {
             s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(key).build());

@@ -26,6 +26,7 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
 /**
@@ -46,7 +47,7 @@ public class ConfiguredLanguage {
 
     private static final String[][] data = {
             { "ECMAScript", SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, "Javascript",
-                    "com.sun.script.javascript.RhinoScriptEngineFactory", "js" },
+                    "jdk.nashorn.api.scripting.NashornScriptEngineFactory", "js" },
             { "ruby", SyntaxConstants.SYNTAX_STYLE_RUBY, "Ruby", "com.sun.script.jruby.JRubyScriptEngineFactory", "rb" },
             { "groovy", SyntaxConstants.SYNTAX_STYLE_GROOVY, "Groovy",
                     "org.codehaus.groovy.jsr223.GroovyScriptEngineFactory", "groovy" }
@@ -63,7 +64,7 @@ public class ConfiguredLanguage {
                 }
                 configuredLanguages.add(new ConfiguredLanguage(row[0], row[1], row[2], row[4]));
                 extensionSet.addAll(engineByName.getFactory().getExtensions());
-            } catch (Exception e) {
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 System.out.println("No ScriptEngine for language " + row[0] + " in classpath.");
             }
             for (ScriptEngineFactory fact : manager.getEngineFactories()) {
@@ -95,7 +96,7 @@ public class ConfiguredLanguage {
     public static ConfiguredLanguage getLanguagebyExtension(String scriptName) {
         String extension = FilenameUtils.getExtension(scriptName);
         ScriptEngine engineByExtension = manager.getEngineByExtension(extension);
-        return configuredLanguages.stream().filter(lang -> lang.name == engineByExtension.getFactory().getLanguageName()).findFirst().orElse(null);
+        return configuredLanguages.stream().filter(lang -> StringUtils.equals(lang.name, engineByExtension.getFactory().getLanguageName())).findFirst().orElse(null);
     }
 
     /**

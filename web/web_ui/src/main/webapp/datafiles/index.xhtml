@@ -113,9 +113,11 @@ xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
             width="#{dataFileBrowser.tablePrefs.getSize('actionsColumn')}"
             rendered="#{dataFileBrowser.tablePrefs.isVisible('actionsColumn')}" resizable="false">
           <h:panelGroup>
-            <p:commandLink title="Delete #{selectableDataFile.entity.path}" oncomplete="PF('confirmDelete').show();"
-              ajax="true" immediate="true" action="#{dataFileBrowser.setSelectedFile(selectableDataFile)}"
-              update=":confirmDeleteDialog">
+            <p:commandLink title="Delete #{selectableDataFile.entity.path}"
+                           oncomplete="PF('confirmDelete').show();"
+                           ajax="true" immediate="true"
+                           action="#{dataFileBrowser.setSelectedFile(selectableDataFile)}"
+                           update=":confirmDeleteDialog">
               <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
             </p:commandLink>
             <p:commandLink styleClass="no-decor" render="viewGrid, viewPaneHeader" immediate="true" update=":viewPaneID"
@@ -143,7 +145,7 @@ xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
           <p:fileUpload id="fileUploadControl" listener="#{fileUploadBean.handleFileUpload}" mode="advanced"
             allowTypes="/(\.|\/)(csv|zip|txt|xml)$/" update=":mainForm:fileTableId, :mainForm:messages" multiple="true"
             invalidFileMessage="Please select only .csv or .zip files."
-            invalidSizeMessage="The selectd file is too large." />
+            invalidSizeMessage="The selected file is too large." />
           <div class="vertical-spacer" />
         </p:outputPanel>
       </h:form>
@@ -195,11 +197,11 @@ xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       message="Are you sure you want to delete Data File  #{dataFileBrowser.selectedFile.entity.path}?">
       <h:form id="confirmDeletemainForm">
         <p:commandButton value="OK" id="confirmDeleteOkBtn"
-          action="#{dataFileBrowser.delete(dataFileBrowser.selectedFile.entity)}" onsuccess="PF('confirmDelete').hide()"
-          update=":mainForm:fileTableId" ajax="true" />
+                         action="#{dataFileBrowser.delete(dataFileBrowser.selectedFile.entity)}"
+                         onsuccess="PF('confirmDelete').hide()"
+                         update=":mainForm:fileTableId, :mainForm:messages" ajax="true" />
         <h:panelGroup styleClass="horizontal-spacer" />
-        <p:commandButton value="Cancel" onclick="PF('confirmDelete').hide();" type="button">
-        </p:commandButton>
+        <p:commandButton value="Cancel" onclick="PF('confirmDelete').hide();" type="button"/>
       </h:form>
     </p:confirmDialog>
 

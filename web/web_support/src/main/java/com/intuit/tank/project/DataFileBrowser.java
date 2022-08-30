@@ -21,10 +21,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.SessionScoped;
 import javax.enterprise.event.Event;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -54,7 +54,7 @@ import com.intuit.tank.wrapper.SelectableWrapper;
 import com.intuit.tank.wrapper.VersionContainer;
 
 @Named
-@SessionScoped
+@ViewScoped
 public class DataFileBrowser extends SelectableBean<DataFile> implements Serializable, Multiselectable<DataFile> {
 	private static final Logger LOG = LogManager.getLogger(DataFileBrowser.class);
     private static final long serialVersionUID = 1L;
@@ -106,7 +106,11 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
                 messages.info("Datafile " + dataFile.getPath() + " has been deleted.");
                 dataFileEvent.fire(new ModifiedDatafileMessage(dataFile, this));
             } catch (Exception e) {
-
+                if (dataFile == null) {
+                    messages.error("Failed to delete file because of null");
+                } else {
+                    messages.error("Failed to delete file " + dataFile.getPath() + " because of " + e);
+                }
             }
         }
     }
@@ -141,7 +145,7 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
     }
 
     /**
-     * @param viewDatafile
+     * @param viewDatafileId
      *            the viewDatafile to set
      */
     public void setViewDatafileId(int viewDatafileId) {
