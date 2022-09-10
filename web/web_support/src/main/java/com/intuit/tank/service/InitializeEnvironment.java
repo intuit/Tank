@@ -20,6 +20,9 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorderBuilder;
+import com.amazonaws.xray.plugins.EC2Plugin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,6 +51,7 @@ public class InitializeEnvironment {
 
     @PostConstruct
     public void init() {
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withPlugin(new EC2Plugin()).build());
         createDefaultGroups();
         createDefaultUsers();
         initialize = true;
