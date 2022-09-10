@@ -55,7 +55,11 @@
       <artifactId>rsyntaxtextarea</artifactId>
       <version>3.0.4</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.openjdk.nashorn</groupId>
+      <artifactId>nashorn-core</artifactId>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
 
   <build>
