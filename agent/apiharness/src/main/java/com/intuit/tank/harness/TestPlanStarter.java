@@ -136,9 +136,16 @@ public class TestPlanStarter implements Runnable {
                 Instant timestamp = new Date().toInstant();
                 List<MetricDatum> datumList = new ArrayList<>();
                 datumList.add(MetricDatum.builder()
-                        .metricName("currentThreads")
+                        .metricName("startedThreads")
                         .unit(StandardUnit.COUNT)
                         .value((double) this.threadsStarted)
+                        .timestamp(timestamp)
+                        .dimensions(testPlan, instanceId, jobId)
+                        .build());
+                datumList.add(MetricDatum.builder()
+                        .metricName("activeThreads")
+                        .unit(StandardUnit.COUNT)
+                        .value((double) this.threadGroup.activeCount())
                         .timestamp(timestamp)
                         .dimensions(testPlan, instanceId, jobId)
                         .build());
