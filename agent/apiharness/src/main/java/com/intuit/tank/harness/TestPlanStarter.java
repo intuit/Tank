@@ -128,8 +128,8 @@ public class TestPlanStarter implements Runnable {
                 break;
             }
 
-            if (this.threadsStarted < numThreads) {
-                createThread(httpClient, threadsStarted);
+            if (this.threadGroup.activeCount() < numThreads) {
+                createThread(httpClient, this.threadsStarted);
             }
 
             if (send.before(new Date())) { // Send thread metrics every <interval> seconds
