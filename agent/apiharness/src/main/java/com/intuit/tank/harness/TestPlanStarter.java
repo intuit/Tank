@@ -128,7 +128,7 @@ public class TestPlanStarter implements Runnable {
                 break;
             }
 
-            if (this.threadGroup.activeCount() < numThreads) {
+            if (this.threadGroup.activeGroupCount() < numThreads || threadsStarted < numThreads) {
                 createThread(httpClient, this.threadsStarted);
             }
 
@@ -145,7 +145,7 @@ public class TestPlanStarter implements Runnable {
                 datumList.add(MetricDatum.builder()
                         .metricName("activeThreads")
                         .unit(StandardUnit.COUNT)
-                        .value((double) this.threadGroup.activeCount())
+                        .value((double) this.threadGroup.activeGroupCount())
                         .timestamp(timestamp)
                         .dimensions(testPlan, instanceId, jobId)
                         .build());
