@@ -129,24 +129,18 @@ public class TestPlanStarter implements Runnable {
                 break;
             }
 
-            if (threadsStarted < numThreads || this.threadGroup.activeCount() < numThreads) {
+            Thread[] list = new Thread[this.threadGroup.activeCount()];
+            this.threadGroup.enumerate(list);
+            long activeCount = Arrays.stream(list)
+                    .filter(thread -> thread.getName().equals("AGENT"))
+                    .filter(Thread::isAlive)
+                    .count();
+
+            if (threadsStarted < numThreads || activeCount < numThreads) {
                 createThread(httpClient, this.threadsStarted);
             }
 
             if (send.before(new Date())) { // Send thread metrics every <interval> seconds
-
-                Thread[] list = new Thread[this.threadGroup.activeCount()];
-                this.threadGroup.enumerate(list);
-                long activeCount = Arrays.stream(list)
-                        .filter(thread -> thread.getName().equals("AGENT"))
-                        .filter(Thread::isAlive)
-                        .count();
-                LOG.info("ThreadGroupState:" + activeCount);
-                for (Thread thread : list) {
-                    LOG.info("    " + thread.getName() + ":" + thread.getState() + ":" + thread.isAlive());
-                }
-
-
                 Instant timestamp = new Date().toInstant();
                 List<MetricDatum> datumList = new ArrayList<>();
                 datumList.add(MetricDatum.builder()
