@@ -137,10 +137,13 @@ public class TestPlanStarter implements Runnable {
 
                 Thread[] list = new Thread[this.threadGroup.activeCount()];
                 this.threadGroup.enumerate(list);
-                long aliveCount = Arrays.stream(list).filter(Thread::isAlive).count();
-                System.out.println("ThreadGroupState:" + aliveCount);
+                long activeCount = Arrays.stream(list)
+                        .filter(thread -> thread.getName().equals("AGENT"))
+                        .filter(Thread::isAlive)
+                        .count();
+                LOG.info("ThreadGroupState:" + activeCount);
                 for (Thread thread : list) {
-                    System.out.println("    " + thread.getName() + ":" + thread.getState() + ":" + thread.isAlive());
+                    LOG.info("    " + thread.getName() + ":" + thread.getState() + ":" + thread.isAlive());
                 }
 
 
@@ -156,7 +159,7 @@ public class TestPlanStarter implements Runnable {
                 datumList.add(MetricDatum.builder()
                         .metricName("activeThreads")
                         .unit(StandardUnit.COUNT)
-                        .value((double) aliveCount)
+                        .value((double) activeCount)
                         .timestamp(timestamp)
                         .dimensions(testPlan, instanceId, jobId)
                         .build());
