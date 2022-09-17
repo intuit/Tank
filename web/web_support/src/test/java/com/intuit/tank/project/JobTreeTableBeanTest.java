@@ -257,7 +257,9 @@ public class JobTreeTableBeanTest {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
 
+        AWSXRay.beginSegment("test");
         fixture.keysChanged();
+        AWSXRay.endSegment();
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder

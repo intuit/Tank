@@ -509,7 +509,7 @@ public class APITestHarness {
             for (HDTestPlan plan : hdWorkload.getPlans()) {
                 if (plan.getUserPercentage() > 0) {
                     plan.setVariables(hdWorkload.getVariables());
-                    ThreadGroup threadGroup = new ThreadGroup("Test Plan Runner Group");
+                    ThreadGroup threadGroup = new ThreadGroup("Test Plan Runner Group: " + plan.getTestPlanName());
                     threadGroupArray.add(threadGroup);
                     TestPlanStarter starter = new TestPlanStarter(httpClient, plan, agentRunData.getNumUsers(), tankHttpClientClass, threadGroup, agentRunData);
                     testPlans.add(starter);

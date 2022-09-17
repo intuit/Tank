@@ -32,6 +32,7 @@ import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -128,17 +129,31 @@ public class TestPlanStarter implements Runnable {
                 break;
             }
 
-            if (this.threadsStarted < numThreads) {
-                createThread(httpClient, threadsStarted);
+            Thread[] list = new Thread[this.threadGroup.activeCount()];
+            this.threadGroup.enumerate(list);
+            long activeCount = Arrays.stream(list)
+                    .filter(thread -> thread.getName().equals("AGENT"))
+                    .filter(Thread::isAlive)
+                    .count();
+
+            if (threadsStarted < numThreads || activeCount < numThreads) {
+                createThread(httpClient, this.threadsStarted);
             }
 
             if (send.before(new Date())) { // Send thread metrics every <interval> seconds
                 Instant timestamp = new Date().toInstant();
                 List<MetricDatum> datumList = new ArrayList<>();
                 datumList.add(MetricDatum.builder()
-                        .metricName("currentThreads")
+                        .metricName("startedThreads")
                         .unit(StandardUnit.COUNT)
                         .value((double) this.threadsStarted)
+                        .timestamp(timestamp)
+                        .dimensions(testPlan, instanceId, jobId)
+                        .build());
+                datumList.add(MetricDatum.builder()
+                        .metricName("activeThreads")
+                        .unit(StandardUnit.COUNT)
+                        .value((double) activeCount)
                         .timestamp(timestamp)
                         .dimensions(testPlan, instanceId, jobId)
                         .build());
