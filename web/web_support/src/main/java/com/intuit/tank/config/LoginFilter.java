@@ -80,7 +80,7 @@ public class LoginFilter extends HttpFilter {
 		} else {
 			try {
 				AWSXRay.getCurrentSegment().setUser(_securityContext.getCallerPrincipal().getName());
-			} catch (SegmentNotFoundException snfe) { //Ignore
+			} catch (SegmentNotFoundException ignored) {
 			} catch (Exception e) {
 				LOG.error("Failed to set User on current segment : " + e.getMessage(), e);
 			}
