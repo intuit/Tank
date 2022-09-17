@@ -93,7 +93,6 @@
         <module>tank_common</module>
         <module>proxy-parent</module>
         <module>script_processor</module>
-        <module>mail</module>
         <module>harness_data</module>
         <module>search</module>
         <module>reporting</module>
@@ -189,7 +188,6 @@
         <module>proxy-parent</module>
         <module>script_processor</module>
         <module>tank_common</module>
-        <module>mail</module>
         <module>harness_data</module>
         <module>search</module>
         <module>reporting</module>
@@ -216,7 +214,6 @@
         <module>proxy-parent</module>
         <module>script_processor</module>
         <module>tank_common</module>
-        <module>mail</module>
         <module>harness_data</module>
         <module>search</module>
         <module>reporting</module>
@@ -633,11 +630,6 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
         <version>3.9</version>
-      </dependency>
-      <dependency>
-        <groupId>javax.mail</groupId>
-        <artifactId>javax.mail-api</artifactId>
-        <version>1.6.2</version>
       </dependency>
       <dependency>
         <groupId>de.congrace</groupId>
