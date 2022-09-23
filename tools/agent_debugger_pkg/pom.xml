@@ -62,6 +62,7 @@
 		<dependency>
 			<groupId>org.openjdk.nashorn</groupId>
 			<artifactId>nashorn-core</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 

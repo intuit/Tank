@@ -45,6 +45,7 @@ public class TestPlanStarter implements Runnable {
     private Dimension testPlan;
     private Dimension instanceId;
     private Dimension jobId;
+    private boolean standalone;
     private Date send = new Date();
     private static final int interval = 15; // SECONDS
 
@@ -68,7 +69,8 @@ public class TestPlanStarter implements Runnable {
         this.threadGroup = threadGroup;
         this.agentRunData = agentRunData;
         this.rampDelay = calcRampTime();
-        if (this.numThreads != 1) {
+        this.standalone = (this.numThreads == 1);
+        if (!this.standalone) {
             this.cloudWatchClient = CloudWatchAsyncClient.builder().build();
             this.testPlan = Dimension.builder()
                     .name("testPlan")
@@ -142,7 +144,7 @@ public class TestPlanStarter implements Runnable {
                 createThread(httpClient, this.threadsStarted);
             }
 
-            if (this.numThreads !=1 && send.before(new Date())) { // Send thread metrics every <interval> seconds
+            if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
                 Instant timestamp = new Date().toInstant();
                 List<MetricDatum> datumList = new ArrayList<>();
                 datumList.add(MetricDatum.builder()
