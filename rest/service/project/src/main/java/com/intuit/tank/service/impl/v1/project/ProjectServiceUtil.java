@@ -56,13 +56,6 @@ public class ProjectServiceUtil {
         ret.setId(p.getId());
         ret.setName(p.getName());
         ret.setProductName(p.getProductName());
-        JobConfiguration config = p.getWorkloads().get(0).getJobConfiguration();
-        for (Entry<String, String> entry : config.getVariables().entrySet()) {
-            ret.getVariables().add(new KeyPair(entry.getKey(), entry.getValue()));
-        }
-        for (Integer dataFileId : config.getDataFileIds()) {
-            ret.getDataFileIds().add(dataFileId);
-        }
         return ret;
     }
 

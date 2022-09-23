@@ -585,8 +585,10 @@ public class ActionProducer {
     }
 
     /**
-     * 
-     * @return
+     * Dialog for Tank Projects. Utilizes the project service-client. First call returns a list of  ProjectTO without
+     * variables. Once selected a second call gets the ProjectTO with variables. Third call downloads the test scripts.
+     *
+     * @return Action
      */
     public Action getOpenProjectAction() {
         Action ret = actionMap.get(ACTION_CHOOSE_PROJECT);
@@ -609,17 +611,17 @@ public class ActionProducer {
                             // get script in thread
                             new Thread( () -> {
                                 try {
-                                    String scriptXml = projectServiceClient.downloadTestScriptForProject(selected
+                                    ProjectTO project = projectServiceClient.getProjects().get(selected.getId());
+                                    String scriptXml = projectServiceClient.downloadTestScriptForProject(project
                                             .getId());
-                                    debuggerFrame.setDataFromProject(selected);
+                                    debuggerFrame.setDataFromProject(project);
                                     setFromString(scriptXml);
-                                    debuggerFrame.setCurrentTitle("Selected Project: " + selected.getName());
-                                    debuggerFrame.setScriptSource(new ScriptSource(selected.getId().toString(),
+                                    debuggerFrame.setCurrentTitle("Selected Project: " + project.getName());
+                                    debuggerFrame.setScriptSource(new ScriptSource(project.getId().toString(),
                                             SourceType.project));
                                     debuggerFrame.stopWaiting();
                                 } catch (Exception e1) {
                                     e1.printStackTrace();
-                                    debuggerFrame.stopWaiting();
                                     showError("Error downloading project: " + e1);
                                 } finally {
                                     debuggerFrame.stopWaiting();

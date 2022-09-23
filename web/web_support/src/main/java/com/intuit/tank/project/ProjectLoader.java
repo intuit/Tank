@@ -66,7 +66,7 @@ public class ProjectLoader extends EntityVersionLoader<Project, ModifiedProjectM
 
     /**
      * 
-     * @param p
+     * @param entityMsg
      */
     public void observeEvents(@Observes ModifiedEntityMessage entityMsg) {
         if (entityMsg.getEntityClass() == Project.class) {
