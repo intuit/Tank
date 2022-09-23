@@ -40,11 +40,11 @@ public class TestPlanStarter implements Runnable {
 
     private static final Logger LOG = LogManager.getLogger(TestPlanStarter.class);
 
-    private final CloudWatchAsyncClient cloudWatchClient;
+    private CloudWatchAsyncClient cloudWatchClient;
     private static final String namespace = "Intuit/Tank";
-    private final Dimension testPlan;
-    private final Dimension instanceId;
-    private final Dimension jobId;
+    private Dimension testPlan;
+    private Dimension instanceId;
+    private Dimension jobId;
     private Date send = new Date();
     private static final int interval = 15; // SECONDS
 
@@ -68,19 +68,21 @@ public class TestPlanStarter implements Runnable {
         this.threadGroup = threadGroup;
         this.agentRunData = agentRunData;
         this.rampDelay = calcRampTime();
-        this.cloudWatchClient = CloudWatchAsyncClient.builder().build();
-        this.testPlan = Dimension.builder()
-                .name("testPlan")
-                .value(plan.getTestPlanName())
-                .build();
-        this.instanceId = Dimension.builder()
-                .name("InstanceId")
-                .value(AmazonUtil.getInstanceId())
-                .build();
-        this.jobId = Dimension.builder()
-                .name("JobId")
-                .value(AmazonUtil.getJobId())
-                .build();
+        if (this.numThreads != 1) {
+            this.cloudWatchClient = CloudWatchAsyncClient.builder().build();
+            this.testPlan = Dimension.builder()
+                    .name("testPlan")
+                    .value(plan.getTestPlanName())
+                    .build();
+            this.instanceId = Dimension.builder()
+                    .name("InstanceId")
+                    .value(AmazonUtil.getInstanceId())
+                    .build();
+            this.jobId = Dimension.builder()
+                    .name("JobId")
+                    .value(AmazonUtil.getJobId())
+                    .build();
+        }
     }
 
     public void run() {
@@ -140,7 +142,7 @@ public class TestPlanStarter implements Runnable {
                 createThread(httpClient, this.threadsStarted);
             }
 
-            if (send.before(new Date())) { // Send thread metrics every <interval> seconds
+            if (this.numThreads !=1 && send.before(new Date())) { // Send thread metrics every <interval> seconds
                 Instant timestamp = new Date().toInstant();
                 List<MetricDatum> datumList = new ArrayList<>();
                 datumList.add(MetricDatum.builder()
