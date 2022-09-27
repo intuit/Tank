@@ -143,7 +143,7 @@ public class TestPlanStarter implements Runnable {
                             .filter(thread -> thread.getName() != null && thread.getName().equals("AGENT"))
                             .count();
                 } catch (SecurityException se) {
-                    LOG.error("Failure to count threads:", se);
+                    LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
                 }
 
                 if (threadsStarted < numThreads || activeCount < numThreads) {
@@ -185,7 +185,7 @@ public class TestPlanStarter implements Runnable {
             }
             done = true;
         } catch (final Throwable t) {
-            LOG.error("TestPlanStarter Unknown Error:", t);
+            LOG.error(LogUtil.getLogMessage("TestPlanStarter Unknown Error:"), t);
             throwUnchecked(t);
         }
     }
