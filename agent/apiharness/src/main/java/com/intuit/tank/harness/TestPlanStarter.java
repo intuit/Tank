@@ -47,7 +47,7 @@ public class TestPlanStarter implements Runnable {
     private Dimension jobId;
     private boolean standalone;
     private Date send = new Date();
-    private static final int interval = 15; // SECONDS
+    private static final int interval = 30; // SECONDS
 
     private final Object httpClient;
     private final HDTestPlan plan;
@@ -88,96 +88,106 @@ public class TestPlanStarter implements Runnable {
     }
 
     public void run() {
-        // start initial users
-        int numInitialUsers = agentRunData.getNumStartUsers();
-        if (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting initial " + numInitialUsers + " users for plan "
-                    + plan.getTestPlanName() + "...")));
-            while (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
-                createThread(httpClient, threadsStarted);
-            }
-        }
-
-        // start rest of users sleeping between each interval
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting ramp of additional " + (numThreads - threadsStarted)
-                + " users for plan " + plan.getTestPlanName() + "...")));
-        while (!done) {
-            if ((threadsStarted - numInitialUsers) % agentRunData.getUserInterval() == 0) {
-                try {
-                    Thread.sleep(rampDelay);
-                } catch (InterruptedException e) {
-                    LOG.error(LogUtil.getLogMessage("Error trying to wait for ramp", LogEventType.System), e);
+        try {
+            // start initial users
+            int numInitialUsers = agentRunData.getNumStartUsers();
+            if (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting initial " + numInitialUsers + " users for plan "
+                        + plan.getTestPlanName() + "...")));
+                while (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
+                    createThread(httpClient, threadsStarted);
                 }
             }
-            // Loop while in pause or pause_ramp state
-            while (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
-            		|| APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
-                if (APITestHarness.getInstance().hasMetSimulationTime()) {
-                    APITestHarness.getInstance().setCommand(AgentCommand.stop);
-                    break;
-                } else {
+
+            // start rest of users sleeping between each interval
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting ramp of additional " + (numThreads - threadsStarted)
+                    + " users for plan " + plan.getTestPlanName() + "...")));
+            while (!done) {
+                if ((threadsStarted - numInitialUsers) % agentRunData.getUserInterval() == 0) {
                     try {
-                        Thread.sleep(APITestHarness.POLL_INTERVAL);
+                        Thread.sleep(rampDelay);
                     } catch (InterruptedException e) {
-                        // ignore
+                        LOG.error(LogUtil.getLogMessage("Error trying to wait for ramp", LogEventType.System), e);
                     }
                 }
-            }
-            if ( APITestHarness.getInstance().getCmd() == AgentCommand.stop
-            		|| APITestHarness.getInstance().getCmd() == AgentCommand.kill
-                    || APITestHarness.getInstance().hasMetSimulationTime()
-                    || APITestHarness.getInstance().isDebug()
-                    || (agentRunData.getSimulationTimeMillis() == 0 //Run Until: Loops Completed
-                        && System.currentTimeMillis() - APITestHarness.getInstance().getStartTime() > agentRunData.getRampTimeMillis())) {
-                done = true;
-                break;
-            }
+                // Loop while in pause or pause_ramp state
+                while (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
+                        || APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
+                    if (APITestHarness.getInstance().hasMetSimulationTime()) {
+                        APITestHarness.getInstance().setCommand(AgentCommand.stop);
+                        break;
+                    } else {
+                        try {
+                            Thread.sleep(APITestHarness.POLL_INTERVAL);
+                        } catch (InterruptedException e) {
+                            // ignore
+                        }
+                    }
+                }
+                if ( APITestHarness.getInstance().getCmd() == AgentCommand.stop
+                        || APITestHarness.getInstance().getCmd() == AgentCommand.kill
+                        || APITestHarness.getInstance().hasMetSimulationTime()
+                        || APITestHarness.getInstance().isDebug()
+                        || (agentRunData.getSimulationTimeMillis() == 0 //Run Until: Loops Completed
+                            && System.currentTimeMillis() - APITestHarness.getInstance().getStartTime() > agentRunData.getRampTimeMillis())) {
+                    done = true;
+                    break;
+                }
 
-            Thread[] list = new Thread[this.threadGroup.activeCount()];
-            this.threadGroup.enumerate(list);
-            long activeCount = Arrays.stream(list)
-                    .filter(thread -> thread.getName().equals("AGENT"))
-                    .filter(Thread::isAlive)
-                    .count();
+                long activeCount = numThreads; //default
+                try {
+                    Thread[] list = new Thread[this.threadGroup.activeCount()];
+                    this.threadGroup.enumerate(list);
+                    activeCount = Arrays.stream(list)
+                            .filter(thread -> thread.getName().equals("AGENT"))
+                            .filter(Thread::isAlive)
+                            .count();
+                } catch (SecurityException se) {
+                    LOG.error("Failure to count threads:", se);
+                }
 
-            if (threadsStarted < numThreads || activeCount < numThreads) {
-                createThread(httpClient, this.threadsStarted);
+                if (threadsStarted < numThreads || activeCount < numThreads) {
+                    createThread(httpClient, this.threadsStarted);
+                }
+
+                if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
+                    Instant timestamp = new Date().toInstant();
+                    List<MetricDatum> datumList = new ArrayList<>();
+                    datumList.add(MetricDatum.builder()
+                            .metricName("startedThreads")
+                            .unit(StandardUnit.COUNT)
+                            .value((double) this.threadsStarted)
+                            .timestamp(timestamp)
+                            .dimensions(testPlan, instanceId, jobId)
+                            .build());
+                    datumList.add(MetricDatum.builder()
+                            .metricName("activeThreads")
+                            .unit(StandardUnit.COUNT)
+                            .value((double) activeCount)
+                            .timestamp(timestamp)
+                            .dimensions(testPlan, instanceId, jobId)
+                            .build());
+                    datumList.add(MetricDatum.builder()
+                            .metricName("targetThreads")
+                            .unit(StandardUnit.COUNT)
+                            .value((double) numThreads)
+                            .timestamp(timestamp)
+                            .dimensions(testPlan, instanceId, jobId)
+                            .build());
+                    PutMetricDataRequest request = PutMetricDataRequest.builder()
+                            .namespace(namespace)
+                            .metricData(datumList)
+                            .build();
+
+                    cloudWatchClient.putMetricData(request);
+                    send = DateUtils.addSeconds(new Date(), interval);
+                }
             }
-
-            if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
-                Instant timestamp = new Date().toInstant();
-                List<MetricDatum> datumList = new ArrayList<>();
-                datumList.add(MetricDatum.builder()
-                        .metricName("startedThreads")
-                        .unit(StandardUnit.COUNT)
-                        .value((double) this.threadsStarted)
-                        .timestamp(timestamp)
-                        .dimensions(testPlan, instanceId, jobId)
-                        .build());
-                datumList.add(MetricDatum.builder()
-                        .metricName("activeThreads")
-                        .unit(StandardUnit.COUNT)
-                        .value((double) activeCount)
-                        .timestamp(timestamp)
-                        .dimensions(testPlan, instanceId, jobId)
-                        .build());
-                datumList.add(MetricDatum.builder()
-                        .metricName("targetThreads")
-                        .unit(StandardUnit.COUNT)
-                        .value((double) numThreads)
-                        .timestamp(timestamp)
-                        .dimensions(testPlan, instanceId, jobId)
-                        .build());
-                PutMetricDataRequest request = PutMetricDataRequest.builder()
-                        .namespace(namespace)
-                        .metricData(datumList)
-                        .build();
-
-                cloudWatchClient.putMetricData(request);
-                send = DateUtils.addSeconds(new Date(), interval);
-            }
+            done = true;
+        } catch (final Throwable t) {
+            LOG.error("TestPlanStarter Unknown Error:", t);
+            throwUnchecked(t);
         }
-        done = true;
     }
 
     public int getThreadsStarted() {
@@ -216,5 +226,9 @@ public class TestPlanStarter implements Runnable {
         thread.start();
         APITestHarness.getInstance().threadStarted(thread);
         threadsStarted++;
+    }
+
+    private static <E extends RuntimeException> void throwUnchecked(Throwable t) {
+        throw (E) t;
     }
 }
