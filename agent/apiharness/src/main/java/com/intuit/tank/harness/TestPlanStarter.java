@@ -139,9 +139,8 @@ public class TestPlanStarter implements Runnable {
                     Thread[] list = new Thread[this.threadGroup.activeCount()];
                     this.threadGroup.enumerate(list);
                     activeCount = Arrays.stream(list)
-                            .filter(thread -> thread.getName() != null)
                             .filter(Thread::isAlive)
-                            .filter(thread -> thread.getName().equals("AGENT"))
+                            .filter(thread -> thread.getName() != null && thread.getName().equals("AGENT"))
                             .count();
                 } catch (SecurityException se) {
                     LOG.error("Failure to count threads:", se);
