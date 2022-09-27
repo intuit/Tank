@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class TestPlanStarter implements Runnable {
 
@@ -119,9 +120,7 @@ public class TestPlanStarter implements Runnable {
                     } else {
                         try {
                             Thread.sleep(APITestHarness.POLL_INTERVAL);
-                        } catch (InterruptedException e) {
-                            // ignore
-                        }
+                        } catch (InterruptedException ignored) { }
                     }
                 }
                 if ( APITestHarness.getInstance().getCmd() == AgentCommand.stop
@@ -139,11 +138,12 @@ public class TestPlanStarter implements Runnable {
                     Thread[] list = new Thread[this.threadGroup.activeCount()];
                     this.threadGroup.enumerate(list);
                     activeCount = Arrays.stream(list)
-                            .filter(thread -> thread.getName().equals("AGENT"))
+                            .filter(Objects::nonNull)
                             .filter(Thread::isAlive)
+                            .filter(thread -> thread.getName() != null && thread.getName().equals("AGENT"))
                             .count();
                 } catch (SecurityException se) {
-                    LOG.error("Failure to count threads:", se);
+                    LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
                 }
 
                 if (threadsStarted < numThreads || activeCount < numThreads) {
@@ -185,7 +185,7 @@ public class TestPlanStarter implements Runnable {
             }
             done = true;
         } catch (final Throwable t) {
-            LOG.error("TestPlanStarter Unknown Error:", t);
+            LOG.error(LogUtil.getLogMessage("TestPlanStarter Unknown Error:"), t);
             throwUnchecked(t);
         }
     }
