@@ -3,7 +3,6 @@
  */
 package com.intuit.tank.util;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
@@ -58,18 +57,13 @@ public final class DataFileUtil {
     public static int getNumLines(DataFile dataFile) {
         FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getDataFileStorageDir(), false);
         FileData fd = DataFileUtil.getFileData(dataFile);
-        int ret = 0;
+        int lines = 0;
         if (fileStorage.exists(fd)) {
-            try {
-                for (LineIterator iterator = IOUtils.lineIterator(fileStorage.readFileData(fd), StandardCharsets.UTF_8); iterator.hasNext(); iterator.nextLine()) {
-                    ret++;
-                }
-
-            } catch (IOException e) {
-                LOG.error("Error reading file: " + e, e);
+            for (LineIterator iterator = IOUtils.lineIterator(fileStorage.readFileData(fd), StandardCharsets.UTF_8); iterator.hasNext(); iterator.nextLine()) {
+                lines++;
             }
         }
-        return ret;
+        return lines;
     }
 
     public static FileData getFileData(DataFile df) {
