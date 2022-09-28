@@ -8,7 +8,7 @@ fi
 mkdir -p $INSTALL_DIR 2>/dev/null
 echo "Installing all in one in $INSTALL_DIR"
 echo "downloading and extracting tomcat 9..."
-wget -O /tmp/apache-tomcat.tgz http://archive.apache.org/dist/tomcat/tomcat-9/v9.0.39/bin/apache-tomcat-9.0.39.tar.gz 2>/dev/null
+wget -O /tmp/apache-tomcat.tgz http://archive.apache.org/dist/tomcat/tomcat-9/v9.0.64/bin/apache-tomcat-9.0.64.tar.gz 2>/dev/null
 tar -zxf /tmp/apache-tomcat.tgz -C $INSTALL_DIR 2>/dev/null
 rm -f /tmp/apache-tomcat.tgz 2>/dev/null
 ln -snf $INSTALL_DIR/apache-tomcat-9.0.39 $INSTALL_DIR/tomcat 2>/dev/null
@@ -16,7 +16,7 @@ mkdir $INSTALL_DIR/tomcat/db 2>/dev/null
 mkdir $INSTALL_DIR/tomcat/jars 2>/dev/null
 
 echo "downloading and extracting agent-standalone..."
-wget -O /tmp/agent-standalone-pkg.zip https://github.com/intuit/Tank/releases/download/3.1.1-SNAPSHOT/agent-standalone-pkg.zip 2>/dev/null
+wget -O /tmp/agent-standalone-pkg.zip https://github.com/intuit/Tank/releases/download/3.2.0/agent-standalone-pkg.zip 2>/dev/null
 unzip -q -d $INSTALL_DIR /tmp/agent-standalone-pkg 2>/dev/null
 rm -f /tmp/agent-standalone-pkg 2>/dev/null
 
@@ -26,7 +26,7 @@ wget -O /$INSTALL_DIR/tomcat/settings.xml https://github.com/intuit/Tank/blob/ma
 
 echo "downloading and installing tank war file..."
 rm -fr $INSTALL_DIR/tomcat/webapps/docs $INSTALL_DIR/tomcat/webapps/examples $INSTALL_DIR/tomcat/webapps/ROOT 2>/dev/null
-wget -O $INSTALL_DIR/tomcat/webapps/ROOT.war https://github.com/intuit/Tank/releases/download/3.1.1-SNAPSHOT/tank.war 2>/dev/null
+wget -O $INSTALL_DIR/tomcat/webapps/ROOT.war https://github.com/intuit/Tank/releases/download/3.2.0/tank.war 2>/dev/null
 
 echo "Creating context file at $INSTALL_DIR/start.sh ..."
 cat << EOF > $INSTALL_DIR/tomcat/conf/context.xml
