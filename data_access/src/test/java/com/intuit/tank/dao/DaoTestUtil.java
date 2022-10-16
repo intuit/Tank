@@ -218,9 +218,9 @@ public class DaoTestUtil {
      * 
      * @return the User
      */
-    public static User createUserData(String userName, String password,String email, String group) {
+    public static User createUserData(String userName, String password,String email, Set<String> string_groups) {
     	Set<Group> groups = new HashSet<Group>();
-    	groups.add(createGroupData(group));
+        string_groups.forEach(group -> groups.add(createGroupData(group)));
         return User.builder()
         		.name(userName)
         		.password(PasswordEncoder.encodePassword(password))

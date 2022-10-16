@@ -23,14 +23,16 @@ import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import javax.persistence.QueryHint;
+import javax.persistence.criteria.*;
 
+import com.intuit.tank.project.JobInstance;
+import com.intuit.tank.project.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.project.JobQueue;
+import org.hibernate.annotations.QueryHints;
 
 /**
  * ProductDao
@@ -59,16 +61,12 @@ public class JobQueueDao extends BaseDao<JobQueue> {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
             Root<JobQueue> root = query.from(JobQueue.class);
+            root.fetch(JobQueue.PROPERTY_JOBS, JoinType.INNER);
             query.select(root)
                     .where(cb.equal(root.<String>get(JobQueue.PROPERTY_PROJECT_ID), projectId));
-            List<JobQueue>results = em.createQuery(query).getResultList();
-            if (!results.isEmpty()) {
-                result = results.get(0);
-                if (results.size() > 1) {
-                    LOG.warn("Have " + results.size() + " queues for project " + projectId);
-                }
-            }
-            if (result == null) {
+            try {
+                result = em.createQuery(query).getSingleResult();
+            } catch (NoResultException e) {
                 result = new JobQueue(projectId);
                 result = saveOrUpdate(result);
             }

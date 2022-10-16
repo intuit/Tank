@@ -52,7 +52,7 @@
       <property name="current_session_context_class" value="thread" />
 
       <!-- Echo all executed SQL to stdout -->
-      <property name="show_sql" value="true" />
+      <property name="hibernate.show_sql" value="true" />
 
       <property name="org.hibernate.envers.audit_table_suffix" value="_version" />
       <property name="org.hibernate.envers.revision_field_name" value="rev" />
