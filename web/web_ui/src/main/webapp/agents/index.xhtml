@@ -178,14 +178,14 @@
                 update=":mainForm:jobTableId" />
               <p:commandButton id="btnPauseRamp" action="#{jobQueueAction.pauseRamp(node)}" value="PR"
                 title="Pause Ramp" onerror="window.location.reload()"
-                disabled="#{!node.isRampPausable() or !jobQueueManager.canControlJob(node)}" ajax="true"
+                disabled="#{!node.isRampPauseable() or !jobQueueManager.canControlJob(node)}" ajax="true"
                 update=":mainForm:jobTableId" />
               <!-- <p:commandButton id="btnPause" action="#{jobQueueAction.pause(node)}" value="P" title="Pause"
-                   onerror="window.location.reload()" disabled="#{!node.isPausable()}" ajax="true"
+                   onerror="window.location.reload()" disabled="#{!node.isPauseable()}" ajax="true"
                    update=":mainForm:jobTableId" /> -->
               <p:commandButton id="btnStop" action="#{jobQueueAction.stop(node)}" value="S" title="Stop"
                 onerror="window.location.reload()"
-                disabled="#{!node.isStopable() or !jobQueueManager.canControlJob(node)}" ajax="true"
+                disabled="#{!node.isStoppable() or !jobQueueManager.canControlJob(node)}" ajax="true"
                 update=":mainForm:jobTableId" />
               <p:commandButton id="btnDelete" action="#{jobQueueManager.deleteJobInstance(node)}" value="X"
                 onerror="window.location.reload()"

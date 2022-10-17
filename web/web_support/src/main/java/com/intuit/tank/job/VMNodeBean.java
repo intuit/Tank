@@ -87,7 +87,7 @@ public class VMNodeBean extends JobNodeBean {
     }
 
     @Override
-    public boolean isStopable() {
+    public boolean isStoppable() {
         return JobStatusHelper.canBeStopped(getStatus());
     }
 
@@ -95,12 +95,12 @@ public class VMNodeBean extends JobNodeBean {
     public boolean isRunnable() { return JobStatusHelper.canBeRun(getStatus()); }
 
     @Override
-    public boolean isPausable() {
+    public boolean isPauseable() {
         return JobStatusHelper.canBePaused(getStatus());
     }
 
     @Override
-    public boolean isRampPausable() {
+    public boolean isRampPauseable() {
         return JobStatusHelper.canRampBePaused(getStatus());
     }
 

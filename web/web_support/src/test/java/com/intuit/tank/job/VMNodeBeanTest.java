@@ -161,7 +161,7 @@ public class VMNodeBeanTest {
     }
 
     /**
-     * Run the boolean isPausable() method test.
+     * Run the boolean isPauseable() method test.
      * 
      * @throws Exception
      * 
@@ -176,7 +176,7 @@ public class VMNodeBeanTest {
         cloudVmStatus.setUserDetails(new LinkedList());
         VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
-        boolean result = fixture.isPausable();
+        boolean result = fixture.isPauseable();
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType
@@ -185,14 +185,14 @@ public class VMNodeBeanTest {
     }
 
     /**
-     * Run the boolean isRampPausable() method test.
+     * Run the boolean isRampPauseable() method test.
      * 
      * @throws Exception
      * 
      * @generatedBy CodePro at 12/15/14 3:53 PM
      */
     @Test
-    public void testIsRampPausable_1()
+    public void testisRampPauseable_1()
             throws Exception {
         CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
@@ -200,7 +200,7 @@ public class VMNodeBeanTest {
         cloudVmStatus.setUserDetails(new LinkedList());
         VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
-        boolean result = fixture.isRampPausable();
+        boolean result = fixture.isRampPauseable();
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType
@@ -233,14 +233,14 @@ public class VMNodeBeanTest {
     }
 
     /**
-     * Run the boolean isStopable() method test.
+     * Run the boolean isStoppable() method test.
      * 
      * @throws Exception
      * 
      * @generatedBy CodePro at 12/15/14 3:53 PM
      */
     @Test
-    public void testIsStopable_1()
+    public void testisStoppable_1()
             throws Exception {
         CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
@@ -248,7 +248,7 @@ public class VMNodeBeanTest {
         cloudVmStatus.setUserDetails(new LinkedList());
         VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
-        boolean result = fixture.isStopable();
+        boolean result = fixture.isStoppable();
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType

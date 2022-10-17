@@ -102,7 +102,7 @@ public class ProjectNodeBean extends JobNodeBean {
     }
 
     @Override
-    public boolean isStopable() {
+    public boolean isStoppable() {
         return false;
     }
 
@@ -112,12 +112,12 @@ public class ProjectNodeBean extends JobNodeBean {
     }
 
     @Override
-    public boolean isPausable() {
+    public boolean isPauseable() {
         return false;
     }
 
     @Override
-    public boolean isRampPausable() {
+    public boolean isRampPauseable() {
         return false;
     }
 
