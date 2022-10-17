@@ -41,6 +41,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Entity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -138,20 +139,16 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void setStatus(@Nonnull final CloudVmStatus status) {
-        Runnable task = () -> {
-            // setTraceEntity caused AlreadyEmittedException: Segment qa-tank.perf.a.intuit.com has already been emitted
-            AWSXRay.getGlobalRecorder().beginNoOpSegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
-            setStatusThread(status);
-            AWSXRay.endSegment();
-        };
+        Entity segment = AWSXRay.getGlobalRecorder().getTraceEntity();
+        Runnable task = () -> segment.run(() -> setStatusThread(status));
         EXECUTOR.execute(task);
     }
 
     private void setStatusThread(@Nonnull final CloudVmStatus status) {
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
-            CloudVmStatus curentStatus = getStatus(status.getInstanceId());
-            if (shouldUpdateStatus(curentStatus)) {
+            CloudVmStatus currentStatus = getStatus(status.getInstanceId());
+            if (shouldUpdateStatus(currentStatus)) {
                 statusMap.put(status.getInstanceId(), status);
                 if (status.getVmStatus() == VMStatus.running
                 		&& (status.getJobStatus() == JobStatus.Completed)
@@ -212,26 +209,26 @@ public class VMTrackerImpl implements VMTracker {
 
     /**
      * @param oldStatus
-     * @param jobSatatus
+     * @param jobStatus
      * @return
      */
-    private JobQueueStatus getQueueStatus(JobQueueStatus oldStatus, JobStatus jobSatatus) {
+    private JobQueueStatus getQueueStatus(JobQueueStatus oldStatus, JobStatus jobStatus) {
         try {
-            return JobQueueStatus.valueOf(jobSatatus.name());
+            return JobQueueStatus.valueOf(jobStatus.name());
         } catch (Exception e) {
-            LOG.error("Error converting status from " + jobSatatus);
+            LOG.error("Error converting status from " + jobStatus);
         }
         return oldStatus;
     }
 
     /**
      * If the vm is shutting down or terminated, don't update the status to something else.
-     * @param curentStatus
+     * @param currentStatus
      * @return
      */
-    private boolean shouldUpdateStatus(CloudVmStatus curentStatus) {
-        if (curentStatus != null) {
-            VMStatus status = curentStatus.getVmStatus();
+    private boolean shouldUpdateStatus(CloudVmStatus currentStatus) {
+        if (currentStatus != null) {
+            VMStatus status = currentStatus.getVmStatus();
             return (status != VMStatus.shutting_down
             		&& status != VMStatus.stopped
             		&& status != VMStatus.stopping
@@ -302,8 +299,7 @@ public class VMTrackerImpl implements VMTracker {
      * @param status
      * @param cloudVmStatusContainer
      **/
-    private void addStatusToJobContainer(CloudVmStatus status,
-            CloudVmStatusContainer cloudVmStatusContainer) {
+    private void addStatusToJobContainer(CloudVmStatus status, CloudVmStatusContainer cloudVmStatusContainer) {
         cloudVmStatusContainer.getStatuses().remove(status);
         cloudVmStatusContainer.getStatuses().add(status);
         cloudVmStatusContainer.calculateUserDetails();
