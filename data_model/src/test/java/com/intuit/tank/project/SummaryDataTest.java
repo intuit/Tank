@@ -989,7 +989,7 @@ public class SummaryDataTest {
 
         int result = fixture.hashCode();
 
-        assertEquals(-1883288385, result);
+        assertEquals(284549443, result);
     }
 
     /**

@@ -44,10 +44,6 @@ public class CreateInstance implements Runnable {
         this.vmTracker = vmTracker;
     }
 
-    public void setTraceEntity(Entity entity) {
-        AWSXRay.getGlobalRecorder().setTraceEntity(entity);
-    }
-
     @Override
     public void run() {
         IEnvironmentInstance environment = this.getEnvironment();

@@ -110,12 +110,10 @@ public class WorkloadScripts implements Serializable {
     public void initCurrentGroup() {
         currentScriptGroup = new ScriptGroup();
         currentScriptGroup.setLoop(1);
-        this.insertIndex = -1;
-        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-        String param = params.get("insertIndex");
-        if (param != null && NumberUtils.isCreatable(param)) {
-            insertIndex = Integer.parseInt(param);
-        }
+    }
+
+    public void setInsertIndex(int rowIndex) {
+        this.insertIndex = rowIndex;
     }
 
     /**
@@ -152,7 +150,7 @@ public class WorkloadScripts implements Serializable {
         if ("<Script Group Name>".equalsIgnoreCase(currentScriptGroup.getName())) {
             messages.error("Please give the Script Group a name.");
         } else {
-            currentTestPlan.addScriptGroupAt(currentScriptGroup, insertIndex);
+            currentTestPlan.addScriptGroupAt(currentScriptGroup, this.insertIndex);
         }
     }
 

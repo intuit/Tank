@@ -98,8 +98,7 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
     public List<Project> getEntityList(ViewFilterType viewFilter) {
         VersionContainer<Project> container = projectLoader.getVersionContainer(viewFilter);
         this.version = container.getVersion();
-        List<Project> all = new ProjectDao().findFiltered(viewFilter);
-        return all;
+        return new ProjectDao().findFiltered(viewFilter);
     }
 
     /**

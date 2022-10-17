@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>tank-parent-doc</artifactId>
-    <version>3.1.1-SNAPSHOT</version>
+    <version>3.2.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>tank-user-guide</artifactId>
@@ -39,7 +39,6 @@
         <plugin>
           <groupId>org.jboss.maven.plugins</groupId>
           <artifactId>maven-jdocbook-plugin</artifactId>
-          <version>2.3.10</version>
           <extensions>true</extensions>
           <configuration>
             <sourceDirectory>${project.basedir}</sourceDirectory>
@@ -83,7 +82,6 @@
                   <pluginExecutionFilter>
                     <groupId>org.jboss.maven.plugins</groupId>
                     <artifactId>maven-jdocbook-plugin</artifactId>
-                    <versionRange>[2.3.10,)</versionRange>
                     <goals>
                       <goal>resources</goal>
                       <goal>generate</goal>

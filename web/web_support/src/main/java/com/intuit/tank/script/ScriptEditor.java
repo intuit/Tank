@@ -15,11 +15,7 @@ package com.intuit.tank.script;
 
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Conversation;
@@ -537,7 +533,6 @@ public class ScriptEditor implements Serializable {
         steps.add(getInsertIndex(), thinkTimeScriptStep);
         minThinkTime = "";
         maxThinkTime = "";
-        reindexScriptSteps();
     }
 
     /**
@@ -548,7 +543,6 @@ public class ScriptEditor implements Serializable {
                 .createSleepTime(getSleepTime());
         steps.add(getInsertIndex(), sleepTimeScriptStep);
         sleepTime = "";
-        reindexScriptSteps();
     }
 
     /**
@@ -560,7 +554,6 @@ public class ScriptEditor implements Serializable {
         steps.add(getInsertIndex(), variableStep);
         variableKey = "";
         variableValue = "";
-        reindexScriptSteps();
     }
 
     /**
@@ -586,7 +579,14 @@ public class ScriptEditor implements Serializable {
         }
         steps.remove(step);
         searchBean.removeFromSearchMatch(step);
-        reindexScriptSteps();
+
+        // for all steps: when the current step index is greater than deleted steps' index
+        // shift all step indexes down by one
+        for (ScriptStep sstep : steps) {
+            if (sstep.getStepIndex() > step.getStepIndex()) {
+                sstep.setStepIndex(sstep.getStepIndex() - 1);
+            }
+        }
     }
 
     /**
@@ -763,15 +763,17 @@ public class ScriptEditor implements Serializable {
         ScriptUtil.updateStepLabel(step);
         this.steps.add(getInsertIndex(), step);
         clearOrderList();
-        reindexScriptSteps();
+        step.setStepIndex(steps.indexOf(step));
+        ScriptUtil.setScriptStepLabels(this.script);
     }
 
     private int getInsertIndex() {
         int ret = steps.size();
         if (!selectedSteps.isEmpty()) {
-            for (ScriptStep s : selectedSteps) {
-                ret = Math.min(ret, steps.indexOf(s));
-            }
+            // Get the first selected step, find its index, and return index right before
+            Collections.sort(selectedSteps, Comparator.comparing(ScriptStep::getStepIndex));
+            ScriptStep firstSelectedStep = selectedSteps.get(0);
+            ret = Math.min(ret, steps.indexOf(firstSelectedStep));
         }
         return ret;
     }
@@ -780,7 +782,7 @@ public class ScriptEditor implements Serializable {
         ScriptUtil.updateStepLabel(step);
         steps.add(index, step);
         clearOrderList();
-        reindexScriptSteps();
+        step.setStepIndex(index);
     }
 
     /**

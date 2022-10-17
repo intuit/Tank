@@ -3,7 +3,7 @@
 [![Build Status](https://api.travis-ci.com/intuit/Tank.svg?branch=master)](https://app.travis-ci.com/intuit/Tank)
 ![Build Status](https://codebuild.us-east-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiT1Nuc1prblk5Y0E3a05mRjF0QUtBblI0Rk1zTjZyZi9NMWNCaFg4cGlzL1dFN0xVMHgzcGt1ZCtBdFZjNWpMRkhXbGN2T1ZKSmpZbGQ3YjhyaWkzdkJBPSIsIml2UGFyYW1ldGVyU3BlYyI6IlpGbU5vTHM2cHQrbUowOVkiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 [![GitHub release](https://img.shields.io/github/release/intuit/tank.svg)](https://github.com/intuit/Tank/releases)
-[![java](https://img.shields.io/badge/java-11-blue.svg)](https://aws.amazon.com/corretto/)
+[![java](https://img.shields.io/badge/java-11%20%7C%2017-blue.svg)](https://aws.amazon.com/corretto/)
 [![tomcat](https://img.shields.io/badge/tomcat-8%20%7C%208.5%20%7C%209-blue.svg)](http://tomcat.apache.org/)
 # Intuit Tank
 
@@ -15,6 +15,9 @@ The Controller is the central hub in the deployment. It supports the GUI for man
 It exposes a RESTful interface for invoking services. Data is stored in a MySql database, on the file system, and reporting metrics can be stored in CloudWatch Metrics, S3, DynamoDB or Wavefront.
 
 Agents are instantiated on demand and exist for the duration of a test. They communicate with the controller via RESTful interfaces.
+
+## Documentation
+You can find all the Documentation for Tank at [Tank Documentation](https://intuit.github.io/Tank/) 
 
 ## Building Intuit Tank
 Intuit Tank uses Maven and should be able to be built using public repositories. 

@@ -734,7 +734,7 @@ public class AgentDebuggerFrame extends JFrame {
         Runnable task = () -> {
             fireStepChanged(-1);
             if (!steps.isEmpty()) {
-                steps.stream().forEach(DebugStep::clear);
+                steps.forEach(DebugStep::clear);
                 setCurrentStep(-1);
                 for (GutterIconInfo gi : scriptEditorScrollPane.getGutter().getAllTrackingIcons()) {
                     if (gi.getIcon() == errorIcon) {

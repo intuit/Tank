@@ -69,7 +69,6 @@ import com.intuit.tank.reporting.api.ResultsReader;
 import com.intuit.tank.reporting.api.TPSInfo;
 import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.util.ExceptionHandler;
-import com.intuit.tank.vm.common.util.MethodTimer;
 
 /**
  * JobTreeTableBean
@@ -285,8 +284,7 @@ public abstract class JobTreeTableBean implements Serializable {
 
     private void initializeTpsModel() {
         LOG.info("Initializing TPS chart model...");
-
-        MethodTimer mt = new MethodTimer(LOG, getClass(), "initializeTpsModel");
+        AWSXRay.beginSubsegment("Initialize TpsModel");
         tpsChartModel = null;
         if (currentJobInstance != null) {
             Set<String> keySet = new HashSet<String>();
@@ -302,7 +300,6 @@ public abstract class JobTreeTableBean implements Serializable {
             tpsChartModel.setExtender("tpsDetailsExtender");
             Map<String, ChartSeries> seriesMap = new HashMap<String, ChartSeries>();
             Map<Date, Map<String, TPSInfo>> tpsDetailMap = getTpsMap();
-            mt.markAndLog("get tpsMap from DynamoDb");
             List<Date> dateList = new ArrayList<Date>(tpsDetailMap.keySet());
             Collections.sort(dateList);
 //            if (dateList.size() > 0) {
@@ -339,7 +336,7 @@ public abstract class JobTreeTableBean implements Serializable {
         } else {
             LOG.info("currentJobInstance is null");
         }
-        mt.endAndLog();
+        AWSXRay.endSubsegment();
     }
 
     private Map<Date, Map<String, TPSInfo>> getTpsMap() {
@@ -447,7 +444,7 @@ public abstract class JobTreeTableBean implements Serializable {
         return rootNode;
     }
 
-    private void refreshCurrentJobInstance(TreeNode rootNode2) {
+    private void refreshCurrentJobInstance(TreeNode<TreeNode> rootNode2) {
         JobNodeBean currJob = getCurrentJobInstance();
         if (currJob != null && currJob.equals(rootNode2.getData())) {
             setCurrentJobInstance((JobNodeBean) rootNode2.getData());
@@ -459,7 +456,7 @@ public abstract class JobTreeTableBean implements Serializable {
         }
     }
 
-    private void updateExpansionStatus(TreeNode rootNode2) {
+    private void updateExpansionStatus(TreeNode<TreeNode> rootNode2) {
         for (TreeNode node : rootNode2.getChildren()) {
             updateExpansionStatus(node);
             if (node.getData() != null) {
@@ -474,17 +471,14 @@ public abstract class JobTreeTableBean implements Serializable {
 
     private void buildTree() {
         AWSXRay.beginSubsegment("Build.Tree");
-        MethodTimer mt = new MethodTimer(LOG, this.getClass(), "buildTree");
         Integer rootJob = getRootJobId();
         Set<String> trackerJobs = getTrackerJobIds();
-        mt.markAndLog("get tracker jobs");
         Map<Integer, TreeNode> jobNodeMap = new HashMap<Integer, TreeNode>();
         if (rootJob == null || rootJob == 0) {
             AWSXRay.beginSubsegment("Build.Tree.findRecent");
             Date dateMinus1Week = DateUtils.addWeeks(new Date(),-1);
             List<JobQueue> queuedJobs = jobQueueDao.findRecent(dateMinus1Week);
             AWSXRay.endSubsegment();
-            mt.markAndLog("find all active jobs");
             rootNode = new DefaultTreeNode("root", null);
             for (JobQueue jobQueue : queuedJobs) {
                 TreeNode projectNode = createJobNode(trackerJobs, jobQueue);
@@ -494,7 +488,6 @@ public abstract class JobTreeTableBean implements Serializable {
                     rootNode.getChildren().add(projectNode);
                 }
             }
-            mt.markAndLog("Added all queued Jobs");
             if (!trackerJobs.isEmpty()) {
                 TreeNode unknownNode = new DefaultTreeNode(new ProjectNodeBean("unknown"), null);
                 for (String id : trackerJobs) {// left over nodes that the tracker is tracking
@@ -505,13 +498,11 @@ public abstract class JobTreeTableBean implements Serializable {
                     unknownNode.setParent(rootNode);
                     rootNode.getChildren().add(unknownNode);
                 }
-                mt.markAndLog("Added all unknown Jobs");
             }
         } else {
             JobQueue jobQueue = jobQueueDao.findOrCreateForProjectId(rootJob);
             rootNode = createJobNode(trackerJobs, jobQueue);
         }
-        mt.endAndLog();
         AWSXRay.endSubsegment();
     }
 
@@ -563,17 +554,14 @@ public abstract class JobTreeTableBean implements Serializable {
      */
     private TreeNode createJobNode(Set<String> trackerJobs, JobQueue jobQueue) {
         AWSXRay.beginSubsegment("Create.JobNode.ProjectId." + jobQueue.getProjectId());
-        MethodTimer mt = new MethodTimer(LOG, getClass(), "createJobNode for project " + jobQueue.getProjectId());
         TreeNode projectNode = null;
         Project p = projectDao.findById(jobQueue.getProjectId());
-        // mt.markAndLog("getProject");
         if (p != null) {
             // Map<Date, Map<String, TPSInfo>> totalTPSDetails = new HashMap<Date, Map<String, TPSInfo>>();
             ProjectNodeBean pnb = new ProjectNodeBean(p);
             boolean hasRights = security.isOwner(p);
             projectNode = new DefaultTreeNode(pnb, null);
             List<JobInstance> jobs = new ArrayList<>(jobQueue.getJobs());
-            // mt.markAndLog("get jobs");
             jobs.sort(new PropertyComparer<JobInstance>(JobInstance.PROPERTY_ID, SortOrder.DESCENDING));
             int projectActive = 0;
             int projectTotal = 0;
@@ -622,7 +610,6 @@ public abstract class JobTreeTableBean implements Serializable {
                 }
             }
             pnb.setActiveUsers(Integer.toString(projectActive));
-            // mt.markAndLog("processed job instances.");
 
             pnb.setTotalUsers(Integer.toString(projectTotal));
             // pnb.setTpsDetailMap(totalTPSDetails);
@@ -636,7 +623,6 @@ public abstract class JobTreeTableBean implements Serializable {
             }
             pnb.reCalculate();
         }
-        mt.endAndLog();
         AWSXRay.endSubsegment();
         return projectNode;
     }

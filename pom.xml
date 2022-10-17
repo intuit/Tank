@@ -4,7 +4,7 @@
 
   <groupId>com.intuit.tank</groupId>
   <artifactId>tank-parent</artifactId>
-  <version>3.1.1-SNAPSHOT</version>
+  <version>3.2.1-SNAPSHOT</version>
 
   <packaging>pom</packaging>
   <name>Tank Parent</name>
@@ -27,33 +27,34 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>5.5.3.Final</version.hibernate>
-    <version.aws-sdk-bom>2.16.95</version.aws-sdk-bom>
-    <version.aws-xray-sdk-bom>2.9.1</version.aws-xray-sdk-bom>
+    <version.hibernate>5.6.12.Final</version.hibernate>
+    <version.software.amazon.awssdk>2.17.282</version.software.amazon.awssdk>
+    <version.aws-xray-sdk-bom>2.11.2</version.aws-xray-sdk-bom>
 
-    <version-tomcat>9.0.46</version-tomcat>
-    <weld.version>3.1.7.SP1</weld.version>
+    <version-tomcat>9.0.67</version-tomcat>
+    <weld.version>3.1.9.Final</weld.version>
     <cdi.version>2.0</cdi.version>
 
-    <version.enunciate>2.13.3</version.enunciate>
+    <version.enunciate>2.14.0</version.enunciate>
 
     <version.faces>2.3.9</version.faces>
-    <version.primefaces>10.0.0</version.primefaces>
-    <version.primefaces-ext>10.0.4</version.primefaces-ext>
+    <version.primefaces>11.0.0</version.primefaces>
+    <version.primefaces-ext>11.0.6</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.22.2</version.surefire>
-    <version.jersey>2.34</version.jersey>
-    <version.junit>5.7.2</version.junit>
+    <version.jersey>2.37</version.jersey>
+    <version.junit>5.9.1</version.junit>
+    <version.mockito>4.3.1</version.mockito>
     <version.httpclient>4.5.13</version.httpclient>
-    <version.httpclient5>5.1</version.httpclient5>
-    <version.lucene>8.8.2</version.lucene>
+    <version.httpclient5>5.1.3</version.httpclient5>
+    <version.lucene>8.11.2</version.lucene>
     <version.jaxb>2.3.3</version.jaxb>
 
-    <version.groovy>2.4.20</version.groovy>
+    <version.groovy>2.4.21</version.groovy>
     <version.spock>1.3-groovy-2.5</version.spock>
 
     <!-- maven-compiler-plugin -->
-    <version.compiler.plugin>3.8.1</version.compiler.plugin>
+    <version.compiler.plugin>3.10.1</version.compiler.plugin>
     <maven.jdk.target>11</maven.jdk.target>
   </properties>
 
@@ -244,7 +245,7 @@
           <dependency>
             <groupId>org.jboss</groupId>
             <artifactId>jandex</artifactId>
-            <version>2.3.0.Final</version>
+            <version>2.4.3.Final</version>
             <scope>provided</scope>
           </dependency>
         </dependencies>
@@ -287,7 +288,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>test-support</artifactId>
-      <version>3.1.1-SNAPSHOT</version>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -296,7 +297,11 @@
       <artifactId>mockito-inline</artifactId>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.jboss.weld</groupId>
       <artifactId>weld-junit5</artifactId>
@@ -350,7 +355,7 @@
       <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
-        <version>8.0.23</version>
+        <version>8.0.30</version>
       </dependency>
 
       <dependency>
@@ -487,7 +492,7 @@
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jandex</artifactId>
-        <version>2.3.0.Final</version>
+        <version>2.4.3.Final</version>
       </dependency>
 
       <dependency>
@@ -505,7 +510,7 @@
       <dependency>
         <groupId>commons-cli</groupId>
         <artifactId>commons-cli</artifactId>
-        <version>1.4</version>
+        <version>1.5.0</version>
       </dependency>
 
       <dependency>
@@ -541,7 +546,7 @@
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-core</artifactId>
-        <version>2.14.1</version>
+        <version>2.19.0</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
@@ -564,7 +569,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-jexl3</artifactId>
-        <version>3.1</version>
+        <version>3.2.1</version>
       </dependency>
 
       <dependency>
@@ -622,12 +627,12 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.7</version>
+        <version>2.11.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-        <version>3.9</version>
+        <version>3.12.0</version>
       </dependency>
       <dependency>
         <groupId>javax.mail</groupId>
@@ -653,7 +658,7 @@
       <dependency>
         <groupId>software.amazon.awssdk</groupId>
         <artifactId>bom</artifactId>
-        <version>${version.aws-sdk-bom}</version>
+        <version>${version.software.amazon.awssdk}</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
@@ -666,6 +671,11 @@
         <type>pom</type>
       </dependency>
       <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.13.4</version>
+      </dependency>
+      <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
         <version>20190722</version>
@@ -673,7 +683,7 @@
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.14</version>
+        <version>1.15</version>
       </dependency>
       <dependency>
         <groupId>xalan</groupId>
@@ -753,19 +763,25 @@
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-inline</artifactId>
-        <version>3.9.0</version>
+        <version>${version.mockito}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${version.mockito}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjrt</artifactId>
-        <version>1.9.4</version>
+        <version>1.9.9.1</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
-        <version>1.9.4</version>
+        <version>1.9.9.1</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -796,6 +812,18 @@
         <version>${version.jaxb}</version>
         <scope>runtime</scope>
       </dependency>
+      <dependency>
+        <groupId>org.openjdk.nashorn</groupId>
+        <artifactId>nashorn-core</artifactId>
+        <version>15.4</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet.jsp.jstl</groupId>
+        <artifactId>jstl-api</artifactId>
+        <version>1.2</version>
+        <scope>runtime</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -806,6 +834,11 @@
 
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.8.2</version>
+        </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -816,7 +849,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-clean-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.2.0</version>
         </plugin>
 
         <plugin>
@@ -834,13 +867,13 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.3.0</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>3.3.1</version>
+          <version>3.3.2</version>
         </plugin>
 
         <plugin>
@@ -929,7 +962,7 @@
             <dependency>
               <groupId>${project.groupId}</groupId>
               <artifactId>test-support</artifactId>
-              <version>3.1.1-SNAPSHOT</version>
+              <version>3.2.1-SNAPSHOT</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -977,13 +1010,13 @@
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.7</version>
+          <version>0.8.8</version>
         </plugin>
 
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
-          <version>2.8.1</version>
+          <version>2.11.0</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -1041,12 +1074,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.9.1</version>
+        <version>3.12.0</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>3.2.2</version>
         <configuration>
           <archive>
             <manifest>
@@ -1126,14 +1159,12 @@
     </repository>
     <repository>
       <id>jboss-public-repository-group</id>
-      <name>JBoss
-        Public Maven Repository Group</name>
+      <name>JBoss Public Maven Repository Group</name>
       <url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
     </repository>
     <repository>
       <id>thirdparty-releases</id>
-      <name>JBoss Thirdparty
-        Releases</name>
+      <name>JBoss Thirdparty Releases</name>
       <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
     </repository>
     <repository>
@@ -1162,9 +1193,9 @@
       <layout>default</layout>
     </pluginRepository>
     <pluginRepository>
-      <id>Maven Central 2 plugins</id>
-      <name>Central</name>
-      <url>https://repo2.maven.org/maven2</url>
+      <id>jboss-public-repository-group</id>
+      <name>JBoss Public Maven Repository Group</name>
+      <url>https://repository.jboss.org/nexus/content/groups/public/</url>
       <layout>default</layout>
     </pluginRepository>
   </pluginRepositories>

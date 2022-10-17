@@ -31,6 +31,8 @@ import com.intuit.tank.vmManager.environment.CreateInstance;
 import com.intuit.tank.vmManager.environment.JobRequest;
 import com.intuit.tank.vmManager.environment.KillInstance;
 
+import java.util.Objects;
+
 /**
  * 
  * VmMessageProcessorImpl
@@ -44,9 +46,6 @@ public class VmMessageProcessorImpl implements VmMessageProcessor {
     static Logger logger = LogManager.getLogger(VmMessageProcessorImpl.class);
 
     @Inject
-    private VMQueue vmQueue;
-
-    @Inject
     private VMTracker vmTracker;
 
     /**
@@ -57,17 +56,14 @@ public class VmMessageProcessorImpl implements VmMessageProcessor {
         if (messageObject instanceof VMInstanceRequest) {
             logger.debug("vmManager received VMInstanceRequest");
             CreateInstance instance = new CreateInstance((VMInstanceRequest) messageObject, vmTracker);
-            instance.setTraceEntity(AWSXRay.getGlobalRecorder().getTraceEntity());
-            instance.run();
+            Objects.requireNonNull(AWSXRay.getGlobalRecorder().getTraceEntity()).run(instance);
         } else if (messageObject instanceof VMJobRequest) {
             JobRequest instance = new JobRequest((VMJobRequest) messageObject, vmTracker);
-            instance.setTraceEntity(AWSXRay.getGlobalRecorder().getTraceEntity());
-            instance.run();
+            Objects.requireNonNull(AWSXRay.getGlobalRecorder().getTraceEntity()).run(instance);
         } else if (messageObject instanceof VMKillRequest) {
             logger.debug("vmManager received VMKillRequest");
             KillInstance instance = new KillInstance((VMKillRequest) messageObject);
-            instance.setTraceEntity(AWSXRay.getGlobalRecorder().getTraceEntity());
-            vmQueue.execute(instance);
+            Objects.requireNonNull(AWSXRay.getGlobalRecorder().getTraceEntity()).run(instance);
         } else if (messageObject instanceof VMUpdateStateRequest) {
             logger.debug("vmManager received VMUpdateStateRequest");
             // UpdateInstances instance = new UpdateInstances((VMUpdateStateRequest) messageObject);

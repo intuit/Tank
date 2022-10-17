@@ -19,8 +19,7 @@ package com.intuit.tank.dao;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.zip.GZIPOutputStream;
 
 import javax.annotation.Nonnull;
@@ -168,8 +167,6 @@ public class ScriptDao extends BaseDao<Script> {
     public Script saveOrUpdate(Script script) {
         MethodTimer mt = new MethodTimer(LOG, getClass(), "saveOrUpdate").start();
         int size = script.getScriptSteps().size();
-        ScriptUtil.setScriptStepLabels(script);
-        // try {
         LOG.info("persisting script " + script.getName() + " with id " + script.getId()
                 + " into database");
         EntityManager em = getEntityManager();
@@ -208,7 +205,10 @@ public class ScriptDao extends BaseDao<Script> {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              GZIPOutputStream gz = new GZIPOutputStream(bos);
              ObjectOutputStream s = new ObjectOutputStream(gz) ) {
-            s.writeObject(script.getScriptSteps());
+            // Sort steps by copying to new array, then save steps
+            List<ScriptStep> steps = new ArrayList<>(script.getScriptSteps());
+            Collections.sort(steps, Comparator.comparing(ScriptStep::getStepIndex));
+            s.writeObject(steps);
             s.close(); //Necessary to get the last few bites written
             if ( serializedScriptStep != null) {
                 serializedScriptStep.setBytes(bos.toByteArray());

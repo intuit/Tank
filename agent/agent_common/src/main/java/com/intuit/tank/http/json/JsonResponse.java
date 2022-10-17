@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.intuit.tank.http.BaseResponse;
@@ -63,7 +64,7 @@ public class JsonResponse extends BaseResponse {
                 JSONObject jsonResponse = new JSONObject(this.response);
                 return (String) jsonResponse.get(key);
             }
-        } catch (Exception e) { }
+        } catch (NumberFormatException | JSONException ignored) { }
         try {
             if (this.jsonMap == null) {
                 initialize();
@@ -72,9 +73,7 @@ public class JsonResponse extends BaseResponse {
             // note that indexing is 1 based not zero based
             JXPathContext context = JXPathContext.newContext(this.jsonMap);
             String output = URLDecoder.decode(String.valueOf(context.getValue(keyTrans)), StandardCharsets.UTF_8);
-            if (output.equalsIgnoreCase("null"))
-                return "";
-            return output;
+            return (output.equalsIgnoreCase("null")) ? "" : output;
         } catch (Exception ex) {
             return "";
         }
@@ -82,8 +81,7 @@ public class JsonResponse extends BaseResponse {
 
     private String cleanString(String input) {
         try {
-            String output = StringUtils.remove(input.trim(), "@");
-            return StringUtils.remove(output,"(\r\n)+");
+            return StringUtils.remove(input.trim(),"(\r\n)+");
         } catch (Exception ex) {
             return input;
         }

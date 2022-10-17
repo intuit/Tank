@@ -1,6 +1,5 @@
 package com.intuit.tank.auth;
 
-import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.Group;
 import com.intuit.tank.project.User;
@@ -44,7 +43,6 @@ public class TankIdentityStore implements IdentityStore {
         LOG.info("Attempting to login " + login.getCaller());
         User user = new UserDao().authenticate(login.getCaller(), login.getPasswordAsString());
         if (user != null) {
-            AWSXRay.getCurrentSegment().setUser(user.getName());
             List<String> userRoles = new ArrayList<>();
             for (Group g : user.getGroups()) {
                 userRoles.add(g.getName());
@@ -59,8 +57,6 @@ public class TankIdentityStore implements IdentityStore {
 
     public CredentialValidationResult validateSSOUser(User user) {
         try {
-            AWSXRay.getCurrentSegment().setUser(user.getName());
-
             List<String> userRoles = new ArrayList<>();
             for (Group g : user.getGroups()) {
                 userRoles.add(g.getName());
