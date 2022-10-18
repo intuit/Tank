@@ -13,9 +13,6 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,6 +20,8 @@ import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobQueue;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>JobQueueTest</code> contains tests for the class <code>{@link JobQueue}</code>.
@@ -38,7 +37,7 @@ public class JobQueueTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
-    public void testJobQueue_1()
+    public void test_JobQueue_empty()
         throws Exception {
 
         JobQueue result = new JobQueue();
@@ -46,8 +45,8 @@ public class JobQueueTest {
         assertNotNull(result);
         assertEquals(0, result.getProjectId());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -58,7 +57,7 @@ public class JobQueueTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
-    public void testJobQueue_2()
+    public void test_JobQueue_projectId()
         throws Exception {
         int projectId = 1;
 
@@ -67,8 +66,8 @@ public class JobQueueTest {
         assertNotNull(result);
         assertEquals(1, result.getProjectId());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -79,10 +78,12 @@ public class JobQueueTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
-    public void testAddJob_1()
+    public void test_setJobs_empty()
         throws Exception {
         JobQueue fixture = new JobQueue(1);
         fixture.setJobs(new HashSet());
+
+        assertEquals(0, fixture.getJobs().size());
     }
 
     /**
@@ -93,15 +94,13 @@ public class JobQueueTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
-    public void testEquals_1()
+    public void test_NOT_Equals()
         throws Exception {
         JobQueue fixture = new JobQueue(1);
         fixture.setJobs(new HashSet());
         Object obj = new Object();
 
-        boolean result = fixture.equals(obj);
-
-        assertEquals(false, result);
+        assertFalse(fixture.equals(obj));
     }
 
     /**
@@ -112,34 +111,13 @@ public class JobQueueTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
-    public void testEquals_2()
+    public void test_Equals()
         throws Exception {
         JobQueue fixture = new JobQueue(1);
         fixture.setJobs(new HashSet());
         Object obj = new JobQueue();
 
-        boolean result = fixture.equals(obj);
-
-        assertEquals(true, result);
-    }
-
-    /**
-     * Run the boolean equals(Object) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 1:34 PM
-     */
-    @Test
-    public void testEquals_3()
-        throws Exception {
-        JobQueue fixture = new JobQueue(1);
-        fixture.setJobs(new HashSet());
-        Object obj = new JobQueue();
-
-        boolean result = fixture.equals(obj);
-
-        assertEquals(true, result);
+        assertTrue(fixture.equals(obj));
     }
 
     /**
@@ -153,12 +131,22 @@ public class JobQueueTest {
     public void testGetJobs_1()
         throws Exception {
         JobQueue fixture = new JobQueue(1);
-        fixture.setJobs(new HashSet());
+        fixture.addJob(new JobInstance(Workload.builder().build(), "TEST"));
 
         Set<JobInstance> result = fixture.getJobs();
 
         assertNotNull(result);
-        assertEquals(0, result.size());
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testGetJobs_2()
+            throws Exception {
+        JobQueue fixture = new JobQueue(1);
+
+        fixture.addJob(new JobInstance(Workload.builder().build(), "TEST"));
+
+        assertEquals(1, fixture.getJobs().size());
     }
 
     /**
@@ -192,9 +180,7 @@ public class JobQueueTest {
         JobQueue fixture = new JobQueue(1);
         fixture.setJobs(new HashSet());
 
-        int result = fixture.hashCode();
-
-        assertEquals(1305, result);
+        assertEquals(1305, fixture.hashCode());
     }
 
     /**
@@ -208,10 +194,12 @@ public class JobQueueTest {
     public void testSetJobs_1()
         throws Exception {
         JobQueue fixture = new JobQueue(1);
-        fixture.setJobs(new HashSet());
         Set<JobInstance> jobs = new HashSet();
+        jobs.add(new JobInstance(Workload.builder().name("TEST").build(), "TEST"));
 
         fixture.setJobs(jobs);
+
+        assertEquals(1, fixture.getJobs().size());
 
     }
 
@@ -225,9 +213,10 @@ public class JobQueueTest {
     @Test
     public void testSetProjectId_1()
         throws Exception {
-        JobQueue fixture = new JobQueue(1);
-        fixture.setJobs(new HashSet());
         int projectId = 1;
+        JobQueue fixture = new JobQueue(projectId);
+        fixture.setJobs(new HashSet());
+
 
         fixture.setProjectId(projectId);
 

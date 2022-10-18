@@ -57,7 +57,7 @@ public class JobQueue extends BaseEntity {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "test_instance_jobs", joinColumns = @JoinColumn(name = "test_id"),
             inverseJoinColumns = @JoinColumn(name = "job_id"))
-    @BatchSize(size=100)
+    @BatchSize(size=10)
     private Set<JobInstance> jobs = new HashSet<JobInstance>();
 
     /**

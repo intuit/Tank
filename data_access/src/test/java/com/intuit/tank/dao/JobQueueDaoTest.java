@@ -4,11 +4,12 @@
 package com.intuit.tank.dao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
+import com.intuit.tank.project.*;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.test.TestGroups;
 
 /**
@@ -43,14 +43,57 @@ public class JobQueueDaoTest {
     @Tag(TestGroups.FUNCTIONAL)
     public void testFindJobQueues() throws Exception {
         JobQueue queue = dao.findOrCreateForProjectId(1);
-        assertEquals(1, queue.getId());
-        JobQueue queue1 = dao.findForJobId(2);
-        assertEquals(null, queue1);
+        assertEquals(1, queue.getProjectId());
+
+        assertNull(dao.findForJobId(2));
+
         List<JobQueue> queue2 = dao.getForProjectIds(Arrays.asList(1,2,3));
         assertEquals(1, queue2.size());
+
         List<JobQueue> recentQueues = dao.findRecent(new Date());
         assertEquals(0, recentQueues.size());
 
+        dao.delete(queue);
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void test_findOrCreateForProjectId() {
+        // Arrange
+        int projectId = 1;
+
+        // Act
+        JobQueue queue = dao.findOrCreateForProjectId(projectId);
+
+        // Assert
+        assertEquals(1, queue.getProjectId());
+
+        // Cleanup
+        dao.delete(queue);
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void test_lookupJobs() {
+        // Arrange
+        JobQueue queue = dao.findOrCreateForProjectId(1);
+
+        // Act
+        assertEquals(0, queue.getJobs().size());
+        Set<JobRegion> jobRegion = Collections.singleton(JobRegion.builder().region(VMRegion.US_EAST_2).build());
+        JobConfiguration jobConfiguration = JobConfiguration.builder().jobRegion(jobRegion).build();
+        Workload workload = Workload.builder().name("TEST_WORKLOAD").jobConfiguration(jobConfiguration).build();
+        queue.addJob(new JobInstance(workload, "TEST"));
+        dao.saveOrUpdate(queue);
+
+        JobQueue jobQueue = dao.findOrCreateForProjectId(1);
+
+        // Assert
+        assertEquals(1, jobQueue.getProjectId());
+        assertEquals(1, jobQueue.getJobs().size());
+
+        //Cleanup
+        dao.delete(jobQueue);
     }
 
 }

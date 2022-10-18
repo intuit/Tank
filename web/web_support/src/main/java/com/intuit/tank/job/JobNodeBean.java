@@ -322,13 +322,13 @@ public abstract class JobNodeBean implements Serializable {
 
     public abstract boolean isKillable();
 
-    public abstract boolean isStopable();
+    public abstract boolean isStoppable();
 
     public abstract boolean isRunnable();
 
-    public abstract boolean isPausable();
+    public abstract boolean isPauseable();
 
-    public abstract boolean isRampPausable();
+    public abstract boolean isRampPauseable();
 
     public abstract boolean isDeletable();
 

@@ -57,6 +57,7 @@ public class JobInstance extends BaseJob {
     public static final String PROPERTY_STATUS = "status";
     public static final String PROPERTY_START_TIME = "startTime";
     public static final String PROPERTY_END_TIME = "endTime";
+    public static final String PROPERTY_VM_INSTANCES = "vmInstances";
 
     @Column(name = "workload_id")
     private int workloadId;

@@ -24,6 +24,10 @@ import org.junit.jupiter.api.Test;
 import com.intuit.tank.project.User;
 import com.intuit.tank.test.TestGroups;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -48,7 +52,7 @@ public class UserDaoTest {
 	@Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testUserDao() throws Exception {
-		User entity = DaoTestUtil.createUserData(userNameStub, userPasswordStub, userEmailStub, userGroupStub);
+		User entity = DaoTestUtil.createUserData(userNameStub, userPasswordStub, userEmailStub, Collections.singleton(userGroupStub));
 		entity = _sut.saveOrUpdate(entity);
 		
 		//Authenticate user with valid credentials
@@ -83,6 +87,19 @@ public class UserDaoTest {
 		result = _sut.findByEmail("invalid_email@intuit.com");
 		assertNull(result);
 		
+		_sut.delete(entity);
+	}
+
+	@Test
+	@Tag(TestGroups.FUNCTIONAL)
+	public void testUserDao_withGroups() throws Exception {
+		User entity = DaoTestUtil.createUserData(userNameStub, userPasswordStub, userEmailStub, new HashSet<>(Arrays.asList("Group1", "Group2", "Group3")));
+		entity = _sut.saveOrUpdate(entity);
+
+		//Find user by valid username
+		User result = _sut.findByUserName(userNameStub);
+		assertEquals(3, result.getGroups().size());
+
 		_sut.delete(entity);
 	}
 
