@@ -207,7 +207,7 @@ public class JobManager implements Serializable {
             for (CompletableFuture<?> future : futures) {
                 HttpResponse response = (HttpResponse) future.get();
                 if (response != null) {
-                    LOG.error("Start Command to " + response.uri() + " returned statusCode " + response.statusCode());
+                    LOG.info("Start Command to " + response.uri() + " returned statusCode " + response.statusCode());
                     // error happened. TODO: message system that agent did not start.
                     //vmTracker.setStatus(createFailureStatus(dataFuture));
                     //vmTracker.stopJob(info.jobRequest.getId());

@@ -41,7 +41,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Entity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -139,8 +138,8 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void setStatus(@Nonnull final CloudVmStatus status) {
-        Entity segment = AWSXRay.getGlobalRecorder().getTraceEntity();
-        Runnable task = () -> segment.run(() -> setStatusThread(status));
+        Runnable task = () -> setStatusThread(status);
+        AWSXRay.createSubsegment("Update.Status", task);  //initiation call has already returned 204
         EXECUTOR.execute(task);
     }
 
