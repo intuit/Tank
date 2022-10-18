@@ -359,7 +359,7 @@ public class VMTrackerImpl implements VMTracker {
 
             LOG.trace("Setting Container for job=" + status.getJobId() + " newStatus to " + newStatus);
             job.setStatus(newStatus);
-            new JobInstanceDao().saveOrUpdate(job);
+            jobInstanceDao.get().saveOrUpdate(job);
 
             // Job StartTime is source of truth for cloudVMStatusContainer StartTime
             if (job.getStartTime() != null && cloudVmStatusContainer.getStartTime() != null) {

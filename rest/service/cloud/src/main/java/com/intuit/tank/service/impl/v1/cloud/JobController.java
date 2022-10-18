@@ -101,12 +101,22 @@ public class JobController {
     }
 
     /**
-     * {@inheritDoc}
+     * Use the AWS SDK to terminate instances.
+     * If no instances can be found, set jobStatus to Completed
      */
     public void killJob(String jobId, boolean fireEvent) {
         List<String> instanceIds = getInstancesForJob(jobId);
         vmTracker.stopJob(jobId);
-        killInstances(instanceIds);
+        if (instanceIds.isEmpty()) {
+            JobInstanceDao dao = new JobInstanceDao();
+            JobInstance job = dao.findById(Integer.parseInt(jobId));
+            if (job != null) {
+                job.setStatus(JobQueueStatus.Completed);
+                dao.saveOrUpdate(job);
+            }
+        } else {
+            killInstances(instanceIds);
+        }
 
         if (fireEvent) {
             jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_KILLED));
