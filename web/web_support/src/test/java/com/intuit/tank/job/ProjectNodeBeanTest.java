@@ -235,7 +235,7 @@ public class ProjectNodeBeanTest {
     }
 
     /**
-     * Run the boolean isPausable() method test.
+     * Run the boolean isPauseable() method test.
      *
      * @throws Exception
      *
@@ -249,7 +249,7 @@ public class ProjectNodeBeanTest {
         ProjectNodeBean fixture = new ProjectNodeBean(project);
         fixture.setJobBeans(new LinkedList());
 
-        boolean result = fixture.isPausable();
+        boolean result = fixture.isPauseable();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -258,21 +258,21 @@ public class ProjectNodeBeanTest {
     }
 
     /**
-     * Run the boolean isRampPausable() method test.
+     * Run the boolean isRampPauseable() method test.
      *
      * @throws Exception
      *
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsRampPausable_1()
+    public void testisRampPauseable_1()
         throws Exception {
         Project project = new Project();
         project.setName("");
         ProjectNodeBean fixture = new ProjectNodeBean(project);
         fixture.setJobBeans(new LinkedList());
 
-        boolean result = fixture.isRampPausable();
+        boolean result = fixture.isRampPauseable();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -304,21 +304,21 @@ public class ProjectNodeBeanTest {
     }
 
     /**
-     * Run the boolean isStopable() method test.
+     * Run the boolean isStoppable() method test.
      *
      * @throws Exception
      *
      * @generatedBy CodePro at 12/15/14 3:54 PM
      */
     @Test
-    public void testIsStopable_1()
+    public void testisStoppable_1()
         throws Exception {
         Project project = new Project();
         project.setName("");
         ProjectNodeBean fixture = new ProjectNodeBean(project);
         fixture.setJobBeans(new LinkedList());
 
-        boolean result = fixture.isStopable();
+        boolean result = fixture.isStoppable();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder

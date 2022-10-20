@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.logging.log4j.Level;
@@ -33,7 +34,7 @@ public class BaseDaoTest {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testBaseDao() throws Exception {
-        User entity = DaoTestUtil.createUserData("BaseTestUser1", "TestUser1_Password", "BaseTestUser1@intuit.com", "TestGroup1");
+        User entity = DaoTestUtil.createUserData("BaseTestUser1", "TestUser1_Password", "BaseTestUser1@intuit.com", Collections.singleton("TestGroup1"));
         List<User> entities = new ArrayList<User>();
         entities.add(entity);
         dao.persistCollection(entities);

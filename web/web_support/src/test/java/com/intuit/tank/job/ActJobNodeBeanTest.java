@@ -13,9 +13,6 @@ package com.intuit.tank.job;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,6 +31,8 @@ import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>ActJobNodeBeanTest</code> contains tests for the class <code>{@link ActJobNodeBean}</code>.
@@ -280,7 +279,7 @@ public class ActJobNodeBeanTest {
         //       at com.intuit.tank.project.BaseJob.<init>(BaseJob.java:28)
         //       at com.intuit.tank.project.JobConfiguration.<init>(JobConfiguration.java:63)
         //       at com.intuit.tank.project.Workload.<init>(Workload.java:57)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -311,7 +310,7 @@ public class ActJobNodeBeanTest {
         //       at com.intuit.tank.project.BaseJob.<init>(BaseJob.java:28)
         //       at com.intuit.tank.project.JobConfiguration.<init>(JobConfiguration.java:63)
         //       at com.intuit.tank.project.Workload.<init>(Workload.java:57)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -404,7 +403,7 @@ public class ActJobNodeBeanTest {
         //       at com.intuit.tank.project.BaseJob.<init>(BaseJob.java:28)
         //       at com.intuit.tank.project.JobConfiguration.<init>(JobConfiguration.java:63)
         //       at com.intuit.tank.project.Workload.<init>(Workload.java:57)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -435,11 +434,11 @@ public class ActJobNodeBeanTest {
         //       at com.intuit.tank.project.BaseJob.<init>(BaseJob.java:28)
         //       at com.intuit.tank.project.JobConfiguration.<init>(JobConfiguration.java:63)
         //       at com.intuit.tank.project.Workload.<init>(Workload.java:57)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
-     * Run the boolean isPausable() method test.
+     * Run the boolean isPauseable() method test.
      *
      * @throws Exception
      *
@@ -459,18 +458,18 @@ public class ActJobNodeBeanTest {
         ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
-        boolean result = fixture.isPausable();
+        boolean result = fixture.isPauseable();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.IncrementStrategy
         //       at com.intuit.tank.project.BaseJob.<init>(BaseJob.java:28)
         //       at com.intuit.tank.project.JobConfiguration.<init>(JobConfiguration.java:63)
         //       at com.intuit.tank.project.Workload.<init>(Workload.java:57)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
-     * Run the boolean isPausable() method test.
+     * Run the boolean isPauseable() method test.
      *
      * @throws Exception
      *
@@ -490,25 +489,25 @@ public class ActJobNodeBeanTest {
         ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
-        boolean result = fixture.isPausable();
+        boolean result = fixture.isPauseable();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.IncrementStrategy
         //       at com.intuit.tank.project.BaseJob.<init>(BaseJob.java:28)
         //       at com.intuit.tank.project.JobConfiguration.<init>(JobConfiguration.java:63)
         //       at com.intuit.tank.project.Workload.<init>(Workload.java:57)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
-     * Run the boolean isRampPausable() method test.
+     * Run the boolean isRampPauseable() method test.
      *
      * @throws Exception
      *
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testIsRampPausable_1()
+    public void testisRampPauseable_1()
         throws Exception {
         Workload workload = new Workload();
         workload.setJobConfiguration(new JobConfiguration());
@@ -521,25 +520,25 @@ public class ActJobNodeBeanTest {
         ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
-        boolean result = fixture.isRampPausable();
+        boolean result = fixture.isRampPauseable();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.IncrementStrategy
         //       at com.intuit.tank.project.BaseJob.<init>(BaseJob.java:28)
         //       at com.intuit.tank.project.JobConfiguration.<init>(JobConfiguration.java:63)
         //       at com.intuit.tank.project.Workload.<init>(Workload.java:57)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
-     * Run the boolean isRampPausable() method test.
+     * Run the boolean isRampPauseable() method test.
      *
      * @throws Exception
      *
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testIsRampPausable_2()
+    public void testisRampPauseable_2()
         throws Exception {
         Workload workload = new Workload();
         workload.setJobConfiguration(new JobConfiguration());
@@ -552,14 +551,14 @@ public class ActJobNodeBeanTest {
         ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
-        boolean result = fixture.isRampPausable();
+        boolean result = fixture.isRampPauseable();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.IncrementStrategy
         //       at com.intuit.tank.project.BaseJob.<init>(BaseJob.java:28)
         //       at com.intuit.tank.project.JobConfiguration.<init>(JobConfiguration.java:63)
         //       at com.intuit.tank.project.Workload.<init>(Workload.java:57)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -590,7 +589,7 @@ public class ActJobNodeBeanTest {
         //       at com.intuit.tank.project.BaseJob.<init>(BaseJob.java:28)
         //       at com.intuit.tank.project.JobConfiguration.<init>(JobConfiguration.java:63)
         //       at com.intuit.tank.project.Workload.<init>(Workload.java:57)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -621,18 +620,18 @@ public class ActJobNodeBeanTest {
         //       at com.intuit.tank.project.BaseJob.<init>(BaseJob.java:28)
         //       at com.intuit.tank.project.JobConfiguration.<init>(JobConfiguration.java:63)
         //       at com.intuit.tank.project.Workload.<init>(Workload.java:57)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
-     * Run the boolean isStopable() method test.
+     * Run the boolean isStoppable() method test.
      *
      * @throws Exception
      *
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testIsStopable_1()
+    public void testisStoppable_1()
         throws Exception {
         Workload workload = new Workload();
         workload.setJobConfiguration(new JobConfiguration());
@@ -645,25 +644,25 @@ public class ActJobNodeBeanTest {
         ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
-        boolean result = fixture.isStopable();
+        boolean result = fixture.isStoppable();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.IncrementStrategy
         //       at com.intuit.tank.project.BaseJob.<init>(BaseJob.java:28)
         //       at com.intuit.tank.project.JobConfiguration.<init>(JobConfiguration.java:63)
         //       at com.intuit.tank.project.Workload.<init>(Workload.java:57)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
-     * Run the boolean isStopable() method test.
+     * Run the boolean isStoppable() method test.
      *
      * @throws Exception
      *
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testIsStopable_2()
+    public void testisStoppable_2()
         throws Exception {
         Workload workload = new Workload();
         workload.setJobConfiguration(new JobConfiguration());
@@ -676,14 +675,14 @@ public class ActJobNodeBeanTest {
         ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
 
-        boolean result = fixture.isStopable();
+        boolean result = fixture.isStoppable();
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.IncrementStrategy
         //       at com.intuit.tank.project.BaseJob.<init>(BaseJob.java:28)
         //       at com.intuit.tank.project.JobConfiguration.<init>(JobConfiguration.java:63)
         //       at com.intuit.tank.project.Workload.<init>(Workload.java:57)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
