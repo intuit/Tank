@@ -1,7 +1,7 @@
 package com.intuit.tank.vmManager.environment.amazon;
 
 import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Segment;
+import com.amazonaws.xray.entities.Subsegment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.dao.JobInstanceDao;
@@ -155,7 +155,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public List<VMInformation> create(VMRequest request) {
         List<VMInformation> result = new ArrayList<>();
-        Segment segment = AWSXRay.beginSegment("EC2.Agent.Create");
+        Subsegment subsegment = AWSXRay.beginSubsegment("EC2.Agent.Create");
         try {
             VMInstanceRequest instanceRequest = (VMInstanceRequest) request;
             InstanceDescription instanceDescription = instanceRequest.getInstanceDescription();
@@ -322,14 +322,14 @@ public class AmazonInstance implements IEnvironmentInstance {
 
         } catch (Ec2Exception ae) {
             LOG.error("Amazon issue starting instances: " + ae.getMessage(), ae);
-            segment.addException(ae);
+            subsegment.addException(ae);
             throw new RuntimeException(ae);
         } catch (Exception ex) {
             LOG.error("Error starting instances: " + ex.getMessage(), ex);
-            segment.addException(ex);
+            subsegment.addException(ex);
             throw new RuntimeException(ex);
         } finally {
-            AWSXRay.endSegment();
+            AWSXRay.endSubsegment();
         }
         return result;
     }
