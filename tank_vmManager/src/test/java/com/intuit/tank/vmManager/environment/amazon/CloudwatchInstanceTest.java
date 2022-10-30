@@ -7,6 +7,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+/**
+ * ProxyAppTest
+ *
+ * @author Srujana Cheruvu
+ *
+ */
 public class CloudwatchInstanceTest {
 
     @Test
@@ -17,4 +23,3 @@ public class CloudwatchInstanceTest {
     }
 
 }
-
