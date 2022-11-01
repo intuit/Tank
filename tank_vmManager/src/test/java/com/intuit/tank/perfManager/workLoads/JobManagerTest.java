@@ -76,9 +76,9 @@ public class JobManagerTest {
         List<String> instanceId = Collections.singletonList("");
         AgentCommand cmd = AgentCommand.kill;
 
-        CompletableFuture<?>[] result = fixture.sendCommand(instanceId, cmd);
+        List<CompletableFuture<?>> result = fixture.sendCommand(instanceId, cmd);
 
-        assertEquals(0, result.length);
+        assertEquals(0, result.size());
     }
 
     @Test
@@ -87,9 +87,9 @@ public class JobManagerTest {
         List<String> instanceId = new LinkedList<>();
         AgentCommand cmd = AgentCommand.kill;
 
-        CompletableFuture<?>[] result = fixture.sendCommand(instanceId, cmd);
+        List<CompletableFuture<?>> result = fixture.sendCommand(instanceId, cmd);
 
-        assertEquals(0, result.length);
+        assertEquals(0, result.size());
     }
 
     @Test
