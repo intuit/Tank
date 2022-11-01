@@ -19,17 +19,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -44,6 +36,7 @@ import com.amazonaws.xray.AWSXRay;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.http.HttpStatus;
 import org.apache.http.protocol.HTTP;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -195,28 +188,20 @@ public class JobManager implements Serializable {
         LOG.info("Sleeping for 30 seconds before starting test, to give time for last agent to process AgentTestStartData.");
         try {
             Thread.sleep(RETRY_SLEEP);// 30 seconds
-        } catch (InterruptedException e) {
-            // ignore
-        }
-        try {
-              List<URI> uris = info.agentData.stream()
-                    .map(agentData -> agentData.getInstanceUrl() + AgentCommand.start.getPath())
-                    .map(URI::create)
-                    .collect(Collectors.toList());
-            CompletableFuture<?>[] futures = sendCommand(uris, MAX_RETRIES);
-            for (CompletableFuture<?> future : futures) {
-                HttpResponse response = (HttpResponse) future.get();
-                if (response != null) {
-                    LOG.info("Start Command to " + response.uri() + " returned statusCode " + response.statusCode());
-                    // error happened. TODO: message system that agent did not start.
-                    //vmTracker.setStatus(createFailureStatus(dataFuture));
-                    //vmTracker.stopJob(info.jobRequest.getId());
-                }
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error sending start: " + e, e);
-            vmTracker.stopJob(info.jobRequest.getId());
-        }
+        } catch (InterruptedException ignored) { }
+        info.agentData.parallelStream()
+                .map(agentData -> agentData.getInstanceUrl() + AgentCommand.start.getPath())
+                .map(URI::create)
+                .map(uri -> sendCommand(uri, MAX_RETRIES))
+                .filter(Objects::nonNull)
+                .forEach(future -> {
+                    HttpResponse response = (HttpResponse) future.join();
+                    if (response.statusCode() == HttpStatus.SC_OK) {
+                        LOG.info("Start Command to " + response.uri() + " was SUCCESSFUL");
+                    } else {
+                        LOG.error("Start Command to " + response.uri() + " returned statusCode " + response.statusCode());
+                    }
+                });
     }
 
     private CloudVmStatus createFailureStatus(AgentData data) {
@@ -230,16 +215,16 @@ public class JobManager implements Serializable {
      * @param cmd
      * @return Array of CompletableFuture that will probably never be looked at.
      */
-    public CompletableFuture<?>[] sendCommand(List<String> instanceIds, AgentCommand cmd) {
+    public List<CompletableFuture<?>> sendCommand(List<String> instanceIds, AgentCommand cmd) {
         List<String> instanceUrls = getInstanceUrl(instanceIds);
         if (!instanceUrls.isEmpty()) {
-            List<URI> uris = instanceUrls.stream()
+            return instanceUrls.parallelStream()
                     .map(instanceUrl -> instanceUrl + cmd.getPath())
                     .map(URI::create)
+                    .map(uri -> sendCommand(uri, 0))
                     .collect(Collectors.toList());
-            return sendCommand(uris, 0);
         }
-        return new CompletableFuture<?>[0];
+        return Collections.emptyList();
     }
 
     /**
@@ -279,30 +264,28 @@ public class JobManager implements Serializable {
 
     /**
      * Send Async http commands
-     * @param instanceUris
+     * @param uri
      * @param retry
      * @return CompletableFuture Array
      */
-    private CompletableFuture<?>[] sendCommand(final List<URI> instanceUris, final int retry) {
-        List<HttpRequest> requests = instanceUris.stream()
-                .map(uri -> HttpRequest.newBuilder(uri).build())
-                .collect(Collectors.toList());
-        CompletableFuture<?>[] responses = requests.stream()
-                .peek(request -> LOG.info("Sending command to url " + request.uri()))
-                .map(request -> client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                        .whenCompleteAsync((response, t) -> {
-                            if (t != null) {
-                                LOG.error("Error sending command to url " + response.uri() + ": " + t.getMessage(), t);
-                                if (retry > 0) {
-                                    try {
-                                        Thread.sleep(RETRY_SLEEP);// 30 seconds
-                                    } catch (InterruptedException e) {}
-                                    sendCommand(Collections.singletonList(response.uri()), (retry - 1));
-                                }
-                            }
-                        }))
-                .toArray(CompletableFuture<?>[]::new);
-        return responses;
+    private CompletableFuture<?> sendCommand(final URI uri, final int retry) {
+        HttpRequest request = HttpRequest.newBuilder(uri).build();
+        LOG.info("Sending command to url " + uri);
+        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .whenCompleteAsync((response, t) -> {
+                    if (t != null) {
+                        LOG.error("Error sending command to url " + response.uri() + ": " + t.getMessage(), t);
+                        if (retry > 0) {
+                            try {
+                                Thread.sleep(RETRY_SLEEP);// 30 seconds
+                            } catch (InterruptedException ignored) {}
+                            sendCommand(uri, (retry - 1));
+                        }
+                    }
+                }).exceptionally( ex -> {
+                    LOG.error("Error sending command to url" + request.uri(), ex);
+                    return null;
+                });
     }
 
     private DataFileRequest[] getDataFileRequests(JobInfo info) {
