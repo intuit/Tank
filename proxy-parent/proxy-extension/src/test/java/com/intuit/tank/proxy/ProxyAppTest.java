@@ -3,13 +3,9 @@ package com.intuit.tank.proxy;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-/**
- * ProxyAppTest
- *
- * @author msreekakula
- *
- */
+@DisabledIfEnvironmentVariable(named = "SKIP_GUI_TEST", matches = "true")
 public class ProxyAppTest {
 
     @Test
