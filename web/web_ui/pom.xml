@@ -262,12 +262,21 @@
       <artifactId>aws-xray-recorder-sdk-core</artifactId>
       <scope>runtime</scope>
     </dependency>
-
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-xray-recorder-sdk-apache-http</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-xray-recorder-sdk-aws-sdk</artifactId>
+      <scope>runtime</scope>
+    </dependency>
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-xray-recorder-sdk-aws-sdk-instrumentor</artifactId>
+      <scope>runtime</scope>
     </dependency>
-
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-xray-recorder-sdk-sql-mysql</artifactId>
