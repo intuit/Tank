@@ -28,6 +28,8 @@ import org.apache.logging.log4j.Logger;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.awscore.interceptor.TraceIdExecutionInterceptor;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient;
 import software.amazon.awssdk.http.nio.netty.ProxyConfiguration;
 import software.amazon.awssdk.services.ec2.Ec2AsyncClient;
@@ -116,6 +118,9 @@ public class AmazonInstance implements IEnvironmentInstance {
             }
             ec2AsyncClient = ec2AsyncClientBuilder
                     .region(Region.of(vmRegion.getRegion()))
+                    .overrideConfiguration(ClientOverrideConfiguration.builder()
+                            .addExecutionInterceptor(new TraceIdExecutionInterceptor())
+                            .build())
                     .build();
         } catch (Exception ex) {
             LOG.error("Error initializing amazonclient: " + ex, ex);
@@ -506,8 +511,11 @@ public class AmazonInstance implements IEnvironmentInstance {
     private String getAMI(InstanceDescription instanceDescription) {
         String name = instanceDescription.getSSMAmi();
         if (StringUtils.isNotEmpty(name)) {
-            try {
-                final SsmClient ssmClient = SsmClient.builder().build();
+            try ( SsmClient ssmClient = SsmClient.builder()
+                        .overrideConfiguration(ClientOverrideConfiguration.builder()
+                                .addExecutionInterceptor(new TraceIdExecutionInterceptor())
+                                .build())
+                        .build() ) {
                 GetParameterResponse response = ssmClient.getParameter(GetParameterRequest.builder().name(name).build());
                 return response.parameter().value();
             } catch (Exception e) {

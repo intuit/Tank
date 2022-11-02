@@ -264,7 +264,7 @@
     </dependency>
     <dependency>
       <groupId>com.amazonaws</groupId>
-      <artifactId>aws-xray-recorder-sdk-aws-sdk-v2-instrumentor</artifactId>
+      <artifactId>aws-xray-recorder-sdk-aws-sdk-v2</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
