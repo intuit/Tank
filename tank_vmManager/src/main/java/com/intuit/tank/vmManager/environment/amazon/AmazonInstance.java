@@ -2,6 +2,7 @@ package com.intuit.tank.vmManager.environment.amazon;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.interceptors.TracingInterceptor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.dao.JobInstanceDao;
@@ -28,7 +29,6 @@ import org.apache.logging.log4j.Logger;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.awscore.interceptor.TraceIdExecutionInterceptor;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient;
 import software.amazon.awssdk.http.nio.netty.ProxyConfiguration;
@@ -119,7 +119,7 @@ public class AmazonInstance implements IEnvironmentInstance {
             ec2AsyncClient = ec2AsyncClientBuilder
                     .region(Region.of(vmRegion.getRegion()))
                     .overrideConfiguration(ClientOverrideConfiguration.builder()
-                            .addExecutionInterceptor(new TraceIdExecutionInterceptor())
+                            .addExecutionInterceptor(new TracingInterceptor())
                             .build())
                     .build();
         } catch (Exception ex) {
@@ -513,7 +513,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         if (StringUtils.isNotEmpty(name)) {
             try ( SsmClient ssmClient = SsmClient.builder()
                         .overrideConfiguration(ClientOverrideConfiguration.builder()
-                                .addExecutionInterceptor(new TraceIdExecutionInterceptor())
+                                .addExecutionInterceptor(new TracingInterceptor())
                                 .build())
                         .build() ) {
                 GetParameterResponse response = ssmClient.getParameter(GetParameterRequest.builder().name(name).build());
