@@ -264,17 +264,7 @@
     </dependency>
     <dependency>
       <groupId>com.amazonaws</groupId>
-      <artifactId>aws-xray-recorder-sdk-apache-http</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-xray-recorder-sdk-aws-sdk</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-xray-recorder-sdk-aws-sdk-instrumentor</artifactId>
+      <artifactId>aws-xray-recorder-sdk-aws-sdk-v2-instrumentor</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
