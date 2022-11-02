@@ -112,6 +112,7 @@ public class JobController {
             JobInstance job = dao.findById(Integer.parseInt(jobId));
             if (job != null) {
                 job.setStatus(JobQueueStatus.Completed);
+                job.setEndTime(new Date());
                 dao.saveOrUpdate(job);
             }
         } else {

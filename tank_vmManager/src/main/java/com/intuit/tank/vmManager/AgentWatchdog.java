@@ -105,10 +105,10 @@ public class AgentWatchdog implements Runnable {
         this.sleepTime = sleepTime;
         this.expectedInstanceCount = vmInfo.size();
 
-        LOG.info("AgentWatchdog settings: "
-                + "\nmaxWaitForResponse: " + maxWaitForResponse
-                + "\nmaxRestarts: " + maxRestarts
-                + "\nsleepTime: " + sleepTime);
+        LOG.info("AgentWatchdog settings: { "
+                + "maxWaitForResponse: " + maxWaitForResponse
+                + ", maxRestarts: " + maxRestarts
+                + ", sleepTime: " + sleepTime + " }");
     }
 
     /**
