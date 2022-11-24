@@ -480,14 +480,14 @@ public abstract class JobTreeTableBean implements Serializable {
             List<JobQueue> queuedJobs = jobQueueDao.findRecent(dateMinus1Week);
             AWSXRay.endSubsegment();
             rootNode = new DefaultTreeNode("root", null);
-            queuedJobs.parallelStream().forEach(jobQueue -> {
+            for (JobQueue jobQueue : queuedJobs) {
                 TreeNode projectNode = createJobNode(trackerJobs, jobQueue);
                 if (projectNode != null && projectNode.getChildCount() != 0) {
                     jobNodeMap.put(jobQueue.getProjectId(), projectNode);
                     projectNode.setParent(rootNode);
                     rootNode.getChildren().add(projectNode);
                 }
-            });
+            }
             if (!trackerJobs.isEmpty()) {
                 TreeNode unknownNode = new DefaultTreeNode(new ProjectNodeBean("unknown"), null);
                 for (String id : trackerJobs) {// left over nodes that the tracker is tracking
