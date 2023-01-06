@@ -28,26 +28,26 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>5.6.12.Final</version.hibernate>
-    <version.software.amazon.awssdk>2.18.7</version.software.amazon.awssdk>
-    <version.aws-xray-sdk-bom>2.12.0</version.aws-xray-sdk-bom>
+    <version.software.amazon.awssdk>2.19.8</version.software.amazon.awssdk>
+    <version.aws-xray-sdk-bom>2.13.0</version.aws-xray-sdk-bom>
 
-    <version-tomcat>9.0.67</version-tomcat>
+    <version-tomcat>9.0.70</version-tomcat>
     <weld.version>3.1.9.Final</weld.version>
     <cdi.version>2.0</cdi.version>
 
     <version.enunciate>2.14.0</version.enunciate>
 
     <version.faces>2.3.9</version.faces>
-    <version.primefaces>11.0.0</version.primefaces>
-    <version.primefaces-ext>11.0.6</version.primefaces-ext>
+    <version.primefaces>12.0.0</version.primefaces>
+    <version.primefaces-ext>12.0.3</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>2.22.2</version.surefire>
-    <version.jersey>2.37</version.jersey>
+    <version.jersey>2.38</version.jersey>
     <version.junit>5.9.1</version.junit>
     <version.mockito>4.3.1</version.mockito>
-    <version.httpclient>4.5.13</version.httpclient>
-    <version.httpclient5>5.1.3</version.httpclient5>
-    <version.lucene>8.11.2</version.lucene>
+    <version.httpclient>4.5.14</version.httpclient>
+    <version.httpclient5>5.2.1</version.httpclient5>
+    <version.lucene>9.4.2</version.lucene>
     <version.jaxb>2.3.3</version.jaxb>
 
     <version.groovy>2.4.21</version.groovy>
@@ -353,9 +353,9 @@
     <!-- This section specifies defaults for dependencies. --><!-- Any subpom can use these dependencies without specifying version -->
     <dependencies>
       <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql-connector-java</artifactId>
-        <version>8.0.30</version>
+        <groupId>com.mysql</groupId>
+        <artifactId>mysql-connector-j</artifactId>
+        <version>8.0.31</version>
       </dependency>
 
       <dependency>
@@ -708,7 +708,7 @@
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-analyzers-common</artifactId>
-        <version>${version.lucene}</version>
+        <version>8.11.2</version>
       </dependency>
       <dependency>
         <groupId>org.apache.lucene</groupId>
@@ -1146,7 +1146,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.1.2</version>
+        <version>3.4.1</version>
       </plugin>
     </plugins>
   </reporting>
