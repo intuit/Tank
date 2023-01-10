@@ -31,9 +31,10 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.SimpleFSDirectory;
+import org.apache.lucene.store.NIOFSDirectory;
 
 import com.intuit.tank.search.util.SearchConstants;
+
 
 public class LuceneService {
 
@@ -50,7 +51,7 @@ public class LuceneService {
      * @throws IOException
      */
     public LuceneService() throws IOException {
-        this(new SimpleFSDirectory(Paths.get("./searchDirectory")));
+        this(new NIOFSDirectory(Paths.get("./searchDirectory")));
     }
 
     /**

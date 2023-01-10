@@ -3,7 +3,6 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-
   <groupId>com.intuit.tank</groupId>
   <artifactId>test-support</artifactId>
   <version>3.2.1-SNAPSHOT</version>
@@ -15,13 +14,13 @@
   <inceptionYear>2010</inceptionYear>
   <organization>
     <name>Intuit Inc.</name>
-    <url>http://www.intuit.com</url>
+    <url>https://www.intuit.com</url>
   </organization>
 
   <licenses>
     <license>
       <name>eclipse</name>
-      <url>http://www.eclipse.org/legal/epl-v10.html</url>
+      <url>https://www.eclipse.org/legal/epl-v10.html</url>
       <distribution>repo</distribution>
       <comments>A business-friendly OSS license</comments>
     </license>
@@ -29,10 +28,9 @@
 
   <properties>
     <version.surefire>2.22.2</version.surefire>
+    <version.jaxb>2.3.3</version.jaxb>
     <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-
-    <version.jaxb>2.3.3</version.jaxb>
   </properties>
 
   <build>
@@ -42,8 +40,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler-plugin.version}</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+            <source>11</source>
+            <target>11</target>
         </configuration>
       </plugin>
       <plugin>
@@ -93,15 +91,5 @@
         <version>${version.jaxb}</version>
       </dependency>
   </dependencies>
-
-  <distributionManagement>
-    <repository>
-      <id>${repository.id}</id>
-      <name>Releases</name>
-      <url>${repository.url}</url>
-      <uniqueVersion>false</uniqueVersion>
-    </repository>
-  </distributionManagement>
-
 
 </project>

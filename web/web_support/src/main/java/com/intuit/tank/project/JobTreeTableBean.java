@@ -492,7 +492,7 @@ public abstract class JobTreeTableBean implements Serializable {
                 TreeNode unknownNode = new DefaultTreeNode(new ProjectNodeBean("unknown"), null);
                 for (String id : trackerJobs) {// left over nodes that the tracker is tracking
                     // create job nodes now
-                    createAdhocJobNode(jobQueueDao, jobNodeMap, unknownNode, id);
+                    createAdhocJobNode(jobNodeMap, unknownNode, id);
                 }
                 if (unknownNode.getChildCount() > 0) {
                     unknownNode.setParent(rootNode);
@@ -555,7 +555,7 @@ public abstract class JobTreeTableBean implements Serializable {
     private TreeNode createJobNode(Set<String> trackerJobs, JobQueue jobQueue) {
         AWSXRay.beginSubsegment("Create.JobNode.ProjectId." + jobQueue.getProjectId());
         TreeNode projectNode = null;
-        Project p = projectDao.findById(jobQueue.getProjectId());
+        Project p = projectDao.findById(jobQueue.getProjectId());  // This is an expensive repetitive operation
         if (p != null) {
             // Map<Date, Map<String, TPSInfo>> totalTPSDetails = new HashMap<Date, Map<String, TPSInfo>>();
             ProjectNodeBean pnb = new ProjectNodeBean(p);
@@ -627,14 +627,13 @@ public abstract class JobTreeTableBean implements Serializable {
         return projectNode;
     }
 
-    private TreeNode createAdhocJobNode(JobQueueDao jqd, Map<Integer, TreeNode> jobNodeMap, TreeNode parent,
-            String jobId) {
+    private TreeNode createAdhocJobNode(Map<Integer, TreeNode> jobNodeMap, TreeNode parent, String jobId) {
         AWSXRay.beginSubsegment("Create.AdhocNode.JobId." + jobId);
         // this needs to be a JobNode, not a projectNode
         // need to make new constructor for ActJobNodeBean that just sets empty strings?
         CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
         ActJobNodeBean jobBeanNode = new ActJobNodeBean(jobId, container, preferencesBean.getDateTimeFormat());
-        JobQueue jq = jqd.findForJobId(Integer.valueOf(jobId));
+        JobQueue jq = jobQueueDao.findForJobId(Integer.valueOf(jobId));
         if (jq != null) {
             TreeNode projectNode = jobNodeMap.get(jq.getProjectId());
             if (projectNode != null) {
