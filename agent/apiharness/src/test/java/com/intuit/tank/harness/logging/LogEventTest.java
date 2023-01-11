@@ -198,8 +198,9 @@ public class LogEventTest {
     public void testBuildMessage_4() {
         LogEvent fixture = new LogEvent();
         Variables variables = new Variables();
-        String passwordStub = "LoginPassword123";
-        variables.addVariable("password", passwordStub);
+        variables.addVariable("pwd", "LoginPassword12");
+        variables.addVariable("password", "LoginPassword123");
+        variables.addVariable("iamTicket", "V1-97-X2jl3di6qb3rqf4smvwsac");
 
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.USER_VARIABLE);
@@ -227,7 +228,8 @@ public class LogEventTest {
         Map<String,String> result = fixture.buildMessage();
         assertNotNull(result);
         assertTrue(result.containsKey("UserVariables"));
-        assertFalse(result.get("UserVariables").equalsIgnoreCase(passwordStub));
+        System.out.println(result.get("UserVariables"));
+        assertEquals(" password=********  iamTicket=********  pwd=******** ", result.get("UserVariables"));
     }
 
     /**
