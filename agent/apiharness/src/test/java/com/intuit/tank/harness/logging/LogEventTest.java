@@ -228,7 +228,6 @@ public class LogEventTest {
         Map<String,String> result = fixture.buildMessage();
         assertNotNull(result);
         assertTrue(result.containsKey("UserVariables"));
-        System.out.println(result.get("UserVariables"));
         assertEquals(" password=********  iamTicket=********  pwd=******** ", result.get("UserVariables"));
     }
 
