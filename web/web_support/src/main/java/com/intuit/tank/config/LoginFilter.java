@@ -5,8 +5,8 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,12 +21,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * LoginFilter
- * 
- * @author Kevin McGoldrick
- * 
- */
+@WebFilter(urlPatterns = {"/login.jsf", "/admin/*", "/projects/*", "/scripts/*", "/filters/*", "/agents/*", "/datafiles/*", "/tools/*"})
 public class LoginFilter extends HttpFilter {
 	private static final Logger LOG = LogManager.getLogger(LoginFilter.class);
 
@@ -38,9 +33,6 @@ public class LoginFilter extends HttpFilter {
 
 	@Inject
 	private TankConfig _tankConfig;
-
-	@Override
-	public void init(FilterConfig arg0) throws ServletException {}
 
 	private boolean firstOnloadFlag = true;
 
@@ -87,9 +79,6 @@ public class LoginFilter extends HttpFilter {
 		}
         chain.doFilter(request, response);
 	}
-
-	@Override
-	public void destroy() {}
 
 	private void InvalidateAndRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		request.getSession().invalidate();

@@ -62,45 +62,6 @@
     <url-pattern>*</url-pattern>
   </filter-mapping>
 
-  <!-- Login filter -->
-  <filter>
-      <filter-name>LoginFilter</filter-name>
-      <filter-class>com.intuit.tank.config.LoginFilter</filter-class>
-  </filter>
-  <!-- Set the login filter to secure all the pages in the /secured/* path of the application  -->
-  <filter-mapping>
-      <filter-name>LoginFilter</filter-name>
-      <url-pattern>/login.jsf</url-pattern>
-      <url-pattern>/admin/*</url-pattern>
-      <url-pattern>/projects/*</url-pattern>
-      <url-pattern>/scripts/*</url-pattern>
-      <url-pattern>/filters/*</url-pattern>
-      <url-pattern>/agents/*</url-pattern>
-      <url-pattern>/datafiles/*</url-pattern>
-      <url-pattern>/tools/*</url-pattern>
-  </filter-mapping>
-
-  <filter>
-    <filter-name>AdminFilter</filter-name>
-    <filter-class>com.intuit.tank.config.AdminFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>AdminFilter</filter-name>
-    <url-pattern>/admin/*</url-pattern>
-  </filter-mapping>
-
-  <!-- Activate the JSF 2.0 servlet -->
-  <servlet>
-    <servlet-name>Faces Servlet</servlet-name>
-    <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-  <!-- Tell the context which URLs to process with JSF -->
-  <servlet-mapping>
-    <servlet-name>Faces Servlet</servlet-name>
-    <url-pattern>*.jsf</url-pattern>
-  </servlet-mapping>
-
   <servlet>
     <servlet-name>Intuit Tank REST API</servlet-name>
     <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
@@ -119,17 +80,8 @@
     <url-pattern>/rest/*</url-pattern>
   </servlet-mapping>
 
-  <filter>
-    <filter-name>RestSecurity Filter</filter-name>
-    <filter-class>com.intuit.tank.util.RestSecurityFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>RestSecurity Filter</filter-name>
-    <servlet-name>Intuit Tank REST API</servlet-name>
-  </filter-mapping>
-  
   <error-page>
-    <exception-type>org.jboss.weld.context.NonexistentConversationException</exception-type>
+    <exception-type>org.jboss.weld.contexts.NonexistentConversationException</exception-type>
     <location>/expired.xhtml</location>
   </error-page>
   

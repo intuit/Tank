@@ -23,6 +23,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -36,6 +37,7 @@ import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.User;
 import com.intuit.tank.vm.settings.TankConfig;
 
+@WebFilter(urlPatterns = "/rest/*")
 public class RestSecurityFilter implements Filter {
 
     private static final Logger LOG = LogManager.getLogger(RestSecurityFilter.class);
@@ -67,7 +69,7 @@ public class RestSecurityFilter implements Filter {
 
     public User getUser(HttpServletRequest req) {
         User user = null;
-        // firsttry the session
+        // first try the session
         if (securityContext.getCallerPrincipal() != null) {
             user = new UserDao().findByUserName(securityContext.getCallerPrincipal().getName());
         }
@@ -96,10 +98,4 @@ public class RestSecurityFilter implements Filter {
         }
         return user;
     }
-
-    @Override
-    public void destroy() {
-
-    }
-
 }
