@@ -14,7 +14,6 @@
   <packaging>pom</packaging>
   <name>Rest Api Parent</name>
 
-
   <modules>
     <module>automation</module>
     <module>cloud</module>
