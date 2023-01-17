@@ -2,7 +2,6 @@ package com.intuit.tank.harness;
 
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -47,7 +46,6 @@ public class AmazonUtilTest {
 	}
 
 	@Test
-	@Disabled
 	void testGetLoggingProfile() {
 		LoggingProfile loggingProfile = AmazonUtil.getLoggingProfile();
 		assertNotNull(loggingProfile);
@@ -88,4 +86,15 @@ public class AmazonUtilTest {
 		assertNotNull(o);
 	}
 
+	@Test
+	void testGetJobId() {
+		Object o = AmazonUtil.getJobId();
+		assertNotNull(o);
+	}
+
+	@Test
+	void testGetProjectName() {
+		Object o = AmazonUtil.getProjectName();
+		assertNotNull(o);
+	}
 }

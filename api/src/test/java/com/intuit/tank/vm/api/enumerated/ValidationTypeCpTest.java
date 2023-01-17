@@ -13,9 +13,9 @@ package com.intuit.tank.vm.api.enumerated;
  * #L%
  */
 
+import com.intuit.tank.vm.common.ValidationTypeConstants;
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.api.enumerated.ValidationType;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -272,7 +272,7 @@ public class ValidationTypeCpTest {
     @Test
     public void testGetValidationTypeFromRepresentation_2()
             throws Exception {
-        String representation = "";
+        String representation = ValidationTypeConstants.EQUALS;
 
         ValidationType result = ValidationType.getValidationTypeFromRepresentation(representation);
 
@@ -294,16 +294,16 @@ public class ValidationTypeCpTest {
     @Test
     public void testGetValidationTypeFromRepresentation_3()
             throws Exception {
-        String representation = "";
+        String representation = ValidationTypeConstants.NOTEQUALS;
 
         ValidationType result = ValidationType.getValidationTypeFromRepresentation(representation);
 
         assertNotNull(result);
-        assertEquals("Equals", result.getRepresentation());
-        assertEquals("==", result.getValue());
-        assertEquals("equals", result.name());
-        assertEquals("equals", result.toString());
-        assertEquals(0, result.ordinal());
+        assertEquals("Not Equals", result.getRepresentation());
+        assertEquals("!=", result.getValue());
+        assertEquals("notequals", result.name());
+        assertEquals("notequals", result.toString());
+        assertEquals(1, result.ordinal());
     }
 
     /**
@@ -316,16 +316,16 @@ public class ValidationTypeCpTest {
     @Test
     public void testGetValidationTypeFromRepresentation_4()
             throws Exception {
-        String representation = "";
+        String representation = ValidationTypeConstants.REPRESENTATION_NOT_EQUALS;
 
         ValidationType result = ValidationType.getValidationTypeFromRepresentation(representation);
 
         assertNotNull(result);
-        assertEquals("Equals", result.getRepresentation());
-        assertEquals("==", result.getValue());
-        assertEquals("equals", result.name());
-        assertEquals("equals", result.toString());
-        assertEquals(0, result.ordinal());
+        assertEquals("Not Equals", result.getRepresentation());
+        assertEquals("!=", result.getValue());
+        assertEquals("notequals", result.name());
+        assertEquals("notequals", result.toString());
+        assertEquals(1, result.ordinal());
     }
 
     /**
@@ -338,16 +338,16 @@ public class ValidationTypeCpTest {
     @Test
     public void testGetValidationTypeFromRepresentation_5()
             throws Exception {
-        String representation = "";
+        String representation = ValidationTypeConstants.REPRESENTATION_EMPTY;
 
         ValidationType result = ValidationType.getValidationTypeFromRepresentation(representation);
 
         assertNotNull(result);
-        assertEquals("Equals", result.getRepresentation());
-        assertEquals("==", result.getValue());
-        assertEquals("equals", result.name());
-        assertEquals("equals", result.toString());
-        assertEquals(0, result.ordinal());
+        assertEquals("Empty", result.getRepresentation());
+        assertEquals("Empty", result.getValue());
+        assertEquals("empty", result.name());
+        assertEquals("empty", result.toString());
+        assertEquals(2, result.ordinal());
     }
 
     /**
@@ -360,16 +360,16 @@ public class ValidationTypeCpTest {
     @Test
     public void testGetValidationTypeFromRepresentation_6()
             throws Exception {
-        String representation = "";
+        String representation = ValidationTypeConstants.REPRESENTATION_NOTEMPTY;
 
         ValidationType result = ValidationType.getValidationTypeFromRepresentation(representation);
 
         assertNotNull(result);
-        assertEquals("Equals", result.getRepresentation());
-        assertEquals("==", result.getValue());
-        assertEquals("equals", result.name());
-        assertEquals("equals", result.toString());
-        assertEquals(0, result.ordinal());
+        assertEquals("Not empty", result.getRepresentation());
+        assertEquals("Not empty", result.getValue());
+        assertEquals("notempty", result.name());
+        assertEquals("notempty", result.toString());
+        assertEquals(3, result.ordinal());
     }
 
     /**
@@ -382,16 +382,16 @@ public class ValidationTypeCpTest {
     @Test
     public void testGetValidationTypeFromRepresentation_7()
             throws Exception {
-        String representation = "";
+        String representation = ValidationTypeConstants.REPRESENTATION_CONTAINS;
 
         ValidationType result = ValidationType.getValidationTypeFromRepresentation(representation);
 
         assertNotNull(result);
-        assertEquals("Equals", result.getRepresentation());
-        assertEquals("==", result.getValue());
-        assertEquals("equals", result.name());
-        assertEquals("equals", result.toString());
-        assertEquals(0, result.ordinal());
+        assertEquals("Contains", result.getRepresentation());
+        assertEquals("Contains", result.getValue());
+        assertEquals("contains", result.name());
+        assertEquals("contains", result.toString());
+        assertEquals(4, result.ordinal());
     }
 
     /**
@@ -404,16 +404,16 @@ public class ValidationTypeCpTest {
     @Test
     public void testGetValidationTypeFromRepresentation_8()
             throws Exception {
-        String representation = "";
+        String representation = ValidationTypeConstants.REPRESENTATION_DOESNOTCONTAIN;
 
         ValidationType result = ValidationType.getValidationTypeFromRepresentation(representation);
 
         assertNotNull(result);
-        assertEquals("Equals", result.getRepresentation());
-        assertEquals("==", result.getValue());
-        assertEquals("equals", result.name());
-        assertEquals("equals", result.toString());
-        assertEquals(0, result.ordinal());
+        assertEquals("Does not contain", result.getRepresentation());
+        assertEquals("Does not contain", result.getValue());
+        assertEquals("doesnotcontain", result.name());
+        assertEquals("doesnotcontain", result.toString());
+        assertEquals(5, result.ordinal());
     }
 
     /**
@@ -426,16 +426,16 @@ public class ValidationTypeCpTest {
     @Test
     public void testGetValidationTypeFromRepresentation_9()
             throws Exception {
-        String representation = "";
+        String representation = ValidationTypeConstants.REPRESENTATION_LESS_THAN;
 
         ValidationType result = ValidationType.getValidationTypeFromRepresentation(representation);
 
         assertNotNull(result);
-        assertEquals("Equals", result.getRepresentation());
-        assertEquals("==", result.getValue());
-        assertEquals("equals", result.name());
-        assertEquals("equals", result.toString());
-        assertEquals(0, result.ordinal());
+        assertEquals("Less Than", result.getRepresentation());
+        assertEquals("Less Than", result.getValue());
+        assertEquals("lessthan", result.name());
+        assertEquals("lessthan", result.toString());
+        assertEquals(6, result.ordinal());
     }
 
     /**
@@ -448,16 +448,16 @@ public class ValidationTypeCpTest {
     @Test
     public void testGetValidationTypeFromRepresentation_10()
             throws Exception {
-        String representation = "";
+        String representation = ValidationTypeConstants.REPRESENTATION_GREATER_THAN;
 
         ValidationType result = ValidationType.getValidationTypeFromRepresentation(representation);
 
         assertNotNull(result);
-        assertEquals("Equals", result.getRepresentation());
-        assertEquals("==", result.getValue());
-        assertEquals("equals", result.name());
-        assertEquals("equals", result.toString());
-        assertEquals(0, result.ordinal());
+        assertEquals("Greater Than", result.getRepresentation());
+        assertEquals("Greater Than", result.getValue());
+        assertEquals("greaterthan", result.name());
+        assertEquals("greaterthan", result.toString());
+        assertEquals(7, result.ordinal());
     }
 
     /**

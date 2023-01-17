@@ -12,7 +12,7 @@ package com.intuit.tank.vm.settings;
  * http://www.eclipse.org/legal/epl-v10.html
  * #L%
  */
-
+import java.util.*;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.junit.jupiter.api.*;
 
@@ -140,6 +140,7 @@ public class InstanceDescriptionDefaultsCpTest {
         assertEquals(null, result);
     }
 
+
     /**
      * Run the String getSubnetId() method test.
      * 
@@ -147,16 +148,62 @@ public class InstanceDescriptionDefaultsCpTest {
      * 
      * @generatedBy CodePro at 9/3/14 3:41 PM
      */
-//    @Test
-//    public void testGetSubnetId_1()
-//            throws Exception {
-//        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
-//                new HierarchicalConfiguration());
-//
-//        List<String> result = fixture.getSubnetIds();
-//
-//        assertEquals(null, result.get(0));
-//    }
+    @Test
+    public void testGetSubnetId_1()
+            throws Exception {
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
+                new HierarchicalConfiguration());
+
+        List<String> result = fixture.getSubnetIds();
+        List<String> expected = Arrays.asList();
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testGetSecurityGroupIds_1()
+            throws Exception {
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
+                new HierarchicalConfiguration());
+
+        List<String> result = fixture.getSecurityGroupIds();
+        List<String> expected = Arrays.asList();
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testGetIamRole_1()
+            throws Exception {
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
+                new HierarchicalConfiguration());
+
+        String result = fixture.getIamRole();
+
+        assertNull(result);
+    }
+
+    @Test
+    public void testIsVPC_1()
+            throws Exception {
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
+                new HierarchicalConfiguration());
+
+        Boolean result = fixture.isVPC();
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void testGetTenancy_1()
+            throws Exception {
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
+                new HierarchicalConfiguration());
+
+        String result = fixture.getTenancy();
+
+        assertNull(result);
+    }
 
     /**
      * Run the String getZone() method test.
