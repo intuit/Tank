@@ -85,7 +85,7 @@ public class ParseExceptionConverterCpTest {
      */
     @Test()
     @Disabled
-    public void testHandleException_4()
+    public void testHandleException_5()
             throws Exception {
         Throwable throwable = new WatsParseException(new Throwable(), "", 1, 1);
         WatsParseException result = ParseExceptionConverter.handleException(throwable);

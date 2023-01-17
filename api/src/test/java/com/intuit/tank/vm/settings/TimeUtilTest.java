@@ -17,6 +17,7 @@ package com.intuit.tank.vm.settings;
  */
 
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -26,6 +27,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * TimeUtilTest
@@ -56,5 +58,22 @@ public class TimeUtilTest {
         long result = TimeUtil.parseTimeString(time);
         System.out.println(result);
         assertEquals(expected, result);
+    }
+
+
+    @Test
+    public void testToTimeString() {
+        String result_0 = TimeUtil.toTimeString(0L);
+        assertEquals("0", result_0);
+        String result_1 = TimeUtil.toTimeString(1234L);
+        assertEquals("1s 234ms", result_1);
+        String result_2 = TimeUtil.toTimeString(1000L * 60);
+        assertEquals("1m", result_2);
+        String result_3 = TimeUtil.toTimeString(1000L * 60 + 1000L * 30);
+        assertEquals("1m 30s", result_3);
+        String result_4 = TimeUtil.toTimeString(1000L * 60 * 60 * 24 + 1000L * 60 * 60);
+        assertEquals("1d 1h", result_4);
+        String result_5 = TimeUtil.toTimeString(1000L * 60 * 60 * 24 + 1000L * 60 * 60 + 1000L * 60 * 30 + 1000L * 10 + 50);
+        assertEquals("1d 1h 30m 10s 50ms", result_5);
     }
 }
