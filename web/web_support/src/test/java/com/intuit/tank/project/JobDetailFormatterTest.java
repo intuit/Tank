@@ -14,8 +14,7 @@ package com.intuit.tank.project;
  */
 
 import java.math.BigDecimal;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import com.intuit.tank.project.JobDetailFormatter;
 import com.intuit.tank.project.JobInstance;
@@ -43,12 +42,6 @@ public class JobDetailFormatterTest {
         StringBuilder sb = new StringBuilder();
         JobDetailFormatter.addProperty(sb, "key", "value");
         assertTrue(sb.length() > 0);
-    }
-
-
-    @Test
-    public void buildDetails() {
-//        throw new RuntimeException("Test not implemented");
     }
 
     @Test
@@ -229,46 +222,39 @@ public class JobDetailFormatterTest {
         assertNotNull(result);
     }
 
-    /**
-     * Run the String createJobDetails(JobValidator,String) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testCreateJobDetails_1()
-        throws Exception {
+    public void testCreateJobDetails_1() {
+        // Assign
         JobValidator validator = new JobValidator(new Script());
         String scriptName = "";
-
+        // Act
         String result = JobDetailFormatter.createJobDetails(validator, scriptName);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.project.JobValidator.<init>(JobValidator.java:60)
+        // Assert
         assertNotNull(result);
     }
 
-    /**
-     * Run the String createJobDetails(JobValidator,Workload,JobInstance) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testCreateJobDetails_2()
-        throws Exception {
+    public void testCreateJobDetails_2() {
+        // Assign
+        ScriptGroupStep scriptGroupStep = ScriptGroupStep.builder().build();
+        scriptGroupStep.setScript(Script.builder().name("DUMMYSCRIPT").build());
+        ScriptGroup scriptGroup = ScriptGroup.builder().build();
+        scriptGroup.addScriptGroupStep(scriptGroupStep);
+        ArrayList<ScriptGroup> scriptGroups = new ArrayList<ScriptGroup>();
+        scriptGroups.add(scriptGroup);
+        TestPlan testPlan = TestPlan.builder().name("TESTPLAN").build();
+        TestPlan testPlan2 = TestPlan.builder().name("TESTPLAN2").build();
+        testPlan.setScriptGroups(scriptGroups);
+        Workload workload = Workload.builder().addTestPlans(testPlan).addTestPlans(testPlan2).getInstance();
         JobValidator validator = new JobValidator(new Script());
-        Workload workload = new Workload();
+        Set<EntityVersion> regionVersions = new HashSet<>();
+        EntityVersion entityVersion = new EntityVersion();
+        regionVersions.add(entityVersion);
         JobInstance proposedJobInstance = new JobInstance();
-
+        proposedJobInstance.setJobRegionVersions(regionVersions);
+        // Act
         String result = JobDetailFormatter.createJobDetails(validator, workload, proposedJobInstance);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.project.JobValidator.<init>(JobValidator.java:60)
+        // Assert
         assertNotNull(result);
     }
 

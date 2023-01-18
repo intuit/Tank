@@ -58,7 +58,7 @@ public class JobDetailFormatter {
         return buildDetails(validator, null, null, scriptName);
     }
 
-    protected static String buildDetails(JobValidator validator, Workload workload, JobInstance proposedJobInstance,
+    private static String buildDetails(JobValidator validator, Workload workload, JobInstance proposedJobInstance,
             String scriptName) {
         StringBuilder sb = new StringBuilder();
         StringBuilder errorSB = new StringBuilder();

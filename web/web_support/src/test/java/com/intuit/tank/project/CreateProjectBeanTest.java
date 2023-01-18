@@ -13,36 +13,78 @@ package com.intuit.tank.project;
  * #L%
  */
 
+import com.intuit.tank.ModifiedProjectMessage;
+import com.intuit.tank.ProjectBean;
+import com.intuit.tank.auth.TankSecurityContext;
+import com.intuit.tank.dao.ProjectDao;
+import com.intuit.tank.util.Messages;
 import org.jboss.weld.junit5.auto.ActivateScopes;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
+import javax.enterprise.context.SessionScoped;
+import javax.enterprise.event.Event;
+
+import java.security.Principal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * The class <code>CreateProjectBeanTest</code> contains tests for the class <code>{@link CreateProjectBean}</code>.
- *
- * @generatedBy CodePro at 12/15/14 3:53 PM
- */
+
 @EnableAutoWeld
-@ActivateScopes(RequestScoped.class)
+@ActivateScopes({RequestScoped.class, SessionScoped.class})
 public class CreateProjectBeanTest {
-    
-    @Inject
+
+    @Mock
+    private ProjectBean projectBean;
+    @Mock
+    private ProjectDao projectDao;
+    @Mock
+    private TankSecurityContext securityContext;
+    @Mock
+    private Event<ModifiedProjectMessage> projectEvent;
+    @Mock
+    private Messages messages;
+
+    @InjectMocks
     private CreateProjectBean createProjectBean;
-    
-    /**
-     * Run the CreateProjectBean() constructor test.
-     *
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void initService() {
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void closeService() throws Exception {
+        closeable.close();
+    }
     @Test
-    public void testCreateProjectBean_1()
-        throws Exception {
+    public void testCreateProjectBean() {
         assertNotNull(createProjectBean);
+    }
+
+    @Test
+    public void testCreateNewProject() throws Exception {
+        // Arrange
+        Principal principal = () -> "TESTDUMMY";
+        Mockito.when(securityContext.getCallerPrincipal()).thenReturn(principal);
+        Mockito.when(projectDao.saveOrUpdateProject(Mockito.any(Project.class))).thenReturn(new Project());
+        Mockito.doNothing().when(projectEvent).fire(Mockito.any(ModifiedProjectMessage.class));
+        Mockito.doNothing().when(messages).info(Mockito.anyString());
+        Mockito.doNothing().when(projectBean).openProject(Mockito.any(Project.class));
+        createProjectBean.setName("ProjectName");
+
+        // Act
+        String result = createProjectBean.createNewProject();
+
+        // Assert
+        assertEquals("success", result);
     }
 
 

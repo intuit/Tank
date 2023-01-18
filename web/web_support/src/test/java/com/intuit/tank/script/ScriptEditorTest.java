@@ -13,21 +13,17 @@ package com.intuit.tank.script;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.auth.TankSecurityContext;
-import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.filter.FilterBean;
 import com.intuit.tank.util.Messages;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.intuit.tank.converter.ScriptStepHolder;
@@ -37,32 +33,28 @@ import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptStep;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import javax.enterprise.context.Conversation;
 import javax.security.enterprise.CallerPrincipal;
 
-/**
- * The class <code>ScriptEditorTest</code> contains tests for the class <code>{@link ScriptEditor}</code>.
- * 
- * @generatedBy CodePro at 12/15/14 3:54 PM
- */
 public class ScriptEditorTest {
 
     @InjectMocks
     private ScriptEditor fixture;
-
     @Mock
     private TankSecurityContext securityContext;
-
     @Mock
     Messages messages;
-
     @Mock
     private FilterBean filterBean;
-
     @Mock
     private Conversation conversation;
+    @Mock
+    private AggregatorEditor aggregatorEditor;
+    @Mock
+    private ScriptSearchBean searchBean;
 
     private AutoCloseable closeable;
 
@@ -2989,7 +2981,38 @@ public class ScriptEditorTest {
     }
 
     @Test
-    public void testCanel() {
+    public void testCancel() {
         assertEquals("success", fixture.cancel());
+    }
+
+    @Test
+    public void test_deleteRequest() {
+        // Assign
+        ScriptStep step = ScriptStep.builder().name("DUMMYSTEP").build();
+        List<ScriptStep> scriptSteps = new ArrayList<>();
+        scriptSteps.add(step);
+        fixture.setSteps(scriptSteps);
+        Mockito.when(aggregatorEditor.isAggregator(step)).thenReturn(Boolean.FALSE);
+        Mockito.doNothing().when(searchBean).removeFromSearchMatch(step);
+        // Act
+        fixture.deleteRequest(step);
+        // Assert
+    }
+
+    @Test
+    public void test_deleteSelected() {
+        // Assign
+        ScriptStep stepToRemove = ScriptStep.builder().name("DUMMYSTEP").build();
+        List<ScriptStep> scriptStepsToRemove = new ArrayList<>();
+        scriptStepsToRemove.add(stepToRemove);
+        List<ScriptStep> scriptSteps = new ArrayList<>();
+        scriptSteps.add(stepToRemove);
+        scriptSteps.add(ScriptStep.builder().name("DUMMYSTEP2").build());
+        fixture.setSteps(scriptSteps);
+        // Act
+        fixture.setSelectedSteps(scriptStepsToRemove);
+        fixture.deleteSelected();
+        // Assert
+        assertEquals(0, fixture.getSelectedSteps().size());
     }
 }
