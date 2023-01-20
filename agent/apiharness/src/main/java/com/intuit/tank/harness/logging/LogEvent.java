@@ -184,7 +184,13 @@ public class LogEvent implements Serializable {
             }
             if (headers != null) {
                 for (Entry<String, String> entry : headers.entrySet()) {
-                    appendField(sb, entry.getKey(), entry.getValue(), " : ");
+                    if (entry.getKey().equalsIgnoreCase("qbn.dtc.tkt") ||
+                            entry.getKey().equalsIgnoreCase("qbn.dtc.ticket") ||
+                            Pattern.matches("V1-[0-9]+-[0-9a-zA-Z]{22}", entry.getValue())) {
+                        appendField(sb, entry.getKey(), "********", " : ");
+                    } else {
+                        appendField(sb, entry.getKey(), entry.getValue(), " : ");
+                    }
                 }
             }
         }
