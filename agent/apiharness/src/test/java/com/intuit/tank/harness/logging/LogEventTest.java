@@ -240,8 +240,7 @@ public class LogEventTest {
         LogEvent fixture = new LogEvent();
         MockRequest mockRequest = new MockRequest();
         MockResponse mockResponse = new MockResponse();
-        mockResponse.setHeader("qbn.dtc.tkt", "V1-105-A5kl3di6qb3lkjf4lkowcda");
-        mockResponse.setHeader("qbn.dtc.ticket", "V1-101-Z5kl3di6qb3lkjf4smvwabc");
+        mockResponse.setHeader("ticket", "V1-12-D0bqsj12aaaa0aaa49aaaa");
         mockRequest.setResponse(mockResponse);
 
         fixture.setHostname("");
@@ -270,7 +269,7 @@ public class LogEventTest {
         Map<String,String> result = fixture.buildMessage();
         assertNotNull(result);
         assertTrue(result.containsKey("HttpResponseHeaders"));
-        assertEquals(" qbn.dtc.ticket : ********  qbn.dtc.tkt : ******** ", result.get("HttpResponseHeaders"));
+        assertEquals(" ticket : ******** ", result.get("HttpResponseHeaders"));
     }
 
     /**
