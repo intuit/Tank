@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Map;
 
+import com.intuit.tank.harness.MockResponse;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -229,6 +230,46 @@ public class LogEventTest {
         assertNotNull(result);
         assertTrue(result.containsKey("UserVariables"));
         assertEquals(" password=********  iamTicket=********  pwd=******** ", result.get("UserVariables"));
+    }
+
+    /**
+     * Run String buildMessage() method test and validate password header response obfuscated
+     */
+    @Test
+    public void testBuildMessage_5() {
+        LogEvent fixture = new LogEvent();
+        MockRequest mockRequest = new MockRequest();
+        MockResponse mockResponse = new MockResponse();
+        mockResponse.setHeader("ticket", "V1-12-D0bqsj12aaaa0aaa49aaaa");
+        mockRequest.setResponse(mockResponse);
+
+        fixture.setHostname("");
+        fixture.setActiveProfile(LoggingProfile.VERBOSE);
+        fixture.setEventType(LogEventType.Http);
+        fixture.setTestPlan(new HDTestPlan());
+        fixture.setValidationStatus("");
+        fixture.setVariables(new Variables());
+        fixture.setThreadId("");
+        fixture.setPublicIp("");
+        fixture.setProjectName("");
+        fixture.setGroup(new HDScriptGroup());
+        fixture.setJobId("");
+        fixture.setLoggingKey("");
+        fixture.setTransactionId("");
+        fixture.setStepGroupName("");
+        fixture.setSourceType(SourceType.agent);
+        fixture.setInstanceId("");
+        fixture.setStep((TestStep) null);
+        fixture.setStepIndex("");
+        fixture.setMessage("");
+        fixture.setIteration("");
+        fixture.setScript((HDScript) null);
+        fixture.setRequest(mockRequest);
+
+        Map<String,String> result = fixture.buildMessage();
+        assertNotNull(result);
+        assertTrue(result.containsKey("HttpResponseHeaders"));
+        assertEquals(" ticket : ******** ", result.get("HttpResponseHeaders"));
     }
 
     /**
