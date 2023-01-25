@@ -6,9 +6,6 @@
   width: 360px;
   padding: 2%;
   margin: 8% auto;
-  background: #5c9ccc
-    url("/javax.faces.resource/images/ui-bg_gloss-wave_55_5c9ccc_500x100.png.jsf?ln=primefaces-redmond")
-    repeat-x;
 }
 
 .CodeMirror {
@@ -51,12 +48,6 @@
   border-right: 1px solid #79B7E7;
   border-left: 1px solid #79B7E7;
   border-bottom: 1px solid #79B7E7;
-}
-
-.rf-pp-hdr {
-  background:
-    url("/wats-proxy/javax.faces.resource/images/ui-bg_gloss-wave_55_5c9ccc_500x100.png.jsf?ln=primefaces-redmond")
-    repeat-x scroll 50% 50% #5C9CCC;
 }
 
 .rf-pp-hdr-cnt {
