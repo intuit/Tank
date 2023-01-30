@@ -1,5 +1,6 @@
 package com.intuit.tank.http.xml;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,15 @@ public class XMLRequestTest {
 
         String result = fixture.getKey(key);
         assertNotNull(result);
+    }
+
+    @Test
+    public void testGetKey_2() {
+        XMLRequest fixture = new XMLRequest(null, null);
+        fixture.handler = new GenericXMLHandler();
+        fixture.setKey("testKey", "testValue");
+        String result = fixture.getKey("testValue");
+        assertEquals("", result);
     }
 
     /**

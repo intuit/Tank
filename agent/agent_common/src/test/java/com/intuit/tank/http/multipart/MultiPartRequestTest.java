@@ -2,12 +2,16 @@ package com.intuit.tank.http.multipart;
 
 import com.intuit.tank.test.TestGroups;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Base64;
 import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class MultiPartRequestTest {
     static Stream<Arguments> data() {
@@ -57,7 +61,12 @@ public class MultiPartRequestTest {
     @MethodSource("data")
     public void test(String body, int numParts) {
         MultiPartRequest multiPartRequest = new MultiPartRequest(null, null);
+        String encodedBody = Base64.getEncoder().encodeToString(body.getBytes());
         multiPartRequest.setBody(Base64.getEncoder().encodeToString(body.getBytes()));
+        assertEquals(encodedBody, multiPartRequest.getBody());
+        multiPartRequest.setKey("testKey", "testValue");
+        multiPartRequest.setNamespace("testKey", "testValue");
+        assertNull(multiPartRequest.getKey(""));
     }
 
 }

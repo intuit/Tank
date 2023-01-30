@@ -68,60 +68,6 @@ public class BinaryRequestTest {
     }
 
     /**
-     * Run the void setConvertData() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testSetConvertData_2()
-        throws Exception {
-        BinaryRequest fixture = new BinaryRequest(null, null);
-
-        fixture.setConvertData();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: Could not initialize class org.apache.commons.httpclient.HttpClient
-    }
-
-    /**
-     * Run the void setConvertData() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testSetConvertData_3()
-        throws Exception {
-        BinaryRequest fixture = new BinaryRequest(null, null);
-
-        fixture.setConvertData();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: Could not initialize class org.apache.commons.httpclient.HttpClient
-    }
-
-    /**
-     * Run the void setConvertData() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testSetConvertData_4()
-        throws Exception {
-        BinaryRequest fixture = new BinaryRequest(null, null);
-
-        fixture.setConvertData();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: Could not initialize class org.apache.commons.httpclient.HttpClient
-    }
-
-    /**
      * Run the void setKey(String,String) method test.
      *
      * @throws Exception
@@ -159,5 +105,13 @@ public class BinaryRequestTest {
 
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: Could not initialize class org.apache.commons.httpclient.HttpClient
+    }
+
+    @Test
+    public void testSetConvertData() {
+        BinaryRequest fixture = new BinaryRequest(null, null);
+        fixture.setKey("testKey", "testValue");
+
+        fixture.setConvertData();
     }
 }
