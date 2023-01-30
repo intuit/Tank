@@ -1,9 +1,5 @@
 package com.intuit.tank.http;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 /*
  * #%L
  * Intuit Tank Agent (apiharness)
@@ -21,6 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+
+        import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>BaseResponseTest</code> contains tests for the class <code>{@link BaseResponse}</code>.
@@ -40,12 +38,12 @@ public class BaseResponseTest {
             throws Exception {
         BaseResponse fixture = new MockResponse();
         fixture.responseTime = 1L;
-        fixture.cookies = new HashMap<String, String>();
+        fixture.cookies = new HashMap<>();
         fixture.httpCode = 1;
         fixture.response = "";
         fixture.responseByteArray = new byte[] {};
         fixture.rspMessage = "";
-        fixture.headers = new HashMap<String, String>();
+        fixture.headers = new HashMap<>();
         fixture.responseLogMsg = "";
 
         String result = fixture.getBody();
@@ -67,19 +65,35 @@ public class BaseResponseTest {
             throws Exception {
         MockResponse fixture = new MockResponse();
         fixture.responseTime = 1L;
-        fixture.cookies = new HashMap<String, String>();
+        fixture.cookies = new HashMap<>();
         fixture.httpCode = 1;
         fixture.response = "";
         fixture.responseByteArray = new byte[] {};
         fixture.rspMessage = "";
-        fixture.headers = new HashMap<String, String>();
+        fixture.headers = new HashMap<>();
         fixture.responseLogMsg = "";
         String key = "";
 
         String result = fixture.getCookie(key);
+        assertNull(result);
     }
-
-   
+    @Test
+    public void testGetCookie_2() {
+        MockResponse fixture = new MockResponse();
+        String key = "testKey";
+        fixture.setCookie(key, "testValue");
+        String result = fixture.getCookie(key);
+        assertNull(result);
+    }
+    @Test
+    public void testGetCookie_3() {
+        MockResponse fixture = new MockResponse();
+        Map<String, String> expected = new HashMap<>();
+        expected.put("testKey", "testValue");
+        fixture.cookies.put("testKey", "testValue");
+        Map<String, String> result = fixture.getCookies();
+        assertEquals(expected, result);
+    }
 
     /**
      * Run the Map<String, String> getHeaders() method test.
@@ -99,6 +113,14 @@ public class BaseResponseTest {
         fixture.rspMessage = "";
         fixture.headers = new HashMap<String, String>();
         fixture.responseLogMsg = "";
+
+        Map<String, String> result = fixture.getHeaders();
+        assertNotNull(result);
+    }
+    @Test
+    public void testGetHeaders_2() {
+        MockResponse fixture = new MockResponse();
+        fixture.setHeader("testKey", "testValue");
 
         Map<String, String> result = fixture.getHeaders();
         assertNotNull(result);
@@ -124,6 +146,15 @@ public class BaseResponseTest {
 
         int result = fixture.getHttpCode();
         assertEquals(1, result);
+    }
+
+    @Test
+    public void testGetHttpCode_2() {
+        MockResponse fixture = new MockResponse();
+        fixture.setHttpCode(4);
+
+        int result = fixture.getHttpCode();
+        assertEquals(4, result);
     }
 
     /**
@@ -171,6 +202,16 @@ public class BaseResponseTest {
         assertNotNull(result);
     }
 
+    @Test
+    public void testGetHttpMsg_2()
+            throws Exception {
+        MockResponse fixture = new MockResponse();
+        fixture.setHttpMessage("testMsg");
+
+        String result = fixture.getHttpMsg();
+        assertNotNull(result);
+    }
+
     /**
      * Run the String getLogMsg() method test.
      * 
@@ -210,6 +251,25 @@ public class BaseResponseTest {
         fixture.responseByteArray = new byte[] {};
         fixture.rspMessage = "";
         fixture.responseLogMsg = "";
+
+        String result = fixture.getResponseBody();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetResponseBody_2() {
+        MockResponse fixture = new MockResponse();
+        fixture.setResponseBody("testResponse");
+
+        String result = fixture.getResponseBody();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetResponseBody_3() {
+        MockResponse fixture = new MockResponse();
+        byte[] responseByteArray = new byte[] {'T', 'E', 'S', 'T'};
+        fixture.setResponseBody(responseByteArray);
 
         String result = fixture.getResponseBody();
         assertNotNull(result);
@@ -260,50 +320,6 @@ public class BaseResponseTest {
     }
 
     /**
-     * Run the int getResponseSize() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testGetResponseSize_2()
-            throws Exception {
-        MockResponse fixture = new MockResponse();
-        fixture.responseTime = 1L;
-        fixture.httpCode = 1;
-        fixture.response = "";
-        fixture.responseByteArray = new byte[] {};
-        fixture.rspMessage = "";
-        fixture.responseLogMsg = "";
-
-        int result = fixture.getResponseSize();
-        assertEquals(0, result);
-    }
-
-    /**
-     * Run the int getResponseSize() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testGetResponseSize_3()
-            throws Exception {
-        MockResponse fixture = new MockResponse();
-        fixture.responseTime = 1L;
-        fixture.httpCode = 1;
-        fixture.response = "";
-        fixture.responseByteArray = new byte[] {};
-        fixture.rspMessage = "";
-        fixture.responseLogMsg = "";
-
-        int result = fixture.getResponseSize();
-        assertEquals(0, result);
-    }
-
-    /**
      * Run the long getResponseTime() method test.
      * 
      * @throws Exception
@@ -323,6 +339,15 @@ public class BaseResponseTest {
 
         long result = fixture.getResponseTime();
         assertEquals(1L, result);
+    }
+
+    @Test
+    public void testGetResponseTime_2() {
+        MockResponse fixture = new MockResponse();
+        fixture.setResponseTime(15L);
+
+        long result = fixture.getResponseTime();
+        assertEquals(15L, result);
     }
 
     /**
@@ -354,7 +379,7 @@ public class BaseResponseTest {
         String contentType = "application/pdf";
 
         boolean result = BaseResponse.isDataType(contentType);
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -387,7 +412,7 @@ public class BaseResponseTest {
 
         boolean result = BaseResponse.isDataType(contentType);
 
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -403,7 +428,7 @@ public class BaseResponseTest {
         String contentType = "";
 
         boolean result = BaseResponse.isDataType(contentType);
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -416,7 +441,7 @@ public class BaseResponseTest {
     @Test
     public void testLogResponse_1()
             throws Exception {
-        MockResponse fixture = new MockResponse();
+        BaseResponse fixture = new MockResponse();
         fixture.responseTime = 1L;
         fixture.httpCode = 1;
         fixture.response = "";
@@ -425,133 +450,29 @@ public class BaseResponseTest {
         fixture.responseLogMsg = "";
 
         fixture.logResponse();
+        assertEquals("RESPONSE HTTP CODE: 1\n" +
+                "RESPONSE HTTP MSG: \n" +
+                "RESPONSE TIME: 1\n" +
+                "RESPONSE SIZE: 0\n" +
+                "RESPONSE BODY: not logged because null is not a data type.\n", fixture.responseLogMsg);
     }
 
-    /**
-     * Run the void logResponse() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
     @Test
-    public void testLogResponse_2()
-            throws Exception {
-        MockResponse fixture = new MockResponse();
-        fixture.responseTime = 1L;
-        fixture.httpCode = 1;
-        fixture.response = null;
-        fixture.responseByteArray = new byte[] {};
-        fixture.rspMessage = "";
-        fixture.responseLogMsg = "";
-
+    public void testLogResponse_2() {
+        BaseResponse fixture = new MockResponse();
+        fixture.headers = new HashMap<String, String>();
+        fixture.headers.put("Content-Type", "text/html");
+        fixture.cookies = new HashMap<String, String>();
+        fixture.cookies.put("testHeadersKey", "testHeadersValue");
+        fixture.response = "testResponse";
         fixture.logResponse();
+        assertEquals("RESPONSE HTTP CODE: -1\n" +
+                "RESPONSE HTTP MSG: \n" +
+                "RESPONSE TIME: -1\n" +
+                "RESPONSE SIZE: 12\n" +
+                "RESPONSE HEADER: Content-Type = text/html\n" +
+                "RESPONSE COOKIE: testHeadersKey = testHeadersValue\n" +
+                "RESPONSE BODY: testResponse\n", fixture.responseLogMsg);
     }
-
-    /**
-     * Run the void logResponse() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testLogResponse_3()
-            throws Exception {
-        MockResponse fixture = new MockResponse();
-        fixture.responseTime = 1L;
-        fixture.httpCode = 1;
-        fixture.response = "";
-        fixture.responseByteArray = new byte[] {};
-        fixture.rspMessage = "";
-        fixture.responseLogMsg = "";
-
-        fixture.logResponse();
-    }
-
-    /**
-     * Run the void logResponse() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testLogResponse_4()
-            throws Exception {
-        MockResponse fixture = new MockResponse();
-        fixture.responseTime = 1L;
-        fixture.httpCode = 1;
-        fixture.response = "";
-        fixture.responseByteArray = new byte[] {};
-        fixture.rspMessage = "";
-        fixture.responseLogMsg = "";
-
-        fixture.logResponse();
-    }
-
-    /**
-     * Run the void logResponse() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testLogResponse_5()
-            throws Exception {
-        MockResponse fixture = new MockResponse();
-        fixture.responseTime = 1L;
-        fixture.httpCode = 1;
-        fixture.response = "";
-        fixture.responseByteArray = new byte[] {};
-        fixture.rspMessage = "";
-        fixture.responseLogMsg = "";
-
-        fixture.logResponse();
-    }
-
-    /**
-     * Run the void logResponse() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testLogResponse_6()
-            throws Exception {
-        MockResponse fixture = new MockResponse();
-        fixture.responseTime = 1L;
-        fixture.httpCode = 1;
-        fixture.response = "";
-        fixture.responseByteArray = new byte[] {};
-        fixture.rspMessage = "";
-        fixture.responseLogMsg = "";
-
-        fixture.logResponse();
-    }
-
-    /**
-     * Run the void logResponse() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testLogResponse_7()
-            throws Exception {
-        MockResponse fixture = new MockResponse();
-        fixture.responseTime = 1L;
-        fixture.httpCode = 1;
-        fixture.response = "";
-        fixture.responseByteArray = new byte[] {};
-        fixture.rspMessage = "";
-        fixture.responseLogMsg = "";
-
-        fixture.logResponse();
-    }
-
 
 }

@@ -1,7 +1,6 @@
 package com.intuit.tank.http;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /*
  * #%L
@@ -17,9 +16,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.intuit.tank.http.binary.BinaryRequest;
+import com.intuit.tank.http.binary.BinaryResponse;
+import com.intuit.tank.http.json.JsonResponse;
+import com.intuit.tank.http.xml.XMLResponse;
 import org.junit.jupiter.api.*;
 
 /**
@@ -237,4 +242,84 @@ public class TankHttpUtilTest {
         assertEquals( "?val2&val1", result);
     }
 
+    @Test
+    public void testNewResponseObject() {
+        BaseResponse result = TankHttpUtil.newResponseObject("test");
+        assertEquals(BinaryResponse.class, result.getClass());
+        BaseResponse xmlResult = TankHttpUtil.newResponseObject("xml");
+        assertEquals(XMLResponse.class, xmlResult.getClass());
+        BaseResponse jsonResult = TankHttpUtil.newResponseObject("json");
+        assertEquals(JsonResponse.class, jsonResult.getClass());
+    }
+
+    @Test
+    public void testGetPartsFromBody() {
+        BaseRequest request = new BinaryRequest(null, null);
+        List<TankHttpUtil.PartHolder> result = TankHttpUtil.getPartsFromBody(request);
+        List<TankHttpUtil.PartHolder> expected = new ArrayList<>();
+        assertEquals(expected, result);
+        request.setBody("test");
+        result = TankHttpUtil.getPartsFromBody(request);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testPartHolderHandler() {
+        byte[] byteArray = { 'T', 'E', 'S', 'T' };
+        TankHttpUtil.PartHolder partHolder = new TankHttpUtil.PartHolder(byteArray, "testHeader");
+        assertNotNull(partHolder);
+    }
+
+    @Test
+    public void testPartHolderGetBody() {
+        byte[] byteArray = { 'T', 'E', 'S', 'T' };
+        TankHttpUtil.PartHolder partHolder = new TankHttpUtil.PartHolder(byteArray, "testHeader");
+        byte[] actual = partHolder.getBody();
+        assertEquals(byteArray, actual);
+    }
+
+    @Test
+    public void testPartHolderGetPartName() {
+        byte[] byteArray = { 'T', 'E', 'S', 'T' };
+        TankHttpUtil.PartHolder partHolder = new TankHttpUtil.PartHolder(byteArray, "Content-Disposition: form-data; name=\"uploadname1\";\n filename=\"diamond-sword.png\"");
+        String actual = partHolder.getPartName();
+        assertEquals("uploadname1", actual);
+    }
+
+    @Test
+    public void testPartHolderGetFileName() {
+        byte[] byteArray = { 'T', 'E', 'S', 'T' };
+        TankHttpUtil.PartHolder partHolder = new TankHttpUtil.PartHolder(byteArray, "Content-Disposition: form-data; name=\"uploadname1\";\n " +
+                "filename=\"diamond-sword.png\"");
+        String actual = partHolder.getFileName();
+        assertEquals("diamond-sword.png", actual);
+    }
+
+    @Test
+    public void testPartHolderGetContentType() {
+        byte[] byteArray = { 'T', 'E', 'S', 'T' };
+        TankHttpUtil.PartHolder partHolder = new TankHttpUtil.PartHolder(byteArray, "Content-Disposition: form-data; name=\"uploadname1\";\n " +
+                "filename=\"diamond-sword.png\"");
+        String actual = partHolder.getContentType();
+        assertEquals("text/plain", actual);
+    }
+
+    @Test
+    public void testPartHolderGetContentDisposition() {
+        byte[] byteArray = { 'T', 'E', 'S', 'T' };
+        TankHttpUtil.PartHolder partHolder = new TankHttpUtil.PartHolder(byteArray, "Content-Disposition: form-data; name=\"uploadname1\";\n " +
+                "filename=\"diamond-sword.png\"");
+        String actual = partHolder.getContentDisposition();
+        assertEquals("form-data; name=\"uploadname1\";\n" +
+                " filename=\"diamond-sword.png\"", actual);
+    }
+
+    @Test
+    public void testPartHolderIsContentTypeSet() {
+        byte[] byteArray = { 'T', 'E', 'S', 'T' };
+        TankHttpUtil.PartHolder partHolder = new TankHttpUtil.PartHolder(byteArray, "Content-Disposition: form-data; name=\"uploadname1\";\n " +
+                "filename=\"diamond-sword.png\"");
+        boolean actual = partHolder.isContentTypeSet();
+        assertFalse(actual);
+    }
 }

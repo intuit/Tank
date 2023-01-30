@@ -40,64 +40,6 @@ public class SOAPRequestTest {
     @Test
     public void testSOAPRequest_2()
         throws Exception {
-        
-
-        SOAPRequest result = new SOAPRequest(null, null);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: Could not initialize class org.apache.commons.httpnull.Httpnull
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the SOAPRequest(Httpnull) constructor test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testSOAPRequest_3()
-        throws Exception {
-        
-
-        SOAPRequest result = new SOAPRequest(null, null);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: Could not initialize class org.apache.commons.httpnull.Httpnull
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the SOAPRequest(Httpnull) constructor test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testSOAPRequest_4()
-        throws Exception {
-        
-
-        SOAPRequest result = new SOAPRequest(null, null);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: Could not initialize class org.apache.commons.httpnull.Httpnull
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the SOAPRequest(Httpnull) constructor test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testSOAPRequest_5()
-        throws Exception {
-        
 
         SOAPRequest result = new SOAPRequest(null, null);
 

@@ -40,6 +40,19 @@ public class JsonRequestTest {
         req.setKey("/address/employeeId", "123");
         body = req.getBody();
         assertEquals("{\"address\":{\"employeeId\":123,\"home\":\"123 street\"}}", body);
+        req.setNamespace("test_key", "test_value");
+        assertEquals("{\"address\":{\"employeeId\":123,\"home\":\"123 street\"}}", body);
+        String key = req.getKey("/address/employeeId");
+        assertEquals("123", key);
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testBody() throws Exception {
+        JsonRequest req = new JsonRequest(null, null);
+        req.setBody("test_body");
+        String body = req.getBody();
+        assertEquals("test_body", body);
     }
 
     static Stream<Arguments> jsonRaw() {
