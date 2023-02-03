@@ -75,4 +75,16 @@ public class DateFunctionsTest {
         date = FunctionHandler.executeFunction(command, variables);
         assertNotNull(date);
     }
+
+    @Test
+    public void testExecuteFunctionFail_1() {
+        String command = "null";
+        String date = FunctionHandler.executeFunction(command, variables);
+        assertNull(date);
+    }
+
+    @Test
+    public void testExecuteFunctionFail_2() {
+       assertNull(DateFunctions.executeFunction(null));
+    }
 }

@@ -15,557 +15,100 @@ package com.intuit.tank.harness.functions;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.harness.functions.DataTypeFunctions;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>DataTypeFunctionsTest</code> contains tests for the class <code>{@link DataTypeFunctions}</code>.
- * 
+ *
  * @generatedBy CodePro at 9/3/14 9:21 PM
  */
 public class DataTypeFunctionsTest {
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
+    String[] values;
+    Map<String, String> ValidValues;
+
+    @BeforeEach
+    public void init() {
+        values = new String[] { null, null, null, null };
+        ValidValues = new HashMap<>();
+        ValidValues.put("BYTE_Max", String.valueOf(Byte.MAX_VALUE));
+        ValidValues.put("BYTE_Min", String.valueOf(Byte.MIN_VALUE));
+        ValidValues.put("BYTE_Max_Plus", String.valueOf(Byte.MAX_VALUE + 1));
+        ValidValues.put("BYTE_Min_Minus", String.valueOf(Byte.MIN_VALUE - 1));
+        ValidValues.put("SHORT_Max", String.valueOf(Short.MAX_VALUE));
+        ValidValues.put("SHORT_Min", String.valueOf(Short.MIN_VALUE));
+        ValidValues.put("SHORT_Max_Plus", String.valueOf(Short.MAX_VALUE + 1));
+        ValidValues.put("SHORT_Min_Minus", String.valueOf(Short.MIN_VALUE - 1));
+        ValidValues.put("INT_Max", String.valueOf(Integer.MAX_VALUE));
+        ValidValues.put("INT_Min", String.valueOf(Integer.MIN_VALUE));
+        ValidValues.put("INT_Max_Plus", String.valueOf(Integer.MAX_VALUE + 1));
+        ValidValues.put("INT_Min_Minus", String.valueOf(Integer.MIN_VALUE - 1));
+        ValidValues.put("LONG_Max", String.valueOf(Long.MAX_VALUE));
+        ValidValues.put("LONG_Min", String.valueOf(Long.MIN_VALUE));
+        ValidValues.put("LONG_Max_Plus", String.valueOf("9223372036854775808"));
+        ValidValues.put("LONG_Min_Minus", String.valueOf("-9223372036854775809"));
+    }
+
     @Test
-    public void testExecuteFunction_1()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
+    public void testExecuteFunction_1() {
         String result = DataTypeFunctions.executeFunction(values);
-
         assertEquals("", result);
     }
 
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testExecuteFunction_2()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
+    public void testExecuteFunction_2() {
+        values[2] = "";
         String result = DataTypeFunctions.executeFunction(values);
-
         assertEquals("", result);
     }
 
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testExecuteFunction_3()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        String result = DataTypeFunctions.executeFunction(values);
-
-        assertEquals("", result);
+    public void testExecuteFunction_3() {
+        Set<String> keys = ValidValues.keySet();
+        for (String value : keys){
+            values[2] = value;
+            String result = DataTypeFunctions.executeFunction(values);
+            assertEquals(ValidValues.get(value), result);
+        }
     }
 
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testExecuteFunction_4()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        String result = DataTypeFunctions.executeFunction(values);
-
-        assertEquals("", result);
-    }
-
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_5()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        String result = DataTypeFunctions.executeFunction(values);
-
-        assertEquals("", result);
-    }
-
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_6()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        String result = DataTypeFunctions.executeFunction(values);
-
-        assertEquals("", result);
-    }
-
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_7()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        String result = DataTypeFunctions.executeFunction(values);
-
-        assertEquals("", result);
-    }
-
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_8()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        String result = DataTypeFunctions.executeFunction(values);
-
-        assertEquals("", result);
-    }
-
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_9()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        String result = DataTypeFunctions.executeFunction(values);
-
-        assertEquals("", result);
-    }
-
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_10()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        String result = DataTypeFunctions.executeFunction(values);
-
-        assertEquals("", result);
-    }
-
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_11()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        String result = DataTypeFunctions.executeFunction(values);
-
-        assertEquals("", result);
-    }
-
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_12()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        String result = DataTypeFunctions.executeFunction(values);
-
-        assertEquals("", result);
-    }
-
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_13()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        String result = DataTypeFunctions.executeFunction(values);
-
-        assertEquals("", result);
-    }
-
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_14()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        String result = DataTypeFunctions.executeFunction(values);
-
-        assertEquals("", result);
-    }
-
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_15()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        String result = DataTypeFunctions.executeFunction(values);
-
-        assertEquals("", result);
-    }
-
-    /**
-     * Run the String executeFunction(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_16()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        String result = DataTypeFunctions.executeFunction(values);
-
-        assertEquals("", result);
-    }
-
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testIsValid_1()
-            throws Exception {
-        String[] values = new String[] {};
-
+    public void testIsValid_1() {
+        values = new String[] {};
         boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testIsValid_2()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
+    public void testIsValid_2() {
+        values[3] = "";
         boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testIsValid_3()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
+    public void testIsValid_3() {
+        values[2] = "testValue";
         boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testIsValid_4()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
+    public void testIsValid_4() {
+        Set<String> keys = ValidValues.keySet();
+        for (String value : keys){
+            values[2] = value;
+            boolean result = DataTypeFunctions.isValid(values);
+            assertTrue(result);
+        }
     }
 
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testIsValid_5()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testIsValid_6()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testIsValid_7()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testIsValid_8()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testIsValid_9()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testIsValid_10()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testIsValid_11()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testIsValid_12()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testIsValid_13()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testIsValid_14()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testIsValid_15()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
-    }
-
-    /**
-     * Run the boolean isValid(String[]) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testIsValid_16()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-
-        boolean result = DataTypeFunctions.isValid(values);
-
-        assertEquals(false, result);
+    public void testValidFunction() {
+        boolean result = FunctionHandler.validFunction("#function.datatype.BYTE_Max");
+        assertTrue(result);
     }
 }

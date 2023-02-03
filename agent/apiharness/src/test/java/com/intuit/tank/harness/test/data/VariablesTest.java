@@ -33,9 +33,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class VariablesTest {
 
@@ -58,6 +56,44 @@ public class VariablesTest {
     	Configuration config = ctx.getConfiguration();
     	config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
     	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testVariableExists() {
+        Variables variables = new Variables();
+        variables.addVariable("VariableName_1", "Variable Value_1");
+        assertTrue(variables.variableExists("VariableName_1"));
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testGetDoubleValue() {
+        Variables variables = new Variables();
+        variables.addVariable("testDoubleValue", "1.0");
+        Double testDouble = variables.getDoubleValue("testDoubleValue");
+        assertEquals(1.0, testDouble);
+        variables.addVariable("testValue", "test");
+        assertNull(variables.getDoubleValue("testValue"));
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testIntegerValue() {
+        Variables variables = new Variables();
+        variables.addVariable("testIntegerValue", "4");
+        Integer testInteger = variables.getIntegerValue("testIntegerValue");
+        assertEquals(4, testInteger);
+        variables.addVariable("testValue", "test");
+        assertNull(variables.getIntegerValue("testValue"));
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testProcessFunction() {
+        Variables variables = new Variables();
+        variables.addVariable("testFunction", "#function.date.currentDate.06-01-2011");
+        assertEquals("06-01-2011", variables.getVariable("testFunction"));
     }
 
     @Test

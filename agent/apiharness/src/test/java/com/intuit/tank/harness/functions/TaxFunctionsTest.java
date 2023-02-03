@@ -17,7 +17,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.harness.functions.TaxFunctions;
 import com.intuit.tank.harness.test.data.Variables;
 
 /**
@@ -163,4 +162,16 @@ public class TaxFunctionsTest {
         assertNotNull(result);
     }
 
+    @Test
+    public void testValidFunction() {
+        boolean result = FunctionHandler.validFunction("#function.tax.getssn");
+        assertTrue(result);
+    }
+
+    @Test
+    public void testValidFunctionFail() {
+        boolean result = FunctionHandler.validFunction("#function.tax.getbbn");
+        assertFalse(result);
+        result = FunctionHandler.validFunction("#function.tax.$5932");
+    }
 }

@@ -20,12 +20,10 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
@@ -168,27 +166,9 @@ public class APITestHarness {
             } else if (values[0].equalsIgnoreCase("-client")) {
                 tankHttpClientClass = StringUtils.trim(values[1]);
             } else if (values[0].equalsIgnoreCase("-d")) {
-                LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-                Configuration config = ctx.getConfiguration();
-                LoggerConfig loggerConfig = new LoggerConfig();
-                loggerConfig.setLevel(Level.DEBUG);
-                config.addLogger("com.intuit.tank.http", loggerConfig);
-                config.addLogger("com.intuit.tank", loggerConfig);
-                ctx.updateLoggers(config);
-                DEBUG = true;
-                agentRunData.setActiveProfile(LoggingProfile.VERBOSE);
-                setFlowControllerTemplate(new DebugFlowController());
+                setDebugLogger(new DebugFlowController());
             } else if (values[0].equalsIgnoreCase("-t")) {
-                LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-                Configuration config = ctx.getConfiguration();
-                LoggerConfig loggerConfig = new LoggerConfig();
-                loggerConfig.setLevel(Level.DEBUG);
-                config.addLogger("com.intuit.tank.http", loggerConfig);
-                config.addLogger("com.intuit.tank", loggerConfig);
-                ctx.updateLoggers(config);
-                DEBUG = true;
-                agentRunData.setActiveProfile(LoggingProfile.VERBOSE);
-                setFlowControllerTemplate(new TraceFlowController());
+                setDebugLogger(new TraceFlowController());
             } else if (values[0].equalsIgnoreCase("-local")) {
                 isLocal = true;
             } else if (values[0].equalsIgnoreCase("-instanceId")) {
@@ -758,6 +738,19 @@ public class APITestHarness {
             resultsReporter
                     .sendTimingResults(getAgentRunData().getJobId(), getAgentRunData().getInstanceId(), list, false);
         }
+    }
+
+    public void setDebugLogger(FlowController flowController){
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        Configuration config = ctx.getConfiguration();
+        LoggerConfig loggerConfig = new LoggerConfig();
+        loggerConfig.setLevel(Level.DEBUG);
+        config.addLogger("com.intuit.tank.http", loggerConfig);
+        config.addLogger("com.intuit.tank", loggerConfig);
+        ctx.updateLoggers(config);
+        DEBUG = true;
+        agentRunData.setActiveProfile(LoggingProfile.VERBOSE);
+        setFlowControllerTemplate(flowController);
     }
 
     /**

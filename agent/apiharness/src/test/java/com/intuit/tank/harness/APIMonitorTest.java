@@ -1,0 +1,39 @@
+package com.intuit.tank.harness;
+
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.api.model.v1.cloud.VMStatus;
+import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
+import com.intuit.tank.vm.api.enumerated.JobStatus;
+import com.intuit.tank.vm.api.enumerated.VMImageType;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.Date;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class APIMonitorTest {
+
+    public APITestHarness instance;
+
+    @BeforeEach
+    public void init() {
+        instance = APITestHarness.getInstance();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        APITestHarness.destroyCurrentInstance();
+    }
+
+    @Test
+    public void testAPIMonitorTest_1() {
+        CloudVmStatus status = new CloudVmStatus(null, "unknown", "wats-dev", JobStatus.Unknown,
+                VMImageType.AGENT, VMRegion.US_EAST, VMStatus.running,
+                new ValidationStatus(), 0, 0, new Date(), null);
+        APIMonitor apiMonitor = new APIMonitor(false, status);
+        assertNotNull(apiMonitor);
+    }
+}

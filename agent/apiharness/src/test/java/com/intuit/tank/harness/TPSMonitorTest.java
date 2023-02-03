@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.reporting.api.TPSInfoContainer;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -28,6 +30,19 @@ import org.junit.jupiter.api.Test;
  * @generatedBy CodePro at 9/15/14 4:03 PM
  */
 public class TPSMonitorTest {
+
+    public APITestHarness instance;
+
+    @BeforeEach
+    public void init() {
+        instance = APITestHarness.getInstance();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        APITestHarness.destroyCurrentInstance();
+    }
+
     /**
      * Run the TPSMonitor(int) constructor test.
      * 

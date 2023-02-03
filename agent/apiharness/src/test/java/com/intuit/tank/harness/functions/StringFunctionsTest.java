@@ -13,15 +13,12 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.harness.functions.StringFunctions;
 import com.intuit.tank.harness.test.data.Variables;
 
 /**
@@ -30,368 +27,164 @@ import com.intuit.tank.harness.test.data.Variables;
  * @generatedBy CodePro at 9/3/14 9:21 PM
  */
 public class StringFunctionsTest {
-    /**
-     * Run the StringFunctions() constructor test.
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
+
+    String[] validValues;
+
+    @BeforeEach
+    public void init() {
+        validValues = new String[] {"userid", "randomalphalower", "randomalphaupper", "randomalphamixed",
+                "randomnumeric", "randomspecial", "randomalphamixednumeric",
+                "randomalphamixedspecial", "randomalphamixednumericspecial", "concat",
+                "useridFromRange", "useridFromRangeInclude", "useridFromRangeExclude",
+                "useridFromRangeWithMod", "useridFromRangeWithModExclude",
+                "useridFromRangeWithModInclude", "substring"};
+    }
+
     @Test
-    public void testStringFunctions_1()
-            throws Exception {
+    public void testStringFunctions_1() {
         StringFunctions result = new StringFunctions();
         assertNotNull(result);
     }
 
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testExecuteFunction_1()
-            throws Exception {
+    public void testIsValid() {
+        StringFunctions result = new StringFunctions();
+        String[] values = new String[] { null, null, null, ""};
+        boolean valid = StringFunctions.isValid(values);
+        assertFalse(valid);
+
+        values[3] = null;
+        for (String value : validValues){
+            values[2] = value;
+            valid = StringFunctions.isValid(values);
+            assertTrue(valid);
+        }
+
+        values = new String[] { null, null, null, null };
+        valid = StringFunctions.isValid(values);
+        assertFalse(valid);
+
+        values = new String[] { null, null, "test", null };
+        valid = StringFunctions.isValid(values);
+        assertFalse(valid);
+    }
+
+    @Test
+    public void testExecuteFunction_1() {
         String[] values = new String[] { null, null, "", null, null };
         Variables variables = new Variables();
         String addtlString = "";
 
         String result = StringFunctions.executeFunction(values, variables, addtlString);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class org.apache.log4j.LogManager
-        // at org.apache.log4j.LogManager.getLogger(Logger.java:117)
-        // at com.intuit.tank.harness.test.data.Variables.<clinit>(Variables.java:36)
         assertNotNull(result);
     }
 
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testExecuteFunction_2()
-            throws Exception {
+    public void testExecuteFunction_2() {
         String[] values = new String[] { null, null, "", null, null, null };
         Variables variables = new Variables();
         String addtlString = "";
 
         String result = StringFunctions.executeFunction(values, variables, addtlString);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
         assertNotNull(result);
     }
 
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testExecuteFunction_3()
-            throws Exception {
-        String[] values = new String[] { null, null, "", null, null, null };
-        Variables variables = new Variables();
-        String addtlString = "";
-
-        String result = StringFunctions.executeFunction(values, variables, addtlString);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_4()
-            throws Exception {
-        String[] values = new String[] { null, null, "", null, null, null };
-        Variables variables = new Variables();
-        String addtlString = "";
-
-        String result = StringFunctions.executeFunction(values, variables, addtlString);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_5()
-            throws Exception {
+    public void testExecuteFunction_3() {
         String[] values = new String[] { null, null, "", "", "", null };
         Variables variables = new Variables();
         String addtlString = "";
 
         String result = StringFunctions.executeFunction(values, variables, addtlString);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
         assertNotNull(result);
     }
 
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testExecuteFunction_6()
-            throws Exception {
+    public void testExecuteFunction_4() {
         String[] values = new String[] { null, null, "" };
         Variables variables = new Variables();
         String addtlString = "";
 
         String result = StringFunctions.executeFunction(values, variables, addtlString);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
         assertNotNull(result);
     }
 
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testExecuteFunction_7()
-            throws Exception {
+    public void testExecuteFunction_5() {
         String[] values = new String[] { null, null, null, "" };
         Variables variables = new Variables();
         String addtlString = "";
 
         String result = StringFunctions.executeFunction(values, variables, addtlString);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
         assertNotNull(result);
     }
 
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testExecuteFunction_8()
-            throws Exception {
+    public void testExecuteFunction_6() {
         String[] values = new String[] { null, null, "", "" };
         Variables variables = new Variables();
         String addtlString = "";
 
         String result = StringFunctions.executeFunction(values, variables, addtlString);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
         assertNotNull(result);
     }
 
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testExecuteFunction_9()
-            throws Exception {
-        String[] values = new String[] { null, null, "", "" };
-        Variables variables = new Variables();
-        String addtlString = "";
-
-        String result = StringFunctions.executeFunction(values, variables, addtlString);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_10()
-            throws Exception {
-        String[] values = new String[] { null, null, "", "" };
-        Variables variables = new Variables();
-        String addtlString = "";
-
-        String result = StringFunctions.executeFunction(values, variables, addtlString);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_11()
-            throws Exception {
-        String[] values = new String[] { null, null, "", "" };
-        Variables variables = new Variables();
-        String addtlString = "";
-
-        String result = StringFunctions.executeFunction(values, variables, addtlString);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_12()
-            throws Exception {
-        String[] values = new String[] { null, null, "", "" };
-        Variables variables = new Variables();
-        String addtlString = "";
-
-        String result = StringFunctions.executeFunction(values, variables, addtlString);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_13()
-            throws Exception {
-        String[] values = new String[] { null, null, "", "" };
-        Variables variables = new Variables();
-        String addtlString = "";
-
-        String result = StringFunctions.executeFunction(values, variables, addtlString);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_14()
-            throws Exception {
-        String[] values = new String[] { null, null, "", "" };
-        Variables variables = new Variables();
-        String addtlString = "";
-
-        String result = StringFunctions.executeFunction(values, variables, addtlString);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_15()
-            throws Exception {
-        String[] values = new String[] { null, null, "", "" };
-        Variables variables = new Variables();
-        String addtlString = "";
-
-        String result = StringFunctions.executeFunction(values, variables, addtlString);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String executeFunction(String[],Variables,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_16()
-            throws Exception {
+    public void testExecuteFunction_7() {
         String[] values = new String[] { null, null, "", "", "" };
         Variables variables = new Variables();
         String addtlString = "";
 
         String result = StringFunctions.executeFunction(values, variables, addtlString);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
         assertNotNull(result);
     }
 
-    /**
-     * Run the Stack<Integer> getStack(Integer,Integer,String,boolean) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testGetStack_1()
-            throws Exception {
-        Integer minId = Integer.valueOf(1);
-        Integer maxId = Integer.valueOf(1);
+    public void testExecuteFunction_8() {
+        String[] values = new String[] { null, null, null, "11", "12", ""};
+        Variables variables = new Variables();
+        String addtlString = "2testString";
+        String result;
+
+        for (String value : validValues){
+            if (value.equals("substring")){
+                break;
+            }
+            values[2] = value;
+            values[3] = String.valueOf(Integer.parseInt(values[3]) + 10);
+            values[4] = String.valueOf(Integer.parseInt(values[3]) + 10);
+            String initialValue = "";
+            initialValue = values[5];
+            values[5] = values[5] + values[3];
+            result = StringFunctions.executeFunction(values, variables, addtlString);
+            assertNotEquals("", result);
+            values[5] = initialValue;
+        }
+
+        values = new String[] { null, null,"substring", "test", "0"};
+        result = StringFunctions.executeFunction(values, variables, addtlString);
+        assertNotEquals("", result);
+
+        values = new String[] { null, null,"substring", "test", "0", "2"};
+        result = StringFunctions.executeFunction(values, variables, addtlString);
+        assertNotEquals("", result);
+
+        values = new String[] { null, null,"substring", "2", "5", "test"};
+        result = StringFunctions.executeFunction(values, variables, addtlString);
+        assertNotEquals("", result);
+    }
+
+    @Test
+    public void testGetStack_1() {
+        Integer minId = 1;
+        Integer maxId = 1;
         String exclusions = "";
         boolean include = true;
 
@@ -413,8 +206,8 @@ public class StringFunctionsTest {
     @Test
     public void testGetStack_2()
             throws Exception {
-        Integer minId = Integer.valueOf(1);
-        Integer maxId = Integer.valueOf(1);
+        Integer minId = 1;
+        Integer maxId = 1;
         String exclusions = "";
         boolean include = false;
 
@@ -436,54 +229,8 @@ public class StringFunctionsTest {
     @Test
     public void testGetStack_3()
             throws Exception {
-        Integer minId = Integer.valueOf(1);
-        Integer maxId = Integer.valueOf(1);
-        String exclusions = "";
-        boolean include = true;
-
-        Stack<Integer> result = StringFunctions.getStack(minId, maxId, exclusions, include);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class
-        // com.intuit.tank.harness.functions.StringFunctions
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the Stack<Integer> getStack(Integer,Integer,String,boolean) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testGetStack_4()
-            throws Exception {
-        Integer minId = Integer.valueOf(1);
-        Integer maxId = Integer.valueOf(1);
-        String exclusions = "";
-        boolean include = true;
-
-        Stack<Integer> result = StringFunctions.getStack(minId, maxId, exclusions, include);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class
-        // com.intuit.tank.harness.functions.StringFunctions
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the Stack<Integer> getStack(Integer,Integer,String,boolean) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testGetStack_5()
-            throws Exception {
-        Integer minId = new Integer(1);
-        Integer maxId = new Integer(1);
+        Integer minId = 1;
+        Integer maxId = 1;
         String exclusions = "";
         boolean include = true;
 
@@ -503,10 +250,10 @@ public class StringFunctionsTest {
      * @generatedBy CodePro at 9/3/14 9:21 PM
      */
     @Test
-    public void testShouldInclude_2()
+    public void testShouldInclude_1()
             throws Exception {
         String value = "";
-        List<String> expressions = new LinkedList();
+        List<String> expressions = new LinkedList<>();
         boolean include = false;
 
         boolean result = StringFunctions.shouldInclude(value, expressions, include);
@@ -517,25 +264,10 @@ public class StringFunctionsTest {
         assertTrue(result);
     }
 
-    /**
-     * Run the boolean shouldInclude(String,List<String>,boolean) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testShouldInclude_4()
-            throws Exception {
-        String value = "";
-        List<String> expressions = new LinkedList();
-        boolean include = false;
+    public void testValidFunction() {
+        boolean result = FunctionHandler.validFunction("#function.string.userid.9.MM-dd-yyyy");
 
-        boolean result = StringFunctions.shouldInclude(value, expressions, include);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class
-        // com.intuit.tank.harness.functions.StringFunctions
         assertTrue(result);
     }
 }

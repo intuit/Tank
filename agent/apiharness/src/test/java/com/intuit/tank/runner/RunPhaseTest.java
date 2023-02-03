@@ -15,14 +15,15 @@ package com.intuit.tank.runner;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.runner.RunPhase;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * The class <code>RunPhaseTest</code> contains tests for the class <code>{@link RunPhase}</code>.
- *
- * @generatedBy CodePro at 12/16/14 5:53 PM
- */
 public class RunPhaseTest {
+
+    @Test
+    public void testRunPhaseTest() {
+        assertEquals("step", RunPhase.step.name());
+        assertEquals("script", RunPhase.script.name());
+        assertEquals("group", RunPhase.group.name());
+        assertEquals("test", RunPhase.test.name());
+    }
 }

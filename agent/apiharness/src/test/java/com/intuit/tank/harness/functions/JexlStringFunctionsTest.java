@@ -167,4 +167,83 @@ public class JexlStringFunctionsTest {
         String evaluated = variables.evaluate("#{stringFunctions.concat('Turbo', 'Scale ', name)}");
         assertNotNull(evaluated);
     }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testResetStatistics() {
+        String evaluated = variables.evaluate("#{stringFunctions.resetStatics()}");
+        assertNotNull(evaluated);
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testUserIdFromDate() {
+        JexlStringFunctions instance = new JexlStringFunctions();
+        String result = instance.userIdFromDate(2, "MM-dd-yyyy");
+        assertTrue(result.contains("-"));
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testUserIdFromRange() {
+        JexlStringFunctions instance = new JexlStringFunctions();
+        String result = instance.userIdFromRange(1,3);
+        assertNotEquals("", result);
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testSubstringStart() {
+        JexlStringFunctions instance = new JexlStringFunctions();
+        String result = instance.substring("test", 1);
+        assertEquals("est", result);
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testSubstringStartStop() {
+        JexlStringFunctions instance = new JexlStringFunctions();
+        String result = instance.substring("test", 1, 3);
+        assertEquals("es", result);
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testMain() {
+        JexlStringFunctions.main(new String[]{});
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testRandomStrings() {
+        JexlStringFunctions instance = new JexlStringFunctions();
+        String result1 = instance.randomNumeric(7);
+        String result2 = instance.randomSpecial(7);
+        String result3 = instance.randomAlphaMixedNumericSpecial(7);
+        assertEquals(7, result1.length());
+        assertEquals(7, result2.length());
+        assertEquals(7, result3.length());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testBaseCodeFail() {
+        JexlStringFunctions instance = new JexlStringFunctions();
+        assertNull(instance.toBase64(null));
+        assertNull(instance.fromBase64(null));
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testMiscFunctions() {
+        JexlStringFunctions instance = new JexlStringFunctions();
+        String test = instance.byteArrayToBase64(new byte[]{1, 2, 3});
+        String uuid = instance.getUUID();
+        assertEquals("AQID", test);
+        assertTrue(uuid.contains("-"));
+        assertNull(instance.urlEncode(null));
+        assertNull(instance.urlDecode(null));
+
+
+    }
 }
