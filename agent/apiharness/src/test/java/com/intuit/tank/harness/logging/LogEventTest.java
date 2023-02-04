@@ -7,74 +7,32 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Map;
 
 import com.intuit.tank.harness.MockResponse;
-import org.junit.jupiter.api.Disabled;
+import com.intuit.tank.harness.data.*;
+import com.intuit.tank.http.BaseResponse;
+import com.intuit.tank.http.binary.BinaryRequest;
 import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.harness.MockRequest;
-import com.intuit.tank.harness.data.ClearCookiesStep;
-import com.intuit.tank.harness.data.HDScript;
-import com.intuit.tank.harness.data.HDScriptGroup;
-import com.intuit.tank.harness.data.HDTestPlan;
-import com.intuit.tank.harness.data.TestStep;
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.logging.SourceType;
 
-/**
- * The class <code>LogEventTest</code> contains tests for the class <code>{@link LogEvent}</code>.
- * 
- * @generatedBy CodePro at 9/3/14 9:20 PM
- */
 public class LogEventTest {
-    /**
-     * Run the LogEvent() constructor test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
+
     @Test
-    @Disabled
-    public void testLogEvent_1()
-            throws Exception {
+    public void testLogEvent_1() {
 
         LogEvent result = new LogEvent();
 
         assertNotNull(result);
-        assertEquals(" EventType=\"Other\"  SourceType=\"agent\" null", result.buildMessage());
-        assertEquals(null, result.getThreadId());
-        assertEquals(null, result.getGroup());
-        assertEquals(null, result.getInstanceId());
-        assertEquals(null, result.getVariables());
-        assertEquals(null, result.getMessage());
-        assertEquals(null, result.getScript());
-        assertEquals(null, result.getProjectName());
-        assertEquals(null, result.getRequest());
-        assertEquals(null, result.getHostname());
-        assertEquals(null, result.getValidationStatus());
-        assertEquals(null, result.getStep());
-        assertEquals(null, result.getLoggingKey());
-        assertEquals(null, result.getJobId());
-        assertEquals(null, result.getTestPlan());
-        assertEquals(null, result.getStepGroupName());
-        assertEquals(null, result.getTransactionId());
-        assertEquals(null, result.getPublicIp());
-        assertEquals(null, result.getStepIndex());
-        assertEquals(null, result.getIteration());
+        assertEquals("Other", result.buildMessage().get("EventType"));
+        assertEquals("agent", result.buildMessage().get("SourceType"));
     }
 
-    /**
-     * Run the String buildMessage() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testBuildMessage_1()
-            throws Exception {
+    public void testBuildMessage_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -93,40 +51,30 @@ public class LogEventTest {
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
-        fixture.setStep((TestStep) null);
+        fixture.setStep(null);
         fixture.setStepIndex("");
         fixture.setMessage("");
         fixture.setIteration("");
-        fixture.setScript((HDScript) null);
+        fixture.setScript(null);
 
         Map<String,String> result = fixture.buildMessage();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("Http", result.get("EventType"));
+        assertEquals("agent", result.get("SourceType"));
     }
 
-    /**
-     * Run the String buildMessage() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testBuildMessage_2()
-            throws Exception {
+    public void testBuildMessage_2() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
         fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan((HDTestPlan) null);
+        fixture.setTestPlan(null);
         fixture.setValidationStatus("");
         fixture.setVariables(new Variables());
         fixture.setThreadId("");
         fixture.setPublicIp("");
         fixture.setProjectName("");
-        fixture.setGroup((HDScriptGroup) null);
+        fixture.setGroup(null);
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
@@ -141,22 +89,12 @@ public class LogEventTest {
         fixture.setScript(new HDScript());
 
         Map<String,String> result = fixture.buildMessage();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("Http", result.get("EventType"));
+        assertEquals("agent", result.get("SourceType"));
     }
 
-    /**
-     * Run the String buildMessage(LogEventType,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testBuildMessage_3()
-            throws Exception {
+    public void testBuildMessage_3() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -184,12 +122,8 @@ public class LogEventTest {
         String message = "";
 
         Map<String,String> result = fixture.buildMessage(type, message);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.ExceptionInInitializerError
-        // at org.apache.log4j.LogManager.getLogger(Logger.java:117)
-        // at com.intuit.tank.harness.test.data.Variables.<clinit>(Variables.java:36)
-        assertNotNull(result);
+        assertEquals("Http", result.get("EventType"));
+        assertEquals("agent", result.get("SourceType"));
     }
 
     /**
@@ -259,11 +193,11 @@ public class LogEventTest {
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
-        fixture.setStep((TestStep) null);
+        fixture.setStep(null);
         fixture.setStepIndex("");
         fixture.setMessage("");
         fixture.setIteration("");
-        fixture.setScript((HDScript) null);
+        fixture.setScript(null);
         fixture.setRequest(mockRequest);
 
         Map<String,String> result = fixture.buildMessage();
@@ -273,18 +207,74 @@ public class LogEventTest {
     }
 
     /**
-     * Run the LoggingProfile getActiveProfile() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
+     * Testing getValidationCriteria() through buildMessage()
      */
     @Test
-    public void testGetActiveProfile_1()
-            throws Exception {
+    public void testBuildMessage_6() {
+        LogEvent fixture = new LogEvent();
+        RequestStep step = new RequestStep();
+        step.setRequest(new HDRequest());
+        HDResponse response = new HDResponse();
+        step.setResponse(new HDResponse());
+        step.setComments("");
+        step.setName("");
+        step.setStepIndex(1);
+        step.setOnFail("");
+        step.setScriptGroupName("");
+        step.setParent(new HDScriptUseCase());
+        fixture.setStep(step);
+        LogEventType type = LogEventType.Http;
+        String message = "";
+
+        Map<String,String> result = fixture.buildMessage(type, message);
+        assertEquals("Http", result.get("EventType"));
+        assertEquals("agent", result.get("SourceType"));
+    }
+
+    /**
+     * Testing getBody() and truncateBody() through buildMessage()
+     */
+    @Test
+    public void testBuildMessage_7() {
+        LogEvent fixture = new LogEvent();
+        BaseRequest request = new MockRequest();
+        BaseResponse response = new MockResponse();
+        response.setResponseBody("testBody");
+        response.setHeader("Content-Type", "text/html");
+        request.setResponse(response);
+        fixture.setRequest(request);
+
+        LogEventType type = LogEventType.Http;
+        String message = "";
+
+        Map<String,String> result = fixture.buildMessage(type, message);
+        assertEquals("Http", result.get("EventType"));
+        assertEquals("agent", result.get("SourceType"));
+
+        response.setHeader("Content-Type", "WrongMimeType");
+        request.setResponse(response);
+        fixture.setRequest(request);
+
+        result = fixture.buildMessage(type, message);
+        assertEquals("Http", result.get("EventType"));
+        assertEquals("agent", result.get("SourceType"));
+
+        String maxBodyPlus = "test" +"largerBody".repeat(500);
+        response.setResponseBody(maxBodyPlus);
+        response.setHeader("Content-Type", "text/html");
+        request.setResponse(response);
+        fixture.setRequest(request);
+
+        result = fixture.buildMessage(type, message);
+        assertEquals("Http", result.get("EventType"));
+        assertEquals("agent", result.get("SourceType"));
+    }
+
+    @Test
+    public void testGetActiveProfile_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
-        fixture.setActiveProfile((LoggingProfile) null);
+        fixture.setActiveProfile(null);
         fixture.setEventType(LogEventType.Http);
         fixture.setTestPlan(new HDTestPlan());
         fixture.setValidationStatus("");
@@ -307,22 +297,11 @@ public class LogEventTest {
         fixture.setScript(new HDScript());
 
         LoggingProfile result = fixture.getActiveProfile();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals(LoggingProfile.STANDARD, result);
     }
 
-    /**
-     * Run the LoggingProfile getActiveProfile() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetActiveProfile_2()
-            throws Exception {
+    public void testGetActiveProfile_2() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -348,22 +327,11 @@ public class LogEventTest {
         fixture.setScript(new HDScript());
 
         LoggingProfile result = fixture.getActiveProfile();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals(LoggingProfile.STANDARD, result);
     }
 
-    /**
-     * Run the LogEventType getEventType() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetEventType_1()
-            throws Exception {
+    public void testGetEventType_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -389,22 +357,11 @@ public class LogEventTest {
         fixture.setScript(new HDScript());
 
         LogEventType result = fixture.getEventType();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals(LogEventType.Http, result);
     }
 
-    /**
-     * Run the HDScriptGroup getGroup() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetGroup_1()
-            throws Exception {
+    public void testGetGroup_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -415,7 +372,9 @@ public class LogEventTest {
         fixture.setThreadId("");
         fixture.setPublicIp("");
         fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
+        HDScriptGroup group = new HDScriptGroup();
+        group.setName("testGroup");
+        fixture.setGroup(group);
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
@@ -430,24 +389,13 @@ public class LogEventTest {
         fixture.setScript(new HDScript());
 
         HDScriptGroup result = fixture.getGroup();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("testGroup", result.getName());
     }
 
-    /**
-     * Run the String getHostname() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetHostname_1()
-            throws Exception {
+    public void testGetHostname_1() {
         LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
+        fixture.setHostname("testHostname");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
         fixture.setEventType(LogEventType.Http);
         fixture.setTestPlan(new HDTestPlan());
@@ -471,22 +419,11 @@ public class LogEventTest {
         fixture.setScript(new HDScript());
 
         String result = fixture.getHostname();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("testHostname", result);
     }
 
-    /**
-     * Run the String getInstanceId() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetInstanceId_1()
-            throws Exception {
+    public void testGetInstanceId_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -504,7 +441,7 @@ public class LogEventTest {
         fixture.setTransactionId("");
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
+        fixture.setInstanceId("testInstanceId");
         fixture.setStep(new ClearCookiesStep());
         fixture.setStepIndex("");
         fixture.setMessage("");
@@ -512,22 +449,11 @@ public class LogEventTest {
         fixture.setScript(new HDScript());
 
         String result = fixture.getInstanceId();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("testInstanceId", result);
     }
 
-    /**
-     * Run the String getIteration() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetIteration_1()
-            throws Exception {
+    public void testGetIteration_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -549,26 +475,15 @@ public class LogEventTest {
         fixture.setStep(new ClearCookiesStep());
         fixture.setStepIndex("");
         fixture.setMessage("");
-        fixture.setIteration("");
+        fixture.setIteration("testIteration");
         fixture.setScript(new HDScript());
 
         String result = fixture.getIteration();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("testIteration", result);
     }
 
-    /**
-     * Run the String getJobId() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetJobId_1()
-            throws Exception {
+    public void testGetJobId_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -580,7 +495,7 @@ public class LogEventTest {
         fixture.setPublicIp("");
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
+        fixture.setJobId("testJobId");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
         fixture.setTransactionId("");
@@ -594,22 +509,11 @@ public class LogEventTest {
         fixture.setScript(new HDScript());
 
         String result = fixture.getJobId();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("testJobId", result);
     }
 
-    /**
-     * Run the String getLoggingKey() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetLoggingKey_1()
-            throws Exception {
+    public void testGetLoggingKey_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -631,25 +535,14 @@ public class LogEventTest {
         fixture.setMessage("");
         fixture.setIteration("");
         fixture.setScript(new HDScript());
-        fixture.setLoggingKey("test");
+        fixture.setLoggingKey("testLoggingKey");
 
         String result = fixture.getLoggingKey();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("testLoggingKey", result);
     }
 
-    /**
-     * Run the String getMessage() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetMessage_1()
-            throws Exception {
+    public void testGetMessage_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -670,27 +563,16 @@ public class LogEventTest {
         fixture.setInstanceId("");
         fixture.setStep(new ClearCookiesStep());
         fixture.setStepIndex("");
-        fixture.setMessage("");
+        fixture.setMessage("testMessage");
         fixture.setIteration("");
         fixture.setScript(new HDScript());
 
         String result = fixture.getMessage();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("testMessage", result);
     }
 
-    /**
-     * Run the String getProjectName() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetProjectName_1()
-            throws Exception {
+    public void testGetProjectName_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -700,7 +582,7 @@ public class LogEventTest {
         fixture.setVariables(new Variables());
         fixture.setThreadId("");
         fixture.setPublicIp("");
-        fixture.setProjectName("");
+        fixture.setProjectName("testProject");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
@@ -716,22 +598,11 @@ public class LogEventTest {
         fixture.setScript(new HDScript());
 
         String result = fixture.getProjectName();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("testProject", result);
     }
 
-    /**
-     * Run the String getPublicIp() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetPublicIp_1()
-            throws Exception {
+    public void testGetPublicIp_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -740,7 +611,7 @@ public class LogEventTest {
         fixture.setValidationStatus("");
         fixture.setVariables(new Variables());
         fixture.setThreadId("");
-        fixture.setPublicIp("");
+        fixture.setPublicIp("testPublicIp");
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
@@ -757,22 +628,11 @@ public class LogEventTest {
         fixture.setScript(new HDScript());
 
         String result = fixture.getPublicIp();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("testPublicIp", result);
     }
 
-    /**
-     * Run the HDScript getScript() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetScript_1()
-            throws Exception {
+    public void testGetScript_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -795,25 +655,16 @@ public class LogEventTest {
         fixture.setStepIndex("");
         fixture.setMessage("");
         fixture.setIteration("");
-        fixture.setScript(new HDScript());
+        HDScript script = new HDScript();
+        script.setName("testScript");
+        fixture.setScript(script);
 
         HDScript result = fixture.getScript();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("testScript", result.getName());
     }
 
-    /**
-     * Run the SourceType getSourceType() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetSourceType_1()
-            throws Exception {
+    public void testGetSourceType_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -839,22 +690,11 @@ public class LogEventTest {
         fixture.setScript(new HDScript());
 
         SourceType result = fixture.getSourceType();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals(SourceType.agent, result);
     }
 
-    /**
-     * Run the String getStepIndex() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetStepIndex_1()
-            throws Exception {
+    public void testGetStepIndex_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -874,33 +714,24 @@ public class LogEventTest {
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
         fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
+        fixture.setStepIndex("testStepIndex");
         fixture.setMessage("");
         fixture.setIteration("");
         fixture.setScript(new HDScript());
 
         String result = fixture.getStepIndex();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("testStepIndex", result);
     }
 
-    /**
-     * Run the HDTestPlan getTestPlan() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetTestPlan_1()
-            throws Exception {
+    public void testGetTestPlan_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
         fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
+        HDTestPlan testPlan = new HDTestPlan();
+        testPlan.setTestPlanName("testPlan");
+        fixture.setTestPlan(testPlan);
         fixture.setValidationStatus("");
         fixture.setVariables(new Variables());
         fixture.setThreadId("");
@@ -921,22 +752,11 @@ public class LogEventTest {
         fixture.setScript(new HDScript());
 
         HDTestPlan result = fixture.getTestPlan();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("testPlan", result.getTestPlanName());
     }
 
-    /**
-     * Run the String getThreadId() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetThreadId_1()
-            throws Exception {
+    public void testGetThreadId_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -944,7 +764,7 @@ public class LogEventTest {
         fixture.setTestPlan(new HDTestPlan());
         fixture.setValidationStatus("");
         fixture.setVariables(new Variables());
-        fixture.setThreadId("");
+        fixture.setThreadId("testThreadId");
         fixture.setPublicIp("");
         fixture.setProjectName("");
         fixture.setGroup(new HDScriptGroup());
@@ -962,29 +782,20 @@ public class LogEventTest {
         fixture.setScript(new HDScript());
 
         String result = fixture.getThreadId();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("testThreadId", result);
     }
 
-    /**
-     * Run the Variables getVariables() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetVariables_1()
-            throws Exception {
+    public void testGetVariables_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
         fixture.setEventType(LogEventType.Http);
         fixture.setTestPlan(new HDTestPlan());
         fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
+        Variables testVariables = new Variables();
+        testVariables.addVariable("testKey", "testValue");
+        fixture.setVariables(testVariables);
         fixture.setThreadId("");
         fixture.setPublicIp("");
         fixture.setProjectName("");
@@ -1003,29 +814,20 @@ public class LogEventTest {
         fixture.setScript(new HDScript());
 
         Variables result = fixture.getVariables();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("testValue", result.getVariable("testKey"));
     }
 
-    /**
-     * Run the void setActiveProfile(LoggingProfile) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetActiveProfile_1()
-            throws Exception {
+    public void testGetRequest_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
         fixture.setEventType(LogEventType.Http);
         fixture.setTestPlan(new HDTestPlan());
         fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
+        Variables testVariables = new Variables();
+        testVariables.addVariable("testKey", "testValue");
+        fixture.setVariables(testVariables);
         fixture.setThreadId("");
         fixture.setPublicIp("");
         fixture.setProjectName("");
@@ -1042,434 +844,15 @@ public class LogEventTest {
         fixture.setMessage("");
         fixture.setIteration("");
         fixture.setScript(new HDScript());
-        LoggingProfile activeProfile = LoggingProfile.STANDARD;
+        BaseRequest request = new BinaryRequest(null, null);
+        fixture.setRequest(request);
 
-        fixture.setActiveProfile(activeProfile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
+        BaseRequest result = fixture.getRequest();
+        assertEquals(request, result);
     }
 
-    /**
-     * Run the void setEventType(LogEventType) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetEventType_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        LogEventType eventType = LogEventType.Http;
-
-        fixture.setEventType(eventType);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setGroup(HDScriptGroup) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetGroup_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        HDScriptGroup group = new HDScriptGroup();
-
-        fixture.setGroup(group);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setHostname(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetHostname_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        String hostname = "";
-
-        fixture.setHostname(hostname);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setInstanceId(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetInstanceId_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        String instanceId = "";
-
-        fixture.setInstanceId(instanceId);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setIteration(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetIteration_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        String iteration = "";
-
-        fixture.setIteration(iteration);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setJobId(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetJobId_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        String jobId = "";
-
-        fixture.setJobId(jobId);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setLoggingKey(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetLoggingKey_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        String loggingKey = "";
-
-        fixture.setLoggingKey(loggingKey);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setMessage(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetMessage_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        String message = "";
-
-        fixture.setMessage(message);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setProjectName(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetProjectName_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        String projectName = "";
-
-        fixture.setProjectName(projectName);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setPublicIp(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetPublicIp_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        String publicIp = "";
-
-        fixture.setPublicIp(publicIp);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setRequest(BaseRequest) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetRequest_1()
-            throws Exception {
+    public void testSetRequest_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -1494,105 +877,14 @@ public class LogEventTest {
         fixture.setIteration("");
         fixture.setScript(new HDScript());
         BaseRequest request = new MockRequest();
+        request.setBody("testBody");
 
         fixture.setRequest(request);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
+        assertEquals("testBody", request.getBody());
     }
 
-    /**
-     * Run the void setScript(HDScript) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetScript_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        HDScript script = new HDScript();
-
-        fixture.setScript(script);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setSourceType(SourceType) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetSourceType_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        SourceType sourceType = SourceType.agent;
-
-        fixture.setSourceType(sourceType);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setStep(TestStep) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetStep_1()
-            throws Exception {
+    public void testSetStep_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -1617,23 +909,14 @@ public class LogEventTest {
         fixture.setIteration("");
         fixture.setScript(new HDScript());
         TestStep step = new ClearCookiesStep();
-
+        step.setStepIndex(4);
         fixture.setStep(step);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
+        assertEquals(4, step.getStepIndex());
     }
 
-    /**
-     * Run the void setStepGroupName(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetStepGroupName_1()
-            throws Exception {
+    public void testSetStepGroupName_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -1657,24 +940,14 @@ public class LogEventTest {
         fixture.setMessage("");
         fixture.setIteration("");
         fixture.setScript(new HDScript());
-        String stepGroupName = "";
+        String stepGroupName = "testStepGroupName";
 
         fixture.setStepGroupName(stepGroupName);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
+        assertEquals("testStepGroupName", fixture.getStepGroupName());
     }
 
-    /**
-     * Run the void setStepIndex(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetStepIndex_1()
-            throws Exception {
+    public void testSetTransactionId_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -1698,147 +971,14 @@ public class LogEventTest {
         fixture.setMessage("");
         fixture.setIteration("");
         fixture.setScript(new HDScript());
-        String stepIndex = "";
-
-        fixture.setStepIndex(stepIndex);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setTestPlan(HDTestPlan) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetTestPlan_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        HDTestPlan testPlan = new HDTestPlan();
-
-        fixture.setTestPlan(testPlan);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setThreadId(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetThreadId_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        String threadId = "";
-
-        fixture.setThreadId(threadId);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setTransactionId(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetTransactionId_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        String transactionId = "";
-
+        String transactionId = "testTransactionId";
         fixture.setTransactionId(transactionId);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
+        assertEquals("testTransactionId", fixture.getTransactionId());
     }
 
-    /**
-     * Run the void setValidationStatus(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetValidationStatus_1()
-            throws Exception {
+    public void testSetValidationStatus_1() {
         LogEvent fixture = new LogEvent();
         fixture.setHostname("");
         fixture.setActiveProfile(LoggingProfile.STANDARD);
@@ -1862,52 +1002,9 @@ public class LogEventTest {
         fixture.setMessage("");
         fixture.setIteration("");
         fixture.setScript(new HDScript());
-        String validationStatus = "";
-
+        String validationStatus = "testValidationStatus";
         fixture.setValidationStatus(validationStatus);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-    }
-
-    /**
-     * Run the void setVariables(Variables) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetVariables_1()
-            throws Exception {
-        LogEvent fixture = new LogEvent();
-        fixture.setHostname("");
-        fixture.setActiveProfile(LoggingProfile.STANDARD);
-        fixture.setEventType(LogEventType.Http);
-        fixture.setTestPlan(new HDTestPlan());
-        fixture.setValidationStatus("");
-        fixture.setVariables(new Variables());
-        fixture.setThreadId("");
-        fixture.setPublicIp("");
-        fixture.setProjectName("");
-        fixture.setGroup(new HDScriptGroup());
-        fixture.setJobId("");
-        fixture.setRequest(new MockRequest());
-        fixture.setLoggingKey("");
-        fixture.setTransactionId("");
-        fixture.setStepGroupName("");
-        fixture.setSourceType(SourceType.agent);
-        fixture.setInstanceId("");
-        fixture.setStep(new ClearCookiesStep());
-        fixture.setStepIndex("");
-        fixture.setMessage("");
-        fixture.setIteration("");
-        fixture.setScript(new HDScript());
-        Variables variables = new Variables();
-
-        fixture.setVariables(variables);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
+        assertEquals("testValidationStatus", fixture.getValidationStatus());
     }
 }

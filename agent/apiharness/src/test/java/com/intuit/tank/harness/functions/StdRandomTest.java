@@ -14,9 +14,6 @@ package com.intuit.tank.harness.functions;
  */
 
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.harness.functions.StdRandom;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -390,4 +387,52 @@ public class StdRandomTest {
         assertEquals(1.0, result, 0.1);
     }
 
+    @Test
+    public void testshuffle_1() {
+        int[] ids = {1, 2, 3, 4, 5, 6, 7};
+
+        StdRandom.shuffle(ids, 1, 5);
+
+        assertEquals(1, ids[0]);
+        assertEquals(7, ids[6]);
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            StdRandom.shuffle(ids, -1, 10);;
+        });
+        String message = exception.getMessage();
+        assertTrue(message.contains("Illegal subarray range"));
+    }
+
+    @Test
+    public void testshuffle_2() {
+        double[] ids = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0};
+
+        StdRandom.shuffle(ids, 1, 5);
+
+        assertEquals(1.0, ids[0]);
+        assertEquals(7.0, ids[6]);
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            StdRandom.shuffle(ids, -1, 10);;
+        });
+        String message = exception.getMessage();
+        assertTrue(message.contains("Illegal subarray range"));
+    }
+
+    @Test
+    public void testshuffle_3() {
+        String[] obj = {"a", "b", "c", "e", "f", "g", "h"};
+
+
+        StdRandom.shuffle(obj, 1, 5);
+
+        assertEquals("a", obj[0]);
+        assertEquals("h", obj[6]);
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            StdRandom.shuffle(obj, -1, 10);;
+        });
+        String message = exception.getMessage();
+        assertTrue(message.contains("Illegal subarray range"));
+    }
 }

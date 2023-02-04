@@ -14,13 +14,13 @@ package com.intuit.tank.harness.test;
  */
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.harness.test.TestInformation;
 import com.intuit.tank.harness.test.data.Variables;
 
 /**
@@ -29,378 +29,249 @@ import com.intuit.tank.harness.test.data.Variables;
  * @generatedBy CodePro at 9/3/14 9:20 PM
  */
 public class TestInformationTest {
-    /**
-     * Run the TestInformation() constructor test.
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testTestInformation_1()
-            throws Exception {
+    public void testTestInformation_1() {
         TestInformation result = new TestInformation();
         assertNotNull(result);
     }
 
-    /**
-     * Run the void addComment(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testAddComment_1()
-            throws Exception {
+    public void testAddComment_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
         String comment = "";
 
         fixture.addComment(comment);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
     }
 
-    /**
-     * Run the Vector<String> getComments() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetComments_1()
-            throws Exception {
+    public void testGetComments_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
 
         Vector<String> result = fixture.getComments();
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
         assertNotNull(result);
     }
 
-    /**
-     * Run the HashMap<String, String> getVariables() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testGetVariables_1()
-            throws Exception {
+    public void testGetVariables_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
 
         HashMap<String, String> result = fixture.getVariables();
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
         assertNotNull(result);
     }
 
-    /**
-     * Run the void processVariables(Variables) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testProcessVariables_1()
-            throws Exception {
+    public void testProcessVariables_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
         Variables variables = new Variables();
 
         fixture.processVariables(variables);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
     }
 
-    /**
-     * Run the void processVariables(Variables) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testProcessVariables_2()
-            throws Exception {
-        TestInformation fixture = new TestInformation();
-        fixture.addComment("");
-        Variables variables = new Variables();
-
-        fixture.processVariables(variables);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
-    }
-
-    /**
-     * Run the void processVariables(Variables) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testProcessVariables_3()
-            throws Exception {
-        TestInformation fixture = new TestInformation();
-        fixture.addComment("");
-        Variables variables = new Variables();
-
-        fixture.processVariables(variables);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
-    }
-
-    /**
-     * Run the void setAuthenticate(boolean) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
-    @Test
-    public void testSetAuthenticate_1()
-            throws Exception {
+    public void testSetAuthenticate_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
         boolean value = true;
 
         fixture.setAuthenticate(value);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
     }
 
-    /**
-     * Run the void setDescription(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetDescription_1()
-            throws Exception {
+    public void testGetLoggingKey() {
+        TestInformation fixture = new TestInformation();
+        fixture.setLoggingKey("testLoggingKey");
+        assertEquals("testLoggingKey", fixture.getLoggingKey());
+    }
+
+    @Test
+    public void testGetTestName() {
+        TestInformation fixture = new TestInformation();
+        fixture.setTestName("testTestName");
+        assertEquals("testTestName", fixture.getTestName());
+    }
+
+    @Test
+    public void testSetDescription_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
         String value = "";
 
         fixture.setDescription(value);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
     }
 
-    /**
-     * Run the void setHost(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetHost_1()
-            throws Exception {
+    public void testSetHost_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
         String value = "";
 
         fixture.setHost(value);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
     }
 
-    /**
-     * Run the void setLoggingKey(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetLoggingKey_1()
-            throws Exception {
+    public void testSetLoggingKey_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
         String value = "";
 
         fixture.setLoggingKey(value);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
     }
 
-    /**
-     * Run the void setLoop(int) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetLoop_1()
-            throws Exception {
+    public void testSetLoop_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
         int loop = 1;
 
         fixture.setLoop(loop);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
     }
 
-    /**
-     * Run the void setName(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetName_1()
-            throws Exception {
+    public void testSetName_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
-        String value = "";
+        String value = "testName";
 
         fixture.setName(value);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.ExceptionInInitializerError
-        // at org.apache.log4j.LogManager.getLogger(Logger.java:117)
-        // at com.intuit.tank.harness.test.TestInformation.<clinit>(TestInformation.java:13)
+        assertEquals(value, fixture.getName());
     }
 
-    /**
-     * Run the void setPath(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetPath_1()
-            throws Exception {
+    public void testSetPath_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
         String value = "";
 
         fixture.setPath(value);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
     }
 
-    /**
-     * Run the void setPort(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetPort_1()
-            throws Exception {
+    public void testSetPort_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
         String value = "";
 
         fixture.setPort(value);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
     }
 
-    /**
-     * Run the void setProtocol(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetProtocol_1()
-            throws Exception {
+    public void testSetProtocol_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
         String value = "";
 
         fixture.setProtocol(value);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
     }
 
-    /**
-     * Run the void setTemplate(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetTemplate_1()
-            throws Exception {
+    public void testSetTemplate_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
         String value = "";
 
         fixture.setTemplate(value);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
     }
 
-    /**
-     * Run the void setTestName(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetTestName_1()
-            throws Exception {
+    public void testSetTestName_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
         String value = "";
 
         fixture.setTestName(value);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
     }
 
-    /**
-     * Run the void setVariable(String,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:20 PM
-     */
     @Test
-    public void testSetVariable_1()
-            throws Exception {
+    public void testSetVariable_1() {
         TestInformation fixture = new TestInformation();
         fixture.addComment("");
         String key = "";
         String value = "";
 
         fixture.setVariable(key, value);
+    }
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.TestInformation
+    @Test
+    public void testGetVariable_1() {
+        TestInformation fixture = new TestInformation();
+        fixture.setVariable("testKey", "testValue");
+        assertEquals("testValue", fixture.getVariable("testKey"));
+    }
+
+    @Test
+    public void testGetDescription() {
+        TestInformation fixture = new TestInformation();
+        fixture.setDescription("testDescription");
+        assertEquals("testDescription", fixture.getDescription());
+    }
+
+    @Test
+    public void testGetProtocol() {
+        TestInformation fixture = new TestInformation();
+        fixture.setProtocol("testProtocol");
+        assertEquals("testProtocol", fixture.getProtocol());
+    }
+
+    @Test
+    public void testGetHost() {
+        TestInformation fixture = new TestInformation();
+        fixture.setHost("testHost");
+        assertEquals("testHost", fixture.getHost());
+    }
+
+    @Test
+    public void testGetPath() {
+        TestInformation fixture = new TestInformation();
+        fixture.setPath("testPath");
+        assertEquals("testPath", fixture.getPath());
+    }
+
+    @Test
+    public void testGetPort() {
+        TestInformation fixture = new TestInformation();
+        fixture.setPort("testPort");
+        assertEquals("testPort", fixture.getPort());
+    }
+
+    @Test
+    public void testGetLoop() {
+        TestInformation fixture = new TestInformation();
+        fixture.setLoop(12);
+        assertEquals(12, fixture.getLoop());
+    }
+
+    @Test
+    public void testGetTemplate() {
+        TestInformation fixture = new TestInformation();
+        fixture.setTemplate("testTemplate");
+        assertEquals("testTemplate", fixture.getTemplate());
+    }
+
+    @Test
+    public void testAuthenticate() {
+        TestInformation fixture = new TestInformation();
+        assertFalse(fixture.authenticate());
+        fixture.setAuthenticate(true);
+        assertTrue(fixture.authenticate());
+    }
+
+    @Test
+    public void testProcessVariables() {
+        TestInformation fixture = new TestInformation();
+        Variables variables = new Variables();
+        fixture.setVariable("key", "#function.date.currentDate.06-01-2011");
+        fixture.processVariables(variables);
+        Map<String, String> expected = new HashMap<>();
+        expected.put("key", "06-01-2011");
+        assertEquals(expected, variables.getVaribleValues());
     }
 }

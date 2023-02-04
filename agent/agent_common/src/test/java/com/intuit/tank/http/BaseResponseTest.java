@@ -83,7 +83,7 @@ public class BaseResponseTest {
         String key = "testKey";
         fixture.setCookie(key, "testValue");
         String result = fixture.getCookie(key);
-        assertNull(result);
+        assertEquals("testValue", result);
     }
     @Test
     public void testGetCookie_3() {

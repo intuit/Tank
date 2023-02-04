@@ -13,76 +13,37 @@ package com.intuit.tank.http;
  * #L%
  */
 
+import com.intuit.tank.http.binary.BinaryResponse;
+import com.intuit.tank.http.json.JsonResponse;
+import com.intuit.tank.http.xml.XMLResponse;
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.http.BaseResponse;
-import com.intuit.tank.http.HttpResponseFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * The class <code>HttpResponseFactoryTest</code> contains tests for the class <code>{@link HttpResponseFactory}</code>.
- *
- * @generatedBy CodePro at 12/16/14 3:57 PM
- */
+
 public class HttpResponseFactoryTest {
-    /**
-     * Run the BaseResponse getHttpResponse(String) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
+
     @Test
-    public void testGetHttpResponse_1()
-        throws Exception {
-        String responseType = null;
-
-        BaseResponse result = HttpResponseFactory.getHttpResponse(responseType);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.http.HttpResponseFactory.getHttpResponse(HttpResponseFactory.java:25)
-        assertNotNull(result);
+    public void testGetHttpResponse_1() {
+        BaseResponse result = HttpResponseFactory.getHttpResponse(null);
+        assertEquals(XMLResponse.class, result.getClass());
     }
 
-    /**
-     * Run the BaseResponse getHttpResponse(String) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
     @Test
-    public void testGetHttpResponse_2()
-        throws Exception {
-        String responseType = null;
-
-        BaseResponse result = HttpResponseFactory.getHttpResponse(responseType);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.http.HttpResponseFactory.getHttpResponse(HttpResponseFactory.java:25)
-        assertNotNull(result);
+    public void testGetHttpResponse_2() {
+        BaseResponse result = HttpResponseFactory.getHttpResponse("JSON");
+        assertEquals(JsonResponse.class, result.getClass());
     }
 
-    /**
-     * Run the BaseResponse getHttpResponse(String) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
     @Test
-    public void testGetHttpResponse_3()
-        throws Exception {
-        String responseType = "";
+    public void testGetHttpResponse_3() {
+        BaseResponse result = HttpResponseFactory.getHttpResponse("XML");
+        assertEquals(XMLResponse.class, result.getClass());
+    }
 
-        BaseResponse result = HttpResponseFactory.getHttpResponse(responseType);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.http.HttpResponseFactory.getHttpResponse(HttpResponseFactory.java:25)
-        assertNotNull(result);
+    @Test
+    public void testGetHttpResponse_4() {
+        BaseResponse result = HttpResponseFactory.getHttpResponse("");
+        assertEquals(BinaryResponse.class, result.getClass());
     }
 }

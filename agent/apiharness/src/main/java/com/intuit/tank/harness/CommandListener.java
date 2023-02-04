@@ -18,7 +18,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
 import com.google.common.collect.ImmutableMap;
-import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;

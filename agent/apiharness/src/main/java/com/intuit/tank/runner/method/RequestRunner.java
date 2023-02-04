@@ -777,4 +777,7 @@ public class RequestRunner implements Runner {
         return protocol;
     }
 
+    public void setBaseResponse(BaseResponse newBaseResponse){
+        this.baseResponse = newBaseResponse;
+    }
 }

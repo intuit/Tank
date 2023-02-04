@@ -28,10 +28,6 @@ public class DebugFlowController implements FlowController {
     private boolean DO_SKIP = false;
     private int requestNumber = 0;
 
-    public static void debug() {
-
-    }
-
     @Override
     public void startStep(TestStepContext context) {
         // TODO Auto-generated method stub

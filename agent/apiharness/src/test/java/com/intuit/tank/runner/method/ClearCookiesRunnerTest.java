@@ -12,7 +12,8 @@ package com.intuit.tank.runner.method;
  * http://www.eclipse.org/legal/epl-v10.html
  * #L%
  */
-import org.junit.jupiter.api.Disabled;
+import com.intuit.tank.harness.data.LogicStep;
+import com.intuit.tank.httpclient4.TankHttpClient4;
 import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.harness.data.ClearCookiesStep;
@@ -29,44 +30,23 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @generatedBy CodePro at 12/16/14 5:53 PM
  */
 public class ClearCookiesRunnerTest {
-    /**
-     * Run the ClearCookiesRunner(TestStepContext) constructor test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 5:53 PM
-     */
+
     @Test
-    public void testClearCookiesRunner_1()
-        throws Exception {
+    public void testClearCookiesRunner_1() {
         TestStepContext tsc = new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient"));
 
         ClearCookiesRunner result = new ClearCookiesRunner(tsc);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.ExceptionInInitializerError
-        //       at org.apache.log4j.LogManager.getLogger(Logger.java:117)
-        //       at com.intuit.tank.harness.test.data.Variables.<clinit>(Variables.java:36)
         assertNotNull(result);
     }
 
-    /**
-     * Run the String execute() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 5:53 PM
-     */
     @Test
-    @Disabled
-    public void testExecute_1()
-        throws Exception {
-        ClearCookiesRunner fixture = new ClearCookiesRunner(new TestStepContext(new ClearCookiesStep(), new Variables(), "", "", new TimerMap(), new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient")));
+    public void testExecute_1() {
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
+        testPlanRunner.setHttpClient(new TankHttpClient4());
+        TestStepContext testStepContext = new TestStepContext(new LogicStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
+        ClearCookiesRunner fixture = new ClearCookiesRunner(testStepContext);
 
         String result = fixture.execute();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
         assertNotNull(result);
     }
 }

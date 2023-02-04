@@ -17,7 +17,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.harness.functions.GenericFunctions;
 import com.intuit.tank.harness.test.data.Variables;
 
 /**
@@ -26,120 +25,38 @@ import com.intuit.tank.harness.test.data.Variables;
  * @generatedBy CodePro at 9/3/14 9:21 PM
  */
 public class GenericFunctionsTest {
-    /**
-     * Run the GenericFunctions() constructor test.
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
+
     @Test
-    public void testGenericFunctions_1()
-            throws Exception {
+    public void testGenericFunctions_1() {
         GenericFunctions result = new GenericFunctions();
         assertNotNull(result);
     }
 
-    /**
-     * Run the String executeFunction(String[],Variables) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testExecuteFunction_1()
-            throws Exception {
-        String[] values = new String[] { null, null, null, "0" };
+    public void testExecuteFunction_1() {
+        String[] values = new String[] { null, null, null};
         Variables variables = new Variables();
 
         String result = GenericFunctions.executeFunction(values, variables);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class org.apache.log4j.LogManager
-        // at org.apache.log4j.LogManager.getLogger(Logger.java:117)
-        // at com.intuit.tank.harness.test.data.Variables.<clinit>(Variables.java:36)
         assertNotNull(result);
     }
 
-    /**
-     * Run the String executeFunction(String[],Variables) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testExecuteFunction_2()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
+    public void testExecuteFunction_2() {
+        String[] values = new String[] { null, null, "getfiledata", "testfile", "1"};
         Variables variables = new Variables();
 
         String result = GenericFunctions.executeFunction(values, variables);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("", result);
     }
 
-    /**
-     * Run the String executeFunction(String[],Variables) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
     @Test
-    public void testExecuteFunction_3()
-            throws Exception {
-        String[] values = new String[] { null, null, "", "" };
+    public void testExecuteFunction_3() {
+        String[] values = new String[] { null, null, "getcsv", "1"};
         Variables variables = new Variables();
 
         String result = GenericFunctions.executeFunction(values, variables);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
+        assertEquals("", result);
     }
-
-    /**
-     * Run the String executeFunction(String[],Variables) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_4()
-            throws Exception {
-        String[] values = new String[] { null, null, "" };
-        Variables variables = new Variables();
-
-        String result = GenericFunctions.executeFunction(values, variables);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String executeFunction(String[],Variables) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 9/3/14 9:21 PM
-     */
-    @Test
-    public void testExecuteFunction_5()
-            throws Exception {
-        String[] values = new String[] { null, null, null, "" };
-        Variables variables = new Variables();
-
-        String result = GenericFunctions.executeFunction(values, variables);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.test.data.Variables
-        assertNotNull(result);
-    }
-
-   
-
 }

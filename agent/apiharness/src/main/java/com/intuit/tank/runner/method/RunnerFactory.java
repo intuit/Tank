@@ -15,15 +15,7 @@ package com.intuit.tank.runner.method;
 
 import javax.annotation.Nonnull;
 
-import com.intuit.tank.harness.data.AuthenticationStep;
-import com.intuit.tank.harness.data.ClearCookiesStep;
-import com.intuit.tank.harness.data.CookieStep;
-import com.intuit.tank.harness.data.LogicStep;
-import com.intuit.tank.harness.data.SleepTimeStep;
-import com.intuit.tank.harness.data.TestStep;
-import com.intuit.tank.harness.data.ThinkTimeStep;
-import com.intuit.tank.harness.data.TimerStep;
-import com.intuit.tank.harness.data.VariableStep;
+import com.intuit.tank.harness.data.*;
 import com.intuit.tank.runner.TestStepContext;
 
 public class RunnerFactory {
@@ -47,6 +39,8 @@ public class RunnerFactory {
             runner = new LogicRunner(tsc);
         } else if (testStep instanceof CookieStep) {
             runner = new SetCookieRunner(tsc);
+        } else if (testStep instanceof MockStep) {
+            runner = new MockRunner(tsc);
         } else {
             runner = new RequestRunner(tsc);
         }

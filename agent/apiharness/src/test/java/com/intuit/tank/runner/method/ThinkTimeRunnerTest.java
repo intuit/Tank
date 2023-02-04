@@ -1,13 +1,12 @@
 package com.intuit.tank.runner.method;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.data.ThinkTimeStep;
 import com.intuit.tank.harness.test.data.Variables;
-import com.intuit.tank.runner.TestHttpClient;
 import com.intuit.tank.runner.TestPlanRunner;
 import com.intuit.tank.runner.TestStepContext;
 
@@ -17,39 +16,20 @@ import com.intuit.tank.runner.TestStepContext;
  * @generatedBy CodePro at 12/16/14 5:53 PM
  */
 public class ThinkTimeRunnerTest {
-    /**
-     * Run the ThinkTimeRunner(TestStepContext) constructor test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 5:53 PM
-     */
+
     @Test
-    public void testThinkTimeRunner_1()
-        throws Exception {
+    public void testThinkTimeRunner_1() {
         TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext tsc = new TestStepContext(new ThinkTimeStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
 
         ThinkTimeRunner result = new ThinkTimeRunner(tsc);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.ExceptionInInitializerError
-        //       at org.apache.log4j.LogManager.getLogger(Logger.java:117)
-        //       at com.intuit.tank.runner.TestPlanRunner.<clinit>(TestPlanRunner.java:44)
         assertNotNull(result);
     }
 
-    /**
-     * Run the String execute() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 5:53 PM
-     */
     @Test
-    public void testExecute_1()
-        throws Exception {
+    public void testExecute_1() {
         TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
         TestStepContext testStepContext = new TestStepContext(new ThinkTimeStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
@@ -57,52 +37,69 @@ public class ThinkTimeRunnerTest {
 
         String result = fixture.execute();
 
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.runner.TestPlanRunner
         assertNotNull(result);
     }
 
-    /**
-     * Run the String execute() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 5:53 PM
-     */
     @Test
-    public void testExecute_2()
-        throws Exception {
+    public void testExecute_2() {
         TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
-        TestStepContext testStepContext = new TestStepContext(new ThinkTimeStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
+
+        Variables variables = new Variables();
+        variables.addVariable("Int1", "-1");
+        variables.addVariable("Int2", "-2");
+
+        ThinkTimeStep step = new ThinkTimeStep();
+        step.setMinTime("@Int1");
+        step.setMaxTime("@Int2");
+
+        TestStepContext testStepContext = new TestStepContext(step, variables, "", "", new TimerMap(), testPlanRunner);
         ThinkTimeRunner fixture = new ThinkTimeRunner(testStepContext);
 
         String result = fixture.execute();
 
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.runner.TestPlanRunner
-        assertNotNull(result);
+        assertEquals("PASS", result);
     }
 
-    /**
-     * Run the String execute() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 5:53 PM
-     */
     @Test
-    public void testExecute_3()
-        throws Exception {
+    public void testExecute_3() {
         TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
         testPlanRunner.setHttpClient(null);
-        TestStepContext testStepContext = new TestStepContext(new ThinkTimeStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
+
+        Variables variables = new Variables();
+        variables.addVariable("Int1", "2");
+        variables.addVariable("Int2", "4");
+
+        ThinkTimeStep step = new ThinkTimeStep();
+        step.setMinTime("@Int1");
+        step.setMaxTime("@Int2");
+
+        TestStepContext testStepContext = new TestStepContext(step, variables, "", "", new TimerMap(), testPlanRunner);
         ThinkTimeRunner fixture = new ThinkTimeRunner(testStepContext);
 
         String result = fixture.execute();
 
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.runner.TestPlanRunner
-        assertNotNull(result);
+        assertEquals("PASS", result);
+    }
+
+    @Test
+    public void testExecute_Num_Format_Exceptions() {
+        TestPlanRunner testPlanRunner = new TestPlanRunner(new HDTestPlan(), 1, "com.intuit.tank.runner.TestHttpClient");
+        testPlanRunner.setHttpClient(null);
+
+        Variables variables = new Variables();
+        variables.addVariable("NotInt1", "test");
+        variables.addVariable("NotInt2", "test");
+
+        ThinkTimeStep step = new ThinkTimeStep();
+        step.setMinTime("@NotInt1");
+        step.setMaxTime("@NotInt2");
+
+        TestStepContext testStepContext = new TestStepContext(step, variables, "", "", new TimerMap(), testPlanRunner);
+        ThinkTimeRunner fixture = new ThinkTimeRunner(testStepContext);
+
+        String result = fixture.execute();
+
+        assertEquals("PASS", result);
     }
 }

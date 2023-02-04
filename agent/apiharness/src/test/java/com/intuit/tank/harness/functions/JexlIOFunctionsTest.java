@@ -16,7 +16,10 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
-import com.intuit.tank.test.TestGroups;
+import com.intuit.tank.harness.test.CheckedKillScriptException;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * JexlFileFunctionsTest
@@ -25,108 +28,66 @@ import com.intuit.tank.test.TestGroups;
  * 
  */
 public class JexlIOFunctionsTest {
-//    private Variables variables;
-//
-//    @SuppressWarnings("unused")
-//    @DataProvider(name = "csvData")
-//    private Object[][] csvData() {
-//        return new Object[][] {
-//                { "One", "1", "I" },
-//                { "Two", "2", "II" },
-//                { "Three", "3", "III" },
-//                { "Four", "4", "IV" },
-//                { "Five", "5", "V" } };
-//    }
-//
-//    @SuppressWarnings("unused")
-//    @DataProvider(name = "csvDataLoop")
-//    private Object[][] csvDataLoop() {
-//        return new Object[][] {
-//                { "One", "1", "I" },
-//                { "Two", "2", "II" },
-//                { "Three", "3", "III" },
-//                { "Four", "4", "IV" },
-//                { "Five", "5", "V" },
-//                { "One", "1", "I" },
-//                { "Two", "2", "II" },
-//                { "Three", "3", "III" },
-//                { "Four", "4", "IV" },
-//                { "Five", "5", "V" }
-//        };
-//    }
-//    
-//    private boolean csv1;
-//    private boolean csv2;
-//    private boolean csv3;
-//
-//    @BeforeTest
-//    public void init() {
-//        variables = new Variables();
-//    }
-//
-//    @Test
-//    @Tag(TestGroups.FUNCTIONAL)
-//    public void testReadDataFile() {
-//        String evaluated = variables.evaluate("#{ioFunctions.getFileData('data.txt')}");
-//        assertEquals(evaluated, "This is a Data File");
-//    }
-//
-//    @Test
-//    @Tag(TestGroups.FUNCTIONAL)
-//    public void testReadBinaryDataFile() throws IOException {
-//        String evaluated = variables.evaluate("#{ioFunctions.getFileData('32_bit.png')}");
-//        byte[] fileBytes = FileUtils.readFileToByteArray(new File("src/test/resources/32_bit.png"));
-//        assertEquals(evaluated, new String(fileBytes));
-//    }
-//
-//    @Test
-//    @Tag(TestGroups.FUNCTIONAL)
-//    public void testReadBinaryData() throws IOException {
-//        byte[] ioBytes = new JexlIOFunctions().getFileBytes("32_bit.png");
-//        byte[] fileBytes = FileUtils.readFileToByteArray(new File("src/test/resources/32_bit.png"));
-//        assertTrue(Arrays.equals(ioBytes, fileBytes));
-//    }
-//
-//    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "csvData")
-//    public void testCsv(String name, String num, String romanNum) {
-//        if (!csv1) {
-//            JexlIOFunctions.resetStatics();
-//            csv1 = true;
-//        }
-//        String evaluated = variables.evaluate("#{ioFunctions.getCSVData()}");
-//        assertEquals(evaluated, name);
-//        evaluated = variables.evaluate("#{ioFunctions.getCSVData(1)}");
-//        assertEquals(evaluated, num);
-//        evaluated = variables.evaluate("#{ioFunctions.getCSVData(2)}");
-//        assertEquals(evaluated, romanNum);
-//    }
-//
-//    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "csvData")
-//    public void testCsvFileName(String name, String num, String romanNum) {
-//        if (!csv2) {
-//            JexlIOFunctions.resetStatics();
-//            csv2 = true;
-//        }
-//        String evaluated = variables.evaluate("#{ioFunctions.getCSVData('csvData.csv', 0)}");
-//        assertEquals(evaluated, name);
-//        evaluated = variables.evaluate("#{ioFunctions.getCSVData('csvData.csv', 1)}");
-//        assertEquals(evaluated, num);
-//        evaluated = variables.evaluate("#{ioFunctions.getCSVData('csvData.csv', 2)}");
-//        assertEquals(evaluated, romanNum);
-//    }
-//
-//    @Test(groups = TestGroups.FUNCTIONAL, dataProvider = "csvDataLoop")
-//    public void testCsvFileNameLoop(String name, String num, String romanNum) {
-//        if (!csv3) {
-//            JexlIOFunctions.resetStatics();
-//            csv3 = true;
-//        }
-//        String evaluated = variables.evaluate("#{ioFunctions.getCSVData('csvDataLoop.csv', 0, true)}");
-//        assertEquals(evaluated, name);
-//        evaluated = variables.evaluate("#{ioFunctions.getCSVData('csvDataLoop.csv', 1, true)}");
-//        assertEquals(evaluated, num);
-//        evaluated = variables.evaluate("#{ioFunctions.getCSVData('csvDataLoop.csv', 2, true)}");
-//        assertEquals(evaluated, romanNum);
-//    }
 
+    @Test
+    public void testJexlIOFunctions_1() {
+        JexlIOFunctions functions = new JexlIOFunctions();
+        Exception exception = assertThrows(CheckedKillScriptException.class, () -> {
+            functions.getCSVData();;
+        });
+        String message = exception.getMessage();
+        assertTrue(message.contains("Next line in CSV file is null"));
+    }
+
+    @Test
+    public void testJexlIOFunctions_2() {
+        JexlIOFunctions functions = new JexlIOFunctions();
+        Exception exception = assertThrows(CheckedKillScriptException.class, () -> {
+            functions.getCSVData(1);;
+        });
+        String message = exception.getMessage();
+        assertTrue(message.contains("Next line in CSV file is null"));
+    }
+
+    @Test
+    public void testJexlIOFunctions_3() {
+        JexlIOFunctions functions = new JexlIOFunctions();
+        Exception exception = assertThrows(CheckedKillScriptException.class, () -> {
+            functions.getCSVData(1, false);;
+        });
+        String message = exception.getMessage();
+        assertTrue(message.contains("Next line in CSV file is null"));
+    }
+
+    @Test
+    public void testJexlIOFunctions_4() {
+        JexlIOFunctions functions = new JexlIOFunctions();
+        Exception exception = assertThrows(CheckedKillScriptException.class, () -> {
+            functions.getCSVData("testFile");;
+        });
+        String message = exception.getMessage();
+        assertTrue(message.contains("Next line in CSV file is null"));
+    }
+
+    @Test
+    public void testJexlIOFunctions_5() {
+        JexlIOFunctions functions = new JexlIOFunctions();
+        Exception exception = assertThrows(CheckedKillScriptException.class, () -> {
+            functions.getCSVData("testFile", 1);;
+        });
+        String message = exception.getMessage();
+        assertTrue(message.contains("Next line in CSV file is null"));
+    }
+
+    @Test
+    public void testJexlIOFunctions_6() {
+        JexlIOFunctions functions = new JexlIOFunctions();
+        assertEquals("", functions.getFileData("testFile"));
+    }
+
+    @Test
+    public void testJexlIOFunctions_7() {
+        JexlIOFunctions functions = new JexlIOFunctions();
+        assertNotNull(functions.getFileBytes("testFile"));
+    }
 }

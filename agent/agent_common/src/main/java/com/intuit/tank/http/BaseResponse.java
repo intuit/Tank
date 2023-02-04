@@ -184,7 +184,7 @@ public abstract class BaseResponse {
     }
 
     public void setCookie(String key, String value) {
-        this.headers.put(key, value);
+        this.cookies.put(key, value);
     }
 
     public Map<String, String> getCookies() {
