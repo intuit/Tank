@@ -90,7 +90,5 @@ public class DebugFlowController implements FlowController {
     }
 
     @Override
-    public void endTest() {
-        System.exit(0);
-    }
+    public void endTest() { }
 }

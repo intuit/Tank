@@ -563,7 +563,6 @@ public class APITestHarness {
             }
         }
         flowControllerTemplate.endTest();
-        // System.exit(0);
     }
 
     public TPSMonitor getTPSMonitor() {
