@@ -43,7 +43,7 @@
     <version.primefaces>12.0.0</version.primefaces>
     <version.primefaces-ext>12.0.3</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
-    <version.surefire>2.22.2</version.surefire>
+    <version.surefire>3.0.0-M8</version.surefire>
     <version.jersey>2.38</version.jersey>
     <version.junit>5.9.1</version.junit>
     <version.mockito>4.3.1</version.mockito>
