@@ -52,6 +52,8 @@
     <version.lucene>9.4.2</version.lucene>
     <version.jaxb>2.3.3</version.jaxb>
     <version.spock>2.4-M1-groovy-4.0</version.spock>
+    <version.spring-boot>2.7.6</version.spring-boot>
+    <version.spring-web>5.3.25</version.spring-web>
 
     <!-- maven-compiler-plugin -->
     <version.compiler.plugin>3.10.1</version.compiler.plugin>
@@ -90,6 +92,7 @@
         <module>agent</module>
         <module>tools</module>
         <module>rest</module>
+        <module>rest-mvc</module>
         <module>tank_common</module>
         <module>proxy-parent</module>
         <module>script_processor</module>
@@ -186,6 +189,7 @@
         <module>agent</module>
         <module>tools</module>
         <module>rest</module>
+        <module>rest-mvc</module>
         <module>proxy-parent</module>
         <module>script_processor</module>
         <module>tank_common</module>
@@ -213,6 +217,7 @@
         <module>agent</module>
         <module>tools</module>
         <module>rest</module>
+        <module>rest-mvc</module>
         <module>proxy-parent</module>
         <module>script_processor</module>
         <module>tank_common</module>
@@ -823,6 +828,21 @@
         <artifactId>jstl-api</artifactId>
         <version>1.2</version>
         <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-ui</artifactId>
+        <version>1.6.13</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-web</artifactId>
+        <version>${version.spring-web}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot</artifactId>
+        <version>${version.spring-boot}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
