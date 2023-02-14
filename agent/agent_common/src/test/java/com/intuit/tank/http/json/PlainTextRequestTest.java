@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class PlainTextRequestTest {
 
-    PlainTextRequest request;
+    private PlainTextRequest request;
 
     @BeforeEach
     public void init() {

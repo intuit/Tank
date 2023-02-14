@@ -16,11 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class APIMonitorTest {
 
-    public APITestHarness instance;
-
     @BeforeEach
     public void init() {
-        instance = APITestHarness.getInstance();
+        APITestHarness instance = APITestHarness.getInstance();
     }
 
     @AfterEach

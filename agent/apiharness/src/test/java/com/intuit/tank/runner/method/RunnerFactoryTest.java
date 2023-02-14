@@ -17,7 +17,7 @@ import com.intuit.tank.runner.TestStepContext;
  */
 public class RunnerFactoryTest {
 
-    TestPlanRunner testPlanRunner;
+    private TestPlanRunner testPlanRunner;
 
     @BeforeEach
     public void init(){

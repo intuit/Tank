@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class APITestHarnessTest {
 
-    public APITestHarness instance;
+    private APITestHarness instance;
 
     @BeforeEach
     public void init() {

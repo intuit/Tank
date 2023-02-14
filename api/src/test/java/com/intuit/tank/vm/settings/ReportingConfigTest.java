@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * @author : atayal
  **/
 public class ReportingConfigTest {
-    HierarchicalConfiguration config = new HierarchicalConfiguration();
-    ReportingConfig reportingConfig = null;
+    private final HierarchicalConfiguration config = new HierarchicalConfiguration();
+    private ReportingConfig reportingConfig = null;
 
     @BeforeEach
     public void init() {

@@ -21,27 +21,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RequestRunnerTest {
 
-    public RequestStep step;
+    private RequestStep step;
 
-    public Variables variables;
+    private Variables variables;
 
-    public TimerMap timerMap;
+    private TimerMap timerMap;
 
-    public TestPlanRunner testPlanRunner;
+    private TestPlanRunner testPlanRunner;
 
-    public TestStepContext testStepContext;
+    private TestStepContext testStepContext;
 
-    public HDRequest request;
+    private HDRequest request;
 
-    public MockHDResponse response;
+    private MockHDResponse response;
 
-    public MockHDValidation validation;
+    private MockHDValidation validation;
 
-    public ValidationData validationData;
+    private ValidationData validationData;
 
-    public JsonResponse jsonResponse;
-
-    public APITestHarness instance;
+    private JsonResponse jsonResponse;
 
     @BeforeEach
     public void init() {
@@ -69,7 +67,7 @@ public class RequestRunnerTest {
         validationData.setKey("testKey");
         validationData.setCondition("testCondition");
 
-        instance = APITestHarness.getInstance();
+        APITestHarness instance = APITestHarness.getInstance();
         FlowController mockFlowController = new MockFlowController();
         instance.setFlowControllerTemplate(mockFlowController);
         instance.runConcurrentTestPlans();

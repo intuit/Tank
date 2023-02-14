@@ -30,31 +30,21 @@ import org.junit.jupiter.api.Test;
  * @generatedBy CodePro at 12/16/14 5:53 PM
  */
 public class TestPlanRunnerTest {
-    public Object httpClient;
-    public MockHDTestPlan testPlan;
+    private Object httpClient;
+    private MockHDTestPlan testPlan;
 
-    public MockHDScriptGroup group;
+    private String httpClientClass;
 
-    public String httpClientClass;
-
-    public HDTestVariables variables;
-
-    public MockHDScript script;
-
-    public MockStep step;
-
-    public MockHDScriptUseCase useCase;
-
-    public APITestHarness instance;
+    private MockStep step;
 
     @BeforeEach
     public void init() {
         httpClient = new Object();
         testPlan = new MockHDTestPlan();
-        group = new MockHDScriptGroup();
-        variables = new HDTestVariables();
-        script = new MockHDScript();
-        useCase = new MockHDScriptUseCase();
+        MockHDScriptGroup group = new MockHDScriptGroup();
+        HDTestVariables variables = new HDTestVariables();
+        MockHDScript script = new MockHDScript();
+        MockHDScriptUseCase useCase = new MockHDScriptUseCase();
         step = new MockStep();
         httpClientClass = "com.intuit.tank.httpclient4.TankHttpClient4";
         variables.addVariable("testKey", "testValue");
@@ -67,7 +57,7 @@ public class TestPlanRunnerTest {
         testPlan.addGroup(group);
         testPlan.setVariables(variables);
 
-        instance = APITestHarness.getInstance();
+        APITestHarness instance = APITestHarness.getInstance();
         FlowController mockFlowController = new MockFlowController();
         instance.setFlowControllerTemplate(mockFlowController);
         instance.runConcurrentTestPlans();

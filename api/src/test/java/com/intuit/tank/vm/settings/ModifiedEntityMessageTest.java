@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class ModifiedEntityMessageTest {
-   ModifiedEntityMessage message = null;
-   Class<?> entityClass = null;
+   private ModifiedEntityMessage message = null;
+   private Class<?> entityClass = null;
 
     @BeforeEach
     public void init() {

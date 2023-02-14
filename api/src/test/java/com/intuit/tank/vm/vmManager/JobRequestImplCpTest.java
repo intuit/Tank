@@ -35,8 +35,8 @@ import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
  */
 public class JobRequestImplCpTest {
 
-    JobRequest request = null;
-    JobRequestImpl.Builder builder = null;
+    private JobRequest request = null;
+    private JobRequestImpl.Builder builder = null;
 
     @BeforeEach
     public void init() {
