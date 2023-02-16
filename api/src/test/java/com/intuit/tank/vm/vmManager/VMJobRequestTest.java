@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 public class VMJobRequestTest {
-    VMJobRequest InstanceRequest = null;
+    private VMJobRequest InstanceRequest = null;
 
     @BeforeEach
     public void init() {

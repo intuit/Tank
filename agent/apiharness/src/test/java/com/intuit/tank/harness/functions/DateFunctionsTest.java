@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DateFunctionsTest {
 
-    Variables variables;
+    private Variables variables;
 
     @BeforeEach
     public void setUp() {

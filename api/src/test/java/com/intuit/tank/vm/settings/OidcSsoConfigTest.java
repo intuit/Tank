@@ -1,6 +1,5 @@
 package com.intuit.tank.vm.settings;
 
-import com.intuit.tank.vm.vmManager.VMInstanceRequest;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class OidcSsoConfigTest {
 
-    HierarchicalConfiguration config = new HierarchicalConfiguration();
-    OidcSsoConfig oidc = null;
+    private final HierarchicalConfiguration config = new HierarchicalConfiguration();
+    private OidcSsoConfig oidc = null;
 
     @BeforeEach
     public void init() {

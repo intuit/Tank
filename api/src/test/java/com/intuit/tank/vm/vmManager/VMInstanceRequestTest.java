@@ -14,14 +14,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class VMInstanceRequestTest {
 
-    VMInstanceRequest EmptyInstanceRequest = null;
-    VMInstanceRequest InstanceRequest = null;
+    private VMInstanceRequest EmptyInstanceRequest = null;
+    private VMInstanceRequest InstanceRequest = null;
 
-    VMProvider provider = VMProvider.Amazon;
-    VMRegion region = VMRegion.US_WEST_2;
-    VMImageType image = VMImageType.AGENT;
-    InstanceDescription description = new InstanceDescription(null, null);
-    InstanceDescription newDescription = new InstanceDescription(null, null);
+    private final VMProvider provider = VMProvider.Amazon;
+    private final VMRegion region = VMRegion.US_WEST_2;
+    private final VMImageType image = VMImageType.AGENT;
+    private final InstanceDescription description = new InstanceDescription(null, null);
 
     @BeforeEach
     public void init() {
@@ -48,7 +47,7 @@ public class VMInstanceRequestTest {
     public void testInstanceDescription() {
         assertNull(EmptyInstanceRequest.getInstanceDescription());
         assertEquals(description, InstanceRequest.getInstanceDescription());
-        newDescription = new InstanceDescription(null, null);
+        InstanceDescription newDescription = new InstanceDescription(null, null);
         InstanceRequest.setInstanceDescription(newDescription);
         assertEquals(newDescription, InstanceRequest.getInstanceDescription());
     }

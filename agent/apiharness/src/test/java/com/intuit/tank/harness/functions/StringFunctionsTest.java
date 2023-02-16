@@ -28,7 +28,7 @@ import com.intuit.tank.harness.test.data.Variables;
  */
 public class StringFunctionsTest {
 
-    String[] validValues;
+    private String[] validValues;
 
     @BeforeEach
     public void init() {

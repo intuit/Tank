@@ -27,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @generatedBy CodePro at 9/3/14 9:21 PM
  */
 public class DataTypeFunctionsTest {
-    String[] values;
-    Map<String, String> ValidValues;
+    private String[] values;
+    private Map<String, String> ValidValues;
 
     @BeforeEach
     public void init() {

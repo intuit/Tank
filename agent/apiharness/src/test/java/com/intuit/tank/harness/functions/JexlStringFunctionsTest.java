@@ -39,9 +39,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class JexlStringFunctionsTest {
     private Variables variables;
-    public static final String NAME = "Test Name";
-    public static final String NAME_1 = "Other Name";
-    public static final String ADJECTIVE = "nice";
+    private static final String NAME = "Test Name";
+    private static final String NAME_1 = "Other Name";
+    private static final String ADJECTIVE = "nice";
 
     static Stream<Arguments> concats() {
         return Stream.of(
