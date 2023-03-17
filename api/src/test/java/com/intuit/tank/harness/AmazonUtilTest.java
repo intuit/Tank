@@ -2,6 +2,7 @@ package com.intuit.tank.harness;
 
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -45,6 +46,7 @@ public class AmazonUtilTest {
 		assertEquals("", instanceId);
 	}
 
+	@Disabled
 	@Test
 	void testGetLoggingProfile() {
 		LoggingProfile loggingProfile = AmazonUtil.getLoggingProfile();

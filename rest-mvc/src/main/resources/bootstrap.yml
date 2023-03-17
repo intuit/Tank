@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: tank-rest-mvc
+
+
+# https://wiki.intuit.com/display/CTODevSecurity/TLS+Protocol+Standards
+server:
+  ssl:
+    enabled-protocols: TLSv1.2
+
+
+
+management:
+  server:
+    ssl:
+      enabled-protocols: TLSv1.2
+

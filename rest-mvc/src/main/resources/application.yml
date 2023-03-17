@@ -1,0 +1,37 @@
+spring:
+  config:
+    use-legacy-processing: true
+
+springdoc:
+  swagger-ui:
+    operationsSorter: alpha
+    defaultModelsExpandDepth: -1
+
+jsk:
+  lastmile:
+    enabled: false
+
+# Configuration of TLS Termination in service layer
+server:
+  max-http-header-size: 32KB
+  port: 8080
+  include-debug-info: false # Set to true for debug logs in error messages
+  error:
+    whitelabel:
+      enabled: false
+  ssl:
+    enabled: true
+    enabled-protocols: TLSv1.2
+    key-alias: tomcat
+    key-store: /app/tmp/keystore.pkcs12
+    key-store-password: ${TLS_KEYSTORE_PASSWORD}
+    key-store-type: PKCS12
+  servlet:
+    session:
+      cookie:
+        secure: true
+        http-only: true
+  tomcat:
+    accesslog:
+      request-attributes-enabled: true
+    use-relative-redirects: true
