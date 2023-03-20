@@ -12,16 +12,15 @@ import com.intuit.tank.dao.util.ProjectDaoUtil;
 import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Workload;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 
 import com.amazonaws.xray.AWSXRay;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -34,17 +33,17 @@ public class ResponseUtil {
         // empty private constructor to implement util pattern
     }
 
-    public static StreamingOutput getXMLStream(Object toMarshall) {
+    public static StreamingResponseBody getXMLStream(Object toMarshall) {
         return (OutputStream outputStream) -> {
             AWSXRay.beginSubsegment("JAXB.Marshal." + toMarshall.getClass().getSimpleName());
             try {
-                JAXBContext ctx = JAXBContext.newInstance(toMarshall.getClass().getPackage().getName());
+                JAXBContext ctx = JAXBContext.newInstance(toMarshall.getClass());
                 Marshaller marshaller = ctx.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
                 marshaller.marshal(toMarshall, outputStream);
             } catch (JAXBException e) {
                 LOG.error("Error Marshalling XML to Stream: " + e.toString(), e);
-                throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+                throw new GenericServiceResourceNotFoundException("scripts", "script file", e);
             } finally {
                 AWSXRay.endSubsegment();
             }
