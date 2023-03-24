@@ -7,12 +7,17 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.datafiles;
 
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptorContainer;
 
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import java.io.IOException;
+import java.util.Map;
 
 public interface DataFileServiceV2 {
 
@@ -36,6 +41,19 @@ public interface DataFileServiceV2 {
     public DataFileDescriptor getDatafile(Integer datafileId);
 
     /**
+     * Downloads a specific datafile by datafile ID
+     *
+     * @param datafileId
+     *      datafile ID corresponding to datafile
+     *
+     * @throws GenericServiceResourceNotFoundException
+     *         if there are any errors downloading datafile
+     *
+     * @return datafile file
+     */
+    public Map<String, StreamingResponseBody> downloadDatafile(Integer datafileId);
+
+    /**
      * Returns datafile content
      * @param datafileId
      *      datafile ID corresponding to datafile
@@ -56,6 +74,26 @@ public interface DataFileServiceV2 {
      * @return list of all datafile descriptions
      */
     public DataFileDescriptorContainer getDatafiles();
+
+
+    /**
+     * Upload datafile to Tank
+     *
+     * @param datafileId
+     *            existing datafile's datafileId to overwrite with new datafile
+     *
+     * @param contentEncoding
+     *            content encoding of datafile (checks for gzip file)
+     *
+     * @param file
+     *            datafile to be uploaded
+     *
+     * @throws GenericServiceCreateOrUpdateException
+     *         if there are errors uploading datafile
+     *
+     * @return datafileId with upload status JSON payload
+     */
+    public Map<String, String> uploadDatafile(Integer datafileId, String contentEncoding, MultipartFile file) throws IOException;
 
     /**
      * Deletes a datafile associated with datafile ID

@@ -11,9 +11,16 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import javax.servlet.http.HttpServletRequest;
 
 @ResponseBody
 @ControllerAdvice
@@ -39,6 +46,21 @@ public class GenericExceptionHandler {
     public SimpleErrorResponse handleResourceDeleteException(GenericServiceDeleteException e) {
         LOGGER.error("handling an error from the " + e.getService() + " service", e);
         return genericErrorResponse(HttpStatus.NOT_FOUND, "Resource could not be deleted: " + e.getResource(), e);
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<Object> handleFileException(HttpServletRequest request, Throwable ex) {
+        return new ResponseEntity<>("File upload error: incorrect request or missing file parameter", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<Object> handleMissingServletRequestPart(HttpServletRequest request, Throwable ex) {
+        return new ResponseEntity<>("File upload error: incorrect request or missing file parameter", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Object> handleHttpMessageNotReadable(HttpServletRequest request, Throwable ex) {
+        return new ResponseEntity<>("Incorrect request body", HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
