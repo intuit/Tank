@@ -13,12 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/**
- * RestUrlBuilder
- * 
- * @author dangleton
- * 
- */
 public class RestUrlBuilder {
 
     private String baseUrl;

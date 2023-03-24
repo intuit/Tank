@@ -8,8 +8,10 @@
 package com.intuit.tank.rest.mvc.rest.clients;
 
 import com.intuit.tank.rest.mvc.rest.clients.util.*;
+import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.transport.ProxyProvider;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -26,7 +28,6 @@ public abstract class BaseClient {
     protected String baseUrl;
 
     protected WebClient client;
-    protected RestExceptionHandler exceptionHandler = new RestExceptionHandler();
     protected RestUrlBuilder urlBuilder;
 
     public BaseClient(String serviceUrl, final String proxyServer, final Integer proxyPort) {
@@ -59,11 +60,15 @@ public abstract class BaseClient {
 
     protected abstract String getServiceBaseUrl();
 
-    public String ping() throws RestServiceException {
+    public String ping() {
         return client.get()
                 .uri(urlBuilder.buildUrl("/ping"))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                           response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(String.class)
                 .block();
     }

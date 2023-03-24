@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers.errors;
 
+import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +43,11 @@ public class GenericExceptionHandler {
     }
 
     @ExceptionHandler
+    public SimpleErrorResponse handleClientException(ClientException e) {
+        return genericErrorResponse(HttpStatus.valueOf(e.getStatusCode()), e.getErrorMessage(), e);
+    }
+
+    @ExceptionHandler
     public SimpleErrorResponse handleOtherErrors(Throwable t) {
         LOGGER.error("handling an unexpected exception", t);
         return genericErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,
@@ -49,7 +55,7 @@ public class GenericExceptionHandler {
     }
 
     private SimpleErrorResponse genericErrorResponse(HttpStatus status, String message, Throwable e) {
-        final boolean scrubSensitiveData = !includeDebugInfo; // API-1890: be very explicit about the flipping of the sense of the flag
+        final boolean scrubSensitiveData = !includeDebugInfo;
         return new SimpleErrorResponse(status, message, e, scrubSensitiveData);
     }
 }

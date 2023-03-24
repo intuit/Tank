@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.clients;
 
+import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.jobs.CreateJobRequest;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobContainer;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobTO;
@@ -39,6 +40,10 @@ public class JobClient extends BaseClient{
                 .uri(baseUrl)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(JobContainer.class)
                 .block();
     }
@@ -48,6 +53,10 @@ public class JobClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", jobId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(JobTO.class)
                 .block();
     }
@@ -57,6 +66,10 @@ public class JobClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/project", projectId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(JobContainer.class)
                 .block();
     }
@@ -68,6 +81,10 @@ public class JobClient extends BaseClient{
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(request), CreateJobRequest.class)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(Map.class)
                 .block();
     }
@@ -77,6 +94,10 @@ public class JobClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/status"))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(List.class)
                 .block();
     }
@@ -86,6 +107,10 @@ public class JobClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/status", jobId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(String.class)
                 .block();
     }
@@ -95,6 +120,10 @@ public class JobClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/instance-status", jobId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(String.class)
                 .block();
     }
@@ -104,6 +133,10 @@ public class JobClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", projectId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(CloudVmStatusContainer.class)
                 .block();
     }
@@ -115,6 +148,10 @@ public class JobClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/start", jobId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(Void.class)
                 .block();
     }
@@ -124,6 +161,10 @@ public class JobClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/stop", jobId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(Void.class)
                 .block();
     }
@@ -133,6 +174,10 @@ public class JobClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/pause", jobId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(Void.class)
                 .block();
     }
@@ -142,6 +187,10 @@ public class JobClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/resume", jobId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(Void.class)
                 .block();
     }
@@ -151,6 +200,10 @@ public class JobClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/kill", jobId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(Void.class)
                 .block();
     }

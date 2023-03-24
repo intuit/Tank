@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.clients;
 
+import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.filters.FilterContainer;
 import com.intuit.tank.rest.mvc.rest.models.filters.FilterGroupContainer;
 import com.intuit.tank.rest.mvc.rest.models.filters.FilterGroupTO;
@@ -38,6 +39,10 @@ public class FilterClient extends BaseClient{
                 .uri(baseUrl)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(FilterContainer.class)
                 .block();
     }
@@ -47,6 +52,10 @@ public class FilterClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/groups"))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(FilterGroupContainer.class)
                 .block();
     }
@@ -56,6 +65,10 @@ public class FilterClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", filterId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(FilterTO.class)
                 .block();
     }
@@ -65,6 +78,10 @@ public class FilterClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", filterGroupId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(FilterGroupTO.class)
                 .block();
     }
@@ -74,6 +91,10 @@ public class FilterClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", filterId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(String.class)
                 .block();
     }
@@ -83,6 +104,10 @@ public class FilterClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", filterGroupId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(String.class)
                 .block();
     }

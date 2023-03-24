@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.clients;
 
+import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
@@ -14,6 +15,7 @@ import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.Headers;
 
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 
@@ -41,6 +43,10 @@ public class AgentClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/settings"))
                 .accept(MediaType.APPLICATION_XML)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(String.class)
                 .block();
     }
@@ -49,6 +55,10 @@ public class AgentClient extends BaseClient{
         return client.get()
                 .uri(urlBuilder.buildUrl("/support-files"))
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(DataBuffer.class);
     }
 
@@ -59,6 +69,10 @@ public class AgentClient extends BaseClient{
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(agentData), AgentData.class)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(AgentTestStartData.class)
                 .block();
     }
@@ -68,6 +82,10 @@ public class AgentClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/headers"))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(Headers.class)
                 .block();
     }
@@ -77,6 +95,10 @@ public class AgentClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/clients"))
                 .accept(MediaType.APPLICATION_XML)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(TankHttpClientDefinitionContainer.class)
                 .block();
     }
@@ -86,16 +108,24 @@ public class AgentClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/instance/status/", instanceId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(CloudVmStatus.class)
                 .block();
     }
 
-    public Void setInstanceStatus(String instanceId, CloudVmStatus status) {
+    public Void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) {
         return client.put()
                 .uri(urlBuilder.buildUrl("/instance/status/", instanceId))
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(status), CloudVmStatus.class)
+                .body(Mono.just(VmStatus), CloudVmStatus.class)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(Void.class)
                 .block();
     }
@@ -104,6 +134,10 @@ public class AgentClient extends BaseClient{
         return client.get()
                 .uri(urlBuilder.buildUrl("/instance/stop/", instanceId))
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(Void.class)
                 .block();
     }
@@ -112,6 +146,10 @@ public class AgentClient extends BaseClient{
         return client.get()
                 .uri(urlBuilder.buildUrl("/instance/pause/", instanceId))
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(Void.class)
                 .block();
     }
@@ -120,6 +158,10 @@ public class AgentClient extends BaseClient{
         return client.get()
                 .uri(urlBuilder.buildUrl("/instance/resume/", instanceId))
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(Void.class)
                 .block();
     }
@@ -128,6 +170,10 @@ public class AgentClient extends BaseClient{
         return client.get()
                 .uri(urlBuilder.buildUrl("/instance/kill/", instanceId))
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(Void.class)
                 .block();
     }

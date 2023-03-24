@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.clients;
 
+import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptContainer;
 import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptTO;
 import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptDescriptionContainer;
@@ -38,6 +39,10 @@ public class ScriptClient extends BaseClient{
                 .uri(baseUrl)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(ScriptDescriptionContainer.class)
                 .block();
     }
@@ -47,6 +52,10 @@ public class ScriptClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", scriptId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(ScriptTO.class)
                 .block();
     }
@@ -58,6 +67,10 @@ public class ScriptClient extends BaseClient{
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(scriptTo), ScriptTO.class)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(ScriptTO.class)
                 .block();
     }
@@ -67,6 +80,10 @@ public class ScriptClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", scriptId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(String.class)
                 .block();
     }
@@ -78,6 +95,10 @@ public class ScriptClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/external"))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(ExternalScriptContainer.class)
                 .block();
     }
@@ -87,6 +108,10 @@ public class ScriptClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/external", externalScriptId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(ExternalScriptTO.class)
                 .block();
     }
@@ -98,6 +123,10 @@ public class ScriptClient extends BaseClient{
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(script), ExternalScriptTO.class)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(ExternalScriptTO.class)
                 .block();
     }
@@ -107,6 +136,10 @@ public class ScriptClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/external", externalScriptId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(String.class)
                 .block();
     }

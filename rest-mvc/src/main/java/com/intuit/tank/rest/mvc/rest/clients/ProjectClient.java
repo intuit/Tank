@@ -7,9 +7,11 @@
  */
 package com.intuit.tank.rest.mvc.rest.clients;
 
+import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.projects.AutomationRequest;
 import com.intuit.tank.rest.mvc.rest.models.projects.ProjectContainer;
 import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 
@@ -37,7 +39,24 @@ public class ProjectClient extends BaseClient{
                 .uri(baseUrl)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(ProjectContainer.class)
+                .block();
+    }
+
+    public Map<String, Integer> getProjectNames() {
+        return client.get()
+                .uri(urlBuilder.buildUrl("/names"))
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .onStatus(status -> status.isError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
+                .bodyToMono(Map.class)
                 .block();
     }
 
@@ -46,6 +65,10 @@ public class ProjectClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", projectId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                         .flatMap(body -> Mono.error(new ClientException(body,
+                                 response.statusCode().value()))))
                 .bodyToMono(ProjectTO.class)
                 .block();
     }
@@ -57,6 +80,10 @@ public class ProjectClient extends BaseClient{
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(request), AutomationRequest.class)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(Map.class)
                 .block();
     }
@@ -68,6 +95,10 @@ public class ProjectClient extends BaseClient{
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(request), AutomationRequest.class)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(Map.class)
                 .block();
     }
@@ -77,6 +108,10 @@ public class ProjectClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", projectId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(String.class)
                 .block();
     }

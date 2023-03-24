@@ -7,12 +7,11 @@
  */
 package com.intuit.tank.rest.mvc.rest.clients;
 
+import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptorContainer;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
-
-import java.util.Map;
 
 public class DataFileClient extends BaseClient{
 
@@ -36,6 +35,10 @@ public class DataFileClient extends BaseClient{
                 .uri(baseUrl)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(DataFileDescriptorContainer.class)
                 .block();
     }
@@ -45,6 +48,10 @@ public class DataFileClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", datafileId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(DataFileDescriptor.class)
                 .block();
     }
@@ -59,6 +66,10 @@ public class DataFileClient extends BaseClient{
                     .build())
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(String.class)
                 .block();
     }
@@ -68,6 +79,10 @@ public class DataFileClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", datafileID))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
                 .bodyToMono(String.class)
                 .block();
     }
