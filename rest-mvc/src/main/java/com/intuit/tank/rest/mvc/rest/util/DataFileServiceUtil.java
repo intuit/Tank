@@ -34,14 +34,9 @@ public final class DataFileServiceUtil {
         ret.setModified(dataFile.getModified());
         ret.setCreator(dataFile.getCreator());
         ret.setName(dataFile.getPath());
-        ret.setDataUrl(getRelativeDataUrl(dataFile.getId()));
+//        ret.setDataUrl(getRelativeDataUrl(dataFile.getId())); TODO
         ret.setComments(dataFile.getComments());
         return ret;
-    }
-
-    private static String getRelativeDataUrl(int id) {
-        String url = config.getControllerBase() + "/api/v2/datafiles/content?id={id}";
-        return url.replace("{id}", Integer.toString(id));
     }
 
     /**

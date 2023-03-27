@@ -14,7 +14,6 @@ import com.intuit.tank.rest.mvc.rest.services.datafiles.DataFileServiceV2;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,7 +29,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -89,52 +87,6 @@ public class DataFileController {
             return new ResponseEntity<>(out.toString(), HttpStatus.OK);
         }
         return ResponseEntity.notFound().build();
-    }
-
-    @RequestMapping(value = "/download/{datafileId}", method = RequestMethod.GET)
-    @Operation(description = "Downloads a datafile with the corresponding datafile ID", summary = "Download a datafile")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully downloaded the datafile", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Datafile could not be found", content = @Content)
-    })
-    public ResponseEntity<StreamingResponseBody> downloadDatafile(@PathVariable @Parameter(description = "Datafile ID", required = true) Integer datafileId) throws IOException {
-        Map<String, StreamingResponseBody> response = dataFileService.downloadDatafile(datafileId);
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
-        String filename = response.keySet().iterator().next();
-        StreamingResponseBody responseBody = response.get(filename);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(responseBody);
-    }
-
-    @RequestMapping(value = "/upload", method = RequestMethod.POST, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    @Operation(description = "Uploads a datafile to Tank (supports gzip files) \n\n " +
-            "Examples: \n\n" +
-            "        curl -v -X POST -H 'Content-Type: multipart/form-data' -F \"file=@<filename>\" 'https://{tank-base-url}/api/v2/datafiles/upload'\n\n" +
-            "\n\n" +
-            "        curl -v -X POST -H 'Content-Type: multipart/form-data' -F \"file=@<filename>\" 'https://{tank-base-url}/api/v2/datafiles/upload?id=<datafileId>'\n\n" +
-            "\n\n" +
-            "        gzip <filename>\n\n" +
-            "        curl -v -X POST -H 'Content-Type: multipart/form-data' -H 'Content-Encoding: gzip' -F \"file=@<filename>.gz\" 'https://{tank-base-url}/api/v2/datafiles/upload'\n\n" +
-            "Notes: \n\n " +
-            " - Datafile id is an optional parameter \n\n" +
-            " - Passing in an existing Tank Datafile ID will overwrite the existing datafile in Tank, but will otherwise create a new datafile", summary = "Upload datafile to Tank")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Successfully uploaded datafile", content = @Content),
-            @ApiResponse(responseCode = "400", description = "Datafile could not be uploaded", content = @Content)
-    })
-    public ResponseEntity<Map<String, String>> uploadDatafile(@RequestHeader(value = HttpHeaders.CONTENT_ENCODING, required = false) @Parameter(description = "Content-Encoding", required = false) String contentEncoding,
-                                                            @RequestParam(required = false) @Parameter(description = "Existing Datafile ID (optional)", required = false) Integer id,
-                                                            @RequestParam(value = "file", required = true) @Parameter(schema = @Schema(type = "string", format = "binary", description = "Datafile file")) MultipartFile file) throws IOException{
-        Map<String, String> response = dataFileService.uploadDatafile(id, contentEncoding, file);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/{datafileID}", method = RequestMethod.DELETE, produces = { MediaType.TEXT_PLAIN_VALUE })

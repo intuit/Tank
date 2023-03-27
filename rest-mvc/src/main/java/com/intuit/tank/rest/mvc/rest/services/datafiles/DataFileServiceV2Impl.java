@@ -9,7 +9,6 @@ package com.intuit.tank.rest.mvc.rest.services.datafiles;
 
 import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.project.DataFile;
-import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
 import com.intuit.tank.rest.mvc.rest.util.DataFileServiceUtil;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
@@ -21,20 +20,18 @@ import com.intuit.tank.storage.FileStorageFactory;
 import com.intuit.tank.util.DataFileUtil;
 import com.intuit.tank.vm.settings.TankConfig;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 
 @Service
 public class DataFileServiceV2Impl implements DataFileServiceV2 {
@@ -119,65 +116,6 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
             }
         };
     }
-
-    public Map<String, StreamingResponseBody> downloadDatafile(Integer datafileId){
-        Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-        DataFileDao dataFileDao = new DataFileDao();
-        DataFile dataFile = dataFileDao.findById(datafileId);
-        if (dataFile == null){
-            return null;
-        } else {
-            StreamingResponseBody streamingOutput = getStreamingOutput(0, -1, dataFile);
-            String filename = dataFile.getPath();
-            payload.put(filename, streamingOutput);
-            return payload;
-        }
-    }
-
-    @Override
-    public Map<String, String> uploadDatafile(Integer datafileId, String contentEncoding, MultipartFile file) throws IOException {
-        Map<String, String> payload = new HashMap<>();
-        datafileId = datafileId == null ? 0 : datafileId;
-        contentEncoding = contentEncoding == null ? "" : contentEncoding;
-        InputStream decompressed = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
-                new GZIPInputStream(file.getInputStream()) :
-                file.getInputStream();
-        try {
-            DataFileDao dao = new DataFileDao();
-            DataFile dataFile = dao.findById(datafileId);
-            if (dataFile == null){
-                dataFile = new DataFile();
-                dataFile.setCreator("System");
-                dataFile.setId(0);
-            } else {
-                payload.put("message", "Datafile with datafile ID " + datafileId + " overwritten with new datafile");
-            }
-
-            String newFilename = file.getOriginalFilename().replace(".gz", "");
-            dataFile.setPath(newFilename);
-            dataFile.setFileName(newFilename);
-
-            dao.storeDataFile(dataFile, decompressed);
-
-            if (datafileId.equals(0)) {
-                payload.put("message", "Datafile with new datafile ID " + dataFile.getId() + " has been uploaded");
-            } else {
-                if (!payload.containsKey("message")) {
-                    payload.put("message", "Existing dataFile with dataFile ID " + datafileId + " could not be found, created new datafile " + dataFile.getId());
-                }
-            }
-            payload.put("datafileId", Integer.toString(dataFile.getId()));
-        } catch (Exception e) {
-            LOGGER.error("Error uploading datafile: " + e.getMessage(), e);
-            throw new GenericServiceCreateOrUpdateException("datafiles", "new datafile via datafile upload", e);
-        } finally {
-            try {
-                decompressed.close();
-            } catch (IOException e) {}
-        }
-        return payload;
-    }
-
 
     @Override
     public String deleteDatafile(Integer datafileId){

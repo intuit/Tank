@@ -10,11 +10,9 @@ package com.intuit.tank.rest.mvc.rest.controllers;
 import com.intuit.tank.project.DataFile;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptorContainer;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptTO;
 import com.intuit.tank.rest.mvc.rest.services.datafiles.DataFileServiceV2;
 import com.intuit.tank.rest.mvc.rest.util.DataFileServiceUtil;
 
-import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,7 +23,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.MediaType;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -35,7 +32,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class DataFileControllerTest {
@@ -114,37 +113,6 @@ public class DataFileControllerTest {
                 "file, 5, 6\n", response);
         assertEquals(200, result.getStatusCodeValue());
         verify(datafileService).getDatafileContent(2, 5, 10);
-    }
-
-    @Test
-    public void testDownloadDatafile() throws IOException {
-        Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-        File testCSV = new File("src/test/resources/test.csv");
-        StreamingResponseBody responseBody = outputStream -> {
-            Files.copy(testCSV.toPath(), outputStream);
-        };
-        String filename = "test.csv";
-        payload.put(filename, responseBody);
-        when(datafileService.downloadDatafile(4)).thenReturn(payload);
-        ResponseEntity<StreamingResponseBody> result = datafileController.downloadDatafile(4);
-        assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
-        assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
-        assertEquals(200, result.getStatusCodeValue());
-        verify(datafileService).downloadDatafile(4);
-    }
-
-    @Test
-    public void testUploadDatafile() throws IOException {
-        Map<String, String> payload = new HashMap<>();
-        payload.put("datafileId", "6");
-        payload.put("message", "Datafile with new datafile ID 6 has been uploaded");
-        when(datafileService.uploadDatafile(0, "gzip", null)).thenReturn(payload);
-        ResponseEntity<Map<String, String>> result = datafileController.uploadDatafile("gzip", 0, null);
-        Map<String, String> response = result.getBody();
-        assertEquals("6", response.get("datafileId"));
-        assertTrue(response.get("message").contains("uploaded"));
-        assertEquals(201, result.getStatusCodeValue());
-        verify(datafileService).uploadDatafile(0, "gzip", null);
     }
 
     @Test

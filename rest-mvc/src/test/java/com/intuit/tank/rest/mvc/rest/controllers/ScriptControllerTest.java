@@ -15,7 +15,6 @@ import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptDescriptionContainer;
 import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptContainer;
 import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptDescription;
 import com.intuit.tank.rest.mvc.rest.services.scripts.ScriptServiceV2;
-import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import com.intuit.tank.rest.mvc.rest.util.ScriptServiceUtil;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -28,15 +27,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.MediaType;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ScriptControllerTest {
@@ -89,15 +86,15 @@ public class ScriptControllerTest {
         Script script = new Script();
         script.setName("testName");
         script.setProductName("testProductName");
-        when(scriptService.getScript(2)).thenReturn(ScriptServiceUtil.scriptToScriptDescription(script));
-        ResponseEntity<ScriptDescription> result = scriptController.getScript(2);
+        when(scriptService.getScript(2)).thenReturn(ScriptServiceUtil.scriptToTransferObject(script));
+        ResponseEntity<ScriptTO> result = scriptController.getScript(2);
         assertEquals("testName", result.getBody().getName());
         assertEquals("testProductName", result.getBody().getProductName());
         assertEquals(200, result.getStatusCodeValue());
         verify(scriptService).getScript(2);
 
         when(scriptService.getScript(2)).thenReturn(null);
-        ResponseEntity<ScriptDescription> notFound = scriptController.getScript(2);
+        ResponseEntity<ScriptTO> notFound = scriptController.getScript(2);
         assertEquals(404, notFound.getStatusCodeValue());
     }
 
@@ -116,58 +113,6 @@ public class ScriptControllerTest {
         assertEquals(201, result.getStatusCodeValue());
         assertNotNull(result.getHeaders().getLocation());
         verify(scriptService).createScript(payload);
-    }
-
-    @Test
-    public void testDownloadScript() throws IOException {
-        Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-        ScriptTO scriptTO = new ScriptTO();
-        scriptTO.setId(4);
-        scriptTO.setCreator("Test");
-        scriptTO.setName("testName");
-        scriptTO.setRuntime(3);
-        StreamingResponseBody streamingResponse = ResponseUtil.getXMLStream(scriptTO);
-        String filename = "test_TS.xml";
-        payload.put(filename, streamingResponse);
-        when(scriptService.downloadScript(4)).thenReturn(payload);
-        ResponseEntity<StreamingResponseBody> result = scriptController.downloadScript(4);
-        assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
-        assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
-        assertEquals(200, result.getStatusCodeValue());
-        verify(scriptService).downloadScript(4);
-    }
-
-    @Test
-    public void testDownloadHarnessScript() throws IOException {
-        Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-        ScriptTO scriptTO = new ScriptTO();
-        scriptTO.setId(4);
-        scriptTO.setCreator("Test");
-        scriptTO.setName("testName");
-        scriptTO.setRuntime(3);
-        StreamingResponseBody streamingResponse = ResponseUtil.getXMLStream(scriptTO);
-        String filename = "test_H.xml";
-        payload.put(filename, streamingResponse);
-        when(scriptService.downloadHarnessScript(4)).thenReturn(payload);
-        ResponseEntity<StreamingResponseBody> result = scriptController.downloadHarnessScript(4);
-        assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
-        assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
-        assertEquals(200, result.getStatusCodeValue());
-        verify(scriptService).downloadHarnessScript(4);
-    }
-
-    @Test
-    public void testUploadScript() throws IOException {
-        Map<String, String> payload = new HashMap<>();
-        payload.put("scriptId", "7");
-        payload.put("message", "Script with new script ID 7 has been uploaded");
-        when(scriptService.uploadProxyScript("testName", 0, "gzip", null)).thenReturn(payload);
-        ResponseEntity<Map<String, String>> result = scriptController.uploadScript("gzip", "testName", 0, null);
-        Map<String, String> response = result.getBody();
-        assertEquals("7", response.get("scriptId"));
-        assertTrue(response.get("message").contains("uploaded"));
-        assertEquals(201, result.getStatusCodeValue());
-        verify(scriptService).uploadProxyScript("testName", 0, "gzip", null);
     }
 
     @Test
@@ -239,24 +184,6 @@ public class ScriptControllerTest {
         assertEquals(201, result.getStatusCodeValue());
         assertNotNull(result.getHeaders().getLocation());
         verify(scriptService).createExternalScript(payload);
-    }
-
-    @Test
-    public void testDownloadExternalScript() throws IOException {
-        Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-        ExternalScriptTO externalScriptTO = new ExternalScriptTO();
-        externalScriptTO.setId(5);
-        externalScriptTO.setCreator("Test");
-        externalScriptTO.setName("testExternalName");
-        StreamingResponseBody streamingResponse = ResponseUtil.getXMLStream(externalScriptTO);
-        String filename = "test_ETS.xml";
-        payload.put(filename, streamingResponse);
-        when(scriptService.downloadExternalScript(5)).thenReturn(payload);
-        ResponseEntity<StreamingResponseBody> result = scriptController.downloadExternalScript(5);
-        assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
-        assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
-        assertEquals(200, result.getStatusCodeValue());
-        verify(scriptService).downloadExternalScript(5);
     }
 
     @Test

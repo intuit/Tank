@@ -71,12 +71,6 @@
     </servlet-class>
     <load-on-startup>0</load-on-startup>
     <async-supported>true</async-supported>
-    <multipart-config>
-      <location>/tmp</location>
-      <max-file-size>200000000</max-file-size>
-      <max-request-size>200000000</max-request-size>
-      <file-size-threshold>1048576</file-size-threshold>
-    </multipart-config>
   </servlet>
   <servlet-mapping>
     <servlet-name>rest-mvc</servlet-name>
