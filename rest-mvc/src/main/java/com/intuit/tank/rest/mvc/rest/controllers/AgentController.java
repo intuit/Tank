@@ -81,7 +81,7 @@ public class AgentController {
     }
 
     @RequestMapping(value = "/ready", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
-    @Operation(description = "Registers an agent instance to a job and sets it's status to ready to start", summary = "Set an agent instance status to ready to start")
+    @Operation(description = "Registers an agent instance to a job and sets it's status to ready to start", summary = "Set an agent instance status to ready to start", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully set agent to ready"),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
@@ -112,7 +112,7 @@ public class AgentController {
     }
 
     @RequestMapping(value = "/availability", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
-    @Operation(description = "Sets the availability status for a standalone agent", summary = "Set standalone agent availability")
+    @Operation(description = "Sets the availability status for a standalone agent", summary = "Set standalone agent availability", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully set agent availability"),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
@@ -138,7 +138,7 @@ public class AgentController {
     }
 
     @RequestMapping(value = "/instance/status/{instanceId}", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_JSON_VALUE })
-    @Operation(description = "Sets the agent instance status via instanceID and CloudVMStatus payload", summary = "Set the agent instance status")
+    @Operation(description = "Sets the agent instance status via instanceID and CloudVMStatus payload", summary = "Set the agent instance status", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully set agent instance status"),
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content)
