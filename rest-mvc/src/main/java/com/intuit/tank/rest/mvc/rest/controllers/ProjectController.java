@@ -60,9 +60,9 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/names", method = RequestMethod.GET)
-    @Operation(description = "Returns all project name/project ID key value pairs", summary = "Get all project name with project IDs")
+    @Operation(description = "Returns all project name/project ID key value pairs", summary = "Get all project names with project IDs")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully found all project names with IDs"),
+            @ApiResponse(responseCode = "200", description = "Successfully found all project names with IDs", content = @Content),
             @ApiResponse(responseCode = "404", description = "All project name with IDs could not be found", content = @Content)
     })
     public ResponseEntity<Map<String, Integer>> getAllProjectNames() {
@@ -126,10 +126,10 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/download/{projectId}", method = RequestMethod.GET)
-    @Operation(description = "Downloads a project's script harness XML file", summary = "Download the project's script harness file")
+    @Operation(description = "Downloads a project's harness XML file", summary = "Download the project's harness file")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully downloaded project's script harness file", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Project's script harness file could not be found", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Successfully downloaded project's harness file", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Project's harness file could not be found", content = @Content)
     })
     public ResponseEntity<StreamingResponseBody> downloadTestScriptForProject(@PathVariable @Parameter(description = "Project ID", required = true) Integer projectId) throws IOException {
         Map<String, StreamingResponseBody> response = projectService.downloadTestScriptForProject(projectId);

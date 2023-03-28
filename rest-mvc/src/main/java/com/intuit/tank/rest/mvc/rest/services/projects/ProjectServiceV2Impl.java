@@ -192,8 +192,8 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
                 return payload;
             }
         } catch (Exception e){
-            LOGGER.error("Error downloading project script harness file: " + e.getMessage(), e);
-            throw new GenericServiceResourceNotFoundException("projects", "project script harness file", e);
+            LOGGER.error("Error downloading project harness file: " + e.getMessage(), e);
+            throw new GenericServiceResourceNotFoundException("projects", "project harness file", e);
         }
     }
 

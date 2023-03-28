@@ -72,12 +72,12 @@ public interface ProjectServiceV2 {
     public Map<String, String> createProject(AutomationRequest request);
 
     /**
-     * Downloads a project's script harness XML file
+     * Downloads a project's harness XML file
      *
      * @throws GenericServiceResourceNotFoundException
-     *         if there are errors downloading script harness
+     *         if there are errors downloading harness file
      *
-     * @return project's script harness XML file
+     * @return project's harness XML file
      */
     public Map<String, StreamingResponseBody> downloadTestScriptForProject(Integer projectId);
 

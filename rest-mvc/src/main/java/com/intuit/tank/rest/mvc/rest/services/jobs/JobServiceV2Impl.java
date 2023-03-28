@@ -7,7 +7,6 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.jobs;
 
-import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 import com.intuit.tank.dao.BaseDao;
 import com.intuit.tank.dao.DataFileDao;
