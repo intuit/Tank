@@ -195,36 +195,46 @@ public class JobControllerTest {
 
     @Test
     public void testStartJob() {
-        ResponseEntity<Void> result = jobController.startJob(385594786);
-        assertEquals(204, result.getStatusCodeValue());
+        when(jobService.startJob(385594786)).thenReturn("Starting");
+        ResponseEntity<String> result = jobController.startJob(385594786);
+        assertEquals("Starting", result.getBody());
+        assertEquals(200, result.getStatusCodeValue());
         verify(jobService).startJob(385594786);
     }
 
     @Test
     public void testStopJob() {
-        ResponseEntity<Void> result = jobController.stopJob(808242333);
-        assertEquals(204, result.getStatusCodeValue());
+        when(jobService.stopJob(808242333)).thenReturn("Stopped");
+        ResponseEntity<String> result = jobController.stopJob(808242333);
+        assertEquals("Stopped", result.getBody());
+        assertEquals(200, result.getStatusCodeValue());
         verify(jobService).stopJob(808242333);
     }
 
     @Test
     public void testPauseJob() {
-        ResponseEntity<Void> result = jobController.pauseJob(375886587);
-        assertEquals(204, result.getStatusCodeValue());
+        when(jobService.pauseJob(375886587)).thenReturn("RampPaused");
+        ResponseEntity<String> result = jobController.pauseJob(375886587);
+        assertEquals("RampPaused", result.getBody());
+        assertEquals(200, result.getStatusCodeValue());
         verify(jobService).pauseJob(375886587);
     }
 
     @Test
     public void testResumeJob() {
-        ResponseEntity<Void> result = jobController.resumeJob(100403047);
-        assertEquals(204, result.getStatusCodeValue());
+        when(jobService.resumeJob(100403047)).thenReturn("Running");
+        ResponseEntity<String> result = jobController.resumeJob(100403047);
+        assertEquals("Running", result.getBody());
+        assertEquals(200, result.getStatusCodeValue());
         verify(jobService).resumeJob(100403047);
     }
 
     @Test
     public void testKillJob() {
-        ResponseEntity<Void> result = jobController.killJob(482937134);
-        assertEquals(204, result.getStatusCodeValue());
+        when(jobService.killJob(482937134)).thenReturn("Completed");
+        ResponseEntity<String> result = jobController.killJob(482937134);
+        assertEquals("Completed", result.getBody());
+        assertEquals(200, result.getStatusCodeValue());
         verify(jobService).killJob(482937134);
     }
 }

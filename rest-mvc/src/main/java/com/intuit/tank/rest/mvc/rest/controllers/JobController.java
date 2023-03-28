@@ -146,58 +146,58 @@ public class JobController {
 
     // Job Status Setters
 
-    @RequestMapping(value = "/start/{jobId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/start/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Starts a specific job by job id", summary = "Start a specific job")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Successfully started job"),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
     })
-    public ResponseEntity<Void> startJob(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {
-        jobService.startJob(jobId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> startJob(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {
+        String status = jobService.startJob(jobId);
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/stop/{jobId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/stop/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Stops a specific job by job id", summary = "Stop a specific job")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Successfully stopped job"),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
     })
-    public ResponseEntity<Void> stopJob(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {
-        jobService.stopJob(jobId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> stopJob(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {
+        String status = jobService.stopJob(jobId);
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/pause/{jobId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/pause/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Pauses a specific job by job id", summary = "Pause a job")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Successfully paused job"),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
     })
-    public ResponseEntity<Void> pauseJob(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {
-        jobService.pauseJob(jobId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> pauseJob(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {
+        String status = jobService.pauseJob(jobId);
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/resume/{jobId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/resume/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Resumes a specific job by job id", summary = "Resume a paused job")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Successfully resumed job"),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
     })
-    public ResponseEntity<Void> resumeJob(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {
-        jobService.resumeJob(jobId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> resumeJob(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {
+        String status = jobService.resumeJob(jobId);
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/kill/{jobId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/kill/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Terminates a specific job by job id", summary = "Terminate a specific job")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Successfully terminated job"),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
     })
-    public ResponseEntity<Void> killJob(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {
-        jobService.killJob(jobId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> killJob(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {
+        String status = jobService.killJob(jobId);
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 }

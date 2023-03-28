@@ -41,7 +41,7 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.message.ObjectMessage;
 
-import com.intuit.tank.AgentServiceClient;
+import com.intuit.tank.rest.mvc.rest.clients.AgentClient;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.VMStatus;
 import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
@@ -252,7 +252,7 @@ public class APITestHarness {
         if (baseUrl == null) {
             baseUrl = AmazonUtil.getControllerBaseUrl();
         }
-        AgentServiceClient client = new AgentServiceClient(baseUrl);
+        AgentClient client = new AgentClient(baseUrl);
         String instanceUrl = null;
         int retryCount = 0;
         while (instanceUrl == null) {

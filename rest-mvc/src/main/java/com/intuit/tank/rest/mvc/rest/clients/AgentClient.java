@@ -10,6 +10,7 @@ package com.intuit.tank.rest.mvc.rest.clients;
 import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.Headers;
@@ -54,6 +55,7 @@ public class AgentClient extends BaseClient{
     public Mono<DataBuffer> getSupportFiles() {
         return client.get()
                 .uri(urlBuilder.buildUrl("/support-files"))
+                .accept(MediaType.APPLICATION_OCTET_STREAM)
                 .retrieve()
                 .onStatus(status -> status.isError(),
                             response -> response.bodyToMono(String.class)
@@ -103,6 +105,20 @@ public class AgentClient extends BaseClient{
                 .block();
     }
 
+    public Void setStandaloneAgentAvailability(AgentAvailability availability) {
+        return client.post()
+                .uri(urlBuilder.buildUrl("/availability"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(availability), AgentAvailability.class)
+                .retrieve()
+                .onStatus(status -> status.isError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
+                .bodyToMono(Void.class)
+                .block();
+    }
+
     public CloudVmStatus getInstanceStatus(String instanceId) {
         return client.get()
                 .uri(urlBuilder.buildUrl("/instance/status/", instanceId))
@@ -130,51 +146,55 @@ public class AgentClient extends BaseClient{
                 .block();
     }
 
-    public Void stopInstance(String instanceId) {
+    public String stopInstance(String instanceId) {
         return client.get()
                 .uri(urlBuilder.buildUrl("/instance/stop/", instanceId))
+                .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
                 .onStatus(status -> status.isError(),
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
-                .bodyToMono(Void.class)
+                .bodyToMono(String.class)
                 .block();
     }
 
-    public Void pauseInstance(String instanceId) {
+    public String pauseInstance(String instanceId) {
         return client.get()
                 .uri(urlBuilder.buildUrl("/instance/pause/", instanceId))
+                .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
                 .onStatus(status -> status.isError(),
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
-                .bodyToMono(Void.class)
+                .bodyToMono(String.class)
                 .block();
     }
 
-    public Void resumeInstance(String instanceId) {
+    public String resumeInstance(String instanceId) {
         return client.get()
                 .uri(urlBuilder.buildUrl("/instance/resume/", instanceId))
+                .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
                 .onStatus(status -> status.isError(),
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
-                .bodyToMono(Void.class)
+                .bodyToMono(String.class)
                 .block();
     }
 
-    public Void killInstance(String instanceId) {
+    public String killInstance(String instanceId) {
         return client.get()
                 .uri(urlBuilder.buildUrl("/instance/kill/", instanceId))
+                .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
                 .onStatus(status -> status.isError(),
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
-                .bodyToMono(Void.class)
+                .bodyToMono(String.class)
                 .block();
     }
 }

@@ -29,7 +29,7 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>agent-client</artifactId>
+      <artifactId>tank-api</artifactId>
       <version>${project.version}</version>
     </dependency>
 

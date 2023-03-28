@@ -25,7 +25,7 @@ import com.intuit.tank.rest.mvc.rest.models.filters.FilterGroupContainer;
 import com.intuit.tank.rest.mvc.rest.models.filters.ApplyFiltersRequest;
 import com.intuit.tank.rest.mvc.rest.util.FilterServiceUtil;
 import com.intuit.tank.rest.mvc.rest.util.ScriptFilterUtil;
-import com.intuit.tank.service.impl.v1.automation.MessageSender;
+import com.intuit.tank.service.util.MessageSender;
 import com.intuit.tank.service.util.ServletInjector;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
 import com.intuit.tank.vm.settings.ModificationType;

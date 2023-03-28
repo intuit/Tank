@@ -28,7 +28,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.AgentServiceClient;
+import com.intuit.tank.rest.mvc.rest.clients.AgentClient;
 import com.intuit.tank.harness.HostInfo;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentAvailabilityStatus;
@@ -45,7 +45,7 @@ public class StandaloneAgentStartup implements Runnable {
 
     private String controllerBase;
     private AgentAvailability currentAvailability;
-    private AgentServiceClient agentClient;
+    private AgentClient agentClient;
     private String instanceId;
     private String hostname;
     private int capacity = 4000;
@@ -53,7 +53,7 @@ public class StandaloneAgentStartup implements Runnable {
     @Override
     public void run() {
         CommandListener.startHttpServer(CommandListener.PORT, this);
-        agentClient = new AgentServiceClient(controllerBase);
+        agentClient = new AgentClient(controllerBase);
         
         if (hostname != null) {
             instanceId = hostname;
@@ -152,7 +152,7 @@ public class StandaloneAgentStartup implements Runnable {
                 currentAvailability.getInstanceUrl(), currentAvailability.getCapacity(),
                 currentAvailability.getAvailabilityStatus());
         LOG.info("Sending availaability: " + ToStringBuilder.reflectionToString(availability));
-        agentClient.standaloneAgentAvailable(availability);
+        agentClient.setStandaloneAgentAvailability(availability);
     }
 
     public static void main(String[] args) {

@@ -118,6 +118,21 @@ public class JobClient extends BaseClient{
     public String getJobVMStatuses(String jobId) {
         return client.get()
                 .uri(urlBuilder.buildUrl("/instance-status", jobId))
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .onStatus(status -> status.isError(),
+                            response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
+                .bodyToMono(String.class)
+                .block();
+    }
+
+    // Job Status Setters
+
+    public String startJob(Integer jobId) {
+        return client.get()
+                .uri(urlBuilder.buildUrl("/start", jobId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
                 .onStatus(status -> status.isError(),
@@ -128,83 +143,55 @@ public class JobClient extends BaseClient{
                 .block();
     }
 
-    public CloudVmStatusContainer deleteProject(Integer projectId) {
-        return client.delete()
-                .uri(urlBuilder.buildUrl("", projectId))
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .onStatus(status -> status.isError(),
-                            response -> response.bodyToMono(String.class)
-                                .flatMap(body -> Mono.error(new ClientException(body,
-                                        response.statusCode().value()))))
-                .bodyToMono(CloudVmStatusContainer.class)
-                .block();
-    }
-
-    // Job Status Setters
-
-    public Void startJob(Integer jobId) {
-        return client.get()
-                .uri(urlBuilder.buildUrl("/start", jobId))
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .onStatus(status -> status.isError(),
-                            response -> response.bodyToMono(String.class)
-                                .flatMap(body -> Mono.error(new ClientException(body,
-                                        response.statusCode().value()))))
-                .bodyToMono(Void.class)
-                .block();
-    }
-
-    public Void stopJob(Integer jobId) {
+    public String stopJob(Integer jobId) {
         return client.get()
                 .uri(urlBuilder.buildUrl("/stop", jobId))
-                .accept(MediaType.APPLICATION_JSON)
+                .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
                 .onStatus(status -> status.isError(),
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
-                .bodyToMono(Void.class)
+                .bodyToMono(String.class)
                 .block();
     }
 
-    public Void pauseJob(Integer jobId) {
+    public String pauseJob(Integer jobId) {
         return client.get()
                 .uri(urlBuilder.buildUrl("/pause", jobId))
-                .accept(MediaType.APPLICATION_JSON)
+                .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
                 .onStatus(status -> status.isError(),
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
-                .bodyToMono(Void.class)
+                .bodyToMono(String.class)
                 .block();
     }
 
-    public Void resumeJob(Integer jobId) {
+    public String resumeJob(Integer jobId) {
         return client.get()
                 .uri(urlBuilder.buildUrl("/resume", jobId))
-                .accept(MediaType.APPLICATION_JSON)
+                .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
                 .onStatus(status -> status.isError(),
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
-                .bodyToMono(Void.class)
+                .bodyToMono(String.class)
                 .block();
     }
 
-    public Void killJob(Integer jobId) {
+    public String killJob(Integer jobId) {
         return client.get()
                 .uri(urlBuilder.buildUrl("/kill", jobId))
-                .accept(MediaType.APPLICATION_JSON)
+                .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
                 .onStatus(status -> status.isError(),
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
-                .bodyToMono(Void.class)
+                .bodyToMono(String.class)
                 .block();
     }
 }

@@ -11,6 +11,8 @@ import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.projects.AutomationRequest;
 import com.intuit.tank.rest.mvc.rest.models.projects.ProjectContainer;
 import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
@@ -101,6 +103,18 @@ public class ProjectClient extends BaseClient{
                                         response.statusCode().value()))))
                 .bodyToMono(Map.class)
                 .block();
+    }
+
+    public Mono<DataBuffer> downloadTestScriptForProject(Integer projectId) {
+        return client.get()
+                .uri(urlBuilder.buildUrl("/download", projectId))
+                .accept(MediaType.APPLICATION_OCTET_STREAM)
+                .retrieve()
+                .onStatus(status -> status.isError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
+                .bodyToMono(DataBuffer.class); //TODO: return string
     }
 
     public String deleteProject(Integer projectId) {

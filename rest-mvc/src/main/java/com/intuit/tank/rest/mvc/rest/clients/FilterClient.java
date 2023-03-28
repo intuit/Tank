@@ -8,10 +8,8 @@
 package com.intuit.tank.rest.mvc.rest.clients;
 
 import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
-import com.intuit.tank.rest.mvc.rest.models.filters.FilterContainer;
-import com.intuit.tank.rest.mvc.rest.models.filters.FilterGroupContainer;
-import com.intuit.tank.rest.mvc.rest.models.filters.FilterGroupTO;
-import com.intuit.tank.rest.mvc.rest.models.filters.FilterTO;
+import com.intuit.tank.rest.mvc.rest.models.filters.*;
+import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptTO;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 
@@ -83,6 +81,21 @@ public class FilterClient extends BaseClient{
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
                 .bodyToMono(FilterGroupTO.class)
+                .block();
+    }
+
+    public String applyFilters(Integer scriptId, ApplyFiltersRequest request) {
+        return client.post()
+                .uri(urlBuilder.buildUrl("/apply-filters", scriptId))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.TEXT_PLAIN)
+                .body(Mono.just(request), ApplyFiltersRequest.class)
+                .retrieve()
+                .onStatus(status -> status.isError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
+                .bodyToMono(String.class)
                 .block();
     }
 

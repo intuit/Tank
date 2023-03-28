@@ -10,8 +10,13 @@ package com.intuit.tank.rest.mvc.rest.clients;
 import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptorContainer;
+import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptTO;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
 
 public class DataFileClient extends BaseClient{
 
@@ -56,13 +61,11 @@ public class DataFileClient extends BaseClient{
                 .block();
     }
 
-    public String getDatafileContent(Integer id, Integer offset, Integer lines) {
+    public String getDatafileContent(Integer id) {
         return client.get()
                 .uri(uriBuilder -> uriBuilder
                     .path(urlBuilder.buildUrl("/content"))
                     .queryParam("id", id)
-                    .queryParam("offset", offset)
-                    .queryParam("lines", lines)
                     .build())
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
@@ -71,6 +74,36 @@ public class DataFileClient extends BaseClient{
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
                 .bodyToMono(String.class)
+                .block();
+    }
+
+    public Mono<DataBuffer> downloadDatafile(Integer datafileId) {
+        return client.get()
+                .uri(urlBuilder.buildUrl("/download", datafileId))
+                .accept(MediaType.APPLICATION_OCTET_STREAM)
+                .retrieve()
+                .onStatus(status -> status.isError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
+                .bodyToMono(DataBuffer.class);
+    }
+
+    public Map<String, String> uploadDatafile(Integer id, MultipartFile file) {
+        return client.post()
+                .uri(uriBuilder -> uriBuilder
+                        .path(urlBuilder.buildUrl("/upload"))
+                        .queryParam("id", id)
+                        .build())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(file), MultipartFile.class)
+                .retrieve()
+                .onStatus(status -> status.isError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
+                .bodyToMono(Map.class)
                 .block();
     }
 

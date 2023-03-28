@@ -7,12 +7,14 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers;
 
+import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptTO;
 import com.intuit.tank.rest.mvc.rest.services.projects.ProjectServiceV2;
 import com.intuit.tank.rest.mvc.rest.models.projects.ProjectContainer;
 import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
 import com.intuit.tank.rest.mvc.rest.models.projects.AutomationRequest;
 import com.intuit.tank.rest.mvc.rest.models.projects.AutomationRequest.AutomationRequestBuilder;
 
+import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -23,11 +25,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,6 +85,17 @@ public class ProjectControllerTest {
     }
 
     @Test
+    public void testGetAllProjectNames() {
+        Map<String, Integer> projectMap = new HashMap<>();
+        projectMap.put("testProject", 3);
+        when(projectService.getAllProjectNames()).thenReturn(projectMap);
+        ResponseEntity<Map<String, Integer>> result = projectController.getAllProjectNames();
+        assertEquals(3, result.getBody().get("testProject"));
+        assertEquals(200, result.getStatusCodeValue());
+        verify(projectService).getAllProjectNames();
+    }
+
+    @Test
     public void testGetProject() {
         ProjectTO testProject = new ProjectTO();
         testProject.setId(9);
@@ -128,6 +144,26 @@ public class ProjectControllerTest {
         assertEquals("testProjectStatus", result.getBody().get("testProjectId"));
         assertEquals(200, result.getStatusCodeValue());
         verify(projectService).updateProject(1, request);
+    }
+
+    @Test
+    public void testDownloadTestScriptForProject() throws IOException {
+        Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
+        ProjectTO projectTO = new ProjectTO();
+        projectTO.setId(4);
+        projectTO.setCreator("Test");
+        projectTO.setName("testName");
+        projectTO.setLocation("testLocation");
+        projectTO.setProductName("testProductName");
+        StreamingResponseBody streamingResponse = ResponseUtil.getXMLStream(projectTO);
+        String filename = "project_test_H.xml";
+        payload.put(filename, streamingResponse);
+        when(projectService.downloadTestScriptForProject(4)).thenReturn(payload);
+        ResponseEntity<StreamingResponseBody> result = projectController.downloadTestScriptForProject(4);
+        assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
+        assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
+        assertEquals(200, result.getStatusCodeValue());
+        verify(projectService).downloadTestScriptForProject(4);
     }
 
     @Test

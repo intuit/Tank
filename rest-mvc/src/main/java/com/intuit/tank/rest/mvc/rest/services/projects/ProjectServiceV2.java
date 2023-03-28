@@ -14,6 +14,8 @@ import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
 import com.intuit.tank.rest.mvc.rest.models.projects.ProjectContainer;
 import com.intuit.tank.rest.mvc.rest.models.projects.AutomationRequest;
 
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
 import java.util.Map;
 
 public interface ProjectServiceV2 {
@@ -34,6 +36,16 @@ public interface ProjectServiceV2 {
      * @return list of projects description JSON response
      */
     public ProjectContainer getAllProjects();
+
+    /**
+     * Gets all projects names along with projectId
+     *
+     * @throws GenericServiceResourceNotFoundException
+     *         if there is an error returning all projects
+     *
+     * @return list of projects < name, id > JSON response
+     */
+    public Map<String, Integer> getAllProjectNames();
 
     /**
      * Gets all specific project
@@ -58,6 +70,17 @@ public interface ProjectServiceV2 {
      * @return corresponding project id and status
      */
     public Map<String, String> createProject(AutomationRequest request);
+
+    /**
+     * Downloads a project's script harness XML file
+     *
+     * @throws GenericServiceResourceNotFoundException
+     *         if there are errors downloading script harness
+     *
+     * @return project's script harness XML file
+     */
+    public Map<String, StreamingResponseBody> downloadTestScriptForProject(Integer projectId);
+
 
     /**
      * Updates an existing project

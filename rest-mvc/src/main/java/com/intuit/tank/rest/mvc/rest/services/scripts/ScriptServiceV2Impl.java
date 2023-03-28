@@ -20,7 +20,7 @@ import com.intuit.tank.rest.mvc.rest.models.scripts.*;
 import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import com.intuit.tank.rest.mvc.rest.util.ScriptServiceUtil;
 import com.intuit.tank.script.processor.ScriptProcessor;
-import com.intuit.tank.service.impl.v1.automation.MessageSender;
+import com.intuit.tank.service.util.MessageSender;
 import com.intuit.tank.service.util.ServletInjector;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;

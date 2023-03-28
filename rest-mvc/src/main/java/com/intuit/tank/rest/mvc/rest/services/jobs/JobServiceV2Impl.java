@@ -45,6 +45,7 @@ import com.intuit.tank.util.TestParamUtil;
 import com.intuit.tank.util.TestParameterContainer;
 import com.intuit.tank.util.CreateDateComparator;
 import com.intuit.tank.util.CreateDateComparator.SortOrder;
+import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.common.util.ReportUtil;
@@ -198,12 +199,13 @@ public class JobServiceV2Impl implements JobServiceV2 {
     // Job Status Setters
 
     @Override
-    public void startJob(Integer jobId) {
+    public String startJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
             JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
                     JobController.class);
             controller.startJob(Integer.toString(jobId));
+            return getJobStatus(jobId);
         } catch (Exception e) {
             LOGGER.error("Error starting job: " + e);
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to start", e);
@@ -211,12 +213,13 @@ public class JobServiceV2Impl implements JobServiceV2 {
     }
 
     @Override
-    public void stopJob(Integer jobId) {
+    public String stopJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
             JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
                     JobController.class);
             controller.stopJob(Integer.toString(jobId));
+            return getJobStatus(jobId);
         } catch (Exception e) {
             LOGGER.error("Error stopping job: " + e);
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to stop", e);
@@ -224,12 +227,13 @@ public class JobServiceV2Impl implements JobServiceV2 {
     }
 
     @Override
-    public void pauseJob(Integer jobId) {
+    public String pauseJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
             JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
                     JobController.class);
             controller.pauseRampJob(Integer.toString(jobId));
+            return getJobStatus(jobId);
         } catch (Exception e) {
             LOGGER.error("Error pausing job: " + e);
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to pause", e);
@@ -237,12 +241,13 @@ public class JobServiceV2Impl implements JobServiceV2 {
     }
 
     @Override
-    public void resumeJob(Integer jobId) {
+    public String resumeJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
             JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
                     JobController.class);
             controller.resumeRampJob(Integer.toString(jobId));
+            return getJobStatus(jobId);
         } catch (Exception e) {
             LOGGER.error("Error resuming job: " + e);
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to resume", e);
@@ -250,12 +255,13 @@ public class JobServiceV2Impl implements JobServiceV2 {
     }
 
     @Override
-    public void killJob(Integer jobId) {
+    public String killJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
             JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
                     JobController.class);
             controller.killJob(Integer.toString(jobId));
+            return getJobStatus(jobId);
         } catch (Exception e) {
             LOGGER.error("Error killing job: " + e);
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to terminate", e);
