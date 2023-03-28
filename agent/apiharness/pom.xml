@@ -35,6 +35,12 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>agent-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>harness-data</artifactId>
       <version>${project.version}</version>
     </dependency>
