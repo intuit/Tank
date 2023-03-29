@@ -23,8 +23,10 @@ import com.intuit.tank.vm.settings.AgentConfig;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.agent.messages.Header;
 import com.intuit.tank.vm.agent.messages.Headers;
+import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.AgentData;
+import com.intuit.tank.vm.perfManager.StandaloneAgentTracker;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Segment;
@@ -185,6 +187,18 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     }
 
     @Override
+    public void setStandaloneAgentAvailability(AgentAvailability availability) {
+        try {
+            StandaloneAgentTracker tracker = new ServletInjector<StandaloneAgentTracker>().getManagedBean(servletContext, StandaloneAgentTracker.class);
+            LOGGER.info("Adding agent availability: " + availability);
+            tracker.addAvailability(availability);
+        } catch (Exception e) {
+            LOGGER.error("Error setting agent availability: " + e.getMessage(), e);
+            throw new GenericServiceCreateOrUpdateException("agent", "agent availability", e);
+        }
+    }
+
+    @Override
     public CloudVmStatus getInstanceStatus(String instanceId) {
         AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         try {
@@ -216,12 +230,13 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     }
 
     @Override
-    public void stopInstance(String instanceId) {
+    public String stopInstance(String instanceId) {
         AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         try {
             JobController controller = new ServletInjector<JobController>().getManagedBean(
                     servletContext, JobController.class);
             controller.stopAgent(instanceId);
+            return getInstanceStatus(instanceId).getVmStatus().name();
         } catch (Exception e) {
             LOGGER.error("Error stopping instance: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("agent", "instance status to stop", e);
@@ -229,12 +244,13 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     }
 
     @Override
-    public void pauseInstance(String instanceId) {
+    public String pauseInstance(String instanceId) {
         AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         try {
             JobController controller = new ServletInjector<JobController>().getManagedBean(
                     servletContext, JobController.class);
             controller.pauseRampInstance(instanceId);
+            return getInstanceStatus(instanceId).getVmStatus().name();
         } catch (Exception e) {
             LOGGER.error("Error pausing running instance: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("agent", "instance status to pause", e);
@@ -242,12 +258,13 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     }
 
     @Override
-    public void resumeInstance(String instanceId) {
+    public String resumeInstance(String instanceId) {
         AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         try {
             JobController controller = new ServletInjector<JobController>().getManagedBean(
                     servletContext, JobController.class);
             controller.resumeRampInstance(instanceId);
+            return getInstanceStatus(instanceId).getVmStatus().name();
         } catch (Exception e) {
             LOGGER.error("Error resuming instance: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("agent", "instance status to resume", e);
@@ -255,12 +272,13 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     }
 
     @Override
-    public void killInstance(String instanceId) {
+    public String killInstance(String instanceId) {
         AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         try {
             JobController controller = new ServletInjector<JobController>().getManagedBean(
                     servletContext, JobController.class);
             controller.killInstance(instanceId);
+            return getInstanceStatus(instanceId).getVmStatus().name();
         } catch (Exception e) {
             LOGGER.error("Error killing instance: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("agent", "instance status to terminate", e);

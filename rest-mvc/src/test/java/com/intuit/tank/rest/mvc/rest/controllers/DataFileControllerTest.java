@@ -84,6 +84,17 @@ public class DataFileControllerTest {
     }
 
     @Test
+    public void testGetAllDatafileNames() {
+        Map<Integer, String> datafileMap = new HashMap<>();
+        datafileMap.put(3, "testDatafile");
+        when(datafileService.getAllDatafileNames()).thenReturn(datafileMap);
+        ResponseEntity<Map<Integer, String>> result = datafileController.getAllDatafileNames();
+        assertEquals("testDatafile", result.getBody().get(3));
+        assertEquals(200, result.getStatusCodeValue());
+        verify(datafileService).getAllDatafileNames();
+    }
+
+    @Test
     public void testGetDatafile() {
         DataFile datafile = new DataFile();
         datafile.setPath("testPath");

@@ -59,6 +59,16 @@ public class DataFileController {
         return new ResponseEntity<>(dataFileService.getDatafiles(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/names", method = RequestMethod.GET)
+    @Operation(description = "Returns all datafile names with corresponding datafile IDs", summary = "Get all datafile names with datafile IDs")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found all datafile names with IDs", content = @Content),
+            @ApiResponse(responseCode = "404", description = "All datafile names with IDs could not be found", content = @Content)
+    })
+    public ResponseEntity<Map<Integer, String>> getAllDatafileNames() {
+        return new ResponseEntity<>(dataFileService.getAllDatafileNames(), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/{datafileId}", method = RequestMethod.GET)
     @Operation(description = "Returns a specific datafile description by datafile ID", summary = "Get a specific datafile description")
     @ApiResponses(value = {

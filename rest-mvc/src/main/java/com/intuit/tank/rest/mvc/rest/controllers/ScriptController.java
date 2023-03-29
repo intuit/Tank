@@ -63,6 +63,16 @@ public class ScriptController {
         return new ResponseEntity<>(scriptService.getScripts(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/names", method = RequestMethod.GET)
+    @Operation(description = "Returns all script names with corresponding script IDs", summary = "Get all script names with script IDs")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found all script names with IDs", content = @Content),
+            @ApiResponse(responseCode = "404", description = "All script names with IDs could not be found", content = @Content)
+    })
+    public ResponseEntity<Map<Integer, String>> getAllScriptNames() {
+        return new ResponseEntity<>(scriptService.getAllScriptNames(), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/{scriptId}", method = RequestMethod.GET)
     @Operation(description = "Returns a specific script description by script ID", summary = "Get a specific script description")
     @ApiResponses(value = {

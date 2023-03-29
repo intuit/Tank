@@ -114,8 +114,10 @@ public interface JobServiceV2 {
      *         if there is an error starting the job
      *
      * @param jobId jobId for job
+     *
+     * @return job status
      */
-    public void startJob(Integer jobId);
+    public String startJob(Integer jobId);
 
     /**
      * Stops a job based on the provided jobId
@@ -124,8 +126,10 @@ public interface JobServiceV2 {
      *         if there is an error stopping the job
      *
      * @param jobId jobId for job
+     *
+     * @return job status
      */
-    public void stopJob(Integer jobId);
+    public String stopJob(Integer jobId);
 
     /**
      * Pauses a running job based on the provided jobId
@@ -134,8 +138,10 @@ public interface JobServiceV2 {
      *         if there is an error pausing the job
      *
      * @param jobId jobId for job
+     *
+     * @return job status
      */
-    public void pauseJob(Integer jobId);
+    public String pauseJob(Integer jobId);
 
 
     /**
@@ -145,8 +151,10 @@ public interface JobServiceV2 {
      *         if there is an error resuming the job
      *
      * @param jobId jobId for job
+     *
+     * @return job status
      */
-    public void resumeJob(Integer jobId);
+    public String resumeJob(Integer jobId);
 
     /**
      * Kills a job based on the provided jobId
@@ -155,6 +163,8 @@ public interface JobServiceV2 {
      *         if there is an error terminating the job
      *
      * @param jobId jobId for job
+     *
+     * @return job status
      */
-    public void killJob(Integer jobId);
+    public String killJob(Integer jobId);
 }

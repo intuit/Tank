@@ -11,6 +11,8 @@ import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.rest.mvc.rest.services.agent.AgentServiceV2;
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinition;
+import com.intuit.tank.vm.agent.messages.AgentAvailability;
+import com.intuit.tank.vm.agent.messages.AgentAvailabilityStatus;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.Header;
@@ -130,6 +132,15 @@ public class AgentControllerTest {
         verify(agentService).agentReady(testAgentData);
     }
 
+    @Test
+    public void testStandaloneAgentAvailability() {
+        AgentAvailability availability = new AgentAvailability("testInstanceId",
+                "testInstanceUrl", 5,
+                AgentAvailabilityStatus.AVAILABLE);
+        ResponseEntity<Void> result = agentController.setStandaloneAgentAvailability(availability);
+        assertEquals(200, result.getStatusCodeValue());
+    }
+
     // Instance status operations
     @Test
     public void testGetInstanceStatus() {
@@ -163,29 +174,37 @@ public class AgentControllerTest {
 
     @Test
     public void testStopInstance() {
-        ResponseEntity<Void> result = agentController.stopInstance("testInstanceIdAPIV2");
-        assertEquals(204, result.getStatusCodeValue());
+        when(agentService.stopInstance("testInstanceIdAPIV2")).thenReturn("stopping");
+        ResponseEntity<String> result = agentController.stopInstance("testInstanceIdAPIV2");
+        assertEquals("stopping", result.getBody());
+        assertEquals(200, result.getStatusCodeValue());
         verify(agentService).stopInstance("testInstanceIdAPIV2");
     }
 
     @Test
     public void testPauseInstance() {
-        ResponseEntity<Void> result = agentController.pauseInstance("testInstanceIdAPIV2");
-        assertEquals(204, result.getStatusCodeValue());
+        when(agentService.pauseInstance("testInstanceIdAPIV2")).thenReturn("rampPaused");
+        ResponseEntity<String> result = agentController.pauseInstance("testInstanceIdAPIV2");
+        assertEquals("rampPaused", result.getBody());
+        assertEquals(200, result.getStatusCodeValue());
         verify(agentService).pauseInstance("testInstanceIdAPIV2");
     }
 
     @Test
     public void testResumeInstance() {
-        ResponseEntity<Void> result = agentController.resumeInstance("testInstanceIdAPIV2");
-        assertEquals(204, result.getStatusCodeValue());
+        when(agentService.resumeInstance("testInstanceIdAPIV2")).thenReturn("running");
+        ResponseEntity<String> result = agentController.resumeInstance("testInstanceIdAPIV2");
+        assertEquals("running", result.getBody());
+        assertEquals(200, result.getStatusCodeValue());
         verify(agentService).resumeInstance("testInstanceIdAPIV2");
     }
 
     @Test
     public void testKillInstance() {
-        ResponseEntity<Void> result = agentController.killInstance("testInstanceIdAPIV2");
-        assertEquals(204, result.getStatusCodeValue());
+        when(agentService.killInstance("testInstanceIdAPIV2")).thenReturn("shutting_down");
+        ResponseEntity<String> result = agentController.killInstance("testInstanceIdAPIV2");
+        assertEquals("shutting_down", result.getBody());
+        assertEquals(200, result.getStatusCodeValue());
         verify(agentService).killInstance("testInstanceIdAPIV2");
     }
 }

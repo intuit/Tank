@@ -10,6 +10,7 @@ package com.intuit.tank.rest.mvc.rest.services.projects;
 import com.intuit.tank.dao.ProjectDao;
 import com.intuit.tank.dao.JobRegionDao;
 import com.intuit.tank.harness.StopBehavior;
+import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.project.JobConfiguration;
@@ -23,6 +24,7 @@ import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
 import com.intuit.tank.rest.mvc.rest.models.projects.AutomationJobRegion;
 import com.intuit.tank.rest.mvc.rest.models.projects.AutomationRequest;
 import com.intuit.tank.rest.mvc.rest.util.ProjectServiceUtil;
+import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import com.intuit.tank.service.impl.v1.automation.MessageSender;
 import com.intuit.tank.service.util.ServletInjector;
 import com.intuit.tank.vm.api.enumerated.ScriptDriver;
@@ -30,11 +32,13 @@ import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.ModificationType;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
+import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import javax.servlet.ServletContext;
 import java.util.*;
@@ -62,6 +66,17 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
         } catch (Exception e) {
             LOGGER.error("Error returning all projects: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("projects", "all project", e);
+        }
+    }
+
+    @Override
+    public Map<Integer, String> getAllProjectNames(){
+        try {
+            List<Project> all = new ProjectDao().findAll();
+            return all.stream().collect(Collectors.toMap(Project::getId, Project::getName));
+        } catch (Exception e) {
+            LOGGER.error("Error returning all project names: " + e.getMessage(), e);
+            throw new GenericServiceResourceNotFoundException("projects", "all project names", e);
         }
     }
 
@@ -158,6 +173,27 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     private void sendMsg(BaseEntity entity, ModificationType type) {
         MessageSender sender = new ServletInjector<MessageSender>().getManagedBean(servletContext, MessageSender.class);
         sender.sendEvent(new ModifiedEntityMessage(entity.getClass(), entity.getId(), type));
+    }
+
+    @Override
+    public Map<String, StreamingResponseBody> downloadTestScriptForProject(Integer projectId) {
+        try {
+            StreamingResponseBody streamingResponse;
+            Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
+            Project p = new ProjectDao().loadScripts(projectId);
+            if (p == null){
+                return null;
+            } else {
+                String filename = "project_" + projectId + "_H.xml";
+                final HDWorkload hdWorkload = ConverterUtil.convertWorkload(p.getWorkloads().get(0), p.getWorkloads().get(0).getJobConfiguration());
+                streamingResponse = ResponseUtil.getXMLStream(hdWorkload);
+                payload.put(filename, streamingResponse);
+                return payload;
+            }
+        } catch (Exception e){
+            LOGGER.error("Error downloading project harness file: " + e.getMessage(), e);
+            throw new GenericServiceResourceNotFoundException("projects", "project harness file", e);
+        }
     }
 
     public String deleteProject(Integer projectId) {

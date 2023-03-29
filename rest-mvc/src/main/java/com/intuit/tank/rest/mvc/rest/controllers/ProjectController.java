@@ -23,9 +23,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
@@ -55,6 +57,16 @@ public class ProjectController {
     })
     public ResponseEntity<ProjectContainer> getAllProjects() {
         return new ResponseEntity<>(projectService.getAllProjects(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/names", method = RequestMethod.GET)
+    @Operation(description = "Returns all project names with corresponding project IDs", summary = "Get all project names with project IDs")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully found all project names with IDs", content = @Content),
+            @ApiResponse(responseCode = "404", description = "All project names with IDs could not be found", content = @Content)
+    })
+    public ResponseEntity<Map<Integer, String>> getAllProjectNames() {
+        return new ResponseEntity<>(projectService.getAllProjectNames(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{projectId}", method = RequestMethod.GET)
@@ -111,6 +123,29 @@ public class ProjectController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/download/{projectId}", method = RequestMethod.GET)
+    @Operation(description = "Downloads a project's harness XML file", summary = "Download the project's harness file")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully downloaded project's harness file", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Project's harness file could not be found", content = @Content)
+    })
+    public ResponseEntity<StreamingResponseBody> downloadTestScriptForProject(@PathVariable @Parameter(description = "Project ID", required = true) Integer projectId) throws IOException {
+        Map<String, StreamingResponseBody> response = projectService.downloadTestScriptForProject(projectId);
+        if (response == null) {
+            return ResponseEntity.notFound().build();
+        }
+        String filename = response.keySet().iterator().next();
+        StreamingResponseBody responseBody = response.get(filename);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(responseBody);
     }
 
     @RequestMapping(value = "/{projectId}", method = RequestMethod.DELETE, produces = { MediaType.TEXT_PLAIN_VALUE })
