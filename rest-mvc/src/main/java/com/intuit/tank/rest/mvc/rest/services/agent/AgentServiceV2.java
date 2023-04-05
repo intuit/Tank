@@ -12,6 +12,7 @@ import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContai
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.vm.agent.messages.Headers;
+import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.AgentData;
 
@@ -80,6 +81,15 @@ public interface AgentServiceV2 {
      */
     public TankHttpClientDefinitionContainer getClients();
 
+    /**
+     * Sets the availability status for a standalone agent
+     *
+     * @throws GenericServiceCreateOrUpdateException
+     *        if there is an error setting standalone agent availability
+     */
+    public void setStandaloneAgentAvailability(AgentAvailability availability);
+
+
     // Instance status operations
 
     /**
@@ -112,8 +122,10 @@ public interface AgentServiceV2 {
      *
      * @throws GenericServiceCreateOrUpdateException
      *         if there is an error stopping instance
+     *
+     * @return instance status
      */
-    public void stopInstance(String instanceId);
+    public String stopInstance(String instanceId);
 
     /**
      * Pauses a running instance based on the provided instanceId
@@ -122,8 +134,10 @@ public interface AgentServiceV2 {
      *
      * @throws GenericServiceCreateOrUpdateException
      *         if there is an error pausing instance
+     *
+     * @return instance status
      */
-    public void pauseInstance(String instanceId);
+    public String pauseInstance(String instanceId);
 
     /**
      * Resumes a paused instance based on the provided instanceId
@@ -132,8 +146,10 @@ public interface AgentServiceV2 {
      *
      * @throws GenericServiceCreateOrUpdateException
      *         if there is an error resuming instance
+     *
+     * @return instance status
      */
-    public void resumeInstance(String instanceId);
+    public String resumeInstance(String instanceId);
 
     /**
      * Kills an instance based on the provided instanceId
@@ -142,7 +158,9 @@ public interface AgentServiceV2 {
      *
      * @throws GenericServiceCreateOrUpdateException
      *         if there is an error terminating instance
+     *
+     * @return instance status
      */
-    public void killInstance(String instanceId);
+    public String killInstance(String instanceId);
 
 }

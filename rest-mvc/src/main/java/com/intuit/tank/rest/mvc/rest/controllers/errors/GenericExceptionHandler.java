@@ -71,7 +71,7 @@ public class GenericExceptionHandler {
     }
 
     private SimpleErrorResponse genericErrorResponse(HttpStatus status, String message, Throwable e) {
-        final boolean scrubSensitiveData = !includeDebugInfo; // API-1890: be very explicit about the flipping of the sense of the flag
+        final boolean scrubSensitiveData = !includeDebugInfo;
         return new SimpleErrorResponse(status, message, e, scrubSensitiveData);
     }
 }

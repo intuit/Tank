@@ -23,7 +23,6 @@ public class CreateJobRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @XmlElement(name="projectName")
     private String projectName;
 

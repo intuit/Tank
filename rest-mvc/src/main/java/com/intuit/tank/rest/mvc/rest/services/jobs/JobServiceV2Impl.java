@@ -7,7 +7,6 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.jobs;
 
-import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 import com.intuit.tank.dao.BaseDao;
 import com.intuit.tank.dao.DataFileDao;
@@ -198,12 +197,13 @@ public class JobServiceV2Impl implements JobServiceV2 {
     // Job Status Setters
 
     @Override
-    public void startJob(Integer jobId) {
+    public String startJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
             JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
                     JobController.class);
             controller.startJob(Integer.toString(jobId));
+            return getJobStatus(jobId);
         } catch (Exception e) {
             LOGGER.error("Error starting job: " + e);
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to start", e);
@@ -211,12 +211,13 @@ public class JobServiceV2Impl implements JobServiceV2 {
     }
 
     @Override
-    public void stopJob(Integer jobId) {
+    public String stopJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
             JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
                     JobController.class);
             controller.stopJob(Integer.toString(jobId));
+            return getJobStatus(jobId);
         } catch (Exception e) {
             LOGGER.error("Error stopping job: " + e);
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to stop", e);
@@ -224,12 +225,13 @@ public class JobServiceV2Impl implements JobServiceV2 {
     }
 
     @Override
-    public void pauseJob(Integer jobId) {
+    public String pauseJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
             JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
                     JobController.class);
             controller.pauseRampJob(Integer.toString(jobId));
+            return getJobStatus(jobId);
         } catch (Exception e) {
             LOGGER.error("Error pausing job: " + e);
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to pause", e);
@@ -237,12 +239,13 @@ public class JobServiceV2Impl implements JobServiceV2 {
     }
 
     @Override
-    public void resumeJob(Integer jobId) {
+    public String resumeJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
             JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
                     JobController.class);
             controller.resumeRampJob(Integer.toString(jobId));
+            return getJobStatus(jobId);
         } catch (Exception e) {
             LOGGER.error("Error resuming job: " + e);
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to resume", e);
@@ -250,12 +253,13 @@ public class JobServiceV2Impl implements JobServiceV2 {
     }
 
     @Override
-    public void killJob(Integer jobId) {
+    public String killJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
             JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
                     JobController.class);
             controller.killJob(Integer.toString(jobId));
+            return getJobStatus(jobId);
         } catch (Exception e) {
             LOGGER.error("Error killing job: " + e);
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to terminate", e);
@@ -314,7 +318,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
         Workload workload = project.getWorkloads().get(0);
         JobConfiguration jc = workload.getJobConfiguration();
         JobQueue queue = jobQueueDao.findOrCreateForProjectId(project.getId());
-        JobInstance jobInstance = new JobInstance(workload, buildJobInstanceName(request, workload));
+        JobInstance jobInstance = new JobInstance(workload, buildJobInstanceName(request, workload, project));
         jobInstance.setScheduledTime(new Date());
         jobInstance.setLocation(jc.getLocation());
         jobInstance.setLoggingProfile(jc.getLoggingProfile());
@@ -358,9 +362,10 @@ public class JobServiceV2Impl implements JobServiceV2 {
         return jobInstance;
     }
 
-    private static String buildJobInstanceName(CreateJobRequest request, Workload workload) {
+    private static String buildJobInstanceName(CreateJobRequest request, Workload workload, Project project) {
+        String projectName = request.getProjectName() == null ? project.getName() : request.getProjectName();
         return StringUtils.isNotEmpty(request.getJobInstanceName()) ? request.getJobInstanceName()
-                : request.getProjectName() + "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"
+                : projectName + "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"
                 + ReportUtil.getTimestamp(new Date());
     }
 

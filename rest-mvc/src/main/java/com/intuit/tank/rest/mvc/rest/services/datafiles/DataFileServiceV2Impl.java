@@ -24,6 +24,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -72,6 +73,17 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
         } catch (Exception e) {
             LOGGER.error("Error returning all datafiles: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("datafiles", "all datafiles", e);
+        }
+    }
+
+    @Override
+    public Map<Integer, String> getAllDatafileNames(){
+        try {
+            List<DataFile> all = new DataFileDao().findAll();
+            return all.stream().collect(Collectors.toMap(DataFile::getId, DataFile::getPath));
+        } catch (Exception e) {
+            LOGGER.error("Error returning all datafile names: " + e.getMessage(), e);
+            throw new GenericServiceResourceNotFoundException("datafiles", "all datafile names", e);
         }
     }
 
@@ -139,13 +151,13 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
         Map<String, String> payload = new HashMap<>();
         datafileId = datafileId == null ? 0 : datafileId;
         contentEncoding = contentEncoding == null ? "" : contentEncoding;
-        InputStream decompressed = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
-                new GZIPInputStream(file.getInputStream()) :
-                file.getInputStream();
-        try {
+        BufferedReader bufferedReader = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
+                new BufferedReader(new InputStreamReader(new GZIPInputStream(file.getInputStream()))) :
+                new BufferedReader(new InputStreamReader(file.getInputStream()));
+        try (InputStream decompressed = IOUtils.toInputStream(IOUtils.toString(bufferedReader), StandardCharsets.UTF_8)) {
             DataFileDao dao = new DataFileDao();
             DataFile dataFile = dao.findById(datafileId);
-            if (dataFile == null){
+            if (dataFile == null) {
                 dataFile = new DataFile();
                 dataFile.setCreator("System");
                 dataFile.setId(0);
@@ -167,13 +179,15 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
                 }
             }
             payload.put("datafileId", Integer.toString(dataFile.getId()));
+            try {
+                decompressed.close();
+            } catch (IOException e) {
+                LOGGER.error("Error uploading datafile: " + e.getMessage(), e);
+                throw new GenericServiceCreateOrUpdateException("datafiles", "new datafile via datafile upload", e);
+            }
         } catch (Exception e) {
             LOGGER.error("Error uploading datafile: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("datafiles", "new datafile via datafile upload", e);
-        } finally {
-            try {
-                decompressed.close();
-            } catch (IOException e) {}
         }
         return payload;
     }
