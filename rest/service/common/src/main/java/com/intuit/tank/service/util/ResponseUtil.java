@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -48,7 +48,7 @@ public class ResponseUtil {
         // empty private constructor to implement util pattern
     }
 
-    public static StreamingOutput getXMLStream(Object toMarshall) {
+    public static StreamingResponseBody getXMLStream(Object toMarshall) {
         return (OutputStream outputStream) -> {
             AWSXRay.beginSubsegment("JAXB.Marshal." + toMarshall.getClass().getSimpleName());
             try {

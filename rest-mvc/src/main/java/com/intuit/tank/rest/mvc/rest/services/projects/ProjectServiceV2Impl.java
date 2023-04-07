@@ -24,8 +24,8 @@ import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
 import com.intuit.tank.rest.mvc.rest.models.projects.AutomationJobRegion;
 import com.intuit.tank.rest.mvc.rest.models.projects.AutomationRequest;
 import com.intuit.tank.rest.mvc.rest.util.ProjectServiceUtil;
-import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
-import com.intuit.tank.service.impl.v1.automation.MessageSender;
+import com.intuit.tank.service.util.ResponseUtil;
+import com.intuit.tank.service.util.MessageSender;
 import com.intuit.tank.service.util.ServletInjector;
 import com.intuit.tank.vm.api.enumerated.ScriptDriver;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
@@ -72,7 +72,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     @Override
     public Map<Integer, String> getAllProjectNames(){
         try {
-            List<Project> all = new ProjectDao().findAll();
+            List<Project> all = new ProjectDao().findAllFast();
             return all.stream().collect(Collectors.toMap(Project::getId, Project::getName));
         } catch (Exception e) {
             LOGGER.error("Error returning all project names: " + e.getMessage(), e);

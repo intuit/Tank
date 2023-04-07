@@ -17,7 +17,7 @@ import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteExce
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.models.scripts.*;
-import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
+import com.intuit.tank.service.util.ResponseUtil;
 import com.intuit.tank.rest.mvc.rest.util.ScriptServiceUtil;
 import com.intuit.tank.script.processor.ScriptProcessor;
 import com.intuit.tank.service.util.MessageSender;

@@ -37,10 +37,10 @@ import com.intuit.tank.vm.agent.messages.StandaloneAgentRequest;
 public class StandaloneAgentStartup implements Runnable {
 
     private static Logger LOG = LogManager.getLogger(StandaloneAgentStartup.class);
-    public static final String SERVICE_RELATIVE_PATH = "/rest/v1/agent-service";
+    public static final String SERVICE_RELATIVE_PATH = "/api/v2/agent";
     private static String API_HARNESS_COMMAND = "./startAgent.sh";
     public static final String METHOD_SETTINGS = "/settings";
-    public static final String METHOD_SUPPORT = "/supportFiles";
+    public static final String METHOD_SUPPORT = "/support-files";
     private static final long PING_TIME = 1000 * 60 * 5;// five minutes
 
     private String controllerBase;

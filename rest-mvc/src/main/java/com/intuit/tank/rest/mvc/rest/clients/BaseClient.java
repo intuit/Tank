@@ -14,6 +14,7 @@ import reactor.netty.transport.ProxyProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.google.common.collect.ImmutableMap;
@@ -34,10 +35,20 @@ public abstract class BaseClient {
         setBaseUrl(serviceUrl);
         if (StringUtils.isNotEmpty(proxyServer)) {
             int port = proxyPort != null ? proxyPort : 80;
-            client = WebClient.builder().clientConnector(new ReactorClientHttpConnector(build(proxyServer, proxyPort))).build();
+            client = WebClient.builder().exchangeStrategies(ExchangeStrategies.builder()
+                    .codecs(configurer ->
+                            configurer.defaultCodecs()
+                                    .maxInMemorySize(200 * 1024)
+                    )
+                    .build()).clientConnector(new ReactorClientHttpConnector(build(proxyServer, proxyPort))).build();
         } else {
             HttpClient httpClient = HttpClient.create().compress(true);
-            client = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+            client = WebClient.builder().exchangeStrategies(ExchangeStrategies.builder()
+                    .codecs(configurer ->
+                            configurer.defaultCodecs()
+                                    .maxInMemorySize(200 * 1024 * 1024)
+                    )
+                    .build()).clientConnector(new ReactorClientHttpConnector(httpClient)).build();
 
         }
         LOGGER.info(new ObjectMessage(ImmutableMap.of("Message", "client for url " + baseUrl + ": proxy="

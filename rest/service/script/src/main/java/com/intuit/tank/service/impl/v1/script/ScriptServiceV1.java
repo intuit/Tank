@@ -364,7 +364,7 @@ public class ScriptServiceV1 implements ScriptService {
             responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
             responseBuilder.cacheControl(ResponseUtil.getNoStoreCacheControl());
             final HDWorkload hdWorkload = ConverterUtil.convertScriptToHdWorkload(script);
-            StreamingOutput so = ResponseUtil.getXMLStream(hdWorkload);
+            StreamingOutput so = null;
             responseBuilder.type(MediaType.APPLICATION_OCTET_STREAM_TYPE).entity(so);
         } else {
             responseBuilder = Response.noContent().status(Status.NOT_FOUND);
@@ -385,7 +385,7 @@ public class ScriptServiceV1 implements ScriptService {
             responseBuilder.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
             responseBuilder.cacheControl(ResponseUtil.getNoStoreCacheControl());
             final ScriptTO scriptTO = ScriptServiceUtil.scriptToTransferObject(script);
-            StreamingOutput so = ResponseUtil.getXMLStream(scriptTO);
+            StreamingOutput so = null;
             responseBuilder.type(MediaType.APPLICATION_OCTET_STREAM_TYPE).entity(so);
         } else {
             responseBuilder = Response.noContent().status(Status.NOT_FOUND);

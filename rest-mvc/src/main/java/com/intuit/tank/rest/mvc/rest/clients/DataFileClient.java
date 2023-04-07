@@ -11,6 +11,7 @@ import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptorContainer;
 import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptTO;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.MediaType;
@@ -61,20 +62,19 @@ public class DataFileClient extends BaseClient{
                 .block();
     }
 
-    public String getDatafileContent(Integer id) {
-        return client.get()
-                .uri(uriBuilder -> uriBuilder
-                    .path(urlBuilder.buildUrl("/content"))
-                    .queryParam("id", id)
-                    .build())
-                .accept(MediaType.TEXT_PLAIN)
-                .retrieve()
-                .onStatus(status -> status.isError(),
-                            response -> response.bodyToMono(String.class)
-                                .flatMap(body -> Mono.error(new ClientException(body,
-                                        response.statusCode().value()))))
-                .bodyToMono(String.class)
-                .block();
+    public String getDatafileContent(Integer datafileId) {
+        return WebClient.create(urlBuilder.buildUrl("")) // need webclient.create for query params
+                                 .get()
+                                 .uri(uriBuilder -> uriBuilder.path("/content")
+                                        .queryParam("id", datafileId.toString())
+                                        .build())
+                                 .retrieve()
+                                 .onStatus(status -> status.isError(),
+                                         response -> response.bodyToMono(String.class)
+                                                .flatMap(body -> Mono.error(new ClientException(body,
+                                                        response.statusCode().value()))))
+                                 .bodyToMono(String.class)
+                                 .block();
     }
 
     public Mono<DataBuffer> downloadDatafile(Integer datafileId) {

@@ -91,7 +91,7 @@ public class AgentController {
         return new ResponseEntity<AgentTestStartData>(agentService.agentReady(agentData), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/headers", method = RequestMethod.GET)
+    @RequestMapping(value = "/headers", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
     @Operation(description = "Returns agent headers", summary = "Get the agent headers")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully found agent headers"),

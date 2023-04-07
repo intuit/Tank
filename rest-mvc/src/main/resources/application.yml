@@ -1,6 +1,8 @@
 spring:
   config:
     use-legacy-processing: true
+  codec:
+    max-in-memory-size: 200MB
 
 springdoc:
   swagger-ui:

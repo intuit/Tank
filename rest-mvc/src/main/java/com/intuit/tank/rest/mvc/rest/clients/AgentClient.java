@@ -82,7 +82,7 @@ public class AgentClient extends BaseClient{
     public Headers getHeaders() {
         return client.get()
                 .uri(urlBuilder.buildUrl("/headers"))
-                .accept(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_XML)
                 .retrieve()
                 .onStatus(status -> status.isError(),
                             response -> response.bodyToMono(String.class)
