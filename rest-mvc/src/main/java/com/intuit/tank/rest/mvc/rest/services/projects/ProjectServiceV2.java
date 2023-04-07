@@ -38,14 +38,14 @@ public interface ProjectServiceV2 {
     public ProjectContainer getAllProjects();
 
     /**
-     * Gets all projects names along with projectId
+     * Gets all project names along with projectId
      *
      * @throws GenericServiceResourceNotFoundException
-     *         if there is an error returning all projects
+     *         if there is an error returning all project names
      *
-     * @return list of projects < name, id > JSON response
+     * @return map of project < projectName, projectId > JSON response
      */
-    public Map<String, Integer> getAllProjectNames();
+    public Map<Integer, String> getAllProjectNames();
 
     /**
      * Gets all specific project

@@ -75,6 +75,15 @@ public interface DataFileServiceV2 {
      */
     public DataFileDescriptorContainer getDatafiles();
 
+    /**
+     * Gets all datafile names along with datafileId
+     *
+     * @throws GenericServiceResourceNotFoundException
+     *         if there is an error returning all datafile names
+     *
+     * @return map of datafile < datafileName, datafileId > JSON response
+     */
+    public Map<Integer, String> getAllDatafileNames();
 
     /**
      * Upload datafile to Tank

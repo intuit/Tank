@@ -103,6 +103,17 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     }
 
     @Override
+    public Map<Integer, String> getAllScriptNames(){
+        try {
+            List<Script> all = new ScriptDao().findAll();
+            return all.stream().collect(Collectors.toMap(Script::getId, Script::getName));
+        } catch (Exception e) {
+            LOGGER.error("Error returning all script names: " + e.getMessage(), e);
+            throw new GenericServiceResourceNotFoundException("scripts", "all script names", e);
+        }
+    }
+
+    @Override
     public Map<String, StreamingResponseBody> downloadScript(Integer scriptId){
         try {
             StreamingResponseBody streamingResponse;

@@ -84,7 +84,7 @@ public class AgentController {
     @Operation(description = "Registers an agent instance to a job and sets it's status to ready to start", summary = "Set an agent instance status to ready to start", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully set agent to ready"),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+            @ApiResponse(responseCode = "400", description = "Could not register agent due to bad request", content = @Content)
     })
     public ResponseEntity<AgentTestStartData> agentReady(
             @RequestBody @Parameter(description = "agentData object that contains agent data settings", required = true) AgentData agentData) {
@@ -115,10 +115,11 @@ public class AgentController {
     @Operation(description = "Sets the availability status for a standalone agent", summary = "Set standalone agent availability", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully set agent availability"),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+            @ApiResponse(responseCode = "400", description = "Could not update agent availability due to bad request", content = @Content)
     })
     public ResponseEntity<Void> setStandaloneAgentAvailability(
             @RequestBody @Parameter(description = "Agent availability request to update standalone agent availability", required = true) AgentAvailability availability) {
+        agentService.setStandaloneAgentAvailability(availability);
         return ResponseEntity.ok().build();
     }
 
@@ -134,14 +135,14 @@ public class AgentController {
         if (status != null) {
             return new ResponseEntity<CloudVmStatus>(status, HttpStatus.OK);
         }
-        return new ResponseEntity<CloudVmStatus>(status, HttpStatus.NOT_FOUND);
+        return ResponseEntity.notFound().build();
     }
 
     @RequestMapping(value = "/instance/status/{instanceId}", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_JSON_VALUE })
     @Operation(description = "Sets the agent instance status via instanceID and CloudVMStatus payload", summary = "Set the agent instance status", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully set agent instance status"),
-            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content)
+            @ApiResponse(responseCode = "400", description = "Could not update agent instance status due to bad request", content = @Content)
     })
     public ResponseEntity<Void> setInstanceStatus(@PathVariable @Parameter(description = "The instance ID associated with the instance", required = true) String instanceId,
                                                   @RequestBody @Parameter(description = "CloudVmStatus object that contains updated content", required = true) CloudVmStatus status) {
@@ -152,8 +153,8 @@ public class AgentController {
     @RequestMapping(value = "/instance/stop/{instanceId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Stops specific agent instance by instance ID", summary = "Stop an agent instance")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Successfully stopped agent instance"),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Successfully stopped agent instance"),
+            @ApiResponse(responseCode = "400", description = "Could not update agent instance status due to invalid instanceId", content = @Content)
     })
     public ResponseEntity<String> stopInstance(@PathVariable @Parameter(description = "The instance ID associated with the instance", required = true) String instanceId) {
         String status = agentService.stopInstance(instanceId);
@@ -163,8 +164,8 @@ public class AgentController {
     @RequestMapping(value = "/instance/pause/{instanceId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Pauses a specific running agent instance by instance ID", summary = "Pause a running agent instance")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Successfully paused agent instance"),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Successfully paused agent instance"),
+            @ApiResponse(responseCode = "400", description = "Could not update agent instance status due to invalid instanceId", content = @Content)
     })
     public ResponseEntity<String> pauseInstance(@PathVariable @Parameter(description = "The instance ID associated with the instance", required = true) String instanceId) {
         String status = agentService.pauseInstance(instanceId);
@@ -174,8 +175,8 @@ public class AgentController {
     @RequestMapping(value = "/instance/resume/{instanceId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Resumes a specific paused agent instance by instance ID", summary = "Resume a paused agent instance")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Successfully resumed agent instance"),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Successfully resumed agent instance"),
+            @ApiResponse(responseCode = "400", description = "Could not update agent instance status due to invalid instanceId", content = @Content)
     })
     public ResponseEntity<String> resumeInstance(@PathVariable @Parameter(description = "The instance ID associated with the instance", required = true) String instanceId) {
         String status = agentService.resumeInstance(instanceId);
@@ -185,8 +186,8 @@ public class AgentController {
     @RequestMapping(value = "/instance/kill/{instanceId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Terminates a specific agent instance by instance ID", summary = "Terminate an agent instance")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Successfully terminated agent instance"),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Successfully terminated agent instance"),
+            @ApiResponse(responseCode = "400", description = "Could not update agent instance status due to invalid instanceId", content = @Content)
     })
     public ResponseEntity<String> killInstance(@PathVariable @Parameter(description = "The instance ID associated with the instance", required = true) String instanceId) {
         String status = agentService.killInstance(instanceId);

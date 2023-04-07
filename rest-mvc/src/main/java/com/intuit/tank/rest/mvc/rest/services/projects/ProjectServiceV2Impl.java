@@ -25,7 +25,7 @@ import com.intuit.tank.rest.mvc.rest.models.projects.AutomationJobRegion;
 import com.intuit.tank.rest.mvc.rest.models.projects.AutomationRequest;
 import com.intuit.tank.rest.mvc.rest.util.ProjectServiceUtil;
 import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
-import com.intuit.tank.service.util.MessageSender;
+import com.intuit.tank.service.impl.v1.automation.MessageSender;
 import com.intuit.tank.service.util.ServletInjector;
 import com.intuit.tank.vm.api.enumerated.ScriptDriver;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
@@ -70,11 +70,10 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     }
 
     @Override
-    public Map<String, Integer> getAllProjectNames(){
+    public Map<Integer, String> getAllProjectNames(){
         try {
-            Map<String, String> projects = new HashMap<>();
             List<Project> all = new ProjectDao().findAll();
-            return all.stream().collect(Collectors.toMap(Project::getName, Project::getId));
+            return all.stream().collect(Collectors.toMap(Project::getId, Project::getName));
         } catch (Exception e) {
             LOGGER.error("Error returning all project names: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("projects", "all project names", e);

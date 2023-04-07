@@ -66,6 +66,15 @@ public interface ScriptServiceV2 {
      */
     public ScriptDescriptionContainer getScripts();
 
+    /**
+     * Gets all script names along with scriptId
+     *
+     * @throws GenericServiceResourceNotFoundException
+     *         if there is an error returning all script names
+     *
+     * @return map of script < scriptName, scriptId > JSON response
+     */
+    public Map<Integer, String> getAllScriptNames();
 
     /**
      * Downloads a script's Tank XML file associated with scriptID

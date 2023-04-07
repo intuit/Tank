@@ -85,6 +85,17 @@ public class ScriptControllerTest {
     }
 
     @Test
+    public void testGetAllScriptNames() {
+        Map<Integer, String> scriptMap = new HashMap<>();
+        scriptMap.put(3, "testScript");
+        when(scriptService.getAllScriptNames()).thenReturn(scriptMap);
+        ResponseEntity<Map<Integer, String>> result = scriptController.getAllScriptNames();
+        assertEquals("testScript", result.getBody().get(3));
+        assertEquals(200, result.getStatusCodeValue());
+        verify(scriptService).getAllScriptNames();
+    }
+
+    @Test
     public void testGetScript() {
         Script script = new Script();
         script.setName("testName");

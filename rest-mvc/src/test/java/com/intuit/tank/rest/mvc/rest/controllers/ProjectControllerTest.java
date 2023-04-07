@@ -7,23 +7,22 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers;
 
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptTO;
-import com.intuit.tank.rest.mvc.rest.services.projects.ProjectServiceV2;
-import com.intuit.tank.rest.mvc.rest.models.projects.ProjectContainer;
-import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
 import com.intuit.tank.rest.mvc.rest.models.projects.AutomationRequest;
 import com.intuit.tank.rest.mvc.rest.models.projects.AutomationRequest.AutomationRequestBuilder;
-
+import com.intuit.tank.rest.mvc.rest.models.projects.ProjectContainer;
+import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
+import com.intuit.tank.rest.mvc.rest.services.projects.ProjectServiceV2;
 import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import org.springframework.web.context.request.RequestAttributes;
@@ -86,11 +85,11 @@ public class ProjectControllerTest {
 
     @Test
     public void testGetAllProjectNames() {
-        Map<String, Integer> projectMap = new HashMap<>();
-        projectMap.put("testProject", 3);
+        Map<Integer, String> projectMap = new HashMap<>();
+        projectMap.put(3, "testProject");
         when(projectService.getAllProjectNames()).thenReturn(projectMap);
-        ResponseEntity<Map<String, Integer>> result = projectController.getAllProjectNames();
-        assertEquals(3, result.getBody().get("testProject"));
+        ResponseEntity<Map<Integer, String>> result = projectController.getAllProjectNames();
+        assertEquals("testProject", result.getBody().get(3));
         assertEquals(200, result.getStatusCodeValue());
         verify(projectService).getAllProjectNames();
     }

@@ -60,12 +60,12 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/names", method = RequestMethod.GET)
-    @Operation(description = "Returns all project name/project ID key value pairs", summary = "Get all project names with project IDs")
+    @Operation(description = "Returns all project names with corresponding project IDs", summary = "Get all project names with project IDs")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully found all project names with IDs", content = @Content),
-            @ApiResponse(responseCode = "404", description = "All project name with IDs could not be found", content = @Content)
+            @ApiResponse(responseCode = "404", description = "All project names with IDs could not be found", content = @Content)
     })
-    public ResponseEntity<Map<String, Integer>> getAllProjectNames() {
+    public ResponseEntity<Map<Integer, String>> getAllProjectNames() {
         return new ResponseEntity<>(projectService.getAllProjectNames(), HttpStatus.OK);
     }
 

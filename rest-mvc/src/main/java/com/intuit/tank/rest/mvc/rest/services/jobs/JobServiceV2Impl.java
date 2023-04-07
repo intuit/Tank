@@ -319,7 +319,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
         Workload workload = project.getWorkloads().get(0);
         JobConfiguration jc = workload.getJobConfiguration();
         JobQueue queue = jobQueueDao.findOrCreateForProjectId(project.getId());
-        JobInstance jobInstance = new JobInstance(workload, buildJobInstanceName(request, workload));
+        JobInstance jobInstance = new JobInstance(workload, buildJobInstanceName(request, workload, project));
         jobInstance.setScheduledTime(new Date());
         jobInstance.setLocation(jc.getLocation());
         jobInstance.setLoggingProfile(jc.getLoggingProfile());
@@ -363,9 +363,10 @@ public class JobServiceV2Impl implements JobServiceV2 {
         return jobInstance;
     }
 
-    private static String buildJobInstanceName(CreateJobRequest request, Workload workload) {
+    private static String buildJobInstanceName(CreateJobRequest request, Workload workload, Project project) {
+        String projectName = request.getProjectName() == null ? project.getName() : request.getProjectName();
         return StringUtils.isNotEmpty(request.getJobInstanceName()) ? request.getJobInstanceName()
-                : request.getProjectName() + "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"
+                : projectName + "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"
                 + ReportUtil.getTimestamp(new Date());
     }
 
