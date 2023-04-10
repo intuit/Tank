@@ -15,6 +15,7 @@ package com.intuit.tank.perfManager.workLoads;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.NoRouteToHostException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -264,8 +265,8 @@ public class JobManager implements Serializable {
 
     /**
      * Send Async http commands
-     * @param uri
-     * @param retry
+     * @param uri URL endpoint of agent, including command path
+     * @param retry count attempts
      * @return CompletableFuture Array
      */
     private CompletableFuture<?> sendCommand(final URI uri, final int retry) {
@@ -274,7 +275,7 @@ public class JobManager implements Serializable {
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .whenCompleteAsync((response, t) -> {
                     if (t != null) {
-                        LOG.error("Error sending command to url " + response.uri() + ": " + t.getMessage(), t);
+                        LOG.error("Error sending command to url " + request.uri() + ": " + t.getMessage(), t);
                         if (retry > 0) {
                             try {
                                 Thread.sleep(RETRY_SLEEP);// 30 seconds
@@ -283,7 +284,11 @@ public class JobManager implements Serializable {
                         }
                     }
                 }).exceptionally( ex -> {
-                    LOG.error("Error sending command to url" + request.uri(), ex);
+                    if (ex instanceof NoRouteToHostException) {
+                        LOG.error("No Route to Host: " + request.uri() + ", validate host connectivity");
+                    } else {
+                        LOG.error("Exception sending command to url " + request.uri(), ex);
+                    }
                     return null;
                 });
     }
