@@ -203,35 +203,14 @@
           </p:commandButton>
         </div>
         <div class="float-right">
-          <h:outputLink title="View Summary Timing Data" target="_new"
-            rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
-            value="#{request.contextPath}/rest/v1/report-service/timing/summary/html/#{node.id}">
-            <h:graphicImage library="gfx" name="16/table_chart.png" width="16" height="16"
-              style="padding: 5px 0; margin-right:5px;" />
-          </h:outputLink>
-
-          <h:outputLink title="View Periodic Timing Data" target="_new"
-            rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
-            value="#{request.contextPath}/rest/v1/report-service/timing/periodic/html/#{node.id}">
-            <h:graphicImage library="gfx" name="16/table_heatmap.png" width="16" height="16"
-              style="padding: 5px 0; margin-right:5px;" />
-          </h:outputLink>
-
-          <h:outputLink title="Download CSV Timing Data"
-            rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
-            value="#{request.contextPath}/rest/v1/report-service/timing/csv/#{node.id}">
-            <h:graphicImage library="gfx" name="16/table_excel.png" width="16" height="16"
-              style="padding: 5px 0; margin-right:5px;" />
-          </h:outputLink>
-
           <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'job'}"
-            value="#{request.contextPath}/rest/v1/project-service/download/script/#{node.id}">
+            value="#{request.contextPath}/api/v2/jobs/download/#{node.id}">
             <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16"
               style="padding: 5px 0; margin-right:5px;" />
           </h:outputLink>
 
           <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'project'}"
-            value="#{request.contextPath}/rest/v1/project-service/download/script/project/#{node.id}">
+            value="#{request.contextPath}/api/v2/projects/download/#{node.id}">
             <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16"
               style="padding: 5px 0; margin-right:5px;" />
           </h:outputLink>

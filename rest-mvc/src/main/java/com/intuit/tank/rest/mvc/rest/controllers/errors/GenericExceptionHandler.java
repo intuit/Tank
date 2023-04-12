@@ -48,6 +48,12 @@ public class GenericExceptionHandler {
         return genericErrorResponse(HttpStatus.NOT_FOUND, "Resource could not be deleted: " + e.getResource(), e);
     }
 
+    @ExceptionHandler
+    public SimpleErrorResponse handleInternalServerException(GenericServiceInternalServerException e) {
+        LOGGER.error("handling an error from the " + e.getService() + " service", e);
+        return genericErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Server error thrown by " + e.getService() + " service while processing " + e.getResource(), e);
+    }
+
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<Object> handleFileException(HttpServletRequest request, Throwable ex) {
         return new ResponseEntity<>("File upload error: incorrect request or missing file parameter", HttpStatus.BAD_REQUEST);

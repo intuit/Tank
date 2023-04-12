@@ -37,7 +37,7 @@ public class ResponseUtil {
         return (OutputStream outputStream) -> {
             AWSXRay.beginSubsegment("JAXB.Marshal." + toMarshall.getClass().getSimpleName());
             try {
-                JAXBContext ctx = JAXBContext.newInstance(toMarshall.getClass());
+                JAXBContext ctx = JAXBContext.newInstance(toMarshall.getClass().getPackage().getName());
                 Marshaller marshaller = ctx.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
                 marshaller.marshal(toMarshall, outputStream);
