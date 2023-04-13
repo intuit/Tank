@@ -1,20 +1,12 @@
 /**
- * Copyright 2011 Intuit Inc. All Rights Reserved
+ *  Copyright 2015-2023 Intuit Inc.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
  */
 package com.intuit.tank.rest.mvc.rest.models.common;
 
-/*
- * #%L
- * Cloud Rest API
- * %%
- * Copyright (C) 2011 - 2015 Intuit Inc.
- * %%
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * #L%
- */
 
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -29,12 +21,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * BrokerStatus
- * 
- * @author dangleton
- * 
- */
 @XmlRootElement(name = "cloudVm", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "CloudVm", namespace = Namespace.NAMESPACE_V1, propOrder = {
