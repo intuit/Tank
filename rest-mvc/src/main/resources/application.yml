@@ -15,7 +15,7 @@ jsk:
 server:
   max-http-header-size: 32KB
   port: 8080
-  include-debug-info: false # Set to true for debug logs in error messages
+  include-debug-info: true # Set to true for stack trace in error log messages
   error:
     whitelabel:
       enabled: false

@@ -7,7 +7,6 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.jobs;
 
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 import com.intuit.tank.dao.BaseDao;
 import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.dao.JobInstanceDao;
@@ -29,6 +28,7 @@ import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
+import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatusContainer;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobContainer;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobTO;
 import com.intuit.tank.rest.mvc.rest.models.jobs.CreateJobRequest;
@@ -37,9 +37,8 @@ import com.intuit.tank.rest.mvc.rest.util.JobServiceUtil;
 import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import com.intuit.tank.rest.mvc.rest.util.JobDetailFormatter;
 import com.intuit.tank.rest.mvc.rest.util.JobValidator;
-import com.intuit.tank.service.impl.v1.cloud.CloudController;
-import com.intuit.tank.service.impl.v1.cloud.JobController;
-import com.intuit.tank.service.util.ServletInjector;
+import com.intuit.tank.rest.mvc.rest.util.JobEventSender;
+import com.intuit.tank.rest.mvc.rest.util.ServletInjector;
 import com.intuit.tank.util.TestParamUtil;
 import com.intuit.tank.util.TestParameterContainer;
 import com.intuit.tank.util.CreateDateComparator;
@@ -164,8 +163,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
     @Override
     public CloudVmStatusContainer getJobVMStatus(String jobId){
         try {
-            CloudController controller = new ServletInjector<CloudController>().getManagedBean(
-                    servletContext, CloudController.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
+                    servletContext, JobEventSender.class);
             return controller.getVmStatusForJob(jobId);
         } catch (Exception e) {
             LOGGER.error("Error returning Job Instance Status: " + e.getMessage(), e);
@@ -200,8 +199,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
     public String startJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
-            JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
-                    JobController.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
+                    JobEventSender.class);
             controller.startJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
@@ -214,8 +213,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
     public String stopJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
-            JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
-                    JobController.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
+                    JobEventSender.class);
             controller.stopJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
@@ -228,8 +227,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
     public String pauseJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
-            JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
-                    JobController.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
+                    JobEventSender.class);
             controller.pauseRampJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
@@ -242,8 +241,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
     public String resumeJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
-            JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
-                    JobController.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
+                    JobEventSender.class);
             controller.resumeRampJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
@@ -256,8 +255,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
     public String killJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
-            JobController controller = new ServletInjector<JobController>().getManagedBean(servletContext,
-                    JobController.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
+                    JobEventSender.class);
             controller.killJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {

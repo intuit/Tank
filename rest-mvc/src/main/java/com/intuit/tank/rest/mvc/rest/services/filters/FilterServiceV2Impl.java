@@ -25,8 +25,8 @@ import com.intuit.tank.rest.mvc.rest.models.filters.FilterGroupContainer;
 import com.intuit.tank.rest.mvc.rest.models.filters.ApplyFiltersRequest;
 import com.intuit.tank.rest.mvc.rest.util.FilterServiceUtil;
 import com.intuit.tank.rest.mvc.rest.util.ScriptFilterUtil;
-import com.intuit.tank.service.impl.v1.automation.MessageSender;
-import com.intuit.tank.service.util.ServletInjector;
+import com.intuit.tank.rest.mvc.rest.util.MessageEventSender;
+import com.intuit.tank.rest.mvc.rest.util.ServletInjector;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
 import com.intuit.tank.vm.settings.ModificationType;
 
@@ -139,7 +139,7 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
         return null;
     }
     private void sendMsg(BaseEntity entity, ModificationType type) {
-        MessageSender sender = new ServletInjector<MessageSender>().getManagedBean(servletContext, MessageSender.class);
+        MessageEventSender sender = new ServletInjector<MessageEventSender>().getManagedBean(servletContext, MessageEventSender.class);
         sender.sendEvent(new ModifiedEntityMessage(entity.getClass(), entity.getId(), type));
     }
 

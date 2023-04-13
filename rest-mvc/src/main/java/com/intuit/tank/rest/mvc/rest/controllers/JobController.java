@@ -7,7 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers;
 
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
+import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatusContainer;
 import com.intuit.tank.rest.mvc.rest.models.jobs.CreateJobRequest;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobContainer;
 import com.intuit.tank.rest.mvc.rest.services.jobs.JobServiceV2;

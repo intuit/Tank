@@ -7,15 +7,14 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.agent;
 
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinition;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
-import com.intuit.tank.service.impl.v1.cloud.JobController;
-import com.intuit.tank.service.impl.v1.cloud.CloudController;
-import com.intuit.tank.service.util.ServletInjector;
+import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatus;
+import com.intuit.tank.rest.mvc.rest.util.JobEventSender;
+import com.intuit.tank.rest.mvc.rest.util.ServletInjector;
 import com.intuit.tank.storage.FileData;
 import com.intuit.tank.storage.FileStorage;
 import com.intuit.tank.storage.FileStorageFactory;
@@ -202,8 +201,8 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     public CloudVmStatus getInstanceStatus(String instanceId) {
         AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         try {
-            CloudController controller = new ServletInjector<CloudController>().getManagedBean(
-                    servletContext, CloudController.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
+                    servletContext, JobEventSender.class);
             return controller.getVmStatus(instanceId);
         } catch (Exception e) {
             LOGGER.error("Error returning instance status: " + e.getMessage(), e);
@@ -220,8 +219,8 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         segment.putAnnotation("TotalUsers", status.getTotalUsers());
         segment.putAnnotation("totalTps", status.getTotalTps());
         try {
-            CloudController controller = new ServletInjector<CloudController>().getManagedBean(
-                    servletContext, CloudController.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
+                    servletContext, JobEventSender.class);
             controller.setVmStatus(instanceId, status);
         } catch (Exception e) {
             LOGGER.error("Error updating instance status: " + e.getMessage(), e);
@@ -233,8 +232,8 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     public String stopInstance(String instanceId) {
         AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         try {
-            JobController controller = new ServletInjector<JobController>().getManagedBean(
-                    servletContext, JobController.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
+                    servletContext, JobEventSender.class);
             controller.stopAgent(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
         } catch (Exception e) {
@@ -247,8 +246,8 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     public String pauseInstance(String instanceId) {
         AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         try {
-            JobController controller = new ServletInjector<JobController>().getManagedBean(
-                    servletContext, JobController.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
+                    servletContext, JobEventSender.class);
             controller.pauseRampInstance(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
         } catch (Exception e) {
@@ -261,8 +260,8 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     public String resumeInstance(String instanceId) {
         AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         try {
-            JobController controller = new ServletInjector<JobController>().getManagedBean(
-                    servletContext, JobController.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
+                    servletContext, JobEventSender.class);
             controller.resumeRampInstance(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
         } catch (Exception e) {
@@ -275,8 +274,8 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     public String killInstance(String instanceId) {
         AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
         try {
-            JobController controller = new ServletInjector<JobController>().getManagedBean(
-                    servletContext, JobController.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
+                    servletContext, JobEventSender.class);
             controller.killInstance(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
         } catch (Exception e) {
