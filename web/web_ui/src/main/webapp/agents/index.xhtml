@@ -96,7 +96,11 @@
           <p:column id="statusColumn" headerText="Status" styleClass="ellipsis min-column-size"
             style="width:#{jobQueueManager.tablePrefs.getSize('statusColumn')}px;"
             rendered="#{jobQueueManager.tablePrefs.isVisible('statusColumn')}">
-            <h:outputText value="#{node.status}" />
+            <h:outputText value="#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Jobs Running" rendered="#{not node.allSubNodesCompleted() and node.type eq 'project'}" />
+            <h:outputText value="Completed" rendered="#{node.allSubNodesCompleted() and node.type eq 'project'}" />
+            <h:outputText value="#{node.status}" rendered="#{not node.hasSubNodes() and node.type eq 'job'}" />
+            <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job'}" />
+            <h:outputText value="#{node.status}" rendered="#{node.type eq 'vm'}" />
           </p:column>
 
           <p:column id="regionColumn" style="width:#{jobQueueManager.tablePrefs.getSize('regionColumn')}px;"
@@ -193,35 +197,14 @@
                 update=":mainForm:jobTableId, :mainForm:messages" />
             </div>
             <div class="float-right">
-              <h:outputLink title="View Summary Timing Data" target="_new"
-                rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
-                value="#{request.contextPath}/rest/v1/report-service/timing/summary/html/#{node.id}">
-                <h:graphicImage library="gfx" name="16/table_chart.png" width="16" height="16"
-                  style="padding: 5px 0; margin-right:5px;" />
-              </h:outputLink>
-
-              <h:outputLink title="View Periodic Timing Data" target="_new"
-                rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
-                value="#{request.contextPath}/rest/v1/report-service/timing/periodic/html/#{node.id}">
-                <h:graphicImage library="gfx" name="16/table_heatmap.png" width="16" height="16"
-                  style="padding: 5px 0; margin-right:5px;" />
-              </h:outputLink>
-
-              <h:outputLink title="Download CSV Timing Data"
-                rendered="#{node.type eq 'job' and (node.status eq 'Completed' or node.status eq 'Stopped')}"
-                value="#{request.contextPath}/rest/v1/report-service/timing/csv/#{node.id}">
-                <h:graphicImage library="gfx" name="16/table_excel.png" width="16" height="16"
-                  style="padding: 5px 0; margin-right:5px;" />
-              </h:outputLink>
-
               <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'job'}"
-                value="#{request.contextPath}/rest/v1/project-service/download/script/#{node.id}">
+                value="#{request.contextPath}/api/v2/jobs/download/#{node.id}">
                 <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16"
                   style="padding: 5px 0; margin-right:5px;" />
               </h:outputLink>
 
               <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'project'}"
-                value="#{request.contextPath}/rest/v1/project-service/download/script/project/#{node.id}">
+                value="#{request.contextPath}/api/v2/projects/download/#{node.id}">
                 <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16"
                   style="padding: 5px 0; margin-right:5px;" />
               </h:outputLink>
@@ -354,10 +337,10 @@
       //<![CDATA[
      if( $.jqplot)
        $.jqplot.config.enablePlugins = true;
-    
+
       var userDetailsExtender = function() {
           var myoptions = {
-                 
+
             axes: {
                 xaxis: {
                 renderer: $.jqplot.DateAxisRenderer,
@@ -380,11 +363,11 @@
                 lineWidth: 0.9,
                 markerOptions: {
                     show: true,
-                    size: 2, 
+                    size: 2,
                     shadow: false
                 }
             },
-            cursor:{ 
+            cursor:{
                 show: true,
                 zoom: true,
                 showTooltip: false,
@@ -400,11 +383,11 @@
             highlighter: {
                 show: true,
                 tooltipAxes: 'xy',
-                showTooltip: true, 
+                showTooltip: true,
                 sizeAdjust: 10,
                 showMarker: true,
                 tooltipLocation: 'se',
-                //bringSeriesToFront: true, 
+                //bringSeriesToFront: true,
                 useAxesFormatters: false,
                 // You can customize the tooltip format string of the highlighter
                 // to include any arbitrary text or html and use format string
@@ -426,21 +409,21 @@
                     html += "</span>  <br/><span class='chartTipLabel'>Number of Users : </span><span class='chartTipValue'>";
                     html += value;
                     html += "  </span></div>";
-        
+
                     return html;
                 }
-              } 
-            
-            
+              }
+
+
           }
           //do a deep merge
           $.extend(true, this.cfg, myoptions);
       }
-      
 
-      
 
-      
+
+
+
       //]]>
       </script>
             <p:chart type="line" model="#{jobQueueManager.chartModel}"  style="height:400px"

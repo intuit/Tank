@@ -16,6 +16,7 @@ import com.intuit.tank.project.Workload;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.BaseEntity;
+import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
@@ -135,6 +136,8 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
                 workload.setName(request.getName());
                 workloads.add(workload);
                 workload.setParent(project);
+                TestPlan testPlan = TestPlan.builder().name("Main").usersPercentage(100).build();
+                workload.addTestPlan(testPlan);
                 project.setWorkloads(workloads);
                 project.setScriptDriver(ScriptDriver.Tank);
                 project = projectDao.saveOrUpdateProject(project);

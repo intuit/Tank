@@ -81,13 +81,8 @@ public class LogViewer implements Serializable {
         if (StringUtils.isNotBlank(currentLogFile)) {
             String contextPath = FacesContext.getCurrentInstance().getExternalContext()
                     .getRequestContextPath();
-            try {
-                return getContextRoot(contextPath) + "rest"
-                        + ReportService.SERVICE_RELATIVE_PATH + File.separator
-                        + URLEncoder.encode(currentLogFile, StandardCharsets.UTF_8.toString());
-            } catch (UnsupportedEncodingException e) {
-                // never happens stupid exception
-            }
+            return getContextRoot(contextPath) + "api/v2/logs" + File.separator
+                    + URLEncoder.encode(currentLogFile, StandardCharsets.UTF_8);
         }
         return null;
     }
