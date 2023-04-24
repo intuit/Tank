@@ -34,10 +34,10 @@ import software.amazon.awssdk.utils.StringUtils;
 
 public class AgentStartup implements Runnable {
     private static final Logger logger = LogManager.getLogger(AgentStartup.class);
-    private static final String SERVICE_RELATIVE_PATH = "/rest/v1/agent-service";
+    private static final String SERVICE_RELATIVE_PATH = "/api/v2/agent";
     private static final String METHOD_SETTINGS = "/settings";
     private static final String API_HARNESS_COMMAND = "./startAgent.sh";
-    private static final String METHOD_SUPPORT = "/supportFiles";
+    private static final String METHOD_SUPPORT = "/support-files";
     private static final int[] FIBONACCI = new int[] { 1, 1, 2, 3, 5, 8, 13 };
 
     private final String controllerBaseUrl;

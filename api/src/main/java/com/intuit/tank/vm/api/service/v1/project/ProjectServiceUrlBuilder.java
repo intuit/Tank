@@ -39,7 +39,7 @@ public class ProjectServiceUrlBuilder {
      */
     public static String getScriptXmlUrl(String jobId) {
         String baseUrl = new TankConfig().getControllerBase();
-        return baseUrl + "/rest/v1/project-service/script/" + jobId;
+        return baseUrl + "/api/v2/jobs/script/" + jobId;
     }
 
 }
