@@ -77,6 +77,19 @@ public class VMNodeBean extends JobNodeBean {
     }
 
     @Override
+    public List<JobNodeBean> getCurrentSubNodes()  {
+        return new ArrayList<JobNodeBean>();
+    }
+
+    @Override
+    public String getTotalSubNodesRunning() {
+        return "";
+    }
+
+    @Override
+    public boolean allSubNodesCompleted(){ return false; }
+
+    @Override
     public boolean hasSubNodes() {
         return false;
     }

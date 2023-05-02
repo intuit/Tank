@@ -102,7 +102,8 @@
       <p:column id="statusColumn" headerText="Status" styleClass="ellipsis min-column-size"
         style="width:#{projectJobQueueManager.tablePrefs.getSize('statusColumn')}px;"
         rendered="#{projectJobQueueManager.tablePrefs.isVisible('statusColumn')}">
-        <h:outputText value="#{node.status}" />
+        <h:outputText value="#{node.status}" rendered="#{not node.hasSubNodes()}" />
+        <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes()}" />
       </p:column>
 
       <p:column id="regionColumn" headerText="Region" styleClass="ellipsis min-column-size"
