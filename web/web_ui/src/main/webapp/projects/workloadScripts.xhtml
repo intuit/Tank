@@ -14,7 +14,7 @@
     <div class="float-left">
       <p:commandButton id="downloadHarnessBT" value="Harness XML" title="Download Harness XML"
         styleClass="icon-button h-space" type="button"
-        onclick="location.href='#{request.contextPath}/rest/v1/project-service/download/script/project/#{projectBean.project.id}'"
+        onclick="location.href='#{request.contextPath}/api/v2/projects/download/#{projectBean.project.id}'"
         icon="ui-icon-circle-arrow-s" style="margin: 0 0 0 10px; border-radius:5px" />
     </div>
   </h:panelGroup>

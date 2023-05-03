@@ -56,12 +56,12 @@
               styleClass="icon-button h-space" />
             <p:commandButton id="downloadHarnessBT" value="Harness XML" title="Download Harness XML"
               styleClass="icon-button h-space" type="button"
-              onclick="location.href='#{request.contextPath}/rest/v1/script-service/download/harness/script/#{scriptEditor.script.id}'"
+              onclick="location.href='#{request.contextPath}/api/v2/scripts/harness/download/#{scriptEditor.script.id}'"
               icon="ui-icon-arrowstop-1-s" style="margin: 0 5px 0 5px; border-radius:5px" >
             </p:commandButton>
             <p:commandButton id="downloadTSBT" value="Intuit Tank XML" title="Download Intuit Tank XML"
               styleClass="icon-button h-space" type="button"
-              onclick="location.href='#{request.contextPath}/rest/v1/script-service/download/script/#{scriptEditor.script.id}'"
+              onclick="location.href='#{request.contextPath}/api/v2/scripts/download/#{scriptEditor.script.id}'"
               icon="ui-icon-arrowstop-1-s" style="margin: 0 5px 0 5px; border-radius:5px" >
             </p:commandButton>
 
