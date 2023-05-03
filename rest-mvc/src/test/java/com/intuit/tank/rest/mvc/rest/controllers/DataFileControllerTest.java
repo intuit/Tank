@@ -10,11 +10,9 @@ package com.intuit.tank.rest.mvc.rest.controllers;
 import com.intuit.tank.project.DataFile;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptorContainer;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptTO;
 import com.intuit.tank.rest.mvc.rest.services.datafiles.DataFileServiceV2;
 import com.intuit.tank.rest.mvc.rest.util.DataFileServiceUtil;
 
-import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -33,7 +31,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;

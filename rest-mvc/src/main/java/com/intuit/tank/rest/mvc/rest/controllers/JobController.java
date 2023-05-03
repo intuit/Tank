@@ -24,8 +24,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -144,6 +146,40 @@ public class JobController {
             return new ResponseEntity<>(status, HttpStatus.OK);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @RequestMapping(value = "/script/{jobId}", method = RequestMethod.GET)
+    @Operation(description = "Gets streaming output of job's harness XML file", summary = "Get job's harness file", hidden = true)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully returned job's harness file", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Job's harness file could not be found", content = @Content)
+    })
+    public ResponseEntity<StreamingResponseBody> getTestScriptForJob(@PathVariable @Parameter(description = "Job ID", required = true) Integer jobId) throws IOException {
+        StreamingResponseBody response = jobService.getTestScriptForJob(jobId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/download/{jobId}", method = RequestMethod.GET)
+    @Operation(description = "Downloads a job's harness XML file", summary = "Download the job's harness file")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully downloaded job's harness file", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Job's harness file could not be found", content = @Content)
+    })
+    public ResponseEntity<StreamingResponseBody> downloadTestScriptForJob(@PathVariable @Parameter(description = "Job ID", required = true) Integer jobId) throws IOException {
+        Map<String, StreamingResponseBody> response = jobService.downloadTestScriptForJob(jobId);
+        if (response == null) {
+            return ResponseEntity.notFound().build();
+        }
+        String filename = response.keySet().iterator().next();
+        StreamingResponseBody responseBody = response.get(filename);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(responseBody);
     }
 
     // Job Status Setters

@@ -13,6 +13,7 @@ import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatus;
 import com.intuit.tank.rest.mvc.rest.models.jobs.CreateJobRequest;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobContainer;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobTO;
+import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import com.intuit.tank.vm.agent.messages.Headers;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -28,11 +29,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -189,6 +196,43 @@ public class JobControllerTest {
         when(jobService.getJobVMStatus("testJobId")).thenReturn(null);
         result = jobController.getJobVMStatuses("testJobId");
         assertEquals(404, result.getStatusCodeValue());
+    }
+
+    @Test
+    public void testGetTestScriptForJob() throws IOException {
+        File testCSV = new File("src/test/resources/test.csv");
+        StreamingResponseBody responseBody = outputStream -> {
+            Files.copy(testCSV.toPath(), outputStream);
+        };
+        when(jobService.getTestScriptForJob(2)).thenReturn(responseBody);
+        ResponseEntity<StreamingResponseBody> result = jobController.getTestScriptForJob(2);
+        StreamingResponseBody response = result.getBody();
+        if (response != null) {
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            response.writeTo(out);
+            assertEquals("test, 1, 2\n" +
+                    "csv, 3, 4\n" +
+                    "file, 5, 6\n", out.toString());
+        }
+        assertEquals(200, result.getStatusCodeValue());
+        verify(jobService).getTestScriptForJob(2);
+    }
+
+    @Test
+    public void testDownloadTestScriptForJob() throws IOException {
+        Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
+        File testCSV = new File("src/test/resources/test.csv");
+        StreamingResponseBody responseBody = outputStream -> {
+            Files.copy(testCSV.toPath(), outputStream);
+        };
+        String filename = "job_test_H.xml";
+        payload.put(filename, responseBody);
+        when(jobService.downloadTestScriptForJob(2)).thenReturn(payload);
+        ResponseEntity<StreamingResponseBody> result = jobController.downloadTestScriptForJob(2);
+        assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
+        assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
+        assertEquals(200, result.getStatusCodeValue());
+        verify(jobService).downloadTestScriptForJob(2);
     }
 
     // Job Status Setters
