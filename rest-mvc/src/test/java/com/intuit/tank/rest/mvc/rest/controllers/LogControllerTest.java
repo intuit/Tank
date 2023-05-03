@@ -34,7 +34,7 @@ public class LogControllerTest {
     private LogController logController;
 
     @Mock
-    private LogServiceV2 reportService;
+    private LogServiceV2 logService;
 
     @Mock
     HttpServletRequest request;
@@ -52,11 +52,11 @@ public class LogControllerTest {
             Files.copy(testCSV.toPath(), outputStream);
         };
         String filename = "test.csv";
-        when(reportService.getFile("test.csv", "0")).thenReturn(responseBody);
+        when(logService.getFile("test.csv", "0")).thenReturn(responseBody);
         ResponseEntity<StreamingResponseBody> result = logController.getFile("testCSV", "0");
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
         assertEquals(200, result.getStatusCodeValue());
-        verify(reportService).getFile("testCSV", "0");
+        verify(logService).getFile("testCSV", "0");
     }
 
 }

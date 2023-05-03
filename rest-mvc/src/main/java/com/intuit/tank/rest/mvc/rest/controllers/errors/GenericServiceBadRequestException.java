@@ -15,6 +15,8 @@ public class GenericServiceBadRequestException extends GenericServiceException {
 
     private final String resource;
 
+    private final String message;
+
 
     /**
      * Construct with a message {@code String} that is returned by the inherited
@@ -26,10 +28,11 @@ public class GenericServiceBadRequestException extends GenericServiceException {
      * @param resource
      *            the specific service related resource
      */
-    public GenericServiceBadRequestException(String service, String resource) {
-        super("Bad request received for " + service + " service for " + resource);
+    public GenericServiceBadRequestException(String service, String resource, String message) {
+        super("Incorrect request or parameter received for " + service + " service for " + resource);
         this.service = service;
         this.resource = resource;
+        this.message = message;
     }
 
     public String getService() {
@@ -38,5 +41,9 @@ public class GenericServiceBadRequestException extends GenericServiceException {
 
     public String getResource() {
         return resource;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

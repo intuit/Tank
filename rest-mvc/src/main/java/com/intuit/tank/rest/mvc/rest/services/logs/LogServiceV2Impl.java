@@ -36,19 +36,19 @@ public class LogServiceV2Impl implements LogServiceV2 {
         try {
             if (filePath.contains("..") || filePath.startsWith("/")) {
                 LOGGER.error("Error returning file: incorrect file path");
-                throw new GenericServiceBadRequestException("report", "file path");
+                throw new GenericServiceBadRequestException("logs", "file path", "incorrect file path");
             } else {
                 String rootDir = "logs";
                 final File f = new File(rootDir, filePath);
                 if (!f.exists()) {
                     LOGGER.error("Error returning file: file does not exist");
-                    throw new GenericServiceResourceNotFoundException("report", "file", null);
+                    throw new GenericServiceResourceNotFoundException("logs", "file", null);
                 } else if (!f.isFile()) {
                     LOGGER.error("Error returning file: not a file");
-                    throw new GenericServiceBadRequestException("report", "file path");
+                    throw new GenericServiceBadRequestException("logs", "file path", "not a file");
                 } else if (!f.canRead()) {
                     LOGGER.error("Error returning file: user not authorized to access file");
-                    throw new GenericServiceForbiddenAccessException("report", "file");
+                    throw new GenericServiceForbiddenAccessException("logs", "file");
                 } else {
                     long total = f.length();
                     streamingResponse = FileReader.getFileStreamingResponseBody(f, total, start);
@@ -56,7 +56,7 @@ public class LogServiceV2Impl implements LogServiceV2 {
             }
         } catch (Exception e) {
             LOGGER.error("Error returning file: file could not be found");
-            throw new GenericServiceResourceNotFoundException("report", "file", null);
+            throw new GenericServiceResourceNotFoundException("logs", "file", null);
         }
         return streamingResponse;
     }
