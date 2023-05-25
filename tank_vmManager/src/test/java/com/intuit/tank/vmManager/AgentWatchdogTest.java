@@ -50,15 +50,15 @@ public class AgentWatchdogTest {
     }
 
     @Test
-    public void alreadyPendingRunTest(@Mock VMTracker vmTrackerMock, @Mock CloudVmStatusContainer cloudVmStatusContainerMock) {
+    public void alreadyRunningRunTest(@Mock VMTracker vmTrackerMock, @Mock CloudVmStatusContainer cloudVmStatusContainerMock) {
         when(cloudVmStatusContainerMock.getEndTime()).thenReturn(null);
-        CloudVmStatus vmstatus = new CloudVmStatus("i-123456789", "123", "sg-123456", JobStatus.Running, VMImageType.AGENT, VMRegion.STANDALONE, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus vmstatus = new CloudVmStatus("i-123456789", "123", "sg-123456", JobStatus.Running, VMImageType.AGENT, VMRegion.STANDALONE, VMStatus.running, new ValidationStatus(), 1, 1, new Date(), new Date());
         Set<CloudVmStatus> set = Stream.of(vmstatus).collect(Collectors.toCollection(HashSet::new));
         when(cloudVmStatusContainerMock.getStatuses()).thenReturn(set);
         when(vmTrackerMock.getVmStatusForJob(null)).thenReturn(cloudVmStatusContainerMock);
 
         VMInformation vmInformation = new VMInformation();
-        vmInformation.setState("pending");
+        vmInformation.setState("running");
         vmInformation.setInstanceId("i-123456789");
         List<VMInformation> vmInfo = Collections.singletonList( vmInformation );
 //        when(amazonInstanceMock.describeInstances(Mockito.anyString())).thenReturn(vmInfo);
@@ -76,17 +76,19 @@ public class AgentWatchdogTest {
     }
 
     @Test
-    public void progressToPendingRunTest(@Mock VMTracker vmTrackerMock, @Mock CloudVmStatusContainer cloudVmStatusContainerMock) {
+    public void progressToRunningRunTest(@Mock VMTracker vmTrackerMock, @Mock CloudVmStatusContainer cloudVmStatusContainerMock) {
         when(cloudVmStatusContainerMock.getEndTime()).thenReturn(null);
         CloudVmStatus vmstatusStarting = new CloudVmStatus("i-123456789", "123", "sg-123456", JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE, VMStatus.starting, new ValidationStatus(), 1, 1, new Date(), new Date());
         CloudVmStatus vmstatusPending = new CloudVmStatus("i-123456789", "123", "sg-123456", JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus vmstatusRunning = new CloudVmStatus("i-123456789", "123", "sg-123456", JobStatus.Running, VMImageType.AGENT, VMRegion.STANDALONE, VMStatus.running, new ValidationStatus(), 1, 1, new Date(), new Date());
         Set<CloudVmStatus> setStarting = Stream.of(vmstatusStarting).collect(Collectors.toCollection(HashSet::new));
         Set<CloudVmStatus> setPending = Stream.of(vmstatusPending).collect(Collectors.toCollection(HashSet::new));
-        when(cloudVmStatusContainerMock.getStatuses()).thenReturn(setStarting).thenReturn(setPending);
+        Set<CloudVmStatus> setRunning = Stream.of(vmstatusRunning).collect(Collectors.toCollection(HashSet::new));
+        when(cloudVmStatusContainerMock.getStatuses()).thenReturn(setStarting).thenReturn(setPending).thenReturn(setRunning);
         when(vmTrackerMock.getVmStatusForJob(null)).thenReturn(cloudVmStatusContainerMock);
 
         VMInformation vmInformation = new VMInformation();
-        vmInformation.setState("pending");
+        vmInformation.setState("running");
         vmInformation.setInstanceId("i-123456789");
         List<VMInformation> vmInfo = Collections.singletonList( vmInformation );
 //        when(amazonInstanceMock.describeInstances(Mockito.anyString())).thenReturn(vmInfo);
@@ -99,7 +101,7 @@ public class AgentWatchdogTest {
 //        verify(amazonInstanceMock, times(1)).describeInstances("i-123456789");
         verify(amazonInstanceMock, never()).killInstances(Mockito.anyList());
         verify(amazonInstanceMock, never()).reboot(Mockito.anyList());
-        verify(cloudVmStatusContainerMock, times(2)).getEndTime();
-        verify(cloudVmStatusContainerMock, times(2)).getStatuses();
+        verify(cloudVmStatusContainerMock, times(3)).getEndTime();
+        verify(cloudVmStatusContainerMock, times(3)).getStatuses();
     }
 }

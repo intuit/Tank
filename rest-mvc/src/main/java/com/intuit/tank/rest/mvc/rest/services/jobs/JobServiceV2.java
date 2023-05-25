@@ -13,7 +13,6 @@ import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNo
 import com.intuit.tank.rest.mvc.rest.models.jobs.CreateJobRequest;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobContainer;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobTO;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.util.List;
 import java.util.Map;
@@ -38,27 +37,6 @@ public interface JobServiceV2 {
      * @return Job JSON response
      */
     public JobTO getJob(Integer jobId);
-
-    /**
-     * Gets streaming output of the harness XML script file for a specific job
-     *
-     * @throws GenericServiceResourceNotFoundException
-     *         if there are errors returning harness XML script content
-     *
-     * @return jobs's harness XML file
-     */
-    public StreamingResponseBody getTestScriptForJob(Integer jobId);
-
-
-    /**
-     * Downloads harness XML script file for a specific job
-     *
-     * @throws GenericServiceResourceNotFoundException
-     *         if there are errors downloading harness XML script
-     *
-     * @return jobs's harness XML file
-     */
-    public Map<String, StreamingResponseBody> downloadTestScriptForJob(Integer jobId);
 
     /**
      * Gets all jobs for a specific project

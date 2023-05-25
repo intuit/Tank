@@ -15,9 +15,7 @@ package com.intuit.tank.job;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.intuit.tank.api.model.v1.cloud.VMStatus;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
@@ -113,21 +111,6 @@ public class ActJobNodeBean extends JobNodeBean {
     @Override
     public List<VMNodeBean> getSubNodes() {
         return vmBeans;
-    }
-
-    @Override
-    public List<VMNodeBean> getCurrentSubNodes() {
-        return vmBeans.stream().filter(vm -> !vm.getStatus().equals(VMStatus.terminated.toString())).collect(Collectors.toList());
-    }
-
-    @Override
-    public String getTotalSubNodesRunning() {
-        return Long.toString(vmBeans.stream().filter(vm -> vm.getStatus().equals(VMStatus.running.toString())).count());
-    }
-
-    @Override
-    public boolean allSubNodesCompleted(){
-        return true; // terminated instances no longer sub nodes
     }
 
     @Override

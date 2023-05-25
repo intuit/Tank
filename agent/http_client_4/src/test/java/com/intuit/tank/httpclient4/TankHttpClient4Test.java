@@ -168,7 +168,7 @@ public class TankHttpClient4Test {
     @Test
     @Tag(TestGroups.MANUAL)
     public void testSSL() {
-        BaseRequest request = getRequest(new TankHttpClient4(), "https://turbotax.intuit.com/");
+        BaseRequest request = getRequest(new TankHttpClient4(), "https://www.pcwebshop.co.uk/");
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);

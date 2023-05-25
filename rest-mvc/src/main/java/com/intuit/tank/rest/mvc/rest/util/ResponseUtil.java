@@ -13,7 +13,6 @@ import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptTO;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 
 import com.amazonaws.xray.AWSXRay;
@@ -38,20 +37,13 @@ public class ResponseUtil {
         return (OutputStream outputStream) -> {
             AWSXRay.beginSubsegment("JAXB.Marshal." + toMarshall.getClass().getSimpleName());
             try {
-                JAXBContext ctx;
-                if(toMarshall instanceof ScriptTO) {
-                    ctx = JAXBContext.newInstance(toMarshall.getClass());
-                } else {
-                    ctx = JAXBContext.newInstance(toMarshall.getClass().getPackage().getName());
-                }
-                if (ctx != null) {
-                    Marshaller marshaller = ctx.createMarshaller();
-                    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-                    marshaller.marshal(toMarshall, outputStream);
-                }
+                JAXBContext ctx = JAXBContext.newInstance(toMarshall.getClass());
+                Marshaller marshaller = ctx.createMarshaller();
+                marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+                marshaller.marshal(toMarshall, outputStream);
             } catch (JAXBException e) {
                 LOG.error("Error Marshalling XML to Stream: " + e.toString(), e);
-                throw new GenericServiceResourceNotFoundException("ResponseUtil", "harness or tank script file", e);
+                throw new GenericServiceResourceNotFoundException("scripts", "script file", e);
             } finally {
                 AWSXRay.endSubsegment();
             }

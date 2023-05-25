@@ -159,7 +159,7 @@ public class TankHttpClient3Test {
     @Tag(TestGroups.MANUAL)
     public void testSSL() {
 //        System.setProperty("jsse.enableSNIExtension", "false");
-        BaseRequest request = getRequest(new TankHttpClient3(), "https://turbotax.intuit.com/");
+        BaseRequest request = getRequest(new TankHttpClient3(), "https://www.pcwebshop.co.uk/");
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);

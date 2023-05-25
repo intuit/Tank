@@ -16,11 +16,9 @@ package com.intuit.tank.job;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
 import com.intuit.tank.project.Project;
-import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 
 public class ProjectNodeBean extends JobNodeBean {
 
@@ -86,21 +84,6 @@ public class ProjectNodeBean extends JobNodeBean {
     @Override
     public List<ActJobNodeBean> getSubNodes() {
         return jobBeans;
-    }
-
-    @Override
-    public List<ActJobNodeBean> getCurrentSubNodes() {
-        return jobBeans.stream().filter(job -> !job.getStatus().equals(JobQueueStatus.Completed.toString())).collect(Collectors.toList());
-    }
-
-    @Override
-    public String getTotalSubNodesRunning() {
-        return Long.toString(jobBeans.stream().filter(job -> job.getStatus().equals(JobQueueStatus.Running.toString())).count());
-    }
-
-    @Override
-    public boolean allSubNodesCompleted(){
-        return jobBeans.stream().allMatch(job -> job.getStatus().equals(JobQueueStatus.Completed.toString()));
     }
 
     @Override

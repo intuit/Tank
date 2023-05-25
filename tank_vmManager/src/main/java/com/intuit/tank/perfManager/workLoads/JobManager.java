@@ -157,7 +157,6 @@ public class JobManager implements Serializable {
     }
 
     public AgentTestStartData registerAgentForJob(AgentData agentData) {
-        LOG.info("Received Agent Ready call from " + agentData.getInstanceId() + " with Agent Data: " + agentData);
         AgentTestStartData ret = null;
         JobInfo jobInfo = jobInfoMapLocalCache.get(agentData.getJobId());
         // TODO: figure out controller restarts
@@ -186,9 +185,7 @@ public class JobManager implements Serializable {
     }
 
     private void startTest(final JobInfo info) {
-        String jobId = info.jobRequest.getId();
-        LOG.info("Sending start commands for job " + jobId + " asynchronously to following agents: " +
-                info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)));
+        LOG.info("Sending start commands for job asynchronously.");
         LOG.info("Sleeping for 30 seconds before starting test, to give time for last agent to process AgentTestStartData.");
         try {
             Thread.sleep(RETRY_SLEEP);// 30 seconds
@@ -201,9 +198,9 @@ public class JobManager implements Serializable {
                 .forEach(future -> {
                     HttpResponse response = (HttpResponse) future.join();
                     if (response.statusCode() == HttpStatus.SC_OK) {
-                        LOG.info("Start Command to " + response.uri() + " was SUCCESSFUL for job " + jobId);
+                        LOG.info("Start Command to " + response.uri() + " was SUCCESSFUL");
                     } else {
-                        LOG.error("Start Command to " + response.uri() + " returned statusCode " + response.statusCode() + " for job " + jobId);
+                        LOG.error("Start Command to " + response.uri() + " returned statusCode " + response.statusCode());
                     }
                 });
     }
@@ -287,10 +284,10 @@ public class JobManager implements Serializable {
                         }
                     }
                 }).exceptionally( ex -> {
-                    if (ex.getCause().getCause() instanceof NoRouteToHostException) {
+                    if (ex instanceof NoRouteToHostException) {
                         LOG.error("No Route to Host: " + request.uri() + ", validate host connectivity");
                     } else {
-                        LOG.error("Exception sending command to url " + request.uri() + ": " + ex.getMessage(), ex);
+                        LOG.error("Exception sending command to url " + request.uri(), ex);
                     }
                     return null;
                 });
