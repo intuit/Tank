@@ -201,8 +201,10 @@ public class LogEvent implements Serializable {
             for (Entry<String, String> entry : variables.getVaribleValues().entrySet()) {
                 if (entry.getKey().equalsIgnoreCase("password") ||
                         entry.getKey().equalsIgnoreCase("pwd") ||
+                        entry.getKey().equalsIgnoreCase("ssn") ||
+                        entry.getKey().equalsIgnoreCase("birthDate") ||
                         Pattern.matches("V1-[0-9]+-[0-9a-zA-Z]{22}", entry.getValue())) {
-                    appendField(sb, entry.getKey(), "********", "="); // Obfuscate password entries
+                    appendField(sb, entry.getKey(), "********", "="); // Obfuscate PII entries
                 }
                 else if (!entry.getKey().toUpperCase().startsWith("UUID_")) {		// Exclude UUID variables, there are just too many.
             		appendField(sb, entry.getKey(), entry.getValue(), "=");
