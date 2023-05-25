@@ -207,10 +207,49 @@ public class LogEventTest {
     }
 
     /**
-     * Testing getValidationCriteria() through buildMessage()
+     * Run String buildMessage() method test and validate ssn and birthDate user variable field obfuscated
      */
     @Test
     public void testBuildMessage_6() {
+        LogEvent fixture = new LogEvent();
+        Variables variables = new Variables();
+        variables.addVariable("ssn", "000-00-0000");
+        variables.addVariable("birthDate", "1965-06-07");
+
+        fixture.setHostname("");
+        fixture.setActiveProfile(LoggingProfile.USER_VARIABLE);
+        fixture.setEventType(LogEventType.Http);
+        fixture.setTestPlan(new HDTestPlan());
+        fixture.setValidationStatus("");
+        fixture.setVariables(variables);
+        fixture.setThreadId("");
+        fixture.setPublicIp("");
+        fixture.setProjectName("");
+        fixture.setGroup(new HDScriptGroup());
+        fixture.setJobId("");
+        fixture.setRequest(new MockRequest());
+        fixture.setLoggingKey("");
+        fixture.setTransactionId("");
+        fixture.setStepGroupName("");
+        fixture.setSourceType(SourceType.agent);
+        fixture.setInstanceId("");
+        fixture.setStep((TestStep) null);
+        fixture.setStepIndex("");
+        fixture.setMessage("");
+        fixture.setIteration("");
+        fixture.setScript((HDScript) null);
+
+        Map<String,String> result = fixture.buildMessage();
+        assertNotNull(result);
+        assertTrue(result.containsKey("UserVariables"));
+        assertEquals(" birthDate=********  ssn=******** ", result.get("UserVariables"));
+    }
+
+    /**
+     * Testing getValidationCriteria() through buildMessage()
+     */
+    @Test
+    public void testBuildMessage_7() {
         LogEvent fixture = new LogEvent();
         RequestStep step = new RequestStep();
         step.setRequest(new HDRequest());
@@ -235,7 +274,7 @@ public class LogEventTest {
      * Testing getBody() and truncateBody() through buildMessage()
      */
     @Test
-    public void testBuildMessage_7() {
+    public void testBuildMessage_8() {
         LogEvent fixture = new LogEvent();
         BaseRequest request = new MockRequest();
         BaseResponse response = new MockResponse();
