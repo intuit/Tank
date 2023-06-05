@@ -15,6 +15,7 @@ package com.intuit.tank.perfManager.workLoads;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.NoRouteToHostException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -156,6 +157,7 @@ public class JobManager implements Serializable {
     }
 
     public AgentTestStartData registerAgentForJob(AgentData agentData) {
+        LOG.info("Received Agent Ready call from " + agentData.getInstanceId() + " with Agent Data: " + agentData);
         AgentTestStartData ret = null;
         JobInfo jobInfo = jobInfoMapLocalCache.get(agentData.getJobId());
         // TODO: figure out controller restarts
@@ -184,7 +186,9 @@ public class JobManager implements Serializable {
     }
 
     private void startTest(final JobInfo info) {
-        LOG.info("Sending start commands for job asynchronously.");
+        String jobId = info.jobRequest.getId();
+        LOG.info("Sending start commands for job " + jobId + " asynchronously to following agents: " +
+                info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)));
         LOG.info("Sleeping for 30 seconds before starting test, to give time for last agent to process AgentTestStartData.");
         try {
             Thread.sleep(RETRY_SLEEP);// 30 seconds
@@ -197,9 +201,9 @@ public class JobManager implements Serializable {
                 .forEach(future -> {
                     HttpResponse response = (HttpResponse) future.join();
                     if (response.statusCode() == HttpStatus.SC_OK) {
-                        LOG.info("Start Command to " + response.uri() + " was SUCCESSFUL");
+                        LOG.info("Start Command to " + response.uri() + " was SUCCESSFUL for job " + jobId);
                     } else {
-                        LOG.error("Start Command to " + response.uri() + " returned statusCode " + response.statusCode());
+                        LOG.error("Start Command to " + response.uri() + " returned statusCode " + response.statusCode() + " for job " + jobId);
                     }
                 });
     }
@@ -264,8 +268,8 @@ public class JobManager implements Serializable {
 
     /**
      * Send Async http commands
-     * @param uri
-     * @param retry
+     * @param uri URL endpoint of agent, including command path
+     * @param retry count attempts
      * @return CompletableFuture Array
      */
     private CompletableFuture<?> sendCommand(final URI uri, final int retry) {
@@ -274,7 +278,7 @@ public class JobManager implements Serializable {
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .whenCompleteAsync((response, t) -> {
                     if (t != null) {
-                        LOG.error("Error sending command to url " + response.uri() + ": " + t.getMessage(), t);
+                        LOG.error("Error sending command to url " + request.uri() + ": " + t.getMessage(), t);
                         if (retry > 0) {
                             try {
                                 Thread.sleep(RETRY_SLEEP);// 30 seconds
@@ -283,7 +287,11 @@ public class JobManager implements Serializable {
                         }
                     }
                 }).exceptionally( ex -> {
-                    LOG.error("Error sending command to url" + request.uri(), ex);
+                    if (ex.getCause().getCause() instanceof NoRouteToHostException) {
+                        LOG.error("No Route to Host: " + request.uri() + ", validate host connectivity");
+                    } else {
+                        LOG.error("Exception sending command to url " + request.uri() + ": " + ex.getMessage(), ex);
+                    }
                     return null;
                 });
     }

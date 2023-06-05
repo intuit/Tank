@@ -23,12 +23,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * FileServiceV1
- * 
- * @author dangleton
- * 
- */
 public final class FileReader {
 
     private FileReader() {

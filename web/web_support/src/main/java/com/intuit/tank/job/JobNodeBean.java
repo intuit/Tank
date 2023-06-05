@@ -318,6 +318,12 @@ public abstract class JobNodeBean implements Serializable {
 
     public abstract List<? extends JobNodeBean> getSubNodes();
 
+    public abstract List<? extends JobNodeBean> getCurrentSubNodes();
+
+    public abstract String getTotalSubNodesRunning();
+
+    public abstract boolean allSubNodesCompleted();
+
     public abstract boolean hasSubNodes();
 
     public abstract boolean isKillable();

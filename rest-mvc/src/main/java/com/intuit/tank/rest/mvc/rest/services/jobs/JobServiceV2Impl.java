@@ -16,6 +16,7 @@ import com.intuit.tank.dao.JobNotificationDao;
 import com.intuit.tank.dao.JobRegionDao;
 import com.intuit.tank.dao.ProjectDao;
 import com.intuit.tank.dao.WorkloadDao;
+import com.intuit.tank.dao.util.ProjectDaoUtil;
 import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.project.DataFile;
@@ -28,15 +29,13 @@ import com.intuit.tank.project.Project;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceInternalServerException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobContainer;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobTO;
 import com.intuit.tank.rest.mvc.rest.models.jobs.CreateJobRequest;
 import com.intuit.tank.rest.mvc.rest.models.jobs.CreateJobRegion;
-import com.intuit.tank.rest.mvc.rest.util.JobServiceUtil;
-import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
-import com.intuit.tank.rest.mvc.rest.util.JobDetailFormatter;
-import com.intuit.tank.rest.mvc.rest.util.JobValidator;
+import com.intuit.tank.rest.mvc.rest.util.*;
 import com.intuit.tank.service.impl.v1.cloud.CloudController;
 import com.intuit.tank.service.impl.v1.cloud.JobController;
 import com.intuit.tank.service.util.ServletInjector;
@@ -49,13 +48,19 @@ import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.common.util.ReportUtil;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.amazonaws.xray.AWSXRay;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import java.io.*;
+import java.io.FileReader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -193,6 +198,44 @@ public class JobServiceV2Impl implements JobServiceV2 {
             LOGGER.error("Error returning all job statuses: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("job", "list of job statuses", e);
         }
+    }
+
+    @Override
+    public StreamingResponseBody getTestScriptForJob(Integer jobId){
+        String jobID = Integer.toString(jobId);
+        File f = ProjectDaoUtil.getScriptFile(jobID);
+        if (!f.exists()) {
+            if (NumberUtils.isCreatable(jobID)) {
+                JobInstance job = new JobInstanceDao().findById(jobId);
+                if (job == null) {
+                    LOGGER.error("Could not find job with job id: " + jobID);
+                    throw new GenericServiceResourceNotFoundException("jobs", "job harness XML script file", null);
+                }
+                ProjectDaoUtil.storeScriptFile(jobID, ProjectServiceUtil.getScriptString(job));
+                f = ProjectDaoUtil.getScriptFile(jobID);
+            } else {
+                LOGGER.error("Cannot create job script for non persisted jobs");
+                throw new GenericServiceResourceNotFoundException("jobs", "job harness XML script file", null);
+            }
+        }
+        final File file = f;
+        return (OutputStream outputStream) -> {
+            try ( BufferedReader in = new BufferedReader(new FileReader(file)) ) {
+                IOUtils.copy(in, outputStream, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                LOGGER.error("Error streaming job harness file: " + e.getMessage(), e);
+                throw new GenericServiceInternalServerException("jobs", "streaming output of job harness XML script file", e);
+            }
+        };
+    }
+
+    @Override
+    public Map<String, StreamingResponseBody> downloadTestScriptForJob(Integer jobId) {
+        Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
+        String filename = "job_" + jobId + "_H.xml";
+        StreamingResponseBody streamingResponse = getTestScriptForJob(jobId);
+        payload.put(filename, streamingResponse);
+        return payload;
     }
 
     // Job Status Setters

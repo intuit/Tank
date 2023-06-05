@@ -7,15 +7,13 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers.errors;
 
-public class GenericServiceBadRequestException extends GenericServiceException {
+public class GenericServiceInternalServerException extends GenericServiceException {
 
     private static final long serialVersionUID = 1L;
 
     private final String service;
 
     private final String resource;
-
-    private final String message;
 
 
     /**
@@ -27,12 +25,15 @@ public class GenericServiceBadRequestException extends GenericServiceException {
      *
      * @param resource
      *            the specific service related resource
+     *
+     * @param cause
+     *  the cause that is returned by the inherited
+     * {@code Throwable.getCause}
      */
-    public GenericServiceBadRequestException(String service, String resource, String message) {
-        super("Incorrect request or parameter received for " + service + " service for " + resource);
+    public GenericServiceInternalServerException(String service, String resource, Throwable cause) {
+        super("Server error caught for " + service + " service while handling " + resource + " caused by " + cause);
         this.service = service;
         this.resource = resource;
-        this.message = message;
     }
 
     public String getService() {
@@ -41,9 +42,5 @@ public class GenericServiceBadRequestException extends GenericServiceException {
 
     public String getResource() {
         return resource;
-    }
-
-    public String getMessage() {
-        return message;
     }
 }
