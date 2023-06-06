@@ -16,7 +16,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.ConfigurableApplicationContext;
 
 @OpenAPIDefinition(servers = {@Server(url = "/", description = "Default Server URL")})
-@SpringBootApplication
+@SpringBootApplication(proxyBeanMethods = false)
 public class TankAPIApplication extends SpringBootServletInitializer {
     public static ConfigurableApplicationContext run(String[] args) {
         return SpringApplication.run(TankAPIApplication.class, args);

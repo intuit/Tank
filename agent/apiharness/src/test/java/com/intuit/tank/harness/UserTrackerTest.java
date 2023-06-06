@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 
-import com.intuit.tank.api.model.v1.cloud.UserDetail;
+import com.intuit.tank.rest.mvc.rest.models.common.UserDetail;
 import com.intuit.tank.test.TestGroups;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

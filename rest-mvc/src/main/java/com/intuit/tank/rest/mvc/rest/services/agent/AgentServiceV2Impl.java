@@ -8,6 +8,7 @@
 package com.intuit.tank.rest.mvc.rest.services.agent;
 
 import com.intuit.tank.perfManager.workLoads.JobManager;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinition;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
@@ -145,8 +146,8 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
             JobManager jobManager = new ServletInjector<JobManager>().getManagedBean(servletContext, JobManager.class);
             response = jobManager.registerAgentForJob(data);
         } catch (Exception e) {
-            LOGGER.error("Error registering for a job: " + e.getMessage(), e);
-            throw new GenericServiceResourceNotFoundException("agent", "and registering agent", e);
+            LOGGER.error("Error registering agent for a job: " + e.getMessage(), e);
+            throw new GenericServiceBadRequestException("agent", "agent", "Error registering agent for a job with AgentData:  " + data);
         }
         return response;
     }
