@@ -17,11 +17,11 @@ import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteExce
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.models.scripts.*;
-import com.intuit.tank.service.util.ResponseUtil;
+import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import com.intuit.tank.rest.mvc.rest.util.ScriptServiceUtil;
 import com.intuit.tank.script.processor.ScriptProcessor;
-import com.intuit.tank.service.util.MessageSender;
-import com.intuit.tank.service.util.ServletInjector;
+import com.intuit.tank.rest.mvc.rest.util.MessageEventSender;
+import com.intuit.tank.rest.mvc.rest.util.ServletInjector;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
 import com.intuit.tank.vm.settings.ModificationType;
@@ -294,7 +294,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     }
 
     private void sendMsg(BaseEntity entity, ModificationType type) {
-        MessageSender sender = new ServletInjector<MessageSender>().getManagedBean(servletContext, MessageSender.class);
+        MessageEventSender sender = new ServletInjector<MessageEventSender>().getManagedBean(servletContext, MessageEventSender.class);
         sender.sendEvent(new ModifiedEntityMessage(entity.getClass(), entity.getId(), type));
     }
 

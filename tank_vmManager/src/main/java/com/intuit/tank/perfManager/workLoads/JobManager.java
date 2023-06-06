@@ -307,7 +307,7 @@ public class JobManager implements Serializable {
                 int numLinesPerAgent = (int) Math.floor(getNumberOfLines(id) / info.numberOfMachines);
                 int offset = info.agentData.size() * numLinesPerAgent;
                 DataFileRequest dataRequest = new DataFileRequest(dataFile.getPath(), setAsDefault,
-                        DataFileUtil.getDataFileServiceUrl(dataFile.getId(), version, offset, numLinesPerAgent));
+                        DataFileUtil.getDataFileServiceUrl(dataFile.getId(), offset, numLinesPerAgent));
                 ret.add(dataRequest);
             }
         }
