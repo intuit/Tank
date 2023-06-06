@@ -11,7 +11,6 @@ import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.jobs.CreateJobRequest;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobContainer;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobTO;
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 
