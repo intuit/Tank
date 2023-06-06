@@ -25,13 +25,6 @@
       <groupId>org.glassfish.soteria</groupId>
       <artifactId>javax.security.enterprise</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-      <version>5.3.24</version>
-    </dependency>
-
   </dependencies>
 
 </project>
