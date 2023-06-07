@@ -33,32 +33,32 @@ import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.context.annotation.RequestScope;
-import org.springframework.stereotype.Service;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
-@RequestScope
+@Named
+@RequestScoped
 public class JobEventSender {
 
     private static final Logger LOG = LogManager.getLogger(JobEventSender.class);
 
-    @Autowired
+    @Inject
     private VMTracker vmTracker;
 
-    @Autowired
+    @Inject
     private VMTerminator terminator;
 
-    @Autowired
+    @Inject
     private JobManager jobManager;
 
-    @Autowired
+    @Inject
     private AgentChannel agentChannel;
 
-    @Autowired
+    @Inject
     private Event<JobEvent> jobEventProducer;
 
     public String startJob(String jobId) {

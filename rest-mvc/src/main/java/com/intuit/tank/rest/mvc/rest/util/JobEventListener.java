@@ -7,34 +7,35 @@
  */
 package com.intuit.tank.rest.mvc.rest.util;
 
-import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
-import com.intuit.tank.vm.event.JobEvent;
+import java.io.Serializable;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.web.context.annotation.ApplicationScope;
-import org.springframework.context.event.EventListener;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.io.Serializable;
 
-@Service
-@ApplicationScope
+import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
+import com.intuit.tank.vm.event.JobEvent;
+
+@Named
+@ApplicationScoped
 public class JobEventListener implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LogManager.getLogger(JobEventListener.class);
 
-    @Autowired
-    private ObjectProvider<JobEventSender> controllerSource;
+    @Inject
+    private Instance<JobEventSender> controllerSource;
 
-    @EventListener
-    public void observerJobKillRequest(JobEvent request) {
+    public void observerJobKillRequest(@Observes JobEvent request) {
         LOG.info("Got Job Event: " + request);
         if (request.getEvent() == JobLifecycleEvent.JOB_ABORTED) {
-            controllerSource.getIfAvailable().killJob(request.getJobId(), false);
+            controllerSource.get().killJob(request.getJobId(), false);
         }
     }
 }

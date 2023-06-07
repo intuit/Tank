@@ -11,12 +11,12 @@ import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatus;
 import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatusContainer;
 import com.intuit.tank.rest.mvc.rest.models.common.ProjectStatusContainer;
 import com.intuit.tank.vm.event.JobEvent;
-import org.springframework.stereotype.Component;
+import javax.inject.Named;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
 
-@Component
+@Named
 public interface VMTracker {
 
     /**
