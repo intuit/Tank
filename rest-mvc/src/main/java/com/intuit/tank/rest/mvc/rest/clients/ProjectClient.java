@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class ProjectClient extends BaseClient{
 
-    private static final String SERVICE_BASE_URL = "/api/v2/projects";
+    private static final String SERVICE_BASE_URL = "/v2/projects";
 
     public ProjectClient(String serviceUrl)  {
         super(serviceUrl, null, null);

@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class DataFileClient extends BaseClient{
 
-    private static final String SERVICE_BASE_URL = "/api/v2/datafiles";
+    private static final String SERVICE_BASE_URL = "/v2/datafiles";
 
     public DataFileClient(String serviceUrl)  {
         super(serviceUrl, null, null);

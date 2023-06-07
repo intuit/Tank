@@ -30,7 +30,7 @@ public class DataFileUtilTest {
 
     @Test
     public void testGetDataFileServiceUrl() {
-        String expected = "http://localhost:8080/tank/api/v2/datafiles/content?id=2&offset=4&lines=10";
+        String expected = "http://localhost:8080/tank/v2/datafiles/content?id=2&offset=4&lines=10";
         assertEquals(expected, DataFileUtil.getDataFileServiceUrl(2, 4, 10));
     }
 

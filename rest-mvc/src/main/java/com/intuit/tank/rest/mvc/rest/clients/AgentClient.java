@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class AgentClient extends BaseClient{
 
-    private static final String SERVICE_BASE_URL = "/api/v2/agent";
+    private static final String SERVICE_BASE_URL = "/v2/agent";
 
     public AgentClient(String serviceUrl)  {
         super(serviceUrl, null, null);

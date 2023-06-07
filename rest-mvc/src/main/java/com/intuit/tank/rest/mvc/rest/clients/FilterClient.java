@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class FilterClient extends BaseClient{
 
-    private static final String SERVICE_BASE_URL = "/api/v2/filters";
+    private static final String SERVICE_BASE_URL = "/v2/filters";
 
     public FilterClient(String serviceUrl)  {
         super(serviceUrl, null, null);

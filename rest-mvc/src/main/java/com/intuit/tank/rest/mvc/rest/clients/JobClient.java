@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class JobClient extends BaseClient{
 
-    private static final String SERVICE_BASE_URL = "/api/v2/jobs";
+    private static final String SERVICE_BASE_URL = "/v2/jobs";
 
     public JobClient(String serviceUrl)  {
         super(serviceUrl, null, null);

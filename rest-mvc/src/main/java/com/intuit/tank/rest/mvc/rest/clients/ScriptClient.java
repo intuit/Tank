@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class ScriptClient extends BaseClient{
 
-    private static final String SERVICE_BASE_URL = "/api/v2/scripts";
+    private static final String SERVICE_BASE_URL = "/v2/scripts";
 
     public ScriptClient(String serviceUrl)  {
         super(serviceUrl, null, null);
