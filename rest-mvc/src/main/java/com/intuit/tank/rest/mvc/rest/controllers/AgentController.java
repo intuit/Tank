@@ -7,7 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers;
 
-import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatus;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.rest.mvc.rest.services.agent.AgentServiceV2;
 import com.intuit.tank.vm.agent.messages.Headers;

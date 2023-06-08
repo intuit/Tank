@@ -9,7 +9,7 @@ package com.intuit.tank.rest.mvc.rest.clients;
 
 import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContainer;
-import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatus;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.AgentData;

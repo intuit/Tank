@@ -7,9 +7,9 @@
  */
 package com.intuit.tank.rest.mvc.rest.models.common.cloud;
 
-import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatus;
-import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatusContainer;
-import com.intuit.tank.rest.mvc.rest.models.common.ProjectStatusContainer;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
+import com.intuit.tank.api.model.v1.cloud.ProjectStatusContainer;
 import com.intuit.tank.vm.event.JobEvent;
 import javax.inject.Named;
 

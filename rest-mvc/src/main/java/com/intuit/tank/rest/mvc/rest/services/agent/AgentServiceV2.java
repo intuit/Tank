@@ -8,7 +8,7 @@
 package com.intuit.tank.rest.mvc.rest.services.agent;
 
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContainer;
-import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatus;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.vm.agent.messages.Headers;

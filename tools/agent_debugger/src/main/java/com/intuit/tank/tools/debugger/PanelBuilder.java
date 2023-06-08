@@ -53,7 +53,7 @@ public class PanelBuilder {
 
     private static File workingDir;
 
-    private static final String HEADERS_PATH = "/api/v2/agent/headers";
+    private static final String HEADERS_PATH = "/v2/agent/headers";
     private static final char NEWLINE = '\n';
 
     public static File createWorkingDir(AgentDebuggerFrame frame, String baseUrl) {

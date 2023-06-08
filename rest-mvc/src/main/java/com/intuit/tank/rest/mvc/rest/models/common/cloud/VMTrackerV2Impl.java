@@ -9,10 +9,10 @@ package com.intuit.tank.rest.mvc.rest.models.common.cloud;
 
 
 import com.amazonaws.xray.AWSXRay;
-import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatus;
-import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatusContainer;
-import com.intuit.tank.rest.mvc.rest.models.common.ProjectStatusContainer;
-import com.intuit.tank.rest.mvc.rest.models.common.VMStatus;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
+import com.intuit.tank.api.model.v1.cloud.ProjectStatusContainer;
+import com.intuit.tank.api.model.v1.cloud.VMStatus;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.project.JobInstance;

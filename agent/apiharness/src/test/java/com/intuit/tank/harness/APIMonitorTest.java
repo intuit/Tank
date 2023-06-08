@@ -1,8 +1,8 @@
 package com.intuit.tank.harness;
 
-import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatus;
-import com.intuit.tank.rest.mvc.rest.models.common.VMStatus;
-import com.intuit.tank.rest.mvc.rest.models.common.ValidationStatus;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.api.model.v1.cloud.VMStatus;
+import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;

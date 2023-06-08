@@ -68,8 +68,6 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
     public void init() {
         tablePrefs = new TablePreferences(userPrefs.getPreferences().getProjectTableColumns());
         tablePrefs.registerListener(userPrefs);
-        messages.warn("Important Update: Tank V2 API is now available! To ensure compatibility with the updated API, " +
-                "please download the newest version of Tank tools under the Tools tab. Refer to the API documentation under Help for more details.");
     }
 
     public void deleteSelectedProject() {

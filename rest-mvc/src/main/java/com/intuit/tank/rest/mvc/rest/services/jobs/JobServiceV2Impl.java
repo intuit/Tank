@@ -30,7 +30,7 @@ import com.intuit.tank.project.Workload;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceInternalServerException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
-import com.intuit.tank.rest.mvc.rest.models.common.CloudVmStatusContainer;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobContainer;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobTO;
 import com.intuit.tank.rest.mvc.rest.models.jobs.CreateJobRequest;
