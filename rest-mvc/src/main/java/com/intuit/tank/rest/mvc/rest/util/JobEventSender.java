@@ -14,7 +14,7 @@ import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Workload;
-import com.intuit.tank.rest.mvc.rest.models.common.cloud.VMTracker;
+import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 import com.intuit.tank.api.model.v1.cloud.VMStatus;

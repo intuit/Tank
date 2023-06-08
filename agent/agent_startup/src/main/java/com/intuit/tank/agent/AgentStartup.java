@@ -120,5 +120,8 @@ public class AgentStartup implements Runnable {
         System.out.println("Tank Test Startup Usage:");
         System.out.println("java -cp agent-startup-pkg-1.0-all.jar com/intuit/tank/agent/AgentStartup <options>");
         System.out.println("-controller=<controller_base_url>:  The url of the controller to get test info from");
+        System.out.println("Service Path: " + SERVICE_RELATIVE_PATH);
+        System.out.println("Settings Method: " + METHOD_SETTINGS);
+        System.out.println("Support Files Method: " + METHOD_SUPPORT);
     }
 }

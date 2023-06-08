@@ -55,6 +55,7 @@
     <version.spring-boot>2.7.6</version.spring-boot>
     <version.spring-web>5.3.25</version.spring-web>
     <version.spring-webflux>2.7.6</version.spring-webflux>
+    <version.log4>2.20.0</version.log4>
 
     <!-- maven-compiler-plugin -->
     <version.compiler.plugin>3.10.1</version.compiler.plugin>
@@ -855,6 +856,11 @@
           </exclusion>
         </exclusions>
         <version>${version.spring-webflux}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j-impl</artifactId>
+        <version>${version.log4j}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
