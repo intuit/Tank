@@ -7,7 +7,6 @@
  */
 package com.intuit.tank.rest.mvc;
 
-import com.intuit.tank.rest.mvc.rest.models.common.cloud.VMTrackerV2Impl;
 import com.intuit.tank.rest.mvc.rest.util.JobEventListener;
 import com.intuit.tank.rest.mvc.rest.util.JobEventSender;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -23,7 +22,7 @@ import org.springframework.context.annotation.FilterType;
 @OpenAPIDefinition(servers = {@Server(url = "/", description = "Default Server URL")})
 @SpringBootApplication(proxyBeanMethods = false)
 @ComponentScan(basePackages = "com.intuit.tank.rest.mvc", excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {JobEventSender.class, JobEventListener.class, VMTrackerV2Impl.class})
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {JobEventSender.class, JobEventListener.class})
 })
 public class TankAPIApplication extends SpringBootServletInitializer {
     public static ConfigurableApplicationContext run(String[] args) {
