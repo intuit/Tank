@@ -1,6 +1,6 @@
 package com.intuit.tank.job;
 
-import com.intuit.tank.api.model.v1.cloud.VMStatus;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
 
 /*
  * #%L

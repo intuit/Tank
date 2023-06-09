@@ -16,7 +16,6 @@
 
   <modules>
     <module>automation</module>
-    <module>cloud</module>
     <module>user</module>
     <module>datafile</module>
     <module>script</module>

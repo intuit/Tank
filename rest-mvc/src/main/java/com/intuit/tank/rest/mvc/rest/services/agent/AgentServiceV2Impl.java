@@ -13,9 +13,9 @@ import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContai
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinition;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
-import com.intuit.tank.rest.mvc.rest.util.JobEventSender;
-import com.intuit.tank.rest.mvc.rest.util.ServletInjector;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.rest.mvc.rest.cloud.JobEventSender;
+import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
 import com.intuit.tank.storage.FileData;
 import com.intuit.tank.storage.FileStorage;
 import com.intuit.tank.storage.FileStorageFactory;

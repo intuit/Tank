@@ -27,7 +27,7 @@ import javax.inject.Named;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.api.cloud.VMTracker;
+import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.mail.MailService;
 import com.intuit.tank.vm.event.JobEvent;
 

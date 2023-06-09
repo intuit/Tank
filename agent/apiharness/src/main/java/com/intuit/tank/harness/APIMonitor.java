@@ -19,9 +19,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.rest.mvc.rest.clients.AgentClient;
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
-import com.intuit.tank.api.model.v1.cloud.VMStatus;
-import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
+import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.reporting.api.TPSInfoContainer;
 import com.intuit.tank.vm.agent.messages.WatsAgentStatusResponse;

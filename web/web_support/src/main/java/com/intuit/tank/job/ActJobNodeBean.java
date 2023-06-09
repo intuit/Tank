@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.intuit.tank.api.model.v1.cloud.VMStatus;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
 import org.apache.commons.lang3.time.FastDateFormat;
 
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.project.JobInstance;
 
 public class ActJobNodeBean extends JobNodeBean {

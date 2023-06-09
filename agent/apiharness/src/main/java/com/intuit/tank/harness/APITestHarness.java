@@ -42,9 +42,9 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.message.ObjectMessage;
 
 import com.intuit.tank.rest.mvc.rest.clients.AgentClient;
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
-import com.intuit.tank.api.model.v1.cloud.VMStatus;
-import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
+import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.harness.logging.LogUtil;
