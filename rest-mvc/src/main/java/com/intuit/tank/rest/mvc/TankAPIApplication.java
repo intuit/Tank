@@ -7,8 +7,8 @@
  */
 package com.intuit.tank.rest.mvc;
 
-import com.intuit.tank.rest.mvc.rest.util.JobEventListener;
-import com.intuit.tank.rest.mvc.rest.util.JobEventSender;
+import com.intuit.tank.rest.mvc.rest.cloud.JobEventSender;
+import com.intuit.tank.rest.mvc.rest.cloud.JobEventListener;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.boot.SpringApplication;
