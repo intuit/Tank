@@ -55,9 +55,9 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
-import com.intuit.tank.api.model.v1.script.ScriptTO;
-import com.intuit.tank.client.v1.script.ScriptServiceClient;
+import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptTO;
+import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptTO;
+import com.intuit.tank.rest.mvc.rest.clients.ScriptClient;
 import com.intuit.tank.tools.script.ScriptRunner;
 
 /**
@@ -86,7 +86,7 @@ public class ScriptFilterRunner extends JFrame {
     private JButton showXmlBT;
     private JButton saveBT;
     private JLabel localLB;
-    private ScriptServiceClient scriptServiceClient;
+    private ScriptClient scriptClient;
     private ExternalScriptTO currentExternalScript;
     private JFileChooser loadChooser;
     private boolean local = true;
@@ -110,7 +110,7 @@ public class ScriptFilterRunner extends JFrame {
                 }
             }
         });
-        scriptServiceClient = new ScriptServiceClient(serviceUrl);
+        scriptClient = new ScriptClient(serviceUrl);
 
         Component topPanel = createTopPanel();
         Component bottomPanel = createBottomPanel();
@@ -327,8 +327,8 @@ public class ScriptFilterRunner extends JFrame {
             }
 
         } else {
-            selectScript(new SelectDialog<ExternalScriptTO>(ScriptFilterRunner.this, scriptServiceClient
-                    .getExternalScripts()));
+            selectScript(new SelectDialog<ExternalScriptTO>(ScriptFilterRunner.this, scriptClient
+                    .getExternalScripts().getScripts()));
 
         }
 
@@ -354,7 +354,7 @@ public class ScriptFilterRunner extends JFrame {
                     + language.getDefaultExtension());
         }
         currentExternalScript.setScript(scriptEditorTA.getText());
-        currentExternalScript = scriptServiceClient.saveOrUpdateExternalScript(currentExternalScript);
+        currentExternalScript = scriptClient.createExternalScript(currentExternalScript);
     }
 
     /**

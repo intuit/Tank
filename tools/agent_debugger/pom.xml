@@ -24,6 +24,12 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>tank-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>script-client</artifactId>
       <version>${project.version}</version>
     </dependency>
