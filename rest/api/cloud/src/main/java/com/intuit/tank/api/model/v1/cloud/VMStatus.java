@@ -1,4 +1,4 @@
-package com.intuit.tank.vm.vmManager.models;
+package com.intuit.tank.api.model.v1.cloud;
 
 /*
  * #%L
