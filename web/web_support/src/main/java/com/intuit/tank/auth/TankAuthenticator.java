@@ -78,6 +78,8 @@ public class TankAuthenticator implements Serializable {
                 break;
             case SUCCESS:
                 messages.info("You're signed in as " + username);
+                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("showMessage", true);
+                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("intialPost", true);
                 FacesContext.getCurrentInstance().getExternalContext().redirect(
                         FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/projects/index.jsf");
                 break;
