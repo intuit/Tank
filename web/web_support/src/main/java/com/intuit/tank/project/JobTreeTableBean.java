@@ -133,13 +133,15 @@ public abstract class JobTreeTableBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        boolean showMessage = (boolean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("showMessage");
-        intialPost = (boolean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("intialPost");
-        if(showMessage && intialPost) {
-            FacesContext.getCurrentInstance().addMessage("formId:banner", new FacesMessage(FacesMessage.SEVERITY_WARN, "Important Update: Tank V2 API is now available! To ensure compatibility with the updated API, " +
-                    "download the newest version of Tank tools under the 'Tools' tab. Please refer to the Tank V2 API documentation " +
-                    "under 'Help' for more details on the new API features.", null));
-            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("intialPost", false);
+        if(FacesContext.getCurrentInstance().getExternalContext().getSessionMap().containsKey("showMessage")) {
+            boolean showMessage = (boolean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("showMessage");
+            intialPost = (boolean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("intialPost");
+            if(showMessage && intialPost) {
+                FacesContext.getCurrentInstance().addMessage("formId:banner", new FacesMessage(FacesMessage.SEVERITY_WARN, "Important Update: Tank V2 API is now available! To ensure compatibility with the updated API, " +
+                        "download the newest version of Tank tools under the 'Tools' tab. Please refer to the Tank V2 API documentation " +
+                        "under 'Help' for more details on the new API features.", null));
+                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("intialPost", false);
+            }
         }
         tablePrefs = new TablePreferences(preferencesBean.getPreferences().getJobsTableColumns());
         tablePrefs.registerListener(preferencesBean);

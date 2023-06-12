@@ -88,6 +88,8 @@ public class TankAuthenticator implements Serializable {
     }
 
     public void ssoLogin() throws IOException {
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("showMessage", true);
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("intialPost", true);
         String authorizationRequest = _tankSsoHandler.GetOnLoadAuthorizationRequest();
         FacesContext.getCurrentInstance().getExternalContext().redirect(authorizationRequest);
     }
