@@ -9,7 +9,7 @@ package com.intuit.tank.rest.mvc.rest.models.datafiles;
 
 public class Namespace {
 
-    public static final String NAMESPACE_V1 = "urn:tank/domain/datafiles/v2";
+    public static final String NAMESPACE_V1 = "urn:wats/domain/datafile/v1";
 
     private Namespace() {
     }
