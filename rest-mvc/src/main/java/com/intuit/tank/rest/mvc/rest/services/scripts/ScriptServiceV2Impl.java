@@ -38,10 +38,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import javax.servlet.ServletContext;
@@ -106,7 +103,8 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     public Map<Integer, String> getAllScriptNames(){
         try {
             List<Script> all = new ScriptDao().findAll();
-            return all.stream().collect(Collectors.toMap(Script::getId, Script::getName));
+            return all.stream().sorted(Comparator.comparing(Script::getModified).reversed())
+                               .collect(Collectors.toMap(Script::getId, Script::getName, (e1, e2) -> e1, LinkedHashMap::new));
         } catch (Exception e) {
             LOGGER.error("Error returning all script names: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("scripts", "all script names", e);

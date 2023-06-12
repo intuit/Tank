@@ -17,6 +17,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -109,18 +110,23 @@ public class ProjectClient extends BaseClient{
     }
 
     public String downloadTestScriptForProject(Integer projectId) {
-        Mono<DataBuffer> dataBuffer = client.get()
+        Flux<DataBuffer> dataBuffers = client.get()
                         .uri(urlBuilder.buildUrl("/download", projectId))
                         .retrieve()
                         .onStatus(status -> status.isError(),
                                 response -> response.bodyToMono(String.class)
                                         .flatMap(body -> Mono.error(new ClientException(body,
                                                 response.statusCode().value()))))
-                        .bodyToMono(DataBuffer.class);
+                        .bodyToFlux(DataBuffer.class)
+                        .cache();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataBufferUtils.write(dataBuffer, baos)
-                .share().blockLast();
+        dataBuffers.doOnNext(dataBuffer -> {
+            byte[] bytes = new byte[dataBuffer.readableByteCount()];
+            dataBuffer.read(bytes);
+            DataBufferUtils.release(dataBuffer);
+            baos.write(bytes, 0, bytes.length);
+        }).blockLast();
 
         return baos.toString();
     }

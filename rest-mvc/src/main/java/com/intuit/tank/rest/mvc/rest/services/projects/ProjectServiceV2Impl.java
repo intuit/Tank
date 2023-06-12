@@ -74,7 +74,8 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     public Map<Integer, String> getAllProjectNames(){
         try {
             List<Project> all = new ProjectDao().findAllFast();
-            return all.stream().collect(Collectors.toMap(Project::getId, Project::getName));
+            return all.stream().sorted(Comparator.comparing(Project::getModified).reversed())
+                               .collect(Collectors.toMap(Project::getId, Project::getName, (e1, e2) -> e1, LinkedHashMap::new));
         } catch (Exception e) {
             LOGGER.error("Error returning all project names: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("projects", "all project names", e);

@@ -512,7 +512,7 @@ public class ActionProducer {
                         }
                     } catch (WebClientRequestException e1) {
                         showError("Error: Empty or Invalid Tank URL");
-                        LOG.error("Error returning response from ScriptClient: Empty or Invalid Tank URL");
+                        LOG.error("Error: Empty or Invalid Tank URL");
                     } catch (Exception e2) {
                         showError("Error downloading scripts: " + e2);
                     }
@@ -550,7 +550,7 @@ public class ActionProducer {
                         }
                     } catch (WebClientRequestException e1) {
                         showError("Error: Empty or Invalid Tank URL");
-                        LOG.error("Error returning response from  DataFileClient: Empty or Invalid Tank URL");
+                        LOG.error("Error: Empty or Invalid Tank URL");
                     } catch (Exception e2) {
                         showError("Error downloading datafiles: " + e2);
                     }
@@ -600,40 +600,46 @@ public class ActionProducer {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        Map<String, Integer> projectMap = projectClient.getProjectNames().entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-                        List<String> projectNames = new ArrayList<>(projectMap.keySet());
-                        SelectDialog<String> selectDialog = new SelectDialog<String>(debuggerFrame,
+                        Map<Integer, String> projectMap = projectClient.getProjectNames();
+                        Map<String, Integer> reversedProjectMap = projectMap.entrySet()
+                                .stream()
+                                .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey,
+                                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+                        List<String> projectNames = new ArrayList<>(projectMap.values());
+                        SelectDialog<String> selectDialog = new SelectDialog<>(debuggerFrame,
                                 projectNames, "project");
                         selectDialog.setVisible(true);
                         final String projectName = selectDialog.getSelectedObject();
-                        String projectId = String.valueOf(projectMap.get(projectName));
-                        ProjectTO selected = projectClient.getProject(Integer.parseInt(projectId));
-                        if (selected != null) {
-                            debuggerFrame.startWaiting();
-                            setFromString(null);
-                            // get script in thread
-                            new Thread( () -> {
-                                try {
-                                    String scriptXml = projectClient.downloadTestScriptForProject(selected
-                                            .getId());
-                                    debuggerFrame.setDataFromProject(selected);
-                                    setFromString(scriptXml);
-                                    debuggerFrame.setCurrentTitle("Selected Project: " + selected.getName());
-                                    debuggerFrame.setScriptSource(new ScriptSource(selected.getId().toString(),
-                                            SourceType.project));
-                                    debuggerFrame.stopWaiting();
-                                } catch (Exception e1) {
-                                    e1.printStackTrace();
-                                    debuggerFrame.stopWaiting();
-                                    showError("Error downloading project: " + e1);
-                                } finally {
-                                    debuggerFrame.stopWaiting();
-                                }
-                            }).start();
+                        if(reversedProjectMap.get(projectName) != null){
+                            String projectId = String.valueOf(reversedProjectMap.get(projectName));
+                            ProjectTO selected = projectClient.getProject(Integer.parseInt(projectId));
+                            if (selected != null) {
+                                debuggerFrame.startWaiting();
+                                setFromString(null);
+                                // get script in thread
+                                new Thread( () -> {
+                                    try {
+                                        String scriptXml = projectClient.downloadTestScriptForProject(selected
+                                                .getId());
+                                        debuggerFrame.setDataFromProject(selected);
+                                        setFromString(scriptXml);
+                                        debuggerFrame.setCurrentTitle("Selected Project: " + selected.getName());
+                                        debuggerFrame.setScriptSource(new ScriptSource(selected.getId().toString(),
+                                                SourceType.project));
+                                        debuggerFrame.stopWaiting();
+                                    } catch (Exception e1) {
+                                        e1.printStackTrace();
+                                        debuggerFrame.stopWaiting();
+                                        showError("Error downloading project: " + e1);
+                                    } finally {
+                                        debuggerFrame.stopWaiting();
+                                    }
+                                }).start();
+                            }
                         }
                     } catch (WebClientRequestException e1) {
                         showError("Error: Empty or Invalid Tank URL");
-                        LOG.error("Error returning response from ProjectClient: Empty or Invalid Tank URL");
+                        LOG.error("Error: Empty or Invalid Tank URL");
                     } catch (Exception e2) {
                         showError("Error downloading projects: " + e2);
                     }
