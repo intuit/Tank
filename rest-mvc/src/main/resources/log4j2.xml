@@ -9,7 +9,7 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Logger name="com.intuit.tank.rest" level="info" additivity="false">
+        <Logger name="com.intuit.tank" level="info" additivity="false">
             <AppenderRef ref="tank-api"/>
         </Logger>
         <Root level="error">
