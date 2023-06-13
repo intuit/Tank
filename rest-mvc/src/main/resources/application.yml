@@ -6,7 +6,7 @@ spring:
   main:
     banner-mode: "off"
   logging:
-    config: classpath:log4j.xml
+    config: classpath:log4j2.xml
 
 springdoc:
   swagger-ui:
