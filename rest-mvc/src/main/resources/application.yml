@@ -3,6 +3,10 @@ spring:
     use-legacy-processing: true
   codec:
     max-in-memory-size: 200MB
+  main:
+    banner-mode: "off"
+  logging:
+    config: classpath:log4j.xml
 
 springdoc:
   swagger-ui:
