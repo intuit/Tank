@@ -90,6 +90,7 @@ public class TestPlanStarter implements Runnable {
 
     public void run() {
         try {
+            int timeGrowthMarker = 0;
             // start initial users
             int numInitialUsers = agentRunData.getNumStartUsers();
             if (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
@@ -106,7 +107,8 @@ public class TestPlanStarter implements Runnable {
             while (!done) {
                 if ((threadsStarted - numInitialUsers) % agentRunData.getUserInterval() == 0) {
                     try {
-                        Thread.sleep(rampDelay);
+                        Thread.sleep(1000);
+                        timeGrowthMarker++;
                     } catch (InterruptedException e) {
                         LOG.error(LogUtil.getLogMessage("Error trying to wait for ramp", LogEventType.System), e);
                     }
@@ -147,7 +149,10 @@ public class TestPlanStarter implements Runnable {
                 }
 
                 if (threadsStarted < numThreads || activeCount < numThreads) {
-                    createThread(httpClient, this.threadsStarted);
+                    double numberOfThreadsToCreate = getLogisticNumThreads(timeGrowthMarker);
+                    for(int i = 0; i < numberOfThreadsToCreate; i++) {
+                        createThread(httpClient, threadsStarted);
+                    }
                 }
 
                 if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
@@ -226,6 +231,15 @@ public class TestPlanStarter implements Runnable {
         thread.start();
         APITestHarness.getInstance().threadStarted(thread);
         threadsStarted++;
+    }
+
+    private double getLogisticNumThreads(int time) {
+        double growthRate = 0.03;
+        long rampTimeInMilliseconds = agentRunData.getRampTimeMillis();
+        long rampTimeInSecondsMidpoint = (rampTimeInMilliseconds / 1000) / 2;
+        int numberOfUsers = agentRunData.getNumUsers();
+
+        return numberOfUsers / (1 + Math.exp(-growthRate * (time - rampTimeInSecondsMidpoint)));
     }
 
     private static <E extends RuntimeException> void throwUnchecked(Throwable t) {
