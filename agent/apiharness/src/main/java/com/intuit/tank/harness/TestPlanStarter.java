@@ -57,6 +57,7 @@ public class TestPlanStarter implements Runnable {
     private final ThreadGroup threadGroup;
     private final AgentRunData agentRunData;
     private int threadsStarted = 0;
+    private int timeInterval = 0;
     private final long rampDelay;
 
     private boolean done = false;
@@ -69,7 +70,7 @@ public class TestPlanStarter implements Runnable {
         this.numThreads = (int) Math.max(1, Math.floor(numThreads * (plan.getUserPercentage() / 100D)));
         this.threadGroup = threadGroup;
         this.agentRunData = agentRunData;
-        this.rampDelay = calcRampTime();
+        this.rampDelay = 1000;
         this.standalone = (this.numThreads == 1);
         if (!this.standalone) {
             this.cloudWatchClient = CloudWatchAsyncClient.builder().build();
@@ -107,6 +108,7 @@ public class TestPlanStarter implements Runnable {
                 if ((threadsStarted - numInitialUsers) % agentRunData.getUserInterval() == 0) {
                     try {
                         Thread.sleep(rampDelay);
+                        timeInterval++;
                     } catch (InterruptedException e) {
                         LOG.error(LogUtil.getLogMessage("Error trying to wait for ramp", LogEventType.System), e);
                     }
@@ -146,8 +148,9 @@ public class TestPlanStarter implements Runnable {
                     LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
                 }
 
-                if (threadsStarted < numThreads || activeCount < numThreads) {
-                    createThread(httpClient, this.threadsStarted);
+                for (int i = 0; i < timeInterval; i++) {
+                    createThread(httpClient, threadsStarted);
+                    LOG.info("Adding " + timeInterval + " users to " + plan.getTestPlanName() + "...");
                 }
 
                 if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
