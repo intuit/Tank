@@ -5,11 +5,6 @@
       http://xmlns.jcp.org/xml/ns/javaee
       http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd">
 
-  <absolute-ordering>
-    <name>spring_web</name> <!-- resolves duplicate spring-web fragment from tank-api -->
-    <others/>  <!-- all other fragments -->
-  </absolute-ordering>
-
   <resource-ref>
     <description>DB Connection</description>
     <res-ref-name>jdbc/watsDS</res-ref-name>

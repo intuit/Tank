@@ -30,7 +30,6 @@ agent/apiharness/settings.xml
 data_model/settings.xml
 data_access/settings.xml
 rest-mvc/settings.xml
-rest-mvc/dependency-reduced-pom.xml
 wats_common/settings.xml
 wats_vmManager/settings.xml
 web/web_support/settings.xml
