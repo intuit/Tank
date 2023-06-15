@@ -155,11 +155,12 @@ public class TestPlanStarter implements Runnable {
 
                 for (int i = 0; i < usersToAdd; i++) {
                     createThread(httpClient, threadsStarted);
+                    Thread.sleep(100);
                 }
 
-                if (timeInterval % 30 == 0) {
+                if (timeInterval % 20 == 0) {
                     LOG.info("Adding " + usersToAdd + " users to " + this.agentRunData.getInstanceId() +
-                            " for a current total of " + activeCount + " users at time interval (sec): " + timeInterval);
+                            " for a current total of " + threadsStarted + " users at time interval (sec): " + timeInterval);
                 }
 
                 if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
@@ -183,6 +184,13 @@ public class TestPlanStarter implements Runnable {
                             .metricName("targetThreads")
                             .unit(StandardUnit.COUNT)
                             .value((double) numThreads)
+                            .timestamp(timestamp)
+                            .dimensions(testPlan, instanceId, jobId)
+                            .build());
+                    datumList.add(MetricDatum.builder()
+                            .metricName("usersToAdd")
+                            .unit(StandardUnit.COUNT)
+                            .value((double)usersToAdd)
                             .timestamp(timestamp)
                             .dimensions(testPlan, instanceId, jobId)
                             .build());
