@@ -36,16 +36,16 @@ public class RestUrlBuilderTest {
 
     static Stream<Arguments> patterns() {
         return Stream.of(
-                Arguments.of("http://base.url.com/v2", "method", "parameter", "http://base.url.com/v2/method/parameter"),
-                Arguments.of("http://base.url.com/v2/", "method", "parameter", "http://base.url.com/v2/method/parameter"),
-                Arguments.of("http://base.url.com/v2/", "/method", "parameter", "http://base.url.com/v2/method/parameter"),
-                Arguments.of("http://base.url.com/v2/", "/method/", "parameter", "http://base.url.com/v2/method/parameter"),
-                Arguments.of("http://base.url.com/v2/", "/method/", "/parameter", "http://base.url.com/v2/method/parameter"),
-                Arguments.of("http://base.url.com/v2/", "/method/", "/parameter/", "http://base.url.com/v2/method/parameter/"),
-                Arguments.of("http://base.url.com/v2", "method", null, "http://base.url.com/v2/method"),
-                Arguments.of("http://base.url.com/v2", "/method", null, "http://base.url.com/v2/method"),
-                Arguments.of("http://base.url.com/v2", "/method/", null, "http://base.url.com/v2/method"),
-                Arguments.of("http://base.url.com/v2", null, null, "http://base.url.com/v2")
+                Arguments.of("http://base.url.com/rest/v1", "method", "parameter", "http://base.url.com/rest/v1/method/parameter"),
+                Arguments.of("http://base.url.com/rest/v1/", "method", "parameter", "http://base.url.com/rest/v1/method/parameter"),
+                Arguments.of("http://base.url.com/rest/v1/", "/method", "parameter", "http://base.url.com/rest/v1/method/parameter"),
+                Arguments.of("http://base.url.com/rest/v1/", "/method/", "parameter", "http://base.url.com/rest/v1/method/parameter"),
+                Arguments.of("http://base.url.com/rest/v1/", "/method/", "/parameter", "http://base.url.com/rest/v1/method/parameter"),
+                Arguments.of("http://base.url.com/rest/v1/", "/method/", "/parameter/", "http://base.url.com/rest/v1/method/parameter/"),
+                Arguments.of("http://base.url.com/rest/v1", "method", null, "http://base.url.com/rest/v1/method"),
+                Arguments.of("http://base.url.com/rest/v1", "/method", null, "http://base.url.com/rest/v1/method"),
+                Arguments.of("http://base.url.com/rest/v1", "/method/", null, "http://base.url.com/rest/v1/method"),
+                Arguments.of("http://base.url.com/rest/v1", null, null, "http://base.url.com/rest/v1")
         );
     }
 
