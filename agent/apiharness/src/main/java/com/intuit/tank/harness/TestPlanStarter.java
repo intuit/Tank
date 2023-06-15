@@ -58,6 +58,7 @@ public class TestPlanStarter implements Runnable {
     private final AgentRunData agentRunData;
     private int threadsStarted = 0;
     private int timeInterval = 0;
+    private int usersToAdd = 0;
     private final long rampDelay;
 
     private boolean done = false;
@@ -148,9 +149,17 @@ public class TestPlanStarter implements Runnable {
                     LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
                 }
 
-                for (int i = 0; i < timeInterval; i++) {
+                if (usersToAdd < 40){
+                    usersToAdd = rampFunction();
+                }
+
+                for (int i = 0; i < usersToAdd; i++) {
                     createThread(httpClient, threadsStarted);
-                    LOG.info("Adding " + timeInterval + " users to " + plan.getTestPlanName() + "...");
+                }
+
+                if (timeInterval % 30 == 0) {
+                    LOG.info("Adding " + usersToAdd + " users to " + this.agentRunData.getInstanceId() +
+                            " for a current total of " + activeCount + " users at time interval (sec): " + timeInterval);
                 }
 
                 if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
@@ -207,6 +216,12 @@ public class TestPlanStarter implements Runnable {
 
     public boolean isDone() {
         return done;
+    }
+
+    public int rampFunction() {
+        // uses linear function to ramp up to 40 users/second over 5 minutes
+        double slowRampRate = (2.0 / 15.0);
+        return (int) Math.round((slowRampRate * timeInterval));
     }
 
     private long calcRampTime() {
