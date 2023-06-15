@@ -36,6 +36,7 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -51,6 +52,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509KeyManager;
 import javax.security.auth.x500.X500Principal;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.owasp.proxy.util.Base64;
 import org.owasp.proxy.util.BouncyCastleCertificateUtils;
 
@@ -142,6 +144,7 @@ public class AutoGeneratingContextSelector implements SSLContextSelector {
 
     private void create(X500Principal caName) throws GeneralSecurityException,
             IOException {
+        Security.addProvider(new BouncyCastleProvider());
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048, new SecureRandom());
         KeyPair caPair = keyGen.generateKeyPair();
