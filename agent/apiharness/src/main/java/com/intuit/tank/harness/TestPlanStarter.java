@@ -129,9 +129,9 @@ public class TestPlanStarter implements Runnable {
                 if ( APITestHarness.getInstance().getCmd() == AgentCommand.stop
                         || APITestHarness.getInstance().getCmd() == AgentCommand.kill
                         || APITestHarness.getInstance().hasMetSimulationTime()
-                        || APITestHarness.getInstance().isDebug()
-                        || (agentRunData.getSimulationTimeMillis() == 0 //Run Until: Loops Completed
-                            && System.currentTimeMillis() - APITestHarness.getInstance().getStartTime() > agentRunData.getRampTimeMillis())) {
+                        || APITestHarness.getInstance().isDebug()) {
+//                        || (agentRunData.getSimulationTimeMillis() == 0 //Run Until: Loops Completed   -> ramp time should be ignored
+//                            && System.currentTimeMillis() - APITestHarness.getInstance().getStartTime() > agentRunData.getRampTimeMillis())) {
                     done = true;
                     break;
                 }
@@ -154,8 +154,7 @@ public class TestPlanStarter implements Runnable {
                 }
 
                 for (int i = 0; i < usersToAdd; i++) {
-                    createThread(httpClient, threadsStarted);
-                    Thread.sleep(100);
+                    createThread(httpClient, threadsStarted); // should be able to spin up threads one by one
                 }
 
                 if (timeInterval % 20 == 0) {
