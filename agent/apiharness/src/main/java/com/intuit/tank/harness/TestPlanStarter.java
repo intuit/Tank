@@ -129,9 +129,9 @@ public class TestPlanStarter implements Runnable {
                 if ( APITestHarness.getInstance().getCmd() == AgentCommand.stop
                         || APITestHarness.getInstance().getCmd() == AgentCommand.kill
                         || APITestHarness.getInstance().hasMetSimulationTime()
-                        || APITestHarness.getInstance().isDebug()) {
-//                        || (agentRunData.getSimulationTimeMillis() == 0 //Run Until: Loops Completed   -> ramp time should be ignored
-//                            && System.currentTimeMillis() - APITestHarness.getInstance().getStartTime() > agentRunData.getRampTimeMillis())) {
+                        || APITestHarness.getInstance().isDebug()
+                        || (agentRunData.getSimulationTimeMillis() == 0 //Run Until: Loops Completed
+                            && System.currentTimeMillis() - APITestHarness.getInstance().getStartTime() > agentRunData.getRampTimeMillis())) {
                     done = true;
                     break;
                 }
@@ -149,7 +149,7 @@ public class TestPlanStarter implements Runnable {
                     LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
                 }
 
-                if (usersToAdd < 40){
+                if (timeInterval <= 900){
                     usersToAdd = rampFunction();
                 }
 
@@ -227,7 +227,7 @@ public class TestPlanStarter implements Runnable {
 
     public int rampFunction() {
         // uses linear function to ramp up to 40 users/second over 5 minutes
-        double slowRampRate = (2.0 / 15.0);
+        double slowRampRate = (1.0 / 36.0);
         return (int) Math.round((slowRampRate * timeInterval));
     }
 
