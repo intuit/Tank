@@ -14,6 +14,7 @@ package com.intuit.tank.harness;
  */
 
 import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,6 +28,7 @@ public class AgentRunData {
 
     private int numUsers = 1;
     private long rampTime = 0;
+    private IncrementStrategy incrementStrategy = IncrementStrategy.increasing;
     private int numStartUsers = 1;
     private int userInterval = 1;
     private String testPlans = "";
@@ -70,6 +72,19 @@ public class AgentRunData {
      */
     public void setRampTimeMillis(long rampTime) {
         this.rampTime = rampTime;
+    }
+
+    /**
+     * @return the incrementStrategy
+     */
+    public IncrementStrategy getIncrementStrategy() { return incrementStrategy; }
+
+    /**
+     * @param incrementStrategy
+     *            the incrementStrategy to set
+     */
+    public void setIncrementStrategy(IncrementStrategy incrementStrategy) {
+        this.incrementStrategy = incrementStrategy;
     }
 
     /**

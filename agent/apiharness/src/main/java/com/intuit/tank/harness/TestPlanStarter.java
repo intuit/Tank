@@ -15,6 +15,7 @@ package com.intuit.tank.harness;
 
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.runner.TestPlanRunner;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -71,7 +72,7 @@ public class TestPlanStarter implements Runnable {
         this.numThreads = (int) Math.max(1, Math.floor(numThreads * (plan.getUserPercentage() / 100D)));
         this.threadGroup = threadGroup;
         this.agentRunData = agentRunData;
-        this.rampDelay = 1000;
+        this.rampDelay = calcRampTime();
         this.standalone = (this.numThreads == 1);
         if (!this.standalone) {
             this.cloudWatchClient = CloudWatchAsyncClient.builder().build();
@@ -109,7 +110,7 @@ public class TestPlanStarter implements Runnable {
                 if ((threadsStarted - numInitialUsers) % agentRunData.getUserInterval() == 0) {
                     try {
                         Thread.sleep(rampDelay);
-                        timeInterval++;
+                        timeInterval++; // used by nonlinear increment strategy
                     } catch (InterruptedException e) {
                         LOG.error(LogUtil.getLogMessage("Error trying to wait for ramp", LogEventType.System), e);
                     }
@@ -149,17 +150,17 @@ public class TestPlanStarter implements Runnable {
                     LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
                 }
 
-                if (timeInterval <= 900){
-                    usersToAdd = rampFunction();
-                }
-
-                for (int i = 0; i < usersToAdd; i++) {
-                    createThread(httpClient, threadsStarted); // should be able to spin up threads one by one
-                }
-
-                if (timeInterval % 20 == 0) {
-                    LOG.info("Adding " + usersToAdd + " users to " + this.agentRunData.getInstanceId() +
-                            " for a current total of " + threadsStarted + " users at time interval (sec): " + timeInterval);
+                if (agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                    if (threadsStarted < numThreads || activeCount < numThreads) {
+                        createThread(httpClient, this.threadsStarted);
+                    }
+                } else { // non-linear ramp
+                    if (timeInterval <= 900){
+                        usersToAdd = rampFunction();
+                    }
+                    for (int i = 0; i < usersToAdd; i++) {
+                        createThread(httpClient, threadsStarted);
+                    }
                 }
 
                 if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
@@ -232,15 +233,19 @@ public class TestPlanStarter implements Runnable {
     }
 
     private long calcRampTime() {
-        int ramp = (numThreads - agentRunData.getNumStartUsers());
-        if (ramp > 0) {
-            return (agentRunData.getRampTimeMillis() *
-                    agentRunData.getUserInterval())
-                    / ramp;
-        } else if (agentRunData.getRampTimeMillis() > 0) {
-            LOG.info(LogUtil.getLogMessage("No Ramp - " + rampDelay, LogEventType.System));
+        if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+            int ramp = (numThreads - agentRunData.getNumStartUsers());
+            if (ramp > 0) {
+                return (agentRunData.getRampTimeMillis() *
+                        agentRunData.getUserInterval())
+                        / ramp;
+            } else if (agentRunData.getRampTimeMillis() > 0) {
+                LOG.info(LogUtil.getLogMessage("No Ramp - " + rampDelay, LogEventType.System));
+            }
+            return 1; //Return minimum wait time 1 millisecond
+        } else {
+            return 1000; // X users per second for nonlinear ramp
         }
-        return 1; //Return minimum wait time 1 millisecond
     }
 
     private void createThread(Object httpClient, int threadNumber) {

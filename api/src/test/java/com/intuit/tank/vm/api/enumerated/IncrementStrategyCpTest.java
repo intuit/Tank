@@ -39,6 +39,16 @@ public class IncrementStrategyCpTest {
 
         String result = fixture.getDisplay();
 
-        assertEquals("Increasing", result);
+        assertEquals("Linear", result);
+    }
+
+    @Test
+    public void testGetDisplay_2()
+            throws Exception {
+        IncrementStrategy fixture = IncrementStrategy.standard;
+
+        String result = fixture.getDisplay();
+
+        assertEquals("Nonlinear", result);
     }
 }

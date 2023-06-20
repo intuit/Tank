@@ -307,6 +307,7 @@ public class APITestHarness {
             agentRunData.setNumStartUsers(startData.getStartUsers());
             agentRunData.setRampTimeMillis(startData.getRampTime());
             agentRunData.setJobId(startData.getJobId());
+            agentRunData.setIncrementStrategy(startData.getIncrementStrategy());
             agentRunData.setUserInterval(startData.getUserIntervalIncrement());
             agentRunData.setSimulationTimeMillis(startData.getSimulationTime());
             agentRunData.setAgentInstanceNum(startData.getAgentInstanceNum());

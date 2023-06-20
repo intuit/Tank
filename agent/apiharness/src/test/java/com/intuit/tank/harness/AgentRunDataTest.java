@@ -14,6 +14,7 @@ package com.intuit.tank.harness;
  */
 
 import org.junit.jupiter.api.*;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -994,6 +995,35 @@ public class AgentRunDataTest {
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.AgentRunData
+    }
+
+    /**
+     * Test IncrementStrategy getter and setter for all values
+     */
+    @Test
+    public void testIncrementStrategy_1()
+            throws Exception {
+        AgentRunData fixture = new AgentRunData();
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
+        fixture.setNumStartUsers(1);
+        fixture.setJobId("");
+        fixture.setProjectName("");
+        fixture.setNumUsers(1);
+        fixture.setTotalAgents(1);
+        fixture.setMachineName("");
+        fixture.setStopBehavior(StopBehavior.END_OF_SCRIPT);
+        fixture.setAgentInstanceNum(1);
+        fixture.setActiveProfile(LoggingProfile.STANDARD);
+        fixture.setReportingMode("");
+        fixture.setInstanceId("");
+        fixture.setTestPlans("");
+
+        fixture.setIncrementStrategy(IncrementStrategy.increasing);
+        assertEquals(IncrementStrategy.increasing, fixture.getIncrementStrategy());
+
+        fixture.setIncrementStrategy(IncrementStrategy.standard);
+        assertEquals(IncrementStrategy.standard, fixture.getIncrementStrategy());
     }
 
     /**

@@ -21,6 +21,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 @XmlRootElement(name = "agentTestStartData", namespace = Namespace.NAMESPACE_V1)
@@ -31,6 +32,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
         "jobId",
         "simulationTime",
         "startUsers",
+        "incrementStrategy",
         "userIntervalIncrement",
         "agentInstanceNum",
         "totalAgents",
@@ -58,6 +60,9 @@ public class AgentTestStartData implements Serializable {
 
     @XmlElement(name = "startUsers", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int startUsers;
+
+    @XmlElement(name = "incrementStrategy", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
+    private IncrementStrategy incrementStrategy = IncrementStrategy.increasing;
 
     @XmlElement(name = "userIntervalIncrement", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int userIntervalIncrement;
@@ -87,6 +92,7 @@ public class AgentTestStartData implements Serializable {
         this.jobId = copy.jobId;
         this.simulationTime = copy.simulationTime;
         this.startUsers = copy.startUsers;
+        this.incrementStrategy = copy.incrementStrategy;
         this.userIntervalIncrement = copy.userIntervalIncrement;
         this.agentInstanceNum = copy.agentInstanceNum;
         this.totalAgents = copy.totalAgents;
@@ -168,6 +174,14 @@ public class AgentTestStartData implements Serializable {
 
     public void setStartUsers(int start) {
         this.startUsers = start;
+    }
+
+    public void setIncrementStrategy(IncrementStrategy incrementStrategy) {
+        this.incrementStrategy = incrementStrategy;
+    }
+
+    public IncrementStrategy getIncrementStrategy() {
+        return incrementStrategy;
     }
 
     public void setUserIntervalIncrement(int userIntervalIncrement) {

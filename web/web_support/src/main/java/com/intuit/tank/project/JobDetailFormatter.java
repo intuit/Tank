@@ -90,7 +90,7 @@ public class JobDetailFormatter {
                     : proposedJobInstance.getName(), StringUtils.isBlank(proposedJobInstance.getName()) ? "error"
                     : null);
             addProperty(sb, "Creator", proposedJobInstance.getCreator());
-            addProperty(sb, "Workload Type", proposedJobInstance.getIncrementStrategy().name());
+            addProperty(sb, "Workload Type", proposedJobInstance.getIncrementStrategy().getDisplay());
             addProperty(sb, "Tank Http Client", config.getAgentConfig().getTankClientName(proposedJobInstance.getTankClientClass()));
             addProperty(sb, "Agent VM Type", getVmDetails(config, proposedJobInstance.getVmInstanceType()));
             addProperty(sb, "Assign Elastic Ips", Boolean.toString(proposedJobInstance.isUseEips()));
