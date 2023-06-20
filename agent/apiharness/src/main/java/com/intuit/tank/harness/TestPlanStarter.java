@@ -60,6 +60,17 @@ public class TestPlanStarter implements Runnable {
     private int threadsStarted = 0;
     private int timeInterval = 0;
     private int usersToAdd = 0;
+
+    private final long rampTimeSeconds;
+
+    private final double rampStartRate;
+
+    private final double rampEndRate;
+
+    private final int constantRate;
+
+    private double accumulatedError;
+
     private final long rampDelay;
 
     private boolean done = false;
@@ -73,6 +84,11 @@ public class TestPlanStarter implements Runnable {
         this.threadGroup = threadGroup;
         this.agentRunData = agentRunData;
         this.rampDelay = calcRampTime();
+        this.rampTimeSeconds = agentRunData.getRampTimeMillis() / 1000;
+        this.rampStartRate = 0;
+        this.rampEndRate = 500;
+        this.constantRate = 0; // test steady state
+        this.accumulatedError = 0.0;
         this.standalone = (this.numThreads == 1);
         if (!this.standalone) {
             this.cloudWatchClient = CloudWatchAsyncClient.builder().build();
@@ -93,6 +109,17 @@ public class TestPlanStarter implements Runnable {
 
     public void run() {
         try {
+            LOG.info(LogUtil.getLogMessage("Workload Type for Agent " + agentRunData.getInstanceId()
+                                                    + " running on Job " + agentRunData.getJobId() + ": " + agentRunData.getIncrementStrategy().getDisplay()));
+            if (agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)) {
+                LOG.info(LogUtil.getLogMessage("Nonlinear Workload Settings: " +
+                                                                "User Ramp Start Rate: " + this.rampStartRate + " users/second, " +
+                                                                "User Ramp End Rate: " + this.rampEndRate + " users/second, " +
+                                                                "Constant User Rate: " + this.constantRate + " users/second, " +
+                                                                "Ramp Time (seconds): " + this.rampTimeSeconds +
+                                                                "Simulation Time (seconds): " + (agentRunData.getSimulationTimeMillis() / 1000)));
+
+            }
             // start initial users
             int numInitialUsers = agentRunData.getNumStartUsers();
             if (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
@@ -155,11 +182,16 @@ public class TestPlanStarter implements Runnable {
                         createThread(httpClient, this.threadsStarted);
                     }
                 } else { // non-linear ramp
-                    if (timeInterval <= 900){
-                        usersToAdd = rampFunction();
+                    if (timeInterval <= rampTimeSeconds) {
+                        usersToAdd = rampFunction(timeInterval);
+                    } else {
+                        usersToAdd = constantRate;
                     }
                     for (int i = 0; i < usersToAdd; i++) {
-                        createThread(httpClient, threadsStarted);
+                        createThread(httpClient, this.threadsStarted);
+                    }
+                    if(timeInterval == rampTimeSeconds){
+                        LOG.info(LogUtil.getLogMessage("Nonlinear: Ramp Complete, starting constant rate of " + constantRate + " users per second"));
                     }
                 }
 
@@ -226,10 +258,15 @@ public class TestPlanStarter implements Runnable {
         return done;
     }
 
-    public int rampFunction() {
-        // uses linear function to ramp up to 40 users/second over 5 minutes
-        double slowRampRate = (1.0 / 36.0);
-        return (int) Math.round((slowRampRate * timeInterval));
+    public int rampFunction(int currentTimeInterval){
+        // y(t) = startRate + ((endRate - startRate) / rampTime)) * t (w/ error accumulation due to rounding)
+        double rateOfChange = (rampEndRate - rampStartRate) / rampTimeSeconds;
+        double exactRate =  (rampStartRate + (rateOfChange * currentTimeInterval)) + accumulatedError;
+
+        int roundedRate = (int) Math.round(exactRate);
+        accumulatedError = exactRate - roundedRate; // save error for next iteration
+
+        return roundedRate;
     }
 
     private long calcRampTime() {
