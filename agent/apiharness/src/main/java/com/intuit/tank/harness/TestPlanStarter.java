@@ -84,10 +84,10 @@ public class TestPlanStarter implements Runnable {
         this.threadGroup = threadGroup;
         this.agentRunData = agentRunData;
         this.rampDelay = calcRampTime();
-        this.rampTimeSeconds = agentRunData.getRampTimeMillis() / 1000;
+        this.rampTimeSeconds = (agentRunData.getRampTimeMillis() / 1000);
         this.rampStartRate = 0;
-        this.rampEndRate = 500;
-        this.constantRate = 0; // test steady state
+        this.rampEndRate = 10;
+        this.constantRate = 10; // steady state ramp rate
         this.accumulatedError = 0.0;
         this.standalone = (this.numThreads == 1);
         if (!this.standalone) {
@@ -116,7 +116,7 @@ public class TestPlanStarter implements Runnable {
                                                                 "User Ramp Start Rate: " + this.rampStartRate + " users/second, " +
                                                                 "User Ramp End Rate: " + this.rampEndRate + " users/second, " +
                                                                 "Constant User Rate: " + this.constantRate + " users/second, " +
-                                                                "Ramp Time (seconds): " + this.rampTimeSeconds +
+                                                                "Ramp Time (seconds): " + this.rampTimeSeconds + "seconds, " +
                                                                 "Simulation Time (seconds): " + (agentRunData.getSimulationTimeMillis() / 1000)));
 
             }
