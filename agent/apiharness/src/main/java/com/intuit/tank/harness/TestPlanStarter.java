@@ -87,7 +87,7 @@ public class TestPlanStarter implements Runnable {
         this.rampTimeSeconds = (agentRunData.getRampTimeMillis() / 1000);
         this.rampStartRate = 0;
         this.rampEndRate = 10;
-        this.constantRate = 10; // steady state ramp rate
+        this.constantRate = 0; // steady state ramp rate
         this.accumulatedError = 0.0;
         this.standalone = (this.numThreads == 1);
         if (!this.standalone) {
