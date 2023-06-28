@@ -30,13 +30,13 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
-import com.intuit.tank.api.model.v1.script.ExternalScriptContainer;
-import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
-import com.intuit.tank.api.model.v1.script.ScriptDescription;
-import com.intuit.tank.api.model.v1.script.ScriptDescriptionContainer;
-import com.intuit.tank.api.model.v1.script.ScriptFilterRequest;
-import com.intuit.tank.api.model.v1.script.ScriptStepContainer;
-import com.intuit.tank.api.model.v1.script.ScriptTO;
+import com.intuit.tank.script.ExternalScriptContainer;
+import com.intuit.tank.script.ExternalScriptTO;
+import com.intuit.tank.script.ScriptDescription;
+import com.intuit.tank.script.ScriptDescriptionContainer;
+import com.intuit.tank.script.ScriptFilterRequest;
+import com.intuit.tank.script.ScriptStepContainer;
+import com.intuit.tank.script.ScriptTO;
 import com.webcohesion.enunciate.metadata.rs.ResponseCode;
 import com.webcohesion.enunciate.metadata.rs.StatusCodes;
 import com.webcohesion.enunciate.metadata.rs.TypeHint;

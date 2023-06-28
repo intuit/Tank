@@ -13,7 +13,7 @@ import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptTO;
+import com.intuit.tank.script.ScriptTO;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 
 import com.amazonaws.xray.AWSXRay;

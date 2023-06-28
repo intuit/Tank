@@ -26,8 +26,8 @@ import javax.ws.rs.core.Response;
 
 import com.intuit.tank.test.TestGroups;
 
-import com.intuit.tank.api.model.v1.script.ScriptDescription;
-import com.intuit.tank.api.model.v1.script.ScriptDescriptionContainer;
+import com.intuit.tank.script.ScriptDescription;
+import com.intuit.tank.script.ScriptDescriptionContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;

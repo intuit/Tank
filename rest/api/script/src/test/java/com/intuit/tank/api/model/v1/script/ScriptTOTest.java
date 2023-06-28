@@ -20,8 +20,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.api.model.v1.script.ScriptStepTO;
-import com.intuit.tank.api.model.v1.script.ScriptTO;
+import com.intuit.tank.script.ScriptStepTO;
+import com.intuit.tank.script.ScriptTO;
 
 import static org.junit.jupiter.api.Assertions.*;
 

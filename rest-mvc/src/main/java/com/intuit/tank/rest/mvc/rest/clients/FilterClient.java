@@ -9,11 +9,9 @@ package com.intuit.tank.rest.mvc.rest.clients;
 
 import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.filters.*;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptTO;
+import com.intuit.tank.script.ScriptTO;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
-
-import java.util.Map;
 
 public class FilterClient extends BaseClient{
 

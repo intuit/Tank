@@ -5,16 +5,14 @@
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
  */
-package com.intuit.tank.rest.mvc.rest.models.scripts;
+package com.intuit.tank.script;
 
 import javax.xml.bind.annotation.*;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-@XmlRootElement(name = "script", namespace = Namespace.NAMESPACE_V1)
+@XmlRootElement(name = "scriptDescription", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ScriptTO", namespace = Namespace.NAMESPACE_V1, propOrder = {
+@XmlType(name = "ScriptDescription", namespace = Namespace.NAMESPACE_V1, propOrder = {
         "id",
         "created",
         "modified",
@@ -22,10 +20,9 @@ import java.util.List;
         "name",
         "runtime",
         "productName",
-        "comments",
-        "steps"
+        "comments"
 })
-public class ScriptTO {
+public class ScriptDescription {
 
     @XmlElement(name = "id", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private Integer id;
@@ -51,138 +48,133 @@ public class ScriptTO {
     @XmlElement(name = "comments", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private String comments;
 
-    @XmlElementWrapper(name = "steps", namespace = Namespace.NAMESPACE_V1)
-    @XmlElement(name = "step", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<ScriptStepTO> steps = new ArrayList<ScriptStepTO>();
-
-    public ScriptTO() {
+    public ScriptDescription() {
 
     }
 
     /**
-     * {@inheritDoc}
+     * @return the id
      */
     public Integer getId() {
         return id;
     }
 
     /**
-     * {@inheritDoc}
+     * @param id
+     *            the id to set
      */
     public void setId(Integer id) {
         this.id = id;
     }
 
     /**
-     * {@inheritDoc}
+     * @return the created
      */
     public Date getCreated() {
         return created;
     }
 
     /**
-     * {@inheritDoc}
+     * @param created
+     *            the created to set
      */
     public void setCreated(Date created) {
         this.created = created;
     }
 
     /**
-     * {@inheritDoc}
+     * @return the modified
      */
     public Date getModified() {
         return modified;
     }
 
     /**
-     * {@inheritDoc}
+     * @param modified
+     *            the modified to set
      */
     public void setModified(Date modified) {
         this.modified = modified;
     }
 
     /**
-     * {@inheritDoc}
+     * @return the creator
      */
     public String getCreator() {
         return creator;
     }
 
     /**
-     * {@inheritDoc}
+     * @param creator
+     *            the creator to set
      */
     public void setCreator(String creator) {
         this.creator = creator;
     }
 
     /**
-     * {@inheritDoc}
+     * @return the name
      */
     public String getName() {
         return name;
     }
 
     /**
-     * {@inheritDoc}
+     * @param name
+     *            the name to set
      */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-     * {@inheritDoc}
+     * @return the runtime
      */
     public int getRuntime() {
         return runtime;
     }
 
     /**
-     * {@inheritDoc}
+     * @param runtime
+     *            the runtime to set
      */
     public void setRuntime(int runtime) {
         this.runtime = runtime;
     }
 
     /**
-     * {@inheritDoc}
+     * @return the productName
      */
     public String getProductName() {
         return productName;
     }
 
     /**
-     * {@inheritDoc}
+     * @param productName
+     *            the productName to set
      */
     public void setProductName(String productName) {
         this.productName = productName;
     }
 
     /**
-     * {@inheritDoc}
+     * @return the comments
      */
     public String getComments() {
         return comments;
     }
 
     /**
-     * {@inheritDoc}
+     * @param comments
+     *            the comments to set
      */
     public void setComments(String comments) {
         this.comments = comments;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public List<ScriptStepTO> getSteps() {
-        return steps;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setSteps(List<ScriptStepTO> steps) {
-        this.steps = steps;
+    @Override
+    public String toString() {
+        return name;
     }
 
 }

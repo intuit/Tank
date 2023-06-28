@@ -5,29 +5,30 @@
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
  */
-package com.intuit.tank.rest.mvc.rest.models.scripts;
+package com.intuit.tank.script;
 
 import javax.xml.bind.annotation.*;
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-@XmlRootElement(name = "externalScript", namespace = Namespace.NAMESPACE_V1)
+@XmlRootElement(name = "script", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ExternalScriptTO", namespace = Namespace.NAMESPACE_V1, propOrder = {
+@XmlType(name = "ScriptTO", namespace = Namespace.NAMESPACE_V1, propOrder = {
         "id",
         "created",
         "modified",
         "creator",
         "name",
+        "runtime",
         "productName",
-        "script"
+        "comments",
+        "steps"
 })
-public class ExternalScriptTO implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class ScriptTO {
 
     @XmlElement(name = "id", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private int id;
+    private Integer id;
 
     @XmlElement(name = "created", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private Date created;
@@ -41,123 +42,147 @@ public class ExternalScriptTO implements Serializable {
     @XmlElement(name = "name", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private String name;
 
+    @XmlElement(name = "runtime", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private int runtime;
+
     @XmlElement(name = "productName", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private String productName;
 
-    @XmlElement(name = "script", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private String script;
+    @XmlElement(name = "comments", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private String comments;
+
+    @XmlElementWrapper(name = "steps", namespace = Namespace.NAMESPACE_V1)
+    @XmlElement(name = "step", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private List<ScriptStepTO> steps = new ArrayList<ScriptStepTO>();
+
+    public ScriptTO() {
+
+    }
 
     /**
-     * @return the id
+     * {@inheritDoc}
      */
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
     /**
-     * @param id
-     *            the id to set
+     * {@inheritDoc}
      */
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
     /**
-     * @return the created
+     * {@inheritDoc}
      */
     public Date getCreated() {
         return created;
     }
 
     /**
-     * @param created
-     *            the created to set
+     * {@inheritDoc}
      */
     public void setCreated(Date created) {
         this.created = created;
     }
 
     /**
-     * @return the modified
+     * {@inheritDoc}
      */
     public Date getModified() {
         return modified;
     }
 
     /**
-     * @param modified
-     *            the modified to set
+     * {@inheritDoc}
      */
     public void setModified(Date modified) {
         this.modified = modified;
     }
 
     /**
-     * @return the creator
+     * {@inheritDoc}
      */
     public String getCreator() {
         return creator;
     }
 
     /**
-     * @param creator
-     *            the creator to set
+     * {@inheritDoc}
      */
     public void setCreator(String creator) {
         this.creator = creator;
     }
 
     /**
-     * @return the name
+     * {@inheritDoc}
      */
     public String getName() {
         return name;
     }
 
     /**
-     * @param name
-     *            the name to set
+     * {@inheritDoc}
      */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-     * @return the productName
+     * {@inheritDoc}
+     */
+    public int getRuntime() {
+        return runtime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setRuntime(int runtime) {
+        this.runtime = runtime;
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public String getProductName() {
         return productName;
     }
 
     /**
-     * @param productName
-     *            the productName to set
+     * {@inheritDoc}
      */
     public void setProductName(String productName) {
         this.productName = productName;
     }
 
     /**
-     * @return the script
+     * {@inheritDoc}
      */
-    public String getScript() {
-        return script;
-    }
-
-    /**
-     * @param script
-     *            the script to set
-     */
-    public void setScript(String script) {
-        this.script = script;
+    public String getComments() {
+        return comments;
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public String toString() {
-        return name + " (id=" + id + ")";
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<ScriptStepTO> getSteps() {
+        return steps;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setSteps(List<ScriptStepTO> steps) {
+        this.steps = steps;
     }
 
 }

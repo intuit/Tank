@@ -34,7 +34,7 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.file.UploadedFile;
 
 import com.intuit.tank.ModifiedScriptMessage;
-import com.intuit.tank.api.model.v1.script.ScriptTO;
+import com.intuit.tank.script.ScriptTO;
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.project.Script;

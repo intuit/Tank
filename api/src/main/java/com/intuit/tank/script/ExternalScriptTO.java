@@ -5,27 +5,29 @@
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
  */
-package com.intuit.tank.rest.mvc.rest.models.scripts;
+package com.intuit.tank.script;
 
 import javax.xml.bind.annotation.*;
+import java.io.Serializable;
 import java.util.Date;
 
-@XmlRootElement(name = "scriptDescription", namespace = Namespace.NAMESPACE_V1)
+@XmlRootElement(name = "externalScript", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ScriptDescription", namespace = Namespace.NAMESPACE_V1, propOrder = {
+@XmlType(name = "ExternalScriptTO", namespace = Namespace.NAMESPACE_V1, propOrder = {
         "id",
         "created",
         "modified",
         "creator",
         "name",
-        "runtime",
         "productName",
-        "comments"
+        "script"
 })
-public class ScriptDescription {
+public class ExternalScriptTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @XmlElement(name = "id", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private Integer id;
+    private int id;
 
     @XmlElement(name = "created", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private Date created;
@@ -39,23 +41,16 @@ public class ScriptDescription {
     @XmlElement(name = "name", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private String name;
 
-    @XmlElement(name = "runtime", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private int runtime;
-
     @XmlElement(name = "productName", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private String productName;
 
-    @XmlElement(name = "comments", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private String comments;
-
-    public ScriptDescription() {
-
-    }
+    @XmlElement(name = "script", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private String script;
 
     /**
      * @return the id
      */
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
@@ -63,7 +58,7 @@ public class ScriptDescription {
      * @param id
      *            the id to set
      */
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -128,21 +123,6 @@ public class ScriptDescription {
     }
 
     /**
-     * @return the runtime
-     */
-    public int getRuntime() {
-        return runtime;
-    }
-
-    /**
-     * @param runtime
-     *            the runtime to set
-     */
-    public void setRuntime(int runtime) {
-        this.runtime = runtime;
-    }
-
-    /**
      * @return the productName
      */
     public String getProductName() {
@@ -158,23 +138,26 @@ public class ScriptDescription {
     }
 
     /**
-     * @return the comments
+     * @return the script
      */
-    public String getComments() {
-        return comments;
+    public String getScript() {
+        return script;
     }
 
     /**
-     * @param comments
-     *            the comments to set
+     * @param script
+     *            the script to set
      */
-    public void setComments(String comments) {
-        this.comments = comments;
+    public void setScript(String script) {
+        this.script = script;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
-        return name;
+        return name + " (id=" + id + ")";
     }
 
 }

@@ -31,8 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.api.model.v1.script.ScriptStepTO;
-import com.intuit.tank.api.model.v1.script.ScriptTO;
+import com.intuit.tank.script.ScriptStepTO;
+import com.intuit.tank.script.ScriptTO;
 import com.intuit.tank.dao.ExternalScriptDao;
 import com.intuit.tank.dao.ScriptFilterDao;
 import com.intuit.tank.project.ExternalScript;

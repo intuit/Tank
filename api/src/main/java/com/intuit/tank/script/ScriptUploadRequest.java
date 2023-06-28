@@ -5,7 +5,7 @@
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
  */
-package com.intuit.tank.rest.mvc.rest.models.scripts;
+package com.intuit.tank.script;
 
 import javax.xml.bind.annotation.*;
 import java.util.List;

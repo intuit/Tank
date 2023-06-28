@@ -10,7 +10,7 @@ package com.intuit.tank.rest.mvc.rest.clients;
 import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptorContainer;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptTO;
+import com.intuit.tank.script.ExternalScriptTO;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.buffer.DataBuffer;

@@ -58,8 +58,8 @@ import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinition;
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
 import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptDescription;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptDescriptionContainer;
+import com.intuit.tank.script.ScriptDescription;
+import com.intuit.tank.script.ScriptDescriptionContainer;
 import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.tools.debugger.FindReplaceDialog.DialogType;
 
