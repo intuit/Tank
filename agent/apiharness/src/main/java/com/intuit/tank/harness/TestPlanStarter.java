@@ -189,6 +189,7 @@ public class TestPlanStarter implements Runnable {
                     }
                     for (int i = 0; i < usersToAdd; i++) {
                         createThread(httpClient, this.threadsStarted);
+                        Thread.sleep(1000/usersToAdd); // Distribute threads evenly over one second
                     }
                     if(timeInterval == rampTimeSeconds){
                         LOG.info(LogUtil.getLogMessage("Nonlinear: Ramp Complete, starting constant rate of " + constantRate + " users per second"));
