@@ -11,7 +11,7 @@ import com.intuit.tank.project.ExternalScript;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.rest.mvc.rest.models.scripts.*;
+import com.intuit.tank.api.model.v1.script.*;
 import com.intuit.tank.script.RequestDataPhase;
 
 import org.apache.logging.log4j.LogManager;

@@ -7,11 +7,11 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers;
 
-import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptContainer;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptTO;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptDescription;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptDescriptionContainer;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptTO;
+import com.intuit.tank.api.model.v1.script.ExternalScriptContainer;
+import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
+import com.intuit.tank.api.model.v1.script.ScriptDescription;
+import com.intuit.tank.api.model.v1.script.ScriptDescriptionContainer;
+import com.intuit.tank.api.model.v1.script.ScriptTO;
 import com.intuit.tank.rest.mvc.rest.services.scripts.ScriptServiceV2;
 
 import io.swagger.v3.oas.annotations.Operation;

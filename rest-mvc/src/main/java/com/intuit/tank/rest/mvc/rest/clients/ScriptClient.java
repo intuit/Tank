@@ -8,10 +8,10 @@
 package com.intuit.tank.rest.mvc.rest.clients;
 
 import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptContainer;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptTO;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptDescriptionContainer;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptTO;
+import com.intuit.tank.api.model.v1.script.ExternalScriptContainer;
+import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
+import com.intuit.tank.api.model.v1.script.ScriptDescriptionContainer;
+import com.intuit.tank.api.model.v1.script.ScriptTO;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
