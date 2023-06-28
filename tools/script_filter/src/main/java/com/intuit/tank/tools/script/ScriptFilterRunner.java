@@ -55,8 +55,8 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.intuit.tank.script.ExternalScriptTO;
-import com.intuit.tank.script.ScriptTO;
+import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptTO;
+import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptTO;
 import com.intuit.tank.rest.mvc.rest.clients.ScriptClient;
 import com.intuit.tank.tools.script.ScriptRunner;
 

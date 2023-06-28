@@ -18,7 +18,7 @@ import java.util.Date;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.script.ScriptDescription;
+import com.intuit.tank.api.model.v1.script.ScriptDescription;
 
 import static org.junit.jupiter.api.Assertions.*;
 

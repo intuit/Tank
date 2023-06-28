@@ -18,8 +18,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.script.ScriptDescription;
-import com.intuit.tank.script.ScriptDescriptionContainer;
+import com.intuit.tank.api.model.v1.script.ScriptDescription;
+import com.intuit.tank.api.model.v1.script.ScriptDescriptionContainer;
 
 import static org.junit.jupiter.api.Assertions.*;
 

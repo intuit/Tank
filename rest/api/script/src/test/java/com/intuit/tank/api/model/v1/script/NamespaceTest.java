@@ -15,7 +15,7 @@ package com.intuit.tank.api.model.v1.script;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.script.Namespace;
+import com.intuit.tank.api.model.v1.script.Namespace;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -10,11 +10,11 @@ package com.intuit.tank.rest.mvc.rest.services.scripts;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
-import com.intuit.tank.script.ExternalScriptContainer;
-import com.intuit.tank.script.ExternalScriptTO;
-import com.intuit.tank.script.ScriptDescriptionContainer;
-import com.intuit.tank.script.ScriptDescription;
-import com.intuit.tank.script.ScriptTO;
+import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptContainer;
+import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptTO;
+import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptDescriptionContainer;
+import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptDescription;
+import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptTO;
 
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
