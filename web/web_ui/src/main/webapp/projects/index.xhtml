@@ -35,6 +35,21 @@
       </ts:toolbar>
 
       <div class="vertical-spacer" />
+
+      <h:form id="banner-form">
+        <p:messages id="banner" autoUpdate="true" closable="true" />
+        <p:commandButton id="closeMessageButton" style="display: none;"
+                         action="#{projectDescriptionBean.closeMessage}" ajax="true" />
+      </h:form>
+
+      <script type="text/javascript">
+        $(document).ready(function() {
+          $('#mainForm\\:banner-form\\:banner .ui-messages-close').click(function() {
+            PrimeFaces.ab({s:'mainForm:banner-form:closeMessageButton'})
+          });
+        });
+      </script>
+
       <p:growl globalOnly="true" id="messages" autoUpdate="true" />
 
       <pe:remoteCommand id="resizeListener" name="resizeFinished" update="projectTableId" />

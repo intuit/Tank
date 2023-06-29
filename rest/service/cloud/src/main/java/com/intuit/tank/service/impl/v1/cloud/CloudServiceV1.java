@@ -38,8 +38,8 @@ import com.amazonaws.xray.entities.Segment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.api.service.v1.cloud.CloudService;
 import com.intuit.tank.dao.SummaryDataDao;
 import com.intuit.tank.reporting.factory.ReportingFactory;

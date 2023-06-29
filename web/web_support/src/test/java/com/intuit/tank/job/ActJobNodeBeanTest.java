@@ -20,10 +20,10 @@ import java.util.List;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
-import com.intuit.tank.api.model.v1.cloud.VMStatus;
-import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
+import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Workload;

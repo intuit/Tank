@@ -7,7 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers;
 
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.rest.mvc.rest.models.jobs.CreateJobRequest;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobContainer;
 import com.intuit.tank.rest.mvc.rest.services.jobs.JobServiceV2;
@@ -148,7 +148,7 @@ public class JobController {
         return ResponseEntity.notFound().build();
     }
 
-    @RequestMapping(value = "/script/{jobId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/script/{jobId}", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
     @Operation(description = "Gets streaming output of job's harness XML file", summary = "Get job's harness file", hidden = true)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully returned job's harness file", content = @Content),

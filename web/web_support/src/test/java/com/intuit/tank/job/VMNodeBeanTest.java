@@ -22,12 +22,9 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
-import com.intuit.tank.api.model.v1.cloud.UserDetail;
-import com.intuit.tank.api.model.v1.cloud.VMStatus;
-import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
-import com.intuit.tank.job.JobNodeBean;
-import com.intuit.tank.job.VMNodeBean;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
+import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;

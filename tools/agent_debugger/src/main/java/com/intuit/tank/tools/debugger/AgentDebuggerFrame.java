@@ -29,6 +29,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,10 +50,10 @@ import org.fife.ui.rsyntaxtextarea.SquiggleUnderlineHighlightPainter;
 import org.fife.ui.rtextarea.GutterIconInfo;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-import com.intuit.tank.api.model.v1.datafile.DataFileDescriptor;
-import com.intuit.tank.api.model.v1.project.KeyPair;
-import com.intuit.tank.api.model.v1.project.ProjectTO;
-import com.intuit.tank.client.v1.datafile.DataFileClient;
+import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
+import com.intuit.tank.rest.mvc.rest.models.projects.KeyPair;
+import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
+import com.intuit.tank.rest.mvc.rest.clients.DataFileClient;
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.TestPlanSingleton;
 import com.intuit.tank.harness.data.HDScript;
@@ -789,7 +791,7 @@ public class AgentDebuggerFrame extends JFrame {
         if (!datafileList.isEmpty()) {
             DataFileClient client = debuggerActions.getDataFileClient();
             for (Integer id : datafileList) {
-                DataFileDescriptor dataFile = client.getDataFile(id);
+                DataFileDescriptor dataFile = client.getDatafile(id);
                 if (dataFile != null) {
                     saveDataFile(client, dataFile, datafileList.size() == 1);
                 }
@@ -801,7 +803,7 @@ public class AgentDebuggerFrame extends JFrame {
         File dataFile = new File(workingDir, dataFileDescriptor.getName());
         LOG.info("writing file " + dataFileDescriptor.getName() + " to " + dataFile.getAbsolutePath());
         try (   FileOutputStream fos = new FileOutputStream(dataFile);
-                InputStream is = client.getDataFileDataStream(dataFileDescriptor.getId()) ) {
+                InputStream is = IOUtils.toInputStream(client.getDatafileContent(dataFileDescriptor.getId()), StandardCharsets.UTF_8) ) {
             IOUtils.copy(is, fos);
             if (isDefault && !dataFileDescriptor.getName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
                 File defaultFile = new File(workingDir, TankConstants.DEFAULT_CSV_FILE_NAME);

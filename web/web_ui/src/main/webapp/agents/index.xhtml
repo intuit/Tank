@@ -49,6 +49,23 @@
         </ts:toolbar>
 
         <div class="vertical-spacer" />
+
+        <h:form id="banner-form">
+          <h:panelGroup layout="block" style="position:fixed; top:60px; left:0; right:0; z-index:999; text-align:center;">
+            <p:messages id="banner" autoUpdate="true" closable="true" />
+          </h:panelGroup>
+          <p:commandButton id="closeMessageButton" style="display: none;"
+                           action="#{jobQueueManager.closeMessage}" ajax="true" />
+        </h:form>
+
+        <script type="text/javascript">
+          $(document).ready(function() {
+            $('#mainForm\\:banner-form\\:banner .ui-messages-close').click(function() {
+              PrimeFaces.ab({s:'mainForm:banner-form:closeMessageButton'})
+            });
+          });
+        </script>
+
         <p:growl globalOnly="true" id="messages" autoUpdate="true" />
 
         <h:panelGroup id="refreshDiv" rendered="#{jobQueueManager.refreshEnabled}">
@@ -198,13 +215,13 @@
             </div>
             <div class="float-right">
               <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'job'}"
-                value="#{request.contextPath}/api/v2/jobs/download/#{node.id}">
+                value="#{request.contextPath}/v2/jobs/download/#{node.id}">
                 <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16"
                   style="padding: 5px 0; margin-right:5px;" />
               </h:outputLink>
 
               <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'project'}"
-                value="#{request.contextPath}/api/v2/projects/download/#{node.id}">
+                value="#{request.contextPath}/v2/projects/download/#{node.id}">
                 <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16"
                   style="padding: 5px 0; margin-right:5px;" />
               </h:outputLink>

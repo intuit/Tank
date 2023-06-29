@@ -21,16 +21,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.api.cloud.VMTracker;
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
-import com.intuit.tank.api.model.v1.cloud.VMStatus;
-import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
+import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import com.intuit.tank.dao.VMImageDao;
 import com.intuit.tank.project.VMInstance;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
