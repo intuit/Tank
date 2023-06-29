@@ -56,6 +56,14 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         return "PONG " + getClass().getInterfaces()[0].getSimpleName();
     }
 
+    protected ScriptDao createScriptDao() {
+        return new ScriptDao();
+    }
+
+    protected ExternalScriptDao createExternalScriptDao() {
+        return new ExternalScriptDao();
+    }
+
     @Override
     public ScriptTO createScript(ScriptTO scriptTo) {
         Script savedScript;
@@ -63,7 +71,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         scriptTo.setModified(null);
         scriptTo.setId(0);
         try {
-            savedScript = new ScriptDao().saveOrUpdate(ScriptServiceUtil.transferObjectToScript(scriptTo));
+            savedScript = createScriptDao().saveOrUpdate(ScriptServiceUtil.transferObjectToScript(scriptTo));
             return ScriptServiceUtil.scriptToTransferObject(savedScript);
         } catch (Exception e) {
             LOGGER.error("Error creating script: " + e.getMessage(), e);
@@ -74,7 +82,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public ScriptDescription getScript(Integer scriptId) {
         try {
-            ScriptDao dao = new ScriptDao();
+            ScriptDao dao = createScriptDao();
             Script script = dao.findById(scriptId);
             if (script != null) {
                 return ScriptServiceUtil.scriptToScriptDescription(script);
@@ -89,7 +97,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public ScriptDescriptionContainer getScripts() {
         try {
-            ScriptDao dao = new ScriptDao();
+            ScriptDao dao = createScriptDao();
             List<Script> all = dao.findAll();
             List<ScriptDescription> result = all.stream().map(ScriptServiceUtil::scriptToScriptDescription).collect(Collectors.toList());
             return new ScriptDescriptionContainer(result);
@@ -102,7 +110,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public Map<Integer, String> getAllScriptNames(){
         try {
-            List<Script> all = new ScriptDao().findAll();
+            List<Script> all = createScriptDao().findAll();
             return all.stream().sorted(Comparator.comparing(Script::getModified).reversed())
                                .collect(Collectors.toMap(Script::getId, Script::getName, (e1, e2) -> e1, LinkedHashMap::new));
         } catch (Exception e) {
@@ -116,7 +124,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         try {
             StreamingResponseBody streamingResponse;
             Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-            ScriptDao dao = new ScriptDao();
+            ScriptDao dao = createScriptDao();
             final Script script = dao.findById(scriptId);
             if (script == null) {
                 return null;
@@ -138,7 +146,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         try {
             StreamingResponseBody streamingResponse;
             Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-            ScriptDao dao = new ScriptDao();
+            ScriptDao dao = createScriptDao();
             final Script script = dao.findById(scriptId);
             if (script == null) {
                 return null;
@@ -158,7 +166,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public String deleteScript(Integer scriptId) {
         try {
-            ScriptDao dao = new ScriptDao();
+            ScriptDao dao = createScriptDao();
             Script script = dao.findById(scriptId);
             if (script == null) {
                 LOGGER.warn("Script with script id " +  scriptId + " does not exist");
@@ -178,7 +186,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public ExternalScriptContainer getExternalScripts() {
         try {
-            ExternalScriptDao dao = new ExternalScriptDao();
+            ExternalScriptDao dao = createExternalScriptDao();
             List<ExternalScript> all = dao.findAll();
             ExternalScriptContainer ret = new ExternalScriptContainer();
             for (ExternalScript s : all) {
@@ -194,7 +202,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public ExternalScriptTO getExternalScript(Integer externalScriptId) {
         try {
-            ExternalScriptDao dao = new ExternalScriptDao();
+            ExternalScriptDao dao = createExternalScriptDao();
             ExternalScript script = dao.findById(externalScriptId);
             if (script != null) {
                 return ScriptServiceUtil.externalScriptToTO(script);
@@ -209,7 +217,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
 
     @Override
     public ExternalScriptTO createExternalScript(ExternalScriptTO ExternalScriptRequest) {
-        ExternalScriptDao dao = new ExternalScriptDao();
+        ExternalScriptDao dao = createExternalScriptDao();
         try {
             ExternalScript script = ScriptServiceUtil.TOToExternalScript(ExternalScriptRequest);
             script = dao.saveOrUpdate(script);
@@ -225,7 +233,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         try {
             StreamingResponseBody streamingResponse;
             Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-            ExternalScriptDao dao = new ExternalScriptDao();
+            ExternalScriptDao dao = createExternalScriptDao();
             final ExternalScript script = dao.findById(externalScriptId);
             if (script == null) {
                 return null;
@@ -249,7 +257,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         scriptId = scriptId == null ? 0 : scriptId;
         contentEncoding = contentEncoding == null ? "" : contentEncoding;
         try {
-            Script script = new ScriptDao().findById(scriptId);
+            Script script = createScriptDao().findById(scriptId);
             if (script == null){
                 script = new Script();
                 script.setName("New");
@@ -270,7 +278,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                     new BufferedReader(new InputStreamReader(new GZIPInputStream(fileInputStream))) :
                     new BufferedReader(new InputStreamReader(fileInputStream));
             scriptProcessor.getScriptSteps(bufferedReader, new ArrayList<>());
-            script = new ScriptDao().saveOrUpdate(script);
+            script = createScriptDao().saveOrUpdate(script);
             sendMsg(script, ModificationType.UPDATE);
             if (scriptId.equals(0)) {
                 payload.put("message", "Script with new script ID " + script.getId() + " has been uploaded");
@@ -298,7 +306,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
 
     @Override
     public String deleteExternalScript(Integer externalScriptId) {
-        ExternalScriptDao dao = new ExternalScriptDao();
+        ExternalScriptDao dao = createExternalScriptDao();
         try {
             ExternalScript script = dao.findById(externalScriptId);
             if (script == null) {

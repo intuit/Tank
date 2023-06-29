@@ -38,15 +38,12 @@ import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -70,12 +67,12 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     public String getSettings() {
         String settings;
         try {
-            File configFile = new TankConfig().getSourceConfigFile();
-            File agentConfigFile = new File(configFile.getParentFile(), "agent-settings.xml");
+            File configFile = createTankConfig().getSourceConfigFile();
+            File agentConfigFile = createAgentConfigFile(configFile.getParentFile());
             if (agentConfigFile.exists() && agentConfigFile.isFile()) {
                 configFile = agentConfigFile;
             }
-            settings = FileUtils.readFileToString(configFile, StandardCharsets.UTF_8);
+            settings = readFileToString(configFile);
         } catch (Exception e) {
             LOGGER.error("Error reading agent settings file: " + e);
             throw new GenericServiceResourceNotFoundException("agent", "settings file", e);
@@ -83,12 +80,20 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         return settings;
     }
 
+    protected TankConfig createTankConfig() {
+        return new TankConfig();
+    }
+
+    protected File createAgentConfigFile(File parentFile) {
+        return new File(parentFile, "agent-settings.xml");
+    }
+
     @Override
     public File getSupportFiles() {
         String filename = "agent-support-files.zip";
-        File supportFiles = new File(new TankConfig().getTmpDir(), filename);
+        File supportFiles = createFile(createTankConfig().getTmpDir(), filename);
         if (!supportFiles.exists()) {
-            final FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getJarDir(), false);
+            final FileStorage fileStorage = createFileStorage(createTankConfig().getJarDir(), false);
             final File harnessJar = new File(servletContext.getRealPath("/tools/" + HARNESS_JAR));
             LOGGER.info("harnessJar = " + harnessJar.getAbsolutePath());
             final List<FileData> files = fileStorage.listFileData("");
@@ -96,7 +101,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
             synchronized ( supportFiles ) {
                 supportFiles.getParentFile().mkdirs();
                 // open the zip stream in a try resource block, no finally needed
-                try (ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(supportFiles))) {
+                try (ZipOutputStream zip = createZipOutputStream(new FileOutputStream(supportFiles))) {
 
                     if (harnessJar.exists()) {
                         addFileToZip(HARNESS_JAR, new FileInputStream(harnessJar), zip);
@@ -135,15 +140,31 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         }
     }
 
+    protected String readFileToString(File file) throws IOException {
+        return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+    }
+
+    protected FileStorage createFileStorage(String jarDir, boolean isReadOnly) {
+        return FileStorageFactory.getFileStorage(jarDir, isReadOnly);
+    }
+
+    protected ZipOutputStream createZipOutputStream(FileOutputStream fileOutputStream) throws IOException {
+        return new ZipOutputStream(fileOutputStream);
+    }
+
+    protected File createFile(String path, String filename) {
+        return new File(path, filename);
+    }
+
     @Nonnull
     @Override
     public AgentTestStartData agentReady(AgentData data) {
         AgentTestStartData response;
         LOGGER.info("Agent ready: " + data);
-        AWSXRay.getCurrentSegment().putAnnotation("JobId", data.getJobId());
-        AWSXRay.getCurrentSegment().putAnnotation("InstanceId", data.getInstanceId());
+        annotateXRaySegment("JobId", data.getJobId());
+        annotateXRaySegment("InstanceId", data.getInstanceId());
         try {
-            JobManager jobManager = new ServletInjector<JobManager>().getManagedBean(servletContext, JobManager.class);
+            JobManager jobManager = createServletInjector().getManagedBean(servletContext, JobManager.class);
             response = jobManager.registerAgentForJob(data);
         } catch (Exception e) {
             LOGGER.error("Error registering agent for a job: " + e.getMessage(), e);
@@ -152,11 +173,27 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         return response;
     }
 
+    protected ServletInjector<JobManager> createServletInjector() {
+        return new ServletInjector<>();
+    }
+
+    protected void annotateXRaySegment(String key, String value) {
+        AWSXRay.getCurrentSegment().putAnnotation(key, value);
+    }
+
+    protected void annotateXRaySegment(String key, Number value) {
+        AWSXRay.getCurrentSegment().putAnnotation(key, value);
+    }
+
+    protected void annotateXRaySegment(String key, Boolean value) {
+        AWSXRay.getCurrentSegment().putAnnotation(key, value);
+    }
+
     @Override
     public Headers getHeaders() {
         Headers headers = new Headers();
         try {
-            Map<String, String> requestHeaderMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
+            Map<String, String> requestHeaderMap = createTankConfig().getAgentConfig().getRequestHeaderMap();
             if (requestHeaderMap != null) {
                 for (Entry<String, String> entry : requestHeaderMap.entrySet()) {
                     headers.getHeaders().add(new Header(entry.getKey(), entry.getValue()));
@@ -172,7 +209,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     @Override
     public TankHttpClientDefinitionContainer getClients() {
         try {
-            AgentConfig config = new TankConfig().getAgentConfig();
+            AgentConfig config = createTankConfig().getAgentConfig();
             Map<String, String> map = config.getTankClientMap();
             List<TankHttpClientDefinition> definitions = map.entrySet().stream().map(entry -> new TankHttpClientDefinition(entry.getKey(), entry.getValue())).collect(Collectors.toList());
             String defaultDefinition = config.getTankClientDefault();
@@ -189,7 +226,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     @Override
     public void setStandaloneAgentAvailability(AgentAvailability availability) {
         try {
-            StandaloneAgentTracker tracker = new ServletInjector<StandaloneAgentTracker>().getManagedBean(servletContext, StandaloneAgentTracker.class);
+            StandaloneAgentTracker tracker = createStandaloneAgentTracker(servletContext);
             LOGGER.info("Adding agent availability: " + availability);
             tracker.addAvailability(availability);
         } catch (Exception e) {
@@ -198,12 +235,15 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         }
     }
 
+    protected StandaloneAgentTracker createStandaloneAgentTracker(ServletContext servletContext) {
+        return new ServletInjector<StandaloneAgentTracker>().getManagedBean(servletContext, StandaloneAgentTracker.class);
+    }
+
     @Override
     public CloudVmStatus getInstanceStatus(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        annotateXRaySegment("instanceId", instanceId);
         try {
-            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
-                    servletContext, JobEventSender.class);
+            JobEventSender controller = createJobEventSender();
             return controller.getVmStatus(instanceId);
         } catch (Exception e) {
             LOGGER.error("Error returning instance status: " + e.getMessage(), e);
@@ -211,17 +251,19 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         }
     }
 
+    protected JobEventSender createJobEventSender() {
+        return new ServletInjector<JobEventSender>().getManagedBean(servletContext, JobEventSender.class);
+    }
+
     @Override
     public void setInstanceStatus(String instanceId, CloudVmStatus status) {
-        Segment segment = AWSXRay.getCurrentSegment();
-        segment.putAnnotation("instanceId", instanceId);
-        segment.putAnnotation("jobId", status.getJobId());
-        segment.putAnnotation("currentUsers", status.getCurrentUsers());
-        segment.putAnnotation("TotalUsers", status.getTotalUsers());
-        segment.putAnnotation("totalTps", status.getTotalTps());
+        annotateXRaySegment("instanceId", instanceId);
+        annotateXRaySegment("jobId", status.getJobId());
+        annotateXRaySegment("currentUsers", status.getCurrentUsers());
+        annotateXRaySegment("TotalUsers", status.getTotalUsers());
+        annotateXRaySegment("totalTps", status.getTotalTps());
         try {
-            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
-                    servletContext, JobEventSender.class);
+            JobEventSender controller = createJobEventSender();
             controller.setVmStatus(instanceId, status);
         } catch (Exception e) {
             LOGGER.error("Error updating instance status: " + e.getMessage(), e);
@@ -231,10 +273,9 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public String stopInstance(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        annotateXRaySegment("instanceId", instanceId);
         try {
-            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
-                    servletContext, JobEventSender.class);
+            JobEventSender controller = createJobEventSender();
             controller.stopAgent(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
         } catch (Exception e) {
@@ -245,10 +286,9 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public String pauseInstance(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        annotateXRaySegment("instanceId", instanceId);
         try {
-            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
-                    servletContext, JobEventSender.class);
+            JobEventSender controller = createJobEventSender();
             controller.pauseRampInstance(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
         } catch (Exception e) {
@@ -259,10 +299,9 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public String resumeInstance(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        annotateXRaySegment("instanceId", instanceId);
         try {
-            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
-                    servletContext, JobEventSender.class);
+            JobEventSender controller = createJobEventSender();
             controller.resumeRampInstance(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
         } catch (Exception e) {
@@ -273,10 +312,9 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public String killInstance(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        annotateXRaySegment("instanceId", instanceId);
         try {
-            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
-                    servletContext, JobEventSender.class);
+            JobEventSender controller = createJobEventSender();
             controller.killInstance(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
         } catch (Exception e) {
@@ -284,5 +322,4 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
             throw new GenericServiceCreateOrUpdateException("agent", "instance status to terminate", e);
         }
     }
-
 }

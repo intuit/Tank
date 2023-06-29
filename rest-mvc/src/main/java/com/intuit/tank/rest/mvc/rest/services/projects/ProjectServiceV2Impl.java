@@ -53,6 +53,22 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
 
     private static final Logger LOGGER = LogManager.getLogger(ProjectServiceV2Impl.class);
 
+    protected ProjectDao createProjectDao() {
+        return new ProjectDao();
+    }
+
+    protected JobRegionDao createJobRegionDao() {
+        return new JobRegionDao();
+    }
+
+    protected ServletContext getServletContext() {
+        return servletContext;
+    }
+
+    protected ServletInjector<MessageEventSender> getServletInjector() {
+        return new ServletInjector<>();
+    }
+
     @Override
     public String ping() {
         return "PONG " + getClass().getInterfaces()[0].getSimpleName();
@@ -61,7 +77,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     @Override
     public ProjectContainer getAllProjects(){
         try {
-            List<Project> all = new ProjectDao().findAll();
+            List<Project> all = createProjectDao().findAll();
             List<ProjectTO> to = all.stream().map(ProjectServiceUtil::projectToTransferObject).collect(Collectors.toList());
             return new ProjectContainer(to);
         } catch (Exception e) {
@@ -73,7 +89,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     @Override
     public Map<Integer, String> getAllProjectNames(){
         try {
-            List<Project> all = new ProjectDao().findAllFast();
+            List<Project> all = createProjectDao().findAllFast();
             return all.stream().sorted(Comparator.comparing(Project::getModified).reversed())
                                .collect(Collectors.toMap(Project::getId, Project::getName, (e1, e2) -> e1, LinkedHashMap::new));
         } catch (Exception e) {
@@ -85,7 +101,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     @Override
     public ProjectTO getProject(Integer projectId){
         try {
-            Project prj = new ProjectDao().findByIdEager(projectId);
+            Project prj = createProjectDao().findByIdEager(projectId);
             return ProjectServiceUtil.projectToTransferObject(prj);
         } catch (Exception e) {
             LOGGER.error("Error returning the project: " + e.getMessage(), e);
@@ -105,7 +121,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     @Override
     public Map<String, String> updateProject(Integer projectId, AutomationRequest request){
         Map<String, String> response = new HashMap<>();
-        ProjectDao projectDao = new ProjectDao();
+        ProjectDao projectDao = createProjectDao();
         if(projectDao.findByIdEager(projectId) == null){
             response.put("error", "project with that project Id does not exist");
             return response;
@@ -118,7 +134,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
 
     private synchronized Project createOrUpdateProject(Integer projectId, AutomationRequest request) {
         try {
-            ProjectDao projectDao = new ProjectDao();
+            ProjectDao projectDao = createProjectDao();
             ModificationType type = ModificationType.UPDATE;
             Project project = new Project();
 
@@ -156,7 +172,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
             jobConfiguration.setDataFileIds(Set.copyOf(request.getDataFileIds()));
             jobConfiguration.setUserIntervalIncrement(request.getUserIntervalIncrement());
             jobConfiguration.getJobRegions().clear();
-            JobRegionDao jrd = new JobRegionDao();
+            JobRegionDao jrd = createJobRegionDao();
             for (AutomationJobRegion r : request.getJobRegions()) {
                 JobRegion jr = jrd.saveOrUpdate(new JobRegion(r.getRegion(), r.getUsers()));
                 jobConfiguration.getJobRegions().add(jr);
@@ -175,7 +191,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     }
 
     private void sendMsg(BaseEntity entity, ModificationType type) {
-        MessageEventSender sender = new ServletInjector<MessageEventSender>().getManagedBean(servletContext, MessageEventSender.class);
+        MessageEventSender sender = getServletInjector().getManagedBean(getServletContext(), MessageEventSender.class);
         sender.sendEvent(new ModifiedEntityMessage(entity.getClass(), entity.getId(), type));
     }
 
@@ -184,7 +200,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
         try {
             StreamingResponseBody streamingResponse;
             Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-            Project p = new ProjectDao().loadScripts(projectId);
+            Project p = createProjectDao().loadScripts(projectId);
             if (p == null){
                 return null;
             } else {
@@ -200,9 +216,10 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
         }
     }
 
+    @Override
     public String deleteProject(Integer projectId) {
         try {
-            ProjectDao dao = new ProjectDao();
+            ProjectDao dao = createProjectDao();
             Project project = dao.findByIdEager(projectId);
             if (project == null) {
                 LOGGER.warn("Project with id " + projectId + " does not exist");
