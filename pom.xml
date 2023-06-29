@@ -52,11 +52,7 @@
     <version.lucene>9.4.2</version.lucene>
     <version.jaxb>2.3.3</version.jaxb>
     <version.spock>2.4-M1-groovy-4.0</version.spock>
-    <version.spring-boot>2.7.6</version.spring-boot>
-    <version.spring-web>5.3.25</version.spring-web>
     <version.spring-webflux>2.7.6</version.spring-webflux>
-    <version.spring-boot-starter-log4j2>2.7.9</version.spring-boot-starter-log4j2>
-
 
     <!-- maven-compiler-plugin -->
     <version.compiler.plugin>3.10.1</version.compiler.plugin>
@@ -838,16 +834,6 @@
         <version>1.6.13</version>
       </dependency>
       <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-web</artifactId>
-        <version>${version.spring-web}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot</artifactId>
-        <version>${version.spring-boot}</version>
-      </dependency>
-      <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-webflux</artifactId>
         <version>${version.spring-webflux}</version>
@@ -857,11 +843,6 @@
             <artifactId>spring-boot-starter-logging</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-log4j2</artifactId>
-        <version>${version.spring-boot-starter-log4j2}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
