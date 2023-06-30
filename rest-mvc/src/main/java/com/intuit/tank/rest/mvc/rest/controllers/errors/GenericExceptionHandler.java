@@ -69,17 +69,17 @@ public class GenericExceptionHandler {
 
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<Object> handleFileException(HttpServletRequest request, Throwable ex) {
-        return new ResponseEntity<>("File upload error: incorrect request or missing file parameter", HttpStatus.BAD_REQUEST);
+        return genericErrorResponse(HttpStatus.BAD_REQUEST, "File upload error: incorrect request or missing file parameter", ex);
     }
 
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<Object> handleMissingServletRequestPart(HttpServletRequest request, Throwable ex) {
-        return new ResponseEntity<>("File upload error: incorrect request or missing file parameter", HttpStatus.BAD_REQUEST);
+        return genericErrorResponse(HttpStatus.BAD_REQUEST, "File upload error: incorrect request or missing file parameter", ex);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Object> handleHttpMessageNotReadable(HttpServletRequest request, Throwable ex) {
-        return new ResponseEntity<>("Incorrect request body", HttpStatus.BAD_REQUEST);
+        return genericErrorResponse(HttpStatus.BAD_REQUEST, "Incorrect request body", ex);
     }
 
     @ExceptionHandler
