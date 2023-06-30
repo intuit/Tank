@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.filters;
 
+import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.dao.ScriptFilterDao;
 import com.intuit.tank.dao.ScriptFilterGroupDao;
@@ -72,6 +73,10 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
 
     protected void applyFilters(List<Integer> filterIds, Script script) {
         ScriptFilterUtil.applyFilters(filterIds, script);
+    }
+
+    protected void setScriptStepLabels(Script script) {
+        ScriptUtil.setScriptStepLabels(script);
     }
 
     @Override
@@ -146,6 +151,7 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
                 }
                 if (!filterIds.isEmpty()) {
                     applyFilters(filterIds, script);
+                    setScriptStepLabels(script);
                     script = createScriptDao().saveOrUpdate(script);
                     sendMsg(script, ModificationType.UPDATE);
                     return "Filters applied";

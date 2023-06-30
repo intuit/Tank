@@ -228,7 +228,10 @@ public class FilterServiceV2ImplTest {
             protected void sendMsg(BaseEntity entity, ModificationType type) {
                 // do nothing
             }
-
+            @Override
+            protected void setScriptStepLabels(Script script) {
+                // do nothing
+            }
         };
 
         ApplyFiltersRequest request = new ApplyFiltersRequest("2", Collections.singletonList(1), Collections.singletonList(1));
