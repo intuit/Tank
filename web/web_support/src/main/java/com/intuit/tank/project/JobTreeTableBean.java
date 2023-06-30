@@ -30,8 +30,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import com.amazonaws.xray.AWSXRay;
@@ -50,12 +48,12 @@ import org.primefaces.model.chart.ChartSeries;
 import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.PropertyComparer;
 import com.intuit.tank.PropertyComparer.SortOrder;
-import com.intuit.tank.vm.vmManager.VMTracker;
-import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
-import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
-import com.intuit.tank.vm.vmManager.models.ProjectStatusContainer;
-import com.intuit.tank.vm.vmManager.models.UserDetail;
-import com.intuit.tank.vm.vmManager.models.ValidationStatus;
+import com.intuit.tank.api.cloud.VMTracker;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
+import com.intuit.tank.api.model.v1.cloud.ProjectStatusContainer;
+import com.intuit.tank.api.model.v1.cloud.UserDetail;
+import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.JobQueueDao;
@@ -129,26 +127,10 @@ public abstract class JobTreeTableBean implements Serializable {
     private TimeZone timeZone = TimeZone.getTimeZone(DEFAULT_TIME_ZONE);
     private Date lastDate = null;
 
-    private boolean intialPost; // limit to posting the message once per session
-
     @PostConstruct
     public void init() {
-        if(FacesContext.getCurrentInstance().getExternalContext().getSessionMap().containsKey("showMessage")) {
-            boolean showMessage = (boolean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("showMessage");
-            intialPost = (boolean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("intialPost");
-            if(showMessage && intialPost) {
-                FacesContext.getCurrentInstance().addMessage("formId:banner", new FacesMessage(FacesMessage.SEVERITY_WARN, "Important Update: Tank V2 API is now available! To ensure compatibility with the updated API, " +
-                        "download the newest version of Tank tools under the 'Tools' tab. Please refer to the Tank V2 API documentation " +
-                        "under 'Help' for more details on the new API features.", null));
-                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("intialPost", false);
-            }
-        }
         tablePrefs = new TablePreferences(preferencesBean.getPreferences().getJobsTableColumns());
         tablePrefs.registerListener(preferencesBean);
-    }
-
-    public void closeMessage(){
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("showMessage", false);
     }
 
     /**

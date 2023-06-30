@@ -18,7 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.amazonaws.xray.AWSXRay;
-import com.intuit.tank.rest.mvc.rest.cloud.JobEventSender;
+import com.intuit.tank.service.impl.v1.cloud.JobController;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 
@@ -27,7 +27,7 @@ import com.intuit.tank.vm.api.enumerated.JobStatus;
 public class JobQueueAction {
 
     @Inject
-    private JobEventSender controller;
+    private JobController controller;
 
     /**
      * Runs the job for the given jobId

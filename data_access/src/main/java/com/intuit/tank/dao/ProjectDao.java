@@ -176,35 +176,6 @@ public class ProjectDao extends OwnableDao<Project> {
     	}
     	return results;
     }
-
-    /**
-     * Finds all Objects of type T_ENTITY
-     *
-     * @return the nonnull list of entities
-     * @throws HibernateException
-     *             if there is an error in persistence
-     */
-    @Nonnull
-    public List<Project> findAllFast() throws HibernateException {
-        List<Project> results = Collections.emptyList();
-        EntityManager em = getEntityManager();
-        try {
-            begin();
-            CriteriaBuilder cb = em.getCriteriaBuilder();
-            CriteriaQuery<Project> query = cb.createQuery(Project.class);
-            Root<Project> root = query.from(Project.class);
-            query.select(root);
-            results = em.createQuery(query).getResultList();
-            commit();
-        } catch (Exception e) {
-            rollback();
-            e.printStackTrace();
-            LOG.info("No entities found at all for Project");
-        } finally {
-            cleanup();
-        }
-        return results;
-    }
     
     @Nullable
     public Project loadScripts(Integer ProjectId) {

@@ -41,9 +41,10 @@ public final class DataFileUtil {
      * @param offSet
      * @return
      */
-    public static String getDataFileServiceUrl(int id, int offSet, int numLines) {
+    public static String getDataFileServiceUrl(int id, int version, int offSet, int numLines) {
         String baseUrl = new TankConfig().getControllerBase();
-        return baseUrl + "/v2/datafiles/content?id=" + id + "&offset=" + offSet + "&lines=" + numLines;
+        return baseUrl + "/rest/v1/datafile-service/datafile/" + Integer.toString(id)
+                + "/version/" + Integer.toString(version) + "?offset=" + offSet + "&num-lines=" + numLines;
     }
 
     /**

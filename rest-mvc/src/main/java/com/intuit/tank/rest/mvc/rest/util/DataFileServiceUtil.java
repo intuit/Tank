@@ -40,7 +40,7 @@ public final class DataFileServiceUtil {
     }
 
     private static String getRelativeDataUrl(int id) {
-        String url = config.getControllerBase() + "/v2/datafiles/content?id={id}";
+        String url = config.getControllerBase() + "/api/v2/datafiles/content?id={id}";
         return url.replace("{id}", Integer.toString(id));
     }
 

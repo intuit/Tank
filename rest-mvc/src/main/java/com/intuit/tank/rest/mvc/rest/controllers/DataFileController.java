@@ -127,12 +127,12 @@ public class DataFileController {
     @RequestMapping(value = "/upload", method = RequestMethod.POST, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @Operation(description = "Uploads a datafile to Tank (supports gzip files) \n\n " +
             "Examples: \n\n" +
-            "        curl -v -X POST -H 'Content-Type: multipart/form-data' -F \"file=@<filename>\" 'https://{tank-base-url}/v2/datafiles/upload'\n\n" +
+            "        curl -v -X POST -H 'Content-Type: multipart/form-data' -F \"file=@<filename>\" 'https://{tank-base-url}/api/v2/datafiles/upload'\n\n" +
             "\n\n" +
-            "        curl -v -X POST -H 'Content-Type: multipart/form-data' -F \"file=@<filename>\" 'https://{tank-base-url}/v2/datafiles/upload?id=<datafileId>'\n\n" +
+            "        curl -v -X POST -H 'Content-Type: multipart/form-data' -F \"file=@<filename>\" 'https://{tank-base-url}/api/v2/datafiles/upload?id=<datafileId>'\n\n" +
             "\n\n" +
             "        gzip <filename>\n\n" +
-            "        curl -v -X POST -H 'Content-Type: multipart/form-data' -H 'Content-Encoding: gzip' -F \"file=@<filename>.gz\" 'https://{tank-base-url}/v2/datafiles/upload'\n\n" +
+            "        curl -v -X POST -H 'Content-Type: multipart/form-data' -H 'Content-Encoding: gzip' -F \"file=@<filename>.gz\" 'https://{tank-base-url}/api/v2/datafiles/upload'\n\n" +
             "Notes: \n\n " +
             " - Datafile id is an optional parameter \n\n" +
             " - Passing in an existing Tank Datafile ID will overwrite the existing datafile in Tank, but will otherwise create a new datafile", summary = "Upload datafile to Tank")

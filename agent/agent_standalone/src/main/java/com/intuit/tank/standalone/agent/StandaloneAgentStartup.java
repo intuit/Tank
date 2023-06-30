@@ -28,7 +28,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.rest.mvc.rest.clients.AgentClient;
+import com.intuit.tank.AgentServiceClient;
 import com.intuit.tank.harness.HostInfo;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentAvailabilityStatus;
@@ -37,15 +37,15 @@ import com.intuit.tank.vm.agent.messages.StandaloneAgentRequest;
 public class StandaloneAgentStartup implements Runnable {
 
     private static Logger LOG = LogManager.getLogger(StandaloneAgentStartup.class);
-    public static final String SERVICE_RELATIVE_PATH = "/v2/agent";
+    public static final String SERVICE_RELATIVE_PATH = "/rest/v1/agent-service";
     private static String API_HARNESS_COMMAND = "./startAgent.sh";
     public static final String METHOD_SETTINGS = "/settings";
-    public static final String METHOD_SUPPORT = "/support-files";
+    public static final String METHOD_SUPPORT = "/supportFiles";
     private static final long PING_TIME = 1000 * 60 * 5;// five minutes
 
     private String controllerBase;
     private AgentAvailability currentAvailability;
-    private AgentClient agentClient;
+    private AgentServiceClient agentClient;
     private String instanceId;
     private String hostname;
     private int capacity = 4000;
@@ -53,7 +53,7 @@ public class StandaloneAgentStartup implements Runnable {
     @Override
     public void run() {
         CommandListener.startHttpServer(CommandListener.PORT, this);
-        agentClient = new AgentClient(controllerBase);
+        agentClient = new AgentServiceClient(controllerBase);
         
         if (hostname != null) {
             instanceId = hostname;
@@ -152,7 +152,7 @@ public class StandaloneAgentStartup implements Runnable {
                 currentAvailability.getInstanceUrl(), currentAvailability.getCapacity(),
                 currentAvailability.getAvailabilityStatus());
         LOG.info("Sending availaability: " + ToStringBuilder.reflectionToString(availability));
-        agentClient.setStandaloneAgentAvailability(availability);
+        agentClient.standaloneAgentAvailable(availability);
     }
 
     public static void main(String[] args) {

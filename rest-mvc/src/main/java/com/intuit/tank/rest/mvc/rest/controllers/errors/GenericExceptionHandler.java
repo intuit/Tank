@@ -7,7 +7,6 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers.errors;
 
-import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,11 +79,6 @@ public class GenericExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Object> handleHttpMessageNotReadable(HttpServletRequest request, Throwable ex) {
         return new ResponseEntity<>("Incorrect request body", HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler
-    public SimpleErrorResponse handleClientException(ClientException e) {
-        return genericErrorResponse(HttpStatus.valueOf(e.getStatusCode()), e.getErrorMessage(), e);
     }
 
     @ExceptionHandler

@@ -23,8 +23,11 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.vm.vmManager.models.UserDetail;
-import com.intuit.tank.vm.vmManager.models.ValidationStatus;
+import com.intuit.tank.api.model.v1.cloud.UserDetail;
+import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
+import com.intuit.tank.auth.Security;
+import com.intuit.tank.job.JobNodeBean;
+import com.intuit.tank.job.ProjectNodeBean;
 import com.intuit.tank.project.Project;
 
 /**

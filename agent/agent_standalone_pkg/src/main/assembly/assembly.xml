@@ -16,11 +16,6 @@
       <useProjectArtifact>true</useProjectArtifact>
       <unpack>true</unpack>
       <scope>runtime</scope>
-      <unpackOptions>
-        <excludes>
-          <exclude>**/Log4j2Plugins.dat</exclude>
-        </excludes>
-      </unpackOptions>
     </dependencySet>
   </dependencySets>
 </assembly>

@@ -19,7 +19,7 @@ import java.util.List;
 
 import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.PreferencesBean;
-import com.intuit.tank.vm.vmManager.VMTracker;
+import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.ProjectDao;

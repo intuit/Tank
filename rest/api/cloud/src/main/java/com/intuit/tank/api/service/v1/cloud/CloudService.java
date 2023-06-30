@@ -29,8 +29,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
-import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved

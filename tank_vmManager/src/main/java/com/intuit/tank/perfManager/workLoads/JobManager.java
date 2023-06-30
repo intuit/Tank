@@ -42,10 +42,10 @@ import org.apache.http.protocol.HTTP;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.vm.vmManager.VMTracker;
-import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
-import com.intuit.tank.vm.vmManager.models.VMStatus;
-import com.intuit.tank.vm.vmManager.models.ValidationStatus;
+import com.intuit.tank.api.cloud.VMTracker;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.api.model.v1.cloud.VMStatus;
+import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
 import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.project.DataFile;
@@ -307,7 +307,7 @@ public class JobManager implements Serializable {
                 int numLinesPerAgent = (int) Math.floor(getNumberOfLines(id) / info.numberOfMachines);
                 int offset = info.agentData.size() * numLinesPerAgent;
                 DataFileRequest dataRequest = new DataFileRequest(dataFile.getPath(), setAsDefault,
-                        DataFileUtil.getDataFileServiceUrl(dataFile.getId(), offset, numLinesPerAgent));
+                        DataFileUtil.getDataFileServiceUrl(dataFile.getId(), version, offset, numLinesPerAgent));
                 ret.add(dataRequest);
             }
         }

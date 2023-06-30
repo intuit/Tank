@@ -25,8 +25,11 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -47,19 +50,19 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.glassfish.jersey.message.internal.MessageBodyProviderNotFoundException;
 import org.xml.sax.SAXException;
 
-import com.intuit.tank.rest.mvc.rest.clients.AgentClient;
-import com.intuit.tank.rest.mvc.rest.clients.DataFileClient;
-import com.intuit.tank.rest.mvc.rest.clients.ProjectClient;
-import com.intuit.tank.rest.mvc.rest.clients.ScriptClient;
-import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinition;
-import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContainer;
-import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
-import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
+import com.intuit.tank.AgentServiceClient;
+import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinition;
+import com.intuit.tank.api.model.v1.agent.TankHttpClientDefinitionContainer;
+import com.intuit.tank.api.model.v1.datafile.DataFileDescriptor;
+import com.intuit.tank.api.model.v1.project.ProjectTO;
 import com.intuit.tank.api.model.v1.script.ScriptDescription;
 import com.intuit.tank.api.model.v1.script.ScriptDescriptionContainer;
+import com.intuit.tank.client.v1.datafile.DataFileClient;
+import com.intuit.tank.client.v1.project.ProjectServiceClientV1;
+import com.intuit.tank.client.v1.script.ScriptServiceClient;
 import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.tools.debugger.FindReplaceDialog.DialogType;
 
@@ -98,9 +101,9 @@ public class ActionProducer {
     private Map<String, Action> actionMap = new HashMap<String, Action>();
     private int menuActionMods = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     private JFileChooser jFileChooser = null;
-    private ScriptClient scriptClient;
-    private AgentClient agentClient;
-    private ProjectClient projectClient;
+    private ScriptServiceClient scriptServiceClient;
+    private AgentServiceClient agentServiceClient;
+    private ProjectServiceClientV1 projectServiceClient;
     private DataFileClient dataFileClient;
 
     /**
@@ -111,9 +114,9 @@ public class ActionProducer {
     public ActionProducer(AgentDebuggerFrame debuggerFrame, String serviceUrl) {
         super();
         this.debuggerFrame = debuggerFrame;
-        this.scriptClient = new ScriptClient(serviceUrl);
-        this.projectClient = new ProjectClient(serviceUrl);
-        this.agentClient = new AgentClient(serviceUrl);
+        this.scriptServiceClient = new ScriptServiceClient(serviceUrl);
+        this.projectServiceClient = new ProjectServiceClientV1(serviceUrl);
+        this.agentServiceClient = new AgentServiceClient(serviceUrl);
         this.dataFileClient = new DataFileClient(serviceUrl);
 
         jFileChooser = new JFileChooser();
@@ -132,17 +135,17 @@ public class ActionProducer {
     }
 
     /**
-     * @return the scriptClient
+     * @return the scriptServiceClient
      */
-    public ScriptClient getScriptClient() {
-        return scriptClient;
+    public ScriptServiceClient getScriptServiceClient() {
+        return scriptServiceClient;
     }
 
     /**
-     * @return the projectClient
+     * @return the projectServiceClient
      */
-    public ProjectClient getProjectClient() {
-        return projectClient;
+    public ProjectServiceClientV1 getProjectServiceClient() {
+        return projectServiceClient;
     }
 
     /**
@@ -157,10 +160,10 @@ public class ActionProducer {
      * @param serviceUrl
      */
     public void setServiceUrl(String serviceUrl) {
-        this.scriptClient = new ScriptClient(serviceUrl);
-        this.projectClient = new ProjectClient(serviceUrl);
+        this.scriptServiceClient = new ScriptServiceClient(serviceUrl);
+        this.projectServiceClient = new ProjectServiceClientV1(serviceUrl);
         this.dataFileClient = new DataFileClient(serviceUrl);
-        this.agentClient = new AgentClient(serviceUrl);
+        this.agentServiceClient = new AgentServiceClient(serviceUrl);
         PanelBuilder.updateServiceUrl(serviceUrl);
         setChoiceComboBoxOptions(debuggerFrame.getTankClientChooser());
     }
@@ -330,11 +333,11 @@ public class ActionProducer {
                                     if (scriptSource.getSource() == SourceType.file) {
                                         scriptXml = FileUtils.readFileToString(new File(scriptSource.getId()), StandardCharsets.UTF_8);
                                     } else if (scriptSource.getSource() == SourceType.script) {
-                                        scriptXml = scriptClient.downloadHarnessScript(Integer
+                                        scriptXml = scriptServiceClient.downloadHarnessXml(Integer
                                                 .parseInt(scriptSource
                                                         .getId()));
                                     } else if (scriptSource.getSource() == SourceType.project) {
-                                        scriptXml = projectClient.downloadTestScriptForProject(Integer
+                                        scriptXml = projectServiceClient.downloadTestScriptForProject(Integer
                                                 .parseInt(scriptSource.getId()));
                                     }
                                     if (scriptXml != null) {
@@ -399,7 +402,7 @@ public class ActionProducer {
                                     url = "http://" + url;
                                 }
                                 try {
-                                    new ScriptClient(url).ping();
+                                    new ScriptServiceClient(url).ping();
                                     setServiceUrl(url);
                                 } catch (Exception e) {
                                     showError("Cannot connect to Tank at the url " + url
@@ -422,7 +425,7 @@ public class ActionProducer {
     public void setChoiceComboBoxOptions(JComboBox<TankClientChoice> cb) {
         cb.removeAllItems();
         try {
-            TankHttpClientDefinitionContainer clientDefinitions = agentClient.getClients();
+            TankHttpClientDefinitionContainer clientDefinitions = agentServiceClient.getClientDefinitions();
             for(TankHttpClientDefinition def : clientDefinitions.getDefinitions()) {
                 TankClientChoice c = new TankClientChoice(def.getName(), def.getClassName());
                 cb.addItem(c);
@@ -431,7 +434,7 @@ public class ActionProducer {
                 }
             }
         } catch (Exception e) {
-            // This is just a filler for the UI before you select a tank instance to import from.
+        	// This is just a filler for the UI before you select a tank instance to import from.
             cb.addItem(new TankClientChoice("Apache HttpClient 3.1", "com.intuit.tank.httpclient3.TankHttpClient3"));
             cb.addItem(new TankClientChoice("Apache HttpClient 4.5", "com.intuit.tank.httpclient4.TankHttpClient4"));
             cb.addItem(new TankClientChoice("Apache HttpClient 5", "com.intuit.tank.httpclient5.TankHttpClient5"));
@@ -481,7 +484,7 @@ public class ActionProducer {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        ScriptDescriptionContainer scriptDescriptions = scriptClient.getScripts();
+                        ScriptDescriptionContainer scriptDescriptions = scriptServiceClient.getScriptDescriptions();
                         List<ScriptDescription> scripts = scriptDescriptions.getScripts();
                         scripts.sort((ScriptDescription o1, ScriptDescription o2) ->
                                 o2.getCreated().compareTo(o1.getCreated()));
@@ -496,7 +499,7 @@ public class ActionProducer {
                             // get script in thread
                             new Thread( () -> {
                                 try {
-                                    String scriptXml = scriptClient.downloadHarnessScript(scriptSelected
+                                    String scriptXml = scriptServiceClient.downloadHarnessXml(scriptSelected
                                             .getId());
                                     setFromString(scriptXml);
                                     debuggerFrame.setCurrentTitle("Selected Script: " + scriptSelected.getName());
@@ -510,11 +513,8 @@ public class ActionProducer {
                                 }
                             }).start();
                         }
-                    } catch (WebClientRequestException e1) {
-                        showError("Error: Empty or Invalid Tank URL");
-                        LOG.error("Error: Empty or Invalid Tank URL");
-                    } catch (Exception e2) {
-                        showError("Error downloading scripts: " + e2);
+                    } catch (Exception e1) {
+                        showError("Error downloading scripts: " + e1);
                     }
                 }
             };
@@ -537,7 +537,7 @@ public class ActionProducer {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        List<DataFileDescriptor> dataFiles = dataFileClient.getDatafiles().getDataFiles();
+                        List<DataFileDescriptor> dataFiles = dataFileClient.getDataFiles();
                         dataFiles.sort((DataFileDescriptor o1, DataFileDescriptor o2) ->
                                 o2.getName().compareTo(o1.getName()));
                         SelectDialog<DataFileDescriptor> selectDialog = new SelectDialog<DataFileDescriptor>(
@@ -548,11 +548,8 @@ public class ActionProducer {
                         if (!selectedObjects.isEmpty()) {
                             debuggerFrame.setDataFiles(selectedObjects);
                         }
-                    } catch (WebClientRequestException e1) {
-                        showError("Error: Empty or Invalid Tank URL");
-                        LOG.error("Error: Empty or Invalid Tank URL");
-                    } catch (Exception e2) {
-                        showError("Error downloading datafiles: " + e2);
+                    } catch (Exception e1) {
+                        showError("Error downloading datafiles: " + e1);
                     }
                 }
             };
@@ -600,46 +597,38 @@ public class ActionProducer {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        Map<Integer, String> projectMap = projectClient.getProjectNames();
-                        Map<String, Integer> reversedProjectMap = projectMap.entrySet()
-                                .stream()
-                                .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey,
-                                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-                        List<String> projectNames = new ArrayList<>(projectMap.values());
-                        SelectDialog<String> selectDialog = new SelectDialog<>(debuggerFrame,
-                                projectNames, "project");
+                        List<ProjectTO> projects = projectServiceClient.getProjects();
+                        Collections.reverse(projects);
+                        SelectDialog<ProjectTO> selectDialog = new SelectDialog<ProjectTO>(debuggerFrame,
+                                projects, "project");
                         selectDialog.setVisible(true);
-                        final String projectName = selectDialog.getSelectedObject();
-                        if(reversedProjectMap.get(projectName) != null){
-                            String projectId = String.valueOf(reversedProjectMap.get(projectName));
-                            ProjectTO selected = projectClient.getProject(Integer.parseInt(projectId));
-                            if (selected != null) {
-                                debuggerFrame.startWaiting();
-                                setFromString(null);
-                                // get script in thread
-                                new Thread( () -> {
-                                    try {
-                                        String scriptXml = projectClient.downloadTestScriptForProject(selected
-                                                .getId());
-                                        debuggerFrame.setDataFromProject(selected);
-                                        setFromString(scriptXml);
-                                        debuggerFrame.setCurrentTitle("Selected Project: " + selected.getName());
-                                        debuggerFrame.setScriptSource(new ScriptSource(selected.getId().toString(),
-                                                SourceType.project));
-                                        debuggerFrame.stopWaiting();
-                                    } catch (Exception e1) {
-                                        e1.printStackTrace();
-                                        debuggerFrame.stopWaiting();
-                                        showError("Error downloading project: " + e1);
-                                    } finally {
-                                        debuggerFrame.stopWaiting();
-                                    }
-                                }).start();
-                            }
+                        final ProjectTO selected = selectDialog.getSelectedObject();
+                        if (selected != null) {
+                            debuggerFrame.startWaiting();
+                            setFromString(null);
+                            // get script in thread
+                            new Thread( () -> {
+                                try {
+                                    String scriptXml = projectServiceClient.downloadTestScriptForProject(selected
+                                            .getId());
+                                    debuggerFrame.setDataFromProject(selected);
+                                    setFromString(scriptXml);
+                                    debuggerFrame.setCurrentTitle("Selected Project: " + selected.getName());
+                                    debuggerFrame.setScriptSource(new ScriptSource(selected.getId().toString(),
+                                            SourceType.project));
+                                    debuggerFrame.stopWaiting();
+                                } catch (Exception e1) {
+                                    e1.printStackTrace();
+                                    debuggerFrame.stopWaiting();
+                                    showError("Error downloading project: " + e1);
+                                } finally {
+                                    debuggerFrame.stopWaiting();
+                                }
+                            }).start();
                         }
-                    } catch (WebClientRequestException e1) {
-                        showError("Error: Empty or Invalid Tank URL");
-                        LOG.error("Error: Empty or Invalid Tank URL");
+                    } catch (MessageBodyProviderNotFoundException e1) {
+                        showError("Error viewing the projects response: " + e1);
+                        LOG.error("Error viewing response from ProjectService.METHOD_PROJECT_SCRIPT_DOWNLOAD", e1);
                     } catch (Exception e2) {
                         showError("Error downloading projects: " + e2);
                     }

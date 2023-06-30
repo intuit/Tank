@@ -24,8 +24,8 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
-import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
 import com.intuit.tank.api.service.v1.cloud.CloudService;
 import com.intuit.tank.rest.BaseRestClient;
 import com.intuit.tank.rest.RestServiceException;

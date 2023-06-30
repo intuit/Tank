@@ -1,12 +1,6 @@
 spring:
   config:
     use-legacy-processing: true
-  codec:
-    max-in-memory-size: 200MB
-  main:
-    banner-mode: "off"
-  logging:
-    config: classpath:log4j2.xml
 
 springdoc:
   swagger-ui:
@@ -21,7 +15,7 @@ jsk:
 server:
   max-http-header-size: 32KB
   port: 8080
-  include-debug-info: false # Set to true for stack trace in error log messages
+  include-debug-info: false # Set to true for debug logs in error messages
   error:
     whitelabel:
       enabled: false

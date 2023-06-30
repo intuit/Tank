@@ -17,8 +17,9 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.vm.vmManager.VMTracker;
+import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.mail.MailService;
+import com.intuit.tank.notification.NotificationRunner;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.event.JobEvent;
 import com.intuit.tank.vmManager.VMTrackerImpl;

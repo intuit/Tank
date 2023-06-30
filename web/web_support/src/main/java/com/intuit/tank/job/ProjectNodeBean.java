@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.intuit.tank.vm.vmManager.models.ValidationStatus;
+import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 

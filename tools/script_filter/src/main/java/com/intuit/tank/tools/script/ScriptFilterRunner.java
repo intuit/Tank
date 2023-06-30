@@ -57,7 +57,7 @@ import org.xml.sax.SAXException;
 
 import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
 import com.intuit.tank.api.model.v1.script.ScriptTO;
-import com.intuit.tank.rest.mvc.rest.clients.ScriptClient;
+import com.intuit.tank.client.v1.script.ScriptServiceClient;
 import com.intuit.tank.tools.script.ScriptRunner;
 
 /**
@@ -86,7 +86,7 @@ public class ScriptFilterRunner extends JFrame {
     private JButton showXmlBT;
     private JButton saveBT;
     private JLabel localLB;
-    private ScriptClient scriptClient;
+    private ScriptServiceClient scriptServiceClient;
     private ExternalScriptTO currentExternalScript;
     private JFileChooser loadChooser;
     private boolean local = true;
@@ -110,7 +110,7 @@ public class ScriptFilterRunner extends JFrame {
                 }
             }
         });
-        scriptClient = new ScriptClient(serviceUrl);
+        scriptServiceClient = new ScriptServiceClient(serviceUrl);
 
         Component topPanel = createTopPanel();
         Component bottomPanel = createBottomPanel();
@@ -327,8 +327,8 @@ public class ScriptFilterRunner extends JFrame {
             }
 
         } else {
-            selectScript(new SelectDialog<ExternalScriptTO>(ScriptFilterRunner.this, scriptClient
-                    .getExternalScripts().getScripts()));
+            selectScript(new SelectDialog<ExternalScriptTO>(ScriptFilterRunner.this, scriptServiceClient
+                    .getExternalScripts()));
 
         }
 
@@ -354,7 +354,7 @@ public class ScriptFilterRunner extends JFrame {
                     + language.getDefaultExtension());
         }
         currentExternalScript.setScript(scriptEditorTA.getText());
-        currentExternalScript = scriptClient.createExternalScript(currentExternalScript);
+        currentExternalScript = scriptServiceClient.saveOrUpdateExternalScript(currentExternalScript);
     }
 
     /**

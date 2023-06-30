@@ -81,7 +81,7 @@ public class LogViewer implements Serializable {
         if (StringUtils.isNotBlank(currentLogFile)) {
             String contextPath = FacesContext.getCurrentInstance().getExternalContext()
                     .getRequestContextPath();
-            return getContextRoot(contextPath) + "v2/logs" + File.separator
+            return getContextRoot(contextPath) + "api/v2/logs" + File.separator
                     + URLEncoder.encode(currentLogFile, StandardCharsets.UTF_8);
         }
         return null;

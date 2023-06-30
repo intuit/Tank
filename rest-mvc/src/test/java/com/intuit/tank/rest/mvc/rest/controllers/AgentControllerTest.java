@@ -7,10 +7,10 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers;
 
+import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
 import com.intuit.tank.rest.mvc.rest.services.agent.AgentServiceV2;
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinition;
-import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentAvailabilityStatus;
 import com.intuit.tank.vm.agent.messages.AgentData;
