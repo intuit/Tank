@@ -31,6 +31,6 @@ public class ProjectServiceUrlBuilderTest {
     @Tag(TestGroups.FUNCTIONAL)
     public void testGetScriptXmlUrl() throws Exception {
         assertEquals(ProjectServiceUrlBuilder.getScriptXmlUrl("1"), new TankConfig().getControllerBase()
-                + "/rest/v1/project-service/script/1");
+                + "/v2/jobs/script/1");
     }
 }

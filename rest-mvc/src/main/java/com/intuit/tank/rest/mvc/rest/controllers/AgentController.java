@@ -7,7 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers;
 
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContainer;
 import com.intuit.tank.rest.mvc.rest.services.agent.AgentServiceV2;
 import com.intuit.tank.vm.agent.messages.Headers;
@@ -91,7 +91,7 @@ public class AgentController {
         return new ResponseEntity<AgentTestStartData>(agentService.agentReady(agentData), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/headers", method = RequestMethod.GET)
+    @RequestMapping(value = "/headers", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
     @Operation(description = "Returns agent headers", summary = "Get the agent headers")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully found agent headers"),

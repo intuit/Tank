@@ -30,10 +30,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.amazonaws.xray.AWSXRay;
-import com.intuit.tank.api.cloud.VMTracker;
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
-import com.intuit.tank.api.model.v1.cloud.VMStatus;
+import com.intuit.tank.vm.vmManager.VMTracker;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.dao.util.ProjectDaoUtil;

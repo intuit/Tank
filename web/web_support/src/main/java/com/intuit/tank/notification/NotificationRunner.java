@@ -27,7 +27,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.api.cloud.VMTracker;
+import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.JobNotificationDao;
 import com.intuit.tank.mail.MailService;

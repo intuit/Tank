@@ -26,8 +26,8 @@ import com.intuit.tank.rest.mvc.rest.models.projects.AutomationJobRegion;
 import com.intuit.tank.rest.mvc.rest.models.projects.AutomationRequest;
 import com.intuit.tank.rest.mvc.rest.util.ProjectServiceUtil;
 import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
-import com.intuit.tank.service.impl.v1.automation.MessageSender;
-import com.intuit.tank.service.util.ServletInjector;
+import com.intuit.tank.rest.mvc.rest.cloud.MessageEventSender;
+import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
 import com.intuit.tank.vm.api.enumerated.ScriptDriver;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.common.TankConstants;
@@ -73,8 +73,9 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     @Override
     public Map<Integer, String> getAllProjectNames(){
         try {
-            List<Project> all = new ProjectDao().findAll();
-            return all.stream().collect(Collectors.toMap(Project::getId, Project::getName));
+            List<Project> all = new ProjectDao().findAllFast();
+            return all.stream().sorted(Comparator.comparing(Project::getModified).reversed())
+                               .collect(Collectors.toMap(Project::getId, Project::getName, (e1, e2) -> e1, LinkedHashMap::new));
         } catch (Exception e) {
             LOGGER.error("Error returning all project names: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("projects", "all project names", e);
@@ -174,7 +175,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     }
 
     private void sendMsg(BaseEntity entity, ModificationType type) {
-        MessageSender sender = new ServletInjector<MessageSender>().getManagedBean(servletContext, MessageSender.class);
+        MessageEventSender sender = new ServletInjector<MessageEventSender>().getManagedBean(servletContext, MessageEventSender.class);
         sender.sendEvent(new ModifiedEntityMessage(entity.getClass(), entity.getId(), type));
     }
 

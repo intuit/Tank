@@ -18,7 +18,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 
 public class VMNodeBean extends JobNodeBean {
 

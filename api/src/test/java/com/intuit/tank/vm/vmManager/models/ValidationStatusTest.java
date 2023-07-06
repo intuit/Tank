@@ -1,4 +1,4 @@
-package com.intuit.tank.api.model.v1.cloud;
+package com.intuit.tank.vm.vmManager.models;
 
 /*
  * #%L
@@ -14,8 +14,6 @@ package com.intuit.tank.api.model.v1.cloud;
  */
 
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
 
 import static org.junit.jupiter.api.Assertions.*;
 
