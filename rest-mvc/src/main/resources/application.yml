@@ -1,6 +1,10 @@
 spring:
   config:
     use-legacy-processing: true
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
   codec:
     max-in-memory-size: 200MB
   main:
@@ -37,10 +41,6 @@ server:
       cookie:
         secure: true
         http-only: true
-    multipart:
-      enabled: true
-      max-file-size: 200MB
-      max-request-size: 200MB
   tomcat:
     accesslog:
       request-attributes-enabled: true

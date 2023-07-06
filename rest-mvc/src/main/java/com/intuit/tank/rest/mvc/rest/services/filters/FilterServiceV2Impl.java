@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.filters;
 
+import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.dao.ScriptFilterDao;
 import com.intuit.tank.dao.ScriptFilterGroupDao;
@@ -127,6 +128,7 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
                 }
                 if (!filterIds.isEmpty()) {
                     ScriptFilterUtil.applyFilters(filterIds, script);
+                    ScriptUtil.setScriptStepLabels(script);
                     script = new ScriptDao().saveOrUpdate(script);
                     sendMsg(script, ModificationType.UPDATE);
                     return "Filters applied";
