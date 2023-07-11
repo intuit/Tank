@@ -17,7 +17,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ConversationScoped;
@@ -26,9 +25,7 @@ import javax.faces.context.PartialViewContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.swing.text.Style;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import com.intuit.tank.util.Messages;
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.event.TabChangeEvent;
@@ -403,12 +400,7 @@ public class WorkloadScripts implements Serializable {
     }
 
     public void saveScriptGroup() {
-        try {
-            new ScriptGroupDao().saveOrUpdate(scriptGroup);
-            LOG.info("WorkloadScripts - saveScriptGroup() saved scriptGroup: " + scriptGroup.getName());
-        } catch (Exception e) {
-            LOG.error("WorkloadScripts - saveScriptGroup() error: " + e.getMessage());
-        }
+        new ScriptGroupDao().saveOrUpdate(scriptGroup);
     }
 
     public void finishEditing() {
