@@ -22,8 +22,8 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import com.intuit.tank.api.model.v1.cloud.UserDetail;
-import com.intuit.tank.api.model.v1.cloud.ValidationStatus;
+import com.intuit.tank.vm.vmManager.models.UserDetail;
+import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.settings.AccessRight;

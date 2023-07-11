@@ -30,7 +30,23 @@
           </ts:toolbar>
 
           <div class="vertical-spacer" />
-          
+
+          <h:form id="banner-form">
+            <h:panelGroup layout="block" style="position:fixed; top:60px; left:0; right:0; z-index:999; text-align:center;">
+              <p:messages id="banner" autoUpdate="true" closable="true" />
+            </h:panelGroup>
+            <p:commandButton id="closeMessageButton" style="display: none;"
+                             action="#{filterGroupCreationBean.closeMessage}" ajax="true" />
+          </h:form>
+
+          <script type="text/javascript">
+            $(document).ready(function() {
+              $('#filterAndFilterGroupForm\\:banner-form\\:banner .ui-messages-close').click(function() {
+                PrimeFaces.ab({s:'filterAndFilterGroupForm:banner-form:closeMessageButton'})
+              });
+            });
+          </script>
+
           <p:growl globalOnly="true" id="messages" />
 
           <p:dataTable id="filterGroupTableId" var="filterGroupEnvelope" value="#{filterGroupBean.selectionList}"

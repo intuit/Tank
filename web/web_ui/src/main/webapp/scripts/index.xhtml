@@ -55,6 +55,21 @@
       </ts:toolbar>
 
       <div class="vertical-spacer" />
+
+      <h:form id="banner-form">
+        <p:messages id="banner" autoUpdate="true" closable="true" />
+        <p:commandButton id="closeMessageButton" style="display: none;"
+                         action="#{scriptBean.closeMessage}" ajax="true" />
+      </h:form>
+
+      <script type="text/javascript">
+        $(document).ready(function() {
+          $('#mainForm\\:banner-form\\:banner .ui-messages-close').click(function() {
+            PrimeFaces.ab({s:'mainForm:banner-form:closeMessageButton'})
+          });
+        });
+      </script>
+
       <p:growl globalOnly="true" id="messages" autoUpdate="true" />
       <pe:remoteCommand id="resizeListener" name="resizeFinished"
         update="scriptTableId" />
@@ -208,14 +223,14 @@
 
           <p:commandLink id="downloadHarnessBT"
             title="Download Harness XML"
-            onclick="location.href='#{request.contextPath}/api/v2/scripts/harness/download/#{selectable.entity.id}'">
+            onclick="location.href='#{request.contextPath}/v2/scripts/harness/download/#{selectable.entity.id}'">
             <h:graphicImage library="gfx" name="16/download.png"
               width="16px" height="16px" style="padding: 2px;"
               title="Download Harness XML" />
           </p:commandLink>
           <p:commandLink id="downloadTSBT"
             title="Download Intuit Tank XML"
-            onclick="location.href='#{request.contextPath}/api/v2/scripts/download/#{selectable.entity.id}'">
+            onclick="location.href='#{request.contextPath}/v2/scripts/download/#{selectable.entity.id}'">
             <h:graphicImage library="gfx" name="16/download.png"
               width="16px" height="16px" style="padding: 2px;"
               title="Download Tank XML" />

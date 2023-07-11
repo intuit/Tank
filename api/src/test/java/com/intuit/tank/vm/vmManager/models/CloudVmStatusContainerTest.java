@@ -1,4 +1,4 @@
-package com.intuit.tank.api.model.v1.cloud;
+package com.intuit.tank.vm.vmManager.models;
 
 /*
  * #%L
@@ -13,7 +13,6 @@ package com.intuit.tank.api.model.v1.cloud;
  * #L%
  */
 
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -24,9 +23,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
-import com.intuit.tank.api.model.v1.cloud.UserDetail;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 
 /**

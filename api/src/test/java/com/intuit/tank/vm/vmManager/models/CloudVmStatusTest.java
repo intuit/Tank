@@ -1,7 +1,7 @@
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved
  */
-package com.intuit.tank.api.model.v1.cloud;
+package com.intuit.tank.vm.vmManager.models;
 
 /*
  * #%L
