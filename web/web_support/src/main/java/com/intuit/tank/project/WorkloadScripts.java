@@ -311,9 +311,19 @@ public class WorkloadScripts implements Serializable {
     }
 
     private void initScriptSelectionModel() {
-        scriptSelectionModel = new DualListModel<Script>(
-                                                scriptLoader.getVersionEntities(),
-                                                new ArrayList<Script>());
+        try {
+            scriptSelectionModel = new DualListModel<Script>(
+                    scriptLoader.getVersionEntities(),
+                    new ArrayList<Script>());
+            LOG.info("WorkloadScripts - initScriptSelectionModel() - source list size " + scriptSelectionModel.getSource().size());
+            LOG.info("WorkloadScripts - initScriptSelectionModel() - target list size " + scriptSelectionModel.getTarget().size());
+            LOG.info("WorkloadScripts - initScriptSelectionModel() - source list last entry " + scriptSelectionModel.getSource().get(0).getName());
+            if(scriptSelectionModel.getTarget().size() > 0) {
+                LOG.info("WorkloadScripts - initScriptSelectionModel() - target list last entry " + scriptSelectionModel.getTarget().get(0).getName());
+            }
+        } catch (Exception e) {
+            LOG.error("WorkloadScripts - initScriptSelectionModel() error: " + e.getMessage());
+        }
 
     }
 
