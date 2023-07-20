@@ -18,8 +18,6 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
@@ -102,22 +100,10 @@ public class ScriptBean extends SelectableBean<Script> implements Serializable, 
 
     @PostConstruct
     public void init() {
-        if(FacesContext.getCurrentInstance().getExternalContext().getSessionMap().containsKey("showMessage")) {
-            boolean showMessage = (boolean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("showMessage");
-            if (showMessage) {
-                FacesContext.getCurrentInstance().addMessage("formId:banner", new FacesMessage(FacesMessage.SEVERITY_WARN, "Important Update: Tank V2 API is now available! To ensure compatibility with the updated API, " +
-                        "download the newest version of Tank tools under the 'Tools' tab. Please refer to the Tank V2 API documentation " +
-                        "under 'Help' for more details on the new API features.", null));
-            }
-        }
         tablePrefs = new TablePreferences(userPrefs.getPreferences().getScriptsTableColumns());
         stepTablePrefs = new TablePreferences(userPrefs.getPreferences().getScriptStepTableColumns());
 
         tablePrefs.registerListener(userPrefs);
-    }
-
-    public void closeMessage(){
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("showMessage", false);
     }
 
     /**
