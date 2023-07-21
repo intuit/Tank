@@ -19,7 +19,7 @@ public class TankHttpClient3Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void addBasicAuth() {
-        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbin.org/basic-auth/test/test_pass");
+        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbun.org/basic-auth/test/test_pass");
         request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withRealm("bogus").withScheme(AuthScheme.Basic).build());
 
         request.doGet(null);
@@ -39,7 +39,7 @@ public class TankHttpClient3Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void addDigestAuth() {
-        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbin.org/digest-auth/auth/test/test_pass");
+        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbun.org/digest-auth/auth/test/test_pass");
         request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withScheme(AuthScheme.Basic).build());
 
         request.doGet(null);
@@ -59,7 +59,7 @@ public class TankHttpClient3Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void doDelete() {
-        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbin.org/delete");
+        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbun.org/delete");
         request.doDelete(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
@@ -69,7 +69,7 @@ public class TankHttpClient3Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void doGet() {
-        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbin.org/get");
+        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbun.org/get");
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
@@ -80,7 +80,7 @@ public class TankHttpClient3Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void doPost() {
-        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbin.org/post");
+        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbun.org/post");
         request.doPost(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
@@ -91,7 +91,7 @@ public class TankHttpClient3Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void doPut() {
-        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbin.org/put");
+        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbun.org/put");
         request.doPut(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
@@ -101,8 +101,8 @@ public class TankHttpClient3Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void clearSession() {
-        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbin.org/cookies");
-        request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("httpbin.org").withPath("/").build());
+        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbun.org/cookies");
+        request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("httpbun.org").withPath("/").build());
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
@@ -120,8 +120,8 @@ public class TankHttpClient3Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void setCookie() {
-        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbin.org/cookies");
-        request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("httpbin.org").withPath("/").build());
+        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbun.org/cookies");
+        request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("httpbun.org").withPath("/").build());
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
