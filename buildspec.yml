@@ -26,7 +26,3 @@ artifacts:
     - web/web_ui/target/tank.war
     - agent/agent_startup_pkg/target/agent-startup-pkg.zip
   discard-paths: yes
-
-cache:
-  paths:
-    - '/root/.m2/**/*'
