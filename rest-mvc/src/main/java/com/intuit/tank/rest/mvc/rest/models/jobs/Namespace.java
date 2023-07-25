@@ -9,7 +9,7 @@ package com.intuit.tank.rest.mvc.rest.models.jobs;
 
 public class Namespace {
 
-    public static final String NAMESPACE_V1 = "urn:tank/jobs/v2";
+    public static final String NAMESPACE_V1 = "urn:wats/job/v1";
 
     private Namespace() {
     }

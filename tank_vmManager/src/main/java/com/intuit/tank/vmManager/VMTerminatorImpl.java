@@ -22,10 +22,10 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
+import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.api.cloud.VMTracker;
 import com.intuit.tank.vm.vmManager.VMChannel;
 import com.intuit.tank.vm.vmManager.VMTerminator;
 

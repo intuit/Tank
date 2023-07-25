@@ -289,7 +289,7 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
     public String getDataFileDownloadLink(DataFile dataFile) {
         TankConfig config = new TankConfig();
         if (dataFile != null) {
-            String url = config.getControllerBase() + "/api/v2/datafiles/download/{id}";
+            String url = config.getControllerBase() + "/v2/datafiles/download/{id}";
             return url.replace("{id}", Integer.toString(dataFile.getId()));
         } else {
             return "";

@@ -208,7 +208,7 @@
           <div id="scriptStepAddForm">
             <p:commandButton value="Add scripts"
               update=":editGroupForm:scriptShuffleListId, :editGroupForm:scriptStepTableId"
-              action="#{workloadScripts.addScriptGroupStep()}" ajax="true" />
+              action="#{workloadScripts.addScriptGroupStep()}" ajax="false" />
           </div>
           <div class="vertical-spacer" />
           <div style="height: 150px; overflow: auto; border: 1px solid black;">
@@ -233,7 +233,7 @@
               </p:column>
 
               <p:column styleClass="ellipsis min-column-size" style="width:50px;">
-                <p:commandButton update="@form" ajax="true" action="#{workloadScripts.deleteScriptGroupStep(step)}"
+                <p:commandButton update="@form" ajax="false" action="#{workloadScripts.deleteScriptGroupStep(step)}"
                   value="X" />
               </p:column>
             </p:dataTable>

@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.intuit.tank.api.model.v1.cloud.UserDetail;
+import com.intuit.tank.vm.vmManager.models.UserDetail;
 
 /**
  * 
