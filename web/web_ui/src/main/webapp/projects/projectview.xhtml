@@ -207,8 +207,7 @@
 
           <div id="scriptStepAddForm">
             <p:commandButton value="Add scripts"
-              update=":editGroupForm:scriptShuffleListId, :editGroupForm:scriptStepTableId"
-              action="#{workloadScripts.addScriptGroupStep()}" ajax="false" />
+              action="#{workloadScripts.addScriptGroupStep()}" ajax="true" />
           </div>
           <div class="vertical-spacer" />
           <div style="height: 150px; overflow: auto; border: 1px solid black;">
