@@ -212,7 +212,7 @@
           </div>
           <div class="vertical-spacer" />
           <div style="height: 150px; overflow: auto; border: 1px solid black;">
-            <p:dataTable id="scriptStepTableId" value="#{workloadScripts.steps}" var="step"
+            <p:dataTable id="scriptStepTableId" value="#{workloadScripts.getSteps()}" var="step"
                          class="pad2" style="width:100%;" noDataLabel="Add Scripts using the selector above.">
 
               <p:column styleClass="ellipsis min-column-size" style="width: 270px;">
