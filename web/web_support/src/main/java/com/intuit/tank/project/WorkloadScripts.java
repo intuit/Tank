@@ -291,8 +291,10 @@ public class WorkloadScripts implements Serializable {
 
     private void initScriptSelectionModel() {
         try {
+            List<Script> limitedSource = scriptLoader.getVersionEntities();
+            int limitedSourceSize = limitedSource.size();
             scriptSelectionModel = new DualListModel<Script>(
-                    scriptLoader.getVersionEntities(),
+                    limitedSource.subList(limitedSourceSize - 500, limitedSourceSize),
                     new ArrayList<Script>());
             LOG.info("WorkloadScripts - initScriptSelectionModel() - source list size " + scriptSelectionModel.getSource().size());
             LOG.info("WorkloadScripts - initScriptSelectionModel() - target list size " + scriptSelectionModel.getTarget().size());

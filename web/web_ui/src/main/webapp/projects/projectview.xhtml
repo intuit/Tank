@@ -242,19 +242,6 @@
           <p:commandButton onclick="PF('editScriptGroup').hide();" type="button" value="Close" />
         </h:panelGroup>
       </h:form>
-      <script>
-        PrimeFaces.widget.PickList.prototype.generateItems = function(b, a) {
-          var output = '';
-          b.children(".ui-picklist-item").each(function () {
-            var e = $(this),
-                    f = PrimeFaces.escapeHTML(e.attr("data-item-value")),
-                    d = e.attr("data-item-label"),
-                    c = (d) ? PrimeFaces.escapeHTML(d) : "";
-            output += '<option value="' + f + '" selected="selected">' + c + "</option>";
-          })
-          a.append(output)
-        }
-      </script>
     </p:dialog>
 
     <p:dialog id="scriptGroupPopupID" appendTo="@(body)" dynamic="true" widgetVar="scriptGroupPopup" width="500"

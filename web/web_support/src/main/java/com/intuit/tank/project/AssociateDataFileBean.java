@@ -76,7 +76,9 @@ public class AssociateDataFileBean implements Serializable {
         Set<Integer> dataFileIds = projectBean.getJobConfiguration().getDataFileIds();
         for (DataFile d : files) {
             if (dataFileIds.contains(d.getId())) {
-                selectionModel.getTarget().add(d);
+                if(selectionModel.getTarget().size() < 500){
+                    selectionModel.getTarget().add(d);
+                }
             } else {
                 selectionModel.getSource().add(d);
             }
