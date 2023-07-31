@@ -28,6 +28,7 @@ import javax.inject.Named;
 
 import com.intuit.tank.util.Messages;
 import org.primefaces.component.tabview.TabView;
+import org.primefaces.event.SelectEvent;
 import org.primefaces.event.TabChangeEvent;
 import org.primefaces.model.DualListModel;
 
@@ -64,6 +65,9 @@ public class WorkloadScripts implements Serializable {
 
     private int tabIndex = 0;
 
+    private Script selectedAvailableScript;
+    private Script selectedSelectedScript;
+
     @PostConstruct
     public void postConstruct() {
         List<TestPlan> testPlans = projectBean.getWorkload().getTestPlans();
@@ -80,6 +84,54 @@ public class WorkloadScripts implements Serializable {
         projectBean.getWorkload().addTestPlan(plan);
         // this.tabIndex = projectBean.getWorkload().getTestPlans().size() - 1;
         // this.currentTestPlan = plan;
+    }
+
+    public Script getSelectedAvailableScript() {
+        return selectedAvailableScript;
+    }
+
+    public void setSelectedAvailableScript(Script selectedAvailableScript) {
+        this.selectedAvailableScript = selectedAvailableScript;
+    }
+
+    public Script getSelectedSelectedScript() {
+        return selectedSelectedScript;
+    }
+
+    public void setSelectedSelectedScript(Script selectedSelectedScript) {
+        this.selectedSelectedScript = selectedSelectedScript;
+    }
+
+    public void addAllToTarget() {
+        scriptSelectionModel.getTarget().addAll(scriptSelectionModel.getSource());
+        scriptSelectionModel.getSource().clear();
+    }
+
+    public void addToTarget() {
+        if(selectedAvailableScript != null) {
+            scriptSelectionModel.getTarget().add(0, selectedAvailableScript);
+            scriptSelectionModel.getSource().remove(selectedAvailableScript);
+        }
+    }
+
+    public void removeFromTarget() {
+        if(selectedSelectedScript != null) {
+            scriptSelectionModel.getSource().add(0, selectedSelectedScript);
+            scriptSelectionModel.getTarget().remove(selectedSelectedScript);
+        }
+    }
+
+    public void removeAllFromTarget() {
+        scriptSelectionModel.getSource().addAll(scriptSelectionModel.getTarget());
+        scriptSelectionModel.getTarget().clear();
+    }
+
+    public void onSourceSelect(SelectEvent event) {
+        selectedAvailableScript = (Script) event.getObject();
+    }
+
+    public void onTargetSelect(SelectEvent event) {
+        selectedSelectedScript = (Script) event.getObject();
     }
 
     public void onChange(TabChangeEvent event) {
@@ -291,10 +343,8 @@ public class WorkloadScripts implements Serializable {
 
     private void initScriptSelectionModel() {
         try {
-            List<Script> limitedSource = scriptLoader.getVersionEntities();
-            int limitedSourceSize = limitedSource.size();
             scriptSelectionModel = new DualListModel<Script>(
-                    limitedSource.subList(limitedSourceSize - 500, limitedSourceSize),
+                    scriptLoader.getVersionEntities(),
                     new ArrayList<Script>());
             LOG.info("WorkloadScripts - initScriptSelectionModel() - source list size " + scriptSelectionModel.getSource().size());
             LOG.info("WorkloadScripts - initScriptSelectionModel() - target list size " + scriptSelectionModel.getTarget().size());
