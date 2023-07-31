@@ -23,6 +23,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.primefaces.event.SelectEvent;
 import org.primefaces.model.DualListModel;
 
 import com.intuit.tank.ModifiedDatafileMessage;
@@ -42,6 +43,58 @@ public class AssociateDataFileBean implements Serializable {
     private ProjectBean projectBean;
 
     private DualListModel<DataFile> selectionModel;
+
+    private DataFile selectedAvailableFile;
+    private DataFile selectedSelectedFile;
+
+
+    public DataFile getSelectedAvailableFile() {
+        return selectedAvailableFile;
+    }
+
+    public void setSelectedAvailableFile(DataFile selectedAvailableFile) {
+        this.selectedAvailableFile = selectedAvailableFile;
+    }
+
+    public DataFile getSelectedSelectedFile() {
+        return selectedSelectedFile;
+    }
+
+    public void setSelectedSelectedFile(DataFile selectedSelectedFile) {
+        this.selectedSelectedFile = selectedSelectedFile;
+    }
+
+    public void addAllToTarget() {
+        selectionModel.getTarget().addAll(selectionModel.getSource());
+        selectionModel.getSource().clear();
+    }
+
+    public void addToTarget() {
+        if(selectedAvailableFile != null) {
+            selectionModel.getTarget().add(0, selectedAvailableFile);
+            selectionModel.getSource().remove(selectedAvailableFile);
+        }
+    }
+
+    public void removeFromTarget() {
+        if(selectedSelectedFile != null) {
+            selectionModel.getSource().add(0, selectedSelectedFile);
+            selectionModel.getTarget().remove(selectedSelectedFile);
+        }
+    }
+
+    public void removeAllFromTarget() {
+        selectionModel.getSource().addAll(selectionModel.getTarget());
+        selectionModel.getTarget().clear();
+    }
+
+    public void onSourceSelect(SelectEvent event) {
+        selectedAvailableFile = (DataFile) event.getObject();
+    }
+
+    public void onTargetSelect(SelectEvent event) {
+        selectedSelectedFile = (DataFile) event.getObject();
+    }
 
     /**
      * Initializes the instance variables. It also performs database operations to fetch the file items from the
@@ -76,9 +129,7 @@ public class AssociateDataFileBean implements Serializable {
         Set<Integer> dataFileIds = projectBean.getJobConfiguration().getDataFileIds();
         for (DataFile d : files) {
             if (dataFileIds.contains(d.getId())) {
-                if(selectionModel.getTarget().size() < 500){
-                    selectionModel.getTarget().add(d);
-                }
+                selectionModel.getTarget().add(d);
             } else {
                 selectionModel.getSource().add(d);
             }
