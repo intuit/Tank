@@ -206,17 +206,9 @@
           </h:panelGroup>
 
           <div id="scriptStepAddForm">
-            <p:log id="log"/>
             <p:commandButton value="Add scripts"
               update=":editGroupForm:scriptShuffleListId, :editGroupForm:scriptStepTableId"
-              action="#{workloadScripts.addScriptGroupStep()}" ajax="true"
-              onstart="console.log('addScriptGroupStep - AJAX Request Starting')"
-              onsuccess="console.log('addScriptGroupStep - AJAX Request Success')"
-              oncomplete="handleAjaxResponse(xhr, status, args)"
-              onerror="console.log('addScriptGroupStep - AJAX Request Error')">
-              <p:ajax listener="#{workloadScripts.ajaxListener}" />
-            </p:commandButton>
-
+              action="#{workloadScripts.addScriptGroupStep()}" ajax="false" />
           </div>
           <div class="vertical-spacer" />
           <div style="height: 150px; overflow: auto; border: 1px solid black;">
@@ -241,27 +233,14 @@
               </p:column>
 
               <p:column styleClass="ellipsis min-column-size" style="width:50px;">
-                <p:commandButton update="@form" ajax="true" action="#{workloadScripts.deleteScriptGroupStep(step)}"
-                  value="X"
-                  onstart="console.log('deleteScriptGroupStep - AJAX Request Starting')"
-                  onsuccess="console.log('deleteScriptGroupStep - AJAX Request Success')"
-                  oncomplete="handleAjaxResponse(xhr, status, args)"
-                  onerror="console.log('deleteScriptGroupStep - AJAX Request Error')">
-                  <p:ajax listener="#{workloadScripts.ajaxListener}" />
-                </p:commandButton>
+                <p:commandButton update="@form" ajax="false" action="#{workloadScripts.deleteScriptGroupStep(step)}"
+                  value="X" />
               </p:column>
             </p:dataTable>
             <br />
           </div>
           <p:commandButton onclick="PF('editScriptGroup').hide();" type="button" value="Close" />
         </h:panelGroup>
-        <script type="text/javascript">
-          function handleAjaxResponse(xhr, status, args) {
-            console.log("Ajax Response: " + xhr.responseText);
-            console.log("Ajax Status: " + status);
-            console.log("HTTP Headers: " + xhr.getAllResponseHeaders());
-          }
-        </script>
       </h:form>
     </p:dialog>
 
@@ -744,12 +723,6 @@
       
       //]]>
       </script>
-            <style>
-              .ui-log {
-                left: 1500px;
-                top: 500px;
-              }
-            </style>
             <style type="text/css">
               .ui-selectcheckboxmenu.without-selectall {
                 display: none;

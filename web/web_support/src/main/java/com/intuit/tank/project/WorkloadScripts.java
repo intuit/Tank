@@ -76,24 +76,6 @@ public class WorkloadScripts implements Serializable {
         }
     }
 
-    public void ajaxListener(AjaxBehaviorEvent event){
-        FacesContext context = FacesContext.getCurrentInstance();
-        PartialViewContext partialViewContext = context.getPartialViewContext();
-
-        Collection<String> renderIds = partialViewContext.getRenderIds();
-        for (String renderId : renderIds) {
-            LOG.info("renderId: " + renderId);
-        }
-
-        Collection<String> executeIds = partialViewContext.getExecuteIds();
-        for (String executeId : executeIds) {
-            LOG.info("executeId: " + executeId);
-        }
-
-        String lastPhaseId = event.getPhaseId().toString();
-        LOG.info("Last Phase: " + lastPhaseId);
-    }
-
     public void addTestPlan(TestPlan plan) {
         projectBean.getWorkload().addTestPlan(plan);
         // this.tabIndex = projectBean.getWorkload().getTestPlans().size() - 1;

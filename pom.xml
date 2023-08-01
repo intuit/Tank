@@ -41,7 +41,7 @@
 
     <version.faces>2.3.9</version.faces>
     <version.primefaces>12.0.0</version.primefaces>
-    <version.primefaces-ext>12.0.3</version.primefaces-ext>
+    <version.primefaces-ext>12.0.9</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>3.0.0-M8</version.surefire>
     <version.jersey>2.38</version.jersey>
@@ -472,7 +472,7 @@
       <dependency>
         <groupId>org.primefaces.extensions</groupId>
         <artifactId>resources-ckeditor</artifactId>
-        <version>${version.primefaces-ext}</version>
+        <version>12.0.4</version>
       </dependency>
 
       <dependency>
