@@ -44,24 +44,24 @@ public class AssociateDataFileBean implements Serializable {
 
     private DualListModel<DataFile> selectionModel;
 
-    private DataFile selectedAvailableFile;
-    private DataFile selectedSelectedFile;
+    private List<DataFile> selectedAvailableFiles;
+    private List<DataFile> selectedSelectedFiles;
 
 
-    public DataFile getSelectedAvailableFile() {
-        return selectedAvailableFile;
+    public List<DataFile> getSelectedAvailableFiles() {
+        return selectedAvailableFiles;
     }
 
-    public void setSelectedAvailableFile(DataFile selectedAvailableFile) {
-        this.selectedAvailableFile = selectedAvailableFile;
+    public void setSelectedAvailableFiles(List<DataFile> selectedAvailableFiles) {
+        this.selectedAvailableFiles = selectedAvailableFiles;
     }
 
-    public DataFile getSelectedSelectedFile() {
-        return selectedSelectedFile;
+    public List<DataFile> getSelectedSelectedFiles() {
+        return selectedSelectedFiles;
     }
 
-    public void setSelectedSelectedFile(DataFile selectedSelectedFile) {
-        this.selectedSelectedFile = selectedSelectedFile;
+    public void setSelectedSelectedFiles(List<DataFile> selectedSelectedFiles) {
+        this.selectedSelectedFiles = selectedSelectedFiles;
     }
 
     public void addAllToTarget() {
@@ -70,16 +70,16 @@ public class AssociateDataFileBean implements Serializable {
     }
 
     public void addToTarget() {
-        if(selectedAvailableFile != null) {
-            selectionModel.getTarget().add(0, selectedAvailableFile);
-            selectionModel.getSource().remove(selectedAvailableFile);
+        if(!selectedAvailableFiles.isEmpty()) {
+            selectionModel.getTarget().addAll(0, selectedAvailableFiles);
+            selectionModel.getSource().removeAll(selectedAvailableFiles);
         }
     }
 
     public void removeFromTarget() {
-        if(selectedSelectedFile != null) {
-            selectionModel.getSource().add(0, selectedSelectedFile);
-            selectionModel.getTarget().remove(selectedSelectedFile);
+        if(!selectedSelectedFiles.isEmpty()) {
+            selectionModel.getSource().addAll(0, selectedSelectedFiles);
+            selectionModel.getTarget().removeAll(selectedSelectedFiles);
         }
     }
 
@@ -89,11 +89,11 @@ public class AssociateDataFileBean implements Serializable {
     }
 
     public void onSourceSelect(SelectEvent event) {
-        selectedAvailableFile = (DataFile) event.getObject();
+        selectedAvailableFiles = (List<DataFile>) event.getObject();
     }
 
     public void onTargetSelect(SelectEvent event) {
-        selectedSelectedFile = (DataFile) event.getObject();
+        selectedSelectedFiles = (List<DataFile>) event.getObject();
     }
 
     /**

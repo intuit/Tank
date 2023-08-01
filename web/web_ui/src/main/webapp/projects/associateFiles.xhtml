@@ -30,9 +30,9 @@
   <h:panelGroup id="datafileListGroup" style="display: flex; justify-content: space-between;">
     <div class="ui-g">
       <div class="ui-g-12 ui-md-5 datatable-container">
-        <p:dataTable id="availableFiles" var="datafile" value="#{associateDataFileBean.selectionModel.source}" selection="#{associateDataFileBean.selectedAvailableFile}" paginator="true" rows="25"
+        <p:dataTable id="availableFiles" var="datafile" value="#{associateDataFileBean.selectionModel.source}" selection="#{associateDataFileBean.selectedAvailableFiles}" paginator="true" rows="25"
                      paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}" paginatorPosition="top" scrollable="true" pageLinks="1"
-                     styleClass="scrollable-body" emptyMessage="" selectionMode="single" rowKey="#{datafile.id}" style="max-width=">
+                     styleClass="scrollable-body" emptyMessage="No records found." selectionMode="multiple" rowKey="#{datafile.id}" style="max-width=">
           <p:ajax event="rowSelect" listener="#{associateDataFileBean.onSourceSelect}" update=":mainForm:projectTabPanelID:datafileListGroup"/>
           <p:ajax event="rowDblselect" listener="#{associateDataFileBean.addToTarget}" update=":mainForm:projectTabPanelID:datafileListGroup"/>
               <p:column id="operationColumn" style="width:20px">
@@ -77,9 +77,9 @@
       </div>
 
       <div class="ui-g-12 ui-md-5 datatable-container">
-        <p:dataTable id="selectedFiles" var="datafile" value="#{associateDataFileBean.selectionModel.target}" selection="#{associateDataFileBean.selectedSelectedFile}" paginator="true" rows="25"
+        <p:dataTable id="selectedFiles" var="datafile" value="#{associateDataFileBean.selectionModel.target}" selection="#{associateDataFileBean.selectedSelectedFiles}" paginator="true" rows="25"
                      paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}" paginatorPosition="top" scrollable="true" pageLinks="1"
-                     styleClass="scrollable-body" emptyMessage="" selectionMode="single" rowKey="#{datafile.id}">
+                     styleClass="scrollable-body" emptyMessage="No records found." selectionMode="multiple" rowKey="#{datafile.id}">
           <p:ajax event="rowSelect" listener="#{associateDataFileBean.onTargetSelect}" update=":mainForm:projectTabPanelID:datafileListGroup"/>
           <p:ajax event="rowDblselect" listener="#{associateDataFileBean.removeFromTarget}" update=":mainForm:projectTabPanelID:datafileListGroup"/>
             <p:column id="operationColumn" style="width:20px">

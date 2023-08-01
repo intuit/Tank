@@ -199,9 +199,9 @@
           <h:panelGroup id="listGroup" style="display: flex; justify-content: space-between;">
             <div class="ui-g">
               <div class="ui-g-12 ui-md-5">
-                <p:dataTable id="availableItems" var="script" value="#{workloadScripts.scriptSelectionModel.source}" selection="#{workloadScripts.selectedAvailableScript}" paginator="true" rows="25"
+                <p:dataTable id="availableItems" var="script" value="#{workloadScripts.scriptSelectionModel.source}" selection="#{workloadScripts.selectedAvailableScripts}" paginator="true" rows="25"
                              paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}" paginatorPosition="top" scrollable="true" pageLinks="1"
-                             styleClass="scrollable-body" emptyMessage="" selectionMode="single" rowKey="#{script.id}">
+                             styleClass="scrollable-body" emptyMessage="No records found." selectionMode="multiple" rowKey="#{script.id}">
                   <p:ajax event="rowSelect" listener="#{workloadScripts.onSourceSelect}" update="editGroupForm:availableItems editGroupForm:selectedItems editGroupForm:listGroup"/>
                   <p:ajax event="rowDblselect" listener="#{workloadScripts.addToTarget}" update="editGroupForm:availableItems editGroupForm:selectedItems editGroupForm:listGroup"/>
                   <p:column headerText="Available" filterBy="#{script.name}" filterMatchMode="contains" styleClass="wrap">
@@ -238,9 +238,9 @@
             </div>
 
               <div class="ui-g-12 ui-md-5">
-                <p:dataTable id="selectedItems" var="script" value="#{workloadScripts.scriptSelectionModel.target}" selection="#{workloadScripts.selectedSelectedScript}" paginator="true" rows="25"
+                <p:dataTable id="selectedItems" var="script" value="#{workloadScripts.scriptSelectionModel.target}" selection="#{workloadScripts.selectedSelectedScripts}" paginator="true" rows="25"
                              paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}" paginatorPosition="top" scrollable="true" pageLinks="1"
-                             styleClass="scrollable-body" emptyMessage="" selectionMode="single" rowKey="#{script.id}">
+                             styleClass="scrollable-body" emptyMessage="No records found." selectionMode="multiple" rowKey="#{script.id}">
                   <p:ajax event="rowSelect" listener="#{workloadScripts.onTargetSelect}" update="editGroupForm:availableItems editGroupForm:selectedItems editGroupForm:listGroup"/>
                   <p:ajax event="rowDblselect" listener="#{workloadScripts.removeFromTarget}" update="editGroupForm:availableItems editGroupForm:selectedItems editGroupForm:listGroup"/>
                   <p:column headerText="Selected" filterBy="#{script.name}" filterMatchMode="contains" styleClass="wrap">

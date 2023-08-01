@@ -65,8 +65,8 @@ public class WorkloadScripts implements Serializable {
 
     private int tabIndex = 0;
 
-    private Script selectedAvailableScript;
-    private Script selectedSelectedScript;
+    private List<Script> selectedAvailableScripts;
+    private List<Script> selectedSelectedScripts;
 
     @PostConstruct
     public void postConstruct() {
@@ -86,20 +86,20 @@ public class WorkloadScripts implements Serializable {
         // this.currentTestPlan = plan;
     }
 
-    public Script getSelectedAvailableScript() {
-        return selectedAvailableScript;
+    public List<Script> getSelectedAvailableScripts() {
+        return selectedAvailableScripts;
     }
 
-    public void setSelectedAvailableScript(Script selectedAvailableScript) {
-        this.selectedAvailableScript = selectedAvailableScript;
+    public void setSelectedAvailableScripts(List<Script> selectedAvailableScripts) {
+        this.selectedAvailableScripts = selectedAvailableScripts;
     }
 
-    public Script getSelectedSelectedScript() {
-        return selectedSelectedScript;
+    public List<Script> getSelectedSelectedScripts() {
+        return selectedSelectedScripts;
     }
 
-    public void setSelectedSelectedScript(Script selectedSelectedScript) {
-        this.selectedSelectedScript = selectedSelectedScript;
+    public void setSelectedSelectedScripts(List<Script> selectedSelectedScripts) {
+        this.selectedSelectedScripts = selectedSelectedScripts;
     }
 
     public void addAllToTarget() {
@@ -108,16 +108,16 @@ public class WorkloadScripts implements Serializable {
     }
 
     public void addToTarget() {
-        if(selectedAvailableScript != null) {
-            scriptSelectionModel.getTarget().add(0, selectedAvailableScript);
-            scriptSelectionModel.getSource().remove(selectedAvailableScript);
+        if(!selectedAvailableScripts.isEmpty()) {
+            scriptSelectionModel.getTarget().addAll(0, selectedAvailableScripts);
+            scriptSelectionModel.getSource().removeAll(selectedAvailableScripts);
         }
     }
 
     public void removeFromTarget() {
-        if(selectedSelectedScript != null) {
-            scriptSelectionModel.getSource().add(0, selectedSelectedScript);
-            scriptSelectionModel.getTarget().remove(selectedSelectedScript);
+        if(!selectedSelectedScripts.isEmpty()) {
+            scriptSelectionModel.getSource().addAll(0, selectedSelectedScripts);
+            scriptSelectionModel.getTarget().removeAll(selectedSelectedScripts);
         }
     }
 
@@ -127,11 +127,11 @@ public class WorkloadScripts implements Serializable {
     }
 
     public void onSourceSelect(SelectEvent event) {
-        selectedAvailableScript = (Script) event.getObject();
+        selectedAvailableScripts = (List<Script>) event.getObject();
     }
 
     public void onTargetSelect(SelectEvent event) {
-        selectedSelectedScript = (Script) event.getObject();
+        selectedSelectedScripts = (List<Script>) event.getObject();
     }
 
     public void onChange(TabChangeEvent event) {
