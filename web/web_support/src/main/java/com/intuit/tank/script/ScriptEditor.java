@@ -21,6 +21,9 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.Conversation;
 import javax.enterprise.context.ConversationScoped;
 import javax.enterprise.event.Event;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import javax.faces.context.Flash;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -290,13 +293,16 @@ public class ScriptEditor implements Serializable {
      * @return
      */
     public String reapplyFilters() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        Flash flash = facesContext.getExternalContext().getFlash();
+        flash.setKeepMessages(true);
         List<Integer> selectedFilterIds = filterBean.getSelectedFilterIds();
         Subsegment subsegment = AWSXRay.beginSubsegment("Apply.Filters.to." + script.getName());
         try {
             ScriptFilterUtil.applyFilters(selectedFilterIds, script);
             ScriptUtil.setScriptStepLabels(script);
-            messages.info("Applied " + selectedFilterIds.size()
-                    + " filter(s) to \"" + script.getName() + "\".");
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Applied " + selectedFilterIds.size()
+                    + " filter(s) to \"" + script.getName() + "\".", null));
             return "success";
         } catch (Exception e) {
             subsegment.addException(e);
@@ -304,8 +310,8 @@ public class ScriptEditor implements Serializable {
         } finally {
             AWSXRay.endSubsegment();
         }
-        messages.error("Error applying filters to \"" + script.getName()
-                + "\".");
+        facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error applying filters to \"" + script.getName()
+                + "\".", null));
         return "failure";
     }
 
