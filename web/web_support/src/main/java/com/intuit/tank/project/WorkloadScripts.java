@@ -28,6 +28,7 @@ import javax.inject.Named;
 
 import com.intuit.tank.util.Messages;
 import org.primefaces.component.tabview.TabView;
+import org.primefaces.event.SelectEvent;
 import org.primefaces.event.TabChangeEvent;
 import org.primefaces.model.DualListModel;
 
@@ -64,6 +65,9 @@ public class WorkloadScripts implements Serializable {
 
     private int tabIndex = 0;
 
+    private List<Script> selectedAvailableScripts;
+    private List<Script> selectedSelectedScripts;
+
     @PostConstruct
     public void postConstruct() {
         List<TestPlan> testPlans = projectBean.getWorkload().getTestPlans();
@@ -82,6 +86,54 @@ public class WorkloadScripts implements Serializable {
         // this.currentTestPlan = plan;
     }
 
+    public List<Script> getSelectedAvailableScripts() {
+        return selectedAvailableScripts;
+    }
+
+    public void setSelectedAvailableScripts(List<Script> selectedAvailableScripts) {
+        this.selectedAvailableScripts = selectedAvailableScripts;
+    }
+
+    public List<Script> getSelectedSelectedScripts() {
+        return selectedSelectedScripts;
+    }
+
+    public void setSelectedSelectedScripts(List<Script> selectedSelectedScripts) {
+        this.selectedSelectedScripts = selectedSelectedScripts;
+    }
+
+    public void addAllToTarget() {
+        scriptSelectionModel.getTarget().addAll(scriptSelectionModel.getSource());
+        scriptSelectionModel.getSource().clear();
+    }
+
+    public void addToTarget() {
+        if(!selectedAvailableScripts.isEmpty()) {
+            scriptSelectionModel.getTarget().addAll(0, selectedAvailableScripts);
+            scriptSelectionModel.getSource().removeAll(selectedAvailableScripts);
+        }
+    }
+
+    public void removeFromTarget() {
+        if(!selectedSelectedScripts.isEmpty()) {
+            scriptSelectionModel.getSource().addAll(0, selectedSelectedScripts);
+            scriptSelectionModel.getTarget().removeAll(selectedSelectedScripts);
+        }
+    }
+
+    public void removeAllFromTarget() {
+        scriptSelectionModel.getSource().addAll(scriptSelectionModel.getTarget());
+        scriptSelectionModel.getTarget().clear();
+    }
+
+    public void onSourceSelect(SelectEvent event) {
+        selectedAvailableScripts = (List<Script>) event.getObject();
+    }
+
+    public void onTargetSelect(SelectEvent event) {
+        selectedSelectedScripts = (List<Script>) event.getObject();
+    }
+
     public void onChange(TabChangeEvent event) {
         TabView parent = (TabView) event.getTab().getParent();
         this.tabIndex = parent.getActiveIndex();
@@ -97,42 +149,24 @@ public class WorkloadScripts implements Serializable {
     }
 
     public ScriptGroup getCurrentScriptGroup() {
-        try {
-            if (currentScriptGroup == null) {
-                currentScriptGroup = new ScriptGroup();
-                currentScriptGroup.setLoop(1);
-                LOG.info("getCurrentScriptGroup() - Created new script group ");
-            } else {
-                LOG.info("getCurrentScriptGroup() - Returning existing script group " + currentScriptGroup.getName());
-            }
-            return currentScriptGroup;
-        } catch (Exception e) {
-            LOG.error("getCurrentScriptGroup() - Error getting current script group", e);
-            return null;
+        if (currentScriptGroup == null) {
+            currentScriptGroup = new ScriptGroup();
+            currentScriptGroup.setLoop(1);
         }
+        return currentScriptGroup;
     }
 
     public void setCurrentScriptGroup(ScriptGroup currentScriptGroup) {
-        try {
-            this.currentScriptGroup = currentScriptGroup;
-            LOG.info("setCurrentScriptGroup() - Set current script group " + currentScriptGroup.getName());
-            initScriptSelectionModel();
-        } catch (Exception e) {
-            LOG.error("setCurrentScriptGroup() - Error setting current script group", e);
-        }
+        this.currentScriptGroup = currentScriptGroup;
+        initScriptSelectionModel();
     }
 
     /**
      * initializes the current group object.
      */
     public void initCurrentGroup() {
-        try {
-            currentScriptGroup = new ScriptGroup();
-            currentScriptGroup.setLoop(1);
-            LOG.info("initCurrentGroup() - Created new script group ");
-        } catch (Exception e) {
-            LOG.error("initCurrentGroup() - Error initializing current script group", e);
-        }
+        currentScriptGroup = new ScriptGroup();
+        currentScriptGroup.setLoop(1);
     }
 
     public void setInsertIndex(int rowIndex) {
@@ -263,13 +297,6 @@ public class WorkloadScripts implements Serializable {
      * @return the scriptSelectionModel
      */
     public DualListModel<Script> getScriptSelectionModel() {
-        try {
-            if (scriptSelectionModel.getTarget().size() > 0) {
-                LOG.info("WorkloadScripts - getScriptSelectionModel() - script list latest entry " + scriptSelectionModel.getTarget().get(0).getName());
-            }
-        } catch (Exception e) {
-            LOG.error("WorkloadScripts - getScriptSelectionModel() error: " + e.getMessage());
-        }
         return scriptSelectionModel;
     }
 
@@ -278,107 +305,43 @@ public class WorkloadScripts implements Serializable {
      *            the scriptSelectionModel to set
      */
     public void setScriptSelectionModel(DualListModel<Script> scriptSelectionModel) {
-        try {
-            LOG.info("WorkloadScripts - setScriptSelectionModel() - script list size " + scriptSelectionModel.getTarget().size());
-            if (scriptSelectionModel.getTarget().size() > 0) {
-                LOG.info("WorkloadScripts - setScriptSelectionModel() - script list latest entry " + scriptSelectionModel.getTarget().get(0).getName());
-            }
-            this.scriptSelectionModel = scriptSelectionModel;
-        } catch (Exception e) {
-            LOG.error("WorkloadScripts - setScriptSelectionModel() error: " + e.getMessage());
-        }
+        this.scriptSelectionModel = scriptSelectionModel;
     }
 
     private void initScriptSelectionModel() {
-        try {
-            scriptSelectionModel = new DualListModel<Script>(
-                    scriptLoader.getVersionEntities(),
-                    new ArrayList<Script>());
-            LOG.info("WorkloadScripts - initScriptSelectionModel() - source list size " + scriptSelectionModel.getSource().size());
-            LOG.info("WorkloadScripts - initScriptSelectionModel() - target list size " + scriptSelectionModel.getTarget().size());
-            LOG.info("WorkloadScripts - initScriptSelectionModel() - source list last entry " + scriptSelectionModel.getSource().get(0).getName());
-            if(scriptSelectionModel.getTarget().size() > 0) {
-                LOG.info("WorkloadScripts - initScriptSelectionModel() - target list last entry " + scriptSelectionModel.getTarget().get(0).getName());
-            }
-        } catch (Exception e) {
-            LOG.error("WorkloadScripts - initScriptSelectionModel() error: " + e.getMessage());
-        }
+        scriptSelectionModel = new DualListModel<Script>(
+                scriptLoader.getVersionEntities(),
+                new ArrayList<Script>());
 
     }
 
     public ScriptGroup getScriptGroup() {
-        try {
-            if (scriptGroup != null) {
-                LOG.info("WorkloadScripts - getScriptGroup() name: " + scriptGroup.getName());
-            } else {
-                LOG.info("WorkloadScripts - getScriptGroup() scriptGroup is null");
-            }
-            return scriptGroup;
-        } catch (Exception e) {
-            LOG.error("WorkloadScripts - getScriptGroup() error: " + e.getMessage());
-            return null;
-        }
+        return scriptGroup;
     }
 
     public void setScriptGroup(ScriptGroup scripGroup) {
-        try {
-            this.scriptGroup = scripGroup;
-            if(this.scriptGroup != null) {
-                LOG.info("WorkloadScripts - setScriptGroup() name: " + scriptGroup.getName());
-                LOG.info("WorkloadScripts - setScriptGroup() size: " + scriptGroup.getScriptGroupSteps().size());
-            } else {
-                LOG.info("WorkloadScripts - setScriptGroup() scriptGroup is null");
-            }
-        } catch (Exception e) {
-            LOG.error("WorkloadScripts - setScriptGroup() error: " + e.getMessage());
-        }
+        this.scriptGroup = scripGroup;
     }
 
     public void addScriptGroupStep() {
-        try {
-            LOG.info("WorkloadScripts - addScriptGroupStep() start");
-            for (Script s : scriptSelectionModel.getTarget()) {
-                ScriptGroupStep sgs = new ScriptGroupStep();
-                LOG.info("WorkloadScripts - addScriptGroupStep() add script: " + s.getName());
-                sgs.setScript(s);
-                sgs.setLoop(1);
-                scriptGroup.addScriptGroupStep(sgs);
-                int lastEntry = scriptGroup.getScriptGroupSteps().size() - 1;
-                LOG.info("WorkloadScripts - addScriptGroupStep() added ScriptGroupStep: " + sgs.getScriptGroup().getScriptGroupSteps().get(lastEntry).getScript().getName());
-            }
-            initScriptSelectionModel();
-        } catch (Exception e) {
-            LOG.error("WorkloadScripts - addScriptGroupStep() error: " + e.getMessage());
+        for (Script s : scriptSelectionModel.getTarget()) {
+            ScriptGroupStep sgs = new ScriptGroupStep();
+            sgs.setScript(s);
+            sgs.setLoop(1);
+            scriptGroup.addScriptGroupStep(sgs);
         }
+        initScriptSelectionModel();
     }
 
     public void deleteScriptGroupStep(ScriptGroupStep sgs) {
-        try {
-            LOG.info("WorkloadScripts - deleteScriptGroupStep() deleting " + sgs.getScript().getName() + " from ScriptGroup " + sgs.getScriptGroup().getName());
-            scriptGroup.getScriptGroupSteps().remove(sgs);
-        } catch (Exception e) {
-            LOG.error("WorkloadScripts - deleteScriptGroupStep() error: " + e.getMessage());
-        }
+        scriptGroup.getScriptGroupSteps().remove(sgs);
     }
 
     public List<ScriptGroupStep> getSteps() {
-        try {
-            int lastEntry = scriptGroup.getScriptGroupSteps().size() - 1;
-            if (scriptGroup == null) {
-                LOG.info("WorkloadScripts - getSteps() scriptGroup is null");
-                return new ArrayList<ScriptGroupStep>();
-            }
-            if (scriptGroup.getScriptGroupSteps().size() > 0) {
-                LOG.info("WorkloadScripts - getSteps() scriptGroupSteps latest entry: " + scriptGroup.getScriptGroupSteps().get(lastEntry).getScript().getName());
-                LOG.info("WorkloadScripts - getSteps() scriptGroupSteps size: " + scriptGroup.getScriptGroupSteps().size());
-            } else {
-                LOG.info("WorkloadScripts - getSteps() scriptGroupSteps is empty");
-            }
-            return scriptGroup.getScriptGroupSteps();
-        } catch (Exception e) {
-            LOG.error("WorkloadScripts - getSteps() error: " + e.getMessage());
+        if (scriptGroup == null) {
             return new ArrayList<ScriptGroupStep>();
         }
+        return scriptGroup.getScriptGroupSteps();
     }
 
     public void saveScriptGroup() {
