@@ -182,7 +182,7 @@ public class ScriptController {
             "        curl -v -X POST -H 'Content-Type: multipart/form-data' -H 'Content-Encoding: gzip' -F \"file=@<filename>.gz\" 'https://{tank-base-url}/v2/scripts/update'\n\n" +
             "Notes: \n\n " +
             " - This endpoint only accepts Tank script XML files for an existing Tank script to update. The script ID and script name in the file must match an existing script entry in Tank\n\n" +
-            " - This endpoint can be used to overwrite any Tank script by opening the Tank script XML file and changing the < id > and < name > keys to match the ID and script name of the existing Tank script \n\n", summary = "Import Tank XML script to Tank")
+            " - This endpoint can be used to overwrite any Tank script by opening the Tank script XML file and changing the < id > and < name > key values to match the ID and script name of the existing Tank script \n\n", summary = "Import Tank XML script to Tank")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successfully updated script in Tank", content = @Content),
             @ApiResponse(responseCode = "400", description = "Script could not be updated", content = @Content)
