@@ -125,6 +125,21 @@ public interface ScriptServiceV2 {
      */
     public Map<String, String> uploadProxyScript(String name, Integer scriptId, String contentEncoding, MultipartFile file) throws IOException;
 
+    /**
+     * Update an existing Tank script with a Tank XML file
+     *
+     * @param contentEncoding
+     *           content encoding of file (checks for gzip file)
+     *
+     * @param file
+     *            Tank script XML file to be uploaded
+     *
+     * @throws GenericServiceCreateOrUpdateException
+     *         if there are errors uploading script
+     *
+     * @return scriptId with upload status JSON payload
+     */
+    public Map<String, String> updateTankScript(String contentEncoding, MultipartFile file) throws IOException;
 
     /**
      * Deletes a script associated with scriptID

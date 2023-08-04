@@ -160,7 +160,7 @@ public class ScriptController {
                              "Notes: \n\n " +
                              " - This endpoint only accepts XML script file recorded and produced by the Tank Proxy Package (see Tools tab in Tank)\n\n" +
                              " - Both script name and script id are optional parameters \n\n" +
-                             " - Passing in an existing Tank Script ID will overwrite the existing script in Tank, but will otherwise create a new Tank script", summary = "Upload script to Tank")
+                             " - Passing in an existing Tank Script ID will overwrite the existing script in Tank, but will otherwise create a new Tank script", summary = "Upload Tank Proxy script to Tank")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successfully uploaded script file to Tank", content = @Content),
             @ApiResponse(responseCode = "400", description = "Script file could not be uploaded", content = @Content)
@@ -170,6 +170,26 @@ public class ScriptController {
                                                @RequestParam(required = false) @Parameter(description = "Existing Script ID (optional)", required = false) Integer id,
                                                @RequestParam(value = "file", required = true) @Parameter(schema = @Schema(type = "string", format = "binary", description = "Script file")) MultipartFile file) throws IOException{
         Map<String, String> response = scriptService.uploadProxyScript(name, id, contentEncoding, file);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.POST, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @Operation(description = "Update an existing Tank script by uploading a Tank script XML file \n\n " +
+            "Examples: \n\n" +
+            "        curl -v -X POST -H 'Content-Type: multipart/form-data' -F \"file=@<filename>\" 'https://{tank-base-url}/v2/scripts/update' \n\n" +
+            "\n\n" +
+            "        gzip <filename>\n\n" +
+            "        curl -v -X POST -H 'Content-Type: multipart/form-data' -H 'Content-Encoding: gzip' -F \"file=@<filename>.gz\" 'https://{tank-base-url}/v2/scripts/update'\n\n" +
+            "Notes: \n\n " +
+            " - This endpoint only accepts Tank script XML files for an existing Tank script to update\n\n" +
+            " - You can use this endpoint to overwrite any Tank script by opening the Tank script XML file and changing the <id> and <name> keys to match the ID and script name of the target file \n\n", summary = "Import Tank XML script to Tank")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Successfully updated script in Tank", content = @Content),
+            @ApiResponse(responseCode = "400", description = "Script could not be updated", content = @Content)
+    })
+    public ResponseEntity<Map<String, String>> updateTankScript(@RequestHeader(value = HttpHeaders.CONTENT_ENCODING, required = false) @Parameter(description = "Content-Encoding", required = false) String contentEncoding,
+                                                            @RequestParam(value = "file", required = true) @Parameter(schema = @Schema(type = "string", format = "binary", description = "Script file")) MultipartFile file) throws IOException{
+        Map<String, String> response = scriptService.updateTankScript(contentEncoding, file);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

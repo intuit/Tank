@@ -286,7 +286,10 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         } finally {
             try {
                 fileInputStream.close();
-            } catch (IOException e) {}
+            } catch (IOException e) {
+                LOGGER.error("Error uploading script file: " + e.getMessage(), e);
+                throw new GenericServiceCreateOrUpdateException("scripts", "new script via script upload", e);
+            }
         }
         return payload;
     }
@@ -294,6 +297,50 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     private void sendMsg(BaseEntity entity, ModificationType type) {
         MessageEventSender sender = new ServletInjector<MessageEventSender>().getManagedBean(servletContext, MessageEventSender.class);
         sender.sendEvent(new ModifiedEntityMessage(entity.getClass(), entity.getId(), type));
+    }
+
+    @Override
+    public Map<String, String> updateTankScript(String  contentEncoding, MultipartFile file) throws IOException {
+        Map<String, String> payload = new HashMap<>();
+        InputStream fileInputStream = file.getInputStream();
+        contentEncoding = contentEncoding == null ? "" : contentEncoding;
+
+        try {
+            ScriptDao dao = new ScriptDao();
+
+            if (fileInputStream != null) {
+                if ("gzip".equalsIgnoreCase(contentEncoding)) {
+                    fileInputStream = new GZIPInputStream(fileInputStream);
+                }
+
+                ScriptTO scriptTo = ScriptServiceUtil.parseXMLtoScriptTO(fileInputStream);
+                Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
+                if (script.getId() > 0) {
+                    Script existing = dao.findById(script.getId());
+                    if (existing == null) {
+                        throw new GenericServiceCreateOrUpdateException("scripts", "Error updating script: Script passed with unknown id.", null);
+                    }
+                    if (!existing.getName().equals(script.getName())) {
+                        throw new GenericServiceCreateOrUpdateException("scripts", "Error updating script: Cannot change the name of an existing Script.", null);
+                    }
+                    script.setSerializedScriptStepId(existing.getSerializedScriptStepId());
+                }
+                script = dao.saveOrUpdate(script);
+                payload.put("message", "Script with script ID " + script.getId() + " updated successfully");
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error updating script file: " + e.getMessage(), e);
+            throw new GenericServiceCreateOrUpdateException("scripts", "updating script via Tank script upload", e);
+        } finally {
+            try {
+                fileInputStream.close();
+            } catch (IOException e) {
+                LOGGER.error("Error updating script file: " + e.getMessage(), e);
+                throw new GenericServiceCreateOrUpdateException("scripts", "updating script via Tank script upload", e);
+            }
+        }
+
+        return payload;
     }
 
     @Override

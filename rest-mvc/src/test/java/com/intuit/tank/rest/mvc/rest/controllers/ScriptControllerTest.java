@@ -182,6 +182,18 @@ public class ScriptControllerTest {
     }
 
     @Test
+    public void testUpdateScript() throws IOException {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("message", "Script with script ID 7 updated successfully");
+        when(scriptService.updateTankScript("gzip", null)).thenReturn(payload);
+        ResponseEntity<Map<String, String>> result = scriptController.updateTankScript("gzip",null);
+        Map<String, String> response = result.getBody();
+        assertTrue(response.get("message").contains("Script with script ID 7 updated successfully"));
+        assertEquals(201, result.getStatusCodeValue());
+        verify(scriptService).updateTankScript( "gzip", null);
+    }
+
+    @Test
     public void testDeleteScript() {
         when(scriptService.deleteScript(1)).thenReturn("");
         ResponseEntity<String> result = scriptController.deleteScript(1);
