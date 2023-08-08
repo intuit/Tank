@@ -128,7 +128,6 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
 
             if(projectId != null) {
                 project  = projectDao.findByIdEager(projectId);
-                checkProjectName(request.getName());
                 project.setName(request.getName());
                 project.setProductName(request.getProductName());
                 project.setComments(request.getComments());
