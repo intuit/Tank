@@ -7,10 +7,8 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers;
 
-import com.intuit.tank.rest.mvc.rest.models.projects.AutomationRequest;
+import com.intuit.tank.rest.mvc.rest.models.projects.*;
 import com.intuit.tank.rest.mvc.rest.models.projects.AutomationRequest.AutomationRequestBuilder;
-import com.intuit.tank.rest.mvc.rest.models.projects.ProjectContainer;
-import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
 import com.intuit.tank.rest.mvc.rest.services.projects.ProjectServiceV2;
 import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 
@@ -32,10 +30,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class ProjectControllerTest {
@@ -118,7 +113,10 @@ public class ProjectControllerTest {
                 .withProductName("Test Product")
                 .withRampTime("1920s")
                 .withSimulationTime("7200s")
-                .withUserIntervalIncrement(1);
+                .withUserIntervalIncrement(1)
+                .withAddedTestPlan(new AutomationTestPlan("Main", 100, 0,
+                        new ArrayList<AutomationScriptGroup>(List.of(new AutomationScriptGroup("testScriptGroup", 0, 0,
+                                new ArrayList<AutomationScriptGroupStep>(List.of(new AutomationScriptGroupStep(123, "testScript", 1, 0))))))));
         AutomationRequest request = builder.build();
         when(projectService.createProject(request)).thenReturn(response);
         ResponseEntity<Map<String, String>> result = projectController.createProject(request);
