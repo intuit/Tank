@@ -53,6 +53,7 @@
     <version.jaxb>2.3.3</version.jaxb>
     <version.spock>2.4-M1-groovy-4.0</version.spock>
     <version.spring-webflux>2.7.6</version.spring-webflux>
+    <version.wiremock>2.27.2</version.wiremock>
 
     <!-- maven-compiler-plugin -->
     <version.compiler.plugin>3.10.1</version.compiler.plugin>
@@ -676,7 +677,17 @@
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>2.14.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
+        <version>2.14.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
         <version>2.14.1</version>
       </dependency>
       <dependency>
@@ -843,6 +854,12 @@
             <artifactId>spring-boot-starter-logging</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.github.tomakehurst</groupId>
+        <artifactId>wiremock-jre8</artifactId>
+        <version>${version.wiremock}</version>
+        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
