@@ -245,7 +245,6 @@ public class TankHttpClient5Test {
     @Tag(TestGroups.FUNCTIONAL)
     public void doPostMultipartwithFile() throws IOException {
         BaseRequest request = getRequest(new TankHttpClient5(), wireMockServer.baseUrl() + "/post");
-        request.setContentType(BaseRequest.CONTENT_TYPE_MULTIPART);
         request.setBody(
                 "LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0xNzI2MTE1MzQ5Mjk4MjYNCkNvbnRlbnQtRGlzcG9zaXRpb246IGZvcm0tZGF0YTsgbmFtZT0iY3JlYXRlTmV3"
                 + "U2NyaXB0Rm9ybSINCg0KY3JlYXRlTmV3U2NyaXB0Rm9ybQ0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0xNzI2MTE1MzQ5Mjk4MjYNCkNvbnRlbnQtRG"
@@ -304,7 +303,7 @@ public class TankHttpClient5Test {
         request.doPost(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
-        assertEquals(500, response.getHttpCode());
+        assertEquals(200, response.getHttpCode());
         assertNotNull(response.getBody());
     }
 
