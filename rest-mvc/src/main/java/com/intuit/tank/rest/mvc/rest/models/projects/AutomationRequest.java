@@ -39,6 +39,7 @@ import java.util.*;
         "externalScriptIds",
         "dataFileIds",
         "jobRegions",
+        "testPlans",
         "workloadType",
         "terminationPolicy",
         "variables"
@@ -97,6 +98,10 @@ public class AutomationRequest implements Serializable {
     @XmlElementWrapper(name = "jobRegions", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "region", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private Set<AutomationJobRegion> jobRegions = new HashSet<AutomationJobRegion>();
+
+    @XmlElementWrapper(name = "testPlans", namespace = Namespace.NAMESPACE_V1)
+    @XmlElement(name = "testPlans", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private List<AutomationTestPlan> testPlans = new ArrayList<>();
 
     @XmlElement(name = "workloadType", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private IncrementStrategy workloadType;
@@ -226,6 +231,11 @@ public class AutomationRequest implements Serializable {
     }
 
     /**
+     * @return the testPlans
+     */
+    public List<AutomationTestPlan> getTestPlans() { return testPlans; }
+
+    /**
      * @return the project workloadType
      */
     public IncrementStrategy getWorkloadType() {
@@ -346,6 +356,14 @@ public class AutomationRequest implements Serializable {
      */
     private void setJobRegions(Set<AutomationJobRegion> jobRegions) {
         this.jobRegions = jobRegions;
+    }
+
+    /**
+     * @param testPlans
+     *            the testPlans to set
+     */
+    private void setTestPlans(List<AutomationTestPlan> testPlans) {
+        this.testPlans = testPlans;
     }
 
     /**
@@ -582,6 +600,24 @@ public class AutomationRequest implements Serializable {
             }
 
             ((Set<AutomationJobRegion>) instance.getJobRegions()).add(aValue);
+
+            return (GeneratorT) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT withTestPlans(List<AutomationTestPlan> aValue) {
+            instance.setTestPlans(aValue);
+
+            return (GeneratorT) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT withAddedTestPlan(AutomationTestPlan aValue) {
+            if (instance.getTestPlans() == null) {
+                instance.setTestPlans(new ArrayList<>());
+            }
+
+            ((List<AutomationTestPlan>) instance.getTestPlans()).add(aValue);
 
             return (GeneratorT) this;
         }
