@@ -381,6 +381,7 @@ public class APITestHarness {
                         "writing file " + dataFileRequest.getFileName() + " to " + dataFile.getAbsolutePath()
                                 + " from url " + url.toExternalForm())));
                 FileUtils.copyURLToFile(url, dataFile);
+                LOG.info("APITestHarness - isDefault = " + dataFileRequest.isDefault() + " and fileName = " + dataFileRequest.getFileName());
                 if (dataFileRequest.isDefault()
                         && !dataFileRequest.getFileName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
                     File defaultFile = new File(dataFileDir, TankConstants.DEFAULT_CSV_FILE_NAME);
