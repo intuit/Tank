@@ -384,8 +384,9 @@ public class APITestHarness {
                 LOG.info("APITestHarness - isDefault = " + dataFileRequest.isDefault() + " and fileName = " + dataFileRequest.getFileName());
                 if (dataFileRequest.isDefault()
                         && !dataFileRequest.getFileName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
+                    LOG.info("APITestHarness - default file set to " + TankConstants.DEFAULT_CSV_FILE_NAME);
                     File defaultFile = new File(dataFileDir, TankConstants.DEFAULT_CSV_FILE_NAME);
-                    LOG.debug("Copying default  file " + dataFile.getAbsolutePath() + " to "
+                    LOG.info("Copying default  file " + dataFile.getAbsolutePath() + " to "
                             + defaultFile.getAbsolutePath());
 
                     FileUtils.copyFile(dataFile, defaultFile);

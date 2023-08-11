@@ -13,6 +13,7 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import java.util.Stack;
@@ -83,47 +84,58 @@ class GenericFunctions {
     }
 
     public static String getCSVData(int index) {
+        logger.info("Genidx - Calling getCSVData(" + index + ")" + " from GenericFunctions");
         String ret = null;
+        logger.info("Genidx - csvLineMap: " + csvLineMap + " from GenericFunctions");
         String[] currentLine = csvLineMap.get(Thread.currentThread().getId());
         if (currentLine == null || index >= currentLine.length || currentLine[index] == null) {
+            logger.info("Genidx -Getting current line from " + TankConstants.DEFAULT_CSV_FILE_NAME + " from GenericFunctions");
             currentLine = CSVReader.getInstance(TankConstants.DEFAULT_CSV_FILE_NAME).getNextLine(false);
             csvLineMap.put(Thread.currentThread().getId(), currentLine);
+        } else {
+            logger.info("Genidx - Current line retrieved from csvLineMap: " + Arrays.toString(currentLine) + " from GenericFunctions");
         }
 
         if (null == currentLine) {
-            logger.debug("Next line in CSV file is null; returning empty string...");
+            logger.info("Genidx - Next line in CSV file is null; returning empty string...");
         } else if (index < currentLine.length) {
-            logger.debug("Next item retrieved from csv file: " + currentLine[index]);
+            logger.info("Genidx - Next item retrieved from csv file: " + currentLine[index]);
             ret = currentLine[index];
             currentLine[index] = null;
         } else {
-            logger.debug("Next line in index file has " + currentLine.length + " elements; tried to retrieve index "
+            logger.info("Genidx - Next line in index file has " + currentLine.length + " elements; tried to retrieve index "
                     + index);
         }
         return ret != null ? ret : "";
     }
 
     public static String getCSVData(String[] values, Variables variables) {
+        logger.info("Genfile - Calling getCSVData(" + Arrays.toString(values) + ")" + " from GenericFunctions");
         String ret = null;
         int index = Integer.parseInt(values[values.length - 1]);
         String file = values[3];
         for (int i = 4; i < values.length - 1; i++) {
             file += "." + values[i];
         }
+        logger.info("Genfile - file: " + file + " from GenericFunctions");
+        logger.info("Genfile - fileLineMap: " + fileLineMap + " from GenericFunctions");
         String[] currentLine = fileLineMap.get(Thread.currentThread().getId() + "-" + file);
         if (currentLine == null || index >= currentLine.length || currentLine[index] == null) {
+            logger.info("Genfile - Getting current line from " + file + " from GenericFunctions");
             currentLine = CSVReader.getInstance(file).getNextLine(false);
             fileLineMap.put(Thread.currentThread().getId() + "-" + file, currentLine);
+        } else {
+            logger.info("Genfile - Current line retrieved from fileLineMap: " + Arrays.toString(currentLine) + " from GenericFunctions");
         }
 
         if (null == currentLine) {
-            logger.debug("Next line in CSV file is null; returning empty string...");
+            logger.info("Genfile - Next line in CSV file is null; returning empty string...");
         } else if (index < currentLine.length) {
-            logger.debug("Next item retrieved from csv file: " + currentLine[index]);
+            logger.info("Genfile - Next item retrieved from csv file: " + currentLine[index]);
             ret = currentLine[index];
             currentLine[index] = null;
         } else {
-            logger.debug("Next line in index file has " + currentLine.length + " elements; tried to retrieve index "
+            logger.info("Genfile - Next line in index file has " + currentLine.length + " elements; tried to retrieve index "
                     + index);
         }
         return ret != null ? ret : "";

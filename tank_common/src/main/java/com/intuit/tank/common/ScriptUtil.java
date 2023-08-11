@@ -440,6 +440,7 @@ public class ScriptUtil {
     }
 
     public static String getDataFileUse(ScriptStep step) {
+        LOG.info("Running getDataFileUse for step value: " + step.getData().iterator().next().getValue());
         String ret = null;
         if (step.getType().equalsIgnoreCase("variable")) {
             String value = step.getData().iterator().next().getValue();
@@ -456,6 +457,7 @@ public class ScriptUtil {
                 }
             }
         }
+        LOG.info("Using " + ret + " for step value: " + step.getData().iterator().next().getValue());
         return ret;
     }
 }

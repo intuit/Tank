@@ -299,11 +299,11 @@ public class JobManager implements Serializable {
     private DataFileRequest[] getDataFileRequests(JobInfo info) {
         List<DataFileRequest> ret = new ArrayList<DataFileRequest>();
         DataFileDao dataFileDao = new DataFileDao();
-        int jobId = Integer.parseInt(info.jobRequest.getId());
-        LOG.info("JobManager - DataFileIds: " + info.jobRequest.getDataFileIds());
-        LOG.info("JobManager - DataFileIds size: " + info.jobRequest.getDataFileIds().size());
+        String jobId = info.jobRequest.getId();
+        LOG.info(jobId + " JobManager - DataFileIds: " + info.jobRequest.getDataFileIds());
+        LOG.info(jobId + " JobManager - DataFileIds size: " + info.jobRequest.getDataFileIds().size());
         boolean setAsDefault = info.jobRequest.getDataFileIds().size() == 1;
-        LOG.info("JobManager - setAsDefault: " + setAsDefault);
+        LOG.info(jobId + " JobManager - setAsDefault: " + setAsDefault);
         for (Integer id : info.jobRequest.getDataFileIds()) {
             int version = 0;
             DataFile dataFile = dataFileDao.findById(id);
@@ -312,6 +312,7 @@ public class JobManager implements Serializable {
                 int offset = info.agentData.size() * numLinesPerAgent;
                 DataFileRequest dataRequest = new DataFileRequest(dataFile.getPath(), setAsDefault,
                         DataFileUtil.getDataFileServiceUrl(dataFile.getId(), offset, numLinesPerAgent));
+                LOG.info(jobId + " JobManager - DataFileRequest: " + dataRequest);
                 ret.add(dataRequest);
             }
         }
