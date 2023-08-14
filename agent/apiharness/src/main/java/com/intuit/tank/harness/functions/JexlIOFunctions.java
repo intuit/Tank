@@ -86,7 +86,8 @@ public class JexlIOFunctions implements ExpressionContextVisitor {
         LOG.info("Jexlidx - csvLineMap: " + csvLineMap.values() +" from JexlIOFunctions");
         String[] currentLine = csvLineMap.get(Thread.currentThread().getId());
         if (currentLine == null || colIndex >= currentLine.length || currentLine[colIndex] == null) {
-            LOG.info("Jexlidx - Getting current line from " + TankConstants.DEFAULT_CSV_FILE_NAME + " from JexlIOFunctions");            currentLine = CSVReader.getInstance(TankConstants.DEFAULT_CSV_FILE_NAME).getNextLine(loop);
+            LOG.info("Jexlidx - Getting current line from " + TankConstants.DEFAULT_CSV_FILE_NAME + " from JexlIOFunctions");
+            currentLine = CSVReader.getInstance(TankConstants.DEFAULT_CSV_FILE_NAME).getNextLine(loop);
             if (currentLine != null) {
                 csvLineMap.put(Thread.currentThread().getId(), currentLine);
             } else {
