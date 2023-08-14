@@ -14,7 +14,6 @@ package com.intuit.tank.harness.functions;
  */
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -80,32 +79,27 @@ public class JexlIOFunctions implements ExpressionContextVisitor {
      * @throws CheckedKillScriptException
      */
     public String getCSVData(Object ocolIndex, boolean loop) throws CheckedKillScriptException {
-        LOG.info("Jexlidx - Calling getCSVData(" + ocolIndex + ", " + loop + ")" + " from JexlIOFunctions");
         String ret = null;
         int colIndex = FunctionHandler.getInt(ocolIndex);
-        LOG.info("Jexlidx - csvLineMap: " + csvLineMap.values() +" from JexlIOFunctions");
         String[] currentLine = csvLineMap.get(Thread.currentThread().getId());
         if (currentLine == null || colIndex >= currentLine.length || currentLine[colIndex] == null) {
-            LOG.info("Jexlidx - Getting current line from " + TankConstants.DEFAULT_CSV_FILE_NAME + " from JexlIOFunctions");
             currentLine = CSVReader.getInstance(TankConstants.DEFAULT_CSV_FILE_NAME).getNextLine(loop);
             if (currentLine != null) {
                 csvLineMap.put(Thread.currentThread().getId(), currentLine);
             } else {
                 csvLineMap.remove(Thread.currentThread().getId());
             }
-        } else {
-            LOG.info("Jexlidx - Current line retrieved from csvLineMap: " + Arrays.toString(currentLine));
         }
 
         if (null == currentLine) {
-            LOG.info("Jexlidx - Next line in CSV file is null; returning empty string...");
+            LOG.debug("Next line in CSV file is null; returning empty string...");
             throw new CheckedKillScriptException("Next line in CSV file is null");
         } else if (colIndex < currentLine.length) {
-            LOG.info("Jexlidx - Next item retrieved from csv file: " + currentLine[colIndex]);
+            LOG.debug("Next item retrieved from csv file: " + currentLine[colIndex]);
             ret = currentLine[colIndex];
             currentLine[colIndex] = null;
         } else {
-            LOG.info("Jexlidx - Next line in index file has " + currentLine.length + " elements; tried to retrieve index "
+            LOG.debug("Next line in index file has " + currentLine.length + " elements; tried to retrieve index "
                     + colIndex);
         }
         return ret != null ? ret : "";
@@ -141,32 +135,27 @@ public class JexlIOFunctions implements ExpressionContextVisitor {
      * @throws CheckedKillScriptException
      */
     public String getCSVData(String fileName, Object oindex, boolean loop) throws CheckedKillScriptException {
-        LOG.info("Jexlfile - Calling getCSVData(" + fileName + ", " + oindex + ", " + loop + ")" + " from JexlIOFunctions");
         String ret = null;
         int index = FunctionHandler.getInt(oindex);
-        LOG.info("Jexlfile - fileLineMap: " + fileLineMap.values() +" from JexlIOFunctions");
         String[] currentLine = fileLineMap.get(Thread.currentThread().getId() + "-" + fileName);
         if (currentLine == null || index >= currentLine.length || currentLine[index] == null) {
-            LOG.info("Jexlfile - Getting current line from " + CSVReader.getInstance(fileName) + " from JexlIOFunctions");
             currentLine = CSVReader.getInstance(fileName).getNextLine(loop);
             if (currentLine != null) {
                 fileLineMap.put(Thread.currentThread().getId() + "-" + fileName, currentLine);
             } else {
                 fileLineMap.remove(Thread.currentThread().getId() + "-" + fileName);
             }
-        } else {
-            LOG.info("Jexlfile - Current line retrieved from fileLineMap: " + Arrays.toString(currentLine) + " from JexlIOFunctions");
         }
 
         if (null == currentLine) {
-            LOG.info("Jexlfile - Next line in CSV file is null; returning empty string...");
+            LOG.debug("Next line in CSV file is null; returning empty string...");
             throw new CheckedKillScriptException("Next line in CSV file is null");
         } else if (index < currentLine.length) {
-            LOG.info("Jexlfile - Next item retrieved from csv file: " + currentLine[index]);
+            LOG.debug("Next item retrieved from csv file: " + currentLine[index]);
             ret = currentLine[index];
             currentLine[index] = null;
         } else {
-            LOG.info("Jexlfile - Next line in index file has " + currentLine.length + " elements; tried to retrieve index "
+            LOG.debug("Next line in index file has " + currentLine.length + " elements; tried to retrieve index "
                     + index);
         }
         return ret != null ? ret : "";

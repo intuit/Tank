@@ -41,7 +41,7 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.message.ObjectMessage;
 
-import com.intuit.tank.AgentServiceClient;
+import com.intuit.tank.rest.mvc.rest.clients.AgentClient;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.vm.vmManager.models.ValidationStatus;
@@ -252,7 +252,7 @@ public class APITestHarness {
         if (baseUrl == null) {
             baseUrl = AmazonUtil.getControllerBaseUrl();
         }
-        AgentServiceClient client = new AgentServiceClient(baseUrl);
+        AgentClient client = new AgentClient(baseUrl);
         String instanceUrl = null;
         int retryCount = 0;
         while (instanceUrl == null) {
@@ -381,8 +381,7 @@ public class APITestHarness {
                         "writing file " + dataFileRequest.getFileName() + " to " + dataFile.getAbsolutePath()
                                 + " from url " + url.toExternalForm())));
                 FileUtils.copyURLToFile(url, dataFile);
-                LOG.info("APITestHarness - isDefault = " + dataFileRequest.isDefault() + " and fileName = " + dataFileRequest.getFileName());
-                if (dataFileRequest.isDefault()
+                if (dataFileRequest.isDefaultDataFile()
                         && !dataFileRequest.getFileName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
                     LOG.info("APITestHarness - default file set to " + TankConstants.DEFAULT_CSV_FILE_NAME);
                     File defaultFile = new File(dataFileDir, TankConstants.DEFAULT_CSV_FILE_NAME);

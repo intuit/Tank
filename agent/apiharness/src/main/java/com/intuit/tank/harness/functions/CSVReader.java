@@ -51,7 +51,7 @@ public class CSVReader {
             if (instance.get(fileName) == null) {
                 instance.put(fileName, new CSVReader(fileName));
             }
-        LOG.info("CSVReader - returning instance for " + fileName);
+
         return instance.get(fileName);
     }
 
@@ -68,7 +68,7 @@ public class CSVReader {
             LOG.warn("Cannot read config. Using datafileDir of " + datafileDir);
         }
         File csvFile = new File(datafileDir, fileName);
-        LOG.info(LogUtil.getLogMessage("READING CSV FILE: " + csvFile.getAbsolutePath()));
+        LOG.debug(LogUtil.getLogMessage("READING CSV FILE: " + csvFile.getAbsolutePath()));
         try ( BufferedReader br = new BufferedReader(
                 new InputStreamReader(
                         new DataInputStream(
@@ -79,7 +79,7 @@ public class CSVReader {
             while ((strLine = br.readLine()) != null) {
                 lines.add(strLine.split(","));
             }
-            LOG.info(LogUtil.getLogMessage("CSV file " + csvFile.getAbsolutePath() + " has " + lines.size()
+            LOG.debug(LogUtil.getLogMessage("CSV file " + csvFile.getAbsolutePath() + " has " + lines.size()
                     + " lines."));
 
         } catch (IOException e) {// Catch exception if any
