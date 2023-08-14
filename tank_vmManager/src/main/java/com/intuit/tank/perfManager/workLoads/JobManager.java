@@ -312,7 +312,9 @@ public class JobManager implements Serializable {
                 int offset = info.agentData.size() * numLinesPerAgent;
                 DataFileRequest dataRequest = new DataFileRequest(dataFile.getPath(), setAsDefault,
                         DataFileUtil.getDataFileServiceUrl(dataFile.getId(), offset, numLinesPerAgent));
-                LOG.info(jobId + " JobManager - DataFileRequest: " + dataRequest);
+                LOG.info(jobId + " JobManager - DataFileName: " + dataRequest.getFileName()
+                        + "DataFilePath: " + dataRequest.getFileUrl()
+                        + "isDefault: " + dataRequest.isDefault());
                 ret.add(dataRequest);
             }
         }

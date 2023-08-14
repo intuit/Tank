@@ -43,6 +43,7 @@ public final class DataFileUtil {
      */
     public static String getDataFileServiceUrl(int id, int offSet, int numLines) {
         String baseUrl = new TankConfig().getControllerBase();
+        LOG.info("Datafile Service URL: " + baseUrl + "/v2/datafiles/content?id=" + id + "&offset=" + offSet + "&lines=" + numLines);
         return baseUrl + "/v2/datafiles/content?id=" + id + "&offset=" + offSet + "&lines=" + numLines;
     }
 

@@ -83,11 +83,10 @@ public class JexlIOFunctions implements ExpressionContextVisitor {
         LOG.info("Jexlidx - Calling getCSVData(" + ocolIndex + ", " + loop + ")" + " from JexlIOFunctions");
         String ret = null;
         int colIndex = FunctionHandler.getInt(ocolIndex);
-        LOG.info("Jexlidx - csvLineMap: " + csvLineMap +" from JexlIOFunctions");
+        LOG.info("Jexlidx - csvLineMap: " + csvLineMap.values() +" from JexlIOFunctions");
         String[] currentLine = csvLineMap.get(Thread.currentThread().getId());
         if (currentLine == null || colIndex >= currentLine.length || currentLine[colIndex] == null) {
-            LOG.info("Jexlidx - Getting current line from " + CSVReader.getInstance(TankConstants.DEFAULT_CSV_FILE_NAME) + " from JexlIOFunctions");
-            currentLine = CSVReader.getInstance(TankConstants.DEFAULT_CSV_FILE_NAME).getNextLine(loop);
+            LOG.info("Jexlidx - Getting current line from " + TankConstants.DEFAULT_CSV_FILE_NAME + " from JexlIOFunctions");            currentLine = CSVReader.getInstance(TankConstants.DEFAULT_CSV_FILE_NAME).getNextLine(loop);
             if (currentLine != null) {
                 csvLineMap.put(Thread.currentThread().getId(), currentLine);
             } else {
@@ -144,7 +143,7 @@ public class JexlIOFunctions implements ExpressionContextVisitor {
         LOG.info("Jexlfile - Calling getCSVData(" + fileName + ", " + oindex + ", " + loop + ")" + " from JexlIOFunctions");
         String ret = null;
         int index = FunctionHandler.getInt(oindex);
-        LOG.info("Jexlfile - fileLineMap: " + fileLineMap +" from JexlIOFunctions");
+        LOG.info("Jexlfile - fileLineMap: " + fileLineMap.values() +" from JexlIOFunctions");
         String[] currentLine = fileLineMap.get(Thread.currentThread().getId() + "-" + fileName);
         if (currentLine == null || index >= currentLine.length || currentLine[index] == null) {
             LOG.info("Jexlfile - Getting current line from " + CSVReader.getInstance(fileName) + " from JexlIOFunctions");
