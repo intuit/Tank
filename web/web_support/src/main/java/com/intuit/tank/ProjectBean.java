@@ -220,6 +220,57 @@ public class ProjectBean implements Serializable {
     }
 
     /**
+     * @return the start rate for job
+     */
+    public int getStartRate() {
+        return getWorkload().getJobConfiguration().getStartRate();
+    }
+
+    /**
+     * Sets the start rate for the job
+     *
+     * @param startRate
+     */
+    public void setStartRate(int startRate) {
+        Workload workload = getWorkload();
+        workload.getJobConfiguration().setStartRate(startRate);
+    }
+
+    /**
+     * @return the end rate for job
+     */
+    public int getEndRate() {
+        return getWorkload().getJobConfiguration().getEndRate();
+    }
+
+    /**
+     * Sets the end rate for the job
+     *
+     * @param endRate
+     */
+    public void setEndRate(int endRate) {
+        Workload workload = getWorkload();
+        workload.getJobConfiguration().setEndRate(endRate);
+    }
+
+    /**
+     * @return the constant rate for job
+     */
+    public int getConstantRate() {
+        return getWorkload().getJobConfiguration().getConstantRate();
+    }
+
+    /**
+     * Sets the constant rate for the job
+     *
+     * @param constantRate
+     */
+    public void setConstantRate(int constantRate) {
+        Workload workload = getWorkload();
+        workload.getJobConfiguration().setConstantRate(constantRate);
+    }
+
+    /**
      * Saves the Project object in the database.
      */
     public void save() {

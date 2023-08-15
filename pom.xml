@@ -99,6 +99,7 @@
         <module>script_processor</module>
         <module>mail</module>
         <module>harness_data</module>
+        <module>nonlinear_tool</module>
         <module>search</module>
         <module>reporting</module>
         <module>test_support</module>
@@ -196,6 +197,7 @@
         <module>tank_common</module>
         <module>mail</module>
         <module>harness_data</module>
+        <module>nonlinear_tool</module>
         <module>search</module>
         <module>reporting</module>
         <module>test_support</module>
@@ -224,6 +226,7 @@
         <module>tank_common</module>
         <module>mail</module>
         <module>harness_data</module>
+        <module>nonlinear_tool</module>
         <module>search</module>
         <module>reporting</module>
         <module>test_support</module>

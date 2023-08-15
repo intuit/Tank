@@ -68,6 +68,59 @@
 
     <div class="formRow">
       <div class="formLabelDiv">
+        <h:outputLabel for="startRateTF" value="Starting Rate (users/sec)"
+                       styleClass="formLabel" />
+      </div>
+      <div class="formInputDiv">
+        <p:inplace label="#{usersAndTimes.startRate}" editor="true">
+          <h:inputText id="startRateTF"
+                       value="#{usersAndTimes.startRate}"
+                       styleClass="formInput inputWidthSmall" required="true"
+                       requiredMessage="Start Rate cannot be empty." >
+            <f:validateLongRange minimum = "0" maximum = "99999999" />
+          </h:inputText>
+        </p:inplace>
+      </div>
+    </div>
+
+    <div class="formRow">
+      <div class="formLabelDiv">
+        <h:outputLabel for="endRateTF" value="Ending Rate (users/sec)"
+                       styleClass="formLabel" />
+      </div>
+      <div class="formInputDiv">
+        <p:inplace label="#{usersAndTimes.endRate}" editor="true">
+          <h:inputText id="endRateTF"
+                       value="#{usersAndTimes.endRate}"
+                       styleClass="formInput inputWidthSmall" required="true"
+                       requiredMessage="End Rate cannot be empty." >
+            <f:validateLongRange minimum = "0" maximum = "99999999" />
+          </h:inputText>
+        </p:inplace>
+      </div>
+    </div>
+
+    <div class="formRow">
+      <div class="formLabelDiv">
+        <h:outputLabel for="constantRateTF" value="Constant Rate (users/sec)"
+                       styleClass="formLabel" />
+      </div>
+      <div class="formInputDiv">
+        <p:inplace label="#{usersAndTimes.constantRate}" editor="true">
+          <h:inputText id="constantRateTF"
+                       value="#{usersAndTimes.constantRate}"
+                       styleClass="formInput inputWidthSmall" required="true"
+                       requiredMessage="Constant Rate cannot be empty." >
+            <f:validateLongRange minimum = "0" maximum = "99999999" />
+          </h:inputText>
+        </p:inplace>
+      </div>
+    </div>
+
+    <br />
+
+    <div class="formRow">
+      <div class="formLabelDiv">
         <h:outputLabel for="startUsersTF" value="Initial Users"
           styleClass="formLabel" />
       </div>

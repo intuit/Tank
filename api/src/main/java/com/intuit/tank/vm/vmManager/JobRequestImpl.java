@@ -60,7 +60,9 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     private Set<Integer> dataFileIds = new HashSet<Integer>();
     private String vmInstanceType;
     private int numUsersPerAgent;
-
+    private int startRate;
+    private int endRate;
+    private int constantRate;
     private String scriptsXmlUrl;
 
     public static Builder builder() {
@@ -199,6 +201,51 @@ public final class JobRequestImpl implements Serializable, JobRequest {
      */
     public void setNumUsersPerAgent(int numUsersPerAgent) {
         this.numUsersPerAgent = numUsersPerAgent;
+    }
+
+    /**
+     * @return the startRate
+     */
+    public int getStartRate() {
+        return startRate;
+    }
+
+    /**
+     * @param startRate
+     *            the startRate to set
+     */
+    public void setStartRate(int startRate) {
+        this.startRate = startRate;
+    }
+
+    /**
+     * @return the endRate
+     */
+    public int getEndRate() {
+        return endRate;
+    }
+
+    /**
+     * @param endRate
+     *            the endRate to set
+     */
+    public void setEndRate(int endRate) {
+        this.endRate = endRate;
+    }
+
+    /**
+     * @return the constantRate
+     */
+    public int getConstantRate() {
+        return constantRate;
+    }
+
+    /**
+     * @param constantRate
+     *            the constantRate to set
+     */
+    public void setConstantRate(int constantRate) {
+        this.constantRate = constantRate;
     }
 
     /**
@@ -350,6 +397,23 @@ public final class JobRequestImpl implements Serializable, JobRequest {
             instance.numUsersPerAgent = aValue;
             return (GeneratorT) this;
         }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT withStartRate(int aValue) {
+            instance.startRate = aValue;
+            return (GeneratorT) this;
+        }
+
+        public GeneratorT withEndRate(int aValue) {
+            instance.endRate= aValue;
+            return (GeneratorT) this;
+        }
+
+        public GeneratorT withConstantRate(int aValue) {
+            instance.constantRate= aValue;
+            return (GeneratorT) this;
+        }
+
         @SuppressWarnings("unchecked")
         public GeneratorT withUseEips(boolean aValue) {
             instance.useEips = aValue;

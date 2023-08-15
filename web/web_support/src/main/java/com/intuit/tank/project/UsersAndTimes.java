@@ -399,6 +399,59 @@ public class UsersAndTimes implements Serializable {
     }
 
     /**
+     * @return get nonlinear start rate for the job
+     */
+    public String getStartRate() {
+        return String.valueOf(projectBean.getJobConfiguration().getStartRate());
+    }
+
+    /**
+     * set nonlinear start rate for the job
+     *
+     * @param startRate
+     *
+     */
+    public void setStartRate(String startRate) {
+        projectBean.getJobConfiguration().setStartRate(Integer.parseInt(startRate));
+    }
+
+     /**
+     * @return get nonlinear end rate for the job
+     */
+    public String getEndRate() {
+        return String.valueOf(projectBean.getJobConfiguration().getEndRate());
+    }
+
+    /**
+     * set nonlinear end rate for the job
+     *
+     * @param endRate
+     *
+     */
+    public void setEndRate(String endRate) {
+        projectBean.getJobConfiguration().setEndRate(Integer.parseInt(endRate));
+    }
+
+    /**
+     * @return get nonlinear constant rate for the job
+     *
+     */
+
+    public String getConstantRate() {
+        return String.valueOf(projectBean.getJobConfiguration().getConstantRate());
+    }
+
+    /**
+     * set nonlinear constant rate for the job
+     *
+     * @param constantRate
+     *
+     */
+    public void setConstantRate(String constantRate) {
+        projectBean.getJobConfiguration().setConstantRate(Integer.parseInt(constantRate));
+    }
+
+    /**
      * @return total number of east and west region users
      */
     public int getTotalUsers() {

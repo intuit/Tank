@@ -114,6 +114,9 @@ public class JobDetailFormatter {
                 addError(errorSB, "Simulation time not set.");
             }
             addProperty(sb, "Ramp Time", TimeUtil.toTimeString(proposedJobInstance.getRampTime()));
+            addProperty(sb, "Starting User Ramp (users/sec)", Integer.toString(proposedJobInstance.getStartRate()));
+            addProperty(sb, "Ending User Ramp (users/sec)", Integer.toString(proposedJobInstance.getEndRate()));
+            addProperty(sb, "Constant User Ramp (users/sec)", Integer.toString(proposedJobInstance.getConstantRate()));
             addProperty(sb, "Initial Users", Integer.toString(proposedJobInstance.getBaselineVirtualUsers()));
             addProperty(sb, "User Increment", Integer.toString(proposedJobInstance.getUserIntervalIncrement()));
             // users and regions
