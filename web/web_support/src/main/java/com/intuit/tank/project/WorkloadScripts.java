@@ -15,30 +15,36 @@ package com.intuit.tank.project;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ConversationScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.context.PartialViewContext;
+import javax.faces.event.AjaxBehaviorEvent;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import com.intuit.tank.util.Messages;
 import org.primefaces.component.tabview.TabView;
+import org.primefaces.event.SelectEvent;
 import org.primefaces.event.TabChangeEvent;
 import org.primefaces.model.DualListModel;
 
 import com.intuit.tank.ProjectBean;
 import com.intuit.tank.dao.ScriptGroupDao;
 import com.intuit.tank.script.ScriptLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Named
 @ConversationScoped
 public class WorkloadScripts implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LogManager.getLogger(WorkloadScripts.class);
 
     @Inject
     private Messages messages;
@@ -59,6 +65,9 @@ public class WorkloadScripts implements Serializable {
 
     private int tabIndex = 0;
 
+    private List<Script> selectedAvailableScripts;
+    private List<Script> selectedSelectedScripts;
+
     @PostConstruct
     public void postConstruct() {
         List<TestPlan> testPlans = projectBean.getWorkload().getTestPlans();
@@ -75,6 +84,54 @@ public class WorkloadScripts implements Serializable {
         projectBean.getWorkload().addTestPlan(plan);
         // this.tabIndex = projectBean.getWorkload().getTestPlans().size() - 1;
         // this.currentTestPlan = plan;
+    }
+
+    public List<Script> getSelectedAvailableScripts() {
+        return selectedAvailableScripts;
+    }
+
+    public void setSelectedAvailableScripts(List<Script> selectedAvailableScripts) {
+        this.selectedAvailableScripts = selectedAvailableScripts;
+    }
+
+    public List<Script> getSelectedSelectedScripts() {
+        return selectedSelectedScripts;
+    }
+
+    public void setSelectedSelectedScripts(List<Script> selectedSelectedScripts) {
+        this.selectedSelectedScripts = selectedSelectedScripts;
+    }
+
+    public void addAllToTarget() {
+        scriptSelectionModel.getTarget().addAll(scriptSelectionModel.getSource());
+        scriptSelectionModel.getSource().clear();
+    }
+
+    public void addToTarget() {
+        if(!selectedAvailableScripts.isEmpty()) {
+            scriptSelectionModel.getTarget().addAll(0, selectedAvailableScripts);
+            scriptSelectionModel.getSource().removeAll(selectedAvailableScripts);
+        }
+    }
+
+    public void removeFromTarget() {
+        if(!selectedSelectedScripts.isEmpty()) {
+            scriptSelectionModel.getSource().addAll(0, selectedSelectedScripts);
+            scriptSelectionModel.getTarget().removeAll(selectedSelectedScripts);
+        }
+    }
+
+    public void removeAllFromTarget() {
+        scriptSelectionModel.getSource().addAll(scriptSelectionModel.getTarget());
+        scriptSelectionModel.getTarget().clear();
+    }
+
+    public void onSourceSelect(SelectEvent event) {
+        selectedAvailableScripts = (List<Script>) event.getObject();
+    }
+
+    public void onTargetSelect(SelectEvent event) {
+        selectedSelectedScripts = (List<Script>) event.getObject();
     }
 
     public void onChange(TabChangeEvent event) {
@@ -253,8 +310,8 @@ public class WorkloadScripts implements Serializable {
 
     private void initScriptSelectionModel() {
         scriptSelectionModel = new DualListModel<Script>(
-                                                scriptLoader.getVersionEntities(),
-                                                new ArrayList<Script>());
+                scriptLoader.getVersionEntities(),
+                new ArrayList<Script>());
 
     }
 

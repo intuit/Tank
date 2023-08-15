@@ -10,11 +10,11 @@ package com.intuit.tank.rest.mvc.rest.services.scripts;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptContainer;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ExternalScriptTO;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptDescriptionContainer;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptDescription;
-import com.intuit.tank.rest.mvc.rest.models.scripts.ScriptTO;
+import com.intuit.tank.api.model.v1.script.ExternalScriptContainer;
+import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
+import com.intuit.tank.api.model.v1.script.ScriptDescriptionContainer;
+import com.intuit.tank.api.model.v1.script.ScriptDescription;
+import com.intuit.tank.api.model.v1.script.ScriptTO;
 
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -125,6 +125,21 @@ public interface ScriptServiceV2 {
      */
     public Map<String, String> uploadProxyScript(String name, Integer scriptId, String contentEncoding, MultipartFile file) throws IOException;
 
+    /**
+     * Update an existing Tank script with a Tank XML file
+     *
+     * @param contentEncoding
+     *           content encoding of file (checks for gzip file)
+     *
+     * @param file
+     *            Tank script XML file to be uploaded
+     *
+     * @throws GenericServiceCreateOrUpdateException
+     *         if there are errors uploading script
+     *
+     * @return scriptId with upload status JSON payload
+     */
+    public Map<String, String> updateTankScript(String contentEncoding, MultipartFile file) throws IOException;
 
     /**
      * Deletes a script associated with scriptID

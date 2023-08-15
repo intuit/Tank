@@ -1,7 +1,7 @@
 /**
  * Copyright 2011 Intuit Inc. All Rights Reserved
  */
-package com.intuit.tank.api.cloud;
+package com.intuit.tank.vm.vmManager;
 
 /*
  * #%L
@@ -20,9 +20,9 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatus;
-import com.intuit.tank.api.model.v1.cloud.CloudVmStatusContainer;
-import com.intuit.tank.api.model.v1.cloud.ProjectStatusContainer;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
+import com.intuit.tank.vm.vmManager.models.ProjectStatusContainer;
 import com.intuit.tank.vm.event.JobEvent;
 
 /**

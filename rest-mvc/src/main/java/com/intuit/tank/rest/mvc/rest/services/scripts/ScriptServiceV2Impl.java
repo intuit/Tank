@@ -13,15 +13,16 @@ import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ExternalScript;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
-import com.intuit.tank.rest.mvc.rest.models.scripts.*;
+import com.intuit.tank.api.model.v1.script.*;
 import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import com.intuit.tank.rest.mvc.rest.util.ScriptServiceUtil;
 import com.intuit.tank.script.processor.ScriptProcessor;
-import com.intuit.tank.service.impl.v1.automation.MessageSender;
-import com.intuit.tank.service.util.ServletInjector;
+import com.intuit.tank.rest.mvc.rest.cloud.MessageEventSender;
+import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
 import com.intuit.tank.vm.settings.ModificationType;
@@ -34,14 +35,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import javax.servlet.ServletContext;
@@ -106,7 +101,8 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     public Map<Integer, String> getAllScriptNames(){
         try {
             List<Script> all = new ScriptDao().findAll();
-            return all.stream().collect(Collectors.toMap(Script::getId, Script::getName));
+            return all.stream().sorted(Comparator.comparing(Script::getModified).reversed())
+                               .collect(Collectors.toMap(Script::getId, Script::getName, (e1, e2) -> e1, LinkedHashMap::new));
         } catch (Exception e) {
             LOGGER.error("Error returning all script names: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("scripts", "all script names", e);
@@ -288,14 +284,61 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         } finally {
             try {
                 fileInputStream.close();
-            } catch (IOException e) {}
+            } catch (IOException e) {
+                LOGGER.error("Error uploading script file: " + e.getMessage(), e);
+                throw new GenericServiceCreateOrUpdateException("scripts", "new script via script upload", e);
+            }
         }
         return payload;
     }
 
     private void sendMsg(BaseEntity entity, ModificationType type) {
-        MessageSender sender = new ServletInjector<MessageSender>().getManagedBean(servletContext, MessageSender.class);
+        MessageEventSender sender = new ServletInjector<MessageEventSender>().getManagedBean(servletContext, MessageEventSender.class);
         sender.sendEvent(new ModifiedEntityMessage(entity.getClass(), entity.getId(), type));
+    }
+
+    @Override
+    public Map<String, String> updateTankScript(String  contentEncoding, MultipartFile file) throws IOException {
+        Map<String, String> payload = new HashMap<>();
+        InputStream fileInputStream = file.getInputStream();
+        contentEncoding = contentEncoding == null ? "" : contentEncoding;
+
+        try {
+            ScriptDao dao = new ScriptDao();
+
+            if (fileInputStream != null) {
+                if ("gzip".equalsIgnoreCase(contentEncoding)) {
+                    fileInputStream = new GZIPInputStream(fileInputStream);
+                }
+
+                ScriptTO scriptTo = ScriptServiceUtil.parseXMLtoScriptTO(fileInputStream);
+                Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
+                if (script.getId() > 0) {
+                    Script existing = dao.findById(script.getId());
+                    if (existing == null) {
+                        throw new GenericServiceBadRequestException("scripts", "updating script", "updating script - Cannot update a script that does not exist (script id " + script.getId() + ")");
+                    }
+                    if (!existing.getName().equals(script.getName())) {
+                        throw new GenericServiceBadRequestException("scripts", "updating script", "updating script - Cannot change the name of the existing script " + existing.getName());
+                    }
+                    script.setSerializedScriptStepId(existing.getSerializedScriptStepId());
+                }
+                script = dao.saveOrUpdate(script);
+                payload.put("message", "Script " + script.getName() + " with script ID " + script.getId() + " updated successfully");
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error updating script file: " + e.getMessage(), e);
+            throw new GenericServiceCreateOrUpdateException("scripts", e.getMessage(), e);
+        } finally {
+            try {
+                fileInputStream.close();
+            } catch (IOException e) {
+                LOGGER.error("Error updating script file: " + e.getMessage(), e);
+                throw new GenericServiceCreateOrUpdateException("scripts",  e.getMessage(), e);
+            }
+        }
+
+        return payload;
     }
 
     @Override

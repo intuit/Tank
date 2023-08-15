@@ -14,7 +14,9 @@ package com.intuit.tank.project;
  */
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;
@@ -236,6 +238,24 @@ public class TestPlan extends BaseEntity {
         @SuppressWarnings("unchecked")
         public GeneratorT usersPercentage(int aValue) {
             instance.setUserPercentage(aValue);
+
+            return (GeneratorT) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT withScriptGroups(List<ScriptGroup> aValue) {
+            instance.setScriptGroups(aValue);
+
+            return (GeneratorT) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT withAddedScriptGroup(ScriptGroup aValue) {
+            if (instance.getScriptGroups() == null) {
+                instance.setScriptGroups(new ArrayList<ScriptGroup>());
+            }
+
+            ((ArrayList<ScriptGroup>) instance.getScriptGroups()).add(aValue);
 
             return (GeneratorT) this;
         }

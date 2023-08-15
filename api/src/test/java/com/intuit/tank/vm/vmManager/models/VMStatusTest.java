@@ -1,4 +1,4 @@
-package com.intuit.tank.api.model.v1.cloud;
+package com.intuit.tank.vm.vmManager.models;
 
 /*
  * #%L
@@ -59,10 +59,10 @@ public class VMStatusTest {
         VMStatus result = VMStatus.fromString(value);
 
         // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.IllegalArgumentException: No enum constant com.intuit.tank.api.model.v1.cloud.VMStatus.
+        //    java.lang.IllegalArgumentException: No enum constant com.intuit.tank.vm.vmManager.models.VMStatus.
         //       at java.lang.Enum.valueOf(Enum.java:238)
-        //       at com.intuit.tank.api.model.v1.cloud.VMStatus.valueOf(VMStatus.java:5)
-        //       at com.intuit.tank.api.model.v1.cloud.VMStatus.fromString(VMStatus.java:20)
+        //       at com.intuit.tank.vm.vmManager.models.VMStatus.valueOf(VMStatus.java:5)
+        //       at com.intuit.tank.vm.vmManager.models.VMStatus.fromString(VMStatus.java:20)
         assertNotNull(result);
     }
 }

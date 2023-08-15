@@ -39,7 +39,7 @@ public class DataFileRequestCpTest {
         DataFileRequest result = new DataFileRequest();
 
         assertNotNull(result);
-        assertEquals(false, result.isDefault());
+        assertEquals(false, result.isDefaultDataFile());
         assertEquals(null, result.getFileName());
         assertEquals(null, result.getFileUrl());
     }
@@ -55,13 +55,13 @@ public class DataFileRequestCpTest {
     public void testDataFileRequest_2()
             throws Exception {
         String fileName = "";
-        boolean isDefault = true;
+        boolean isDefaultDataFile = true;
         String fileUrl = "";
 
-        DataFileRequest result = new DataFileRequest(fileName, isDefault, fileUrl);
+        DataFileRequest result = new DataFileRequest(fileName, isDefaultDataFile, fileUrl);
 
         assertNotNull(result);
-        assertEquals(true, result.isDefault());
+        assertEquals(true, result.isDefaultDataFile());
         assertEquals("", result.getFileName());
         assertEquals("", result.getFileUrl());
     }
@@ -101,35 +101,35 @@ public class DataFileRequestCpTest {
     }
 
     /**
-     * Run the boolean isDefault() method test.
+     * Run the boolean isDefaultDataFile() method test.
      * 
      * @throws Exception
      * 
      * @generatedBy CodePro at 9/3/14 3:44 PM
      */
     @Test
-    public void testIsDefault_1()
+    public void testisDefaultDataFile_1()
             throws Exception {
         DataFileRequest fixture = new DataFileRequest("", true, "");
 
-        boolean result = fixture.isDefault();
+        boolean result = fixture.isDefaultDataFile();
 
         assertEquals(true, result);
     }
 
     /**
-     * Run the boolean isDefault() method test.
+     * Run the boolean isDefaultDataFile() method test.
      * 
      * @throws Exception
      * 
      * @generatedBy CodePro at 9/3/14 3:44 PM
      */
     @Test
-    public void testIsDefault_2()
+    public void testisDefaultDataFile_2()
             throws Exception {
         DataFileRequest fixture = new DataFileRequest("", false, "");
 
-        boolean result = fixture.isDefault();
+        boolean result = fixture.isDefaultDataFile();
 
         assertEquals(false, result);
     }

@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.filters;
 
+import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.dao.ScriptFilterDao;
 import com.intuit.tank.dao.ScriptFilterGroupDao;
@@ -25,8 +26,8 @@ import com.intuit.tank.rest.mvc.rest.models.filters.FilterGroupContainer;
 import com.intuit.tank.rest.mvc.rest.models.filters.ApplyFiltersRequest;
 import com.intuit.tank.rest.mvc.rest.util.FilterServiceUtil;
 import com.intuit.tank.rest.mvc.rest.util.ScriptFilterUtil;
-import com.intuit.tank.service.impl.v1.automation.MessageSender;
-import com.intuit.tank.service.util.ServletInjector;
+import com.intuit.tank.rest.mvc.rest.cloud.MessageEventSender;
+import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
 import com.intuit.tank.vm.settings.ModificationType;
 
@@ -127,6 +128,7 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
                 }
                 if (!filterIds.isEmpty()) {
                     ScriptFilterUtil.applyFilters(filterIds, script);
+                    ScriptUtil.setScriptStepLabels(script);
                     script = new ScriptDao().saveOrUpdate(script);
                     sendMsg(script, ModificationType.UPDATE);
                     return "Filters applied";
@@ -139,7 +141,7 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
         return null;
     }
     private void sendMsg(BaseEntity entity, ModificationType type) {
-        MessageSender sender = new ServletInjector<MessageSender>().getManagedBean(servletContext, MessageSender.class);
+        MessageEventSender sender = new ServletInjector<MessageEventSender>().getManagedBean(servletContext, MessageEventSender.class);
         sender.sendEvent(new ModifiedEntityMessage(entity.getClass(), entity.getId(), type));
     }
 

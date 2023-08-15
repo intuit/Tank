@@ -18,16 +18,12 @@ import java.util.List;
 
 import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.auth.TankSecurityContext;
-import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.filter.FilterBean;
 import com.intuit.tank.util.Messages;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.intuit.tank.converter.ScriptStepHolder;
@@ -35,11 +31,12 @@ import com.intuit.tank.prefs.TablePreferences;
 import com.intuit.tank.prefs.TableViewState;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptStep;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 
 import javax.enterprise.context.Conversation;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.faces.context.Flash;
 import javax.security.enterprise.CallerPrincipal;
 
 /**
@@ -2979,13 +2976,24 @@ public class ScriptEditorTest {
 
     @Test
     public void testReapplyFilters() {
-        Script script = Script.builder().name("Name").build();
-        fixture.setScript(script);
-        AWSXRay.beginSegment("test");
-        String result = fixture.reapplyFilters();
-        AWSXRay.endSegment();
 
-        assertEquals("success", result);
+        Script script = Script.builder().name("Name").build();
+        FacesContext facesContext = mock(FacesContext.class);
+
+        try (MockedStatic<FacesContext> mockedFacesContext = Mockito.mockStatic(FacesContext.class)) {
+            ExternalContext externalContext = mock(ExternalContext.class);
+            Flash flash = mock(Flash.class);
+            when(facesContext.getExternalContext()).thenReturn(externalContext);
+            when(externalContext.getFlash()).thenReturn(flash);
+            mockedFacesContext.when(FacesContext::getCurrentInstance).thenReturn(facesContext);
+
+            fixture.setScript(script);
+            AWSXRay.beginSegment("test");
+            String result = fixture.reapplyFilters();
+            AWSXRay.endSegment();
+
+            assertEquals("success", result);
+        }
     }
 
     @Test

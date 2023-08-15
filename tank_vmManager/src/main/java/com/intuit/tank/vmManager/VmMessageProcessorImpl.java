@@ -17,16 +17,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.vm.vmManager.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.api.cloud.VMTracker;
-import com.intuit.tank.vm.vmManager.VMInstanceRequest;
-import com.intuit.tank.vm.vmManager.VMJobRequest;
-import com.intuit.tank.vm.vmManager.VMKillRequest;
-import com.intuit.tank.vm.vmManager.VMRequest;
-import com.intuit.tank.vm.vmManager.VMUpdateStateRequest;
-import com.intuit.tank.vm.vmManager.VmMessageProcessor;
 import com.intuit.tank.vmManager.environment.CreateInstance;
 import com.intuit.tank.vmManager.environment.JobRequest;
 import com.intuit.tank.vmManager.environment.KillInstance;

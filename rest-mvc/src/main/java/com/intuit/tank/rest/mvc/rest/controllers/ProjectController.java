@@ -81,12 +81,15 @@ public class ProjectController {
 
     @RequestMapping(method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
     @Operation(description = "Given a project request payload, creates a new project and returns projectId and created status in response on success \n\n" +
-                             "Note: Make sure you provide a new project name in request to avoid conflict \n\n" +
+                             "**Note**: Make sure you provide a new project name in request to avoid conflict \n\n" +
                              "Parameters: \n\n" +
                              "  - name, productName, comments, and variable key/values are accepted as strings \n\n" +
                              "  - rampTime and simulationTime are accepted as time strings i.e 60s, 12m, 24h \n\n" +
-                             "  - location, workloadType, stopBehavior, and terminationPolicy are matched against accepted values (see corresponding keys in schema) \n\n" +
+                             "  - location, workloadType, stopBehavior, and terminationPolicy are matched against the schema (see corresponding keys in schema) \n\n" +
                              "  - userIntervalIncrement and dataFileIds are accepted as an integer and a list of integers (datafile IDs to add to project) \n\n" +
+                             "  - testPlans, scriptGroups and scripts are matched against the schema - if testPlans is left empty or excluded from payload, " +
+                                  "the project defaults to an empty 'Main' test plan with 100% User Percentage \n\n" +
+                             "  - testPlans, scriptGroups and scripts are added in the order in which they appear in the payload; their position is determined by their list index \n\n" +
                              "  - jobRegions.regions correspond to AWS regions in uppercase i.e US_WEST_2, US_EAST_2 \n\n" +
                              "  - jobRegions.users are accepted as integer strings i.e \"100\", \"4000\" \n\n", summary = "Create a new project")
     @ApiResponses(value = {
@@ -104,11 +107,15 @@ public class ProjectController {
 
     @RequestMapping(value = "/{projectId}", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_JSON_VALUE })
     @Operation(description = "Given an existing project's projectId and request payload, updates project and returns projectId and updated status in response on success \n\n" +
+                             "**Note**: Make sure you provide a new project name in request to avoid conflict \n\n" +
                              "Parameters: \n\n" +
                              "  - name, productName, comments, and variable key/values are accepted as strings (can be same name as original project, but new variable k/v are added to variable list) \n\n" +
                              "  - rampTime and simulationTime are accepted as time strings i.e 60s, 12m, 24h \n\n" +
-                             "  - location, workloadType, stopBehavior, and terminationPolicy are matched against accepted values (see corresponding keys in schema) \n\n" +
+                             "  - location, workloadType, stopBehavior, and terminationPolicy are matched against the schema (see corresponding keys in schema) \n\n" +
                              "  - userIntervalIncrement and dataFileIds are accepted as an integer and a list of integers (datafile IDs to add to project) \n\n" +
+                             "  - testPlans, scriptGroups and scripts are matched against the schema, and if there are any entries in testPlans, " +
+                             "    it will  **overwrite** the existing test plans - passing an empty list of test plans or excluding it from the payload will keep the current test plans as is \n\n" +
+                             "  - testPlans, scriptGroups and scripts are added in the order in which they appear in the payload; their position is determined by their list index \n\n" +
                              "  - jobRegions.regions correspond to AWS regions in uppercase i.e US_WEST_2, US_EAST_2 \n\n" +
                              "  - jobRegions.users are accepted as integer strings i.e \"100\", \"4000\" \n\n", summary = "Update a specific project")
     @ApiResponses(value = {
