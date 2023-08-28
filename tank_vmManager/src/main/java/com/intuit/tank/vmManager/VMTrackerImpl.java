@@ -143,7 +143,7 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     private void setStatusThread(@Nonnull final CloudVmStatus status) {
-        AWSXRay.beginSegment("Dummy.Update.Status");  //initiation call has already returned 204
+        AWSXRay.getGlobalRecorder().beginNoOpSegment();  //initiation call has already returned 204
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
             CloudVmStatus currentStatus = getStatus(status.getInstanceId());
