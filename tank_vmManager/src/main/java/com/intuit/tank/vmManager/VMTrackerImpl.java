@@ -139,7 +139,7 @@ public class VMTrackerImpl implements VMTracker {
     @Override
     public void setStatus(@Nonnull final CloudVmStatus status) {
         Runnable task = () -> setStatusThread(status);
-        AWSXRay.createSubsegment("Update.Status", task);  //initiation call has already returned 204
+        AWSXRay.createSegment("Update.Status", task);  //initiation call has already returned 204
         EXECUTOR.execute(task);
     }
 
