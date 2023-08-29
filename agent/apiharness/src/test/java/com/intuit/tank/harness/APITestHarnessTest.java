@@ -9,6 +9,7 @@ import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,6 +29,7 @@ public class APITestHarnessTest {
     }
 
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_GUI_TEST", matches = "true")
     public void testAPITestHarnessTestMain() {
         instance.setDebug(true);
         instance.setFlowControllerTemplate(new MockFlowController());
