@@ -14,6 +14,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisabledIfEnvironmentVariable(named = "SKIP_GUI_TEST", matches = "true")
 public class APITestHarnessTest {
 
     private APITestHarness instance;
@@ -29,7 +30,6 @@ public class APITestHarnessTest {
     }
 
     @Test
-    @DisabledIfEnvironmentVariable(named = "SKIP_GUI_TEST", matches = "true")
     public void testAPITestHarnessTestMain() {
         instance.setDebug(true);
         instance.setFlowControllerTemplate(new MockFlowController());
