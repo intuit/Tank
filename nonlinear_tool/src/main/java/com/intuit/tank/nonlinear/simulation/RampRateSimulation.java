@@ -23,17 +23,10 @@ public class RampRateSimulation {
     private double startRampRate = 0;
     private double endRampRate = 10;
     private double d = 10;
-    private double k = 1.2;
-
+    private double u = 5;
 
     private JFreeChart rampRateChart;
     private JFreeChart concurrentUsersChart;
-
-    private double yValueRampRateAtD;
-
-    private double yValueConcurrentUsersAtD;
-
-    private static final double DOT_RADIUS = 0.1;
 
     private XYSeriesCollection dataset = new XYSeriesCollection();
     private XYSeries series = new XYSeries("Ramp Rate vs Time");
@@ -46,7 +39,7 @@ public class RampRateSimulation {
     private ChartPanel concurrentUsersPanel;
 
     public RampRateSimulation() {
-        JFrame frame = new JFrame("Nonlinear Ramp Visualization");
+        JFrame frame = new JFrame("Linear Ramp Visualization");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
@@ -54,7 +47,7 @@ public class RampRateSimulation {
         JTextField startField = new JTextField("0");
         JTextField endField = new JTextField("10");
         JTextField dField = new JTextField("10");
-        JTextField kField = new JTextField("1.2");
+        JTextField uField = new JTextField("5");
         JButton updateButton = new JButton("Update Graph");
 
 
@@ -64,8 +57,8 @@ public class RampRateSimulation {
         inputPanel.add(endField);
         inputPanel.add(new JLabel("Ramp Duration:"));
         inputPanel.add(dField);
-        inputPanel.add(new JLabel("Steepness (k):"));
-        inputPanel.add(kField);
+        inputPanel.add(new JLabel("User Duration:"));
+        inputPanel.add(uField);
         inputPanel.add(updateButton);
 
         frame.add(inputPanel, BorderLayout.NORTH);
@@ -111,7 +104,7 @@ public class RampRateSimulation {
                         startRampRate = Double.parseDouble(startField.getText());
                         endRampRate = Double.parseDouble(endField.getText());
                         d = Double.parseDouble(dField.getText());
-                        k = Double.parseDouble(kField.getText());
+                        u = Double.parseDouble(uField.getText());
                         updateGraph();
                         return null;
                     }
@@ -205,34 +198,35 @@ public class RampRateSimulation {
         concurrentUsersSeries.clear();
         rampRateChart.getXYPlot().clearAnnotations();
         concurrentUsersChart.getXYPlot().clearAnnotations();
-        double steadyStateDuration = d * 1.5;
-        for (double t = 0; t <= steadyStateDuration; t += 0.01) {
-            series.add(t, nonlinearRampRate(t));
+        double steadyStateDuration = d * 3;
+        for (double t = 0; t <= steadyStateDuration; t += 1) {
+            series.add(t, linearRampRate(t));
             concurrentUsersSeries.add(t, calculateConcurrentUsers(t));
         }
+    }
 
-
-
+    private double calculateTotalUsers(double t) {
+        if(t >= d){
+            return startRampRate * d + ((endRampRate - startRampRate) / (2 * d)) * Math.pow(d, 2) + (endRampRate * (t - d));
+        }
+        return startRampRate * t + ((endRampRate - startRampRate) / (2 * d)) * Math.pow(t, 2);
     }
 
     private double calculateConcurrentUsers(double t) {
-        double sum = 0;
-        double dt = 0.01;
-        for (double ti = 0; ti <= t; ti += dt) {
-            sum += nonlinearRampRate(ti) * dt;
-        }
-        return sum;
+        double totalUsersNow = calculateTotalUsers(t);
+        double totalUsersBefore = t - u >= 0 ? calculateTotalUsers(t - u) : 0;
+        return totalUsersNow - totalUsersBefore;
     }
 
-    private double nonlinearRampRate(double t) {
+    private double linearRampRate(double t) {
         if (t <= d) {
-             return ((endRampRate - startRampRate) * (1 / (1 + Math.exp(-k * (t - d / 2)))) + startRampRate);
+            return startRampRate + ((endRampRate - startRampRate) / d) * t;
         } else {
             return endRampRate;
         }
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new RampRateSimulation());
+        SwingUtilities.invokeLater(RampRateSimulation::new);
     }
 }

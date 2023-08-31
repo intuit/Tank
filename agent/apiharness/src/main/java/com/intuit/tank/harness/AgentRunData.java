@@ -31,6 +31,9 @@ public class AgentRunData {
     private IncrementStrategy incrementStrategy = IncrementStrategy.increasing;
     private int numStartUsers = 1;
     private int userInterval = 1;
+    private double intialDelay;
+    private double rampRateDelay;
+    private double targetRampRate;
     private String testPlans = "";
     private String instanceId;
     private String jobId = "0";
@@ -132,6 +135,51 @@ public class AgentRunData {
         if (userInterval > 0) {
             this.userInterval = userInterval;
         }
+    }
+
+    /**
+     * @return the intialDelay
+     */
+    public double getIntialDelay() {
+        return intialDelay;
+    }
+
+    /**
+     * @param intialDelay
+     *            the intialDelay to set
+     */
+    public void setIntialDelay(double intialDelay) {
+        this.intialDelay = intialDelay;
+    }
+
+    /**
+     * @return the rampRateDelay
+     */
+    public double getRampRateDelay() {
+        return rampRateDelay;
+    }
+
+    /**
+     * @param rampRateDelay
+     *            the rampRateDelay to set
+     */
+    public void setRampRateDelay(double rampRateDelay) {
+        this.rampRateDelay = rampRateDelay;
+    }
+
+    /**
+     * @return the targetRampRate
+     */
+    public double getTargetRampRate() {
+        return targetRampRate;
+    }
+
+    /**
+     * @param targetRampRate
+     *            the targetRampRate to set
+     */
+    public void setTargetRampRate(double targetRampRate) {
+        this.targetRampRate = targetRampRate;
     }
 
     /**

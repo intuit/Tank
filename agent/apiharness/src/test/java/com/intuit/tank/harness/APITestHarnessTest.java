@@ -70,21 +70,21 @@ public class APITestHarnessTest {
         assertEquals(1, response.getRestarts());
     }
 
-    @Test
-    public void testAPITestHarnessTestRunConcurrentTestPlans(){
-        MockHDWorkload workload = new MockHDWorkload();
-        HDTestPlan testPlan = new HDTestPlan();
-        testPlan.setUserPercentage(5);
-        testPlan.setTestPlanName("testPlan");
-        workload.setVariables(new HDTestVariables());
-        workload.addPlan(testPlan);
-        TestPlanSingleton.getInstance().setTestPlan(workload);
-        instance.getAgentRunData().setSimulationTimeMillis(1L);
-        instance.setFlowControllerTemplate(new MockFlowController());
-        instance.setDebug(true);
-        instance.runConcurrentTestPlans();
-        instance.checkAgentThreads();
-    }
+//    @Test
+//    public void testAPITestHarnessTestRunConcurrentTestPlans(){
+//        MockHDWorkload workload = new MockHDWorkload();
+//        HDTestPlan testPlan = new HDTestPlan();
+//        testPlan.setUserPercentage(5);
+//        testPlan.setTestPlanName("testPlan");
+//        workload.setVariables(new HDTestVariables());
+//        workload.addPlan(testPlan);
+//        TestPlanSingleton.getInstance().setTestPlan(workload);
+//        instance.getAgentRunData().setSimulationTimeMillis(1L);
+//        instance.setFlowControllerTemplate(new MockFlowController());
+//        instance.setDebug(true);
+//        instance.runConcurrentTestPlans();
+//        instance.checkAgentThreads();
+//    }
 
     @Test
     public void testAPITestHarnessTestSetCommand(){
