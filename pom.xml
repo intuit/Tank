@@ -631,7 +631,7 @@
       <dependency>
         <groupId>commons-fileupload</groupId>
         <artifactId>commons-fileupload</artifactId>
-        <version>1.4</version>
+        <version>1.5</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
@@ -687,7 +687,7 @@
       <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
-        <version>20190722</version>
+        <version>20230227</version>
       </dependency>
       <dependency>
         <groupId>commons-codec</groupId>
