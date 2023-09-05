@@ -27,6 +27,7 @@ import javax.inject.Named;
 import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -230,8 +231,11 @@ public class JobMaker implements Serializable {
         if (numUsers > 0) {
             projectBean.getJobConfiguration().setNumUsersPerAgent(numUsers);
         }
+        if(projectBean.getJobConfiguration().getIncrementStrategy().equals(IncrementStrategy.standard)){
+            LOG.info("Nonlinear - setting number of agents to " + numUsers + " for job");
+        }
     }
-    
+
     /**
      * 
      * @return
@@ -411,6 +415,15 @@ public class JobMaker implements Serializable {
         int userPercentage = projectBean.getWorkload().getTestPlans().stream().mapToInt(TestPlan::getUserPercentage).sum();
         if (userPercentage != 100) {
             return false;
+        }
+        if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)){
+            int regionPercentage = 0;
+            for (JobRegion r : projectBean.getWorkload().getJobConfiguration().getJobRegions()) {
+                regionPercentage += Integer.parseInt(r.getUsers());
+            }
+            if (regionPercentage != 100) {
+                return false;
+            }
         }
         return hasScripts();
     }

@@ -1,5 +1,6 @@
 package com.intuit.tank.vm.vmManager;
 
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +15,7 @@ public class VMJobRequestTest {
 
     @BeforeEach
     public void init() {
-        InstanceRequest = new VMJobRequest("jobId", "no_results", "defaultProfile", 23, VMRegion.US_EAST, "testBehavior", "testInstance", 83);
+        InstanceRequest = new VMJobRequest("jobId", "no_results", "defaultProfile", 23, VMRegion.US_EAST, IncrementStrategy.increasing, "testBehavior", "testInstance", 83);
     }
 
     @Test

@@ -140,9 +140,7 @@ public class WorkLoadFactory {
                 .withSimulationTime(job.getSimulationTime()).withStatus(job.getStatus())
                 .withTerminationPolicy(job.getTerminationPolicy())
                 .withUserIntervalIncrement(job.getUserIntervalIncrement())
-                .withStartRate(job.getStartRate())
-                .withEndRate(job.getEndRate())
-                .withConstantRate(job.getConstantRate())
+                .withEndRate(job.getUserIntervalIncrement())
                 .withRegions(getRegions(job))
                 .withNofitications(getNotifications(job))
                 .withDataFileIds(getDataFileIds(job));

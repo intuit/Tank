@@ -62,7 +62,6 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     private int numUsersPerAgent;
     private int startRate;
     private int endRate;
-    private int constantRate;
     private String scriptsXmlUrl;
 
     public static Builder builder() {
@@ -234,21 +233,6 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
-     * @return the constantRate
-     */
-    public int getConstantRate() {
-        return constantRate;
-    }
-
-    /**
-     * @param constantRate
-     *            the constantRate to set
-     */
-    public void setConstantRate(int constantRate) {
-        this.constantRate = constantRate;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -406,11 +390,6 @@ public final class JobRequestImpl implements Serializable, JobRequest {
 
         public GeneratorT withEndRate(int aValue) {
             instance.endRate= aValue;
-            return (GeneratorT) this;
-        }
-
-        public GeneratorT withConstantRate(int aValue) {
-            instance.constantRate= aValue;
             return (GeneratorT) this;
         }
 

@@ -14,9 +14,12 @@ package com.intuit.tank.perfManager.workLoads;
  */
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Entity;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
+import com.intuit.tank.vm.vmManager.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,10 +27,6 @@ import com.intuit.tank.vm.agent.messages.AgentMngrAPIRequest;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.perfManager.RequestAgents;
 import com.intuit.tank.vm.scheduleManager.AgentDispatcher;
-import com.intuit.tank.vm.vmManager.JobRequest;
-import com.intuit.tank.vm.vmManager.JobUtil;
-import com.intuit.tank.vm.vmManager.RegionRequest;
-import com.intuit.tank.vm.vmManager.VMChannel;
 
 public class IncreasingWorkLoad implements Runnable {
 
@@ -70,26 +69,38 @@ public class IncreasingWorkLoad implements Runnable {
 
         LOG.debug("asking for agents...");
 
+        // Calculate number of agents per region split for nonlinear workloads
+        Map<RegionRequest, Integer> agentMapping = null;
+        if (job.getIncrementStrategy().equals(IncrementStrategy.standard)){
+            agentMapping = JobVmCalculator.getMachinesForAgentByUserPercentage(job.getNumUsersPerAgent(), job.getRegions());
+        }
+
         // start the non region dependent reporting resources if needed
         int totalUsers = 0;
         ArrayList<AgentMngrAPIRequest.UserRequest> urList = new ArrayList<AgentMngrAPIRequest.UserRequest>();
         for (RegionRequest jobRegion : job.getRegions()) {
             int users = JobUtil.parseUserString(jobRegion.getUsers());
-            LOG.info("Starting " + users + " users in region " + jobRegion.getRegion().getDescription());
+            if(job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                LOG.info("Starting " + users + " users in region " + jobRegion.getRegion().getDescription());
+            } else {
+                LOG.info("Nonlinear - Starting " + users + "% of users in region " + jobRegion.getRegion().getDescription()
+                        + " with " + agentMapping.get(jobRegion) + " allocated agents");
+                users = agentMapping.get(jobRegion); // reassign users to the number of agents allocated for this region
+            }
             totalUsers += users;
             if (users > 0) {
                 VMRegion region = jobRegion.getRegion();
                 urList.add(new AgentMngrAPIRequest.UserRequest(region, users));
                 // AgentRunner.setRequestedAgents(model);
                 RequestAgents request = new RequestAgents(job.getId(), job.getReportingMode(), job.getLoggingProfile(),
-                        region, users, job.getStopBehavior());
+                        region, job.getIncrementStrategy(), users, job.getStopBehavior());
                 request.setVmInstanceType(job.getVmInstanceType());
                 request.setUserEips(job.isUseEips());
                 request.setNumUsersPerAgent(job.getNumUsersPerAgent());
                 agentDispatcher.processAgentsMessage(request);
             }
         }
-        if (totalUsers <= 0) {
+        if (totalUsers <= 0 && job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
             LOG.warn("Attempt to start a job with no users.");
         }
     }

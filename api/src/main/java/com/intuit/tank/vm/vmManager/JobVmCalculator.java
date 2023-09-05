@@ -13,6 +13,11 @@ package com.intuit.tank.vm.vmManager;
  * #L%
  */
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
+
 public class JobVmCalculator {
 
     /**
@@ -26,6 +31,54 @@ public class JobVmCalculator {
             return 0;
         }
         return (int) Math.ceil((double) numberOfUsers / (double) numUsersPerAgent);
+    }
+
+    /**
+     *
+     * @param totalAgents
+     * @param regionRequests
+     *
+     * Uses proportional rounding to closely align with provided region percentage split (region with higher left over decimal gets the extra agent)
+     *
+     * @return returns mapping of number of machines needed to support the given number of agents and user percentage to each region request
+     */
+    public static Map<RegionRequest, Integer> getMachinesForAgentByUserPercentage(int totalAgents, Set<? extends RegionRequest> regionRequests) {
+        Map<RegionRequest, Integer> agentAllocation = new HashMap<>();
+
+        if (regionRequests == null || regionRequests.isEmpty()) {
+            return agentAllocation;
+        }
+
+        if (totalAgents == 0) {
+            for (RegionRequest regionRequest : regionRequests) {
+                agentAllocation.put(regionRequest, 0);
+                return agentAllocation;
+            }
+        }
+
+        PriorityQueue<Map.Entry<RegionRequest, Double>> remainingFractions = // save the remaining fractions after rounding down in PQ to get the highest fraction first
+                new PriorityQueue<>((a,b) -> Double.compare(b.getValue() - a.getValue().intValue(), a.getValue() - b.getValue().intValue()));
+
+        int allocatedAgents = 0;
+
+        for (RegionRequest regionRequest : regionRequests) {
+            double percentage = (Integer.parseInt(regionRequest.getUsers().trim()) / 100.0);
+            int agentsForRegion = (int) Math.floor(totalAgents * percentage);
+            agentAllocation.put(regionRequest, agentsForRegion);
+            allocatedAgents += agentsForRegion;
+            remainingFractions.add(Map.entry(regionRequest, totalAgents * percentage));
+        }
+
+        int remainingAgents = totalAgents - allocatedAgents;
+        while (remainingAgents > 0) {
+            Map.Entry<RegionRequest, Double> entry = remainingFractions.poll();
+            RegionRequest regionRequest = entry.getKey();
+            agentAllocation.put(regionRequest, agentAllocation.get(regionRequest) + 1);
+            remainingAgents--;
+            remainingFractions.add(entry);
+        }
+
+        return agentAllocation;
     }
 
     /**

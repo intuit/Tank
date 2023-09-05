@@ -106,6 +106,7 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
      */
     public void setUsers(String users) {
         this.users = users;
+        LOG.info("Nonlinear - setting region percentages to " + users + "% for region " + region.getDescription());
     }
 
     /**

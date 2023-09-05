@@ -15,6 +15,7 @@ package com.intuit.tank.vmManager.environment;
 
 import java.util.List;
 
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,12 +50,18 @@ public class JobRequest implements Runnable {
     public void run() {
         try {
             VMInstanceRequest instanceRequest = this.populateAmazonRequest();
-            int machines = JobVmCalculator.getMachinesForAgent(request.getNumberOfUsers(),
-                    request.getNumUsersPerAgent());
+            int machines = 0;
+            if(request.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                machines = JobVmCalculator.getMachinesForAgent(request.getNumberOfUsers(),
+                        request.getNumUsersPerAgent());
+                instanceRequest.setNumUsersPerAgent(JobVmCalculator.getOptimalUsersPerAgent(request.getNumberOfUsers(),
+                        machines));
+            } else {
+                machines = request.getNumberOfUsers();
+                logger.info("Nonlinear - Creating " + machines + " Amazon instances for job " + request.getJobId() + " in region " + request.getRegion());
+            }
             instanceRequest.setNumberOfInstances(machines);
             instanceRequest.setUserEips(request.isUseEips());
-            instanceRequest.setNumUsersPerAgent(JobVmCalculator.getOptimalUsersPerAgent(request.getNumberOfUsers(),
-                    machines));
             instanceRequest.setSize(request.getVmInstanceType());
             List<VMInformation> response = this.getEnvironment().create(instanceRequest);
             persistInstances(instanceRequest, response);

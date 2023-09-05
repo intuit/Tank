@@ -15,6 +15,7 @@ package com.intuit.tank.vm.vmManager;
 
 import java.util.HashMap;
 
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.common.TankConstants;
@@ -28,13 +29,14 @@ public class VMJobRequest extends VMRequest {
     private static final long serialVersionUID = -6022543863819975533L;
 
     public VMJobRequest(String jobId, String reportingMode, String loggingProfile, int numberOfUsers,
-            VMRegion region, String stopBehavior, String vmInstanceType, int numUsersPerAgent) {
+            VMRegion region, IncrementStrategy incrementStrategy, String stopBehavior, String vmInstanceType, int numUsersPerAgent) {
         this.items = new HashMap<String, Object>();
         this.setJobId(jobId);
         this.setReportingMode(reportingMode);
         this.setNumberOfUsers(numberOfUsers);
         this.setLoggingProfile(loggingProfile);
         this.setRegion(region);
+        this.setIncrementStrategy(incrementStrategy);
         this.setStopBehavior(stopBehavior);
         this.setVmInstanceType(vmInstanceType);
         this.setNumUsersPerAgent(numUsersPerAgent);
@@ -155,6 +157,27 @@ public class VMJobRequest extends VMRequest {
      */
     public VMRegion getRegion() {
         return (VMRegion) this.items.get(TankConstants.KEY_REGION);
+    }
+
+
+    /**
+     * Set the increment strategy
+     *
+     * @param incrementStrategy
+     *            The incrementStrategy
+     */
+    public void setIncrementStrategy(IncrementStrategy incrementStrategy) {
+        this.items.put(TankConstants.INCREMENT_STRATEGY, incrementStrategy.name());
+    }
+
+    /**
+     * Get the increment strategy
+     *
+     * @return The increment strategy
+     *
+     */
+    public IncrementStrategy getIncrementStrategy() {
+        return IncrementStrategy.valueOf((String) this.items.get(TankConstants.INCREMENT_STRATEGY));
     }
 
     /**

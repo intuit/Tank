@@ -80,15 +80,6 @@ public abstract class BaseJob extends BaseEntity {
     @Column(name = "simulation_time")
     private int simulationTimeSeconds;
 
-    @Column(name = "start_rate")
-    private int startRate;
-
-    @Column(name = "end_rate")
-    private int endRate;
-
-    @Column(name = "constant_rate")
-    private int constantRate;
-
     @Column(name = "simulation_time_ms")
     private Long simulationTime;
 
@@ -139,9 +130,6 @@ public abstract class BaseJob extends BaseEntity {
         this.vmInstanceType = copy.vmInstanceType;
         this.useEips = copy.useEips;
         this.tankClientClass = copy.getTankClientClass();
-        this.startRate = copy.getStartRate();
-        this.endRate = copy.getEndRate();
-        this.constantRate = copy.getConstantRate();
     }
 
     public abstract Map<String, String> getVariables();
@@ -340,51 +328,6 @@ public abstract class BaseJob extends BaseEntity {
      */
     public void setNumUsersPerAgent(int numUsersPerAgent) {
         this.numUsersPerAgent = numUsersPerAgent;
-    }
-
-    /**
-     * @return the startRate
-     */
-    public int getStartRate() {
-        return startRate;
-    }
-
-    /**
-     * @param startRate
-     *            the startRate to set
-     */
-    public void setStartRate(int startRate) {
-        this.startRate = startRate;
-    }
-
-    /**
-     * @return the endRate
-     */
-    public int getEndRate() {
-        return endRate;
-    }
-
-    /**
-     * @param endRate
-     *            the endRate to set
-     */
-    public void setEndRate(int endRate) {
-        this.endRate = endRate;
-    }
-
-    /**
-     * @return the constantRate
-     */
-    public int getConstantRate() {
-            return constantRate;
-    }
-
-    /**
-     * @param constantRate
-     *            the constantRate to set
-     */
-    public void setConstantRate(int constantRate) {
-        this.constantRate = constantRate;
     }
 
     /**

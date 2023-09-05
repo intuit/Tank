@@ -160,16 +160,17 @@ public class TestPlanStarter implements Runnable {
                     }
 
                     if (threadsStarted < numThreads || activeCount < numThreads) {
-                        System.out.println("Adding 1 user to " + plan.getTestPlanName());
-                        System.out.println("Active Threads: " + activeCount);
-                        System.out.println("RampDelay: " + rampDelay);
-                        prevRampDelay += rampDelay;
-                        userCount += 1;
-                        if(prevRampDelay > 1000) {
-                            System.out.println("Ramp Rate (users/sec): " + userCount);
-                            prevRampDelay = 0;
-                            userCount = 0;
-                        }
+                        // LOCAL DEBUGGING
+//                        System.out.println("Adding 1 user to " + plan.getTestPlanName());
+//                        System.out.println("Active Threads: " + activeCount);
+//                        System.out.println("RampDelay: " + rampDelay);
+//                        prevRampDelay += rampDelay;
+//                        userCount += 1;
+//                        if(prevRampDelay > 1000) {
+//                            System.out.println("Ramp Rate (users/sec): " + userCount);
+//                            prevRampDelay = 0;
+//                            userCount = 0;
+//                        }
                         createThread(httpClient, this.threadsStarted);
                     }
 
@@ -212,7 +213,7 @@ public class TestPlanStarter implements Runnable {
                 throwUnchecked(t);
             }
         } else {
-
+            // FOR DEBUGGING THINK TIME SCRIPTS
             List<HDScriptGroup> groups = plan.getGroup();
             HDScriptGroup group = groups.get(0);
             List<HDScript> steps = group.getGroupSteps();
@@ -225,17 +226,15 @@ public class TestPlanStarter implements Runnable {
             matcher.find();
             int seconds = Integer.parseInt(matcher.group());
             u = (seconds / 1000);
-
-
-            System.out.println("Nonlinear Ramp");
-            System.out.println("Initial Delay (seconds): " + agentRunData.getIntialDelay());
-            System.out.println("Ramp Rate Delay (seconds): " + agentRunData.getRampRateDelay());
-            System.out.println("Target Ramp Rate (users/sec): " + agentRunData.getTargetRampRate());
-            System.out.println("User Duration (seconds): " + u);
-//            System.out.println("rampDelay (seconds): " + rampDelay / 1000.0);
-            System.out.println("Ramp Duration (seconds): " + agentRunData.getRampTimeMillis() / 1000.0);
-            System.out.println("Simulation Duration (seconds): " + agentRunData.getSimulationTimeMillis() / 1000.0);
-            System.out.println("---------------------");
+            // FOR DEBUGGING THINK TIME SCRIPTS
+            LOG.info("Nonlinear Ramp\n" +
+                    "Initial Delay (seconds): " + agentRunData.getIntialDelay() + "\n"
+                    + "Ramp Rate Delay (seconds): " + agentRunData.getRampRateDelay() + "\n"
+                    + "Target Ramp Rate (users/sec): " + agentRunData.getTargetRampRate() + "\n"
+                    + "User Duration (seconds): " + u + "\n"
+                    + "Ramp Duration (seconds): " + agentRunData.getRampTimeMillis() / 1000.0 + "\n"
+                    + "Simulation Duration (seconds): " + agentRunData.getSimulationTimeMillis() / 1000.0 + "\n"
+                    + "---------------------");
 
             try {
                 long startTime = System.currentTimeMillis();
@@ -256,7 +255,7 @@ public class TestPlanStarter implements Runnable {
 
                 // start rest of users sleeping between each interval
                 while (!done) {
-                    // TODO: Loop while in pause or pause_ramp state
+                    // TODO: Logic for pause or pause_ramp state
 //                    while (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
 //                            || APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
 //                        if (APITestHarness.getInstance().hasMetSimulationTime()) {
@@ -269,35 +268,36 @@ public class TestPlanStarter implements Runnable {
 //                            }
 //                        }
 //                    }
-//                    if (APITestHarness.getInstance().getCmd() == AgentCommand.stop
-//                            || APITestHarness.getInstance().getCmd() == AgentCommand.kill
-//                            || APITestHarness.getInstance().hasMetSimulationTime()
-//                            || APITestHarness.getInstance().isDebug()
-//                            || (agentRunData.getSimulationTimeMillis() == 0 //Run Until: Loops Completed
-//                            && System.currentTimeMillis() - APITestHarness.getInstance().getStartTime() > agentRunData.getRampTimeMillis())) {
-//                        done = true;
-//                        break;
-//                    }
-
-                    if (APITestHarness.getInstance().hasMetSimulationTime()
+                    if (APITestHarness.getInstance().getCmd() == AgentCommand.stop
+                            || APITestHarness.getInstance().getCmd() == AgentCommand.kill
+                            || APITestHarness.getInstance().hasMetSimulationTime()
+                            || APITestHarness.getInstance().isDebug()
                             || (agentRunData.getSimulationTimeMillis() == 0 //Run Until: Loops Completed
                             && System.currentTimeMillis() - APITestHarness.getInstance().getStartTime() > agentRunData.getRampTimeMillis())) {
                         done = true;
                         break;
                     }
 
-//                    long activeCount = 0; //default
-//                    try {
-//                        Thread[] list = new Thread[this.threadGroup.activeCount()];
-//                        this.threadGroup.enumerate(list);
-//                        activeCount = Arrays.stream(list)
-//                                .filter(Objects::nonNull)
-//                                .filter(Thread::isAlive)
-//                                .filter(thread -> thread.getName() != null && thread.getName().equals("AGENT"))
-//                                .count();
-//                    } catch (SecurityException se) {
-//                        LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
+                     // TODO: local debugging
+//                    if (APITestHarness.getInstance().hasMetSimulationTime()
+//                            || (agentRunData.getSimulationTimeMillis() == 0 //Run Until: Loops Completed
+//                            && System.currentTimeMillis() - APITestHarness.getInstance().getStartTime() > agentRunData.getRampTimeMillis())) {
+//                        done = true;
+//                        break;
 //                    }
+
+                    long activeCount = 0; //default
+                    try {
+                        Thread[] list = new Thread[this.threadGroup.activeCount()];
+                        this.threadGroup.enumerate(list);
+                        activeCount = Arrays.stream(list)
+                                .filter(Objects::nonNull)
+                                .filter(Thread::isAlive)
+                                .filter(thread -> thread.getName() != null && thread.getName().equals("AGENT"))
+                                .count();
+                    } catch (SecurityException se) {
+                        LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
+                    }
 
                     long currentTime = System.currentTimeMillis();
 
@@ -305,19 +305,18 @@ public class TestPlanStarter implements Runnable {
                         if(currentRampRate < agentRunData.getTargetRampRate()) {
                             long timeInterval = currentTime - lastRampIncreaseTime;
                             currentRampRate++;
-                            System.out.println("Ramp Rate (users/sec): " + currentRampRate);
-                            System.out.println("Ramp Delay Time Interval: " + timeInterval);
+                            LOG.info("Ramp Rate (users/sec): " + currentRampRate);
+                            LOG.info("Ramp Delay Time Interval: " + timeInterval);
                             lastRampIncreaseTime = currentTime;
                         }
                     }
 
                     createThread(httpClient, this.threadsStarted);
 
-                    currentTime = System.currentTimeMillis();
-                    long timeInterval = currentTime - lastRampRateAddition;
-                    lastRampRateAddition = currentTime;
-                    System.out.println("Ramp Rate Addition Time Interval: " + timeInterval);
-                    System.out.println("Calculated Total Concurrent Users: " + calculateConcurrentUsers((currentTime - startTime)));
+//                    currentTime = System.currentTimeMillis();
+//                    long timeInterval = currentTime - lastRampRateAddition;
+//                    lastRampRateAddition = currentTime;
+//                    System.out.println("Ramp Rate Addition Time Interval: " + timeInterval);
 
                     if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
                         Instant timestamp = new Date().toInstant();
@@ -329,13 +328,13 @@ public class TestPlanStarter implements Runnable {
                                 .timestamp(timestamp)
                                 .dimensions(testPlan, instanceId, jobId)
                                 .build());
-//                        datumList.add(MetricDatum.builder()
-//                                .metricName("activeThreads")
-//                                .unit(StandardUnit.COUNT)
-//                                .value((double) activeCount)
-//                                .timestamp(timestamp)
-//                                .dimensions(testPlan, instanceId, jobId)
-//                                .build());
+                        datumList.add(MetricDatum.builder()
+                                .metricName("activeThreads")
+                                .unit(StandardUnit.COUNT)
+                                .value((double) activeCount)
+                                .timestamp(timestamp)
+                                .dimensions(testPlan, instanceId, jobId)
+                                .build());
                         datumList.add(MetricDatum.builder()
                                 .metricName("userRampRate")
                                 .unit(StandardUnit.COUNT)
@@ -352,7 +351,6 @@ public class TestPlanStarter implements Runnable {
                         send = DateUtils.addSeconds(new Date(), interval);
                     }
 
-                    // TODO: test ramp delay if loop doesn't work
 //                    if ((threadsStarted - numInitialUsers) % agentRunData.getUserInterval() == 0) {
                         try {
                             Thread.sleep(1000 / currentRampRate);
@@ -415,12 +413,6 @@ public class TestPlanStarter implements Runnable {
             return d + ((endRampRate) / (2 * d)) * Math.pow(d, 2) + (endRampRate * (t - d));
         }
         return t + ((endRampRate) / (2 * d)) * Math.pow(t, 2);
-    }
-
-    private double calculateConcurrentUsers(double t) {
-        double totalUsersNow = calculateTotalUsers(t);
-        double totalUsersBefore = t - u >= 0 ? calculateTotalUsers(t - u) : 0;
-        return totalUsersNow - totalUsersBefore;
     }
 
     private void createThread(Object httpClient, int threadNumber) {
