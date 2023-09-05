@@ -172,8 +172,7 @@ public class JobManager implements Serializable {
                 } else {
                     ret.setAgentInstanceNum(jobInfo.agentData.size() + 1); // non-linear: agent instance number is 1-based
                 }
-                LOG.info("Nonlinear - registerAgentForJob - Setting agent order to " + ret.getAgentInstanceNum() + "for instance " + agentData.getInstanceId());
-                ret.setAgentInstanceNum(jobInfo.agentData.size());
+                LOG.info("Nonlinear - registerAgentForJob - Setting agent order to " + ret.getAgentInstanceNum() + " for instance " + agentData.getInstanceId());
                 ret.setDataFiles(getDataFileRequests(jobInfo));
                 ret.setJobId(agentData.getJobId());
                 ret.setSimulationTime(jobInfo.jobRequest.getSimulationTime());
