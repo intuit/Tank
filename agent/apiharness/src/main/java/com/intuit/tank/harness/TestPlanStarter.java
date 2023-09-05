@@ -240,6 +240,7 @@ public class TestPlanStarter implements Runnable {
                 long startTime = System.currentTimeMillis();
                 Thread.sleep((long) (agentRunData.getIntialDelay() * 1000));
                 currentRampRate++; // after delay, start ramp rate at 1 user/sec
+                LOG.info("Ramp Rate (users/sec): " + currentRampRate);
                 // TODO: start initial users
 //                int numInitialUsers = agentRunData.getNumStartUsers();
 //                if (threadsStarted < numInitialUsers) {
@@ -387,19 +388,15 @@ public class TestPlanStarter implements Runnable {
     }
 
     private long calcRampTime() {
-        if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-            int ramp = (numThreads - agentRunData.getNumStartUsers());
-            if (ramp > 0) {
-                return (agentRunData.getRampTimeMillis() *
-                        agentRunData.getUserInterval())
-                        / ramp;
-            } else if (agentRunData.getRampTimeMillis() > 0) {
-                LOG.info(LogUtil.getLogMessage("No Ramp - " + rampDelay, LogEventType.System));
-            }
-            return 1; //Return minimum wait time 1 millisecond
-        } else {
-           return 1000 / currentRampRate;
+        int ramp = (numThreads - agentRunData.getNumStartUsers());
+        if (ramp > 0) {
+            return (agentRunData.getRampTimeMillis() *
+                    agentRunData.getUserInterval())
+                    / ramp;
+        } else if (agentRunData.getRampTimeMillis() > 0) {
+            LOG.info(LogUtil.getLogMessage("No Ramp - " + rampDelay, LogEventType.System));
         }
+        return 1; //Return minimum wait time 1 millisecond
     }
 
     private void createThread(Object httpClient, int threadNumber) {
