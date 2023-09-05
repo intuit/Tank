@@ -513,9 +513,15 @@ public class APITestHarness {
                     configureNonlinearAgentRunData();
                     TestPlanStarter starter = new TestPlanStarter(httpClient, plan, agentRunData.getNumUsers(), tankHttpClientClass, threadGroup, agentRunData);
                     testPlans.add(starter);
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Users for Test Plan " + plan.getTestPlanName() + " at "
-                            + plan.getUserPercentage()
-                            + "% = " + starter.getNumThreads())));
+                    if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)){
+                        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Users for Test Plan " + plan.getTestPlanName() + " at "
+                                + plan.getUserPercentage()
+                                + "% = " + starter.getNumThreads())));
+                    } else {
+                        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Test Plan " + plan.getTestPlanName() + " at "
+                                + plan.getUserPercentage()
+                                + "% running nonlinear workload" )));
+                    }
                 }
             }
 
@@ -544,7 +550,10 @@ public class APITestHarness {
                 LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Ends at script loops completed with no Max Simulation Time.")));
             }
             currentNumThreads = 0;
-            if (agentRunData.getNumUsers() > 0) {
+            if (agentRunData.getNumUsers() > 0 || agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)) {
+                if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)){
+                    LOG.info("Nonlinear - Running nonlinear workload model, getNumUsers()=" + agentRunData.getNumUsers());
+                }
                 for (TestPlanStarter starter : testPlans) {
                     if (isDebug()) {
                         starter.run();
