@@ -162,7 +162,7 @@ public class APITestHarness {
                     return;
                 }
             } else if (values[0].equalsIgnoreCase("-ramp")) {
-                agentRunData.setRampTimeMillis((long) (Double.parseDouble(values[1]) * 60000));
+                agentRunData.setRampTimeMillis(Long.parseLong(values[1]) * 60000);
             } else if (values[0].equalsIgnoreCase("-client")) {
                 tankHttpClientClass = StringUtils.trim(values[1]);
             } else if (values[0].equalsIgnoreCase("-d")) {
@@ -188,11 +188,9 @@ public class APITestHarness {
             } else if (values[0].equalsIgnoreCase("-http")) {
                 controllerBase = (values.length > 1 ? values[1] : null);
             } else if (values[0].equalsIgnoreCase("-time")) {
-                agentRunData.setSimulationTimeMillis((long) (Double.parseDouble(values[1]) * 60000));
+                agentRunData.setSimulationTimeMillis(Integer.parseInt(values[1]) * 60000);
             } else if(values[0].equalsIgnoreCase("-n")){
                 agentRunData.setIncrementStrategy(IncrementStrategy.standard);
-            } else if(values[0].equalsIgnoreCase("-s")){
-                startRampRate = Double.parseDouble(values[1]);
             } else if(values[0].equalsIgnoreCase("-e")){
                 endRampRate = Double.parseDouble(values[1]);
             } else if (values[0].equalsIgnoreCase("-v")) {
@@ -250,8 +248,7 @@ public class APITestHarness {
         System.out.println("-ramp=<time>:  The time (min) to get to the ideal concurrent users specified");
         System.out.println("-time=<time>:  The time (min) of the simulation");
         System.out.println("-users=<# of total users>:  The number of total users to run concurrently (linear)");
-        System.out.println("-s=<starting ramp rate>:  The starting ramp rate of users for nonlinear workload (nonlinear)");
-        System.out.println("-e=<ending ramp rate>:  The ending ramp rate of users for nonlinear workload (nonlinear)");
+        System.out.println("-e=<target ramp rate>:  The target ramp rate of users for nonlinear workload (nonlinear)");
         System.out.println("-start=<# of users to start with>:  The number of users to run concurrently when test begins");
         System.out.println("-http=<controller_base_url>:  The url of the controller to get test info from");
         System.out.println("-jobId=<job_id>: The jobId of the controller to get test info from");

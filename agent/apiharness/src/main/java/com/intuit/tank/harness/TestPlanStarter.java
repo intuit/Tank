@@ -99,8 +99,8 @@ public class TestPlanStarter implements Runnable {
         IncrementStrategy workloadType = agentRunData.getIncrementStrategy();
         if(workloadType.equals(IncrementStrategy.increasing)) {
             try {
-                long prevRampDelay = 0;
-                int userCount = 0;
+//                long prevRampDelay = 0;
+//                int userCount = 0;
 
                 // start initial users
                 int numInitialUsers = agentRunData.getNumStartUsers();
@@ -398,21 +398,8 @@ public class TestPlanStarter implements Runnable {
             }
             return 1; //Return minimum wait time 1 millisecond
         } else {
-            // TODO: use ramp rate
-//            long timeElapsed = System.currentTimeMillis() - startTime;
-//            currentRampRate = (int) (((double) (10) / (agentRunData.getRampTimeMillis() / 1000)) * timeElapsed);
-//            return Math.round((1.0 / currentRampRate) * 1000);
-            return 1;
+           return 1000 / currentRampRate;
         }
-    }
-
-    private double calculateTotalUsers(double t) {
-        long d = agentRunData.getRampTimeMillis();
-        double endRampRate = ((double) agentRunData.getRampTimeMillis() / 1000) / agentRunData.getIntialDelay();
-        if(t >= d){
-            return d + ((endRampRate) / (2 * d)) * Math.pow(d, 2) + (endRampRate * (t - d));
-        }
-        return t + ((endRampRate) / (2 * d)) * Math.pow(t, 2);
     }
 
     private void createThread(Object httpClient, int threadNumber) {
