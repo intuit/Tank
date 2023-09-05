@@ -167,6 +167,12 @@ public class JobManager implements Serializable {
                 ret = new AgentTestStartData(jobInfo.scripts, jobInfo.getUsers(agentData), jobInfo.jobRequest.getRampTime());
                 LOG.info("Nonlinear - registerAgentForJob - updated userMap, current userMap keys: " + jobInfo.userMap.keySet());
                 LOG.info("Nonlinear - registerAgentForJob - updated userMap, current userMap values: " + jobInfo.userMap.values());
+                if(jobInfo.jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                    ret.setAgentInstanceNum(jobInfo.agentData.size());
+                } else {
+                    ret.setAgentInstanceNum(jobInfo.agentData.size() + 1); // non-linear: agent instance number is 1-based
+                }
+                LOG.info("Nonlinear - registerAgentForJob - Setting agent order to " + ret.getAgentInstanceNum() + "for instance " + agentData.getInstanceId());
                 ret.setAgentInstanceNum(jobInfo.agentData.size());
                 ret.setDataFiles(getDataFileRequests(jobInfo));
                 ret.setJobId(agentData.getJobId());
@@ -378,7 +384,7 @@ public class JobManager implements Serializable {
                         if (region == r.getRegion()) {
                             int numAgentsRemaining = userMap.get(r);
                             userMap.put(r, numAgentsRemaining - 1);
-                            LOG.info("Nonlinear - getUsers - updating Region " + r.getRegion().name() + ", now has " + numAgentsRemaining + " agents remaining");
+                            LOG.info("Nonlinear - getUsers - updating Region " + r.getRegion().name() + ", now has " + (numAgentsRemaining - 1) + " agents remaining");
                             break;
                         }
                     }
