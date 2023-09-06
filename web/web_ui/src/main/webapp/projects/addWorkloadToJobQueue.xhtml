@@ -83,34 +83,26 @@
                 value="#{jobMaker.vmInstanceType}">
                 <f:selectItems
                   value="#{projectUtilBean.vmInstanceTypes}" />
-<!--                <p:ajax event="change" process="@this"-->
-<!--                  update="numUsersPerInstance" />-->
+                <p:ajax event="change" process="@this"
+                  update="numUsersPerInstance" />
               </p:selectOneMenu>
             </div>
           </div>
 
-
-<!--          <div class="formRow">-->
-<!--            <div class="formLabelDiv">-->
-<!--              <h:outputLabel for="numUsersPerInstance"-->
-<!--                value="Max Users Per Agent"-->
-<!--                styleClass="formLabel required" rendered="usersAndTimes.incrementStrategy.name eq 'increasing'"/>-->
-<!--            </div>-->
-<!--            <div class="formInputDiv">-->
-<!--              <p:inputText id="numUsersPerInstance"-->
-<!--                value="#{jobMaker.numUsersPerAgent}" rendered="usersAndTimes.incrementStrategy.name eq 'increasing'"/>-->
-<!--            </div>-->
-<!--          </div>-->
-
           <div class="formRow">
             <div class="formLabelDiv">
+              <h:outputLabel for="numUsersPerInstance"
+                             value="Max Users Per Agent"
+                             styleClass="formLabel required" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"/>
               <h:outputLabel for="numAgents"
                              value="Number of Agents"
-                             styleClass="formLabel required"/>
+                             styleClass="formLabel required" rendered="#{usersAndTimes.incrementStrategy == 'standard'}"/>
             </div>
             <div class="formInputDiv">
+              <p:inputText id="numUsersPerInstance"
+                           value="#{jobMaker.numUsersPerAgent}" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"/>
               <p:inputText id="numAgents"
-                           value="#{jobMaker.numUsersPerAgent}"/>
+                           value="#{jobMaker.numUsersPerAgent}" rendered="#{usersAndTimes.incrementStrategy == 'standard'}"/>
             </div>
           </div>
 

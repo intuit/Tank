@@ -298,7 +298,12 @@ public class JobDetailFormatter {
         List<VmInstanceType> instanceTypes = config.getVmManagerConfig().getInstanceTypes();
         BigDecimal costPerHour = instanceTypes.stream().filter(type -> type.getName().equals(proposedJobInstance.getVmInstanceType())).findFirst().map(type -> new BigDecimal(type.getCost())).orElseGet(() -> new BigDecimal(.5D));
         long time = simulationTime + proposedJobInstance.getRampTime();
-        int numMachines = regions.stream().mapToInt(region -> Integer.parseInt(region.getUsers())).filter(users -> users > 0).map(users -> (int) Math.ceil((double) users / (double) proposedJobInstance.getNumUsersPerAgent())).sum();
+        int numMachines;
+        if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+            numMachines = regions.stream().mapToInt(region -> Integer.parseInt(region.getUsers())).filter(users -> users > 0).map(users -> (int) Math.ceil((double) users / (double) proposedJobInstance.getNumUsersPerAgent())).sum();
+        } else {
+            numMachines = proposedJobInstance.getNumUsersPerAgent();
+        }
         // dynamoDB costs about 1.5 times the instance cost
         BigDecimal cost = estimateCost(numMachines, costPerHour, time);
         NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);

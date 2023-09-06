@@ -11,28 +11,28 @@
     
     <div class="formRow">
       <div class="formLabelDiv">
-<!--        <h:outputLabel for="usersTF" value="#{jobRegion.region.name} Users"-->
-<!--          styleClass="formLabel" rendered="usersAndTimes.incrementStrategy.name eq 'increasing'"/>-->
+        <h:outputLabel for="usersTF" value="#{jobRegion.region.name} Users"
+          styleClass="formLabel" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"/>
         <h:outputLabel for="percentageTF" value="#{jobRegion.region.name} Percentage"
-                       styleClass="formLabel"/>
+                       styleClass="formLabel" rendered="#{usersAndTimes.incrementStrategy == 'standard'}"/>
       </div>
       <div class="formInputDiv">
-<!--        <p:inplace label="#{jobRegion.users}" editor="true" rendered="usersAndTimes.incrementStrategy.name eq 'increasing'">-->
-<!--          <h:inputText id="usersTF"-->
-<!--            value="#{jobRegion.users}"-->
-<!--            styleClass="formInput inputWidthSmall" required="true"-->
-<!--            requiredMessage="#{jobRegion.region.description} Users cannot be empty." >-->
-<!--            <f:validateLongRange minimum = "0" maximum = "99999999" />-->
-<!--          </h:inputText>-->
-<!--          <p:ajax event="save" update=":mainForm:totalUsersTF" />-->
-<!--        </p:inplace>-->
-<!--        <ts:tip tipId="UserTip" rendered="usersAndTimes.incrementStrategy.name eq 'increasing'"-->
-<!--          text="Users can be entered as an absolute number or a relative expression.&lt;br/&gt;&lt;br/&gt;-->
-<!--                Number of users can also be relative to simulation time &lt;b&gt;(ST)&lt;/b&gt;, ramp time &lt;b&gt;(RT)&lt;/b&gt;, and execution time &lt;b&gt;(ET)&lt;/b&gt;. So 4 * RT / 1000 (4 users every second) can be used.-->
-<!--                &lt;br/&gt;&lt;br/&gt;-->
-<!--                &lt;b&gt;Note&lt;/b&gt; - expressions with mathematical symbols must be separated by whitespace. 3ET+10m should be written as 3ET + 10m" />-->
+        <p:inplace label="#{jobRegion.users}" editor="true" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}">
+          <h:inputText id="usersTF"
+            value="#{jobRegion.users}"
+            styleClass="formInput inputWidthSmall" required="true"
+            requiredMessage="#{jobRegion.region.description} Users cannot be empty." >
+            <f:validateLongRange minimum = "0" maximum = "99999999" />
+          </h:inputText>
+          <p:ajax event="save" update=":mainForm:totalUsersTF" />
+        </p:inplace>
+        <ts:tip tipId="UserTip" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"
+          text="Users can be entered as an absolute number or a relative expression.&lt;br/&gt;&lt;br/&gt;
+                Number of users can also be relative to simulation time &lt;b&gt;(ST)&lt;/b&gt;, ramp time &lt;b&gt;(RT)&lt;/b&gt;, and execution time &lt;b&gt;(ET)&lt;/b&gt;. So 4 * RT / 1000 (4 users every second) can be used.
+                &lt;br/&gt;&lt;br/&gt;
+                &lt;b&gt;Note&lt;/b&gt; - expressions with mathematical symbols must be separated by whitespace. 3ET+10m should be written as 3ET + 10m" />
 
-        <p:inplace label="#{jobRegion.users} %" editor="true">
+        <p:inplace label="#{jobRegion.users} %" editor="true" rendered="#{usersAndTimes.incrementStrategy == 'standard'}">
           <p:message for="percentageTF" />
           <p:spinner id="percentageTF" styleClass="formInput" maxlength="3"
                      validatorMessage="Region Percentage must be between 0 and 100." value="#{jobRegion.users}"
@@ -96,22 +96,22 @@
       </div>
     </div>
 
-<!--    <div class="formRow">-->
-<!--      <div class="formLabelDiv">-->
-<!--        <h:outputLabel for="userIncrementTF" value="User Increment"-->
-<!--          styleClass="formLabel" />-->
-<!--      </div>-->
-<!--      <div class="formInputDiv">-->
-<!--        <p:inplace label="#{usersAndTimes.userIncrement}" editor="true">-->
-<!--          <h:inputText id="userIncrementTF"-->
-<!--            value="#{usersAndTimes.userIncrement}"-->
-<!--            styleClass="formInput inputWidthSmall" required="true"-->
-<!--            requiredMessage="User Increment cannot be empty." >-->
-<!--            <f:validateLongRange minimum = "1" maximum = "99999999" />-->
-<!--          </h:inputText>-->
-<!--        </p:inplace>-->
-<!--      </div>-->
-<!--    </div>-->
+    <div class="formRow">
+      <div class="formLabelDiv">
+        <h:outputLabel for="userIncrementTF" value="User Increment"
+          styleClass="formLabel" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"/>
+      </div>
+      <div class="formInputDiv">
+        <p:inplace label="#{usersAndTimes.userIncrement}" editor="true" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}">
+          <h:inputText id="userIncrementTF"
+            value="#{usersAndTimes.userIncrement}"
+            styleClass="formInput inputWidthSmall" required="true"
+            requiredMessage="User Increment cannot be empty." >
+            <f:validateLongRange minimum = "1" maximum = "99999999" />
+          </h:inputText>
+        </p:inplace>
+      </div>
+    </div>
 
   </div>
 </ui:composition>
