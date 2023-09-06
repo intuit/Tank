@@ -77,7 +77,7 @@ public class TestPlanStarter implements Runnable {
         this.threadGroup = threadGroup;
         this.agentRunData = agentRunData;
         this.rampDelay = calcRampTime();
-        this.standalone = (this.numThreads == 1);
+        this.standalone = ((this.numThreads == 1) && (this.agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)));
         if (!this.standalone) {
             this.cloudWatchClient = CloudWatchAsyncClient.builder().build();
             this.testPlan = Dimension.builder()
