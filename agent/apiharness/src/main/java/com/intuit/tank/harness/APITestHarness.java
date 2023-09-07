@@ -21,6 +21,7 @@ import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.http.TankHttpClient;
@@ -84,6 +85,7 @@ public class APITestHarness {
     private AgentCommand cmd = AgentCommand.run;
     private ArrayList<Thread> sessionThreads = new ArrayList<>();
     private CountDownLatch doneSignal;
+    private Semaphore semaphore;
     private boolean loggedSimTime;
     private int currentUsers = 0;
     private Vector<TankResult> results = new Vector<TankResult>();
@@ -495,7 +497,11 @@ public class APITestHarness {
         }
 
         Thread monitorThread = null;
-        doneSignal = new CountDownLatch(agentRunData.getNumUsers());
+        if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+            doneSignal = new CountDownLatch(agentRunData.getNumUsers());
+        } else {
+            semaphore = new Semaphore(0); // non-linear: number of events/users is unknown, so use a semaphore
+        }
         try {
             HDWorkload hdWorkload = TestPlanSingleton.getInstance().getTestPlans().get(0);
             if (StringUtils.isBlank(tankHttpClientClass)) {
@@ -566,16 +572,23 @@ public class APITestHarness {
                 while (!testPlans.stream().allMatch(TestPlanStarter::isDone)) {
                     Thread.sleep(5000);
                 }
-                // if we broke early, fix our countdown latch
-                int numToCount = testPlans.stream().mapToInt(TestPlanStarter::getThreadsStarted).sum();
-                while (numToCount < agentRunData.getNumUsers()) {
-                    doneSignal.countDown();
-                    numToCount++;
-                }
-                // wait for them to finish
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Ramp Complete...")));
+                if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                    // if we broke early, fix our countdown latch
+                    int numToCount = testPlans.stream().mapToInt(TestPlanStarter::getThreadsStarted).sum();
+                    while (numToCount < agentRunData.getNumUsers()) {
+                        doneSignal.countDown();
+                        numToCount++;
+                    }
+                    // wait for them to finish
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Ramp Complete...")));
 
-                doneSignal.await();
+                    doneSignal.await();
+                } else {
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Ramp Complete...")));
+                    while(semaphore.availablePermits() > 0){
+                        semaphore.acquireUninterruptibly();
+                    }
+                }
             }
         } catch (InterruptedException e) {
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Stopped")));
@@ -626,11 +639,19 @@ public class APITestHarness {
 
     public synchronized void threadComplete() {
         currentUsers--;
-        doneSignal.countDown();
-        long count = doneSignal.getCount();
-        // numCompletedThreads = (int) (agentRunData.getNumUsers() - count);
-        if (isDebug() || count < 10) {
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining = " + currentUsers)));
+        if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+            doneSignal.countDown();
+            long count = doneSignal.getCount();
+            // numCompletedThreads = (int) (agentRunData.getNumUsers() - count);
+            if (isDebug() || count < 10) {
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining = " + currentUsers)));
+            }
+        } else {
+            semaphore.acquireUninterruptibly();
+            System.out.println("Nonlinear - semaphore.availablePermits() = " + semaphore.availablePermits());
+            if (isDebug() || semaphore.availablePermits() < 10) {
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining = " + currentUsers)));
+            }
         }
     }
 
@@ -655,6 +676,9 @@ public class APITestHarness {
         sessionThreads.add(thread);
         currentNumThreads++;
         currentUsers++;
+        if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)){
+            semaphore.release();
+        }
     }
 
     public boolean isDebug() {
@@ -704,14 +728,27 @@ public class APITestHarness {
                     + threadGroup.getName()));
         }
         if (hasMetSimulationTime()) {          // && doneSignal.getCount() != 0) {
-            LOG.info(LogUtil.getLogMessage("Max simulation time has been met and there are "
-                    + doneSignal.getCount() + " threads not reporting done."));
-            for (Thread t : sessionThreads) {
-                if (t.isAlive()) {
-                    LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
-                            + " is still running with a State of " + t.getState().name(), LogEventType.System));
-                    t.interrupt();
-                    doneSignal.countDown();
+            if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                LOG.info(LogUtil.getLogMessage("Max simulation time has been met and there are "
+                        + doneSignal.getCount() + " threads not reporting done."));
+                for (Thread t : sessionThreads) {
+                    if (t.isAlive()) {
+                        LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
+                                + " is still running with a State of " + t.getState().name(), LogEventType.System));
+                        t.interrupt();
+                        doneSignal.countDown();
+                    }
+                }
+            } else {
+                LOG.info(LogUtil.getLogMessage("Max simulation time has been met and there are "
+                        + semaphore.availablePermits() + " threads not reporting done."));
+                for (Thread t : sessionThreads) {
+                    if (t.isAlive()) {
+                        LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
+                                + " is still running with a State of " + t.getState().name(), LogEventType.System));
+                        t.interrupt();
+                        semaphore.acquireUninterruptibly();
+                    }
                 }
             }
         }
