@@ -53,7 +53,7 @@
     <version.jaxb>2.3.3</version.jaxb>
     <version.spock>2.4-M1-groovy-4.0</version.spock>
     <version.spring-webflux>2.7.6</version.spring-webflux>
-    <version.wiremock>2.27.2</version.wiremock>
+    <version.wiremock>2.35.1</version.wiremock>
     <version.jackson>2.14.1</version.jackson>
 
     <!-- maven-compiler-plugin -->
