@@ -23,8 +23,6 @@ import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import javax.annotation.PreDestroy;
@@ -33,7 +31,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.contexts.SegmentContextExecutors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -74,7 +72,6 @@ public class JobManager implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final ExecutorService executor = Executors.newCachedThreadPool();
     private final HttpClient client = HttpClient.newHttpClient();
 
     private static final Logger LOG = LogManager.getLogger(JobManager.class);
@@ -131,8 +128,7 @@ public class JobManager implements Serializable {
                 }
             }
         } else {
-            project.setTraceEntity(AWSXRay.getGlobalRecorder().getTraceEntity());
-            executor.execute(project);
+            SegmentContextExecutors.newSegmentContextExecutor().execute(project);
         }
     }
 
@@ -378,10 +374,5 @@ public class JobManager implements Serializable {
                 }
             }
         }
-    }
-
-    @PreDestroy
-    private void destroy() {
-        executor.shutdown();
     }
 }

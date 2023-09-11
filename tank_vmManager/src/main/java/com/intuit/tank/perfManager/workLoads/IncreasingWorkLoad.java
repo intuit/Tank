@@ -16,7 +16,6 @@ package com.intuit.tank.perfManager.workLoads;
 import java.util.ArrayList;
 
 import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Entity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,8 +34,6 @@ public class IncreasingWorkLoad implements Runnable {
     private JobRequest job;
     private VMChannel channel;
     private AgentDispatcher agentDispatcher;
-    private Entity entity;
-
     public IncreasingWorkLoad(VMChannel channel, AgentDispatcher agentDispatcher, JobRequest job) {
         this.job = job;
         this.agentDispatcher = agentDispatcher;
@@ -44,22 +41,16 @@ public class IncreasingWorkLoad implements Runnable {
         LOG.info("Job requested with values: " + job);
     }
 
-    public void setTraceEntity(Entity entity) {
-        this.entity = entity;
-    }
-
     @Override
     public void run() {
-        entity.run(() -> {
-            AWSXRay.beginSubsegment("Ask.For.Agents.JobId." + job.getId());
-            try {
-                askForAgents(new JobInstanceAgentModel(job));
-            } catch (Exception th) {
-                LOG.error("Error starting agents: " + th.getMessage(), th);
-            } finally {
-                AWSXRay.endSubsegment();
-            }
-        });
+        AWSXRay.beginSubsegment("Ask.For.Agents.JobId." + job.getId());
+        try {
+            askForAgents(new JobInstanceAgentModel(job));
+        } catch (Exception th) {
+            LOG.error("Error starting agents: " + th.getMessage(), th);
+        } finally {
+            AWSXRay.endSubsegment();
+        }
     }
 
     public JobRequest getJob() {

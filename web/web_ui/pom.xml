@@ -266,6 +266,12 @@
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-xray-recorder-sdk-core</artifactId>
+
+    </dependency>
+
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-xray-recorder-sdk-aws-sdk-v2-instrumentor</artifactId>
       <scope>runtime</scope>
     </dependency>
 

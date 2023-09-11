@@ -30,8 +30,8 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>5.6.12.Final</version.hibernate>
-    <version.software.amazon.awssdk>2.19.8</version.software.amazon.awssdk>
-    <version.aws-xray-sdk-bom>2.13.0</version.aws-xray-sdk-bom>
+    <version.software.amazon.awssdk>2.20.136</version.software.amazon.awssdk>
+    <version.aws-xray-sdk-bom>2.14.0</version.aws-xray-sdk-bom>
 
     <version-tomcat>9.0.70</version-tomcat>
     <weld.version>3.1.9.Final</weld.version>
