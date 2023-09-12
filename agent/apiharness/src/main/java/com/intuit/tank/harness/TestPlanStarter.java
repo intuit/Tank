@@ -61,9 +61,6 @@ public class TestPlanStarter implements Runnable {
     private final AgentRunData agentRunData;
     private int threadsStarted = 0;
     private long rampDelay;
-
-    private int u;
-
     private int currentRampRate;
 
     private boolean done = false;
@@ -213,62 +210,67 @@ public class TestPlanStarter implements Runnable {
                 throwUnchecked(t);
             }
         } else {
-            // FOR DEBUGGING THINK TIME SCRIPTS
-            List<HDScriptGroup> groups = plan.getGroup();
-            HDScriptGroup group = groups.get(0);
-            List<HDScript> steps = group.getGroupSteps();
-            HDScript step = steps.get(0);
-            List<HDScriptUseCase> useCaseList = step.getUseCase();
-            HDScriptUseCase useCase = useCaseList.get(0);
-            List<TestStep> testSteps = useCase.getScriptSteps();
-            TestStep testStep = testSteps.get(0);
-            Matcher matcher = Pattern.compile("\\d+").matcher(testStep.getInfo());
-            matcher.find();
-            int seconds = Integer.parseInt(matcher.group());
-            u = (seconds / 1000);
-            // FOR DEBUGGING THINK TIME SCRIPTS
-            LOG.info("Nonlinear Ramp\n" +
-                    "Initial Delay (seconds): " + agentRunData.getIntialDelay() + "\n"
+            LOG.info("Nonlinear -\n"
+                    + "---------------------" + "\n"
+                    + "InstanceId: " + agentRunData.getInstanceId() + "\n"
+                    + "Initial Delay (seconds): " + agentRunData.getIntialDelay() + "\n"
                     + "Ramp Rate Delay (seconds): " + agentRunData.getRampRateDelay() + "\n"
                     + "Target Ramp Rate (users/sec): " + agentRunData.getTargetRampRate() + "\n"
-                    + "User Duration (seconds): " + u + "\n"
                     + "Ramp Duration (seconds): " + agentRunData.getRampTimeMillis() / 1000.0 + "\n"
                     + "Simulation Duration (seconds): " + agentRunData.getSimulationTimeMillis() / 1000.0 + "\n"
                     + "---------------------");
 
             try {
-                long startTime = System.currentTimeMillis();
-                Thread.sleep((long) (agentRunData.getIntialDelay() * 1000));
+                // start initial users
+                int numInitialUsers = agentRunData.getNumStartUsers();
+                if (threadsStarted < numInitialUsers) {
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Nonlinear - Starting initial " + numInitialUsers + " users for plan "
+                            + plan.getTestPlanName() + "...")));
+                    while (threadsStarted < numInitialUsers) {
+                        createThread(httpClient, threadsStarted);
+                    }
+                }
+
+                intialDelay();
                 currentRampRate++; // after delay, start ramp rate at 1 user/sec
-                LOG.info("Ramp Rate (users/sec): " + currentRampRate);
-                // TODO: start initial users
-//                int numInitialUsers = agentRunData.getNumStartUsers();
-//                if (threadsStarted < numInitialUsers) {
-//                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Nonlinear - Starting initial " + numInitialUsers + " users for plan "
-//                            + plan.getTestPlanName() + "...")));
-//                    while (threadsStarted < numInitialUsers) {
-//                        createThread(httpClient, threadsStarted);
-//                    }
-//                }
+                LOG.info("Nonlinear - Initial Ramp Rate (users/sec): " + currentRampRate + " for instance " + agentRunData.getInstanceId());
+
                 long lastRampIncreaseTime = System.currentTimeMillis();
                 long lastRampRateAddition = System.currentTimeMillis();
                 long rampRateDelayMillis = (long) (agentRunData.getRampRateDelay() * 1000);
 
+                long totalPauseTime = 0;
+                long pauseStartTime = 0;
+
+
                 // start rest of users sleeping between each interval
                 while (!done) {
-                    // TODO: Logic for pause or pause_ramp state
-//                    while (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
-//                            || APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
-//                        if (APITestHarness.getInstance().hasMetSimulationTime()) {
-//                            APITestHarness.getInstance().setCommand(AgentCommand.stop);
-//                            break;
-//                        } else {
-//                            try {
-//                                Thread.sleep(APITestHarness.POLL_INTERVAL);
-//                            } catch (InterruptedException ignored) {
-//                            }
-//                        }
-//                    }
+                    while (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
+                            || APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
+                        if(pauseStartTime == 0) {
+                            pauseStartTime = System.currentTimeMillis(); // start pause timer
+                        }
+                        if (APITestHarness.getInstance().hasMetSimulationTime()) {
+                            APITestHarness.getInstance().setCommand(AgentCommand.stop);
+                            break;
+                        } else {
+                            try {
+                                LOG.info("Nonlinear - Pausing Ramp for 10 seconds for instance " + agentRunData.getInstanceId() + "\n"
+                                                 + "Nonlinear - (Paused) Ramp Rate (users/sec): " + currentRampRate + " for instance " + agentRunData.getInstanceId());
+                                Thread.sleep(10000); // 10 second pause intervals
+                            } catch (InterruptedException ignored) {
+                            }
+                        }
+                    }
+
+                    if(pauseStartTime != 0) {
+                        totalPauseTime += System.currentTimeMillis() - pauseStartTime; // add pause duration to total pause duration
+                        LOG.info("Nonlinear - Resuming Ramp for instance " + agentRunData.getInstanceId() + "\n"
+                                + "Nonlinear - (Resumed) Ramp Rate (users/sec): " + currentRampRate + " for instance " + agentRunData.getInstanceId() + "\n"
+                                + "Nonlinear - Total Pause Time: " + totalPauseTime / 1000 + " seconds");
+                        pauseStartTime = 0;
+                    }
+
                     if (APITestHarness.getInstance().getCmd() == AgentCommand.stop
                             || APITestHarness.getInstance().getCmd() == AgentCommand.kill
                             || APITestHarness.getInstance().hasMetSimulationTime()
@@ -278,14 +280,6 @@ public class TestPlanStarter implements Runnable {
                         done = true;
                         break;
                     }
-
-                     // TODO: local debugging
-//                    if (APITestHarness.getInstance().hasMetSimulationTime()
-//                            || (agentRunData.getSimulationTimeMillis() == 0 //Run Until: Loops Completed
-//                            && System.currentTimeMillis() - APITestHarness.getInstance().getStartTime() > agentRunData.getRampTimeMillis())) {
-//                        done = true;
-//                        break;
-//                    }
 
                     long activeCount = 0; //default
                     try {
@@ -300,14 +294,22 @@ public class TestPlanStarter implements Runnable {
                         LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
                     }
 
+                    long currentLastRampIncreaseTime;
+                    if(totalPauseTime > 0) { // if paused, add total pause duration to last ramp increase time for next evaluation
+                        currentLastRampIncreaseTime = lastRampIncreaseTime + totalPauseTime;
+                        totalPauseTime = 0;
+                    } else {
+                        currentLastRampIncreaseTime = lastRampIncreaseTime;
+                    }
+
                     long currentTime = System.currentTimeMillis();
 
-                    if (currentTime - lastRampIncreaseTime > rampRateDelayMillis) {
+                    if (currentTime - currentLastRampIncreaseTime > rampRateDelayMillis) {
                         if(currentRampRate < agentRunData.getTargetRampRate()) {
-                            long timeInterval = currentTime - lastRampIncreaseTime;
+                            long timeInterval = currentTime - currentLastRampIncreaseTime;
                             currentRampRate++;
-                            LOG.info("Ramp Rate (users/sec): " + currentRampRate);
-                            LOG.info("Ramp Delay Time Interval: " + timeInterval);
+                            LOG.info("Nonlinear - Ramp Rate (users/sec): " + currentRampRate + " for instance " + agentRunData.getInstanceId());
+                            LOG.info("Nonlinear - Ramp Delay Time Interval: " + timeInterval + " for instance " + agentRunData.getInstanceId());
                             lastRampIncreaseTime = currentTime;
                         }
                     }
@@ -351,19 +353,13 @@ public class TestPlanStarter implements Runnable {
                         cloudWatchClient.putMetricData(request);
                         send = DateUtils.addSeconds(new Date(), interval);
                     }
-
-//                    if ((threadsStarted - numInitialUsers) % agentRunData.getUserInterval() == 0) {
-                        try {
-                            Thread.sleep(1000 / currentRampRate);
-                        } catch (InterruptedException e) {
-                            LOG.error(LogUtil.getLogMessage("Error trying to wait for ramp", LogEventType.System), e);
-                        }
-//                    }
+                    try {
+                        Thread.sleep(1000 / currentRampRate); // sleep between adding users proportional to current ramp rate
+                    } catch (InterruptedException e) {
+                        LOG.error(LogUtil.getLogMessage("Error trying to wait for ramp", LogEventType.System), e);
+                    }
                 }
                 done = true;
-
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             } catch (final Throwable t) {
                 LOG.error(LogUtil.getLogMessage("Nonlinear - TestPlanStarter Unknown Error:"), t);
                 throwUnchecked(t);
@@ -387,6 +383,59 @@ public class TestPlanStarter implements Runnable {
         return done;
     }
 
+    private void intialDelay() {
+        try {
+            long delay = (long) (agentRunData.getIntialDelay() * 1000); // initial delay
+            long actualDelayEnd = delay / 1000; // actual delay end time
+            long startTime = System.currentTimeMillis();
+            long realStartTime = System.currentTimeMillis();
+            long totalPauseDuration = 0; // keep track of pause duration
+
+            while (System.currentTimeMillis() - startTime < (delay + totalPauseDuration)) {
+                try {
+                    if (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
+                            || APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
+                        LOG.info("Nonlinear - Pausing Initial Delay" + "\n"
+                                + "Instance= " + agentRunData.getInstanceId() + "\n"
+                                + "Current Real Time(t)= " + (System.currentTimeMillis() - realStartTime) / 1000 + " seconds" + "\n"
+                                + "Current Agent Time(t)= " + (System.currentTimeMillis() - startTime) / 1000 + " seconds" + "\n"
+                                + "Initial Delay= " + delay / 1000 + " seconds");
+                        throw new InterruptedException();
+                    }
+                    if((System.currentTimeMillis() - startTime) / 1000 % 10 == 0) {
+                        LOG.info("Nonlinear - Initial Delay" + "\n"
+                                + "Instance= " + agentRunData.getInstanceId() + "\n"
+                                + "Current Real Time(t)= " + (System.currentTimeMillis() - realStartTime) / 1000 + " seconds" + "\n"
+                                + "Current Agent Time(t)= " + (System.currentTimeMillis() - startTime) / 1000 + " seconds" + "\n"
+                                + "Initial Delay= " + delay / 1000 + " seconds" + "\n"
+                                + "Delay End Time= " + actualDelayEnd + " seconds");
+                    }
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    LOG.info("Nonlinear - Initial Delay Paused - " + agentRunData.getInstanceId());
+                    long pauseStartTime = System.currentTimeMillis();
+                    while (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
+                            || APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
+                        try {
+                            Thread.sleep(1000);
+                            startTime += 1000; // update startTime to account for pause - "freeze" timer
+                        } catch (InterruptedException ignored) {
+                        }
+                    }
+                    totalPauseDuration += System.currentTimeMillis() - pauseStartTime; // add pause duration to total pause duration
+                    LOG.info("Nonlinear - Resuming Initial Delay" + "\n"
+                            + "Instance= " + agentRunData.getInstanceId() + "\n"
+                            + "Current Time(t)= " + (System.currentTimeMillis() - startTime) / 1000 + " seconds" + "\n"
+                            + "Initial Delay= " + delay / 1000 + " seconds" + "\n"
+                            + "Total Pause Duration: " + totalPauseDuration / 1000 + " seconds");
+                    actualDelayEnd +=  (totalPauseDuration / 1000); // update actual delay end time to account for pause
+                }
+            }
+        } catch (Exception e) {
+            LOG.info("Nonlinear - Initial Delay Error: " + e);
+        }
+    }
+
     private long calcRampTime() {
         int ramp = (numThreads - agentRunData.getNumStartUsers());
         if (ramp > 0) {
@@ -394,7 +443,7 @@ public class TestPlanStarter implements Runnable {
                     agentRunData.getUserInterval())
                     / ramp;
         } else if (agentRunData.getRampTimeMillis() > 0) {
-            LOG.info(LogUtil.getLogMessage("No Ramp - " + rampDelay, LogEventType.System));
+            LOG.info(LogUtil.getLogMessage("Linear - No Ramp - " + rampDelay, LogEventType.System));
         }
         return 1; //Return minimum wait time 1 millisecond
     }

@@ -648,7 +648,7 @@ public class APITestHarness {
             }
         } else {
             semaphore.acquireUninterruptibly();
-            System.out.println("Nonlinear - semaphore.availablePermits() = " + semaphore.availablePermits());
+//            System.out.println("Nonlinear - semaphore.availablePermits() = " + semaphore.availablePermits());
             if (isDebug() || semaphore.availablePermits() < 10) {
                 LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining = " + currentUsers)));
             }
@@ -771,9 +771,6 @@ public class APITestHarness {
             LOG.info(LogUtil.getLogMessage("Have " + agentCount
                     + " active AGENT Threads in thread group "
                     + threadGroup.getName()));
-//                System.out.println(LogUtil.getLogMessage("Have " + (activeCount - agentCount)
-//                        + " active OTHER Threads in thread group "
-//                        + threadGroup.getName()));
         }
     }
 
