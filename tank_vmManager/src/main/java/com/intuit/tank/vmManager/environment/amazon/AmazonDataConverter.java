@@ -38,7 +38,7 @@ import software.amazon.awssdk.services.ec2.model.InstanceStateChange;
 public class AmazonDataConverter {
     private static final Logger LOG = LogManager.getLogger(AmazonDataConverter.class);
 
-    public List<VMInformation> processStateChange(List<InstanceStateChange> changes) {
+    public static List<VMInformation> processStateChange(List<InstanceStateChange> changes) {
         List<VMInformation> output = new ArrayList<VMInformation>();
         try {
             for (InstanceStateChange instance : changes) {
@@ -64,7 +64,7 @@ public class AmazonDataConverter {
      * @param region
      * @return
      */
-    public VMInformation instanceToVmInformation(String requesterId, Instance instance, VMRegion region) {
+    public static VMInformation instanceToVmInformation(String requesterId, Instance instance, VMRegion region) {
         VMInformation info = new VMInformation();
         info.setProvider(VMProvider.Amazon);
         info.setRequestId(requesterId);
@@ -87,7 +87,7 @@ public class AmazonDataConverter {
      * @param region
      * @return
      */
-    public List<VMInformation> processReservation(String requesterId, List<Instance> instances, VMRegion region) {
+    public static List<VMInformation> processReservation(String requesterId, List<Instance> instances, VMRegion region) {
         try {
             return instances.stream().map(instance -> instanceToVmInformation(requesterId, instance, region)).collect(Collectors.toList());
         } catch (Exception ex) {
