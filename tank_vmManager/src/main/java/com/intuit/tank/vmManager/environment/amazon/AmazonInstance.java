@@ -305,29 +305,30 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @return
      */
     private Collection<TagSpecification> buildTags(VMInstanceRequest instanceRequest) {
-        List<Tag> builtIn = new ArrayList<>();
-        builtIn.add(Tag.builder().key("Name").value(buildNameTag(instanceRequest)).build());
-        builtIn.add(Tag.builder().key("Controller").value(config.getInstanceName()).build());
+        List<Tag> tags = new ArrayList<>();
+        tags.add(Tag.builder().key("Name").value(buildNameTag(instanceRequest)).build());
+        tags.add(Tag.builder().key("Controller").value(config.getInstanceName()).build());
 
         if (instanceRequest.getJobId() != null) {
             instanceRequest.addUserData(TankConstants.KEY_JOB_ID, instanceRequest.getJobId());
             instanceRequest.addUserData(TankConstants.KEY_CONTROLLER_URL, config.getControllerBase());
-            builtIn.add(Tag.builder().key("JobId").value(instanceRequest.getJobId()).build());
+            tags.add(Tag.builder().key("JobId").value(instanceRequest.getJobId()).build());
 
             if (NumberUtils.isCreatable(instanceRequest.getJobId())) {
                 JobInstance jobInstance = new JobInstanceDao().findById(Integer.valueOf(instanceRequest.getJobId()));
                 if (jobInstance != null) {
-                    builtIn.add(Tag.builder().key("JobName").value(jobInstance.getName()).build());
+                    tags.add(Tag.builder().key("JobName").value(jobInstance.getName()).build());
                 }
             }
         }
-        List<Tag> configTags = config.getVmManagerConfig().getTags().stream()
+        tags.addAll(
+                config.getVmManagerConfig().getTags().stream()
                         .map(tag -> Tag.builder().key(tag.getName()).value(tag.getValue()).build())
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList())
+                );
         return Collections.singleton(
                 TagSpecification.builder()
-                        .tags(builtIn)
-                        .tags(configTags)
+                        .tags(tags)
                         .resourceType(ResourceType.INSTANCE).build());
     }
 
