@@ -10,7 +10,6 @@ import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.CloudCredentials;
 import com.intuit.tank.vm.settings.CloudProvider;
 import com.intuit.tank.vm.settings.InstanceDescription;
-import com.intuit.tank.vm.settings.InstanceTag;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.settings.VmInstanceType;
 import com.intuit.tank.vm.vmManager.VMInformation;
@@ -31,31 +30,7 @@ import software.amazon.awssdk.http.nio.netty.ProxyConfiguration;
 import software.amazon.awssdk.services.ec2.Ec2AsyncClient;
 import software.amazon.awssdk.services.ec2.Ec2AsyncClientBuilder;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.ec2.model.Address;
-import software.amazon.awssdk.services.ec2.model.AssociateAddressRequest;
-import software.amazon.awssdk.services.ec2.model.AttachVolumeRequest;
-import software.amazon.awssdk.services.ec2.model.CreateTagsRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeAddressesRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeAddressesResponse;
-import software.amazon.awssdk.services.ec2.model.DescribeInstancesRequest;
-import software.amazon.awssdk.services.ec2.model.DescribeInstancesResponse;
-import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-import software.amazon.awssdk.services.ec2.model.IamInstanceProfileSpecification;
-import software.amazon.awssdk.services.ec2.model.Instance;
-import software.amazon.awssdk.services.ec2.model.InstanceType;
-import software.amazon.awssdk.services.ec2.model.Placement;
-import software.amazon.awssdk.services.ec2.model.RebootInstancesRequest;
-import software.amazon.awssdk.services.ec2.model.Reservation;
-import software.amazon.awssdk.services.ec2.model.RunInstancesMonitoringEnabled;
-import software.amazon.awssdk.services.ec2.model.RunInstancesRequest;
-import software.amazon.awssdk.services.ec2.model.RunInstancesResponse;
-import software.amazon.awssdk.services.ec2.model.StartInstancesRequest;
-import software.amazon.awssdk.services.ec2.model.StartInstancesResponse;
-import software.amazon.awssdk.services.ec2.model.StopInstancesRequest;
-import software.amazon.awssdk.services.ec2.model.Tag;
-import software.amazon.awssdk.services.ec2.model.Tenancy;
-import software.amazon.awssdk.services.ec2.model.TerminateInstancesRequest;
-import software.amazon.awssdk.services.ec2.model.TerminateInstancesResponse;
+import software.amazon.awssdk.services.ec2.model.*;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
@@ -142,7 +117,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 .flatMap(reservationDescription -> reservationDescription.instances()
                         .stream()
                         .filter(instance -> ids.contains(instance.instanceId()))
-                        .map(instance -> new AmazonDataConverter().instanceToVmInformation(reservationDescription.requesterId(), instance, vmRegion)))
+                        .map(instance -> AmazonDataConverter.instanceToVmInformation(reservationDescription.requesterId(), instance, vmRegion)))
                 .collect(Collectors.toList());
     }
 
@@ -170,7 +145,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                         StartInstancesRequest startInstancesRequest = StartInstancesRequest.builder().instanceIds(vmInfo.getInstanceId()).build();
                         // restart this instance
                         StartInstancesResponse startInstances = ec2AsyncClient.startInstances(startInstancesRequest).join();
-                        result.addAll(new AmazonDataConverter().processStateChange(startInstances.startingInstances()));
+                        result.addAll(AmazonDataConverter.processStateChange(startInstances.startingInstances()));
                         break;
                     }
                 }
@@ -246,17 +221,20 @@ public class AmazonInstance implements IEnvironmentInstance {
                 if (!StringUtils.isEmpty(instanceDescription.getZone())) {
                     runInstancesRequestTemplate.placement(Placement.builder().availabilityZone(instanceDescription.getZone()).build());
                 }
+                runInstancesRequestTemplate.tagSpecifications(buildTags(instanceRequest));
                 // Loop to request agent instances
                 List<String> subnetIds = instanceDescription.getSubnetIds();
                 int position = ThreadLocalRandom.current().nextInt(subnetIds.size());
                 while ( !subnetIds.isEmpty() && remaining > 0 ) {
                     RunInstancesRequest.Builder runInstancesRequest = runInstancesRequestTemplate.copy();
-                    runInstancesRequest.subnetId(subnetIds.get(position >= subnetIds.size() ? 0 : position++));
                     int requestCount = Math.min(remaining, MAX_INSTANCE_BATCH_SIZE);
                     try {
                         RunInstancesResponse response = ec2AsyncClient.runInstances(
-                                runInstancesRequest.minCount(1).maxCount(requestCount).build()).join();
-                        result.addAll(new AmazonDataConverter().processReservation(
+                                runInstancesRequest
+                                        .subnetId(subnetIds.get(position >= subnetIds.size() ? 0 : position++))
+                                        .minCount(1).maxCount(requestCount).build()
+                        ).join();
+                        result.addAll(AmazonDataConverter.processReservation(
                                 response.requesterId(), response.instances(), vmRegion));
                         remaining -= response.instances().size();
                     } catch (Ec2Exception ae) {
@@ -311,11 +289,6 @@ public class AmazonInstance implements IEnvironmentInstance {
                 associateAddress(instanceId, Address.builder().publicIp(instanceDescription.getPublicIp()).build(), null);
                 // reboot(result);
             }
-            if (!result.isEmpty()) {
-                List<String> ids = result.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
-                LOG.info("Setting tags for instances " + ids);
-                tagInstance(ids, buildTags(instanceRequest));
-            }
 
         } catch (Ec2Exception ae) {
             LOG.error("Amazon issue starting instances: " + ae.getMessage(), ae);
@@ -328,65 +301,34 @@ public class AmazonInstance implements IEnvironmentInstance {
     }
 
     /**
-     *
-     * {@inheritDoc}
-     */
-    @Override
-    public void tagInstance(final List<String> instanceIds, KeyValuePair... tag) {
-        if (tag.length != 0) {
-            final List<Tag> tags = Arrays.stream(tag)
-                    .map(pair -> Tag.builder().key(pair.getKey()).value(pair.getValue()).build()).collect(Collectors.toList());
-
-            new Thread( () -> {
-                int count = 0;
-                try {
-                    while (++count <= 5 && !instanceIds.isEmpty()) {
-                        CreateTagsRequest createTagsRequest = CreateTagsRequest.builder().resources(instanceIds).tags(tags).build();
-                        ec2AsyncClient.createTags(createTagsRequest);
-                        DescribeInstancesResponse response =
-                                ec2AsyncClient.describeInstances(
-                                        DescribeInstancesRequest.builder().instanceIds(instanceIds).build()).join();
-                        for (Reservation reservation : response.reservations()) {
-                            for (Instance instance : reservation.instances()) {
-                                if (instance.tags() != null && !instance.tags().isEmpty()) {
-                                    instanceIds.remove(instance.instanceId());
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    LOG.error("Error tagging instances: " + e, e);
-                }
-            }).start();
-        }
-    }
-
-    /**
      * @param instanceRequest
      * @return
      */
-    private KeyValuePair[] buildTags(VMInstanceRequest instanceRequest) {
-        List<KeyValuePair> pairs = new ArrayList<>();
-        pairs.add(new KeyValuePair("Name", buildNameTag(instanceRequest)));
-        pairs.add(new KeyValuePair("Controller", config.getInstanceName()));
+    private Collection<TagSpecification> buildTags(VMInstanceRequest instanceRequest) {
+        List<Tag> builtIn = new ArrayList<>();
+        builtIn.add(Tag.builder().key("Name").value(buildNameTag(instanceRequest)).build());
+        builtIn.add(Tag.builder().key("Controller").value(config.getInstanceName()).build());
 
         if (instanceRequest.getJobId() != null) {
             instanceRequest.addUserData(TankConstants.KEY_JOB_ID, instanceRequest.getJobId());
             instanceRequest.addUserData(TankConstants.KEY_CONTROLLER_URL, config.getControllerBase());
-            pairs.add(new KeyValuePair("JobId", instanceRequest.getJobId()));
+            builtIn.add(Tag.builder().key("JobId").value(instanceRequest.getJobId()).build());
 
             if (NumberUtils.isCreatable(instanceRequest.getJobId())) {
                 JobInstance jobInstance = new JobInstanceDao().findById(Integer.valueOf(instanceRequest.getJobId()));
                 if (jobInstance != null) {
-                    pairs.add(new KeyValuePair("JobName", jobInstance.getName()));
+                    builtIn.add(Tag.builder().key("JobName").value(jobInstance.getName()).build());
                 }
             }
         }
-        List<InstanceTag> tags = config.getVmManagerConfig().getTags();
-        for (InstanceTag tag : tags) {
-            pairs.add(new KeyValuePair(tag.getName(), tag.getValue()));
-        }
-        return pairs.toArray(new KeyValuePair[0]);
+        List<Tag> configTags = config.getVmManagerConfig().getTags().stream()
+                        .map(tag -> Tag.builder().key(tag.getName()).value(tag.getValue()).build())
+                        .collect(Collectors.toList());
+        return Collections.singleton(
+                TagSpecification.builder()
+                        .tags(builtIn)
+                        .tags(configTags)
+                        .resourceType(ResourceType.INSTANCE).build());
     }
 
     /**
@@ -410,7 +352,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         TerminateInstancesRequest terminateInstancesRequest =
                 TerminateInstancesRequest.builder().instanceIds(killRequest.getInstances()).build();
         TerminateInstancesResponse response = ec2AsyncClient.terminateInstances(terminateInstancesRequest).join();
-        return new AmazonDataConverter().processStateChange(response.terminatingInstances());
+        return AmazonDataConverter.processStateChange(response.terminatingInstances());
     }
 
     @Override
@@ -439,7 +381,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                         if ((instance.state().nameAsString().equalsIgnoreCase("running")
                                 || instance.state().nameAsString().equalsIgnoreCase("pending"))
                                 && instance.imageId().equals(instanceForRegionAndType.getAmi())) {
-                            ret.add(new AmazonDataConverter().instanceToVmInformation(reservation.requesterId(), instance, region));
+                            ret.add(AmazonDataConverter.instanceToVmInformation(reservation.requesterId(), instance, region));
                         }
                     }
                 }
@@ -463,7 +405,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 if (reservation.instances() != null) {
                     for (Instance instance : reservation.instances()) {
                         if (instance.imageId().equals(instanceForRegionAndType.getAmi())) {
-                            ret.add(new AmazonDataConverter().instanceToVmInformation(reservation.requesterId(), instance, region));
+                            ret.add(AmazonDataConverter.instanceToVmInformation(reservation.requesterId(), instance, region));
                         }
                     }
                 }
@@ -488,7 +430,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         } catch (Exception e) {
             LOG.warn("Error parsing vminstanceType " + size, e);
         }
-        return InstanceType.C5_LARGE;
+        return InstanceType.C6_I_LARGE;
     }
 
     /**
@@ -499,8 +441,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     private String getAMI(InstanceDescription instanceDescription) {
         String name = instanceDescription.getSSMAmi();
         if (StringUtils.isNotEmpty(name)) {
-            try {
-                final SsmClient ssmClient = SsmClient.builder().build();
+            try (SsmClient ssmClient = SsmClient.builder().build()) {
                 GetParameterResponse response = ssmClient.getParameter(GetParameterRequest.builder().name(name).build());
                 return response.parameter().value();
             } catch (Exception e) {
