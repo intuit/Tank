@@ -197,6 +197,10 @@ public class APITestHarness {
                 endRampRate = Double.parseDouble(values[1]);
             } else if (values[0].equalsIgnoreCase("-v")) {
                 SwingUtilities.invokeLater(() -> new AgentThreadVisualizer(instance));
+            } else if (values[0].equalsIgnoreCase("-o")) {
+                agentRunData.setAgentInstanceNum(Integer.parseInt(values[1]));
+            } else if (values[0].equalsIgnoreCase("-a")) {
+                agentRunData.setTotalAgents(Integer.parseInt(values[1]));
             } else {
                 usage();
                 return;
@@ -254,6 +258,8 @@ public class APITestHarness {
         System.out.println("-start=<# of users to start with>:  The number of users to run concurrently when test begins");
         System.out.println("-http=<controller_base_url>:  The url of the controller to get test info from");
         System.out.println("-jobId=<job_id>: The jobId of the controller to get test info from");
+        System.out.println("-o:  Set Agent Instance Order Number (nonlinear)");
+        System.out.println("-a:  Set Number of Agents (nonlinear)");
         System.out.println("-v:  Enable total concurrent users/thread visualization");
         System.out.println("-d:  Turns debug on to step through each request");
         System.out.println("-t:  Turns trace on to print each request");
@@ -776,7 +782,7 @@ public class APITestHarness {
 
     private void configureNonlinearAgentRunData(){
         if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)){
-            double baseDelay = (((double) agentRunData.getRampTimeMillis() / 1000) / (endRampRate)); // will need to subtract start ramp rate from end ramp rate when added
+            double baseDelay = (((double) agentRunData.getRampTimeMillis() / 1000) / (endRampRate));
             int order = agentRunData.getAgentInstanceNum();
             int numAgents = agentRunData.getTotalAgents();
 
@@ -792,6 +798,7 @@ public class APITestHarness {
             agentRunData.setIntialDelay(order * baseDelay); // order: order # * baseDelay
             agentRunData.setRampRateDelay((((double) agentRunData.getRampTimeMillis() / 1000) / (targetRampRate))); // rampRateDelay:  total ramp time / targetRampRate
             agentRunData.setTargetRampRate(targetRampRate);  // targetRampRate: endRampRate / # of agents while accounting for uneven division
+            agentRunData.setBaseDelay(baseDelay); // baseDelay: total ramp time / endRampRate - used to ramp agents from 0 to 1 user/sec
             LOG.info("Nonlinear - configureNonlinearAgentRunData: \n" +
                     "instance=" + agentRunData.getInstanceId() + "; \n" +
                     "order=" + order + "; \n" +

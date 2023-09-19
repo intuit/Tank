@@ -31,6 +31,7 @@ public class AgentRunData {
     private IncrementStrategy incrementStrategy = IncrementStrategy.increasing;
     private int numStartUsers = 1;
     private int userInterval = 1;
+    private double baseDelay;
     private double intialDelay;
     private double rampRateDelay;
     private double targetRampRate;
@@ -136,6 +137,21 @@ public class AgentRunData {
             this.userInterval = userInterval;
         }
     }
+    /**
+     * @return the baseDelay
+     */
+    public double getBaseDelay() {
+        return baseDelay;
+    }
+
+    /**
+     * @param baseDelay
+     *            the baseDelay to set
+     */
+    public void setBaseDelay(double baseDelay) {
+        this.baseDelay = baseDelay;
+    }
+
 
     /**
      * @return the intialDelay

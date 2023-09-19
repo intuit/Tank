@@ -20,7 +20,7 @@ import java.awt.geom.Rectangle2D;
 
 public class RampRateSimulation {
 
-    private double startRampRate = 0;
+//    private double startRampRate = 0;
     private double endRampRate = 10;
     private double d = 10;
     private double u = 5;
@@ -44,16 +44,16 @@ public class RampRateSimulation {
         frame.setLayout(new BorderLayout());
 
         JPanel inputPanel = new JPanel(new GridLayout(5, 2));
-        JTextField startField = new JTextField("0");
+//        JTextField startField = new JTextField("0");
         JTextField endField = new JTextField("10");
         JTextField dField = new JTextField("10");
         JTextField uField = new JTextField("5");
         JButton updateButton = new JButton("Update Graph");
 
-
-        inputPanel.add(new JLabel("Start Ramp Rate:"));
-        inputPanel.add(startField);
-        inputPanel.add(new JLabel("End Ramp Rate:"));
+//
+//        inputPanel.add(new JLabel("Start Ramp Rate:"));
+//        inputPanel.add(startField);
+        inputPanel.add(new JLabel("Target Ramp Rate:"));
         inputPanel.add(endField);
         inputPanel.add(new JLabel("Ramp Duration:"));
         inputPanel.add(dField);
@@ -101,7 +101,7 @@ public class RampRateSimulation {
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        startRampRate = Double.parseDouble(startField.getText());
+//                        startRampRate = Double.parseDouble(startField.getText());
                         endRampRate = Double.parseDouble(endField.getText());
                         d = Double.parseDouble(dField.getText());
                         u = Double.parseDouble(uField.getText());
@@ -199,17 +199,27 @@ public class RampRateSimulation {
         rampRateChart.getXYPlot().clearAnnotations();
         concurrentUsersChart.getXYPlot().clearAnnotations();
         double steadyStateDuration = d * 3;
+        double currentRampRate = 0;
         for (double t = 0; t <= steadyStateDuration; t += 1) {
-            series.add(t, linearRampRate(t));
-            concurrentUsersSeries.add(t, calculateConcurrentUsers(t));
+            System.out.println("Time" + t);
+            currentRampRate = linearRampRate(currentRampRate, t);
+            System.out.println("Current Ramp Rate" + currentRampRate);
+            series.add(t, currentRampRate);
+            double concurrentUsers = calculateConcurrentUsers(t);
+            System.out.println("Concurrent Users" + concurrentUsers);
+            if (concurrentUsers > 0){
+                concurrentUsersSeries.add(t, concurrentUsers);
+            }
         }
     }
 
     private double calculateTotalUsers(double t) {
-        if(t >= d){
-            return startRampRate * d + ((endRampRate - startRampRate) / (2 * d)) * Math.pow(d, 2) + (endRampRate * (t - d));
+        if(t < d){
+            return ((endRampRate) / (2 * d)) * Math.pow(t, 2);
+        } else {
+            double rampUpUsers = ((endRampRate) / (2 * d)) * Math.pow(d, 2);
+            return rampUpUsers + (endRampRate * (t - d));
         }
-        return startRampRate * t + ((endRampRate - startRampRate) / (2 * d)) * Math.pow(t, 2);
     }
 
     private double calculateConcurrentUsers(double t) {
@@ -218,9 +228,13 @@ public class RampRateSimulation {
         return totalUsersNow - totalUsersBefore;
     }
 
-    private double linearRampRate(double t) {
+    private double linearRampRate(double currentRampRate, double t) {
         if (t <= d) {
-            return startRampRate + ((endRampRate - startRampRate) / d) * t;
+            double rampRate = (endRampRate / d) * t;
+            if(rampRate % 1.0 == 0){
+                return rampRate;
+            }
+            return currentRampRate;
         } else {
             return endRampRate;
         }
