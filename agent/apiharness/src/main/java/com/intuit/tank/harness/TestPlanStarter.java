@@ -446,12 +446,17 @@ public class TestPlanStarter implements Runnable {
                 try {
                     if (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
                             || APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
-                        LOG.info("Nonlinear - Pausing Initial Delay" + "\n"
-                                + "Instance= " + agentRunData.getInstanceId() + "\n"
-                                + "Current Real Time(t)= " + currentRealTime + " seconds" + "\n"
-                                + "Current Agent Time(t)= " + currentAgentTime + " seconds" + "\n"
-                                + "Initial Delay= " + agentRunData.getIntialDelay() + " seconds");
-                        throw new InterruptedException();
+                        if (APITestHarness.getInstance().hasMetSimulationTime()) {
+                            APITestHarness.getInstance().setCommand(AgentCommand.stop);
+                            return;
+                        } else {
+                            LOG.info("Nonlinear - Pausing Initial Delay" + "\n"
+                                    + "Instance= " + agentRunData.getInstanceId() + "\n"
+                                    + "Current Real Time(t)= " + currentRealTime + " seconds" + "\n"
+                                    + "Current Agent Time(t)= " + currentAgentTime + " seconds" + "\n"
+                                    + "Initial Delay= " + agentRunData.getInitialDelay() + " seconds");
+                            throw new InterruptedException();
+                        }
                     }
                     if((System.currentTimeMillis() - startTime) / 1000 % 30 == 0) {
                         LOG.info("Nonlinear - Initial Delay" + "\n"
@@ -488,10 +493,15 @@ public class TestPlanStarter implements Runnable {
                     long pauseStartTime = System.currentTimeMillis();
                     while (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
                             || APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
-                        try {
-                            Thread.sleep(1000);
-                            startTime += 1000; // update startTime to account for pause - "freeze" timer
-                        } catch (InterruptedException ignored) {
+                        if (APITestHarness.getInstance().hasMetSimulationTime()) {
+                            APITestHarness.getInstance().setCommand(AgentCommand.stop);
+                            return;
+                        } else {
+                            try {
+                                Thread.sleep(1000);
+                                startTime += 1000; // update startTime to account for pause - "freeze" timer
+                            } catch (InterruptedException ignored) {
+                            }
                         }
                     }
                     totalPauseDuration += System.currentTimeMillis() - pauseStartTime; // add pause duration to total pause duration
