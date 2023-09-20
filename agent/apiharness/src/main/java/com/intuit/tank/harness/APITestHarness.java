@@ -586,13 +586,19 @@ public class APITestHarness {
                         numToCount++;
                     }
                     // wait for them to finish
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Ramp Complete...")));
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Linear - Ramp Complete...")));
 
                     doneSignal.await();
                 } else {
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Ramp Complete...")));
-                    while(semaphore.availablePermits() > 0){
-                        semaphore.acquireUninterruptibly();
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Nonlinear - Ramp Complete...")));
+                    for(Thread t : sessionThreads){
+                        if(t.isAlive()){
+                            try {
+                                t.join();
+                            } catch (InterruptedException e) {
+                                LOG.info("Error waiting for thread to terminate: " + e);
+                            }
+                        }
                     }
                 }
             }
@@ -654,7 +660,6 @@ public class APITestHarness {
             }
         } else {
             semaphore.acquireUninterruptibly();
-//            System.out.println("Nonlinear - semaphore.availablePermits() = " + semaphore.availablePermits());
             if (isDebug() || semaphore.availablePermits() < 10) {
                 LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining = " + currentUsers)));
             }
@@ -753,7 +758,6 @@ public class APITestHarness {
                         LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
                                 + " is still running with a State of " + t.getState().name(), LogEventType.System));
                         t.interrupt();
-                        semaphore.acquireUninterruptibly();
                     }
                 }
             }

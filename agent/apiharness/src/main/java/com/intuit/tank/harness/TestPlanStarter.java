@@ -24,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.message.ObjectMessage;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
@@ -90,6 +91,19 @@ public class TestPlanStarter implements Runnable {
                     .value(AmazonUtil.getJobId())
                     .build();
         }
+        HostInfo hostInfo = new HostInfo();
+        ThreadContext.put("jobId", AmazonUtil.getJobId());
+        ThreadContext.put("projectName", AmazonUtil.getProjectName());
+        ThreadContext.put("instanceId", AmazonUtil.getInstanceId());
+        ThreadContext.put("publicIp", hostInfo.getPublicIp());
+        ThreadContext.put("location", AmazonUtil.getZone());
+        ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
+        ThreadContext.put("loggingProfile", AmazonUtil.getLoggingProfile().getDisplayName());
+        ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
+        ThreadContext.put("order", Integer.toString(agentRunData.getAgentInstanceNum()));
+        ThreadContext.put("numTotalAgents", Integer.toString(agentRunData.getTotalAgents()));
+        ThreadContext.put("numTotalUsers", Integer.toString(numThreads));
+        ThreadContext.put("targetRampRate", Double.toString(agentRunData.getTargetRampRate()));
     }
 
     public void run() {
@@ -244,13 +258,18 @@ public class TestPlanStarter implements Runnable {
                     double expectedUsersToAdd = currentUsers - previousTotalUsers;
                     previousTotalUsers = currentUsers;
 
-                    if(expectedUsersToAdd >= 1 && expectedUsersToAdd < 2){
-                        accumulatedUsers += (expectedUsersToAdd - 1);
-                        if(accumulatedUsers >= 1) {
-                            createThread(httpClient, this.threadsStarted);
-                            additionalUsers++;
-                            accumulatedUsers -= 1;
-                        }
+                    // extract decimal from expectedUsersToAdd
+                    double fractionalUsersToAdd = expectedUsersToAdd - (int) expectedUsersToAdd;
+
+                    // add fractional users to accumulated users
+                    accumulatedUsers += fractionalUsersToAdd;
+
+                    // if accumulated users >= 1, add 1 additional user resulting from previous fractional users
+                    int usersFromAccumulatedUsers = (int) accumulatedUsers;
+                    if(usersFromAccumulatedUsers >= 1){
+                        createThread(httpClient, this.threadsStarted);
+                        additionalUsers++;
+                        accumulatedUsers -= 1;
                     }
 
                     while (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
@@ -334,11 +353,11 @@ public class TestPlanStarter implements Runnable {
                         if(currentRampRate < agentRunData.getTargetRampRate()) {
                             long timeInterval = (currentTime - currentLastRampIncreaseTime) / 1000;
                             currentRampRate++;
-                            LOG.info("Nonlinear - Ramp Rate (users/sec): " + currentRampRate
-                                    + " for instance " + agentRunData.getInstanceId()
-                                    + " at AGENT TIME=" + agentTimer + " seconds");
-                            LOG.info("Nonlinear - Ramp Delay Time Interval: " + timeInterval
-                                    + " seconds for instance " + agentRunData.getInstanceId()
+                            LOG.info("Nonlinear - Ramp Rate (users/sec): " + currentRampRate + "\n"
+                                    + " for instance " + agentRunData.getInstanceId() + "\n"
+                                    + " at AGENT TIME=" + agentTimer + " seconds" + "\n"
+                                    + "Nonlinear - Ramp Delay Time Interval: " + timeInterval + " seconds " + "\n"
+                                    + " for instance " + agentRunData.getInstanceId() + "\n"
                                     + " at AGENT TIME=" + agentTimer + " seconds");
                             lastRampIncreaseTime = currentTime;
                         }
@@ -512,7 +531,7 @@ public class TestPlanStarter implements Runnable {
     }
 
     private double calculateConcurrentUsers(double t) {
-        double d = agentRunData.getRampTimeMillis() / 1000.0; // only works if ramp duration = user duration
+        double d = agentRunData.getRampTimeMillis() / 1000.0; // offset check only works if ramp duration = user duration
         double totalUsersNow = calculateTotalUsers(t);
         double totalUsersBefore = t - d >= 0 ? calculateTotalUsers(t - d) : 0;
         return totalUsersNow - totalUsersBefore;
