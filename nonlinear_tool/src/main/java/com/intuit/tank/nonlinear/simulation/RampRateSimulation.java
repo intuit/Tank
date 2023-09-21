@@ -230,11 +230,7 @@ public class RampRateSimulation {
 
     private double linearRampRate(double currentRampRate, double t) {
         if (t <= d) {
-            double rampRate = (endRampRate / d) * t;
-            if(rampRate % 1.0 == 0){
-                return rampRate;
-            }
-            return currentRampRate;
+            return (endRampRate / d) * t;
         } else {
             return endRampRate;
         }
