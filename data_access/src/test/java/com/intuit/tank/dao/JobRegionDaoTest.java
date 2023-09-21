@@ -47,13 +47,13 @@ public class JobRegionDaoTest {
 	@Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testCleanRegions() throws Exception {
-		JobRegion jobRegion3 = DaoTestUtil.createJobRegionData("TestUser_1");
+		JobRegion jobRegion3 = DaoTestUtil.createJobRegionData("TestUser_1", "100");
 		jobRegion3.setCreated(new Date());
 		
-		JobRegion jobRegion2 = DaoTestUtil.createJobRegionData("TestUser_1");
+		JobRegion jobRegion2 = DaoTestUtil.createJobRegionData("TestUser_1", "100");
 		jobRegion2 = dao.saveOrUpdate(jobRegion2);
 		
-		JobRegion jobRegion1 = DaoTestUtil.createJobRegionData("TestUser_1");
+		JobRegion jobRegion1 = DaoTestUtil.createJobRegionData("TestUser_1", "100");
 		jobRegion1.setCreated(new Date());
 		jobRegion1 = dao.saveOrUpdate(jobRegion1);
 		

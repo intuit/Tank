@@ -18,7 +18,6 @@ import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.common.TankConstants;
 import org.apache.logging.log4j.message.ObjectMessage;
@@ -31,10 +30,10 @@ public class AgentRunData {
     private IncrementStrategy incrementStrategy = IncrementStrategy.increasing;
     private int numStartUsers = 1;
     private int userInterval = 1;
-    private double baseDelay;
-    private double intialDelay;
-    private double rampRateDelay;
-    private double targetRampRate;
+    private double baseDelay = 0;
+    private double initialDelay = 0;
+    private double rampRateDelay = 0;
+    private double targetRampRate = 1;
     private String testPlans = "";
     private String instanceId;
     private String jobId = "0";
@@ -154,18 +153,18 @@ public class AgentRunData {
 
 
     /**
-     * @return the intialDelay
+     * @return the initialDelay
      */
-    public double getIntialDelay() {
-        return intialDelay;
+    public double getInitialDelay() {
+        return initialDelay;
     }
 
     /**
-     * @param intialDelay
-     *            the intialDelay to set
+     * @param initialDelay
+     *            the initialDelay to set
      */
-    public void setIntialDelay(double intialDelay) {
-        this.intialDelay = intialDelay;
+    public void setInitialDelay(double initialDelay) {
+        this.initialDelay = initialDelay;
     }
 
     /**

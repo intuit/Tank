@@ -600,6 +600,7 @@ public abstract class JobTreeTableBean implements Serializable {
                     }
                     jobInstanceNode.setNumFailures(jobInstanceFailures);
                     jobInstanceNode.setActiveUsers(Integer.toString(jobInstanceActive));
+                    jobInstanceNode.setIncrementStrategy(jobInstance.getIncrementStrategy().getDisplay());
                     projectActive += jobInstanceActive;
                     projectTotal += jobInstanceTotal;
                     projectFailures.addFailures(jobInstanceFailures);

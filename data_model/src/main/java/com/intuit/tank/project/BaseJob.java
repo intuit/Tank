@@ -68,6 +68,9 @@ public abstract class BaseJob extends BaseEntity {
     @Column(name = "num_users_per_agent", columnDefinition = "INT(11) NOT NULL DEFAULT '4000'")
     private int numUsersPerAgent = 4000;
 
+    @Column(name = "num_agents", columnDefinition = "INT(11) NOT NULL DEFAULT '1'")
+    private int numAgents = 1;
+
     @Column(name = "logging_profile")
     private String loggingProfile = LoggingProfile.STANDARD.name();
 
@@ -127,6 +130,7 @@ public abstract class BaseJob extends BaseEntity {
         this.stopBehavior = copy.stopBehavior;
         this.executionTime = copy.executionTime;
         this.numUsersPerAgent = copy.numUsersPerAgent;
+        this.numAgents = copy.numAgents;
         this.vmInstanceType = copy.vmInstanceType;
         this.useEips = copy.useEips;
         this.tankClientClass = copy.getTankClientClass();
@@ -328,6 +332,21 @@ public abstract class BaseJob extends BaseEntity {
      */
     public void setNumUsersPerAgent(int numUsersPerAgent) {
         this.numUsersPerAgent = numUsersPerAgent;
+    }
+
+    /**
+     * @return the numAgents
+     */
+    public int getNumAgents() {
+        return numAgents;
+    }
+
+    /**
+     * @param numAgents
+     *            the numAgents to set
+     */
+    public void setNumAgents(int numAgents) {
+        this.numAgents = numAgents;
     }
 
     /**

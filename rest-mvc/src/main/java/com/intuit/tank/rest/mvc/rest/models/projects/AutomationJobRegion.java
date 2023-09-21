@@ -13,6 +13,9 @@ import com.intuit.tank.vm.vmManager.RegionRequest;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import javax.persistence.Column;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
@@ -32,6 +35,9 @@ public class AutomationJobRegion implements Serializable, RegionRequest {
     @XmlElement(name = "users", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private String users;
 
+    @XmlElement(name = "percentage", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
+    private String percentage;
+
     /**
      * @param region
      * @param users
@@ -39,6 +45,17 @@ public class AutomationJobRegion implements Serializable, RegionRequest {
     public AutomationJobRegion(VMRegion region, String users) {
         this.region = region != null ? region : VMRegion.US_EAST;
         this.users = users;
+    }
+
+    /**
+     * @param region
+     * @param users
+     * @param percentage
+     */
+    public AutomationJobRegion(VMRegion region, String users, String percentage) {
+        this.region = region != null ? region : VMRegion.US_EAST;
+        this.users = users;
+        this.percentage = percentage;
     }
 
     /**
@@ -59,6 +76,13 @@ public class AutomationJobRegion implements Serializable, RegionRequest {
      */
     public String getUsers() {
         return users;
+    }
+
+    /**
+     * @return the percentage
+     */
+    public String getPercentage() {
+        return percentage;
     }
 
     /**

@@ -76,7 +76,7 @@ public class JobDetailFormatter {
                             proposedJobInstance.getExecutionTime(),
                             proposedJobInstance.getSimulationTime(), proposedJobInstance.getRampTime());
                     if (users > 0) {
-                        regions.add(new JobRegion(region.getRegion(), Long.toString(users)));
+                        regions.add(new JobRegion(region.getRegion(), Long.toString(users), region.getPercentage()));
                     }
                 }
             }
@@ -93,7 +93,7 @@ public class JobDetailFormatter {
             addProperty(sb, "Agent VM Type", getVmDetails(config, proposedJobInstance.getVmInstanceType()));
             addProperty(sb, "Assign Elastic Ips", Boolean.toString(proposedJobInstance.isUseEips()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)) {
-                addProperty(sb, "Number of Agents", Integer.toString(proposedJobInstance.getNumUsersPerAgent()));
+                addProperty(sb, "Number of Agents", Integer.toString(proposedJobInstance.getNumAgents()));
             } else {
                 addProperty(sb, "Max Users per Agent", Integer.toString(proposedJobInstance.getNumUsersPerAgent()));
             }
@@ -151,16 +151,23 @@ public class JobDetailFormatter {
 
                 // Calculate number of agents per region split for nonlinear workloads
                 Set<RegionRequest> regionRequests = new HashSet<>(regions);
-                Map<RegionRequest, Integer> regionAllocation = JobVmCalculator.getMachinesForAgentByUserPercentage(proposedJobInstance.getNumUsersPerAgent(), regionRequests);
+                Map<RegionRequest, Integer> regionAllocation = JobVmCalculator.getMachinesForAgentByUserPercentage(proposedJobInstance.getNumAgents(), regionRequests);
 
                 int regionPercentage = 0;
                 for (JobRegion r : regions) {
-                    addProperty(sb, "  " + r.getRegion().getDescription(), r.getUsers() + "%" + "  (Agents: " + regionAllocation.get(r) + ")");
-                    regionPercentage += Integer.parseInt(r.getUsers());
+                    addProperty(sb, "  " + r.getRegion().getDescription(), r.getPercentage() + "%" + "  (Agents: " + regionAllocation.get(r) + ")");
+                    regionPercentage += Integer.parseInt(r.getPercentage());
                 }
                 if (regionPercentage != 100) {
-                    addError(errorSB, "Region Percentage of Regions does not add up to 100%");
+                    addError(errorSB, "Region Percentage does not add up to 100%");
+                    regions.forEach(region -> addError(errorSB,region.getRegion().getDescription() + " : " + region.getPercentage() + "%"));
                 }
+
+                if(proposedJobInstance.getNumAgents() > proposedJobInstance.getUserIntervalIncrement()) {
+                    addError(errorSB, "Number of Agents cannot be greater than the Target User Ramp Rate");
+                    addError(errorSB, "Each agent must support at least 1 user per second - set Number of Agents equal to or less than " + proposedJobInstance.getUserIntervalIncrement() + " agents");
+                }
+
             }
             sb.append(BREAK);
             sb.append(BREAK);
@@ -317,7 +324,7 @@ public class JobDetailFormatter {
         if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
             numMachines = regions.stream().mapToInt(region -> Integer.parseInt(region.getUsers())).filter(users -> users > 0).map(users -> (int) Math.ceil((double) users / (double) proposedJobInstance.getNumUsersPerAgent())).sum();
         } else {
-            numMachines = proposedJobInstance.getNumUsersPerAgent();
+            numMachines = proposedJobInstance.getNumAgents();
         }
         // dynamoDB costs about 1.5 times the instance cost
         BigDecimal cost = estimateCost(numMachines, costPerHour, time);

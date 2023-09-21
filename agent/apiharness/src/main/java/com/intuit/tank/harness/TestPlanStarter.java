@@ -63,7 +63,7 @@ public class TestPlanStarter implements Runnable {
     private int threadsStarted = 0;
     private long rampDelay;
     private int currentRampRate;
-
+    private int sessionStarts = 0;
     private boolean done = false;
 
     public TestPlanStarter(Object httpClient, HDTestPlan plan, int numThreads, String tankHttpClientClass, ThreadGroup threadGroup, AgentRunData agentRunData) {
@@ -91,6 +91,10 @@ public class TestPlanStarter implements Runnable {
                     .value(AmazonUtil.getJobId())
                     .build();
         }
+    }
+
+    public void run() {
+
         HostInfo hostInfo = new HostInfo();
         ThreadContext.put("jobId", AmazonUtil.getJobId());
         ThreadContext.put("projectName", AmazonUtil.getProjectName());
@@ -104,9 +108,7 @@ public class TestPlanStarter implements Runnable {
         ThreadContext.put("numTotalAgents", Integer.toString(agentRunData.getTotalAgents()));
         ThreadContext.put("numTotalUsers", Integer.toString(numThreads));
         ThreadContext.put("targetRampRate", Double.toString(agentRunData.getTargetRampRate()));
-    }
 
-    public void run() {
         IncrementStrategy workloadType = agentRunData.getIncrementStrategy();
         if(workloadType.equals(IncrementStrategy.increasing)) { // Linear Workload
             try {
@@ -214,7 +216,7 @@ public class TestPlanStarter implements Runnable {
             LOG.info("Nonlinear -\n"
                     + "---------------------" + "\n"
                     + "InstanceId: " + agentRunData.getInstanceId() + "\n"
-                    + "Initial Delay (seconds): " + agentRunData.getIntialDelay() + "\n"
+                    + "Initial Delay (seconds): " + agentRunData.getInitialDelay() + "\n"
                     + "Ramp Rate Delay (seconds): " + agentRunData.getRampRateDelay() + "\n"
                     + "Target Ramp Rate (users/sec): " + agentRunData.getTargetRampRate() + "\n"
                     + "Ramp Duration (seconds): " + agentRunData.getRampTimeMillis() / 1000.0 + "\n"
@@ -295,7 +297,6 @@ public class TestPlanStarter implements Runnable {
 
                     if (APITestHarness.getInstance().getCmd() == AgentCommand.stop
                             || APITestHarness.getInstance().getCmd() == AgentCommand.kill
-                            || APITestHarness.getInstance().hasMetSimulationTime() // nonlinear - only stop automatically if simulation time is met
                             || APITestHarness.getInstance().isDebug()) {
                         done = true;
                         break;
@@ -359,6 +360,7 @@ public class TestPlanStarter implements Runnable {
                     }
 
                     createThread(httpClient, this.threadsStarted);
+                    this.sessionStarts++; // track session starts
 
                     if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
                         Instant timestamp = new Date().toInstant();
@@ -384,6 +386,13 @@ public class TestPlanStarter implements Runnable {
                                 .timestamp(timestamp)
                                 .dimensions(testPlan, instanceId, jobId)
                                 .build());
+                        datumList.add(MetricDatum.builder()
+                                .metricName("sessionStarts")
+                                .unit(StandardUnit.COUNT)
+                                .value((double) this.sessionStarts)
+                                .timestamp(timestamp)
+                                .dimensions(testPlan, instanceId, jobId)
+                                .build());
                         PutMetricDataRequest request = PutMetricDataRequest.builder()
                                 .namespace(namespace)
                                 .metricData(datumList)
@@ -391,6 +400,7 @@ public class TestPlanStarter implements Runnable {
 
                         cloudWatchClient.putMetricData(request);
                         send = DateUtils.addSeconds(new Date(), interval / 2); // 15 SECONDS
+                        this.sessionStarts = 0; // reset session starts for next interval
                     }
                     try {
                         Thread.sleep(1000 / currentRampRate); // sleep between adding users proportional to current ramp rate
@@ -424,7 +434,7 @@ public class TestPlanStarter implements Runnable {
 
     private void intialDelay() {
         try {
-            long delay = (long) (agentRunData.getIntialDelay() * 1000); // initial delay
+            long delay = (long) (agentRunData.getInitialDelay() * 1000); // initial delay
             long baseDelay = (long) (agentRunData.getBaseDelay() * 1000); // base delay
             long actualDelayEnd = delay / 1000; // actual delay end time
             long startTime = System.currentTimeMillis();
@@ -449,7 +459,7 @@ public class TestPlanStarter implements Runnable {
                                     + "Instance= " + agentRunData.getInstanceId() + "\n"
                                     + "Current Real Time(t)= " + currentRealTime + " seconds" + "\n"
                                     + "Current Agent Time(t)= " + currentAgentTime + " seconds" + "\n"
-                                    + "Initial Delay= " + agentRunData.getIntialDelay() + " seconds");
+                                    + "Initial Delay= " + agentRunData.getInitialDelay() + " seconds");
                             throw new InterruptedException();
                         }
                     }
@@ -458,7 +468,7 @@ public class TestPlanStarter implements Runnable {
                                 + "Instance= " + agentRunData.getInstanceId() + "\n"
                                 + "Current Real Time(t)= " + currentRealTime + " seconds" + "\n"
                                 + "Current Agent Time(t)= " + currentAgentTime + " seconds" + "\n"
-                                + "Initial Delay= " + agentRunData.getIntialDelay() + " seconds" + "\n"
+                                + "Initial Delay= " + agentRunData.getInitialDelay() + " seconds" + "\n"
                                 + "Delay End Time= " + actualDelayEnd + " seconds");
                     }
                     // each agent ramp 0 to 1 user/sec by adding fractional users to the total users over the initial ramp

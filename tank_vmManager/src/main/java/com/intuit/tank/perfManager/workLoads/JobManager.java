@@ -99,9 +99,9 @@ public class JobManager implements Serializable {
         IncreasingWorkLoad project = workLoadFactoryInstance.get().getModelRunner(id);
         JobRequest jobRequest = project.getJob();
         if(jobRequest.getIncrementStrategy().equals(IncrementStrategy.standard)){
-            jobRequest.getRegions().forEach(r -> LOG.info("Region " + r.getRegion().name() + " has " + r.getUsers() + "% of users"));
-            LOG.info("Target Ramp Rate: " + jobRequest.getUserIntervalIncrement() + " users per second");
-            LOG.info("Number of Agents: " + jobRequest.getNumUsersPerAgent());
+            jobRequest.getRegions().forEach(r -> LOG.info("Nonlinear - Region " + r.getRegion().name() + " has " + r.getUsers() + "% of users"));
+            LOG.info("Nonlinear - Target Ramp Rate: " + jobRequest.getUserIntervalIncrement() + " users per second" + "\n"
+                    + "Number of Agents: " + jobRequest.getNumUsersPerAgent() + " for job " + jobRequest.getId());
         }
         jobInfoMapLocalCache.put(Integer.toString(id), new JobInfo(jobRequest));
         if (tankConfig.getStandalone()) {
@@ -364,24 +364,19 @@ public class JobManager implements Serializable {
             VMRegion region = agent.getRegion();
             if(jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
                 for (RegionRequest r : jobRequest.getRegions()) {
-                    if (Integer.parseInt(r.getUsers()) > 0) {
-                        if (region == r.getRegion()) {
-                            int numUsersRemaining = userMap.get(r);
-                            ret = Math.min(agent.getCapacity(), numUsersRemaining);
-                            userMap.put(r, numUsersRemaining - ret);
-                            break;
-                        }
+                    if (Integer.parseInt(r.getUsers()) > 0 && region == r.getRegion()) {
+                        int numUsersRemaining = userMap.get(r);
+                        ret = Math.min(agent.getCapacity(), numUsersRemaining);
+                        userMap.put(r, numUsersRemaining - ret);
+                        break;
                     }
                 }
             } else {
                 for (RegionRequest r : jobRequest.getRegions()) {
-                    if (Integer.parseInt(r.getUsers()) > 0) {
-                        if (region == r.getRegion()) {
-                            int numAgentsRemaining = userMap.get(r);
-                            userMap.put(r, numAgentsRemaining - 1);
-                            LOG.info("Nonlinear - getUsers - updating Region " + r.getRegion().name() + ", now has " + (numAgentsRemaining - 1) + " agents remaining");
-                            break;
-                        }
+                    if (Integer.parseInt(r.getPercentage()) > 0 && region == r.getRegion()) {
+                        int numAgentsRemaining = userMap.get(r);
+                        userMap.put(r, numAgentsRemaining - 1);
+                        break;
                     }
                 }
             }

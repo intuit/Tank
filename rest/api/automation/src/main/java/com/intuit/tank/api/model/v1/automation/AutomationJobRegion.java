@@ -41,7 +41,8 @@ import com.intuit.tank.vm.vmManager.RegionRequest;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AutomationJobRegion", namespace = Namespace.NAMESPACE_V1, propOrder = {
         "region",
-        "users"
+        "users",
+        "percentage"
 })
 public class AutomationJobRegion implements Serializable, RegionRequest {
 
@@ -53,6 +54,9 @@ public class AutomationJobRegion implements Serializable, RegionRequest {
     @XmlElement(name = "users", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private String users;
 
+    @XmlElement(name = "percentage", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
+    private String percentage;
+
     /**
      * @param region
      * @param users
@@ -60,6 +64,17 @@ public class AutomationJobRegion implements Serializable, RegionRequest {
     public AutomationJobRegion(VMRegion region, String users) {
         this.region = region != null ? region : VMRegion.US_EAST;
         this.users = users;
+    }
+
+    /**
+     * @param region
+     * @param users
+     * @param percentage
+     */
+    public AutomationJobRegion(VMRegion region, String users, String percentage) {
+        this.region = region != null ? region : VMRegion.US_EAST;
+        this.users = users;
+        this.percentage = percentage;
     }
 
     /**
@@ -80,6 +95,13 @@ public class AutomationJobRegion implements Serializable, RegionRequest {
      */
     public String getUsers() {
         return users;
+    }
+
+    /**
+     * @return the percentage
+     */
+    public String getPercentage() {
+        return percentage;
     }
 
     /**

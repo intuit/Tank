@@ -57,6 +57,10 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
     @Column(name = "users", nullable = false)
     private String users;
 
+    @NotNull
+    @Column(name = "percentage", nullable = false)
+    private String percentage;
+
     /**
      * 
      */
@@ -71,6 +75,16 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
     public JobRegion(VMRegion region, String users) {
         this.region = region;
         this.users = users;
+    }
+
+    /**
+     * @param region
+     * @param users
+     */
+    public JobRegion(VMRegion region, String users, String percentage) {
+        this.region = region;
+        this.users = users;
+        this.percentage = percentage;
     }
 
     /**
@@ -106,7 +120,22 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
      */
     public void setUsers(String users) {
         this.users = users;
-        LOG.info("Nonlinear - setting region percentages to " + users + "% for region " + region.getDescription());
+    }
+
+    public String getPercentage() {
+        if(StringUtils.isEmpty(percentage)) {
+            return "0";
+        }
+        return percentage;
+    }
+
+    /**
+     * @param percentage
+     *            the percentage to set
+     */
+    public void setPercentage(String percentage) {
+        this.percentage = percentage;
+        LOG.info("Nonlinear - setting region percentages to " + percentage + "% for region " + region.getDescription());
     }
 
     /**
@@ -198,7 +227,12 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
 
             return (GeneratorT) this;
         }
-        
+
+        public GeneratorT percentage(String aValue) {
+            instance.setPercentage(aValue);
+
+            return (GeneratorT) this;
+        }
     }
 
 }

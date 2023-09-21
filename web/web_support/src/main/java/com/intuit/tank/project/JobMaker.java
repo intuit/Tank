@@ -231,8 +231,17 @@ public class JobMaker implements Serializable {
         if (numUsers > 0) {
             projectBean.getJobConfiguration().setNumUsersPerAgent(numUsers);
         }
-        if(projectBean.getJobConfiguration().getIncrementStrategy().equals(IncrementStrategy.standard)){
-            LOG.info("Nonlinear - setting number of agents to " + numUsers + " for job");
+    }
+
+    public int getNumAgents() {
+        return projectBean.getJobConfiguration().getNumAgents();
+    }
+
+    public void setNumAgents(int numAgents) {
+        if (numAgents > 0) {
+            projectBean.getJobConfiguration().setNumAgents(numAgents);
+            LOG.info("Nonlinear - setting number of agents to " + numAgents
+                    + " for workload" + projectBean.getJobConfiguration().getWorkload().getName());
         }
     }
 
@@ -303,6 +312,7 @@ public class JobMaker implements Serializable {
             proposedJobInstance.setLocation(getLocation());
             proposedJobInstance.setVmInstanceType(getVmInstanceType());
             proposedJobInstance.setNumUsersPerAgent(getNumUsersPerAgent());
+            proposedJobInstance.setNumAgents(getNumAgents());
             proposedJobInstance.setReportingMode(getReportingMode());
             proposedJobInstance.getVariables().putAll(workload.getJobConfiguration().getVariables());
             // set version info
@@ -419,9 +429,12 @@ public class JobMaker implements Serializable {
         if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)){
             int regionPercentage = 0;
             for (JobRegion r : projectBean.getWorkload().getJobConfiguration().getJobRegions()) {
-                regionPercentage += Integer.parseInt(r.getUsers());
+                regionPercentage += Integer.parseInt(r.getPercentage());
             }
             if (regionPercentage != 100) {
+                return false;
+            }
+            if(proposedJobInstance.getNumAgents() > proposedJobInstance.getUserIntervalIncrement()) {
                 return false;
             }
         }

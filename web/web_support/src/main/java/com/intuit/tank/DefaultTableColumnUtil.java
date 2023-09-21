@@ -69,8 +69,9 @@ public final class DefaultTableColumnUtil {
 
     public static final List<ColumnPreferences> JOBS_COL_PREFS = Arrays.asList(new ColumnPreferences[] {
             new ColumnPreferences("nameColumn", "Name", 250, Visibility.VISIBLE, Hidability.NON_HIDABLE),
+            new ColumnPreferences("typeColumn", "Type", 75, Visibility.VISIBLE, Hidability.NON_HIDABLE),
             new ColumnPreferences("idColumn", "ID", 75, Visibility.VISIBLE, Hidability.HIDABLE),
-            new ColumnPreferences("statusColumn", "Status", 150, Visibility.VISIBLE, Hidability.HIDABLE),
+            new ColumnPreferences("statusColumn", "Status", 125, Visibility.VISIBLE, Hidability.HIDABLE),
             new ColumnPreferences("regionColumn", "Region", 150, Visibility.VISIBLE, Hidability.HIDABLE),
             new ColumnPreferences("activeUsersColumn", "Active Users", 75, Visibility.VISIBLE, Hidability.HIDABLE),
             new ColumnPreferences("totalUsersColumn", "Total Users", 75, Visibility.VISIBLE, Hidability.HIDABLE),

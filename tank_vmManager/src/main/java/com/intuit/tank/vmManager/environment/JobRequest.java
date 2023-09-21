@@ -57,7 +57,7 @@ public class JobRequest implements Runnable {
                 instanceRequest.setNumUsersPerAgent(JobVmCalculator.getOptimalUsersPerAgent(request.getNumberOfUsers(),
                         machines));
             } else {
-                machines = request.getNumberOfUsers();
+                machines = request.getNumberOfUsers(); // non-linear: for simplicity we pass the number of machines as the number of users
                 logger.info("Nonlinear - Creating " + machines + " Amazon instances for job " + request.getJobId() + " in region " + request.getRegion());
             }
             instanceRequest.setNumberOfInstances(machines);

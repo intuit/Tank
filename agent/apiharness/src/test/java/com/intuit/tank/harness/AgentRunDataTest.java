@@ -1027,6 +1027,84 @@ public class AgentRunDataTest {
     }
 
     /**
+     * Test IncrementStrategy getter and setter for all values
+     */
+    @Test
+    public void testTargetRampRate_1()
+            throws Exception {
+        AgentRunData fixture = new AgentRunData();
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
+        fixture.setNumStartUsers(1);
+        fixture.setJobId("");
+        fixture.setProjectName("");
+        fixture.setNumUsers(1);
+        fixture.setTotalAgents(1);
+        fixture.setMachineName("");
+        fixture.setStopBehavior(StopBehavior.END_OF_SCRIPT);
+        fixture.setAgentInstanceNum(1);
+        fixture.setActiveProfile(LoggingProfile.STANDARD);
+        fixture.setReportingMode("");
+        fixture.setInstanceId("");
+        fixture.setTestPlans("");
+
+        fixture.setTargetRampRate(1.0);
+        assertEquals(1.0, fixture.getTargetRampRate());
+    }
+
+    /**
+     * Test IncrementStrategy getter and setter for all values
+     */
+    @Test
+    public void testBaseDelay_1()
+            throws Exception {
+        AgentRunData fixture = new AgentRunData();
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
+        fixture.setNumStartUsers(1);
+        fixture.setJobId("");
+        fixture.setProjectName("");
+        fixture.setNumUsers(1);
+        fixture.setTotalAgents(1);
+        fixture.setMachineName("");
+        fixture.setStopBehavior(StopBehavior.END_OF_SCRIPT);
+        fixture.setAgentInstanceNum(1);
+        fixture.setActiveProfile(LoggingProfile.STANDARD);
+        fixture.setReportingMode("");
+        fixture.setInstanceId("");
+        fixture.setTestPlans("");
+
+        fixture.setBaseDelay(2.0);
+        assertEquals(2.0, fixture.getBaseDelay());
+    }
+
+    /**
+     * Test IncrementStrategy getter and setter for all values
+     */
+    @Test
+    public void testInitialDelay_1()
+            throws Exception {
+        AgentRunData fixture = new AgentRunData();
+        fixture.setSimulationTimeMillis(1L);
+        fixture.setRampTimeMillis(1L);
+        fixture.setNumStartUsers(1);
+        fixture.setJobId("");
+        fixture.setProjectName("");
+        fixture.setNumUsers(1);
+        fixture.setTotalAgents(1);
+        fixture.setMachineName("");
+        fixture.setStopBehavior(StopBehavior.END_OF_SCRIPT);
+        fixture.setAgentInstanceNum(1);
+        fixture.setActiveProfile(LoggingProfile.STANDARD);
+        fixture.setReportingMode("");
+        fixture.setInstanceId("");
+        fixture.setTestPlans("");
+
+        fixture.setInitialDelay(6.0);
+        assertEquals(6.0, fixture.getInitialDelay());
+    }
+
+    /**
      * Run the void setUserInterval(int) method test.
      * 
      * @throws Exception

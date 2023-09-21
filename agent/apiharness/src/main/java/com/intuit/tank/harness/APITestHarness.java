@@ -98,8 +98,6 @@ public class APITestHarness {
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
 
-    private double startRampRate; // starting ramp rate in users/sec
-
     private double endRampRate; // ending ramp rate in users/sec
 
     private int currentActiveAgentThreads = 0;
@@ -191,16 +189,6 @@ public class APITestHarness {
                 controllerBase = (values.length > 1 ? values[1] : null);
             } else if (values[0].equalsIgnoreCase("-time")) {
                 agentRunData.setSimulationTimeMillis(Integer.parseInt(values[1]) * 60000);
-            } else if(values[0].equalsIgnoreCase("-n")){
-                agentRunData.setIncrementStrategy(IncrementStrategy.standard);
-            } else if(values[0].equalsIgnoreCase("-e")){
-                endRampRate = Double.parseDouble(values[1]);
-            } else if (values[0].equalsIgnoreCase("-v")) {
-                SwingUtilities.invokeLater(() -> new AgentThreadVisualizer(instance));
-            } else if (values[0].equalsIgnoreCase("-o")) {
-                agentRunData.setAgentInstanceNum(Integer.parseInt(values[1]));
-            } else if (values[0].equalsIgnoreCase("-a")) {
-                agentRunData.setTotalAgents(Integer.parseInt(values[1]));
             } else {
                 usage();
                 return;
@@ -250,17 +238,12 @@ public class APITestHarness {
         System.out.println("API Test Harness Usage:");
         System.out.println("java -jar apiharness-1.0-all.jar -tp=<test plan file>");
         System.out.println("-tp=<file name>:  The test plan file to execute");
-        System.out.println("-n: Executes the non-linear workload model (default is linear)");
         System.out.println("-ramp=<time>:  The time (min) to get to the ideal concurrent users specified");
         System.out.println("-time=<time>:  The time (min) of the simulation");
         System.out.println("-users=<# of total users>:  The number of total users to run concurrently (linear)");
-        System.out.println("-e=<target ramp rate>:  The target ramp rate of users for nonlinear workload (nonlinear)");
         System.out.println("-start=<# of users to start with>:  The number of users to run concurrently when test begins");
         System.out.println("-http=<controller_base_url>:  The url of the controller to get test info from");
         System.out.println("-jobId=<job_id>: The jobId of the controller to get test info from");
-        System.out.println("-o:  Set Agent Instance Order Number (nonlinear)");
-        System.out.println("-a:  Set Number of Agents (nonlinear)");
-        System.out.println("-v:  Enable total concurrent users/thread visualization");
         System.out.println("-d:  Turns debug on to step through each request");
         System.out.println("-t:  Turns trace on to print each request");
     }
@@ -335,7 +318,7 @@ public class APITestHarness {
 
             if(startData.getIncrementStrategy().equals(IncrementStrategy.standard)){
                 endRampRate = agentRunData.getUserInterval();
-                LOG.info("Nonlinear - startHttp - endRampRate = " + endRampRate);
+                LOG.info("Nonlinear - endRampRate = " + endRampRate + " users/sec for job " + agentRunData.getJobId());
             }
 
             if (startData.getDataFiles() != null) {
@@ -799,7 +782,7 @@ public class APITestHarness {
                 targetRampRate += 1;
             }
 
-            agentRunData.setIntialDelay(order * baseDelay); // order: order # * baseDelay
+            agentRunData.setInitialDelay(order * baseDelay); // order: order # * baseDelay
             agentRunData.setRampRateDelay((((double) agentRunData.getRampTimeMillis() / 1000) / (targetRampRate))); // rampRateDelay:  total ramp time / targetRampRate
             agentRunData.setTargetRampRate(targetRampRate);  // targetRampRate: endRampRate / # of agents while accounting for uneven division
             agentRunData.setBaseDelay(baseDelay); // baseDelay: total ramp time / endRampRate - used to ramp agents from 0 to 1 user/sec
@@ -808,7 +791,7 @@ public class APITestHarness {
                     "order=" + order + "; \n" +
                     "numAgents=" + numAgents + "; \n" +
                     "endRampRate=" + endRampRate + "; \n" +
-                    "intialDelay=" + agentRunData.getIntialDelay() + "; \n" +
+                    "initialDelay=" + agentRunData.getInitialDelay() + "; \n" +
                     "rampRateDelay=" + agentRunData.getRampRateDelay() + "; \n" +
                     "targetRampRate=" + agentRunData.getTargetRampRate());
         }

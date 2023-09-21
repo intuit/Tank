@@ -62,7 +62,7 @@ public class JobVmCalculator {
         int allocatedAgents = 0;
 
         for (RegionRequest regionRequest : regionRequests) {
-            double percentage = (Integer.parseInt(regionRequest.getUsers().trim()) / 100.0);
+            double percentage = (Integer.parseInt(regionRequest.getPercentage()) / 100.0);
             int agentsForRegion = (int) Math.floor(totalAgents * percentage);
             agentAllocation.put(regionRequest, agentsForRegion);
             allocatedAgents += agentsForRegion;

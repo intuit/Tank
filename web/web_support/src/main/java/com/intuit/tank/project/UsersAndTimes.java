@@ -25,6 +25,7 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,6 +60,10 @@ public class UsersAndTimes implements Serializable {
     private ProjectBean projectBean;
 
     private TankConfig tankConfig = new TankConfig();
+
+    private String targetRampRate;
+
+    private String userIncrement;
 
     @Inject
     private Messages messages;
@@ -380,10 +385,10 @@ public class UsersAndTimes implements Serializable {
      * @return the number of users increment for the job
      */
     public String getUserIncrement() {
-        if (projectBean.getJobConfiguration().getUserIntervalIncrement() > 0) {
-            return String.valueOf(projectBean.getJobConfiguration().getUserIntervalIncrement());
+        if(StringUtils.isEmpty(userIncrement)) {
+                return "1";
         }
-        return "1";
+        return userIncrement;
     }
 
     /**
@@ -396,6 +401,7 @@ public class UsersAndTimes implements Serializable {
         if (NumberUtils.isCreatable(startUsers)) {
             projectBean.getJobConfiguration().setUserIntervalIncrement(Integer.parseInt(startUsers));
         }
+        this.userIncrement = startUsers;
     }
       // TODO: need to update BaseJob to support both start and end rate
 //    /**
@@ -420,7 +426,10 @@ public class UsersAndTimes implements Serializable {
      * @return get nonlinear end rate for the job
      */
     public String getEndRate() {
-        return String.valueOf(projectBean.getJobConfiguration().getUserIntervalIncrement());
+        if(StringUtils.isEmpty(targetRampRate)) {
+            return "1";
+        }
+        return targetRampRate;
     }
 
     /**
@@ -435,6 +444,7 @@ public class UsersAndTimes implements Serializable {
             projectBean.getJobConfiguration().setUserIntervalIncrement(Integer.parseInt(endRate));
             LOG.info("Nonlinear - Setting end rate to " + endRate + " in UsersAndTimes");
         }
+        this.targetRampRate = endRate;
     }
 
     /**
