@@ -258,18 +258,13 @@ public class TestPlanStarter implements Runnable {
                     double expectedUsersToAdd = currentUsers - previousTotalUsers;
                     previousTotalUsers = currentUsers;
 
-                    // extract decimal from expectedUsersToAdd
-                    double fractionalUsersToAdd = expectedUsersToAdd - (int) expectedUsersToAdd;
-
-                    // add fractional users to accumulated users
-                    accumulatedUsers += fractionalUsersToAdd;
-
-                    // if accumulated users >= 1, add 1 additional user resulting from previous fractional users
-                    int usersFromAccumulatedUsers = (int) accumulatedUsers;
-                    if(usersFromAccumulatedUsers >= 1){
-                        createThread(httpClient, this.threadsStarted);
-                        additionalUsers++;
-                        accumulatedUsers -= 1;
+                    if(expectedUsersToAdd >= 1 && expectedUsersToAdd < 2) {
+                        accumulatedUsers += (expectedUsersToAdd - 1);
+                        if (accumulatedUsers >= 1) {
+                            createThread(httpClient, this.threadsStarted);
+                            additionalUsers++;
+                            accumulatedUsers -= 1;
+                        }
                     }
 
                     while (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
@@ -454,7 +449,7 @@ public class TestPlanStarter implements Runnable {
                                     + "Instance= " + agentRunData.getInstanceId() + "\n"
                                     + "Current Real Time(t)= " + currentRealTime + " seconds" + "\n"
                                     + "Current Agent Time(t)= " + currentAgentTime + " seconds" + "\n"
-                                    + "Initial Delay= " + agentRunData.getInitialDelay() + " seconds");
+                                    + "Initial Delay= " + agentRunData.getIntialDelay() + " seconds");
                             throw new InterruptedException();
                         }
                     }
