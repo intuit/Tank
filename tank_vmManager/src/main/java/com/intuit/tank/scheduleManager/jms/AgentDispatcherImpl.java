@@ -15,6 +15,7 @@ package com.intuit.tank.scheduleManager.jms;
 
 import javax.inject.Inject;
 
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -769,6 +769,15 @@ public class APITestHarness {
 
     private void configureNonlinearAgentRunData(){
         if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)){
+            HostInfo hostInfo = new HostInfo();
+            ThreadContext.put("jobId", AmazonUtil.getJobId());
+            ThreadContext.put("projectName", AmazonUtil.getProjectName());
+            ThreadContext.put("instanceId", AmazonUtil.getInstanceId());
+            ThreadContext.put("publicIp", hostInfo.getPublicIp());
+            ThreadContext.put("location", AmazonUtil.getZone());
+            ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
+            ThreadContext.put("loggingProfile", AmazonUtil.getLoggingProfile().getDisplayName());
+
             double baseDelay = (((double) agentRunData.getRampTimeMillis() / 1000) / (endRampRate));
             int order = agentRunData.getAgentInstanceNum();
             int numAgents = agentRunData.getTotalAgents();
@@ -787,10 +796,6 @@ public class APITestHarness {
             agentRunData.setTargetRampRate(targetRampRate);  // targetRampRate: endRampRate / # of agents while accounting for uneven division
             agentRunData.setBaseDelay(baseDelay); // baseDelay: total ramp time / endRampRate - used to ramp agents from 0 to 1 user/sec
             LOG.info("Nonlinear - configureNonlinearAgentRunData: \n" +
-                    "instance=" + agentRunData.getInstanceId() + "; \n" +
-                    "order=" + order + "; \n" +
-                    "numAgents=" + numAgents + "; \n" +
-                    "endRampRate=" + endRampRate + "; \n" +
                     "initialDelay=" + agentRunData.getInitialDelay() + "; \n" +
                     "rampRateDelay=" + agentRunData.getRampRateDelay() + "; \n" +
                     "targetRampRate=" + agentRunData.getTargetRampRate());

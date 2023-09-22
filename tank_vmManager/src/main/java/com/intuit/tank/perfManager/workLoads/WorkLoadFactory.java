@@ -18,6 +18,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -137,6 +138,7 @@ public class WorkLoadFactory {
                 .withUseEips(job.isUseEips())
                 .withVmInstanceType(job.getVmInstanceType())
                 .withnumUsersPerAgent(job.getNumUsersPerAgent())
+                .withNumAgents(job.getNumAgents())
                 .withSimulationTime(job.getSimulationTime()).withStatus(job.getStatus())
                 .withTerminationPolicy(job.getTerminationPolicy())
                 .withUserIntervalIncrement(job.getUserIntervalIncrement())

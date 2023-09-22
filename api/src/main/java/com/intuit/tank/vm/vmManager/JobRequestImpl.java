@@ -60,6 +60,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     private Set<Integer> dataFileIds = new HashSet<Integer>();
     private String vmInstanceType;
     private int numUsersPerAgent;
+    private int numAgents;
     private int startRate;
     private int endRate;
     private String scriptsXmlUrl;
@@ -200,6 +201,21 @@ public final class JobRequestImpl implements Serializable, JobRequest {
      */
     public void setNumUsersPerAgent(int numUsersPerAgent) {
         this.numUsersPerAgent = numUsersPerAgent;
+    }
+
+    /**
+     * @return the numAgents
+     */
+    public int getNumAgents() {
+        return numAgents;
+    }
+
+    /**
+     * @param numAgents
+     *            the numAgents to set
+     */
+    public void setNumAgents(int numAgents) {
+        this.numAgents = numAgents;
     }
 
     /**
@@ -379,6 +395,12 @@ public final class JobRequestImpl implements Serializable, JobRequest {
         @SuppressWarnings("unchecked")
         public GeneratorT withnumUsersPerAgent(int aValue) {
             instance.numUsersPerAgent = aValue;
+            return (GeneratorT) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT withNumAgents(int aValue) {
+            instance.numAgents = aValue;
             return (GeneratorT) this;
         }
 

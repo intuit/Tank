@@ -99,9 +99,9 @@ public class JobManager implements Serializable {
         IncreasingWorkLoad project = workLoadFactoryInstance.get().getModelRunner(id);
         JobRequest jobRequest = project.getJob();
         if(jobRequest.getIncrementStrategy().equals(IncrementStrategy.standard)){
-            jobRequest.getRegions().forEach(r -> LOG.info("Nonlinear - Region " + r.getRegion().name() + " has " + r.getUsers() + "% of users"));
+            jobRequest.getRegions().forEach(r -> LOG.info("Nonlinear - Region " + r.getRegion().name() + " has " + r.getPercentage() + "% of users"));
             LOG.info("Nonlinear - Target Ramp Rate: " + jobRequest.getUserIntervalIncrement() + " users per second" + "\n"
-                    + "Number of Agents: " + jobRequest.getNumUsersPerAgent() + " for job " + jobRequest.getId());
+                    + "Number of Agents: " + jobRequest.getNumAgents() + " for job " + jobRequest.getId());
         }
         jobInfoMapLocalCache.put(Integer.toString(id), new JobInfo(jobRequest));
         if (tankConfig.getStandalone()) {
@@ -393,14 +393,14 @@ public class JobManager implements Serializable {
                     }
                 }
             } else {
-                Map<RegionRequest, Integer> regionAllocation = JobVmCalculator.getMachinesForAgentByUserPercentage(request.getNumUsersPerAgent(), request.getRegions());
+                Map<RegionRequest, Integer> regionAllocation = JobVmCalculator.getMachinesForAgentByUserPercentage(request.getNumAgents(), request.getRegions());
                 for (RegionRequest r : request.getRegions()) {
                     int numAgents = regionAllocation.get(r);
                     if (numAgents > 0) {
                         userMap.put(r, numAgents);
                         numberOfMachines += numAgents;
                         LOG.info("Nonlinear - initializeUserMap - Region " + r.getRegion().name() + " has " + numAgents + " agents");
-                        LOG.info("Nonlinear - initializeUserMap - Region " + r.getRegion().name() + " has " + r.getUsers() + "% of users");
+                        LOG.info("Nonlinear - initializeUserMap - Region " + r.getRegion().name() + " has " + r.getPercentage() + "% of users");
                         LOG.info("Nonlinear - initializeUserMap - current userMap keys: " + userMap.keySet());
                         LOG.info("Nonlinear - initializeUserMap - current userMap values: " + userMap.values());
                     }

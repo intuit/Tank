@@ -67,7 +67,7 @@ public class IncreasingWorkLoad implements Runnable {
         // Calculate number of agents per region split for nonlinear workloads
         Map<RegionRequest, Integer> agentMapping = null;
         if (job.getIncrementStrategy().equals(IncrementStrategy.standard)){
-            agentMapping = JobVmCalculator.getMachinesForAgentByUserPercentage(job.getNumUsersPerAgent(), job.getRegions());
+            agentMapping = JobVmCalculator.getMachinesForAgentByUserPercentage(job.getNumAgents(), job.getRegions());
         }
 
         // start the non region dependent reporting resources if needed
