@@ -731,24 +731,6 @@ public class APITestHarness {
         sessionThreads.removeIf(t -> t.getState().equals(Thread.State.TERMINATED));
     }
 
-    public void checkCurrentActiveAgentThreads() {
-        for (ThreadGroup threadGroup : threadGroupArray) {
-            int agentCount = 0;
-            int activeCount = threadGroup.activeCount();
-            Thread[] threads = new Thread[activeCount];
-            threadGroup.enumerate(threads);
-            for (Thread t : threads) {
-                if(t.getName().contains("AGENT")){
-                    agentCount++;
-                    currentActiveAgentThreads = agentCount;
-                }
-            }
-            LOG.info(LogUtil.getLogMessage("Have " + agentCount
-                    + " active AGENT Threads in thread group "
-                    + threadGroup.getName()));
-        }
-    }
-
     private void configureNonlinearAgentRunData(){
         if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)){
             HostInfo hostInfo = new HostInfo();
