@@ -442,7 +442,6 @@ public class UsersAndTimes implements Serializable {
     public void setEndRate(String endRate) {
         if(this.getIncrementStrategy().equals(IncrementStrategy.standard)) {
             projectBean.getJobConfiguration().setUserIntervalIncrement(Integer.parseInt(endRate));
-            LOG.info("Nonlinear - Setting end rate to " + endRate + " in UsersAndTimes");
         }
         this.targetRampRate = endRate;
     }

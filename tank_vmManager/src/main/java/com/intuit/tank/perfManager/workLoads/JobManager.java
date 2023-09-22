@@ -358,17 +358,16 @@ public class JobManager implements Serializable {
         public int getUsers(AgentData agent) {
             int ret = 0;
             VMRegion region = agent.getRegion();
-            if(jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-                for (RegionRequest r : jobRequest.getRegions()) {
+
+            for (RegionRequest r : jobRequest.getRegions()) {
+                if(jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
                     if (Integer.parseInt(r.getUsers()) > 0 && region == r.getRegion()) {
                         int numUsersRemaining = userMap.get(r);
                         ret = Math.min(agent.getCapacity(), numUsersRemaining);
                         userMap.put(r, numUsersRemaining - ret);
                         break;
                     }
-                }
-            } else {
-                for (RegionRequest r : jobRequest.getRegions()) {
+                } else {
                     if (Integer.parseInt(r.getPercentage()) > 0 && region == r.getRegion()) {
                         int numAgentsRemaining = userMap.get(r);
                         userMap.put(r, numAgentsRemaining - 1);
@@ -380,17 +379,16 @@ public class JobManager implements Serializable {
         }
 
         private void initializeUserMap(JobRequest request) {
-            if(jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-                for (RegionRequest r : request.getRegions()) {
+
+            for (RegionRequest r : request.getRegions()) {
+                if(jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
                     int numUsers = NumberUtils.toInt(r.getUsers());
                     if (numUsers > 0) {
                         userMap.put(r, numUsers);
                         numberOfMachines += JobVmCalculator.getMachinesForAgent(numUsers, request.getNumUsersPerAgent());
                     }
-                }
-            } else {
-                Map<RegionRequest, Integer> regionAllocation = JobVmCalculator.getMachinesForAgentByUserPercentage(request.getNumAgents(), request.getRegions());
-                for (RegionRequest r : request.getRegions()) {
+                } else {
+                    Map<RegionRequest, Integer> regionAllocation = JobVmCalculator.getMachinesForAgentByUserPercentage(request.getNumAgents(), request.getRegions());
                     int numAgents = regionAllocation.get(r);
                     if (numAgents > 0) {
                         userMap.put(r, numAgents);

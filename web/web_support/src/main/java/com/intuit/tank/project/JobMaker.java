@@ -245,8 +245,6 @@ public class JobMaker implements Serializable {
     public void setNumAgents(int numAgents) {
         if (numAgents > 0) {
             projectBean.getJobConfiguration().setNumAgents(numAgents);
-            LOG.info("Nonlinear - setting number of agents to " + numAgents
-                    + " for workload" + projectBean.getJobConfiguration().getWorkload().getName());
         }
     }
 

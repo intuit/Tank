@@ -763,7 +763,6 @@ public class APITestHarness {
             ThreadContext.put("order", Integer.toString(agentRunData.getAgentInstanceNum()));
             ThreadContext.put("numTotalAgents", Integer.toString(agentRunData.getTotalAgents()));
             ThreadContext.put("numTotalUsers", Integer.toString(agentRunData.getNumUsers()));
-            ThreadContext.put("targetRampRate", Double.toString(agentRunData.getTargetRampRate()));
 
             double baseDelay = (((double) agentRunData.getRampTimeMillis() / 1000) / (endRampRate));
             int order = agentRunData.getAgentInstanceNum();
@@ -786,6 +785,7 @@ public class APITestHarness {
                     "initialDelay=" + agentRunData.getInitialDelay() + "; \n" +
                     "rampRateDelay=" + agentRunData.getRampRateDelay() + "; \n" +
                     "targetRampRate=" + agentRunData.getTargetRampRate());
+            ThreadContext.put("targetRampRate", Double.toString(agentRunData.getTargetRampRate()));
         }
     }
 
