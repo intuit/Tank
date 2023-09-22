@@ -161,19 +161,15 @@ public class JobManager implements Serializable {
         if (jobInfo != null) {
             synchronized (jobInfo) {
                 ret = new AgentTestStartData(jobInfo.scripts, jobInfo.getUsers(agentData), jobInfo.jobRequest.getRampTime());
-                LOG.info("Nonlinear - registerAgentForJob - updated userMap, current userMap keys: " + jobInfo.userMap.keySet());
-                LOG.info("Nonlinear - registerAgentForJob - updated userMap, current userMap values: " + jobInfo.userMap.values());
                 if(jobInfo.jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
                     ret.setAgentInstanceNum(jobInfo.agentData.size());
                 } else {
                     ret.setAgentInstanceNum(jobInfo.agentData.size() + 1); // non-linear: agent instance number is 1-based
                 }
-                LOG.info("Nonlinear - registerAgentForJob - Setting agent order to " + ret.getAgentInstanceNum() + " for instance " + agentData.getInstanceId());
                 ret.setDataFiles(getDataFileRequests(jobInfo));
                 ret.setJobId(agentData.getJobId());
                 ret.setSimulationTime(jobInfo.jobRequest.getSimulationTime());
                 ret.setStartUsers(jobInfo.jobRequest.getBaselineVirtualUsers());
-                LOG.info("Nonlinear - registerAgentForJob - Setting total agents in AgentTestStartData to " + jobInfo.numberOfMachines);
                 ret.setTotalAgents(jobInfo.numberOfMachines);
                 ret.setIncrementStrategy(jobInfo.jobRequest.getIncrementStrategy());
                 ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement()); // non-linear: target ramp rate
@@ -399,10 +395,6 @@ public class JobManager implements Serializable {
                     if (numAgents > 0) {
                         userMap.put(r, numAgents);
                         numberOfMachines += numAgents;
-                        LOG.info("Nonlinear - initializeUserMap - Region " + r.getRegion().name() + " has " + numAgents + " agents");
-                        LOG.info("Nonlinear - initializeUserMap - Region " + r.getRegion().name() + " has " + r.getPercentage() + "% of users");
-                        LOG.info("Nonlinear - initializeUserMap - current userMap keys: " + userMap.keySet());
-                        LOG.info("Nonlinear - initializeUserMap - current userMap values: " + userMap.values());
                     }
                 }
             }
