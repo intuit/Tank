@@ -189,9 +189,6 @@ public class APITestHarness {
                 controllerBase = (values.length > 1 ? values[1] : null);
             } else if (values[0].equalsIgnoreCase("-time")) {
                 agentRunData.setSimulationTimeMillis(Integer.parseInt(values[1]) * 60000);
-            } else {
-                usage();
-                return;
             }
         }
         if (instanceId == null) {
@@ -240,7 +237,7 @@ public class APITestHarness {
         System.out.println("-tp=<file name>:  The test plan file to execute");
         System.out.println("-ramp=<time>:  The time (min) to get to the ideal concurrent users specified");
         System.out.println("-time=<time>:  The time (min) of the simulation");
-        System.out.println("-users=<# of total users>:  The number of total users to run concurrently (linear)");
+        System.out.println("-users=<# of total users>:  The number of total users to run concurrently");
         System.out.println("-start=<# of users to start with>:  The number of users to run concurrently when test begins");
         System.out.println("-http=<controller_base_url>:  The url of the controller to get test info from");
         System.out.println("-jobId=<job_id>: The jobId of the controller to get test info from");
@@ -489,7 +486,7 @@ public class APITestHarness {
         if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
             doneSignal = new CountDownLatch(agentRunData.getNumUsers());
         } else {
-            semaphore = new Semaphore(0); // non-linear: number of events/users is unknown, so use a semaphore
+            semaphore = new Semaphore(0); // non-linear: number of threads is unknown, so use a semaphore
         }
         try {
             HDWorkload hdWorkload = TestPlanSingleton.getInstance().getTestPlans().get(0);
@@ -546,9 +543,6 @@ public class APITestHarness {
             }
             currentNumThreads = 0;
             if (agentRunData.getNumUsers() > 0 || agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)) {
-                if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)){
-                    LOG.info("Nonlinear - Running nonlinear workload model, getNumUsers()=" + agentRunData.getNumUsers());
-                }
                 for (TestPlanStarter starter : testPlans) {
                     if (isDebug()) {
                         starter.run();
@@ -574,15 +568,7 @@ public class APITestHarness {
                     doneSignal.await();
                 } else {
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Nonlinear - Ramp Complete...")));
-                    for(Thread t : sessionThreads){
-                        if(t.isAlive()){
-                            try {
-                                t.join();
-                            } catch (InterruptedException e) {
-                                LOG.info("Error waiting for thread to terminate: " + e);
-                            }
-                        }
-                    }
+                    semaphore.acquire(currentNumThreads);
                 }
             }
         } catch (InterruptedException e) {
@@ -642,7 +628,7 @@ public class APITestHarness {
                 LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining = " + currentUsers)));
             }
         } else {
-            semaphore.acquireUninterruptibly();
+            semaphore.release();
             if (isDebug() || semaphore.availablePermits() < 10) {
                 LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining = " + currentUsers)));
             }
@@ -670,9 +656,6 @@ public class APITestHarness {
         sessionThreads.add(thread);
         currentNumThreads++;
         currentUsers++;
-        if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)){
-            semaphore.release();
-        }
     }
 
     public boolean isDebug() {
@@ -777,6 +760,11 @@ public class APITestHarness {
             ThreadContext.put("location", AmazonUtil.getZone());
             ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
             ThreadContext.put("loggingProfile", AmazonUtil.getLoggingProfile().getDisplayName());
+            ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
+            ThreadContext.put("order", Integer.toString(agentRunData.getAgentInstanceNum()));
+            ThreadContext.put("numTotalAgents", Integer.toString(agentRunData.getTotalAgents()));
+            ThreadContext.put("numTotalUsers", Integer.toString(agentRunData.getNumUsers()));
+            ThreadContext.put("targetRampRate", Double.toString(agentRunData.getTargetRampRate()));
 
             double baseDelay = (((double) agentRunData.getRampTimeMillis() / 1000) / (endRampRate));
             int order = agentRunData.getAgentInstanceNum();
@@ -800,10 +788,6 @@ public class APITestHarness {
                     "rampRateDelay=" + agentRunData.getRampRateDelay() + "; \n" +
                     "targetRampRate=" + agentRunData.getTargetRampRate());
         }
-    }
-
-    public int getCurrentActiveAgentThreads() {
-        return currentActiveAgentThreads;
     }
 
     /**

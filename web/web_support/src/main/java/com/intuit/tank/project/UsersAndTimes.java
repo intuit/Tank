@@ -386,7 +386,7 @@ public class UsersAndTimes implements Serializable {
      */
     public String getUserIncrement() {
         if(StringUtils.isEmpty(userIncrement)) {
-                return "1";
+            return "1";
         }
         return userIncrement;
     }

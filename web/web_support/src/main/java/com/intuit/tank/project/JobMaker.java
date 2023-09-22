@@ -149,9 +149,14 @@ public class JobMaker implements Serializable {
      * @return
      */
     public String getName() {
-        return !StringUtils.isEmpty(name) ? name : projectBean.getName() + "_" + usersAndTimes.getTotalUsers()
-                + "_users_"
-                + preferences.getTimestampFormat().format(new Date());
+        if(projectBean.getJobConfiguration().getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+            return !StringUtils.isEmpty(name) ? name : projectBean.getName() + "_" + usersAndTimes.getTotalUsers()
+                    + "_users_"
+                    + preferences.getTimestampFormat().format(new Date());
+        } else {
+            return !StringUtils.isEmpty(name) ? name : projectBean.getName() + "_nonlinear_"
+                    + preferences.getTimestampFormat().format(new Date());
+        }
     }
 
     /**

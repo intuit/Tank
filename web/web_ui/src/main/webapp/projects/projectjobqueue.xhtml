@@ -124,14 +124,14 @@
       </p:column>
 
       <p:column id="totalUsersColumn"
-        style="width:#{projectJobQueueManager.tablePrefs.getSize('totalUsersColumn')}px;text-align:right;"
-        headerText="Total Users" styleClass="ellipsis min-column-size"
-        rendered="#{projectJobQueueManager.tablePrefs.isVisible('totalUsersColumn')}">
-        <p:commandLink ajax="true" id="lnkUserDetailsTotal"
-          action="#{projectJobQueueManager.setCurrentJobInstanceForUser(node)}" oncomplete="PF('userDetailsPopup').show();"
-          update=":userDetailsForm:userDetailsContent">
-          <h:outputText value="#{node.totalUsers}" />
+                style="width:#{jobQueueManager.tablePrefs.getSize('totalUsersColumn')}px; text-align:right;"
+                headerText="Target Users" styleClass="ellipsis min-column-size"
+                rendered="#{jobQueueManager.tablePrefs.isVisible('totalUsersColumn')}">
+        <p:commandLink ajax="true" id="lnkUserDetails" action="#{jobQueueManager.setCurrentJobInstanceForUser(node)}"
+                       oncomplete="PF('userDetailsPopup').show();" update=":userDetailsPopupID">
+          <h:outputText value="#{node.totalUsers}" rendered="#{node.incrementStrategy == 'Linear'}"/>
         </p:commandLink>
+        <h:outputText value="#{node.targetRampRate} users/sec" rendered="#{node.incrementStrategy == 'Nonlinear'}"/>
       </p:column>
       
       <p:column id="tpsColumn" headerText="TPS" styleClass="ellipsis min-column-size"
