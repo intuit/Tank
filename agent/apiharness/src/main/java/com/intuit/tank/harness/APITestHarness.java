@@ -59,7 +59,6 @@ import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
 import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
 
-import javax.swing.*;
 
 public class APITestHarness {
     private static Logger LOG = LogManager.getLogger(APITestHarness.class);
