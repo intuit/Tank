@@ -67,6 +67,7 @@ public class APIMonitor implements Runnable {
                 }
                 if (!isLocal) client.setInstanceStatus(newStatus.getInstanceId(), newStatus);
                 APITestHarness.getInstance().checkAgentThreads();
+                APITestHarness.getInstance().checkCurrentActiveAgentThreads();
                 Thread.sleep(reportInterval);
             } catch (Exception t) {
                 LOG.error(LogUtil.getLogMessage("Unable to send status metrics | " + t.getMessage()), t);

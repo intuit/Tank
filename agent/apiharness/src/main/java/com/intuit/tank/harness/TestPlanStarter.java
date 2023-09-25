@@ -240,19 +240,19 @@ public class TestPlanStarter implements Runnable {
                 // start rest of users sleeping between each interval
                 while (!done) {
 
-                    // add additional fractional users to the total users during ramp time
-                    double currentUsers = calculateTotalUsers(agentTimer);
-                    double expectedUsersToAdd = currentUsers - previousTotalUsers;
-                    previousTotalUsers = currentUsers;
-
-                    if(expectedUsersToAdd >= 1 && expectedUsersToAdd < 2) {
-                        accumulatedUsers += (expectedUsersToAdd - 1);
-                        if (accumulatedUsers >= 1) {
-                            createThread(httpClient, this.threadsStarted);
-                            additionalUsers++;
-                            accumulatedUsers -= 1;
-                        }
-                    }
+//                    // add additional fractional users to the total users during ramp time
+//                    double currentUsers = calculateTotalUsers(agentTimer);
+//                    double expectedUsersToAdd = currentUsers - previousTotalUsers;
+//                    previousTotalUsers = currentUsers;
+//
+//                    if(expectedUsersToAdd >= 1 && expectedUsersToAdd < 2) {
+//                        accumulatedUsers += (expectedUsersToAdd - 1);
+//                        if (accumulatedUsers >= 1) {
+//                            createThread(httpClient, this.threadsStarted);
+//                            additionalUsers++;
+//                            accumulatedUsers -= 1;
+//                        }
+//                    }
 
                     while (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
                             || APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
