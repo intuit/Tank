@@ -335,7 +335,8 @@ public class WorkloadScripts implements Serializable {
 
     public void deleteScriptGroupStep(ScriptGroupStep sgs) {
         scriptGroup.getScriptGroupSteps().remove(sgs);
-        scriptSelectionModel.getSource().add(0, sgs.getScript());
+        scriptSelectionModel.getSource().add(sgs.getScript());
+        initScriptSelectionModel();
     }
 
     public List<ScriptGroupStep> getSteps() {
