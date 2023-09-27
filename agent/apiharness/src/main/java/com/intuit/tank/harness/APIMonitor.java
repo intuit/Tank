@@ -65,12 +65,6 @@ public class APIMonitor implements Runnable {
                     newStatus.setTotalTps(tpsInfo.getTotalTps());
                     sendTps(tpsInfo);
                 }
-                LOG.info(LogUtil.getLogMessage("APIMonitor - Sending status to controller: " + newStatus));
-                LOG.info(LogUtil.getLogMessage("APIMonitor - Validation Kills: " + newStatus.getValidationFailures().getValidationKills()));
-                LOG.info(LogUtil.getLogMessage("APIMonitor - Validation Aborts: " + newStatus.getValidationFailures().getValidationAborts()));
-                LOG.info(LogUtil.getLogMessage("APIMonitor - Validation Gotos: " + newStatus.getValidationFailures().getValidationGotos()));
-                LOG.info(LogUtil.getLogMessage("APIMonitor - Validation Skips: " + newStatus.getValidationFailures().getValidationSkips()));
-
                 if (!isLocal) client.setInstanceStatus(newStatus.getInstanceId(), newStatus);
                 APITestHarness.getInstance().checkAgentThreads();
                 Thread.sleep(reportInterval);
