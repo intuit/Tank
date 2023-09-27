@@ -412,6 +412,7 @@ public class APITestHarness {
      * 
      */
     public synchronized void addKill() {
+        LOG.info("APITestHarness - calling addKill() " + validationFailures.getValidationKills());
         validationFailures.addKill();
     }
 
@@ -613,6 +614,13 @@ public class APITestHarness {
             ramp = (int) (agentRunData.getRampTimeMillis() - (agentRunData.getRampTimeMillis() * currentNumThreads) /
                     (agentRunData.getNumUsers() - agentRunData.getNumStartUsers()));
         }
+
+        LOG.info("APITestHarness getStatus() - validationFailures = " + validationFailures.toString());
+        LOG.info("APITestHarness getStatus() - Validation Kills = " + validationFailures.getValidationKills());
+        LOG.info("APITestHarness getStatus() - Validation Aborts = " + validationFailures.getValidationAborts());
+        LOG.info("APITestHarness getStatus() - Validation Gotos = " + validationFailures.getValidationGotos());
+        LOG.info("APITestHarness getStatus() - Validation Skips = " + validationFailures.getValidationSkips());
+
         return new WatsAgentStatusResponse(System.currentTimeMillis() - startTime,
                 validationFailures.getValidationKills(),
                 validationFailures.getValidationAborts(),
