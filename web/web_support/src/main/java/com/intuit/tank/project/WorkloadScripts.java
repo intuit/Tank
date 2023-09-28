@@ -109,7 +109,7 @@ public class WorkloadScripts implements Serializable {
 
     public void addToTarget() {
         if(!selectedAvailableScripts.isEmpty()) {
-            scriptSelectionModel.getTarget().addAll(0, selectedAvailableScripts);
+            scriptSelectionModel.getTarget().addAll(selectedAvailableScripts);
             scriptSelectionModel.getSource().removeAll(selectedAvailableScripts);
         }
     }
@@ -335,6 +335,8 @@ public class WorkloadScripts implements Serializable {
 
     public void deleteScriptGroupStep(ScriptGroupStep sgs) {
         scriptGroup.getScriptGroupSteps().remove(sgs);
+        scriptSelectionModel.getSource().add(sgs.getScript());
+        initScriptSelectionModel();
     }
 
     public List<ScriptGroupStep> getSteps() {
