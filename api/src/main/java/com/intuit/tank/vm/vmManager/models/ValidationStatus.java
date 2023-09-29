@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -49,21 +50,27 @@ public class ValidationStatus implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @XmlElement(name = "kills", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
+    @JsonProperty("validationKills")
     private int kills;
 
     @XmlElement(name = "aborts", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
+    @JsonProperty("validationAborts")
     private int aborts;
 
     @XmlElement(name = "gotos", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
+    @JsonProperty("validationGotos")
     private int gotos;
 
     @XmlElement(name = "skips", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
+    @JsonProperty("validationSkips")
     private int skips;
 
     @XmlElement(name = "skipGroups", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
+    @JsonProperty("validationSkipGroups")
     private int skipGroups;
 
     @XmlElement(name = "restarts", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
+    @JsonProperty("validationRestarts")
     private int restarts;
 
     public ValidationStatus() {
