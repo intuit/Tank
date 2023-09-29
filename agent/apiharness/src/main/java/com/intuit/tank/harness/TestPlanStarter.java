@@ -23,6 +23,7 @@ import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.message.ObjectMessage;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
@@ -57,6 +58,7 @@ public class TestPlanStarter implements Runnable {
     private final ThreadGroup threadGroup;
     private final AgentRunData agentRunData;
     private int threadsStarted = 0;
+    private int sessionStarts = 0;
     private final long rampDelay;
 
     private boolean done = false;
@@ -89,6 +91,15 @@ public class TestPlanStarter implements Runnable {
     }
 
     public void run() {
+        HostInfo hostInfo = new HostInfo();
+        ThreadContext.put("jobId", AmazonUtil.getJobId());
+        ThreadContext.put("projectName", AmazonUtil.getProjectName());
+        ThreadContext.put("instanceId", AmazonUtil.getInstanceId());
+        ThreadContext.put("publicIp", hostInfo.getPublicIp());
+        ThreadContext.put("location", AmazonUtil.getZone());
+        ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
+        ThreadContext.put("loggingProfile", AmazonUtil.getLoggingProfile().getDisplayName());
+
         try {
             // start initial users
             int numInitialUsers = agentRunData.getNumStartUsers();
@@ -99,6 +110,8 @@ public class TestPlanStarter implements Runnable {
                     createThread(httpClient, threadsStarted);
                 }
             }
+
+            LOG.info("TestPlanStarter - ThreadContext before logging: " + ThreadContext.getContext());
 
             // start rest of users sleeping between each interval
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting ramp of additional " + (numThreads - threadsStarted)
@@ -148,6 +161,7 @@ public class TestPlanStarter implements Runnable {
 
                 if (threadsStarted < numThreads || activeCount < numThreads) {
                     createThread(httpClient, this.threadsStarted);
+                    this.sessionStarts++;
                 }
 
                 if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
@@ -174,6 +188,13 @@ public class TestPlanStarter implements Runnable {
                             .timestamp(timestamp)
                             .dimensions(testPlan, instanceId, jobId)
                             .build());
+                    datumList.add(MetricDatum.builder()
+                            .metricName("sessionStarts")
+                            .unit(StandardUnit.COUNT)
+                            .value((double) this.sessionStarts)
+                            .timestamp(timestamp)
+                            .dimensions(testPlan, instanceId, jobId)
+                            .build());
                     PutMetricDataRequest request = PutMetricDataRequest.builder()
                             .namespace(namespace)
                             .metricData(datumList)
@@ -181,6 +202,7 @@ public class TestPlanStarter implements Runnable {
 
                     cloudWatchClient.putMetricData(request);
                     send = DateUtils.addSeconds(new Date(), interval);
+                    this.sessionStarts = 0; // reset session starts for next interval
                 }
             }
             done = true;
