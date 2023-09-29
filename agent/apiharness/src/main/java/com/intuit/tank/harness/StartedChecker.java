@@ -34,7 +34,7 @@ public class StartedChecker implements Runnable {
         ThreadContext.put("loggingProfile", AmazonUtil.getLoggingProfile().getDisplayName());
 
         try {
-            Thread.sleep(SLEEP_TIME);
+            Thread.sleep(100); // instantly exit, checking thread context
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

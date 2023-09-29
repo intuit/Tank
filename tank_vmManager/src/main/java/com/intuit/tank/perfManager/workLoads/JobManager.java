@@ -187,7 +187,7 @@ public class JobManager implements Serializable {
                 info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)));
         LOG.info("Sleeping for 30 seconds before starting test, to give time for last agent to process AgentTestStartData.");
         try {
-            Thread.sleep(600000);// Testing StarterChecker Logs
+            Thread.sleep(RETRY_SLEEP);// 30 seconds
         } catch (InterruptedException ignored) { }
         info.agentData.parallelStream()
                 .map(agentData -> agentData.getInstanceUrl() + AgentCommand.start.getPath())
