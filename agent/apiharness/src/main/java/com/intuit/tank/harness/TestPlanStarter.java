@@ -14,6 +14,7 @@ package com.intuit.tank.harness;
  */
 
 import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.logging.LoggingConfig;
 import com.intuit.tank.runner.TestPlanRunner;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
@@ -91,16 +92,8 @@ public class TestPlanStarter implements Runnable {
     }
 
     public void run() {
-        HostInfo hostInfo = new HostInfo();
-        ThreadContext.put("jobId", AmazonUtil.getJobId());
-        ThreadContext.put("projectName", AmazonUtil.getProjectName());
-        ThreadContext.put("instanceId", AmazonUtil.getInstanceId());
-        ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("location", AmazonUtil.getZone());
-        ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
-        ThreadContext.put("loggingProfile", AmazonUtil.getLoggingProfile().getDisplayName());
-
         try {
+            LoggingConfig.setupThreadContext();
             // start initial users
             int numInitialUsers = agentRunData.getNumStartUsers();
             if (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
@@ -110,8 +103,6 @@ public class TestPlanStarter implements Runnable {
                     createThread(httpClient, threadsStarted);
                 }
             }
-
-            LOG.info("TestPlanStarter - ThreadContext before logging: " + ThreadContext.getContext());
 
             // start rest of users sleeping between each interval
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting ramp of additional " + (numThreads - threadsStarted)
@@ -209,6 +200,8 @@ public class TestPlanStarter implements Runnable {
         } catch (final Throwable t) {
             LOG.error(LogUtil.getLogMessage("TestPlanStarter Unknown Error:"), t);
             throwUnchecked(t);
+        } finally {
+            LoggingConfig.clearThreadContext();
         }
     }
 

@@ -29,13 +29,13 @@ import java.util.concurrent.CountDownLatch;
 
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.http.TankHttpClient;
+import com.intuit.tank.logging.LoggingConfig;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -137,24 +137,13 @@ public class APITestHarness {
             return;
         }
 
-        HostInfo hostInfo = new HostInfo();
-        ThreadContext.put("jobId", AmazonUtil.getJobId());
-        ThreadContext.put("projectName", AmazonUtil.getProjectName());
-        ThreadContext.put("instanceId", AmazonUtil.getInstanceId());
-        ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("location", AmazonUtil.getZone());
-        ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
-        ThreadContext.put("loggingProfile", AmazonUtil.getLoggingProfile().getDisplayName());
-
-        LOG.info("ThreadContext after setting values: " + ThreadContext.getContext());
-
         getInstance().initializeFromArgs(args);
     }
 
     private void initializeFromArgs(String[] args) {
+        LoggingConfig.setupThreadContext();
         String controllerBase = null;
         for (String argument : args) {
-            LOG.info("initializeFromArgs - ThreadContext before logging: " + ThreadContext.getContext());
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "checking arg " + argument)));
 
             String[] values = argument.split("=");
@@ -218,6 +207,7 @@ public class APITestHarness {
             TestPlanSingleton.getInstance().setTestPlans(testPlans);
             runConcurrentTestPlans();
         }
+        LoggingConfig.clearThreadContext();
     }
 
     private String getLocalInstanceId() {
@@ -249,6 +239,7 @@ public class APITestHarness {
     }
 
     private void startHttp(String baseUrl) {
+        LoggingConfig.setupThreadContext();
         isLocal = false;
         HostInfo hostInfo = new HostInfo();
         CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
@@ -274,7 +265,6 @@ public class APITestHarness {
                     if (!publicIp.equals(HostInfo.UNKNOWN)) {
                         instanceUrl = "http://" + publicIp + ":"
                                 + tankConfig.getAgentConfig().getAgentPort();
-                        LOG.info("startHttp - ThreadContext before logging: " + ThreadContext.getContext());
                         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "MyInstanceURL from hostinfo  = " + instanceUrl)));
                     } else {
                         instanceUrl = "http://localhost:" + tankConfig.getAgentConfig().getAgentPort();
@@ -328,6 +318,8 @@ public class APITestHarness {
         } catch (Exception e) {
             LOG.error("Error communicating with controller: " + e, e);
             System.exit(0);
+        } finally {
+            LoggingConfig.clearThreadContext();
         }
     }
 
@@ -337,8 +329,8 @@ public class APITestHarness {
      * 
      */
     public void writeXmlToFile(String scriptUrl) {
+        LoggingConfig.setupThreadContext();
         File file = new File("script.xml");
-        LOG.info("writeXmlToFile - ThreadContext before logging: " + ThreadContext.getContext());
         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Writing xml to " + file.getAbsolutePath())));
         int retryCount = 0;
         while (true) {
@@ -367,9 +359,11 @@ public class APITestHarness {
                 }
             }
         }
+        LoggingConfig.clearThreadContext();
     }
 
     private void saveDataFile(DataFileRequest dataFileRequest) {
+        LoggingConfig.setupThreadContext();
         String dataFileDirPath = new TankConfig().getAgentConfig().getAgentDataFileStorageDir();
         File dataFileDir = new File(dataFileDirPath);
         if (!dataFileDir.exists()) {
@@ -410,7 +404,7 @@ public class APITestHarness {
                 }
             }
         }
-
+        LoggingConfig.clearThreadContext();
     }
 
     /**
@@ -464,6 +458,7 @@ public class APITestHarness {
      * 
      */
     public void runConcurrentTestPlans() {
+        LoggingConfig.setupThreadContext();
         if (started) {
             LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Agent already started. Ignoring start command")));
             return;
@@ -473,7 +468,6 @@ public class APITestHarness {
                 "; agentRunData.getNumUsers()=" + agentRunData.getNumUsers() +
                 "; NUM_START_THREADS=" + agentRunData.getNumStartUsers() +
                 "; simulationTime=" + agentRunData.getSimulationTimeMillis();
-        LOG.info("runConcurrentTestPlans - ThreadContext before logging: " + ThreadContext.getContext());
         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "starting test with " + info)));
         started = true;
 
@@ -569,6 +563,7 @@ public class APITestHarness {
                 sendBatchToDB(false);
             }
         }
+        LoggingConfig.clearThreadContext();
         flowControllerTemplate.endTest();
     }
 
@@ -581,6 +576,7 @@ public class APITestHarness {
      * @throws IOException
      */
     public CloudVmStatus getInitialStatus() {
+        LoggingConfig.setupThreadContext();
         CloudVmStatus status = null;
         try {
             VMRegion region = VMRegion.STANDALONE;
@@ -597,20 +593,23 @@ public class APITestHarness {
             status = new CloudVmStatus(instanceId, "unknown", "wats-dev", JobStatus.Unknown,
                     VMImageType.AGENT, VMRegion.US_EAST, VMStatus.running,
                     new ValidationStatus(), 0, 0, new Date(), null);
+        } finally {
+            LoggingConfig.clearThreadContext();
         }
         status.setUserDetails(userTracker.getSnapshot());
         return status;
     }
 
     public synchronized void threadComplete() {
+        LoggingConfig.setupThreadContext();
         currentUsers--;
         doneSignal.countDown();
         long count = doneSignal.getCount();
         // numCompletedThreads = (int) (agentRunData.getNumUsers() - count);
         if (isDebug() || count < 10) {
-            LOG.info("threadComplete - ThreadContext before logging: " + ThreadContext.getContext());
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining = " + currentUsers)));
         }
+        LoggingConfig.clearThreadContext();
     }
 
     public WatsAgentStatusResponse getStatus() {
@@ -655,7 +654,9 @@ public class APITestHarness {
         if (agentRunData.getSimulationTimeMillis() > 0) {
             if (System.currentTimeMillis() > getSimulationEndTimeMillis()) {
                 if (!loggedSimTime) {
+                    LoggingConfig.setupThreadContext();
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Simulation time met")));
+                    LoggingConfig.clearThreadContext();
                     loggedSimTime = true;
                 }
                 return true;
@@ -676,9 +677,9 @@ public class APITestHarness {
      * check the agent threads if simulation time has been met.
      */
     public void checkAgentThreads() {
+        LoggingConfig.setupThreadContext();
         for (ThreadGroup threadGroup : threadGroupArray) {
             int activeCount = threadGroup.activeCount();
-            LOG.info("checkAgentThreads - ThreadContext before logging: " + ThreadContext.getContext());
             LOG.info(LogUtil.getLogMessage("Have " + threadGroup.activeCount()
                     + " active Threads in thread group "
                     + threadGroup.getName()));
@@ -695,6 +696,7 @@ public class APITestHarness {
                 }
             }
         }
+        LoggingConfig.clearThreadContext();
         // Clean up TestPlanRunner Threads that are Thread.State.TERMINATED
         sessionThreads.removeIf(t -> t.getState().equals(Thread.State.TERMINATED));
     }
@@ -703,6 +705,7 @@ public class APITestHarness {
      * @param newCommand
      */
     public void setCommand(AgentCommand newCommand) {
+        LoggingConfig.setupThreadContext();
         if (cmd != AgentCommand.stop) {
             cmd = newCommand;
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Got new Command: " + newCommand + " with " + currentNumThreads
@@ -717,6 +720,7 @@ public class APITestHarness {
                 }
             }
         }
+        LoggingConfig.clearThreadContext();
     }
 
     /**
