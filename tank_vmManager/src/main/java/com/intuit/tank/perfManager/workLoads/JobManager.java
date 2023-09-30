@@ -33,6 +33,7 @@ import javax.inject.Named;
 
 import com.amazonaws.xray.contexts.SegmentContextExecutors;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.intuit.tank.logging.LoggingConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpStatus;
@@ -100,6 +101,7 @@ public class JobManager implements Serializable {
      * @throws Exception
      */
     public synchronized void startJob(int id) {
+        LoggingConfig.setupThreadContext();
         IncreasingWorkLoad project = workLoadFactoryInstance.get().getModelRunner(id);
         JobRequest jobRequest = project.getJob();
         jobInfoMapLocalCache.put(Integer.toString(id), new JobInfo(jobRequest));
@@ -129,6 +131,7 @@ public class JobManager implements Serializable {
             }
         } else {
             SegmentContextExecutors.newSegmentContextExecutor().execute(project);
+            LoggingConfig.clearThreadContext();
         }
     }
 
@@ -153,6 +156,7 @@ public class JobManager implements Serializable {
     }
 
     public AgentTestStartData registerAgentForJob(AgentData agentData) {
+        LoggingConfig.setupThreadContext();
         LOG.info("Received Agent Ready call from " + agentData.getInstanceId() + " with Agent Data: " + agentData);
         AgentTestStartData ret = null;
         JobInfo jobInfo = jobInfoMapLocalCache.get(agentData.getJobId());
@@ -178,6 +182,7 @@ public class JobManager implements Serializable {
                 }
             }
         }
+        LoggingConfig.clearThreadContext();
         return ret;
     }
 

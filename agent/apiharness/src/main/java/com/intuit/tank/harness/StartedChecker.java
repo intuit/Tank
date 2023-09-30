@@ -25,7 +25,7 @@ public class StartedChecker implements Runnable {
     @Override
     public void run() {
         try {
-            Thread.sleep(100); // instantly exit, checking thread context
+            Thread.sleep(SLEEP_TIME);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
