@@ -1,19 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
     <Appenders>
-        <RollingFile name="tank" filename="logs/tank.log" filePattern="logs/tank-%i.log">
-            <JsonLayout compact="true" eventEol="true" complete="false" objectMessageAsJsonObject="true" >
-                <KeyValuePair key="timestamp" value="$${date:yyyy-MM-dd'T'HH:mm:ss.SSSZ}"/>
-                <KeyValuePair key="jobId" value="$${ctx:jobId:-unknown}"/>
-                <KeyValuePair key="projectName" value="$${ctx:projectName:-unknown}"/>
-                <KeyValuePair key="instanceId" value="$${ctx:instanceId:-unknown}"/>
-                <KeyValuePair key="publicIp" value="$${ctx:publicIp:-unknown}"/>
-                <KeyValuePair key="location" value="$${ctx:location:-unknown}"/>
-                <KeyValuePair key="httpHost" value="$${ctx:httpHost:-unknown}"/>
-                <KeyValuePair key="loggingProfile" value="$${ctx:loggingProfile:-unknown}"/>
-                <KeyValuePair key="env" value="$${ctx:env:-unknown}"/>
-            </JsonLayout>
-
+        <RollingFile name="tank-api" filename="logs/tank-api.log" filePattern="logs/tank-api-%i.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd  HH:mm:ss,SSS z} %5p %c{1}:%L - %m%n" />
             <Policies>
                 <SizeBasedTriggeringPolicy size="100 MB" />
             </Policies>
