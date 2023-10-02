@@ -15,6 +15,7 @@ package com.intuit.tank.vmManager.environment;
 
 import java.util.List;
 
+import com.intuit.tank.logging.LoggingConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,6 +49,7 @@ public class JobRequest implements Runnable {
     @Override
     public void run() {
         try {
+            LoggingConfig.setupThreadContext();
             VMInstanceRequest instanceRequest = this.populateAmazonRequest();
             int machines = JobVmCalculator.getMachinesForAgent(request.getNumberOfUsers(),
                     request.getNumUsersPerAgent());
@@ -60,6 +62,8 @@ public class JobRequest implements Runnable {
             persistInstances(instanceRequest, response);
         } catch (Exception ex) {
             logger.error("Error : " + ex, ex);
+        } finally {
+            LoggingConfig.clearThreadContext();
         }
     }
 

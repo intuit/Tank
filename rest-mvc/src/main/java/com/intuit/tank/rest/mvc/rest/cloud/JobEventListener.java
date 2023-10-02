@@ -15,6 +15,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.intuit.tank.logging.LoggingConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,9 +34,11 @@ public class JobEventListener implements Serializable {
     private Instance<JobEventSender> controllerSource;
 
     public void observerJobKillRequest(@Observes JobEvent request) {
+        LoggingConfig.setupThreadContext();
         LOG.info("Got Job Event: " + request);
         if (request.getEvent() == JobLifecycleEvent.JOB_ABORTED) {
             controllerSource.get().killJob(request.getJobId(), false);
         }
+        LoggingConfig.clearThreadContext();
     }
 }

@@ -16,6 +16,7 @@ package com.intuit.tank.perfManager.workLoads;
 import java.util.ArrayList;
 
 import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.logging.LoggingConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -59,6 +60,7 @@ public class IncreasingWorkLoad implements Runnable {
 
     private void askForAgents(JobInstanceAgentModel model) {
 
+        LoggingConfig.setupThreadContext();
         LOG.debug("asking for agents...");
 
         // start the non region dependent reporting resources if needed
@@ -83,6 +85,7 @@ public class IncreasingWorkLoad implements Runnable {
         if (totalUsers <= 0) {
             LOG.warn("Attempt to start a job with no users.");
         }
+        LoggingConfig.clearThreadContext();
     }
 
 }

@@ -15,6 +15,7 @@ package com.intuit.tank.harness;
 
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.logging.LoggingConfig;
+import com.intuit.tank.reporting.api.TPSInfoContainer;
 import com.intuit.tank.runner.TestPlanRunner;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
@@ -24,7 +25,6 @@ import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
-import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.message.ObjectMessage;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
@@ -60,6 +60,7 @@ public class TestPlanStarter implements Runnable {
     private final AgentRunData agentRunData;
     private int threadsStarted = 0;
     private int sessionStarts = 0;
+    private int totalTps = 0;
     private final long rampDelay;
 
     private boolean done = false;
@@ -155,6 +156,9 @@ public class TestPlanStarter implements Runnable {
                     this.sessionStarts++;
                 }
 
+                TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPSMonitor().getTPSInfo();
+                this.totalTps = (tpsInfo != null) ? tpsInfo.getTotalTps() : 0;
+
                 if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
                     Instant timestamp = new Date().toInstant();
                     List<MetricDatum> datumList = new ArrayList<>();
@@ -183,6 +187,13 @@ public class TestPlanStarter implements Runnable {
                             .metricName("sessionStarts")
                             .unit(StandardUnit.COUNT)
                             .value((double) this.sessionStarts)
+                            .timestamp(timestamp)
+                            .dimensions(testPlan, instanceId, jobId)
+                            .build());
+                    datumList.add(MetricDatum.builder()
+                            .metricName("totalTps")
+                            .unit(StandardUnit.COUNT)
+                            .value((double) this.totalTps)
                             .timestamp(timestamp)
                             .dimensions(testPlan, instanceId, jobId)
                             .build());

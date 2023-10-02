@@ -7,11 +7,37 @@
 				<SizeBasedTriggeringPolicy size="100 MB" />
 			</Policies>
         </RollingFile>
+        <RollingFile name="tank-json" filename="logs/tank.log" filePattern="logs/tank-%i.log">
+            <JsonLayout compact="true" eventEol="true" complete="false" objectMessageAsJsonObject="true" >
+                <KeyValuePair key="timestamp" value="$${date:yyyy-MM-dd'T'HH:mm:ss.SSSZ}"/>
+                <KeyValuePair key="jobId" value="$${ctx:jobId:-unknown}"/>
+                <KeyValuePair key="projectName" value="$${ctx:projectName:-unknown}"/>
+                <KeyValuePair key="instanceId" value="$${ctx:instanceId:-unknown}"/>
+                <KeyValuePair key="publicIp" value="$${ctx:publicIp:-unknown}"/>
+                <KeyValuePair key="location" value="$${ctx:location:-unknown}"/>
+                <KeyValuePair key="httpHost" value="$${ctx:httpHost:-unknown}"/>
+                <KeyValuePair key="loggingProfile" value="$${ctx:loggingProfile:-unknown}"/>
+                <KeyValuePair key="env" value="$${ctx:env:-unknown}"/>
+            </JsonLayout>
+
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB" />
+            </Policies>
+        </RollingFile>
     </Appenders>
     <Loggers>
 		<Logger name="com.intuit" level="info" additivity="false">
 			<appender-ref ref="tank" level="info"/>
 		</Logger>
+        <Logger name="com.intuit.tank.rest.mvc.rest" level="info" additivity="false">
+            <AppenderRef ref="tank-json"/>
+        </Logger>
+        <Logger name="com.intuit.tank.perfManager" level="info" additivity="false">
+            <AppenderRef ref="tank-json"/>
+        </Logger>
+        <Logger name="com.intuit.tank.vmManager" level="info" additivity="false">
+            <AppenderRef ref="tank-json"/>
+        </Logger>
 		<Logger name="com.singularity" level="error" additivity="false">
 			<appender-ref ref="tank" level="error"/>
 		</Logger>
