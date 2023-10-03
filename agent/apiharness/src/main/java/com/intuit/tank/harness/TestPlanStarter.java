@@ -156,12 +156,12 @@ public class TestPlanStarter implements Runnable {
                     this.sessionStarts++;
                 }
 
-                TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPSMonitor().getTPSInfo();
-                this.totalTps = (tpsInfo != null) ? tpsInfo.getTotalTps() : 0;
 
                 if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
                     Instant timestamp = new Date().toInstant();
                     List<MetricDatum> datumList = new ArrayList<>();
+                    TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPSMonitor().getTPSInfo();
+                    this.totalTps = (tpsInfo != null) ? tpsInfo.getTotalTps() : 0;
                     datumList.add(MetricDatum.builder()
                             .metricName("startedThreads")
                             .unit(StandardUnit.COUNT)
