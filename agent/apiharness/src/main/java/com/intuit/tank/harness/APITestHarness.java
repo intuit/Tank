@@ -137,6 +137,7 @@ public class APITestHarness {
             return;
         }
 
+        LoggingConfig.setHttpHostThreadContext(AmazonUtil.getControllerBaseUrl());
         getInstance().initializeFromArgs(args);
     }
 
@@ -484,6 +485,7 @@ public class APITestHarness {
                 tankHttpClientClass = hdWorkload.getTankHttpClientClass();
             }
             agentRunData.setProjectName(hdWorkload.getName());
+            LoggingConfig.setProjectThreadContext(hdWorkload.getName());
             agentRunData.setTankhttpClientClass(tankHttpClientClass);
             Object httpClient = ((TankHttpClient) Class.forName(tankHttpClientClass).newInstance()).createHttpClient();
             List<TestPlanStarter> testPlans = new ArrayList<TestPlanStarter>();

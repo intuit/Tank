@@ -45,6 +45,7 @@ public class IncreasingWorkLoad implements Runnable {
     @Override
     public void run() {
         AWSXRay.beginSubsegment("Ask.For.Agents.JobId." + job.getId());
+        LoggingConfig.initializeThreadContext(job);
         try {
             askForAgents(new JobInstanceAgentModel(job));
         } catch (Exception th) {
