@@ -49,7 +49,7 @@ public class CommandListener {
                 context.setHandler(CommandListener::handleRequest);
                 server.start();
                 System.out.println("Starting httpserver on port " + port);
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting httpserver on port " + port)));
+                LOG.info(LogUtil.getLogMessage("Starting httpserver on port " + port));
                 started = true;
             } catch (IOException e) {
                 LOG.error(LogUtil.getLogMessage("Error starting httpServer: " + e), e);
@@ -84,7 +84,7 @@ public class CommandListener {
                 response = APITestHarness.getInstance().getStatus().toString();
                 APITestHarness.getInstance().setCommand(AgentCommand.resume_ramp);
             }
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", response )));
+            LOG.info(LogUtil.getLogMessage(response));
 
             exchange.getResponseHeaders().set(HTTP.CONTENT_TYPE, "text/plain");
             exchange.getResponseHeaders().set(HTTP.SERVER_HEADER,"Intuit Tank Agent/3.0.1");
@@ -94,7 +94,7 @@ public class CommandListener {
             os.close();
             exchange.close();
         } catch (IOException e) {
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Failed to handle controller command" )), e);
+            LOG.info(LogUtil.getLogMessage("Failed to handle controller command"), e);
         }
     }
 

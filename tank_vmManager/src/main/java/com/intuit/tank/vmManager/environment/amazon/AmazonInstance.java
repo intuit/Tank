@@ -3,7 +3,7 @@ package com.intuit.tank.vmManager.environment.amazon;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.dao.JobInstanceDao;
-import com.intuit.tank.logging.LoggingConfig;
+import com.intuit.tank.logging.ControllerLoggingConfig;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
@@ -130,7 +130,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     public List<VMInformation> create(VMRequest request) {
         List<VMInformation> result = new ArrayList<>();
         try {
-            LoggingConfig.setupThreadContext();
+            ControllerLoggingConfig.setupThreadContext();
             VMInstanceRequest instanceRequest = (VMInstanceRequest) request;
             InstanceDescription instanceDescription = instanceRequest.getInstanceDescription();
             if (instanceDescription == null) {
@@ -298,8 +298,6 @@ public class AmazonInstance implements IEnvironmentInstance {
         } catch (Exception ex) {
             LOG.error("Error starting instances: " + ex.getMessage(), ex);
             throw new RuntimeException(ex);
-        } finally {
-            LoggingConfig.clearThreadContext();
         }
         return result;
     }

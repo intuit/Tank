@@ -41,6 +41,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.logging.ControllerLoggingConfig;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -300,6 +301,7 @@ public class VMTrackerImpl implements VMTracker {
      * @param cloudVmStatusContainer
      **/
     private void addStatusToJobContainer(CloudVmStatus status, CloudVmStatusContainer cloudVmStatusContainer) {
+        ControllerLoggingConfig.setupThreadContext();
         cloudVmStatusContainer.getStatuses().remove(status);
         cloudVmStatusContainer.getStatuses().add(status);
         cloudVmStatusContainer.calculateUserDetails();

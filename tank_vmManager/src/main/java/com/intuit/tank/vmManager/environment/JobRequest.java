@@ -15,7 +15,7 @@ package com.intuit.tank.vmManager.environment;
 
 import java.util.List;
 
-import com.intuit.tank.logging.LoggingConfig;
+import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,7 +49,7 @@ public class JobRequest implements Runnable {
     @Override
     public void run() {
         try {
-            LoggingConfig.setupThreadContext();
+            ControllerLoggingConfig.setupThreadContext();
             VMInstanceRequest instanceRequest = this.populateAmazonRequest();
             int machines = JobVmCalculator.getMachinesForAgent(request.getNumberOfUsers(),
                     request.getNumUsersPerAgent());
@@ -62,8 +62,6 @@ public class JobRequest implements Runnable {
             persistInstances(instanceRequest, response);
         } catch (Exception ex) {
             logger.error("Error : " + ex, ex);
-        } finally {
-            LoggingConfig.clearThreadContext();
         }
     }
 
@@ -73,6 +71,7 @@ public class JobRequest implements Runnable {
      * @param vmInfo
      */
     private void persistInstances(VMInstanceRequest instanceRequest, List<VMInformation> vmInfo) {
+        ControllerLoggingConfig.setupThreadContext();
         logger.info("Created " + vmInfo.size() + " Amazon instances.");
         VMImageDao dao = new VMImageDao();
         // create a watchdog to monitor these instances

@@ -1,6 +1,6 @@
 package com.intuit.tank.rest.mvc;
 
-import com.intuit.tank.logging.LoggingConfig;
+import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -11,7 +11,7 @@ public class LoggingInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        LoggingConfig.setupThreadContext();
+        ControllerLoggingConfig.setupThreadContext();
         return true;
     }
 
@@ -20,4 +20,3 @@ public class LoggingInterceptor implements HandlerInterceptor {
         ThreadContext.clearAll(); // clear the context when done
     }
 }
-

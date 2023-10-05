@@ -5,7 +5,7 @@ import com.intuit.tank.vm.vmManager.JobRequest;
 import org.apache.logging.log4j.ThreadContext;
 import com.intuit.tank.harness.HostInfo;
 
-public class LoggingConfig {
+public class ControllerLoggingConfig {
 
     private static String jobId = "unknown";
     private static String projectName = "unknown";
@@ -19,7 +19,7 @@ public class LoggingConfig {
     private static String terminationPolicy = "unknown";
     private static String stopBehavior = "unknown";
 
-    public static void initializeThreadContext(JobRequest job) {
+    public static void initializeControllerThreadContext(JobRequest job) {
         jobId = job.getId();
         useEips = String.valueOf(job.isUseEips());
         workloadType = job.getIncrementStrategy().getDisplay();
@@ -32,15 +32,9 @@ public class LoggingConfig {
             publicIp = hostInfo.getPublicIp();
             location = AmazonUtil.getZone();
             loggingProfile = AmazonUtil.getLoggingProfile().getDisplayName();
+            projectName = AmazonUtil.getProjectName();
+            httpHost = AmazonUtil.getControllerBaseUrl();
         }
-    }
-
-    public static void setProjectThreadContext(String name){
-        projectName = name;
-    }
-
-    public static void setHttpHostThreadContext(String controllerBaseUrl){
-        httpHost = controllerBaseUrl;
     }
 
     public static void setupThreadContext() {
@@ -55,9 +49,5 @@ public class LoggingConfig {
         ThreadContext.put("workloadType", workloadType);
         ThreadContext.put("terminationPolicy", terminationPolicy);
         ThreadContext.put("stopBehavior", stopBehavior);
-    }
-
-    public static void clearThreadContext() {
-        ThreadContext.clearAll();
     }
 }

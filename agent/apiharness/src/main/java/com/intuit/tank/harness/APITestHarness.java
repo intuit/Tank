@@ -139,12 +139,13 @@ public class APITestHarness {
 
         HostInfo hostInfo = new HostInfo();
         ThreadContext.put("jobId", AmazonUtil.getJobId());
-        ThreadContext.put("projectName", AmazonUtil.getProjectName());
         ThreadContext.put("instanceId", AmazonUtil.getInstanceId());
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
         ThreadContext.put("location", AmazonUtil.getZone());
         ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
         ThreadContext.put("loggingProfile", AmazonUtil.getLoggingProfile().getDisplayName());
+        ThreadContext.put("useEips", String.valueOf(AmazonUtil.usingEip()));
+        ThreadContext.put("stopBehavior", AmazonUtil.getStopBehavior().getDisplay());
 
         getInstance().initializeFromArgs(args);
     }
@@ -460,7 +461,7 @@ public class APITestHarness {
      */
     public void runConcurrentTestPlans() {
         if (started) {
-            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Agent already started. Ignoring start command")));
+            LOG.warn(LogUtil.getLogMessage("Agent already started. Ignoring start command"));
             return;
         }
         tpsMonitor = new TPSMonitor(tankConfig.getAgentConfig().getTPSPeriod());
@@ -468,7 +469,7 @@ public class APITestHarness {
                 "; agentRunData.getNumUsers()=" + agentRunData.getNumUsers() +
                 "; NUM_START_THREADS=" + agentRunData.getNumStartUsers() +
                 "; simulationTime=" + agentRunData.getSimulationTimeMillis();
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "starting test with " + info)));
+        LOG.info(LogUtil.getLogMessage("starting test with " + info));
         started = true;
 
         if (agentRunData.getJobId() == null) {
@@ -494,16 +495,16 @@ public class APITestHarness {
                     threadGroupArray.add(threadGroup);
                     TestPlanStarter starter = new TestPlanStarter(httpClient, plan, agentRunData.getNumUsers(), tankHttpClientClass, threadGroup, agentRunData);
                     testPlans.add(starter);
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Users for Test Plan " + plan.getTestPlanName() + " at "
+                    LOG.info(LogUtil.getLogMessage("Users for Test Plan " + plan.getTestPlanName() + " at "
                             + plan.getUserPercentage()
-                            + "% = " + starter.getNumThreads())));
+                            + "% = " + starter.getNumThreads()));
                 }
             }
 
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Have all testPlan runners configured")));
+            LOG.info(LogUtil.getLogMessage("Have all testPlan runners configured"));
             // start status thread first only
             if (!isDebug()) {
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting monitor thread...")));
+                LOG.info(LogUtil.getLogMessage("Starting monitor thread..."));
                 CloudVmStatus status = getInitialStatus();
                 monitorThread = new Thread(new APIMonitor(isLocal, status));
                 monitorThread.setDaemon(true);
@@ -511,18 +512,18 @@ public class APITestHarness {
                 monitorThread.start();
             }
 
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Starting threads...")));
+            LOG.info(LogUtil.getLogMessage("Starting threads..."));
             // start initial users
             startTime = System.currentTimeMillis();
             DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Simulation start: " + df.format(new Date(getStartTime())))));
+            LOG.info(LogUtil.getLogMessage("Simulation start: " + df.format(new Date(getStartTime()))));
             if (agentRunData.getSimulationTimeMillis() != 0) {
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Scheduled Simulation End : "
-                        + df.format(new Date(getSimulationEndTimeMillis())))));
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Max Simulation End : "
-                        + df.format(new Date(getMaxSimulationEndTimeMillis())))));
+                LOG.info(LogUtil.getLogMessage("Scheduled Simulation End : "
+                        + df.format(new Date(getSimulationEndTimeMillis()))));
+                LOG.info(LogUtil.getLogMessage("Max Simulation End : "
+                        + df.format(new Date(getMaxSimulationEndTimeMillis()))));
             } else {
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Ends at script loops completed with no Max Simulation Time.")));
+                LOG.info(LogUtil.getLogMessage("Ends at script loops completed with no Max Simulation Time."));
             }
             currentNumThreads = 0;
             if (agentRunData.getNumUsers() > 0) {
@@ -545,16 +546,16 @@ public class APITestHarness {
                     numToCount++;
                 }
                 // wait for them to finish
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Ramp Complete...")));
+                LOG.info(LogUtil.getLogMessage("Ramp Complete..."));
 
                 doneSignal.await();
             }
         } catch (InterruptedException e) {
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Stopped")));
+            LOG.info(LogUtil.getLogMessage("Stopped"));
         } catch (Throwable t) {
-            LOG.error(new ObjectMessage(ImmutableMap.of("Message", "error executing..." + t)),t);
+            LOG.error(LogUtil.getLogMessage("error executing..." + t),t);
         } finally {
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Test Complete...")));
+            LOG.info(LogUtil.getLogMessage("Test Complete..."));
             if (!isDebug()) {
                 if (null != monitorThread) {
                     APIMonitor.setJobStatus(JobStatus.Completed);

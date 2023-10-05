@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.amazonaws.xray.AWSXRay;
-import com.intuit.tank.logging.LoggingConfig;
+import com.intuit.tank.logging.ControllerLoggingConfig;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -128,7 +128,7 @@ public class AgentWatchdog implements Runnable {
      */
     @Override
     public void run() {
-        LoggingConfig.setupThreadContext();
+        ControllerLoggingConfig.setupThreadContext();
         String jobId = instanceRequest.getJobId();
         LOG.info("Starting WatchDog: " + this.toString() + " for job " + jobId);
         AWSXRay.getGlobalRecorder().beginNoOpSegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
@@ -160,7 +160,6 @@ public class AgentWatchdog implements Runnable {
             // TODO Terminate all instances
         } finally {
             LOG.info("Exiting Watchdog " + this.toString());
-            LoggingConfig.clearThreadContext();
             AWSXRay.endSegment();
         }
     }

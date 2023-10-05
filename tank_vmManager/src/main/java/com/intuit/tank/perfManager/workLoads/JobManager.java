@@ -25,7 +25,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -33,7 +32,7 @@ import javax.inject.Named;
 
 import com.amazonaws.xray.contexts.SegmentContextExecutors;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.intuit.tank.logging.LoggingConfig;
+import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpStatus;
@@ -101,7 +100,7 @@ public class JobManager implements Serializable {
      * @throws Exception
      */
     public synchronized void startJob(int id) {
-        LoggingConfig.setupThreadContext();
+        ControllerLoggingConfig.setupThreadContext();
         IncreasingWorkLoad project = workLoadFactoryInstance.get().getModelRunner(id);
         JobRequest jobRequest = project.getJob();
         jobInfoMapLocalCache.put(Integer.toString(id), new JobInfo(jobRequest));
@@ -131,7 +130,6 @@ public class JobManager implements Serializable {
             }
         } else {
             SegmentContextExecutors.newSegmentContextExecutor().execute(project);
-            LoggingConfig.clearThreadContext();
         }
     }
 
@@ -156,7 +154,7 @@ public class JobManager implements Serializable {
     }
 
     public AgentTestStartData registerAgentForJob(AgentData agentData) {
-        LoggingConfig.setupThreadContext();
+        ControllerLoggingConfig.setupThreadContext();
         LOG.info("Received Agent Ready call from " + agentData.getInstanceId() + " with Agent Data: " + agentData);
         AgentTestStartData ret = null;
         JobInfo jobInfo = jobInfoMapLocalCache.get(agentData.getJobId());
@@ -182,11 +180,11 @@ public class JobManager implements Serializable {
                 }
             }
         }
-        LoggingConfig.clearThreadContext();
         return ret;
     }
 
     private void startTest(final JobInfo info) {
+        ControllerLoggingConfig.setupThreadContext();
         String jobId = info.jobRequest.getId();
         LOG.info("Sending start commands for job " + jobId + " asynchronously to following agents: " +
                 info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)));
@@ -274,6 +272,7 @@ public class JobManager implements Serializable {
      * @return CompletableFuture Array
      */
     private CompletableFuture<?> sendCommand(final URI uri, final int retry) {
+        ControllerLoggingConfig.setupThreadContext();
         HttpRequest request = HttpRequest.newBuilder(uri).build();
         LOG.info("Sending command to url " + uri);
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
