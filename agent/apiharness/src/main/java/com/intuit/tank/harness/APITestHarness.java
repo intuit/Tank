@@ -28,6 +28,7 @@ import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
 import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.harness.logging.LogEvent;
 import com.intuit.tank.http.TankHttpClient;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -139,6 +140,7 @@ public class APITestHarness {
 
         HostInfo hostInfo = new HostInfo();
         ThreadContext.put("jobId", AmazonUtil.getJobId());
+        ThreadContext.put("projectName", AmazonUtil.getProjectName());
         ThreadContext.put("instanceId", AmazonUtil.getInstanceId());
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
         ThreadContext.put("location", AmazonUtil.getZone());
@@ -672,6 +674,8 @@ public class APITestHarness {
     public void checkAgentThreads() {
         for (ThreadGroup threadGroup : threadGroupArray) {
             int activeCount = threadGroup.activeCount();
+            LogEvent logEvent = LogUtil.getLogEvent();
+            logEvent.setActiveThreads(String.valueOf(activeCount));
             LOG.info(LogUtil.getLogMessage("Have " + threadGroup.activeCount()
                     + " active Threads in thread group "
                     + threadGroup.getName()));

@@ -69,6 +69,7 @@ public class LogEvent implements Serializable {
     private String validationStatus; // if validation is not set then the field can contain value = "NA"
     private String transactionId; // Transaction Id
     private String stepGroupName; // Step group name
+    private String activeThreads; // total active threads
 
     public LogEvent() {
         super();
@@ -92,6 +93,7 @@ public class LogEvent implements Serializable {
         appendField(map, LogFields.StepName, step != null ? step.getInfo() : null);
         appendField(map, LogFields.StepIndex, stepIndex);
         appendField(map, LogFields.StepGroupName, stepGroupName);
+        appendField(map, LogFields.ActiveThreads, activeThreads);
         appendField(map, LogFields.TestIteration, iteration);
         appendField(map, LogFields.RequestUrl, buildUrl());
         appendField(map, LogFields.ValidationStatus, validationStatus);
@@ -228,6 +230,14 @@ public class LogEvent implements Serializable {
 
     public void setStepGroupName(String stepGroupName) {
         this.stepGroupName = stepGroupName;
+    }
+
+    public String getActiveThreads() {
+        return activeThreads;
+    }
+
+    public void setActiveThreads(String activeThreads) {
+        this.activeThreads = activeThreads;
     }
 
     public String getTransactionId() {

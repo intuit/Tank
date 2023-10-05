@@ -1,6 +1,7 @@
 package com.intuit.tank.logging;
 
 import com.intuit.tank.harness.AmazonUtil;
+import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.vm.vmManager.JobRequest;
 import org.apache.logging.log4j.ThreadContext;
 import com.intuit.tank.harness.HostInfo;
@@ -8,6 +9,7 @@ import com.intuit.tank.harness.HostInfo;
 public class ControllerLoggingConfig {
 
     private static String jobId = "unknown";
+    private static String env = "unknown";
     private static String projectName = "unknown";
     private static String instanceId = "unknown";
     private static String publicIp = "unknown";
@@ -19,12 +21,14 @@ public class ControllerLoggingConfig {
     private static String terminationPolicy = "unknown";
     private static String stopBehavior = "unknown";
 
-    public static void initializeControllerThreadContext(JobRequest job) {
+    public static void initializeControllerThreadContext(JobRequest job, String instanceName, String controllerBaseUrl) {
         jobId = job.getId();
+        env = instanceName;
+        httpHost = controllerBaseUrl;
         useEips = String.valueOf(job.isUseEips());
         workloadType = job.getIncrementStrategy().getDisplay();
         terminationPolicy = job.getTerminationPolicy().getDisplay();
-        stopBehavior = job.getStopBehavior();
+        stopBehavior = StopBehavior.valueOf(job.getStopBehavior()).getDisplay();
 
         if(AmazonUtil.isInAmazon()) {
             HostInfo hostInfo = new HostInfo();
@@ -33,7 +37,6 @@ public class ControllerLoggingConfig {
             location = AmazonUtil.getZone();
             loggingProfile = AmazonUtil.getLoggingProfile().getDisplayName();
             projectName = AmazonUtil.getProjectName();
-            httpHost = AmazonUtil.getControllerBaseUrl();
         }
     }
 
@@ -43,6 +46,7 @@ public class ControllerLoggingConfig {
         ThreadContext.put("instanceId", instanceId);
         ThreadContext.put("publicIp", publicIp);
         ThreadContext.put("location", location);
+        ThreadContext.put("env", env);
         ThreadContext.put("httpHost", httpHost);
         ThreadContext.put("loggingProfile", loggingProfile);
         ThreadContext.put("useEips", useEips);
