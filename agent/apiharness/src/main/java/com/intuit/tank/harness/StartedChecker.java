@@ -1,5 +1,6 @@
 package com.intuit.tank.harness;
 
+import com.intuit.tank.harness.logging.LogUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,7 +30,7 @@ public class StartedChecker implements Runnable {
             e.printStackTrace();
         }
         if (!APITestHarness.getInstance().isStarted()) {
-            LOG.error("Waited 10 minutes, didn't hear anything from the controller.  Exiting.");
+            LOG.error(LogUtil.getLogMessage("Waited 10 minutes, didn't hear anything from the controller.  Exiting."));
             System.exit(1);
         }
 

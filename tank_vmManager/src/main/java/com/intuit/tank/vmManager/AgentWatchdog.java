@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.amazonaws.xray.AWSXRay;
+import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.logging.ControllerLoggingConfig;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -42,6 +44,7 @@ import com.intuit.tank.vm.settings.VmManagerConfig;
 import com.intuit.tank.vm.vmManager.VMInformation;
 import com.intuit.tank.vm.vmManager.VMInstanceRequest;
 import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 /**
  * AgentWatchdog
@@ -105,10 +108,10 @@ public class AgentWatchdog implements Runnable {
         this.sleepTime = sleepTime;
         this.expectedInstanceCount = vmInfo.size();
 
-        LOG.info("AgentWatchdog settings: { "
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","AgentWatchdog settings: { "
                 + "maxWaitForResponse: " + maxWaitForResponse
                 + ", maxRestarts: " + maxRestarts
-                + ", sleepTime: " + sleepTime + " }");
+                + ", sleepTime: " + sleepTime + " }")));
     }
 
     /**
@@ -127,15 +130,16 @@ public class AgentWatchdog implements Runnable {
      */
     @Override
     public void run() {
+        ControllerLoggingConfig.setupThreadContext();
         String jobId = instanceRequest.getJobId();
-        LOG.info("Starting WatchDog: " + this.toString() + " for job " + jobId);
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Starting WatchDog: " + this.toString() + " for job " + jobId)));
         AWSXRay.getGlobalRecorder().beginNoOpSegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
         try {
             startedInstances = new ArrayList<VMInformation>(vmInfo);
             reportedInstances = new ArrayList<VMInformation>();
             while (restartCount <= maxRestarts && !stopped) {
                 checkForReportingInstances();
-                LOG.info("Job " + jobId + ": " + startedInstances.size() + " instances started. " + reportedInstances.size() + " instances reported. Waiting for remaining " + startedInstances.size() + " agents to report back...");
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message","Job " + jobId + ": " + startedInstances.size() + " instances started. " + reportedInstances.size() + " instances reported. Waiting for remaining " + startedInstances.size() + " agents to report back...")));
                 // When runningInstances is empty all instances have reported back.
                 // If not, check if its time for a restart.
                 if (!startedInstances.isEmpty()) {
@@ -143,21 +147,21 @@ public class AgentWatchdog implements Runnable {
                         relaunch(startedInstances);
                         startTime = System.currentTimeMillis();
                     }
-                    LOG.info("Job " + jobId + ": " + "Waiting for " + startedInstances.size() + " agents to report: "
-                            + getInstanceIdList(startedInstances));
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message","Job " + jobId + ": " + "Waiting for " + startedInstances.size() + " agents to report: "
+                            + getInstanceIdList(startedInstances))));
                     Thread.sleep(sleepTime);
                 } else {
-                    LOG.info("All Agents Reported back for job " + jobId + ".");
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message","All Agents Reported back for job " + jobId + ".")));
                     vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(),
                             "All Agents Reported Back and are ready to start load.", JobLifecycleEvent.AGENT_REPORTED));
                     stopped = true;
                 }
             }
         } catch (Exception e) {
-            LOG.error("Error in Watchdog: " + e.toString(), e);
+            LOG.error(new ObjectMessage(ImmutableMap.of("Message","Error in Watchdog: " + e.toString())), e);
             // TODO Terminate all instances
         } finally {
-            LOG.info("Exiting Watchdog " + this.toString());
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message","Exiting Watchdog " + this.toString())));
             AWSXRay.endSegment();
         }
     }
@@ -195,21 +199,21 @@ public class AgentWatchdog implements Runnable {
     private void relaunch(ArrayList<VMInformation> instances) {
         restartCount++;
         String jobId = instanceRequest.getJobId();
-        LOG.info("Restart Count for job " + jobId + ": " + restartCount);
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Restart Count for job " + jobId + ": " + restartCount)));
         if (restartCount > maxRestarts) {
             stopped = true;
             String msg = "Have "
                     + this.startedInstances.size()
                     + " agents that failed to start correctly and have exceeded the maximum number of restarts. Killing job.";
             vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.JOB_ABORTED));
-            LOG.info(msg);
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", msg)));
             // TODO Do we have to kill jobs here?
             throw new RuntimeException("Killing jobs and exiting");
         }
         String msg = "Have " + instances.size() + " agents that failed to start or report correctly for job " + jobId + ". Relaunching. "
                 + getInstanceIdList(instances);
         vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.AGENT_REBOOTED));
-        LOG.info(msg);
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", msg)));
         // Kill instances first
         List<String> instanceIds = instances.stream()
                 .map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
@@ -225,7 +229,7 @@ public class AgentWatchdog implements Runnable {
                 dao.saveOrUpdate(image);
             }
         }
-        LOG.info("Setting number of instances to relaunch to: " + instances.size() + " for job " + jobId);
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Setting number of instances to relaunch to: " + instances.size() + " for job " + jobId)));
         instanceRequest.setNumberOfInstances(instances.size());
         instances.clear();
         // Create and send instance start request
@@ -236,7 +240,7 @@ public class AgentWatchdog implements Runnable {
             // Add directly to started instances since these are restarted from scratch
             startedInstances.add(newInfo);
             vmTracker.setStatus(createCloudStatus(instanceRequest, newInfo));
-            LOG.info("Added image (" + newInfo.getInstanceId() + ") to VMImage table for job " + jobId);
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message","Added image (" + newInfo.getInstanceId() + ") to VMImage table for job " + jobId)));
             try {
                 dao.addImageFromInfo(instanceRequest.getJobId(), newInfo,
                         instanceRequest.getRegion());
@@ -244,9 +248,9 @@ public class AgentWatchdog implements Runnable {
                 LOG.warn("Error persisting VM Image: " + e);
             }
         }
-        LOG.info("At end of relaunch for job " + jobId
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","At end of relaunch for job " + jobId
                 + " startedInstances: " + startedInstances.size()
-                + " reportedInstances: " + reportedInstances.size());
+                + " reportedInstances: " + reportedInstances.size())));
     }
 
     /**
