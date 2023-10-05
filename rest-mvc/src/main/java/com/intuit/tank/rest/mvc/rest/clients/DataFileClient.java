@@ -11,12 +11,15 @@ import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptorContainer;
 import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.MediaType;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class DataFileClient extends BaseClient{
@@ -63,18 +66,24 @@ public class DataFileClient extends BaseClient{
     }
 
     public String getDatafileContent(Integer datafileId) {
-        return WebClient.create(urlBuilder.buildUrl("")) // need webclient.create for query params
-                                 .get()
-                                 .uri(uriBuilder -> uriBuilder.path("/content")
-                                        .queryParam("id", datafileId.toString())
-                                        .build())
-                                 .retrieve()
-                                 .onStatus(status -> status.isError(),
-                                         response -> response.bodyToMono(String.class)
-                                                .flatMap(body -> Mono.error(new ClientException(body,
-                                                        response.statusCode().value()))))
-                                 .bodyToMono(String.class)
-                                 .block();
+        Flux<DataBuffer> dataBufferFlux = WebClient.create(urlBuilder.buildUrl("")) // need webclient.create for query params
+                .get()
+                .uri(uriBuilder -> uriBuilder.path("/content")
+                        .queryParam("id", datafileId.toString())
+                        .build())
+                .retrieve()
+                .onStatus(status -> status.isError(),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(body -> Mono.error(new ClientException(body,
+                                        response.statusCode().value()))))
+                .bodyToFlux(DataBuffer.class);
+
+        DataBuffer dataBuffer = DataBufferUtils.join(dataBufferFlux).block();
+        String datafileContent = dataBuffer.toString(StandardCharsets.UTF_8);
+
+        DataBufferUtils.release(dataBuffer);
+
+        return datafileContent;
     }
 
     public Mono<DataBuffer> downloadDatafile(Integer datafileId) {
