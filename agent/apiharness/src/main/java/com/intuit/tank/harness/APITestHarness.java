@@ -274,7 +274,7 @@ public class APITestHarness {
                     if (!publicIp.equals(HostInfo.UNKNOWN)) {
                         instanceUrl = "http://" + publicIp + ":"
                                 + tankConfig.getAgentConfig().getAgentPort();
-                        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "MyInstanceURL from hostinfo  = " + instanceUrl)));
+                        LOG.info(LogUtil.getLogMessage("MyInstanceURL from hostinfo  = " + instanceUrl));
                     } else {
                         instanceUrl = "http://localhost:" + tankConfig.getAgentConfig().getAgentPort();
                     }
@@ -294,7 +294,7 @@ public class APITestHarness {
         try {
             AgentTestStartData startData = null;
             int count = 0;
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Sending AgentData to controller: " + data.toString())));
+            LOG.info(LogUtil.getLogMessage("Sending AgentData to controller: " + data.toString()));
             while (count < 10) {
                 try {
                     startData = client.agentReady(data);
@@ -337,7 +337,7 @@ public class APITestHarness {
      */
     public void writeXmlToFile(String scriptUrl) {
         File file = new File("script.xml");
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Writing xml to " + file.getAbsolutePath())));
+        LOG.info(LogUtil.getLogMessage("Writing xml to " + file.getAbsolutePath()));
         int retryCount = 0;
         while (true) {
             try {
@@ -346,7 +346,7 @@ public class APITestHarness {
                     file = new File("script.xml");
                 }
                 URL url = new URL(scriptUrl);
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Downloading file from url " + scriptUrl + " to file " + file.getAbsolutePath())));
+                LOG.info(LogUtil.getLogMessage("Downloading file from url " + scriptUrl + " to file " + file.getAbsolutePath()));
                 FileUtils.copyURLToFile(url, file);
                 String scriptXML = FileUtils.readFileToString(file, "UTF-8");
                 TestPlanSingleton.getInstance().setTestPlanXML(scriptXML);
@@ -674,8 +674,6 @@ public class APITestHarness {
     public void checkAgentThreads() {
         for (ThreadGroup threadGroup : threadGroupArray) {
             int activeCount = threadGroup.activeCount();
-            LogEvent logEvent = LogUtil.getLogEvent();
-            logEvent.setActiveThreads(String.valueOf(activeCount));
             LOG.info(LogUtil.getLogMessage("Have " + threadGroup.activeCount()
                     + " active Threads in thread group "
                     + threadGroup.getName()));

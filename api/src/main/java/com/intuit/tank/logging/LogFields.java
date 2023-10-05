@@ -40,6 +40,5 @@ public enum LogFields {
     UserVariables,
     ValidationStatus,
     ValidationCriteria,
-    PreValidationCriteria,
-    ActiveThreads
+    PreValidationCriteria
 }
