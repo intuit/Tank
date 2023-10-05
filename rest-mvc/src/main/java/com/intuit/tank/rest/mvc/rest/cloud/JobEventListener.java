@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.event.JobEvent;
 import org.apache.logging.log4j.message.ObjectMessage;
+import org.apache.logging.log4j.ThreadContext;
 
 @Named
 @ApplicationScoped
@@ -40,6 +41,9 @@ public class JobEventListener implements Serializable {
         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Got Job Event: " + request)));
         if (request.getEvent() == JobLifecycleEvent.JOB_ABORTED) {
             controllerSource.get().killJob(request.getJobId(), false);
+        } else if (request.getEvent() == JobLifecycleEvent.JOB_FINISHED ||
+                request.getEvent() == JobLifecycleEvent.JOB_KILLED) {
+            ThreadContext.clearAll();
         }
     }
 }
