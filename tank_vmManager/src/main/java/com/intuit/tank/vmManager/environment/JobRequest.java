@@ -16,6 +16,8 @@ package com.intuit.tank.vmManager.environment;
 import java.util.List;
 
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
+import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,6 +35,7 @@ import com.intuit.tank.vm.vmManager.VMInstanceRequest;
 import com.intuit.tank.vm.vmManager.VMJobRequest;
 import com.intuit.tank.vmManager.AgentWatchdog;
 import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 public class JobRequest implements Runnable {
 
@@ -49,6 +52,7 @@ public class JobRequest implements Runnable {
     @Override
     public void run() {
         try {
+            ControllerLoggingConfig.setupThreadContext();
             VMInstanceRequest instanceRequest = this.populateAmazonRequest();
             int machines = 0;
             if(request.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
@@ -66,7 +70,7 @@ public class JobRequest implements Runnable {
             List<VMInformation> response = this.getEnvironment().create(instanceRequest);
             persistInstances(instanceRequest, response);
         } catch (Exception ex) {
-            logger.error("Error : " + ex, ex);
+            logger.error(new ObjectMessage(ImmutableMap.of("Message", "Error : " + ex)), ex);
         }
     }
 
@@ -76,7 +80,8 @@ public class JobRequest implements Runnable {
      * @param vmInfo
      */
     private void persistInstances(VMInstanceRequest instanceRequest, List<VMInformation> vmInfo) {
-        logger.info("Created " + vmInfo.size() + " Amazon instances.");
+        ControllerLoggingConfig.setupThreadContext();
+        logger.info(new ObjectMessage(ImmutableMap.of("Message","Created " + vmInfo.size() + " Amazon instances.")));
         VMImageDao dao = new VMImageDao();
         // create a watchdog to monitor these instances
         AgentWatchdog watchDog = new AgentWatchdog(instanceRequest, vmInfo, vmTracker);
@@ -85,9 +90,9 @@ public class JobRequest implements Runnable {
             try {
                 vmTracker.setStatus(createCloudStatus(instanceRequest, info));
                 dao.addImageFromInfo(request.getJobId(), info, request.getRegion());
-                logger.info("Added image (" + info.getInstanceId() + ") to VMImage table");
+                logger.info(new ObjectMessage(ImmutableMap.of("Message","Added image (" + info.getInstanceId() + ") to VMImage table")));
             } catch (Exception e) {
-                logger.warn("Error persisting VM Image: " + e, e);
+                logger.warn(new ObjectMessage(ImmutableMap.of("Message", "Error persisting VM Image: " + e)), e);
             }
         }
         Thread thread = new Thread(watchDog);

@@ -15,6 +15,7 @@ package com.intuit.tank.harness;
 
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.harness.data.*;
+import com.intuit.tank.reporting.api.TPSInfoContainer;
 import com.intuit.tank.runner.TestPlanRunner;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.commons.lang3.time.DateUtils;
@@ -59,6 +60,8 @@ public class TestPlanStarter implements Runnable {
     private final ThreadGroup threadGroup;
     private final AgentRunData agentRunData;
     private int threadsStarted = 0;
+    private int sessionStarts = 0;
+    private int totalTps = 0;
     private long rampDelay;
     private int currentRampRate;
     private int sessionStarts = 0;
@@ -113,16 +116,16 @@ public class TestPlanStarter implements Runnable {
                 // start initial users
                 int numInitialUsers = agentRunData.getNumStartUsers();
                 if (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Linear - Starting initial " + numInitialUsers + " users for plan "
-                            + plan.getTestPlanName() + "...")));
+                    LOG.info(LogUtil.getLogMessage("Linear - Starting initial " + numInitialUsers + " users for plan "
+                            + plan.getTestPlanName() + "..."));
                     while (threadsStarted < numInitialUsers && threadsStarted < numThreads) {
                         createThread(httpClient, threadsStarted);
                     }
                 }
 
                 // start rest of users sleeping between each interval
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Linear - Starting ramp of additional " + (numThreads - threadsStarted)
-                        + " users for plan " + plan.getTestPlanName() + "...")));
+                LOG.info(LogUtil.getLogMessage("Linear - Starting ramp of additional " + (numThreads - threadsStarted)
+                        + " users for plan " + plan.getTestPlanName() + "..."));
                 while (!done) {
                     if ((threadsStarted - numInitialUsers) % agentRunData.getUserInterval() == 0) {
                         try {
@@ -169,12 +172,14 @@ public class TestPlanStarter implements Runnable {
 
                     if (threadsStarted < numThreads || activeCount < numThreads) {
                         createThread(httpClient, this.threadsStarted);
-                    }
+                    this.sessionStarts++;
+                }
 
                     if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
                         Instant timestamp = new Date().toInstant();
                         List<MetricDatum> datumList = new ArrayList<>();
-                        datumList.add(MetricDatum.builder()
+                        TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPSMonitor().getTPSInfo();
+                    this.totalTps = (tpsInfo != null) ? tpsInfo.getTotalTps() : 0;datumList.add(MetricDatum.builder()
                                 .metricName("startedThreads")
                                 .unit(StandardUnit.COUNT)
                                 .value((double) this.threadsStarted)
@@ -191,7 +196,20 @@ public class TestPlanStarter implements Runnable {
                         datumList.add(MetricDatum.builder()
                                 .metricName("targetThreads")
                                 .unit(StandardUnit.COUNT)
-                                .value((double) numThreads)
+                                .value((double) numThreads).timestamp(timestamp)
+                            .dimensions(testPlan, instanceId, jobId)
+                            .build());
+                    datumList.add(MetricDatum.builder()
+                            .metricName("sessionStarts")
+                            .unit(StandardUnit.COUNT)
+                            .value((double) this.sessionStarts)
+                            .timestamp(timestamp)
+                            .dimensions(testPlan, instanceId, jobId)
+                            .build());
+                    datumList.add(MetricDatum.builder()
+                            .metricName("totalTps")
+                            .unit(StandardUnit.COUNT)
+                            .value((double) this.totalTps)
                                 .timestamp(timestamp)
                                 .dimensions(testPlan, instanceId, jobId)
                                 .build());
@@ -202,7 +220,7 @@ public class TestPlanStarter implements Runnable {
 
                         cloudWatchClient.putMetricData(request);
                         send = DateUtils.addSeconds(new Date(), interval);
-                    }
+                    this.sessionStarts = 0; // reset session starts for next interval}
                 }
                 done = true;
             } catch (final Throwable t) {

@@ -41,6 +41,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.amazonaws.xray.AWSXRay;
+import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.logging.ControllerLoggingConfig;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -61,6 +63,7 @@ import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.event.JobEvent;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 /**
  * VMStatusCache
@@ -300,6 +303,7 @@ public class VMTrackerImpl implements VMTracker {
      * @param cloudVmStatusContainer
      **/
     private void addStatusToJobContainer(CloudVmStatus status, CloudVmStatusContainer cloudVmStatusContainer) {
+        ControllerLoggingConfig.setupThreadContext();
         cloudVmStatusContainer.getStatuses().remove(status);
         cloudVmStatusContainer.getStatuses().add(status);
         cloudVmStatusContainer.calculateUserDetails();
@@ -330,7 +334,7 @@ public class VMTrackerImpl implements VMTracker {
             }
         }
         if (isFinished) {
-            LOG.info("Setting end time on container " + cloudVmStatusContainer.getJobId());
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message","Setting end time on container " + cloudVmStatusContainer.getJobId())));
             if (cloudVmStatusContainer.getEndTime() == null) {
                 jobEventProducer.fire(new JobEvent(status.getJobId(), "", JobLifecycleEvent.JOB_FINISHED)
                         .addContextEntry(NOTIFICATIONS_EVENT_EVENT_TIME_KEY,
