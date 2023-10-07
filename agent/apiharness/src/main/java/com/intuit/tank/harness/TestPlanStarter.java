@@ -13,7 +13,6 @@ package com.intuit.tank.harness;
  * #L%
  */
 
-import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.harness.data.*;
 import com.intuit.tank.reporting.api.TPSInfoContainer;
 import com.intuit.tank.runner.TestPlanRunner;
@@ -25,8 +24,6 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
-import org.apache.logging.log4j.ThreadContext;
-import org.apache.logging.log4j.message.ObjectMessage;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
@@ -64,7 +61,6 @@ public class TestPlanStarter implements Runnable {
     private int totalTps = 0;
     private long rampDelay;
     private int currentRampRate;
-    private int sessionStarts = 0;
     private boolean done = false;
 
     public TestPlanStarter(Object httpClient, HDTestPlan plan, int numThreads, String tankHttpClientClass, ThreadGroup threadGroup, AgentRunData agentRunData) {
@@ -95,21 +91,6 @@ public class TestPlanStarter implements Runnable {
     }
 
     public void run() {
-
-        HostInfo hostInfo = new HostInfo();
-        ThreadContext.put("jobId", AmazonUtil.getJobId());
-        ThreadContext.put("projectName", AmazonUtil.getProjectName());
-        ThreadContext.put("instanceId", AmazonUtil.getInstanceId());
-        ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("location", AmazonUtil.getZone());
-        ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
-        ThreadContext.put("loggingProfile", AmazonUtil.getLoggingProfile().getDisplayName());
-        ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
-        ThreadContext.put("order", Integer.toString(agentRunData.getAgentInstanceNum()));
-        ThreadContext.put("numTotalAgents", Integer.toString(agentRunData.getTotalAgents()));
-        ThreadContext.put("numTotalUsers", Integer.toString(numThreads));
-        ThreadContext.put("targetRampRate", Double.toString(agentRunData.getTargetRampRate()));
-
         IncrementStrategy workloadType = agentRunData.getIncrementStrategy();
         if(workloadType.equals(IncrementStrategy.increasing)) { // Linear Workload
             try {
@@ -172,55 +153,10 @@ public class TestPlanStarter implements Runnable {
 
                     if (threadsStarted < numThreads || activeCount < numThreads) {
                         createThread(httpClient, this.threadsStarted);
-                    this.sessionStarts++;
-                }
+                        this.sessionStarts++;
+                    }
 
-                    if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
-                        Instant timestamp = new Date().toInstant();
-                        List<MetricDatum> datumList = new ArrayList<>();
-                        TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPSMonitor().getTPSInfo();
-                    this.totalTps = (tpsInfo != null) ? tpsInfo.getTotalTps() : 0;datumList.add(MetricDatum.builder()
-                                .metricName("startedThreads")
-                                .unit(StandardUnit.COUNT)
-                                .value((double) this.threadsStarted)
-                                .timestamp(timestamp)
-                                .dimensions(testPlan, instanceId, jobId)
-                                .build());
-                        datumList.add(MetricDatum.builder()
-                                .metricName("activeThreads")
-                                .unit(StandardUnit.COUNT)
-                                .value((double) activeCount)
-                                .timestamp(timestamp)
-                                .dimensions(testPlan, instanceId, jobId)
-                                .build());
-                        datumList.add(MetricDatum.builder()
-                                .metricName("targetThreads")
-                                .unit(StandardUnit.COUNT)
-                                .value((double) numThreads).timestamp(timestamp)
-                            .dimensions(testPlan, instanceId, jobId)
-                            .build());
-                    datumList.add(MetricDatum.builder()
-                            .metricName("sessionStarts")
-                            .unit(StandardUnit.COUNT)
-                            .value((double) this.sessionStarts)
-                            .timestamp(timestamp)
-                            .dimensions(testPlan, instanceId, jobId)
-                            .build());
-                    datumList.add(MetricDatum.builder()
-                            .metricName("totalTps")
-                            .unit(StandardUnit.COUNT)
-                            .value((double) this.totalTps)
-                                .timestamp(timestamp)
-                                .dimensions(testPlan, instanceId, jobId)
-                                .build());
-                        PutMetricDataRequest request = PutMetricDataRequest.builder()
-                                .namespace(namespace)
-                                .metricData(datumList)
-                                .build();
-
-                        cloudWatchClient.putMetricData(request);
-                        send = DateUtils.addSeconds(new Date(), interval);
-                    this.sessionStarts = 0; // reset session starts for next interval}
+                    sendCloudWatchMetrics(activeCount); // send metrics every 30 seconds
                 }
                 done = true;
             } catch (final Throwable t) {
@@ -232,8 +168,8 @@ public class TestPlanStarter implements Runnable {
                 // start initial users
                 int numInitialUsers = agentRunData.getNumStartUsers();
                 if (threadsStarted < numInitialUsers) {
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Nonlinear - Starting initial " + numInitialUsers + " users for plan "
-                            + plan.getTestPlanName() + "...")));
+                    LOG.info(LogUtil.getLogMessage("Nonlinear - Starting initial " + numInitialUsers + " users for plan "
+                            + plan.getTestPlanName() + "..."));
                     while (threadsStarted < numInitialUsers) {
                         createThread(httpClient, threadsStarted);
                     }
@@ -327,12 +263,12 @@ public class TestPlanStarter implements Runnable {
                     double offset = calculateConcurrentUsers(agentTimer) - activeCount;
 
                     if(agentTimer >= logProgress) { // temporary 30 sec log progress to debug any ramp up issues
-                        LOG.info("Nonlinear Ramp Adjustment Check:" + "\n"
+                        LOG.info(LogUtil.getLogMessage("Nonlinear Ramp Adjustment Check:" + "\n"
                                          + "- Total Additional Fractional Users: " + additionalUsers + "\n"
                                          + "- current concurrent users: " + activeCount + "\n"
                                          + "- target concurrent users: " + calculateConcurrentUsers(agentTimer) + "\n"
                                          + "- current ramp rate: " + currentRampRate + "\n"
-                                         + "- offset: " + offset);
+                                         + "- offset: " + offset));
                         logProgress += 30;
                     }
 
@@ -342,53 +278,14 @@ public class TestPlanStarter implements Runnable {
                         if(currentRampRate < agentRunData.getTargetRampRate()) {
                             currentRampRate++;
                             lastRampIncreaseTime = currentTime;
-                            LOG.info("Nonlinear - Increasing ramp rate to " + currentRampRate + " users/sec for instance " + agentRunData.getInstanceId());
+                            LOG.info(LogUtil.getLogMessage("Nonlinear - Increasing ramp rate to " + currentRampRate + " users/sec for instance " + agentRunData.getInstanceId()));
                         }
                     }
 
                     createThread(httpClient, this.threadsStarted);
                     this.sessionStarts++; // track session starts
+                    sendCloudWatchMetrics(activeCount); // send metrics every 30 seconds
 
-                    if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
-                        Instant timestamp = new Date().toInstant();
-                        List<MetricDatum> datumList = new ArrayList<>();
-                        datumList.add(MetricDatum.builder()
-                                .metricName("startedThreads")
-                                .unit(StandardUnit.COUNT)
-                                .value((double) this.threadsStarted)
-                                .timestamp(timestamp)
-                                .dimensions(testPlan, instanceId, jobId)
-                                .build());
-                        datumList.add(MetricDatum.builder()
-                                .metricName("activeThreads")
-                                .unit(StandardUnit.COUNT)
-                                .value((double) activeCount)
-                                .timestamp(timestamp)
-                                .dimensions(testPlan, instanceId, jobId)
-                                .build());
-                        datumList.add(MetricDatum.builder()
-                                .metricName("userRampRate")
-                                .unit(StandardUnit.COUNT)
-                                .value((double) this.currentRampRate)
-                                .timestamp(timestamp)
-                                .dimensions(testPlan, instanceId, jobId)
-                                .build());
-                        datumList.add(MetricDatum.builder()
-                                .metricName("sessionStarts")
-                                .unit(StandardUnit.COUNT)
-                                .value((double) this.sessionStarts)
-                                .timestamp(timestamp)
-                                .dimensions(testPlan, instanceId, jobId)
-                                .build());
-                        PutMetricDataRequest request = PutMetricDataRequest.builder()
-                                .namespace(namespace)
-                                .metricData(datumList)
-                                .build();
-
-                        cloudWatchClient.putMetricData(request);
-                        send = DateUtils.addSeconds(new Date(), interval / 2); // 15 SECONDS
-                        this.sessionStarts = 0; // reset session starts for next interval
-                    }
                     try {
                         Thread.sleep(1000 / currentRampRate); // sleep between adding users proportional to current ramp rate
                     } catch (InterruptedException e) {
@@ -477,7 +374,7 @@ public class TestPlanStarter implements Runnable {
                 }
             }
         } catch (Exception e) {
-            LOG.info("Nonlinear - Initial Delay Error: " + e);
+            LOG.info(LogUtil.getLogMessage("Nonlinear - Initial Delay Error: " + e));
         }
     }
 
@@ -508,6 +405,58 @@ public class TestPlanStarter implements Runnable {
         double totalUsersNow = calculateTotalUsers(t);
         double totalUsersBefore = t - d >= 0 ? calculateTotalUsers(t - d) : 0;
         return totalUsersNow - totalUsersBefore;
+    }
+
+    private void sendCloudWatchMetrics(long activeCount) {
+        if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
+            Instant timestamp = new Date().toInstant();
+            List<MetricDatum> datumList = new ArrayList<>();
+            TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPSMonitor().getTPSInfo();
+            this.totalTps = (tpsInfo != null) ? tpsInfo.getTotalTps() : 0;
+            datumList.add(MetricDatum.builder()
+                    .metricName("startedThreads")
+                    .unit(StandardUnit.COUNT)
+                    .value((double) this.threadsStarted)
+                    .timestamp(timestamp)
+                    .dimensions(testPlan, instanceId, jobId)
+                    .build());
+            datumList.add(MetricDatum.builder()
+                    .metricName("activeThreads")
+                    .unit(StandardUnit.COUNT)
+                    .value((double) activeCount)
+                    .timestamp(timestamp)
+                    .dimensions(testPlan, instanceId, jobId)
+                    .build());
+            datumList.add(MetricDatum.builder()
+                    .metricName("userRampRate")
+                    .unit(StandardUnit.COUNT)
+                    .value((double) this.currentRampRate)
+                    .timestamp(timestamp)
+                    .dimensions(testPlan, instanceId, jobId)
+                    .build());
+            datumList.add(MetricDatum.builder()
+                    .metricName("sessionStarts")
+                    .unit(StandardUnit.COUNT)
+                    .value((double) this.sessionStarts)
+                    .timestamp(timestamp)
+                    .dimensions(testPlan, instanceId, jobId)
+                    .build());
+            datumList.add(MetricDatum.builder()
+                    .metricName("totalTps")
+                    .unit(StandardUnit.COUNT)
+                    .value((double) this.totalTps)
+                    .timestamp(timestamp)
+                    .dimensions(testPlan, instanceId, jobId)
+                    .build());
+            PutMetricDataRequest request = PutMetricDataRequest.builder()
+                    .namespace(namespace)
+                    .metricData(datumList)
+                    .build();
+
+            cloudWatchClient.putMetricData(request);
+            send = DateUtils.addSeconds(new Date(), interval); // 30 SECONDS
+            this.sessionStarts = 0; // reset session starts for next interval
+        }
     }
 
     private void createThread(Object httpClient, int threadNumber) {

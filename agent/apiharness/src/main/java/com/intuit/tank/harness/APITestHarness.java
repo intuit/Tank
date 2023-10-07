@@ -559,14 +559,7 @@ public class APITestHarness {
                 while (!testPlans.stream().allMatch(TestPlanStarter::isDone)) {
                     Thread.sleep(5000);
                 }
-                // if we broke early, fix our countdown latch
-                int numToCount = testPlans.stream().mapToInt(TestPlanStarter::getThreadsStarted).sum();
-                while (numToCount < agentRunData.getNumUsers()) {
-                    doneSignal.countDown();
-                    numToCount++;
-                }
-                // wait for them to finish
-                LOG.info(LogUtil.getLogMessage("Ramp Complete..."));
+
                 if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
                     // if we broke early, fix our countdown latch
                     int numToCount = testPlans.stream().mapToInt(TestPlanStarter::getThreadsStarted).sum();

@@ -78,8 +78,6 @@ public class IncreasingWorkLoad implements Runnable {
         int totalUsers = 0;
         ArrayList<AgentMngrAPIRequest.UserRequest> urList = new ArrayList<AgentMngrAPIRequest.UserRequest>();
         for (RegionRequest jobRegion : job.getRegions()) {
-            int users = JobUtil.parseUserString(jobRegion.getUsers());
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message","Starting " + users + " users in region " + jobRegion.getRegion().getDescription())));
             int users;
             if(job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
                 users = JobUtil.parseUserString(jobRegion.getUsers());
