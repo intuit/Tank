@@ -2,7 +2,9 @@ package com.intuit.tank.vmManager.environment.amazon;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.dao.JobInstanceDao;
+import com.intuit.tank.logging.ControllerLoggingConfig;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
@@ -22,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.ObjectMessage;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -129,6 +132,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     public List<VMInformation> create(VMRequest request) {
         List<VMInformation> result = new ArrayList<>();
         try {
+            ControllerLoggingConfig.setupThreadContext();
             VMInstanceRequest instanceRequest = (VMInstanceRequest) request;
             InstanceDescription instanceDescription = instanceRequest.getInstanceDescription();
             if (instanceDescription == null) {
@@ -158,7 +162,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                     instanceRequest.addUserData(TankConstants.KEY_JOB_ID, instanceRequest.getJobId());
                 }
                 if (instanceRequest.getReportingMode() != null) {
-                    LOG.info("Setting reporting mode to " + instanceRequest.getReportingMode());
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Setting reporting mode to " + instanceRequest.getReportingMode())));
                     instanceRequest.addUserData(TankConstants.KEY_REPORTING_MODE, instanceRequest.getReportingMode());
                 } else {
                     LOG.warn("Reporting mode not set.");
@@ -179,13 +183,13 @@ public class AmazonInstance implements IEnvironmentInstance {
                     instanceRequest.addUserData(TankConstants.KEY_USING_BIND_EIP, Boolean.TRUE.toString());
                 }
                 if (instanceRequest.getLoggingProfile() != null) {
-                    LOG.info("Setting loggingProfile to " + instanceRequest.getLoggingProfile());
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Setting loggingProfile to " + instanceRequest.getLoggingProfile())));
                     instanceRequest.addUserData(TankConstants.KEY_LOGGING_PROFILE, instanceRequest.getLoggingProfile());
                 } else {
                     LOG.warn("Logging  profile not set.");
                 }
                 if (instanceRequest.getStopBehavior() != null) {
-                    LOG.info("Setting stopBehavior to " + instanceRequest.getStopBehavior());
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Setting stopBehavior to " + instanceRequest.getStopBehavior())));
                     instanceRequest.addUserData(TankConstants.KEY_STOP_BEHAVIOR, instanceRequest.getStopBehavior());
                 } else {
                     LOG.warn("stop Behavior not set.");
@@ -195,7 +199,7 @@ public class AmazonInstance implements IEnvironmentInstance {
 
                 int remaining = instanceRequest.getNumberOfInstances();
                 String image = getAMI(instanceDescription);
-                LOG.info("Requesting " + remaining + " instances in " + vmRegion.getName() + " with AMI=" + image);
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message","Requesting " + remaining + " instances in " + vmRegion.getName() + " with AMI=" + image)));
 
                 RunInstancesRequest.Builder runInstancesRequestTemplate = RunInstancesRequest.builder();
                 Tenancy tenancy = StringUtils.isEmpty(instanceDescription.getTenancy()) ? Tenancy.DEFAULT : Tenancy.fromValue(instanceDescription.getTenancy());
@@ -208,7 +212,7 @@ public class AmazonInstance implements IEnvironmentInstance {
 
                 Collection<String> c = instanceDescription.getSecurityGroupIds();
                 if (!c.isEmpty()) {
-                	LOG.info("Security Group IDs " + c.toString());
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message","Security Group IDs " + c.toString())));
                     runInstancesRequestTemplate.securityGroupIds(c);
                 } else {
                     runInstancesRequestTemplate.securityGroups(instanceDescription.getSecurityGroup());

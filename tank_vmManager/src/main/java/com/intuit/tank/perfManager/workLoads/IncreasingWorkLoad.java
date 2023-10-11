@@ -16,6 +16,8 @@ package com.intuit.tank.perfManager.workLoads;
 import java.util.ArrayList;
 
 import com.amazonaws.xray.AWSXRay;
+import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,6 +29,7 @@ import com.intuit.tank.vm.vmManager.JobRequest;
 import com.intuit.tank.vm.vmManager.JobUtil;
 import com.intuit.tank.vm.vmManager.RegionRequest;
 import com.intuit.tank.vm.vmManager.VMChannel;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 public class IncreasingWorkLoad implements Runnable {
 
@@ -38,7 +41,7 @@ public class IncreasingWorkLoad implements Runnable {
         this.job = job;
         this.agentDispatcher = agentDispatcher;
         this.channel = channel;
-        LOG.info("Job requested with values: " + job);
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Job requested with values: " + job)));
     }
 
     @Override
@@ -59,6 +62,7 @@ public class IncreasingWorkLoad implements Runnable {
 
     private void askForAgents(JobInstanceAgentModel model) {
 
+        ControllerLoggingConfig.setupThreadContext();
         LOG.debug("asking for agents...");
 
         // start the non region dependent reporting resources if needed
@@ -66,7 +70,7 @@ public class IncreasingWorkLoad implements Runnable {
         ArrayList<AgentMngrAPIRequest.UserRequest> urList = new ArrayList<AgentMngrAPIRequest.UserRequest>();
         for (RegionRequest jobRegion : job.getRegions()) {
             int users = JobUtil.parseUserString(jobRegion.getUsers());
-            LOG.info("Starting " + users + " users in region " + jobRegion.getRegion().getDescription());
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message","Starting " + users + " users in region " + jobRegion.getRegion().getDescription())));
             totalUsers += users;
             if (users > 0) {
                 VMRegion region = jobRegion.getRegion();

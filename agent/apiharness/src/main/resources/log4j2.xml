@@ -18,6 +18,8 @@
                 <KeyValuePair key="httpHost" value="$${ctx:httpHost:-unknown}"/>
                 <KeyValuePair key="loggingProfile" value="$${ctx:loggingProfile:-unknown}"/>
                 <KeyValuePair key="env" value="$${ctx:env:-unknown}"/>
+                <KeyValuePair key="useEips" value="$${ctx:useEips:-unknown}"/>
+                <KeyValuePair key="stopBehavior" value="$${ctx:stopBehavior:-unknown}"/>
             </JsonLayout>
 
             <Policies>

@@ -502,6 +502,14 @@ public class AgentDebuggerFrame extends JFrame {
                 System.out.println("Error deleting directory " + workingDir.getAbsolutePath() + ": " + e);
             }
         }
+        File defaultFile = new File(APITestHarness.getInstance().getTankConfig().getAgentConfig()
+                .getAgentDataFileStorageDir(), TankConstants.DEFAULT_CSV_FILE_NAME);
+        if (defaultFile.exists()) {
+            boolean deleted = defaultFile.delete();
+            if (!deleted) {
+                System.out.println("Error deleting default file " + defaultFile.getAbsolutePath());
+            }
+        }
         if (this.standalone) {
             System.exit(0);
         }
@@ -806,7 +814,9 @@ public class AgentDebuggerFrame extends JFrame {
                 InputStream is = IOUtils.toInputStream(client.getDatafileContent(dataFileDescriptor.getId()), StandardCharsets.UTF_8) ) {
             IOUtils.copy(is, fos);
             if (isDefault && !dataFileDescriptor.getName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
-                File defaultFile = new File(workingDir, TankConstants.DEFAULT_CSV_FILE_NAME);
+                File defaultFile = new File(APITestHarness.getInstance().getTankConfig().getAgentConfig()
+                        .getAgentDataFileStorageDir(), TankConstants.DEFAULT_CSV_FILE_NAME);
+                LOG.info("copying file " + dataFileDescriptor.getName() + " to default file " + defaultFile.getAbsolutePath() + " to read");
                 FileUtils.copyFile(dataFile, defaultFile);
             }
         } catch (Exception e) {
