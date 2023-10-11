@@ -133,6 +133,9 @@ public class ScriptGroupStep extends BaseEntity {
             return false;
         }
         ScriptGroupStep o = (ScriptGroupStep) obj;
+        if(o.getScript() != null && getScript() != null){
+            return new EqualsBuilder().append(o.getId(), getId()).append(o.getScript(), getScript()).isEquals();
+        }
         return new EqualsBuilder().append(o.getId(), getId()).isEquals();
     }
 
