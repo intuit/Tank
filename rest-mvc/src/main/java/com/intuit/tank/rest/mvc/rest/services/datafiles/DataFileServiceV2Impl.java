@@ -151,10 +151,8 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
         Map<String, String> payload = new HashMap<>();
         datafileId = datafileId == null ? 0 : datafileId;
         contentEncoding = contentEncoding == null ? "" : contentEncoding;
-        BufferedReader bufferedReader = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
-                new BufferedReader(new InputStreamReader(new GZIPInputStream(file.getInputStream()))) :
-                new BufferedReader(new InputStreamReader(file.getInputStream()));
-        try (InputStream decompressed = IOUtils.toInputStream(IOUtils.toString(bufferedReader), StandardCharsets.UTF_8)) {
+        try (InputStream fileInputStream = file.getInputStream();
+             InputStream decompressed = "gzip".equalsIgnoreCase(contentEncoding) ? new GZIPInputStream(fileInputStream) : fileInputStream) {
             DataFileDao dao = new DataFileDao();
             DataFile dataFile = dao.findById(datafileId);
             if (dataFile == null) {
@@ -179,12 +177,6 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
                 }
             }
             payload.put("datafileId", Integer.toString(dataFile.getId()));
-            try {
-                decompressed.close();
-            } catch (IOException e) {
-                LOGGER.error("Error uploading datafile: " + e.getMessage(), e);
-                throw new GenericServiceCreateOrUpdateException("datafiles", "new datafile via datafile upload", e);
-            }
         } catch (Exception e) {
             LOGGER.error("Error uploading datafile: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("datafiles", "new datafile via datafile upload", e);
