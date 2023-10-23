@@ -245,11 +245,9 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         Map<String, String> payload = new HashMap<>();
         scriptId = scriptId == null ? 0 : scriptId;
         contentEncoding = contentEncoding == null ? "" : contentEncoding;
-        try (InputStream fileInputStream = file.getInputStream();
-             InputStreamReader inputStreamReader = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
-                     new InputStreamReader(new GZIPInputStream(fileInputStream)) :
-                     new InputStreamReader(fileInputStream);
-             BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+        try (BufferedReader bufferedReader = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
+                new BufferedReader(new InputStreamReader(new GZIPInputStream(file.getInputStream()))) :
+                new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             Script script = new ScriptDao().findById(scriptId);
             if (script == null){
                 script = new Script();
