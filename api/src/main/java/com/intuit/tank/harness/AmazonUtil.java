@@ -44,7 +44,7 @@ import org.apache.logging.log4j.message.ObjectMessage;
  */
 public class AmazonUtil {
 
-    private static HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
+    private static final HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
 
     private static final Logger LOG = LogManager.getLogger(AmazonUtil.class);
     private static final String BASE = "http://169.254.169.254/latest";
