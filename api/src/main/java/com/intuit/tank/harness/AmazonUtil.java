@@ -20,9 +20,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnull;
 
@@ -52,8 +50,6 @@ public class AmazonUtil {
     private static final String BASE = "http://169.254.169.254/latest";
     private static final String USER_DATA = "/user-data";
     private static final String META_DATA = "/meta-data";
-    private static final Map<String, String> USER_DATA_MAP = fetchUserData();
-    private static final Map<CloudMetaDataType, String> META_DATA_CACHE = new ConcurrentHashMap<>();
 
     public static VMRegion getVMRegion() {
         try {
@@ -72,11 +68,11 @@ public class AmazonUtil {
      */
     public static boolean isInAmazon() {
         try {
-            String zone = getMetaData(CloudMetaDataType.zone);
-            return !zone.isEmpty();
+            getMetaData(CloudMetaDataType.zone);
         } catch (IOException e) {
             return false;
         }
+        return true;
     }
 
     /**
@@ -86,10 +82,7 @@ public class AmazonUtil {
      */
     public static String getZone() {
         try {
-            String zone = getMetaData(CloudMetaDataType.zone);
-            return (!zone.isEmpty()
-                    ? zone
-                    : "unknown");
+            return getMetaData(CloudMetaDataType.zone);
         } catch (IOException e) {
             LOG.info(new ObjectMessage(ImmutableMap.of("Message","cannot determine zone")));
         }
@@ -155,17 +148,6 @@ public class AmazonUtil {
      */
     @Nonnull
     public static String getMetaData(CloudMetaDataType metaData) throws IOException {
-        return META_DATA_CACHE.computeIfAbsent(metaData, key -> {
-            try {
-                return fetchMetaData(key);
-            } catch (IOException e) {
-                LOG.warn(new ObjectMessage(ImmutableMap.of("Message","Error getting meta data: " + e.toString())));
-                return "";
-            }
-        });
-    }
-
-    private static String fetchMetaData(CloudMetaDataType metaData) throws IOException {
         return getResponseString(BASE + META_DATA + "/" + metaData.getKey());
     }
 
@@ -251,15 +233,6 @@ public class AmazonUtil {
      * @return the user data as a Map
      */
     public static Map<String, String> getUserDataAsMap() {
-        return USER_DATA_MAP;
-    }
-
-    /**
-     * Fetches user data associated with this instance once and stores it in a map.
-     *
-     * @return the user data as a Map
-     */
-    private static Map<String, String> fetchUserData() {
         try {
             String userData = getResponseString(BASE + USER_DATA);
             if (StringUtils.isNotEmpty(userData)) {
