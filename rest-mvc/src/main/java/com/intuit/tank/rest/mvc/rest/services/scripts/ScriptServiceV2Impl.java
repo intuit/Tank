@@ -243,10 +243,11 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public Map<String, String> uploadProxyScript(String name, Integer scriptId, String contentEncoding, MultipartFile file) throws IOException {
         Map<String, String> payload = new HashMap<>();
-        InputStream fileInputStream = file.getInputStream();
         scriptId = scriptId == null ? 0 : scriptId;
         contentEncoding = contentEncoding == null ? "" : contentEncoding;
-        try {
+        try (BufferedReader bufferedReader = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
+                new BufferedReader(new InputStreamReader(new GZIPInputStream(file.getInputStream()))) :
+                new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             Script script = new ScriptDao().findById(scriptId);
             if (script == null){
                 script = new Script();
@@ -264,9 +265,6 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                 script.setName(name);
             }
 
-            BufferedReader bufferedReader = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
-                    new BufferedReader(new InputStreamReader(new GZIPInputStream(fileInputStream))) :
-                    new BufferedReader(new InputStreamReader(fileInputStream));
             scriptProcessor.getScriptSteps(bufferedReader, new ArrayList<>());
             script = new ScriptDao().saveOrUpdate(script);
             sendMsg(script, ModificationType.UPDATE);
@@ -281,13 +279,6 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         } catch (Exception e) {
             LOGGER.error("Error uploading script file: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("scripts", "new script via script upload", e);
-        } finally {
-            try {
-                fileInputStream.close();
-            } catch (IOException e) {
-                LOGGER.error("Error uploading script file: " + e.getMessage(), e);
-                throw new GenericServiceCreateOrUpdateException("scripts", "new script via script upload", e);
-            }
         }
         return payload;
     }
@@ -300,18 +291,14 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public Map<String, String> updateTankScript(String  contentEncoding, MultipartFile file) throws IOException {
         Map<String, String> payload = new HashMap<>();
-        InputStream fileInputStream = file.getInputStream();
         contentEncoding = contentEncoding == null ? "" : contentEncoding;
 
-        try {
+        try (InputStream fileInputStream = file.getInputStream();
+             InputStream inputStream = "gzip".equalsIgnoreCase(contentEncoding) ? new GZIPInputStream(fileInputStream) : fileInputStream) {
             ScriptDao dao = new ScriptDao();
 
-            if (fileInputStream != null) {
-                if ("gzip".equalsIgnoreCase(contentEncoding)) {
-                    fileInputStream = new GZIPInputStream(fileInputStream);
-                }
-
-                ScriptTO scriptTo = ScriptServiceUtil.parseXMLtoScriptTO(fileInputStream);
+            if (inputStream != null) {
+                ScriptTO scriptTo = ScriptServiceUtil.parseXMLtoScriptTO(inputStream);
                 Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
                 if (script.getId() > 0) {
                     Script existing = dao.findById(script.getId());
@@ -329,13 +316,6 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         } catch (Exception e) {
             LOGGER.error("Error updating script file: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("scripts", e.getMessage(), e);
-        } finally {
-            try {
-                fileInputStream.close();
-            } catch (IOException e) {
-                LOGGER.error("Error updating script file: " + e.getMessage(), e);
-                throw new GenericServiceCreateOrUpdateException("scripts",  e.getMessage(), e);
-            }
         }
 
         return payload;
