@@ -125,12 +125,21 @@ public class ScriptGroup extends BaseEntity implements Comparable<ScriptGroup> {
     }
 
     /**
-     * @param steps
+     * @param step
      *            the scripts to set
      */
     public void addScriptGroupStep(ScriptGroupStep step) {
         step.setScriptGroup(this);
         this.steps.add(step);
+    }
+
+    /**
+     * @param step
+     *            the scripts to remove
+     */
+    public void removeScriptGroupStep(ScriptGroupStep step) {
+        step.setScriptGroup(null);
+        this.steps.remove(step);
     }
 
     /**
