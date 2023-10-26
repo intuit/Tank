@@ -363,19 +363,17 @@ public class JobManager implements Serializable {
             VMRegion region = agent.getRegion();
 
             for (RegionRequest r : jobRequest.getRegions()) {
-                if(jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-                    if (Integer.parseInt(r.getUsers()) > 0 && region == r.getRegion()) {
-                        int numUsersRemaining = userMap.get(r);
-                        ret = Math.min(agent.getCapacity(), numUsersRemaining);
-                        userMap.put(r, numUsersRemaining - ret);
-                        break;
-                    }
-                } else {
-                    if (Integer.parseInt(r.getPercentage()) > 0 && region == r.getRegion()) {
-                        int numAgentsRemaining = userMap.get(r);
-                        userMap.put(r, numAgentsRemaining - 1);
-                        break;
-                    }
+                if (region != r.getRegion()) continue;
+
+                if (jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing) && Integer.parseInt(r.getUsers()) > 0) {
+                    int numUsersRemaining = userMap.get(r);
+                    ret = Math.min(agent.getCapacity(), numUsersRemaining);
+                    userMap.put(r, numUsersRemaining - ret);
+                    break;
+                } else if (Integer.parseInt(r.getPercentage()) > 0) {
+                    int numAgentsRemaining = userMap.get(r);
+                    userMap.put(r, numAgentsRemaining - 1);
+                    break;
                 }
             }
             return ret;
