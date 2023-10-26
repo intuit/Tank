@@ -188,8 +188,6 @@ public class TestPlanStarter implements Runnable {
 
                 double previousTotalUsers = calculateTotalUsers(agentTimer);
                 double accumulatedUsers = 0.0;
-                double logProgress = agentTimer; // log offset every 10 seconds from start
-                double additionalUsers = 0.0;
 
                 // start rest of users sleeping between each interval
                 while (!done) {
@@ -258,20 +256,8 @@ public class TestPlanStarter implements Runnable {
                         currentLastRampIncreaseTime = lastRampIncreaseTime;
                     }
 
-                    // check non-linear current concurrent users against target concurrent users
-                    agentTimer = (System.currentTimeMillis() - lastRampRateAddition) / 1000.0; // update agent time
-                    double offset = calculateConcurrentUsers(agentTimer) - activeCount;
-
-                    if(agentTimer >= logProgress) { // temporary 30 sec log progress to debug any ramp up issues
-                        LOG.info(LogUtil.getLogMessage("Nonlinear Ramp Adjustment Check:" + "\n"
-                                         + "- Total Additional Fractional Users: " + additionalUsers + "\n"
-                                         + "- current concurrent users: " + activeCount + "\n"
-                                         + "- target concurrent users: " + calculateConcurrentUsers(agentTimer) + "\n"
-                                         + "- current ramp rate: " + currentRampRate + "\n"
-                                         + "- offset: " + offset));
-                        logProgress += 30;
-                    }
-
+                    // update agent time
+                    agentTimer = (System.currentTimeMillis() - lastRampRateAddition) / 1000.0;
                     long currentTime = System.currentTimeMillis();
 
                     if (currentTime - currentLastRampIncreaseTime > rampRateDelayMillis) {
@@ -398,13 +384,6 @@ public class TestPlanStarter implements Runnable {
             double rampUpUsers = ((agentRunData.getTargetRampRate()) / (2 * d)) * Math.pow(d, 2);
             return rampUpUsers + (agentRunData.getTargetRampRate() * (t - d));
         }
-    }
-
-    private double calculateConcurrentUsers(double t) {
-        double d = agentRunData.getRampTimeMillis() / 1000.0; // offset check only works if ramp duration = user duration
-        double totalUsersNow = calculateTotalUsers(t);
-        double totalUsersBefore = t - d >= 0 ? calculateTotalUsers(t - d) : 0;
-        return totalUsersNow - totalUsersBefore;
     }
 
     private void sendCloudWatchMetrics(long activeCount) {

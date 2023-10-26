@@ -81,12 +81,12 @@ public class IncreasingWorkLoad implements Runnable {
             int users;
             if(job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
                 users = JobUtil.parseUserString(jobRegion.getUsers());
-                LOG.info("Starting " + users + " users in region " + jobRegion.getRegion().getDescription() + " for job "
-                        + job.getId());
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message","Starting " + users + " users in region " + jobRegion.getRegion().getDescription() + " for job "
+                        + job.getId())));
             } else {
                 users = JobUtil.parseUserString(jobRegion.getPercentage());
-                LOG.info("Nonlinear - Starting " + users + "% of users in region " + jobRegion.getRegion().getDescription()
-                        + " with " + agentMapping.get(jobRegion) + " allocated agents for job " + job.getId());
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message","Starting " + users + "% of users in region " + jobRegion.getRegion().getDescription()
+                        + " with " + agentMapping.get(jobRegion) + " allocated agents for job " + job.getId())));
                 users = agentMapping.get(jobRegion); // reassign users to the number of agents allocated for this region - nonlinear
             }
             totalUsers += users;

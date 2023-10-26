@@ -99,8 +99,6 @@ public class APITestHarness {
 
     private double endRampRate; // ending ramp rate in users/sec
 
-    private int currentActiveAgentThreads = 0;
-
     private Date send = new Date();
     private static final int interval = 15; // SECONDS
 
@@ -314,9 +312,11 @@ public class APITestHarness {
             agentRunData.setAgentInstanceNum(startData.getAgentInstanceNum());
             agentRunData.setTotalAgents(startData.getTotalAgents());
 
+            ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
+
             if(startData.getIncrementStrategy().equals(IncrementStrategy.standard)){
                 endRampRate = agentRunData.getUserInterval();
-                LOG.info("Nonlinear - endRampRate = " + endRampRate + " users/sec for job " + agentRunData.getJobId());
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Nonlinear - targetRampRate = " + endRampRate + " users/sec for job " + agentRunData.getJobId())));
             }
 
             if (startData.getDataFiles() != null) {
@@ -390,10 +390,10 @@ public class APITestHarness {
                 FileUtils.copyURLToFile(url, dataFile);
                 if (dataFileRequest.isDefaultDataFile()
                         && !dataFileRequest.getFileName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
-                    LOG.info("APITestHarness - default file set to " + TankConstants.DEFAULT_CSV_FILE_NAME);
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "APITestHarness - default file set to " + TankConstants.DEFAULT_CSV_FILE_NAME)));
                     File defaultFile = new File(dataFileDir, TankConstants.DEFAULT_CSV_FILE_NAME);
-                    LOG.info("Copying default  file " + dataFile.getAbsolutePath() + " to "
-                            + defaultFile.getAbsolutePath());
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Copying default  file " + dataFile.getAbsolutePath() + " to "
+                            + defaultFile.getAbsolutePath())));
 
                     FileUtils.copyFile(dataFile, defaultFile);
                 }
@@ -503,7 +503,9 @@ public class APITestHarness {
                     plan.setVariables(hdWorkload.getVariables());
                     ThreadGroup threadGroup = new ThreadGroup("Test Plan Runner Group: " + plan.getTestPlanName());
                     threadGroupArray.add(threadGroup);
-                    configureNonlinearAgentRunData();
+                    if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)) {
+                        configureNonlinearAgentRunData();
+                    }
                     TestPlanStarter starter = new TestPlanStarter(httpClient, plan, agentRunData.getNumUsers(), tankHttpClientClass, threadGroup, agentRunData);
                     testPlans.add(starter);
                     LOG.info(LogUtil.getLogMessage("Users for Test Plan " + plan.getTestPlanName() + " at "
@@ -516,7 +518,8 @@ public class APITestHarness {
                     } else {
                         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Test Plan " + plan.getTestPlanName() + " at "
                                 + plan.getUserPercentage()
-                                + "% running nonlinear workload" )));
+                                + "% running nonlinear workload at "
+                                + endRampRate + " users/sec")));
                     }
                 }
             }
@@ -737,62 +740,29 @@ public class APITestHarness {
         sessionThreads.removeIf(t -> t.getState().equals(Thread.State.TERMINATED));
     }
 
-    public void checkCurrentActiveAgentThreads() {
-        for (ThreadGroup threadGroup : threadGroupArray) {
-            int agentCount = 0;
-            int activeCount = threadGroup.activeCount();
-            Thread[] threads = new Thread[activeCount];
-            threadGroup.enumerate(threads);
-            for (Thread t : threads) {
-                if(t.getName().contains("AGENT")){
-                    agentCount++;
-                    currentActiveAgentThreads = agentCount;
-                }
-            }
-            LOG.info(LogUtil.getLogMessage("Have " + agentCount
-                    + " active AGENT Threads in thread group "
-                    + threadGroup.getName()));
-        }
-    }
-
     private void configureNonlinearAgentRunData(){
-        if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)){
-            HostInfo hostInfo = new HostInfo();
-            ThreadContext.put("jobId", AmazonUtil.getJobId());
-            ThreadContext.put("projectName", AmazonUtil.getProjectName());
-            ThreadContext.put("instanceId", AmazonUtil.getInstanceId());
-            ThreadContext.put("publicIp", hostInfo.getPublicIp());
-            ThreadContext.put("location", AmazonUtil.getZone());
-            ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
-            ThreadContext.put("loggingProfile", AmazonUtil.getLoggingProfile().getDisplayName());
-            ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
-            ThreadContext.put("order", Integer.toString(agentRunData.getAgentInstanceNum()));
-            ThreadContext.put("numTotalAgents", Integer.toString(agentRunData.getTotalAgents()));
-            ThreadContext.put("numTotalUsers", Integer.toString(agentRunData.getNumUsers()));
+        double baseDelay = (((double) agentRunData.getRampTimeMillis() / 1000) / (endRampRate));
+        int order = agentRunData.getAgentInstanceNum();
+        int numAgents = agentRunData.getTotalAgents();
 
-            double baseDelay = (((double) agentRunData.getRampTimeMillis() / 1000) / (endRampRate));
-            int order = agentRunData.getAgentInstanceNum();
-            int numAgents = agentRunData.getTotalAgents();
+        // Calculate the target ramp rate and remaining ramp time for each agent
+        int baseRampRate = (int) (endRampRate / numAgents);
+        int remainingRampRate = (int) (endRampRate % numAgents);
 
-            // Calculate the target ramp rate and remaining ramp time for each agent
-            int baseRampRate = (int) (endRampRate / numAgents);
-            int remainingRampRate = (int) (endRampRate % numAgents);
-
-            int targetRampRate = baseRampRate;
-            if(order <= remainingRampRate){
-                targetRampRate += 1;
-            }
-
-            agentRunData.setInitialDelay(order * baseDelay); // order: order # * baseDelay
-            agentRunData.setRampRateDelay((((double) agentRunData.getRampTimeMillis() / 1000) / (targetRampRate))); // rampRateDelay:  total ramp time / targetRampRate
-            agentRunData.setTargetRampRate(targetRampRate);  // targetRampRate: endRampRate / # of agents while accounting for uneven division
-            agentRunData.setBaseDelay(baseDelay); // baseDelay: total ramp time / endRampRate - used to ramp agents from 0 to 1 user/sec
-            LOG.info("Nonlinear - configureNonlinearAgentRunData: \n" +
-                    "initialDelay=" + agentRunData.getInitialDelay() + "; \n" +
-                    "rampRateDelay=" + agentRunData.getRampRateDelay() + "; \n" +
-                    "targetRampRate=" + agentRunData.getTargetRampRate());
-            ThreadContext.put("targetRampRate", Double.toString(agentRunData.getTargetRampRate()));
+        int targetRampRate = baseRampRate;
+        if(order <= remainingRampRate){
+            targetRampRate += 1;
         }
+
+        agentRunData.setInitialDelay(order * baseDelay); // order: order # * baseDelay
+        agentRunData.setRampRateDelay((((double) agentRunData.getRampTimeMillis() / 1000) / (targetRampRate))); // rampRateDelay:  total ramp time / targetRampRate
+        agentRunData.setTargetRampRate(targetRampRate);  // targetRampRate: endRampRate / # of agents while accounting for uneven division
+        agentRunData.setBaseDelay(baseDelay); // baseDelay: total ramp time / endRampRate - used to ramp agents from 0 to 1 user/sec
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Non-Linear Multi-agent Orchestration: \n" +
+                "agentOrder=" + order + "; \n" +
+                "initialDelay=" + agentRunData.getInitialDelay() + "; \n" +
+                "rampRateDelay=" + agentRunData.getRampRateDelay() + "; \n" +
+                "agentTargetRampRate=" + agentRunData.getTargetRampRate())));
     }
 
     /**

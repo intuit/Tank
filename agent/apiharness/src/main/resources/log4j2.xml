@@ -18,11 +18,6 @@
                 <KeyValuePair key="httpHost" value="$${ctx:httpHost:-unknown}"/>
                 <KeyValuePair key="loggingProfile" value="$${ctx:loggingProfile:-unknown}"/>
                 <KeyValuePair key="workloadType" value="$${ctx:workloadType:-unknown}"/>
-                <KeyValuePair key="order" value="$${ctx:order:-unknown}"/>
-                <KeyValuePair key="numTotalAgents" value="$${ctx:numTotalAgents:-unknown}"/>
-                <KeyValuePair key="numTotalUsers" value="$${ctx:numTotalUsers:-unknown}"/>
-                <KeyValuePair key="targetRampRate" value="$${ctx:targetRampRate:-unknown}"/>
-
                 <KeyValuePair key="env" value="$${ctx:env:-unknown}"/>
                 <KeyValuePair key="useEips" value="$${ctx:useEips:-unknown}"/>
                 <KeyValuePair key="stopBehavior" value="$${ctx:stopBehavior:-unknown}"/>

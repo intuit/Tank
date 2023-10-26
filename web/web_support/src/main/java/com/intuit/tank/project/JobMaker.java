@@ -418,7 +418,7 @@ public class JobMaker implements Serializable {
         if (StringUtils.isEmpty(name)) {
             return false;
         }
-        if (proposedJobInstance.getTotalVirtualUsers() <= 0) {
+        if (proposedJobInstance.getTotalVirtualUsers() <= 0 && proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
             return false;
         }
         if (proposedJobInstance.getTerminationPolicy() == TerminationPolicy.time

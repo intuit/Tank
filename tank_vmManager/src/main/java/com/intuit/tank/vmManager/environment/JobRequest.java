@@ -62,7 +62,6 @@ public class JobRequest implements Runnable {
                         machines));
             } else {
                 machines = request.getNumberOfUsers(); // non-linear: for simplicity we pass the number of machines as the number of users
-                logger.info("Nonlinear - Creating " + machines + " Amazon instances for job " + request.getJobId() + " in region " + request.getRegion());
             }
             instanceRequest.setNumberOfInstances(machines);
             instanceRequest.setUserEips(request.isUseEips());

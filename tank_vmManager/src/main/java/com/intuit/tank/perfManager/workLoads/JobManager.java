@@ -100,11 +100,6 @@ public class JobManager implements Serializable {
     public synchronized void startJob(int id) {
         IncreasingWorkLoad project = workLoadFactoryInstance.get().getModelRunner(id);
         JobRequest jobRequest = project.getJob();
-        if(jobRequest.getIncrementStrategy().equals(IncrementStrategy.standard)){
-            jobRequest.getRegions().forEach(r -> LOG.info("Nonlinear - Region " + r.getRegion().name() + " has " + r.getPercentage() + "% of users"));
-            LOG.info("Nonlinear - Target Ramp Rate: " + jobRequest.getUserIntervalIncrement() + " users per second" + "\n"
-                    + "Number of Agents: " + jobRequest.getNumAgents() + " for job " + jobRequest.getId());
-        }
         jobInfoMapLocalCache.put(Integer.toString(id), new JobInfo(jobRequest));
         ControllerLoggingConfig.initializeControllerThreadContext(jobRequest, tankConfig.getInstanceName(), tankConfig.getControllerBase());
         ControllerLoggingConfig.setupThreadContext();

@@ -60,7 +60,10 @@ public class JobDetailFormatter {
                     long users = TestParamUtil.evaluateExpression(region.getUsers(),
                             proposedJobInstance.getExecutionTime(),
                             proposedJobInstance.getSimulationTime(), proposedJobInstance.getRampTime());
-                    if (users > 0) {
+                    long percentage = TestParamUtil.evaluateExpression(region.getPercentage(),
+                            proposedJobInstance.getExecutionTime(),
+                            proposedJobInstance.getSimulationTime(), proposedJobInstance.getRampTime());
+                    if (users > 0 || percentage > 0) {
                         regions.add(new JobRegion(region.getRegion(), Long.toString(users), region.getPercentage()));
                     }
                 }
@@ -103,7 +106,7 @@ public class JobDetailFormatter {
             addProperty(sb, "Ramp Time", TimeUtil.toTimeString(proposedJobInstance.getRampTime()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)){
 //                addProperty(sb, "Starting User Ramp (users/sec)", Integer.toString(proposedJobInstance.getStartRate()));
-                addProperty(sb, "Target User Ramp (users/sec)", Integer.toString(proposedJobInstance.getUserIntervalIncrement()));
+                addProperty(sb, "Target User Ramp Rate (users/sec)", Integer.toString(proposedJobInstance.getUserIntervalIncrement()));
             }
             addProperty(sb, "Initial Users", Integer.toString(proposedJobInstance.getBaselineVirtualUsers()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
@@ -145,12 +148,12 @@ public class JobDetailFormatter {
                 }
                 if (regionPercentage != 100) {
                     addError(errorSB, "Region Percentage does not add up to 100%");
-                    regions.forEach(region -> addError(errorSB,region.getRegion().getDescription() + " : " + region.getPercentage() + "%"));
                 }
 
-                if(proposedJobInstance.getNumAgents() > proposedJobInstance.getUserIntervalIncrement()) {
-                    addError(errorSB, "Number of Agents cannot be greater than the Target User Ramp Rate");
-                    addError(errorSB, "Each agent must support at least 1 user per second - set Number of Agents equal to or less than " + proposedJobInstance.getUserIntervalIncrement() + " agents");
+                if(proposedJobInstance.getNumAgents() > proposedJobInstance.getUserIntervalIncrement()
+                        && proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)) {
+                    addError(errorSB, "Number of Agents cannot be greater than the Target User Ramp Rate"
+                            + "- update Target User Ramp Rate or set Number of Agents equal to or less than " + proposedJobInstance.getUserIntervalIncrement() + " agents");
                 }
 
             }
@@ -209,16 +212,22 @@ public class JobDetailFormatter {
             addProperty(sb, "Scripts", "", "emphasis");
             // scripts
             List<ScriptGroupStep> stepsList = new ArrayList<ScriptGroupStep>();
+            String target = "";
             for (TestPlan plan : workload.getTestPlans()) {
                 int numUsers = plan.getUserPercentage() > 0 ? proposedJobInstance.getTotalVirtualUsers() : 0;
                 if (plan.getUserPercentage() < 100 && plan.getUserPercentage() > 0) {
                     numUsers = (int) Math.floor(numUsers * ((double) plan.getUserPercentage() / 100D));
                 }
+                if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                    target = "(" + numUsers + " users)";
+                } else {
+                    target = "(" + proposedJobInstance.getUserIntervalIncrement() + " users/sec)";
+                }
                 addProperty(
                         sb,
                         "  " + plan.getName(),
-                        plan.getUserPercentage() + "% : (" + numUsers
-                                + " users) : estimated Time "
+                        plan.getUserPercentage() + "% : " + target
+                                + " : estimated Time "
                                 + TimeUtil.toTimeString(validator.getExpectedTime(plan.getName())),
                         userPercentage != 100 ? "error" : null);
 
