@@ -93,6 +93,16 @@
         <h:outputText value="#{node.name}" title="#{node.name}" rendered="#{!node.jobNode}" />
       </p:column>
 
+      <p:column id="typeColumn" style="width:#{jobQueueManager.tablePrefs.getSize('typeColumn')}px;"
+                headerText="Type" styleClass="ellipsis min-column-size"
+                rendered="#{projectJobQueueManager.tablePrefs.isVisible('typeColumn')}">
+        <p:commandLink ajax="true" action="#{projectJobQueueManager.setCurrentJobInstance(node)}"
+                       oncomplete="PF('validatePopup').show();" update=":validatePopupID" rendered="#{node.jobNode}">
+          <h:outputText value="#{node.incrementStrategy}" title="#{node.incrementStrategy}" />
+        </p:commandLink>
+        <h:outputText value="#{node.incrementStrategy}" title="#{node.incrementStrategy}" rendered="#{!node.jobNode}" />
+      </p:column>
+
       <p:column id="idColumn"
         style="width:#{projectJobQueueManager.tablePrefs.getSize('idColumn')}px;text-align: right;" headerText="ID"
         styleClass="ellipsis min-column-size" rendered="#{projectJobQueueManager.tablePrefs.isVisible('idColumn')}">
@@ -126,8 +136,8 @@
       <p:column id="totalUsersColumn"
                 style="width:#{jobQueueManager.tablePrefs.getSize('totalUsersColumn')}px; text-align:right;"
                 headerText="Target Users" styleClass="ellipsis min-column-size"
-                rendered="#{jobQueueManager.tablePrefs.isVisible('totalUsersColumn')}">
-        <p:commandLink ajax="true" id="lnkUserDetails" action="#{jobQueueManager.setCurrentJobInstanceForUser(node)}"
+                rendered="#{projectJobQueueManager.tablePrefs.isVisible('totalUsersColumn')}">
+        <p:commandLink ajax="true" id="lnkUserDetails" action="#{projectJobQueueManager.setCurrentJobInstanceForUser(node)}"
                        oncomplete="PF('userDetailsPopup').show();" update=":userDetailsPopupID">
           <h:outputText value="#{node.totalUsers}" rendered="#{node.incrementStrategy == 'Linear'}"/>
         </p:commandLink>
