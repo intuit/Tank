@@ -898,4 +898,8 @@ public class APITestHarness {
     public void setTankHttpClientClass(String tankHttpClientClass) {
         this.tankHttpClientClass = tankHttpClientClass;
     }
+
+    public void setEndRampRate(long endRampRate) {
+        this.endRampRate = endRampRate;
+    }
 }

@@ -106,9 +106,13 @@ public class JobDetailFormatter {
                     .getDisplayName());
             addProperty(sb, "Stop Behavior", StopBehavior.fromString(proposedJobInstance.getStopBehavior())
                     .getDisplay());
-            addProperty(sb, "Run Scripts Until", proposedJobInstance.getTerminationPolicy().getDisplay(),
-                    proposedJobInstance.getTerminationPolicy() == TerminationPolicy.time
-                            && proposedJobInstance.getSimulationTime() == 0 ? "error" : null);
+            if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                addProperty(sb, "Run Scripts Until", proposedJobInstance.getTerminationPolicy().getDisplay(),
+                        proposedJobInstance.getTerminationPolicy() == TerminationPolicy.time
+                                && proposedJobInstance.getSimulationTime() == 0 ? "error" : null);
+            } else {
+                addProperty(sb, "Run Scripts Until", TerminationPolicy.time.getDisplay());
+            }
             sb.append(BREAK);
             addProperty(
                     sb,
