@@ -23,8 +23,8 @@ package com.intuit.tank.vm.api.enumerated;
  * 
  */
 public enum IncrementStrategy {
-    increasing("Increasing"),
-    standard("Steady State");
+    increasing("Linear"),
+    standard("Nonlinear");
 
     private String display;
 

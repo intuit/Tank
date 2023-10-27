@@ -14,10 +14,10 @@ package com.intuit.tank.harness;
  */
 
 import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.common.TankConstants;
 import org.apache.logging.log4j.message.ObjectMessage;
@@ -27,8 +27,13 @@ public class AgentRunData {
 
     private int numUsers = 1;
     private long rampTime = 0;
+    private IncrementStrategy incrementStrategy = IncrementStrategy.increasing;
     private int numStartUsers = 1;
     private int userInterval = 1;
+    private double baseDelay = 0;
+    private double initialDelay = 0;
+    private double rampRateDelay = 0;
+    private double targetRampRate = 1;
     private String testPlans = "";
     private String instanceId;
     private String jobId = "0";
@@ -70,6 +75,19 @@ public class AgentRunData {
      */
     public void setRampTimeMillis(long rampTime) {
         this.rampTime = rampTime;
+    }
+
+    /**
+     * @return the incrementStrategy
+     */
+    public IncrementStrategy getIncrementStrategy() { return incrementStrategy; }
+
+    /**
+     * @param incrementStrategy
+     *            the incrementStrategy to set
+     */
+    public void setIncrementStrategy(IncrementStrategy incrementStrategy) {
+        this.incrementStrategy = incrementStrategy;
     }
 
     /**
@@ -117,6 +135,66 @@ public class AgentRunData {
         if (userInterval > 0) {
             this.userInterval = userInterval;
         }
+    }
+    /**
+     * @return the baseDelay
+     */
+    public double getBaseDelay() {
+        return baseDelay;
+    }
+
+    /**
+     * @param baseDelay
+     *            the baseDelay to set
+     */
+    public void setBaseDelay(double baseDelay) {
+        this.baseDelay = baseDelay;
+    }
+
+
+    /**
+     * @return the initialDelay
+     */
+    public double getInitialDelay() {
+        return initialDelay;
+    }
+
+    /**
+     * @param initialDelay
+     *            the initialDelay to set
+     */
+    public void setInitialDelay(double initialDelay) {
+        this.initialDelay = initialDelay;
+    }
+
+    /**
+     * @return the rampRateDelay
+     */
+    public double getRampRateDelay() {
+        return rampRateDelay;
+    }
+
+    /**
+     * @param rampRateDelay
+     *            the rampRateDelay to set
+     */
+    public void setRampRateDelay(double rampRateDelay) {
+        this.rampRateDelay = rampRateDelay;
+    }
+
+    /**
+     * @return the targetRampRate
+     */
+    public double getTargetRampRate() {
+        return targetRampRate;
+    }
+
+    /**
+     * @param targetRampRate
+     *            the targetRampRate to set
+     */
+    public void setTargetRampRate(double targetRampRate) {
+        this.targetRampRate = targetRampRate;
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.intuit.tank.harness;
 
 import com.intuit.tank.harness.data.HDTestPlan;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,7 @@ public class TestPlanStarterTest {
         _agentRunData = mock(AgentRunData.class);
         mock_CloudWatchAsyncClient = mockStatic(CloudWatchAsyncClient.class);
         when(CloudWatchAsyncClient.builder()).thenReturn(mock(CloudWatchAsyncClientBuilder.class));
+        when(_agentRunData.getIncrementStrategy()).thenReturn(IncrementStrategy.increasing);
     }
 
     @AfterEach

@@ -48,6 +48,21 @@ public interface JobRequest extends Serializable {
     public abstract IncrementStrategy getIncrementStrategy();
 
     /**
+     * @return the startRate
+     */
+    public abstract int getStartRate();
+
+    /**
+     * @return the endRate
+     */
+    public abstract int getEndRate();
+
+    /**
+     * @return the numAgents
+     */
+    public abstract int getNumAgents();
+
+    /**
      * @return the location
      */
     public abstract String getLocation();

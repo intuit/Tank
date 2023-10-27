@@ -19,17 +19,14 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.harness.logging.LogEvent;
 import com.intuit.tank.http.TankHttpClient;
+import com.intuit.tank.vm.api.enumerated.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -59,10 +56,6 @@ import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.DataFileRequest;
 import com.intuit.tank.vm.agent.messages.WatsAgentStatusResponse;
-import com.intuit.tank.vm.api.enumerated.JobStatus;
-import com.intuit.tank.vm.api.enumerated.VMImageType;
-import com.intuit.tank.vm.api.enumerated.VMRegion;
-import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
 import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
@@ -91,6 +84,7 @@ public class APITestHarness {
     private AgentCommand cmd = AgentCommand.run;
     private ArrayList<Thread> sessionThreads = new ArrayList<>();
     private CountDownLatch doneSignal;
+    private Semaphore semaphore;
     private boolean loggedSimTime;
     private int currentUsers = 0;
     private Vector<TankResult> results = new Vector<TankResult>();
@@ -102,6 +96,8 @@ public class APITestHarness {
     private TPSMonitor tpsMonitor;
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
+
+    private double endRampRate; // ending ramp rate in users/sec
 
     private Date send = new Date();
     private static final int interval = 15; // SECONDS
@@ -310,10 +306,18 @@ public class APITestHarness {
             agentRunData.setNumStartUsers(startData.getStartUsers());
             agentRunData.setRampTimeMillis(startData.getRampTime());
             agentRunData.setJobId(startData.getJobId());
+            agentRunData.setIncrementStrategy(startData.getIncrementStrategy());
             agentRunData.setUserInterval(startData.getUserIntervalIncrement());
             agentRunData.setSimulationTimeMillis(startData.getSimulationTime());
             agentRunData.setAgentInstanceNum(startData.getAgentInstanceNum());
             agentRunData.setTotalAgents(startData.getTotalAgents());
+
+            ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
+
+            if(startData.getIncrementStrategy().equals(IncrementStrategy.standard)){
+                endRampRate = agentRunData.getUserInterval();
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Nonlinear - targetRampRate = " + endRampRate + " users/sec for job " + agentRunData.getJobId())));
+            }
 
             if (startData.getDataFiles() != null) {
                 for (DataFileRequest dfRequest : startData.getDataFiles()) {
@@ -386,10 +390,10 @@ public class APITestHarness {
                 FileUtils.copyURLToFile(url, dataFile);
                 if (dataFileRequest.isDefaultDataFile()
                         && !dataFileRequest.getFileName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
-                    LOG.info("APITestHarness - default file set to " + TankConstants.DEFAULT_CSV_FILE_NAME);
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "APITestHarness - default file set to " + TankConstants.DEFAULT_CSV_FILE_NAME)));
                     File defaultFile = new File(dataFileDir, TankConstants.DEFAULT_CSV_FILE_NAME);
-                    LOG.info("Copying default  file " + dataFile.getAbsolutePath() + " to "
-                            + defaultFile.getAbsolutePath());
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Copying default  file " + dataFile.getAbsolutePath() + " to "
+                            + defaultFile.getAbsolutePath())));
 
                     FileUtils.copyFile(dataFile, defaultFile);
                 }
@@ -480,7 +484,11 @@ public class APITestHarness {
         }
 
         Thread monitorThread = null;
-        doneSignal = new CountDownLatch(agentRunData.getNumUsers());
+        if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+            doneSignal = new CountDownLatch(agentRunData.getNumUsers());
+        } else {
+            semaphore = new Semaphore(0); // non-linear: number of threads is unknown, so use a semaphore
+        }
         try {
             HDWorkload hdWorkload = TestPlanSingleton.getInstance().getTestPlans().get(0);
             if (StringUtils.isBlank(tankHttpClientClass)) {
@@ -495,11 +503,24 @@ public class APITestHarness {
                     plan.setVariables(hdWorkload.getVariables());
                     ThreadGroup threadGroup = new ThreadGroup("Test Plan Runner Group: " + plan.getTestPlanName());
                     threadGroupArray.add(threadGroup);
+                    if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)) {
+                        configureNonlinearAgentRunData();
+                    }
                     TestPlanStarter starter = new TestPlanStarter(httpClient, plan, agentRunData.getNumUsers(), tankHttpClientClass, threadGroup, agentRunData);
                     testPlans.add(starter);
                     LOG.info(LogUtil.getLogMessage("Users for Test Plan " + plan.getTestPlanName() + " at "
                             + plan.getUserPercentage()
                             + "% = " + starter.getNumThreads()));
+                    if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)){
+                        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Users for Test Plan " + plan.getTestPlanName() + " at "
+                                + plan.getUserPercentage()
+                                + "% = " + starter.getNumThreads())));
+                    } else {
+                        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Test Plan " + plan.getTestPlanName() + " at "
+                                + plan.getUserPercentage()
+                                + "% running nonlinear workload at "
+                                + endRampRate + " users/sec")));
+                    }
                 }
             }
 
@@ -528,7 +549,7 @@ public class APITestHarness {
                 LOG.info(LogUtil.getLogMessage("Ends at script loops completed with no Max Simulation Time."));
             }
             currentNumThreads = 0;
-            if (agentRunData.getNumUsers() > 0) {
+            if (agentRunData.getNumUsers() > 0 || agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)) {
                 for (TestPlanStarter starter : testPlans) {
                     if (isDebug()) {
                         starter.run();
@@ -541,16 +562,22 @@ public class APITestHarness {
                 while (!testPlans.stream().allMatch(TestPlanStarter::isDone)) {
                     Thread.sleep(5000);
                 }
-                // if we broke early, fix our countdown latch
-                int numToCount = testPlans.stream().mapToInt(TestPlanStarter::getThreadsStarted).sum();
-                while (numToCount < agentRunData.getNumUsers()) {
-                    doneSignal.countDown();
-                    numToCount++;
-                }
-                // wait for them to finish
-                LOG.info(LogUtil.getLogMessage("Ramp Complete..."));
 
-                doneSignal.await();
+                if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                    // if we broke early, fix our countdown latch
+                    int numToCount = testPlans.stream().mapToInt(TestPlanStarter::getThreadsStarted).sum();
+                    while (numToCount < agentRunData.getNumUsers()) {
+                        doneSignal.countDown();
+                        numToCount++;
+                    }
+                    // wait for them to finish
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Linear - Ramp Complete...")));
+
+                    doneSignal.await();
+                } else {
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Nonlinear - Ramp Complete...")));
+                    semaphore.acquire(currentNumThreads);
+                }
             }
         } catch (InterruptedException e) {
             LOG.info(LogUtil.getLogMessage("Stopped"));
@@ -601,11 +628,18 @@ public class APITestHarness {
 
     public synchronized void threadComplete() {
         currentUsers--;
-        doneSignal.countDown();
-        long count = doneSignal.getCount();
-        // numCompletedThreads = (int) (agentRunData.getNumUsers() - count);
-        if (isDebug() || count < 10) {
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining = " + currentUsers)));
+        if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+            doneSignal.countDown();
+            long count = doneSignal.getCount();
+            // numCompletedThreads = (int) (agentRunData.getNumUsers() - count);
+            if (isDebug() || count < 10) {
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining = " + currentUsers)));
+            }
+        } else {
+            semaphore.release();
+            if (isDebug() || semaphore.availablePermits() < 10) {
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining = " + currentUsers)));
+            }
         }
     }
 
@@ -679,19 +713,56 @@ public class APITestHarness {
                     + threadGroup.getName()));
         }
         if (hasMetSimulationTime()) {          // && doneSignal.getCount() != 0) {
-            LOG.info(LogUtil.getLogMessage("Max simulation time has been met and there are "
-                    + doneSignal.getCount() + " threads not reporting done."));
-            for (Thread t : sessionThreads) {
-                if (t.isAlive()) {
-                    LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
-                            + " is still running with a State of " + t.getState().name(), LogEventType.System));
-                    t.interrupt();
-                    doneSignal.countDown();
+            if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                LOG.info(LogUtil.getLogMessage("Max simulation time has been met and there are "
+                        + doneSignal.getCount() + " threads not reporting done."));
+                for (Thread t : sessionThreads) {
+                    if (t.isAlive()) {
+                        LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
+                                + " is still running with a State of " + t.getState().name(), LogEventType.System));
+                        t.interrupt();
+                        doneSignal.countDown();
+                    }
+                }
+            } else {
+                LOG.info(LogUtil.getLogMessage("Max simulation time has been met and there are "
+                        + semaphore.availablePermits() + " threads not reporting done."));
+                for (Thread t : sessionThreads) {
+                    if (t.isAlive()) {
+                        LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
+                                + " is still running with a State of " + t.getState().name(), LogEventType.System));
+                        t.interrupt();
+                    }
                 }
             }
         }
         // Clean up TestPlanRunner Threads that are Thread.State.TERMINATED
         sessionThreads.removeIf(t -> t.getState().equals(Thread.State.TERMINATED));
+    }
+
+    private void configureNonlinearAgentRunData(){
+        double baseDelay = (((double) agentRunData.getRampTimeMillis() / 1000) / (endRampRate));
+        int order = agentRunData.getAgentInstanceNum();
+        int numAgents = agentRunData.getTotalAgents();
+
+        // Calculate the target ramp rate and remaining ramp time for each agent
+        int baseRampRate = (int) (endRampRate / numAgents);
+        int remainingRampRate = (int) (endRampRate % numAgents);
+
+        int targetRampRate = baseRampRate;
+        if(order <= remainingRampRate){
+            targetRampRate += 1;
+        }
+
+        agentRunData.setInitialDelay(order * baseDelay); // order: order # * baseDelay
+        agentRunData.setRampRateDelay((((double) agentRunData.getRampTimeMillis() / 1000) / (targetRampRate))); // rampRateDelay:  total ramp time / targetRampRate
+        agentRunData.setTargetRampRate(targetRampRate);  // targetRampRate: endRampRate / # of agents while accounting for uneven division
+        agentRunData.setBaseDelay(baseDelay); // baseDelay: total ramp time / endRampRate - used to ramp agents from 0 to 1 user/sec
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Non-Linear Multi-agent Orchestration: \n" +
+                "agentOrder=" + order + "; \n" +
+                "initialDelay=" + agentRunData.getInitialDelay() + "; \n" +
+                "rampRateDelay=" + agentRunData.getRampRateDelay() + "; \n" +
+                "agentTargetRampRate=" + agentRunData.getTargetRampRate())));
     }
 
     /**
@@ -826,5 +897,9 @@ public class APITestHarness {
      */
     public void setTankHttpClientClass(String tankHttpClientClass) {
         this.tankHttpClientClass = tankHttpClientClass;
+    }
+
+    public void setEndRampRate(long endRampRate) {
+        this.endRampRate = endRampRate;
     }
 }

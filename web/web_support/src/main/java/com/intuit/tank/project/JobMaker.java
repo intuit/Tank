@@ -27,6 +27,7 @@ import javax.inject.Named;
 import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -148,9 +149,14 @@ public class JobMaker implements Serializable {
      * @return
      */
     public String getName() {
-        return !StringUtils.isEmpty(name) ? name : projectBean.getName() + "_" + usersAndTimes.getTotalUsers()
-                + "_users_"
-                + preferences.getTimestampFormat().format(new Date());
+        if(projectBean.getJobConfiguration().getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+            return !StringUtils.isEmpty(name) ? name : projectBean.getName() + "_" + usersAndTimes.getTotalUsers()
+                    + "_users_"
+                    + preferences.getTimestampFormat().format(new Date());
+        } else {
+            return !StringUtils.isEmpty(name) ? name : projectBean.getName() + "_nonlinear_"
+                    + preferences.getTimestampFormat().format(new Date());
+        }
     }
 
     /**
@@ -231,7 +237,17 @@ public class JobMaker implements Serializable {
             projectBean.getJobConfiguration().setNumUsersPerAgent(numUsers);
         }
     }
-    
+
+    public int getNumAgents() {
+        return projectBean.getJobConfiguration().getNumAgents();
+    }
+
+    public void setNumAgents(int numAgents) {
+        if (numAgents > 0) {
+            projectBean.getJobConfiguration().setNumAgents(numAgents);
+        }
+    }
+
     /**
      * 
      * @return
@@ -299,6 +315,7 @@ public class JobMaker implements Serializable {
             proposedJobInstance.setLocation(getLocation());
             proposedJobInstance.setVmInstanceType(getVmInstanceType());
             proposedJobInstance.setNumUsersPerAgent(getNumUsersPerAgent());
+            proposedJobInstance.setNumAgents(getNumAgents());
             proposedJobInstance.setReportingMode(getReportingMode());
             proposedJobInstance.getVariables().putAll(workload.getJobConfiguration().getVariables());
             // set version info
@@ -401,7 +418,7 @@ public class JobMaker implements Serializable {
         if (StringUtils.isEmpty(name)) {
             return false;
         }
-        if (proposedJobInstance.getTotalVirtualUsers() <= 0) {
+        if (proposedJobInstance.getTotalVirtualUsers() <= 0 && proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
             return false;
         }
         if (proposedJobInstance.getTerminationPolicy() == TerminationPolicy.time
@@ -411,6 +428,18 @@ public class JobMaker implements Serializable {
         int userPercentage = projectBean.getWorkload().getTestPlans().stream().mapToInt(TestPlan::getUserPercentage).sum();
         if (userPercentage != 100) {
             return false;
+        }
+        if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)){
+            int regionPercentage = 0;
+            for (JobRegion r : projectBean.getWorkload().getJobConfiguration().getJobRegions()) {
+                regionPercentage += Integer.parseInt(r.getPercentage());
+            }
+            if (regionPercentage != 100) {
+                return false;
+            }
+            if(proposedJobInstance.getNumAgents() > proposedJobInstance.getUserIntervalIncrement()) {
+                return false;
+            }
         }
         return hasScripts();
     }

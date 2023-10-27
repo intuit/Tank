@@ -68,6 +68,8 @@ public class TankConstants {
     public static final String HTTP_CASE_ABORT = "ABORT";
     public static final String HTTP_CASE_RESTART = "RESTART";
 
+    public static final String INCREMENT_STRATEGY  = "increasing";
+
     public static final String TANK_GROUP_TYPE = "tankUser";
     public static final String TANK_GROUP_ADMIN = "admin";
     public static final String TANK_USER_SYSTEM = "System";

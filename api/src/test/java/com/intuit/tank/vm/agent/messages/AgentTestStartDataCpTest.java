@@ -13,6 +13,8 @@ package com.intuit.tank.vm.agent.messages;
  * #L%
  */
 
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
+
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -590,6 +592,29 @@ public class AgentTestStartDataCpTest {
 
         fixture.setTotalAgents(totalAgents);
 
+    }
+
+    /**
+     * Test IncrementStrategy getter and setter for all values
+     *
+     */
+    @Test
+    public void testIncrementStrategy_1()
+            throws Exception {
+        AgentTestStartData fixture = new AgentTestStartData("", 1, 1L);
+        fixture.setUserIntervalIncrement(1);
+        fixture.setDataFiles(new DataFileRequest[] {});
+        fixture.setAgentInstanceNum(1);
+        fixture.setTotalAgents(1);
+        fixture.setJobId("");
+        fixture.setStartUsers(1);
+        fixture.setSimulationTime(1L);
+
+        fixture.setIncrementStrategy(IncrementStrategy.increasing);
+        assertEquals(IncrementStrategy.increasing, fixture.getIncrementStrategy());
+
+        fixture.setIncrementStrategy(IncrementStrategy.standard);
+        assertEquals(IncrementStrategy.standard, fixture.getIncrementStrategy());
     }
 
     /**

@@ -260,10 +260,11 @@ public class DaoTestUtil {
      * 
      * @return the DataFile
      */
-    public static JobRegion createJobRegionData(String users) {
+    public static JobRegion createJobRegionData(String users, String percentage) {
         return JobRegion.builder()
         		.users(users)
         		.region(VMRegion.US_WEST_2)
+                .percentage(percentage)
                 .build();
     }
 

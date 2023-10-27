@@ -32,6 +32,7 @@ import javax.inject.Named;
 
 import com.amazonaws.xray.contexts.SegmentContextExecutors;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.intuit.tank.vm.api.enumerated.*;
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -55,11 +56,6 @@ import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.DataFileRequest;
 import com.intuit.tank.vm.agent.messages.StandaloneAgentRequest;
-import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
-import com.intuit.tank.vm.api.enumerated.JobStatus;
-import com.intuit.tank.vm.api.enumerated.VMImageType;
-import com.intuit.tank.vm.api.enumerated.VMRegion;
-import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import com.intuit.tank.vm.perfManager.StandaloneAgentTracker;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.vmManager.JobRequest;
@@ -166,13 +162,18 @@ public class JobManager implements Serializable {
         if (jobInfo != null) {
             synchronized (jobInfo) {
                 ret = new AgentTestStartData(jobInfo.scripts, jobInfo.getUsers(agentData), jobInfo.jobRequest.getRampTime());
-                ret.setAgentInstanceNum(jobInfo.agentData.size());
+                if(jobInfo.jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                    ret.setAgentInstanceNum(jobInfo.agentData.size());
+                } else {
+                    ret.setAgentInstanceNum(jobInfo.agentData.size() + 1); // non-linear: agent instance number is 1-based
+                }
                 ret.setDataFiles(getDataFileRequests(jobInfo));
                 ret.setJobId(agentData.getJobId());
                 ret.setSimulationTime(jobInfo.jobRequest.getSimulationTime());
                 ret.setStartUsers(jobInfo.jobRequest.getBaselineVirtualUsers());
                 ret.setTotalAgents(jobInfo.numberOfMachines);
-                ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement());
+                ret.setIncrementStrategy(jobInfo.jobRequest.getIncrementStrategy());
+                ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement()); // non-linear: target ramp rate
                 jobInfo.agentData.add(agentData);
                 CloudVmStatus status = vmTracker.getStatus(agentData.getInstanceId());
                 if(status != null) {
@@ -359,25 +360,40 @@ public class JobManager implements Serializable {
         public int getUsers(AgentData agent) {
             int ret = 0;
             VMRegion region = agent.getRegion();
+            IncrementStrategy workloadType = jobRequest.getIncrementStrategy();
             for (RegionRequest r : jobRequest.getRegions()) {
-                if (Integer.parseInt(r.getUsers()) > 0) {
-                    if (region == r.getRegion()) {
-                        int numUsersRemaining = userMap.get(r);
-                        ret = Math.min(agent.getCapacity(), numUsersRemaining);
-                        userMap.put(r, numUsersRemaining - ret);
-                        break;
-                    }
+                if (region != r.getRegion()) continue;
+
+                if (workloadType.equals(IncrementStrategy.increasing) && Integer.parseInt(r.getUsers()) > 0) {
+                    int numUsersRemaining = userMap.get(r);
+                    ret = Math.min(agent.getCapacity(), numUsersRemaining);
+                    userMap.put(r, numUsersRemaining - ret);
+                    break;
+                } else if (Integer.parseInt(r.getPercentage()) > 0) {
+                    int numAgentsRemaining = userMap.get(r);
+                    userMap.put(r, numAgentsRemaining - 1);
+                    break;
                 }
             }
             return ret;
         }
 
         private void initializeUserMap(JobRequest request) {
+            IncrementStrategy workloadType = jobRequest.getIncrementStrategy();
             for (RegionRequest r : request.getRegions()) {
-                int numUsers = NumberUtils.toInt(r.getUsers());
-                if (numUsers > 0) {
-                    userMap.put(r, numUsers);
-                    numberOfMachines += JobVmCalculator.getMachinesForAgent(numUsers, request.getNumUsersPerAgent());
+                if(workloadType.equals(IncrementStrategy.increasing)) {
+                    int numUsers = NumberUtils.toInt(r.getUsers());
+                    if (numUsers > 0) {
+                        userMap.put(r, numUsers);
+                        numberOfMachines += JobVmCalculator.getMachinesForAgent(numUsers, request.getNumUsersPerAgent());
+                    }
+                } else {
+                    Map<RegionRequest, Integer> regionAllocation = JobVmCalculator.getMachinesForAgentByUserPercentage(request.getNumAgents(), request.getRegions());
+                    int numAgents = regionAllocation.get(r);
+                    if (numAgents > 0) {
+                        userMap.put(r, numAgents);
+                        numberOfMachines += numAgents;
+                    }
                 }
             }
         }

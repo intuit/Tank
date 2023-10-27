@@ -13,6 +13,7 @@ package com.intuit.tank.vm.perfManager;
  * #L%
  */
 
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,10 +41,11 @@ public class RequestAgentsCpTest {
         String reportingMode = "";
         String loggingProfile = "";
         VMRegion region = VMRegion.ASIA_1;
+        IncrementStrategy incrementStrategy = IncrementStrategy.increasing;
         int numberOfUsers = 1;
         String stopBehavior = "";
 
-        RequestAgents result = new RequestAgents(jobId, reportingMode, loggingProfile, region, numberOfUsers,
+        RequestAgents result = new RequestAgents(jobId, reportingMode, loggingProfile, region, incrementStrategy, numberOfUsers,
                 stopBehavior);
 
         assertNotNull(result);
@@ -64,7 +66,7 @@ public class RequestAgentsCpTest {
     @Test
     public void testGetJobId_1()
             throws Exception {
-        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, 1, "");
+        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, IncrementStrategy.increasing, 1, "");
 
         String result = fixture.getJobId();
 
@@ -81,7 +83,7 @@ public class RequestAgentsCpTest {
     @Test
     public void testGetLoggingProfile_1()
             throws Exception {
-        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, 1, "");
+        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, IncrementStrategy.increasing,1, "");
 
         String result = fixture.getLoggingProfile();
 
@@ -98,7 +100,7 @@ public class RequestAgentsCpTest {
     @Test
     public void testGetNumberOfUsers_1()
             throws Exception {
-        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, 1, "");
+        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, IncrementStrategy.increasing,1, "");
 
         int result = fixture.getNumberOfUsers();
 
@@ -115,7 +117,7 @@ public class RequestAgentsCpTest {
     @Test
     public void testGetNumberOfUsers_2()
             throws Exception {
-        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, 1, "");
+        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, IncrementStrategy.increasing,1, "");
 
         int result = fixture.getNumberOfUsers();
 
@@ -132,7 +134,7 @@ public class RequestAgentsCpTest {
     @Test
     public void testGetRegion_1()
             throws Exception {
-        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, 1, "");
+        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, IncrementStrategy.increasing,1, "");
 
         VMRegion result = fixture.getRegion();
 
@@ -153,7 +155,7 @@ public class RequestAgentsCpTest {
     @Test
     public void testGetReportingMode_1()
             throws Exception {
-        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, 1, "");
+        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, IncrementStrategy.increasing,1, "");
 
         String result = fixture.getReportingMode();
 
@@ -170,7 +172,7 @@ public class RequestAgentsCpTest {
     @Test
     public void testGetStopBehavior_1()
             throws Exception {
-        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, 1, "");
+        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, IncrementStrategy.increasing,1, "");
 
         String result = fixture.getStopBehavior();
 
@@ -187,7 +189,7 @@ public class RequestAgentsCpTest {
     @Test
     public void testSetJobId_1()
             throws Exception {
-        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, 1, "");
+        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, IncrementStrategy.increasing,1, "");
         String jobId = "";
 
         fixture.setJobId(jobId);
@@ -204,7 +206,7 @@ public class RequestAgentsCpTest {
     @Test
     public void testSetLoggingProfile_1()
             throws Exception {
-        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, 1, "");
+        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, IncrementStrategy.increasing,1, "");
         String data = "";
 
         fixture.setLoggingProfile(data);
@@ -221,7 +223,7 @@ public class RequestAgentsCpTest {
     @Test
     public void testSetNumberOfUsers_1()
             throws Exception {
-        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, 1, "");
+        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, IncrementStrategy.increasing,1, "");
         int data = 1;
 
         fixture.setNumberOfUsers(data);
@@ -238,7 +240,7 @@ public class RequestAgentsCpTest {
     @Test
     public void testSetRegion_1()
             throws Exception {
-        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, 1, "");
+        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, IncrementStrategy.increasing,1, "");
         VMRegion region = VMRegion.ASIA_1;
 
         fixture.setRegion(region);
@@ -255,7 +257,7 @@ public class RequestAgentsCpTest {
     @Test
     public void testSetReportingMode_1()
             throws Exception {
-        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, 1, "");
+        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, IncrementStrategy.increasing,1, "");
         String reportingMode = "";
 
         fixture.setReportingMode(reportingMode);
@@ -272,7 +274,7 @@ public class RequestAgentsCpTest {
     @Test
     public void testSetStopBehavior_1()
             throws Exception {
-        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, 1, "");
+        RequestAgents fixture = new RequestAgents("", "", "", VMRegion.ASIA_1, IncrementStrategy.increasing,1, "");
         String data = "";
 
         fixture.setStopBehavior(data);

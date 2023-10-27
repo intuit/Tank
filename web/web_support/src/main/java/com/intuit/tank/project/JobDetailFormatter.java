@@ -15,14 +15,12 @@ package com.intuit.tank.project;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
+import com.intuit.tank.vm.vmManager.JobVmCalculator;
+import com.intuit.tank.vm.vmManager.RegionRequest;
 import org.apache.commons.lang3.StringUtils;
 
 import com.intuit.tank.dao.DataFileDao;
@@ -77,8 +75,11 @@ public class JobDetailFormatter {
                     long users = TestParamUtil.evaluateExpression(region.getUsers(),
                             proposedJobInstance.getExecutionTime(),
                             proposedJobInstance.getSimulationTime(), proposedJobInstance.getRampTime());
-                    if (users > 0) {
-                        regions.add(new JobRegion(region.getRegion(), Long.toString(users)));
+                    long percentage = TestParamUtil.evaluateExpression(region.getPercentage(),
+                            proposedJobInstance.getExecutionTime(),
+                            proposedJobInstance.getSimulationTime(), proposedJobInstance.getRampTime());
+                    if (users > 0 || percentage > 0) {
+                        regions.add(new JobRegion(region.getRegion(), Long.toString(users), region.getPercentage()));
                     }
                 }
             }
@@ -90,20 +91,28 @@ public class JobDetailFormatter {
                     : proposedJobInstance.getName(), StringUtils.isBlank(proposedJobInstance.getName()) ? "error"
                     : null);
             addProperty(sb, "Creator", proposedJobInstance.getCreator());
-            addProperty(sb, "Workload Type", proposedJobInstance.getIncrementStrategy().name());
+            addProperty(sb, "Workload Type", proposedJobInstance.getIncrementStrategy().getDisplay());
             addProperty(sb, "Tank Http Client", config.getAgentConfig().getTankClientName(proposedJobInstance.getTankClientClass()));
             addProperty(sb, "Agent VM Type", getVmDetails(config, proposedJobInstance.getVmInstanceType()));
             addProperty(sb, "Assign Elastic Ips", Boolean.toString(proposedJobInstance.isUseEips()));
-            addProperty(sb, "Max Users per Agent", Integer.toString(proposedJobInstance.getNumUsersPerAgent()));
+            if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)) {
+                addProperty(sb, "Number of Agents", Integer.toString(proposedJobInstance.getNumAgents()));
+            } else {
+                addProperty(sb, "Max Users per Agent", Integer.toString(proposedJobInstance.getNumUsersPerAgent()));
+            }
             addProperty(sb, "Estimated Cost", calculateCost(config, proposedJobInstance, regions, simulationTime));
             addProperty(sb, "Location", proposedJobInstance.getLocation());
             addProperty(sb, "Logging Profile", LoggingProfile.fromString(proposedJobInstance.getLoggingProfile())
                     .getDisplayName());
             addProperty(sb, "Stop Behavior", StopBehavior.fromString(proposedJobInstance.getStopBehavior())
                     .getDisplay());
-            addProperty(sb, "Run Scripts Until", proposedJobInstance.getTerminationPolicy().getDisplay(),
-                    proposedJobInstance.getTerminationPolicy() == TerminationPolicy.time
-                            && proposedJobInstance.getSimulationTime() == 0 ? "error" : null);
+            if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                addProperty(sb, "Run Scripts Until", proposedJobInstance.getTerminationPolicy().getDisplay(),
+                        proposedJobInstance.getTerminationPolicy() == TerminationPolicy.time
+                                && proposedJobInstance.getSimulationTime() == 0 ? "error" : null);
+            } else {
+                addProperty(sb, "Run Scripts Until", TerminationPolicy.time.getDisplay());
+            }
             sb.append(BREAK);
             addProperty(
                     sb,
@@ -114,22 +123,58 @@ public class JobDetailFormatter {
                 addError(errorSB, "Simulation time not set.");
             }
             addProperty(sb, "Ramp Time", TimeUtil.toTimeString(proposedJobInstance.getRampTime()));
+            if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)){
+//                addProperty(sb, "Starting User Ramp (users/sec)", Integer.toString(proposedJobInstance.getStartRate()));
+                addProperty(sb, "Target User Ramp Rate (users/sec)", Integer.toString(proposedJobInstance.getUserIntervalIncrement()));
+            }
             addProperty(sb, "Initial Users", Integer.toString(proposedJobInstance.getBaselineVirtualUsers()));
-            addProperty(sb, "User Increment", Integer.toString(proposedJobInstance.getUserIntervalIncrement()));
+            if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                addProperty(sb, "User Increment", Integer.toString(proposedJobInstance.getUserIntervalIncrement()));
+            }
             // users and regions
             sb.append(BREAK);
-            addProperty(sb, "Total Users", Integer.toString(proposedJobInstance.getTotalVirtualUsers()),
-                    proposedJobInstance.getTotalVirtualUsers() == 0 ? "error" : "emphasis");
-            if (proposedJobInstance.getTotalVirtualUsers() == 0) {
-                addError(errorSB, "No users defined.");
+            if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                addProperty(sb, "Total Users", Integer.toString(proposedJobInstance.getTotalVirtualUsers()),
+                        proposedJobInstance.getTotalVirtualUsers() == 0 ? "error" : "emphasis");
+                if (proposedJobInstance.getTotalVirtualUsers() == 0) {
+                    addError(errorSB, "No users defined.");
+                }
+            } else {
+                addProperty(sb, "Regions", "", "emphasis");
             }
 
-            for (JobRegion r : regions) {
-                if (config.getStandalone()) {
-                    addProperty(sb, "  Users", r.getUsers());
-                } else {
-                    addProperty(sb, "  " + r.getRegion().getDescription(), r.getUsers());
+
+
+            if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                for (JobRegion r : regions) {
+                    int numMachines = JobVmCalculator.getMachinesForAgent(Integer.parseInt(r.getUsers()), proposedJobInstance.getNumUsersPerAgent());
+                    if (config.getStandalone()) {
+                        addProperty(sb, "  Users", r.getUsers());
+                    } else {
+                        addProperty(sb, "  " + r.getRegion().getDescription(), r.getUsers() + "  (Agents: " + numMachines + ")");
+                    }
                 }
+            } else { // Non-Linear Region Percentage Validation
+
+                // Calculate number of agents per region split for nonlinear workloads
+                Set<RegionRequest> regionRequests = new HashSet<>(regions);
+                Map<RegionRequest, Integer> regionAllocation = JobVmCalculator.getMachinesForAgentByUserPercentage(proposedJobInstance.getNumAgents(), regionRequests);
+
+                int regionPercentage = 0;
+                for (JobRegion r : regions) {
+                    addProperty(sb, "  " + r.getRegion().getDescription(), r.getPercentage() + "%" + "  (Agents: " + regionAllocation.get(r) + ")");
+                    regionPercentage += Integer.parseInt(r.getPercentage());
+                }
+                if (regionPercentage != 100) {
+                    addError(errorSB, "Region Percentage does not add up to 100%");
+                }
+
+                if(proposedJobInstance.getNumAgents() > proposedJobInstance.getUserIntervalIncrement()
+                    && proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)) {
+                    addError(errorSB, "Number of Agents cannot be greater than the Target User Ramp Rate"
+                            + "- update Target User Ramp Rate or set Number of Agents equal to or less than " + proposedJobInstance.getUserIntervalIncrement() + " agents");
+                }
+
             }
             sb.append(BREAK);
             sb.append(BREAK);
@@ -186,16 +231,22 @@ public class JobDetailFormatter {
             addProperty(sb, "Scripts", "", "emphasis");
             // scripts
             List<ScriptGroupStep> stepsList = new ArrayList<ScriptGroupStep>();
+            String target = "";
             for (TestPlan plan : workload.getTestPlans()) {
                 int numUsers = plan.getUserPercentage() > 0 ? proposedJobInstance.getTotalVirtualUsers() : 0;
                 if (plan.getUserPercentage() < 100 && plan.getUserPercentage() > 0) {
                     numUsers = (int) Math.floor(numUsers * ((double) plan.getUserPercentage() / 100D));
                 }
+                if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                    target = "(" + numUsers + " users)";
+                } else {
+                    target = "(" + proposedJobInstance.getUserIntervalIncrement() + " users/sec)";
+                }
                 addProperty(
                         sb,
                         "  " + plan.getName(),
-                        plan.getUserPercentage() + "% : (" + numUsers
-                                + " users) : estimated Time "
+                        plan.getUserPercentage() + "% : " + target
+                                + " : estimated Time "
                                 + TimeUtil.toTimeString(validator.getExpectedTime(plan.getName())),
                         userPercentage != 100 ? "error" : null);
 
@@ -282,7 +333,12 @@ public class JobDetailFormatter {
         List<VmInstanceType> instanceTypes = config.getVmManagerConfig().getInstanceTypes();
         BigDecimal costPerHour = instanceTypes.stream().filter(type -> type.getName().equals(proposedJobInstance.getVmInstanceType())).findFirst().map(type -> new BigDecimal(type.getCost())).orElseGet(() -> new BigDecimal(.5D));
         long time = simulationTime + proposedJobInstance.getRampTime();
-        int numMachines = regions.stream().mapToInt(region -> Integer.parseInt(region.getUsers())).filter(users -> users > 0).map(users -> (int) Math.ceil((double) users / (double) proposedJobInstance.getNumUsersPerAgent())).sum();
+        int numMachines;
+        if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+            numMachines = regions.stream().mapToInt(region -> Integer.parseInt(region.getUsers())).filter(users -> users > 0).map(users -> (int) Math.ceil((double) users / (double) proposedJobInstance.getNumUsersPerAgent())).sum();
+        } else {
+            numMachines = proposedJobInstance.getNumAgents();
+        }
         // dynamoDB costs about 1.5 times the instance cost
         BigDecimal cost = estimateCost(numMachines, costPerHour, time);
         NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);

@@ -16,6 +16,7 @@ package com.intuit.tank.vm.perfManager;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
@@ -31,13 +32,14 @@ public class RequestAgents implements Serializable {
      * @param numberOfUsers
      * @param stopBehavior
      */
-    public RequestAgents(String jobId, String reportingMode, String loggingProfile, VMRegion region, int numberOfUsers,
-            String stopBehavior) {
+    public RequestAgents(String jobId, String reportingMode, String loggingProfile, VMRegion region,
+                         IncrementStrategy incrementStrategy, int numberOfUsers, String stopBehavior) {
         this.items = new HashMap<String, Object>();
         this.setJobId(jobId);
         this.setLoggingProfile(loggingProfile);
         this.setNumberOfUsers(numberOfUsers);
         this.setRegion(region);
+        this.setIncrementStrategy(incrementStrategy);
         this.setReportingMode(reportingMode);
         this.setStopBehavior(stopBehavior);
     }
@@ -81,6 +83,10 @@ public class RequestAgents implements Serializable {
     public VMRegion getRegion() {
         return (VMRegion) this.items.get(TankConstants.KEY_REGION);
     }
+
+    public void setIncrementStrategy(IncrementStrategy incrementStrategy) { this.items.put(TankConstants.INCREMENT_STRATEGY, incrementStrategy.name()); }
+
+    public IncrementStrategy getIncrementStrategy() { return IncrementStrategy.valueOf((String) this.items.get(TankConstants.INCREMENT_STRATEGY)); }
 
     public void setReportingMode(String reportingMode) {
         this.items.put(TankConstants.KEY_REPORTING_MODE, reportingMode);

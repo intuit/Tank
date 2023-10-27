@@ -122,10 +122,23 @@
 
           <div class="formRow">
             <div class="formLabelDiv">
-              <h:outputText value="Total Users" styleClass="formLabel" />
+              <h:outputText value="Total Users" styleClass="formLabel" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"/>
+              <h:outputText value="Target User Ramp Rate (users/sec)" styleClass="formLabel" rendered="#{usersAndTimes.incrementStrategy == 'standard'}"/>
             </div>
             <div class="formInputDiv">
-              <h:outputText value="#{usersAndTimes.totalUsers}" id="totalUsersTF" />
+              <h:outputText value="#{usersAndTimes.totalUsers}" id="totalUsersTF" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"/>
+              <p:inplace label="#{usersAndTimes.endRate}" editor="true" rendered="#{usersAndTimes.incrementStrategy == 'standard'}">
+                <h:inputText id="endRateTF"
+                             value="#{usersAndTimes.endRate}"
+                             styleClass="formInput inputWidthSmall" required="true"
+                             requiredMessage="Target User Ramp Rate cannot be empty." rendered="#{usersAndTimes.incrementStrategy == 'standard'}">
+                  <f:validateLongRange minimum = "0" maximum = "99999999" />
+                </h:inputText>
+                <p:ajax event="save" update=":mainForm:endRateTF" rendered="#{usersAndTimes.incrementStrategy == 'standard'}" />
+              </p:inplace>
+              <ts:tip tipId="targetRampTip"
+                      text="Target User Ramp Rate dictates the ending ramp rate in users/sec for the nonlinear user ramp. This
+                            will inject users at regular intervals from the starting rate of 0 users/sec to the target rate for the provided ramp duration." rendered="#{usersAndTimes.incrementStrategy == 'standard'}" />
             </div>
           </div>
         </div>

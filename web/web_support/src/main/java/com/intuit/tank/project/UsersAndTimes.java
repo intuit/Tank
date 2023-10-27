@@ -25,6 +25,7 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,6 +60,10 @@ public class UsersAndTimes implements Serializable {
     private ProjectBean projectBean;
 
     private TankConfig tankConfig = new TankConfig();
+
+    private String targetRampRate;
+
+    private String userIncrement;
 
     @Inject
     private Messages messages;
@@ -352,7 +357,7 @@ public class UsersAndTimes implements Serializable {
     /**
      * Sets the increment strategy for the job
      * 
-     * @param workloadType
+     * @param strategy
      *            The increment strategy for the job.
      */
     public void setIncrementStrategy(IncrementStrategy strategy) {
@@ -380,10 +385,10 @@ public class UsersAndTimes implements Serializable {
      * @return the number of users increment for the job
      */
     public String getUserIncrement() {
-        if (projectBean.getJobConfiguration().getUserIntervalIncrement() > 0) {
-            return String.valueOf(projectBean.getJobConfiguration().getUserIntervalIncrement());
+        if(StringUtils.isEmpty(userIncrement)) {
+            return "1";
         }
-        return "1";
+        return userIncrement;
     }
 
     /**
@@ -396,6 +401,49 @@ public class UsersAndTimes implements Serializable {
         if (NumberUtils.isCreatable(startUsers)) {
             projectBean.getJobConfiguration().setUserIntervalIncrement(Integer.parseInt(startUsers));
         }
+        this.userIncrement = startUsers;
+    }
+      // TODO: need to update BaseJob to support both start and end rate
+//    /**
+//     * @return get nonlinear start rate for the job
+//     */
+//    public String getStartRate() {
+//        return String.valueOf(projectBean.getJobConfiguration().getStartRate());
+//    }
+//
+//    /**
+//     * set nonlinear start rate for the job
+//     *
+//     * @param startRate
+//     *          the start rate for the job
+//     *
+//     */
+//    public void setStartRate(String startRate) {
+//        projectBean.getJobConfiguration().setStartRate(Integer.parseInt(startRate));
+//    }
+
+     /**
+     * @return get nonlinear end rate for the job
+     */
+    public String getEndRate() {
+        if(StringUtils.isEmpty(targetRampRate)) {
+            return "1";
+        }
+        return targetRampRate;
+    }
+
+    /**
+     * set nonlinear end rate for the job
+     *
+     * @param endRate
+     *         the end rate for the job
+     *
+     */
+    public void setEndRate(String endRate) {
+        if(this.getIncrementStrategy().equals(IncrementStrategy.standard)) {
+            projectBean.getJobConfiguration().setUserIntervalIncrement(Integer.parseInt(endRate));
+        }
+        this.targetRampRate = endRate;
     }
 
     /**
