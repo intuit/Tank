@@ -75,7 +75,6 @@ public class JobVmCalculator {
             RegionRequest regionRequest = entry.getKey();
             agentAllocation.put(regionRequest, agentAllocation.get(regionRequest) + 1);
             remainingAgents--;
-            remainingFractions.add(entry);
         }
 
         return agentAllocation;

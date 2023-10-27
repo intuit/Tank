@@ -59,7 +59,7 @@ public class TestPlanStarter implements Runnable {
     private int threadsStarted = 0;
     private int sessionStarts = 0;
     private int totalTps = 0;
-    private long rampDelay;
+    private final long rampDelay;
     private int currentRampRate;
     private boolean done = false;
 
@@ -324,7 +324,7 @@ public class TestPlanStarter implements Runnable {
                             throw new InterruptedException();
                         }
                     }
-                    // each agent ramp 0 to 1 user/sec by adding fractional users to the total users over the initial ramp
+                    // each agent ramp 0 to 1 user/sec by adding fractional users to the total users over the initial ramp (not while it's waiting to start)
                     if((delay - baseDelay) <= initialRampTimeElapsed && initialRampTimeElapsed <= delay) { // if in initial ramp time (delay - baseDelay) to delay
                         double currentUsers = calculateTotalUsers((double) initialRampTimeInterval / 1000);
                         double expectedUsersToAdd = currentUsers - previousTotalUsers;
@@ -337,10 +337,10 @@ public class TestPlanStarter implements Runnable {
                             }
                             accumulatedUsers -= wholeNumberUsers;
                         }
-                        initialRampTimeInterval += 500;
+                        initialRampTimeInterval += 100;
                     }
-                    initialRampTimeElapsed += 500;
-                    Thread.sleep(500);
+                    initialRampTimeElapsed += 100;
+                    Thread.sleep(100); // check for pause and add fractional users every 1/10th of a second
                 } catch (InterruptedException e) {
                     long pauseStartTime = System.currentTimeMillis();
                     while (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp

@@ -361,11 +361,11 @@ public class JobManager implements Serializable {
         public int getUsers(AgentData agent) {
             int ret = 0;
             VMRegion region = agent.getRegion();
-
+            IncrementStrategy workloadType = jobRequest.getIncrementStrategy();
             for (RegionRequest r : jobRequest.getRegions()) {
                 if (region != r.getRegion()) continue;
 
-                if (jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing) && Integer.parseInt(r.getUsers()) > 0) {
+                if (workloadType.equals(IncrementStrategy.increasing) && Integer.parseInt(r.getUsers()) > 0) {
                     int numUsersRemaining = userMap.get(r);
                     ret = Math.min(agent.getCapacity(), numUsersRemaining);
                     userMap.put(r, numUsersRemaining - ret);
@@ -380,9 +380,9 @@ public class JobManager implements Serializable {
         }
 
         private void initializeUserMap(JobRequest request) {
-
+            IncrementStrategy workloadType = jobRequest.getIncrementStrategy();
             for (RegionRequest r : request.getRegions()) {
-                if(jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                if(workloadType.equals(IncrementStrategy.increasing)) {
                     int numUsers = NumberUtils.toInt(r.getUsers());
                     if (numUsers > 0) {
                         userMap.put(r, numUsers);
