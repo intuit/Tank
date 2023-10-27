@@ -234,18 +234,7 @@ public class TestPlanStarter implements Runnable {
                         break;
                     }
 
-                    long activeCount = 0; //default
-                    try {
-                        Thread[] list = new Thread[this.threadGroup.activeCount()];
-                        this.threadGroup.enumerate(list);
-                        activeCount = Arrays.stream(list)
-                                .filter(Objects::nonNull)
-                                .filter(Thread::isAlive)
-                                .filter(thread -> thread.getName() != null && thread.getName().equals("AGENT"))
-                                .count();
-                    } catch (SecurityException se) {
-                        LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
-                    }
+                    long activeCount = getActiveCount();
 
                     long currentLastRampIncreaseTime;
                     if(totalPauseTime > 0) { // if paused, add total pause duration to last ramp increase time for next evaluation
@@ -312,6 +301,7 @@ public class TestPlanStarter implements Runnable {
             double accumulatedUsers = 0.0;
             long initialRampTimeElapsed = 0;
             long initialRampTimeInterval = 0;
+            long activeCount = 0;
 
             while (System.currentTimeMillis() - startTime < (delay + totalPauseDuration)) {
                 try {
@@ -334,12 +324,15 @@ public class TestPlanStarter implements Runnable {
                             int wholeNumberUsers = (int) accumulatedUsers;
                             for (int i = 0; i < wholeNumberUsers; i++) {
                                 createThread(httpClient, this.threadsStarted);
+                                this.sessionStarts++; // track session starts
                             }
                             accumulatedUsers -= wholeNumberUsers;
                         }
                         initialRampTimeInterval += 100;
                     }
                     initialRampTimeElapsed += 100;
+                    activeCount = getActiveCount();
+                    sendCloudWatchMetrics(activeCount); // send metrics every 30 seconds
                     Thread.sleep(100); // check for pause and add fractional users every 1/10th of a second
                 } catch (InterruptedException e) {
                     long pauseStartTime = System.currentTimeMillis();
@@ -384,6 +377,22 @@ public class TestPlanStarter implements Runnable {
             double rampUpUsers = ((agentRunData.getTargetRampRate()) / (2 * d)) * Math.pow(d, 2);
             return rampUpUsers + (agentRunData.getTargetRampRate() * (t - d));
         }
+    }
+
+    private long getActiveCount() {
+        long activeCount = 0; //default
+        try {
+            Thread[] list = new Thread[this.threadGroup.activeCount()];
+            this.threadGroup.enumerate(list);
+            activeCount = Arrays.stream(list)
+                    .filter(Objects::nonNull)
+                    .filter(Thread::isAlive)
+                    .filter(thread -> thread.getName() != null && thread.getName().equals("AGENT"))
+                    .count();
+        } catch (SecurityException se) {
+            LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
+        }
+        return activeCount;
     }
 
     private void sendCloudWatchMetrics(long activeCount) {
