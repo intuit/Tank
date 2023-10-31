@@ -59,7 +59,7 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
 
     @NotNull
     @Column(name = "percentage", nullable = false)
-    private String percentage;
+    private String percentage = "0";
 
     /**
      * 
