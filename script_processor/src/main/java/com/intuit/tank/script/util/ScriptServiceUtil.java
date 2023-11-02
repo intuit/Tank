@@ -16,11 +16,11 @@ package com.intuit.tank.script.util;
  * #L%
  */
 
-import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
-import com.intuit.tank.api.model.v1.script.ScriptDescription;
-import com.intuit.tank.api.model.v1.script.ScriptStepTO;
-import com.intuit.tank.api.model.v1.script.ScriptTO;
-import com.intuit.tank.api.model.v1.script.StepDataTO;
+import com.intuit.tank.script.models.ExternalScriptTO;
+import com.intuit.tank.script.models.ScriptDescription;
+import com.intuit.tank.script.models.ScriptStepTO;
+import com.intuit.tank.script.models.ScriptTO;
+import com.intuit.tank.script.models.StepDataTO;
 import com.intuit.tank.project.ExternalScript;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;

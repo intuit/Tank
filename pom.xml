@@ -92,7 +92,6 @@
       <modules>
         <module>agent</module>
         <module>tools</module>
-        <module>rest</module>
         <module>rest-mvc</module>
         <module>tank_common</module>
         <module>proxy-parent</module>
@@ -189,7 +188,6 @@
         <module>doc</module>
         <module>agent</module>
         <module>tools</module>
-        <module>rest</module>
         <module>rest-mvc</module>
         <module>proxy-parent</module>
         <module>script_processor</module>
@@ -217,7 +215,6 @@
         <module>doc</module>
         <module>agent</module>
         <module>tools</module>
-        <module>rest</module>
         <module>rest-mvc</module>
         <module>proxy-parent</module>
         <module>script_processor</module>

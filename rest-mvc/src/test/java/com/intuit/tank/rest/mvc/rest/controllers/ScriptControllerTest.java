@@ -9,11 +9,11 @@ package com.intuit.tank.rest.mvc.rest.controllers;
 
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ExternalScript;
-import com.intuit.tank.api.model.v1.script.ScriptTO;
-import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
-import com.intuit.tank.api.model.v1.script.ScriptDescriptionContainer;
-import com.intuit.tank.api.model.v1.script.ExternalScriptContainer;
-import com.intuit.tank.api.model.v1.script.ScriptDescription;
+import com.intuit.tank.script.models.ScriptTO;
+import com.intuit.tank.script.models.ExternalScriptTO;
+import com.intuit.tank.script.models.ScriptDescriptionContainer;
+import com.intuit.tank.script.models.ExternalScriptContainer;
+import com.intuit.tank.script.models.ScriptDescription;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
 import com.intuit.tank.rest.mvc.rest.services.scripts.ScriptServiceV2;
 import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
@@ -29,7 +29,6 @@ import static org.mockito.Mockito.*;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
-import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
