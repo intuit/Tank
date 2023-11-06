@@ -12,7 +12,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.ws.rs.core.UriBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Objects;
@@ -47,13 +47,15 @@ public class TankSsoHandler {
             throw new IllegalArgumentException("Missing OIDC SSO Config");
         }
 
-        URI uri = UriBuilder
-                .fromUri(oidcSsoConfig.getAuthorizationUrl())
+        URI uri = UriComponentsBuilder
+                .fromHttpUrl(oidcSsoConfig.getAuthorizationUrl())
                 .queryParam(OidcConstants.CLIENT_ID_KEY, oidcSsoConfig.getClientId())
                 .queryParam(OidcConstants.RESPONSE_TYPE_KEY, OidcConstants.RESPONSE_TYPE_VALUE)
                 .queryParam(OidcConstants.REDIRECT_URL_KEY, oidcSsoConfig.getRedirectUrl())
                 .queryParam(OidcConstants.SCOPE_KEY, OidcConstants.SCOPE_VALUE)
-                .queryParam(OidcConstants.STATE_KEY, OidcConstants.STATE_VALUE).build();
+                .queryParam(OidcConstants.STATE_KEY, OidcConstants.STATE_VALUE)
+                .build()
+                .toUri();
 
         return oidcSsoConfig.getAuthorizationUrl() + "?" + uri.getQuery();
     }

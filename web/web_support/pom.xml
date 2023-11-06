@@ -18,30 +18,6 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>datafile-service</artifactId>
-      <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>xml-apis</artifactId>
-          <groupId>xml-apis</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>report-service</artifactId>
-      <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>servlet-api</artifactId>
-          <groupId>javax.servlet</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>harness-data</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -60,25 +36,19 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>script-service</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>cloud-service</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>tank-script-processor</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>WebConversation</artifactId>
       <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>WebConversation</artifactId>
+      <artifactId>tank-vm-manager</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -106,6 +76,11 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.glassfish.soteria</groupId>
+      <artifactId>javax.security.enterprise</artifactId>
     </dependency>
 
     <!-- JSF -->
