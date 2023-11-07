@@ -7,11 +7,11 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers;
 
-import com.intuit.tank.api.model.v1.script.ExternalScriptContainer;
-import com.intuit.tank.api.model.v1.script.ExternalScriptTO;
-import com.intuit.tank.api.model.v1.script.ScriptDescription;
-import com.intuit.tank.api.model.v1.script.ScriptDescriptionContainer;
-import com.intuit.tank.api.model.v1.script.ScriptTO;
+import com.intuit.tank.script.models.ExternalScriptContainer;
+import com.intuit.tank.script.models.ExternalScriptTO;
+import com.intuit.tank.script.models.ScriptDescription;
+import com.intuit.tank.script.models.ScriptDescriptionContainer;
+import com.intuit.tank.script.models.ScriptTO;
 import com.intuit.tank.rest.mvc.rest.services.scripts.ScriptServiceV2;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +21,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
