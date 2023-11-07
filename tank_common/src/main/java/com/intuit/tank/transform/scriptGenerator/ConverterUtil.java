@@ -116,35 +116,29 @@ public class ConverterUtil {
         hdWorkload.setDescription(name);
         hdWorkload.setName(name);
         hdWorkload.setVariables(new HDTestVariables(job.isAllowOverride(), job.getVariables()));
-        for (TestPlan plan : workload.getTestPlans()) {
-            HDTestPlan tp = new HDTestPlan();
-            tp.setTestPlanName(plan.getName());
-            tp.setUserPercentage(plan.getUserPercentage());
-            tp.getGroup().addAll(convertScriptGroups(plan.getScriptGroups(), new StepCounter()));
-            hdWorkload.getPlans().add(tp);
-        }
+        workload.getTestPlans()
+                .forEach(plan -> hdWorkload.getPlans()
+                        .add(new HDTestPlan(
+                                plan.getName(),
+                                plan.getUserPercentage(),
+                                convertScriptGroups(plan.getScriptGroups(), new StepCounter()))));
         return hdWorkload;
 
     }
 
     public static String getWorkloadXML(HDWorkload hdWorkload) {
         AWSXRay.beginSubsegment("JAXB.Marshal." + HDWorkload.class.getSimpleName());
-        StringWriter sw;
-        try {
+        try (StringWriter stringWriter = new StringWriter()){
             JAXBContext context = JAXBContext.newInstance(HDWorkload.class.getPackage().getName());
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            sw = new StringWriter();
-            marshaller.marshal(hdWorkload, sw);
-            sw.flush();
-            sw.close();
+            marshaller.marshal(hdWorkload, stringWriter);
+            return stringWriter.toString();
         } catch (JAXBException | IOException e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         } finally {
             AWSXRay.endSubsegment();
         }
-        return sw.toString();
     }
 
     private static List<HDScriptGroup> convertScriptGroups(List<ScriptGroup> scriptGroups, StepCounter sc) {
