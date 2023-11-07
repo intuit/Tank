@@ -1,5 +1,7 @@
 package com.intuit.tank.vmManager.environment.amazon;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Subsegment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -130,10 +132,13 @@ public class AmazonInstance implements IEnvironmentInstance {
      */
     @Override
     public List<VMInformation> create(VMRequest request) {
+        Subsegment subsegment = AWSXRay.beginSubsegment("Request.Agents." + vmRegion.getRegion());
         List<VMInformation> result = new ArrayList<>();
         try {
             ControllerLoggingConfig.setupThreadContext();
             VMInstanceRequest instanceRequest = (VMInstanceRequest) request;
+            subsegment.putMetadata("count", instanceRequest.getNumberOfInstances());
+            subsegment.putMetadata("instanceTYpe", instanceRequest.getSize());
             InstanceDescription instanceDescription = instanceRequest.getInstanceDescription();
             if (instanceDescription == null) {
                 instanceDescription = config.getVmManagerConfig().getInstanceForRegionAndType(vmRegion, instanceRequest.getImage());
@@ -299,6 +304,8 @@ public class AmazonInstance implements IEnvironmentInstance {
         } catch (Exception ex) {
             LOG.error("Error starting instances: " + ex.getMessage(), ex);
             throw new RuntimeException(ex);
+        } finally {
+            AWSXRay.endSubsegment();
         }
         return result;
     }

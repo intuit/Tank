@@ -50,7 +50,7 @@ public class IncreasingWorkLoad implements Runnable {
 
     @Override
     public void run() {
-        AWSXRay.beginSubsegment("Ask.For.Agents.JobId." + job.getId());
+        AWSXRay.beginSubsegment("Request.Agents.JobId." + job.getId());
         try {
             askForAgents(new JobInstanceAgentModel(job));
         } catch (Exception th) {
@@ -71,7 +71,7 @@ public class IncreasingWorkLoad implements Runnable {
 
         // start the non region dependent reporting resources if needed
         ArrayList<AgentMngrAPIRequest.UserRequest> urList = new ArrayList<AgentMngrAPIRequest.UserRequest>();
-        Entity segment = AWSXRay.getTraceEntity();
+        Entity segment = AWSXRay.getGlobalRecorder().getTraceEntity();
         job.getRegions().parallelStream().forEach(jobRegion -> segment.run(() -> {
             int users;
             if(job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
