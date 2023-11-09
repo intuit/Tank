@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 
+import com.intuit.tank.project.Script;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -106,7 +107,7 @@ public class ProjectDaoTest {
             persistedProject = dao.saveOrUpdate(persistedProject);
             persistedProject = dao.findByIdEager(projectId);
             assertEquals(persistedProject.getWorkloads().get(0), originalOrder.get(1));
-            assertEquals(1, persistedProject.getWorkloads().size());
+            assertEquals(2, persistedProject.getWorkloads().size());
 
         } finally {
             // delete it
@@ -136,36 +137,93 @@ public class ProjectDaoTest {
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
-    @Disabled
     public void testBasicCreateUpdateDelete() throws Exception {
-        List<Project> all = dao.findAll();
-        int originalSize = all.size();
+        // Arrange
         Project project = DaoTestUtil.createProject();
+        Project project2 = DaoTestUtil.createProject();
         project.addWorkload(DaoTestUtil.createWorkload());
         project.addWorkload(DaoTestUtil.createWorkload());
+        assertEquals(0, dao.findAll().size());
         Project persistedProject = dao.saveOrUpdate(project);
+        dao.saveOrUpdate(project2);
 
+        // Act & Assert
+        List<Project> projects = dao.findAll();
         validateProject(project, persistedProject, false);
+        assertEquals(2, projects.size());
+        assertEquals(3, projects.get(0).getWorkloads().size());
+
+        // Act & Assert
         project = dao.findByIdEager(persistedProject.getId());
+        assertNotNull(project);
         project.setComments("new Comments");
         persistedProject = dao.saveOrUpdate(project);
         validateProject(project, persistedProject, false);
+        assertEquals(2, dao.findAll().size());
 
-        all = dao.findAll();
-        assertNotNull(all);
-        assertEquals(originalSize + 1, all.size());
+        // Act & Assert
+        projects = dao.findAll();
+        assertNotNull(projects);
+        assertEquals(2, projects.size());
 
-        all = dao.findAll();
-        assertNotNull(all);
-        assertEquals(originalSize + 1, all.size());
-
-        // delete it
+        // cleanup
         dao.delete(persistedProject);
-        project = dao.findByIdEager(project.getId());
-        assertNull(project);
-        all = dao.findAll();
-        assertEquals(originalSize, all.size());
+        dao.delete(project2);
+        assertEquals(0, dao.findAllFast().size());
     }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void test_findByName() throws Exception {
+        // Arrange
+        Project project = DaoTestUtil.createProject();
+        String name = project.getName();
+        Project persistedProject = dao.saveOrUpdate(project);
+
+        // Act & Assert
+        Project returnedProject = dao.findByName(name);
+        assertEquals(name, returnedProject.getName());
+
+        // cleanup
+        dao.delete(persistedProject);
+        assertEquals(0, dao.findAll().size());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void test_saveOrUpdateProject() throws Exception {
+        // Arrange
+        Project project = DaoTestUtil.createProject();
+
+        // Act
+        Project persistedProject = dao.saveOrUpdateProject(project);
+
+        // Assert
+        validateProject(project, persistedProject, false);
+        // Cleanup
+        dao.delete(project);
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void test_loadScripts() throws Exception {
+        // Arrange
+        Project project = DaoTestUtil.createProject();
+        Script script = DaoTestUtil.createScript();
+        project.getWorkloads().get(0).getTestPlans().get(0).getScriptGroups().get(0).getScriptGroupSteps().get(0).setScript(script);
+        new ScriptDao().saveOrUpdate(script);
+        Project persistedProject = dao.saveOrUpdate(project);
+
+        // Act & Assert
+        Project returnedProject = dao.loadScripts(persistedProject.getId());
+        assertEquals(0, returnedProject.getWorkloads().get(0).getTestPlans().get(0).getScriptGroups().get(0).getScriptGroupSteps().get(0).getScript().getSteps().size());
+
+        // cleanup
+        dao.delete(persistedProject);
+        assertEquals(0, dao.findAll().size());
+        new ScriptDao().delete(script);
+    }
+
 
     private void validateProject(Project project, Project persistedProject, boolean checkCreateAttributes) {
         if (checkCreateAttributes) {

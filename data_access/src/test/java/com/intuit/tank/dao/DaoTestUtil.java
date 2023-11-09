@@ -16,29 +16,14 @@ package com.intuit.tank.dao;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
-import com.intuit.tank.project.DataFile;
-import com.intuit.tank.project.Group;
-import com.intuit.tank.project.JobRegion;
-import com.intuit.tank.project.PeriodicData;
-import com.intuit.tank.project.Project;
-import com.intuit.tank.project.Script;
-import com.intuit.tank.project.ScriptGroup;
-import com.intuit.tank.project.ScriptGroupStep;
-import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.project.User;
-import com.intuit.tank.project.Workload;
+import com.intuit.tank.project.*;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.common.PasswordEncoder;
 
@@ -68,6 +53,18 @@ public class DaoTestUtil {
         return Project.builder().comments("Comments")
                 .creator("Test Creator")
                 .productName("Test Product Name")
+                .addWorkload(Workload.builder().name("Test Workload " + generateStringOfLength(15))
+                        .addTestPlans(
+                                TestPlan.builder()
+                                        .name("TestPlan")
+                                        .withScriptGroups(
+                                                Collections.singletonList(
+                                                        ScriptGroup.builder()
+                                                                .name("ScriptGroup")
+                                                                .addScriptGroupStep(ScriptGroupStep.builder().build())
+                                                                .build()))
+                                        .build())
+                        .build())
                 .name("Test Project Name " + generateStringOfLength(15)).build();
     }
     
