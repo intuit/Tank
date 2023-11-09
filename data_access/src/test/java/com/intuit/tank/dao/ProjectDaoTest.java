@@ -28,13 +28,13 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
+import org.hibernate.LazyInitializationException;
 import org.hibernate.PropertyValueException;
 
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.test.TestGroups;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -94,7 +94,7 @@ public class ProjectDaoTest {
             Workload removed = workloads.remove(2);
             workloads.add(0, removed);
             persistedProject = dao.saveOrUpdate(persistedProject);
-            persistedProject = dao.findByIdEager(projectId);
+            persistedProject = dao.findById(projectId);
 
             assertNotEquals(persistedProject.getWorkloads().get(0), originalOrder.get(0));
             assertEquals(persistedProject.getWorkloads().get(0), originalOrder.get(2));
@@ -105,7 +105,7 @@ public class ProjectDaoTest {
             persistedProject.getWorkloads().remove(2);
             persistedProject.getWorkloads().remove(0);
             persistedProject = dao.saveOrUpdate(persistedProject);
-            persistedProject = dao.findByIdEager(projectId);
+            persistedProject = dao.findById(projectId);
             assertEquals(persistedProject.getWorkloads().get(0), originalOrder.get(1));
             assertEquals(2, persistedProject.getWorkloads().size());
 
@@ -154,7 +154,7 @@ public class ProjectDaoTest {
         assertEquals(3, projects.get(0).getWorkloads().size());
 
         // Act & Assert
-        project = dao.findByIdEager(persistedProject.getId());
+        project = dao.findById(persistedProject.getId());
         assertNotNull(project);
         project.setComments("new Comments");
         persistedProject = dao.saveOrUpdate(project);
@@ -174,19 +174,35 @@ public class ProjectDaoTest {
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
-    public void test_findByName() throws Exception {
+    public void test_findByX() throws Exception {
         // Arrange
         Project project = DaoTestUtil.createProject();
         String name = project.getName();
+        String testPlanName = project.getWorkloads().get(0).getTestPlans().get(0).getName();
         Project persistedProject = dao.saveOrUpdate(project);
+        int id = persistedProject.getId();
 
         // Act & Assert
-        Project returnedProject = dao.findByName(name);
-        assertEquals(name, returnedProject.getName());
+        Project nameProject = dao.findByName(name);
+        assertNotNull(nameProject);
+        assertEquals(name, nameProject.getName());
+        assertThrows(LazyInitializationException.class, () -> nameProject.getWorkloads().get(0));
+
+        // Act & Assert
+        Project idProject = dao.findById(id);
+        assertNotNull(idProject);
+        assertEquals(name, idProject.getName());
+        assertThrows(LazyInitializationException.class, () -> idProject.getWorkloads().get(0).getTestPlans().get(0));
+
+        // Act & Assert
+        Project eagerProject = dao.findByIdEager(persistedProject.getId());
+        assertNotNull(eagerProject);
+        validateProject(project, persistedProject, false);
+        assertEquals(testPlanName, eagerProject.getWorkloads().get(0).getTestPlans().get(0).getName());
 
         // cleanup
         dao.delete(persistedProject);
-        assertEquals(0, dao.findAll().size());
+        assertEquals(0, dao.findAllFast().size());
     }
 
     @Test
@@ -200,6 +216,7 @@ public class ProjectDaoTest {
 
         // Assert
         validateProject(project, persistedProject, false);
+
         // Cleanup
         dao.delete(project);
     }
@@ -220,7 +237,7 @@ public class ProjectDaoTest {
 
         // cleanup
         dao.delete(persistedProject);
-        assertEquals(0, dao.findAll().size());
+        assertEquals(0, dao.findAllFast().size());
         new ScriptDao().delete(script);
     }
 
