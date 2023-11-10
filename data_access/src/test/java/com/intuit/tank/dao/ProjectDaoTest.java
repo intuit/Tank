@@ -24,6 +24,7 @@ import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 
 import com.intuit.tank.project.Script;
+import com.intuit.tank.project.TestPlan;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -177,6 +178,7 @@ public class ProjectDaoTest {
     public void test_findByX() throws Exception {
         // Arrange
         Project project = DaoTestUtil.createProject();
+        project.getWorkloads().get(0).addTestPlan(DaoTestUtil.createTestPlan());
         String name = project.getName();
         String testPlanName = project.getWorkloads().get(0).getTestPlans().get(0).getName();
         Project persistedProject = dao.saveOrUpdate(project);
@@ -197,7 +199,8 @@ public class ProjectDaoTest {
         // Act & Assert
         Project eagerProject = dao.findByIdEager(persistedProject.getId());
         assertNotNull(eagerProject);
-        validateProject(project, persistedProject, false);
+        validateProject(project, eagerProject, false);
+        assertEquals(2, eagerProject.getWorkloads().get(0).getTestPlans().size());
         assertEquals(testPlanName, eagerProject.getWorkloads().get(0).getTestPlans().get(0).getName());
 
         // cleanup

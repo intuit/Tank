@@ -150,7 +150,7 @@ public class ProjectDao extends OwnableDao<Project> {
 	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
 	        Root<Project> root = query.from(Project.class);
 	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
-	        wl.fetch("jobConfiguration");
+            wl.fetch(Workload.PROPERTY_JOB_CONFIGURATION);
 	        query.select(root).distinct(true);
 	        results = em.createQuery(query).setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, true).getResultList();
 	        commit();

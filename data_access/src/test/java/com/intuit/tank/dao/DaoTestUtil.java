@@ -56,7 +56,7 @@ public class DaoTestUtil {
                 .addWorkload(Workload.builder().name("Test Workload " + generateStringOfLength(15))
                         .addTestPlans(
                                 TestPlan.builder()
-                                        .name("TestPlan")
+                                        .name("TestPlan " + generateStringOfLength(15))
                                         .withScriptGroups(
                                                 Collections.singletonList(
                                                         ScriptGroup.builder()
@@ -74,13 +74,19 @@ public class DaoTestUtil {
      * @return the new Workload
      */
     public static Workload createWorkload() {
-        // .baselineVirtualUsers(random.nextInt(100))
-        // .rampTime(random.nextInt(1000000))
-        // .simulationTime(random.nextInt(1000000))
-        // .totalVirtualUsers(random.nextInt(10000000))
-        // .userIntervalIncrement(random.nextInt(100))
         return Workload.builder()
                 .name("Test Workload " + generateStringOfLength(15))
+                .build();
+    }
+
+    /**
+     * Generate a new TestPlan object for testing.
+     *
+     * @return the new Workload
+     */
+    public static TestPlan createTestPlan() {
+        return TestPlan.builder()
+                .name("TestPlan " + generateStringOfLength(15))
                 .build();
     }
 
