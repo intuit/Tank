@@ -56,7 +56,8 @@ public class ProjectDao extends OwnableDao<Project> {
     }
 
     /**
-     * 
+     * Shallow project lookup used to avoid name collision
+     *
      * @param name
      * @return
      */
@@ -69,7 +70,7 @@ public class ProjectDao extends OwnableDao<Project> {
 	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
 	        Root<Project> root = query.from(Project.class);
 	        query.select(root);
-            query.where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
+	        query.where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
 	        project = em.createQuery(query).getSingleResult();
     		commit();
         } catch (Exception e) {
@@ -108,7 +109,7 @@ public class ProjectDao extends OwnableDao<Project> {
     }
     
     /**
-     * This is an override of the BaseEntity to initiate eager loading when needed.
+     * Deep lookup of full project, initiate eager loading when needed.
      * 
      * @param id
      *            the primary key
@@ -133,7 +134,8 @@ public class ProjectDao extends OwnableDao<Project> {
     }
 
     /**
-     * Finds all Objects of type T_ENTITY
+     * Override BaseDao to deep lookup finaAll Projects
+     * This is very slow, thousands of queries, don't use this.
      * 
      * @return the nonnull list of entities
      * @throws HibernateException
@@ -150,7 +152,7 @@ public class ProjectDao extends OwnableDao<Project> {
 	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
 	        Root<Project> root = query.from(Project.class);
 	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
-            wl.fetch(Workload.PROPERTY_JOB_CONFIGURATION);
+	        wl.fetch(Workload.PROPERTY_JOB_CONFIGURATION);
 	        query.select(root).distinct(true);
 	        results = em.createQuery(query).setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, true).getResultList();
 	        commit();
@@ -165,7 +167,7 @@ public class ProjectDao extends OwnableDao<Project> {
     }
 
     /**
-     * Finds all Objects of type T_ENTITY
+     * Shallow find of all Projects, used for debugger request.
      *
      * @return the nonnull list of entities
      * @throws HibernateException
