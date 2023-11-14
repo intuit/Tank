@@ -20,8 +20,10 @@ import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 
+import com.intuit.tank.project.Project;
 import com.intuit.tank.test.TestGroups;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -247,10 +249,24 @@ public class ScriptDaoTest {
 
         // delete it
         dao.delete(persisted);
-        entity = dao.findById(entity.getId());
-        assertNull(entity);
-        all = dao.findAll();
-        assertEquals(originalSize, all.size());
+        assertNull(dao.findById(entity.getId()));
+        assertEquals(originalSize, dao.findAll().size());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testDeleteException() throws Exception {
+        Project project = DaoTestUtil.createProject();
+        Script script = DaoTestUtil.createScript();
+        project.getWorkloads().get(0).getTestPlans().get(0).getScriptGroups().get(0).getScriptGroupSteps().get(0).setScript(script);
+
+        dao.saveOrUpdate(script);
+        new ProjectDao().saveOrUpdate(project);
+
+        assertThrows(RuntimeException.class, () -> dao.delete(script.getId()));
+
+        new ProjectDao().delete(project);
+        dao.delete(script.getId());
     }
 
     private void validate(Script entity1, Script entity2, boolean checkCreateAttributes) {

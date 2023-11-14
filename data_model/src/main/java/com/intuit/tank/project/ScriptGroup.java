@@ -157,8 +157,8 @@ public class ScriptGroup extends BaseEntity implements Comparable<ScriptGroup> {
     }
 
     /**
-     * @param workload
-     *            the workload to set
+     * @param testPlan
+     *            the testPlan to set
      */
     protected void setTestPlan(TestPlan testPlan) {
         this.testPlan = testPlan;
@@ -244,6 +244,13 @@ public class ScriptGroup extends BaseEntity implements Comparable<ScriptGroup> {
         @SuppressWarnings("unchecked")
         public GeneratorT testPlan(TestPlan aValue) {
             instance.setTestPlan(aValue);
+
+            return (GeneratorT) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT addScriptGroupStep(ScriptGroupStep aValue) {
+            instance.addScriptGroupStep(aValue);
 
             return (GeneratorT) this;
         }

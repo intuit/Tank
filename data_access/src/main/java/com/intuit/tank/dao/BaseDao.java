@@ -30,8 +30,6 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +41,7 @@ import org.hibernate.envers.AuditReaderFactory;
 
 import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.view.filter.ViewFilterType;
+import org.hibernate.exception.ConstraintViolationException;
 
 /**
  * BaseDao
@@ -152,23 +151,13 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
                 entity = em.merge(entity);
             }
             commit();
-        } catch (ConstraintViolationException e) {
-            for (@SuppressWarnings("rawtypes") ConstraintViolation v : e.getConstraintViolations()) {
-                LOG.warn("ConstraintViolation for " + entityClass.getSimpleName() + " "
-                        + "[property: " + v.getPropertyPath().iterator().next().getName() + "]" + " "
-                        + "[message: " + v.getMessage() + "]" + " "
-                        + "[invalid value: " + v.getInvalidValue() + "]");
-            }
-            throw e;
         } catch (PersistenceException e) { // wrapped in a Persistence Exception
             if (e.getCause() instanceof ConstraintViolationException) {
                 ConstraintViolationException cve = (ConstraintViolationException) e.getCause();
-                for (@SuppressWarnings("rawtypes") ConstraintViolation v : cve.getConstraintViolations()) {
-                    LOG.warn("ConstraintViolation for " + entityClass.getSimpleName() + " "
-                            + "[property: " + v.getPropertyPath().iterator().next().getName() + "]" + " "
-                            + "[message: " + v.getMessage() + "]" + " "
-                            + "[invalid value: " + v.getInvalidValue() + "]");
-                }
+                LOG.warn("ConstraintViolation for " + entityClass.getSimpleName() + " "
+                        + "[property: " + cve.getConstraintName() + "]" + " "
+                        + "[message: " + cve.getMessage() + "]" + " "
+                        + "[invalid value: " + cve.getSQL() + "]");
                 throw cve;
             }
             throw e;
@@ -195,7 +184,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
                 if (entity.getId() == 0) {
                     em.persist(entity);
                 } else {
-                    entity = em.merge(entity);
+                    em.merge(entity);
                 }
                 if (++count % 1000 == 0) {
                     em.flush();
@@ -203,23 +192,13 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
                 }
             }
             commit();
-        } catch (ConstraintViolationException e) {
-            for (@SuppressWarnings("rawtypes") ConstraintViolation v : e.getConstraintViolations()) {
-                LOG.warn("ConstraintViolation for " + entityClass.getSimpleName() + " "
-                        + "[property: " + v.getPropertyPath().iterator().next().getName() + "]" + " "
-                        + "[message: " + v.getMessage() + "]" + " "
-                        + "[invalid value: " + v.getInvalidValue() + "]");
-            }
-            throw e;
         } catch (PersistenceException e) { // wrapped in a Persistence Exception
             if (e.getCause() instanceof ConstraintViolationException) {
                 ConstraintViolationException cve = (ConstraintViolationException) e.getCause();
-                for (@SuppressWarnings("rawtypes") ConstraintViolation v : cve.getConstraintViolations()) {
-                    LOG.warn("ConstraintViolation for " + entityClass.getSimpleName() + " "
-                            + "[property: " + v.getPropertyPath().iterator().next().getName() + "]" + " "
-                            + "[message: " + v.getMessage() + "]" + " "
-                            + "[invalid value: " + v.getInvalidValue() + "]");
-                }
+                LOG.warn("ConstraintViolation for " + entityClass.getSimpleName() + " "
+                        + "[property: " + cve.getConstraintName() + "]" + " "
+                        + "[message: " + cve.getMessage() + "]" + " "
+                        + "[invalid value: " + cve.getSQL() + "]");
                 throw cve;
             }
             throw e;
@@ -234,6 +213,7 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
 
     /**
      * Deletes the entity from the datastore and applies cascade rules.
+     * CriteriaDelete will not cascade deletes
      * 
      * @param id
      *            the id of the entity to delete
@@ -377,35 +357,6 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
         	cleanup();
         }
         return results;
-    }
-
-    /**
-     * 
-     * @param qlString
-     * @param params
-     * @return
-     */
-    @Nullable
-    public T_ENTITY findOneWithJQL(String qlString, NamedParameter... params) {
-        T_ENTITY result = null;
-        TypedQuery<T_ENTITY> query = null;
-        try {
-            begin();
-            query = getEntityManager().createQuery(qlString, entityClass);
-            for (NamedParameter param : params) {
-                query.setParameter(param.getName(), param.getValue());
-            }
-            result = query.getSingleResult();
-            commit();
-        } catch (Exception e) {
-        	rollback();
-        	String printQuery = (query != null) ? query.toString()
-                    : "Failed to connect to database: ";
-            LOG.info("no entity matching query: " + printQuery, e);
-        } finally {
-            cleanup();
-        }
-        return result;
     }
 
     /**

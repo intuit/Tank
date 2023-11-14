@@ -53,14 +53,19 @@ public class JobInstanceDaoTest {
     	config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
     	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
         dao = new JobInstanceDao();
-        insertData();
     }
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
-    public void testFindComplete() throws Exception {
-        List<JobInstance> all = dao.findAll();
-        assertEquals(3, all.size());
+    public void testFindComplete() {
+        // Arrange
+        insertData();
+
+        // Act & Assert
+        List<JobInstance> jobs = dao.findAll();
+        assertEquals(3, jobs.size());
+
+        // Act & Assert
         List<JobInstance> findCompleted = dao.findCompleted();
         assertEquals(1, findCompleted.size());
         JobInstance job = findCompleted.get(0);
