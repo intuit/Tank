@@ -1140,6 +1140,10 @@
 
   <repositories>
     <repository>
+      <id>Maven Central</id>
+      <url>https://repo1.maven.org/maven2/</url>
+    </repository>
+    <repository>
       <id>jboss-repo</id>
       <name>Jboss maven repo</name>
       <url>https://repository.jboss.org/nexus/content/groups/public</url>
@@ -1164,10 +1168,6 @@
       <id>codehaus</id>
       <name>Codehaus Repo</name>
       <url>https://repository-master.mulesoft.org/nexus/content/groups/public/</url>
-    </repository>
-    <repository>
-      <id>Maven Central 1</id>
-      <url>https://repo1.maven.org/maven2</url>
     </repository>
   </repositories>
 
