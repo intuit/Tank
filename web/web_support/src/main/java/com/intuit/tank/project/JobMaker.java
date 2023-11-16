@@ -437,9 +437,6 @@ public class JobMaker implements Serializable {
             if (regionPercentage != 100) {
                 return false;
             }
-            if(proposedJobInstance.getNumAgents() > proposedJobInstance.getUserIntervalIncrement()) {
-                return false;
-            }
         }
         return hasScripts();
     }

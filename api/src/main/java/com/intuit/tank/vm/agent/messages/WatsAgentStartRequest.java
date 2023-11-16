@@ -59,7 +59,7 @@ public class WatsAgentStartRequest implements Serializable {
     private int startUsers;
 
     @XmlElement(name = "userIntervalIncrement", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
-    private int userIntervalIncrement;
+    private double userIntervalIncrement;
 
     @XmlElement(name = "agentInstanceNum", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int agentInstanceNum;
@@ -154,7 +154,7 @@ public class WatsAgentStartRequest implements Serializable {
         this.userIntervalIncrement = userIntervalIncrement;
     }
 
-    public int getUserIntervalIncrement() {
+    public double getUserIntervalIncrement() {
         return userIntervalIncrement > 0 ? userIntervalIncrement : 1;
     }
 

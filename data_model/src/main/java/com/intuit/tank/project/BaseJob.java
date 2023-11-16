@@ -93,7 +93,7 @@ public abstract class BaseJob extends BaseEntity {
     private String simulationTimeExpression;
 
     @Column(name = "user_interval_increment_seconds")
-    private int userIntervalIncrement;
+    private double userIntervalIncrement;
 
     @Column(name = "reporting_mode", nullable = false)
     private String reportingMode = TankConstants.RESULTS_NONE;
@@ -422,7 +422,7 @@ public abstract class BaseJob extends BaseEntity {
     /**
      * @return the userIntervalIncrement
      */
-    public int getUserIntervalIncrement() {
+    public double getUserIntervalIncrement() {
         return userIntervalIncrement;
     }
 
@@ -430,7 +430,7 @@ public abstract class BaseJob extends BaseEntity {
      * @param userIntervalIncrement
      *            the userIntervalIncrement to set
      */
-    public void setUserIntervalIncrement(int userIntervalIncrement) {
+    public void setUserIntervalIncrement(double userIntervalIncrement) {
         this.userIntervalIncrement = userIntervalIncrement;
     }
 

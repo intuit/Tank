@@ -399,7 +399,7 @@ public class UsersAndTimes implements Serializable {
      */
     public void setUserIncrement(String startUsers) {
         if (NumberUtils.isCreatable(startUsers)) {
-            projectBean.getJobConfiguration().setUserIntervalIncrement(Integer.parseInt(startUsers));
+            projectBean.getJobConfiguration().setUserIntervalIncrement(Double.parseDouble(startUsers));
         }
         this.userIncrement = startUsers;
     }
@@ -441,7 +441,7 @@ public class UsersAndTimes implements Serializable {
      */
     public void setEndRate(String endRate) {
         if(this.getIncrementStrategy().equals(IncrementStrategy.standard)) {
-            projectBean.getJobConfiguration().setUserIntervalIncrement(Integer.parseInt(endRate));
+            projectBean.getJobConfiguration().setUserIntervalIncrement(Double.parseDouble(endRate));
         }
         this.targetRampRate = endRate;
     }

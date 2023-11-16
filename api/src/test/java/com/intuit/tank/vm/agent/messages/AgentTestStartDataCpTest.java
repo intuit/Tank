@@ -349,7 +349,7 @@ public class AgentTestStartDataCpTest {
         fixture.setStartUsers(1);
         fixture.setSimulationTime(1L);
 
-        int result = fixture.getUserIntervalIncrement();
+        double result = fixture.getUserIntervalIncrement();
 
         assertEquals(1, result);
     }
@@ -373,7 +373,7 @@ public class AgentTestStartDataCpTest {
         fixture.setStartUsers(1);
         fixture.setSimulationTime(1L);
 
-        int result = fixture.getUserIntervalIncrement();
+        double result = fixture.getUserIntervalIncrement();
 
         assertEquals(1, result);
     }

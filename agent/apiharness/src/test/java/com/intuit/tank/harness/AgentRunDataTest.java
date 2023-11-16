@@ -528,7 +528,7 @@ public class AgentRunDataTest {
         fixture.setInstanceId("");
         fixture.setTestPlans("");
 
-        int result = fixture.getUserInterval();
+        double result = fixture.getUserInterval();
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.harness.AgentRunData

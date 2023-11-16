@@ -65,7 +65,7 @@ public class AgentTestStartData implements Serializable {
     private IncrementStrategy incrementStrategy = IncrementStrategy.increasing;
 
     @XmlElement(name = "userIntervalIncrement", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
-    private int userIntervalIncrement;
+    private double userIntervalIncrement;
 
     @XmlElement(name = "agentInstanceNum", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int agentInstanceNum;
@@ -184,11 +184,11 @@ public class AgentTestStartData implements Serializable {
         return incrementStrategy;
     }
 
-    public void setUserIntervalIncrement(int userIntervalIncrement) {
+    public void setUserIntervalIncrement(double userIntervalIncrement) {
         this.userIntervalIncrement = userIntervalIncrement;
     }
 
-    public int getUserIntervalIncrement() {
+    public double getUserIntervalIncrement() {
         return userIntervalIncrement > 0 ? userIntervalIncrement : 1;
     }
 

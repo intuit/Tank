@@ -172,7 +172,7 @@ public class JobRequestImplCpTest {
                 .append("simulationTime", request.getSimulationTime())
                 .append("useEips", request.isUseEips())
                 .append("baselineVirtualUsers", request.getBaselineVirtualUsers())
-                .append("userIntervalIncrement", "0")
+                .append("userIntervalIncrement", "0.0")
                 .append("reportingMode", request.getReportingMode())
                 .append("regions", request.getRegions())
                 .toString();

@@ -240,7 +240,7 @@ public class ProjectBean implements Serializable {
     /**
      * @return the end rate for job
      */
-    public int getEndRate() {
+    public double getEndRate() {
         return getWorkload().getJobConfiguration().getUserIntervalIncrement();
     }
 
@@ -249,7 +249,7 @@ public class ProjectBean implements Serializable {
      *
      * @param endRate
      */
-    public void setEndRate(int endRate) {
+    public void setEndRate(double endRate) {
         Workload workload = getWorkload();
         workload.getJobConfiguration().setUserIntervalIncrement(endRate);
     }

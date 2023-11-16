@@ -313,7 +313,7 @@ public class WatsAgentStartRequestCpTest {
         fixture.setSimulationTime(1L);
         fixture.setJobId("");
 
-        int result = fixture.getUserIntervalIncrement();
+        double result = fixture.getUserIntervalIncrement();
 
         assertEquals(1, result);
     }
@@ -336,7 +336,7 @@ public class WatsAgentStartRequestCpTest {
         fixture.setSimulationTime(1L);
         fixture.setJobId("");
 
-        int result = fixture.getUserIntervalIncrement();
+        double result = fixture.getUserIntervalIncrement();
 
         assertEquals(1, result);
     }

@@ -50,7 +50,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     private int baselineVirtualUsers;
     private long simulationTime;
     private boolean useEips;
-    private int userIntervalIncrement;
+    private double userIntervalIncrement;
     private String reportingMode = TankConstants.RESULTS_NONE;
     private String loggingProfile = LoggingProfile.STANDARD.name();
     private String stopBehavior = StopBehavior.END_OF_SCRIPT_GROUP.name();
@@ -62,7 +62,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     private int numUsersPerAgent;
     private int numAgents;
     private int startRate;
-    private int endRate;
+    private double endRate;
     private String scriptsXmlUrl;
 
     public static Builder builder() {
@@ -154,7 +154,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
      * {@inheritDoc}
      */
     @Override
-    public int getUserIntervalIncrement() {
+    public double getUserIntervalIncrement() {
         return userIntervalIncrement > 0 ? userIntervalIncrement : 1;
     }
 
@@ -236,7 +236,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     /**
      * @return the endRate
      */
-    public int getEndRate() {
+    public double getEndRate() {
         return endRate;
     }
 
@@ -244,7 +244,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
      * @param endRate
      *            the endRate to set
      */
-    public void setEndRate(int endRate) {
+    public void setEndRate(double endRate) {
         this.endRate = endRate;
     }
 
@@ -410,7 +410,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
             return (GeneratorT) this;
         }
 
-        public GeneratorT withEndRate(int aValue) {
+        public GeneratorT withEndRate(double aValue) {
             instance.endRate= aValue;
             return (GeneratorT) this;
         }
@@ -464,7 +464,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
         }
 
         @SuppressWarnings("unchecked")
-        public GeneratorT withUserIntervalIncrement(int aValue) {
+        public GeneratorT withUserIntervalIncrement(double aValue) {
             instance.userIntervalIncrement = aValue;
             return (GeneratorT) this;
         }

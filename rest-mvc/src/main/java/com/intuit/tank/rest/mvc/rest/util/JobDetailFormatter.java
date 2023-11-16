@@ -106,11 +106,12 @@ public class JobDetailFormatter {
             addProperty(sb, "Ramp Time", TimeUtil.toTimeString(proposedJobInstance.getRampTime()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)){
 //                addProperty(sb, "Starting User Ramp (users/sec)", Integer.toString(proposedJobInstance.getStartRate()));
-                addProperty(sb, "Target User Ramp Rate (users/sec)", Integer.toString(proposedJobInstance.getUserIntervalIncrement()));
+                addProperty(sb, "Agent User Ramp Rate (users/sec)", Double.toString(proposedJobInstance.getUserIntervalIncrement()));
+                addProperty(sb, "Total User Ramp Rate (users/sec)", Double.toString(proposedJobInstance.getUserIntervalIncrement() * proposedJobInstance.getNumAgents()));
             }
             addProperty(sb, "Initial Users", Integer.toString(proposedJobInstance.getBaselineVirtualUsers()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-                addProperty(sb, "User Increment", Integer.toString(proposedJobInstance.getUserIntervalIncrement()));
+                addProperty(sb, "User Increment", Double.toString(proposedJobInstance.getUserIntervalIncrement()));
             }
             // users and regions
             sb.append(BREAK);

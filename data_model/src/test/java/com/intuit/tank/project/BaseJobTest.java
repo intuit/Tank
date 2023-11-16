@@ -295,7 +295,7 @@ public class BaseJobTest {
         throws Exception {
         BaseJob fixture = new JobConfiguration();
 
-        int result = fixture.getUserIntervalIncrement();
+        double result = fixture.getUserIntervalIncrement();
         assertEquals(0, result);
     }
 

@@ -60,7 +60,7 @@ public class TestPlanStarter implements Runnable {
     private int sessionStarts = 0;
     private int totalTps = 0;
     private final long rampDelay;
-    private int currentRampRate;
+    private double currentRampRate;
     private boolean done = false;
 
     public TestPlanStarter(Object httpClient, HDTestPlan plan, int numThreads, String tankHttpClientClass, ThreadGroup threadGroup, AgentRunData agentRunData) {
@@ -176,7 +176,11 @@ public class TestPlanStarter implements Runnable {
                 }
 
                 intialDelay(); // initial delay
-                currentRampRate++; // after delay, start ramp rate at 1 user/sec
+                if(agentRunData.getTargetRampRate() < 1.0){
+                    currentRampRate = agentRunData.getTargetRampRate(); // after delay, start and keep ramp rate at < 1 user/sec value
+                } else {
+                    currentRampRate++; // after delay, start ramp rate at 1 user/sec
+                }
 
                 long lastRampRateAddition = (long) (System.currentTimeMillis() - (agentRunData.getBaseDelay() * 1000));
                 double agentTimer = ((System.currentTimeMillis() - lastRampRateAddition)) / 1000.0; // start agent timer at base delay
@@ -262,7 +266,7 @@ public class TestPlanStarter implements Runnable {
                     sendCloudWatchMetrics(activeCount); // send metrics every 30 seconds
 
                     try {
-                        Thread.sleep(1000 / currentRampRate); // sleep between adding users proportional to current ramp rate
+                        Thread.sleep((long) (1000 / currentRampRate)); // sleep between adding users proportional to current ramp rate
                     } catch (InterruptedException e) {
                         LOG.error(LogUtil.getLogMessage("Error trying to wait for ramp", LogEventType.System), e);
                     }
@@ -360,9 +364,9 @@ public class TestPlanStarter implements Runnable {
     private long calcRampTime() {
         int ramp = (numThreads - agentRunData.getNumStartUsers());
         if (ramp > 0) {
-            return (agentRunData.getRampTimeMillis() *
-                    agentRunData.getUserInterval())
-                    / ramp;
+            return (long) ((agentRunData.getRampTimeMillis() *
+                                agentRunData.getUserInterval())
+                                / ramp);
         } else if (agentRunData.getRampTimeMillis() > 0) {
             LOG.info(LogUtil.getLogMessage("Linear - No Ramp - " + rampDelay, LogEventType.System));
         }

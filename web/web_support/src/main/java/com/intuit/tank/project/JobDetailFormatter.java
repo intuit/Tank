@@ -125,11 +125,12 @@ public class JobDetailFormatter {
             addProperty(sb, "Ramp Time", TimeUtil.toTimeString(proposedJobInstance.getRampTime()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)){
 //                addProperty(sb, "Starting User Ramp (users/sec)", Integer.toString(proposedJobInstance.getStartRate()));
-                addProperty(sb, "Target User Ramp Rate (users/sec)", Integer.toString(proposedJobInstance.getUserIntervalIncrement()));
+                addProperty(sb, "Agent User Ramp Rate (users/sec)", Double.toString(proposedJobInstance.getUserIntervalIncrement()));
+                addProperty(sb, "Total User Ramp Rate (users/sec)", Double.toString(proposedJobInstance.getUserIntervalIncrement() * proposedJobInstance.getNumAgents()));
             }
             addProperty(sb, "Initial Users", Integer.toString(proposedJobInstance.getBaselineVirtualUsers()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-                addProperty(sb, "User Increment", Integer.toString(proposedJobInstance.getUserIntervalIncrement()));
+                addProperty(sb, "User Increment", Double.toString(proposedJobInstance.getUserIntervalIncrement()));
             }
             // users and regions
             sb.append(BREAK);
@@ -167,12 +168,6 @@ public class JobDetailFormatter {
                 }
                 if (regionPercentage != 100) {
                     addError(errorSB, "Region Percentage does not add up to 100%");
-                }
-
-                if(proposedJobInstance.getNumAgents() > proposedJobInstance.getUserIntervalIncrement()
-                    && proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)) {
-                    addError(errorSB, "Number of Agents cannot be greater than the Target User Ramp Rate"
-                            + "- update Target User Ramp Rate or set Number of Agents equal to or less than " + proposedJobInstance.getUserIntervalIncrement() + " agents");
                 }
 
             }
