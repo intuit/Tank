@@ -29,7 +29,7 @@ public class AgentRunData {
     private long rampTime = 0;
     private IncrementStrategy incrementStrategy = IncrementStrategy.increasing;
     private int numStartUsers = 1;
-    private double userInterval = 1.0;
+    private int userInterval = 1;
     private double baseDelay = 0;
     private double initialDelay = 0;
     private double rampRateDelay = 0;
@@ -123,7 +123,7 @@ public class AgentRunData {
     /**
      * @return the userInterval
      */
-    public double getUserInterval() {
+    public int getUserInterval() {
         return userInterval;
     }
 
@@ -131,7 +131,7 @@ public class AgentRunData {
      * @param userInterval
      *            the userInterval to set
      */
-    public void setUserInterval(double userInterval) {
+    public void setUserInterval(int userInterval) {
         if (userInterval > 0) {
             this.userInterval = userInterval;
         }

@@ -40,7 +40,7 @@ public class ActJobNodeBean extends JobNodeBean {
         this.setRegion("");
         this.setActiveUsers(String.valueOf(job.getBaselineVirtualUsers()));
         this.setTotalUsers(String.valueOf(job.getTotalVirtualUsers()));
-        this.setTargetRampRate(String.valueOf(job.getUserIntervalIncrement()));
+        this.setTargetRampRate(String.valueOf(job.getUserIntervalIncrement() * job.getNumAgents()));
         this.jobDetails = job.getJobDetails();
         this.setStartTime(job.getStartTime());
         this.setEndTime(job.getEndTime());

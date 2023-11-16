@@ -364,9 +364,9 @@ public class TestPlanStarter implements Runnable {
     private long calcRampTime() {
         int ramp = (numThreads - agentRunData.getNumStartUsers());
         if (ramp > 0) {
-            return (long) ((agentRunData.getRampTimeMillis() *
-                                agentRunData.getUserInterval())
-                                / ramp);
+            return (agentRunData.getRampTimeMillis() *
+                    agentRunData.getUserInterval())
+                    / ramp;
         } else if (agentRunData.getRampTimeMillis() > 0) {
             LOG.info(LogUtil.getLogMessage("Linear - No Ramp - " + rampDelay, LogEventType.System));
         }
@@ -422,7 +422,7 @@ public class TestPlanStarter implements Runnable {
             datumList.add(MetricDatum.builder()
                     .metricName("userRampRate")
                     .unit(StandardUnit.COUNT)
-                    .value((double) this.currentRampRate)
+                    .value(this.currentRampRate)
                     .timestamp(timestamp)
                     .dimensions(testPlan, instanceId, jobId)
                     .build());

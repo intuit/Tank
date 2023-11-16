@@ -132,13 +132,13 @@
                              value="#{usersAndTimes.endRate}"
                              styleClass="formInput inputWidthSmall" required="true"
                              requiredMessage="Agent User Ramp Rate cannot be empty." rendered="#{usersAndTimes.incrementStrategy == 'standard'}">
-                  <f:validateDoubleRange minimum = "0.0" maximum = "1.0" />
+                  <f:validateDoubleRange minimum = "0.001" maximum = "1.000" />
                 </h:inputText>
                 <p:ajax event="save" update=":mainForm:endRateTF" rendered="#{usersAndTimes.incrementStrategy == 'standard'}" />
               </p:inplace>
               <ts:tip tipId="targetRampTip"
                       text="Agent User Ramp Rate dictates the ending ramp rate in users/sec set for each agent for the nonlinear user ramp. This
-                            will inject users at regular intervals from the starting rate of 0 users/sec to the target rate for the provided ramp duration.
+                            will inject users at regular intervals from the starting rate of 0 users/sec to the target rate of up to 1 user/sec for the provided ramp duration.
                             The Total User Ramp Rate of the job is determined by the Agent User Ramp Rate times the Number of Agents i.e 1 user/sec * 10 agents = 10 users/sec" rendered="#{usersAndTimes.incrementStrategy == 'standard'}" />
             </div>
           </div>

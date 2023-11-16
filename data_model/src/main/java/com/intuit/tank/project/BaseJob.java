@@ -13,6 +13,7 @@ package com.intuit.tank.project;
  * #L%
  */
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 
@@ -93,7 +94,10 @@ public abstract class BaseJob extends BaseEntity {
     private String simulationTimeExpression;
 
     @Column(name = "user_interval_increment_seconds")
-    private double userIntervalIncrement;
+    private int userIntervalIncrement;
+
+    @Column(name = "target_rate", precision = 4, scale = 3) // 0.001 to 1.000
+    private BigDecimal targetRampRate;
 
     @Column(name = "reporting_mode", nullable = false)
     private String reportingMode = TankConstants.RESULTS_NONE;
@@ -121,6 +125,7 @@ public abstract class BaseJob extends BaseEntity {
         this.simulationTime = copy.simulationTime;
         this.terminationPolicy = copy.terminationPolicy;
         this.userIntervalIncrement = copy.userIntervalIncrement;
+        this.targetRampRate = copy.targetRampRate;
         this.location = copy.location;
         this.reportingMode = copy.reportingMode;
         this.allowOverride = copy.allowOverride;
@@ -422,7 +427,7 @@ public abstract class BaseJob extends BaseEntity {
     /**
      * @return the userIntervalIncrement
      */
-    public double getUserIntervalIncrement() {
+    public int getUserIntervalIncrement() {
         return userIntervalIncrement;
     }
 
@@ -430,8 +435,23 @@ public abstract class BaseJob extends BaseEntity {
      * @param userIntervalIncrement
      *            the userIntervalIncrement to set
      */
-    public void setUserIntervalIncrement(double userIntervalIncrement) {
+    public void setUserIntervalIncrement(int userIntervalIncrement) {
         this.userIntervalIncrement = userIntervalIncrement;
+    }
+
+    /**
+     * @return the targetRampRate
+     */
+    public BigDecimal getTargetRampRate() {
+        return targetRampRate;
+    }
+
+    /**
+     * @param targetRampRate
+     *            the targetRampRate to set
+     */
+    public void setTargetRampRate(BigDecimal targetRampRate) {
+        this.targetRampRate = targetRampRate;
     }
 
 }

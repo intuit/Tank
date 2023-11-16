@@ -744,12 +744,13 @@ public class APITestHarness {
             agentRunData.setInitialDelay(order * baseDelay); // order: order # * baseDelay
             agentRunData.setRampRateDelay((((double) agentRunData.getRampTimeMillis() / 1000) / (endRampRate))); // rampRateDelay:  total ramp time / targetRampRate
             agentRunData.setBaseDelay(baseDelay); // baseDelay: total ramp time / endRampRate - used to ramp agents from 0 to 1 user/sec
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Non-Linear Multi-agent Orchestration: \n" +
-                    "agentOrder=" + order + "; \n" +
-                    "initialDelay=" + agentRunData.getInitialDelay() + "; \n" +
-                    "rampRateDelay=" + agentRunData.getRampRateDelay() + "; \n" +
-                    "agentTargetRampRate=" + agentRunData.getTargetRampRate())));
         }
+
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Non-Linear Multi-agent Orchestration: \n" +
+                "agentOrder=" + agentRunData.getAgentInstanceNum() + "; \n" +
+                "initialDelay=" + agentRunData.getInitialDelay() + "; \n" +
+                "rampRateDelay=" + agentRunData.getRampRateDelay() + "; \n" +
+                "agentTargetRampRate=" + agentRunData.getTargetRampRate())));
     }
 
     /**
