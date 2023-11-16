@@ -73,7 +73,7 @@ public class ProjectTO implements Serializable {
     private Long simulationTime;
 
     @XmlElement(name = "userIntervalIncrement", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private double userIntervalIncrement;
+    private int userIntervalIncrement;
 
     @XmlElement(name = "jobRegions", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private Set<AutomationJobRegion> jobRegions = new HashSet<>();
@@ -214,7 +214,7 @@ public class ProjectTO implements Serializable {
     /**
      * @return the userIntervalIncrement
      */
-    public double getUserIntervalIncrement() {
+    public int getUserIntervalIncrement() {
         return userIntervalIncrement;
     }
 
@@ -280,7 +280,7 @@ public class ProjectTO implements Serializable {
      * @param userIntervalIncrement
      *            the userIntervalIncrement to set
      */
-    public void setUserIntervalIncrement(double userIntervalIncrement) {
+    public void setUserIntervalIncrement(int userIntervalIncrement) {
         this.userIntervalIncrement = userIntervalIncrement;
     }
 
