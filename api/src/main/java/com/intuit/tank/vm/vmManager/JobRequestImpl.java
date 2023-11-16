@@ -62,7 +62,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     private int numUsersPerAgent;
     private int numAgents;
     private int startRate;
-    private int endRate;
+    private double endRate;
     private String scriptsXmlUrl;
 
     public static Builder builder() {
@@ -236,7 +236,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     /**
      * @return the endRate
      */
-    public int getEndRate() {
+    public double getEndRate() {
         return endRate;
     }
 
@@ -244,7 +244,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
      * @param endRate
      *            the endRate to set
      */
-    public void setEndRate(int endRate) {
+    public void setEndRate(double endRate) {
         this.endRate = endRate;
     }
 
@@ -312,6 +312,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
                 .append("useEips", useEips)
                 .append("baselineVirtualUsers", baselineVirtualUsers)
                 .append("userIntervalIncrement", userIntervalIncrement)
+                .append("endRate", endRate)
                 .append("reportingMode", reportingMode)
                 .append("regions", regions)
                 .toString();
@@ -410,7 +411,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
             return (GeneratorT) this;
         }
 
-        public GeneratorT withEndRate(int aValue) {
+        public GeneratorT withEndRate(double aValue) {
             instance.endRate= aValue;
             return (GeneratorT) this;
         }

@@ -173,7 +173,8 @@ public class JobManager implements Serializable {
                 ret.setStartUsers(jobInfo.jobRequest.getBaselineVirtualUsers());
                 ret.setTotalAgents(jobInfo.numberOfMachines);
                 ret.setIncrementStrategy(jobInfo.jobRequest.getIncrementStrategy());
-                ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement()); // non-linear: target ramp rate
+                ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement());
+                ret.setTargetRampRate(jobInfo.jobRequest.getEndRate());
                 jobInfo.agentData.add(agentData);
                 CloudVmStatus status = vmTracker.getStatus(agentData.getInstanceId());
                 if(status != null) {

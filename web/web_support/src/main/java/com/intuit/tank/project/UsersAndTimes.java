@@ -61,10 +61,6 @@ public class UsersAndTimes implements Serializable {
 
     private TankConfig tankConfig = new TankConfig();
 
-    private String targetRampRate;
-
-    private String userIncrement;
-
     @Inject
     private Messages messages;
 
@@ -385,6 +381,7 @@ public class UsersAndTimes implements Serializable {
      * @return the number of users increment for the job
      */
     public String getUserIncrement() {
+        String userIncrement = String.valueOf(projectBean.getJobConfiguration().getUserIntervalIncrement());
         if(StringUtils.isEmpty(userIncrement)) {
             return "1";
         }
@@ -401,9 +398,8 @@ public class UsersAndTimes implements Serializable {
         if (NumberUtils.isCreatable(startUsers)) {
             projectBean.getJobConfiguration().setUserIntervalIncrement(Integer.parseInt(startUsers));
         }
-        this.userIncrement = startUsers;
     }
-      // TODO: need to update BaseJob to support both start and end rate
+      // TODO: need to update BaseJob to support start rate
 //    /**
 //     * @return get nonlinear start rate for the job
 //     */
@@ -426,8 +422,9 @@ public class UsersAndTimes implements Serializable {
      * @return get nonlinear end rate for the job
      */
     public String getEndRate() {
+        String targetRampRate = String.valueOf(projectBean.getJobConfiguration().getTargetRampRate());
         if(StringUtils.isEmpty(targetRampRate)) {
-            return "1";
+            return "1.0";
         }
         return targetRampRate;
     }
@@ -441,9 +438,8 @@ public class UsersAndTimes implements Serializable {
      */
     public void setEndRate(String endRate) {
         if(this.getIncrementStrategy().equals(IncrementStrategy.standard)) {
-            projectBean.getJobConfiguration().setUserIntervalIncrement(Integer.parseInt(endRate));
+            projectBean.getJobConfiguration().setTargetRampRate(Double.parseDouble(endRate));
         }
-        this.targetRampRate = endRate;
     }
 
     /**

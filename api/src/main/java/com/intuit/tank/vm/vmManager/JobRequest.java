@@ -55,7 +55,7 @@ public interface JobRequest extends Serializable {
     /**
      * @return the endRate
      */
-    public abstract int getEndRate();
+    public abstract double getEndRate();
 
     /**
      * @return the numAgents

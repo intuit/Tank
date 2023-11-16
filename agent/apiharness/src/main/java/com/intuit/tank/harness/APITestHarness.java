@@ -310,13 +310,10 @@ public class APITestHarness {
             agentRunData.setSimulationTimeMillis(startData.getSimulationTime());
             agentRunData.setAgentInstanceNum(startData.getAgentInstanceNum());
             agentRunData.setTotalAgents(startData.getTotalAgents());
+            agentRunData.setTargetRampRate(startData.getTargetRampRate()); // non-linear: same ramp rate set for each agent - total ramp rate determined by number of agents
 
             ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
 
-            if(startData.getIncrementStrategy().equals(IncrementStrategy.standard)){
-                endRampRate = agentRunData.getUserInterval();
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Nonlinear - targetRampRate = " + endRampRate + " users/sec for job " + agentRunData.getJobId())));
-            }
 
             if (startData.getDataFiles() != null) {
                 for (DataFileRequest dfRequest : startData.getDataFiles()) {
@@ -730,8 +727,7 @@ public class APITestHarness {
     }
 
     private void configureNonlinearAgentRunData(){
-        agentRunData.setTargetRampRate(endRampRate);  // same ramp rate set for each agent - total ramp rate determined by number of agents
-
+        // non-linear: configure agentRunData for non-linear ramping
         if(endRampRate < 1){ // if ramp rate < 1, ramp from 0 to ramp rate over ramp time
             double rampTime = (double) agentRunData.getRampTimeMillis() / 1000;
             agentRunData.setInitialDelay(rampTime);

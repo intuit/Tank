@@ -13,7 +13,6 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 
@@ -96,8 +95,8 @@ public abstract class BaseJob extends BaseEntity {
     @Column(name = "user_interval_increment_seconds")
     private int userIntervalIncrement;
 
-    @Column(name = "target_rate", precision = 4, scale = 3) // 0.001 to 1.000
-    private BigDecimal targetRampRate;
+    @Column(name = "target_rate")
+    private Double targetRampRate = 1.00;
 
     @Column(name = "reporting_mode", nullable = false)
     private String reportingMode = TankConstants.RESULTS_NONE;
@@ -442,15 +441,15 @@ public abstract class BaseJob extends BaseEntity {
     /**
      * @return the targetRampRate
      */
-    public BigDecimal getTargetRampRate() {
-        return targetRampRate;
+    public double getTargetRampRate() {
+        return targetRampRate != null ? targetRampRate : 1.0;
     }
 
     /**
      * @param targetRampRate
      *            the targetRampRate to set
      */
-    public void setTargetRampRate(BigDecimal targetRampRate) {
+    public void setTargetRampRate(double targetRampRate) {
         this.targetRampRate = targetRampRate;
     }
 
