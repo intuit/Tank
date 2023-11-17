@@ -95,6 +95,9 @@ public abstract class BaseJob extends BaseEntity {
     @Column(name = "user_interval_increment_seconds")
     private int userIntervalIncrement;
 
+    @Column(name = "target_rate")
+    private Double targetRampRate = 1.00;
+
     @Column(name = "reporting_mode", nullable = false)
     private String reportingMode = TankConstants.RESULTS_NONE;
 
@@ -121,6 +124,7 @@ public abstract class BaseJob extends BaseEntity {
         this.simulationTime = copy.simulationTime;
         this.terminationPolicy = copy.terminationPolicy;
         this.userIntervalIncrement = copy.userIntervalIncrement;
+        this.targetRampRate = copy.targetRampRate;
         this.location = copy.location;
         this.reportingMode = copy.reportingMode;
         this.allowOverride = copy.allowOverride;
@@ -432,6 +436,21 @@ public abstract class BaseJob extends BaseEntity {
      */
     public void setUserIntervalIncrement(int userIntervalIncrement) {
         this.userIntervalIncrement = userIntervalIncrement;
+    }
+
+    /**
+     * @return the targetRampRate
+     */
+    public double getTargetRampRate() {
+        return targetRampRate != null ? targetRampRate : 1.0;
+    }
+
+    /**
+     * @param targetRampRate
+     *            the targetRampRate to set
+     */
+    public void setTargetRampRate(double targetRampRate) {
+        this.targetRampRate = targetRampRate;
     }
 
 }

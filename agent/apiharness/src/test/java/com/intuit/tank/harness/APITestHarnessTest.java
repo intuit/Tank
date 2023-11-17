@@ -176,7 +176,7 @@ public class APITestHarnessTest {
         MockFlowController controller = new MockFlowController();
         instance.setFlowControllerTemplate(controller);
 
-        instance.setEndRampRate(10);
+        instance.setEndRampRate(1);
         instance.getAgentRunData().setAgentInstanceNum(1);
         instance.getAgentRunData().setTotalAgents(10);
         instance.getAgentRunData().setRampTimeMillis(500);

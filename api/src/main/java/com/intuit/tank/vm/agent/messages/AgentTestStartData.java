@@ -36,6 +36,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
         "userIntervalIncrement",
         "agentInstanceNum",
         "totalAgents",
+        "targetRampRate",
         "scriptUrl",
         "dataFile"
 })
@@ -73,6 +74,9 @@ public class AgentTestStartData implements Serializable {
     @XmlElement(name = "totalAgents", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int totalAgents;
 
+    @XmlElement(name = "targetRampRate", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
+    private double targetRampRate;
+
     @XmlElement(name = "dataFile", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private DataFileRequest[] dataFile;
 
@@ -96,6 +100,7 @@ public class AgentTestStartData implements Serializable {
         this.userIntervalIncrement = copy.userIntervalIncrement;
         this.agentInstanceNum = copy.agentInstanceNum;
         this.totalAgents = copy.totalAgents;
+        this.targetRampRate = copy.targetRampRate;
     }
 
     /**
@@ -205,6 +210,21 @@ public class AgentTestStartData implements Serializable {
      */
     public void setTotalAgents(int totalAgents) {
         this.totalAgents = totalAgents;
+    }
+
+    /**
+     * @return
+     */
+    public double getTargetRampRate() {
+        return targetRampRate;
+    }
+
+    /**
+     * @param targetRampRate
+     *            the targetRampRate to set
+     */
+    public void setTargetRampRate(double targetRampRate) {
+        this.targetRampRate = targetRampRate;
     }
 
     /**

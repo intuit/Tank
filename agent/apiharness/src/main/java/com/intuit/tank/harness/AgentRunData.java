@@ -33,7 +33,7 @@ public class AgentRunData {
     private double baseDelay = 0;
     private double initialDelay = 0;
     private double rampRateDelay = 0;
-    private double targetRampRate = 1;
+    private double targetRampRate = 1.0;
     private String testPlans = "";
     private String instanceId;
     private String jobId = "0";

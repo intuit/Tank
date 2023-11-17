@@ -28,15 +28,6 @@ import com.intuit.tank.dao.JobNotificationDao;
 import com.intuit.tank.dao.JobRegionDao;
 import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.logging.LoggingProfile;
-import com.intuit.tank.project.DataFile;
-import com.intuit.tank.project.EntityVersion;
-import com.intuit.tank.project.JobInstance;
-import com.intuit.tank.project.JobNotification;
-import com.intuit.tank.project.JobRegion;
-import com.intuit.tank.project.ScriptGroup;
-import com.intuit.tank.project.ScriptGroupStep;
-import com.intuit.tank.project.TestPlan;
-import com.intuit.tank.project.Workload;
 import com.intuit.tank.util.TestParamUtil;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.settings.TimeUtil;
@@ -106,13 +97,9 @@ public class JobDetailFormatter {
                     .getDisplayName());
             addProperty(sb, "Stop Behavior", StopBehavior.fromString(proposedJobInstance.getStopBehavior())
                     .getDisplay());
-            if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-                addProperty(sb, "Run Scripts Until", proposedJobInstance.getTerminationPolicy().getDisplay(),
-                        proposedJobInstance.getTerminationPolicy() == TerminationPolicy.time
-                                && proposedJobInstance.getSimulationTime() == 0 ? "error" : null);
-            } else {
-                addProperty(sb, "Run Scripts Until", TerminationPolicy.time.getDisplay());
-            }
+            addProperty(sb, "Run Scripts Until", proposedJobInstance.getTerminationPolicy().getDisplay(),
+                    proposedJobInstance.getTerminationPolicy() == TerminationPolicy.time
+                            && proposedJobInstance.getSimulationTime() == 0 ? "error" : null);
             sb.append(BREAK);
             addProperty(
                     sb,
@@ -124,8 +111,12 @@ public class JobDetailFormatter {
             }
             addProperty(sb, "Ramp Time", TimeUtil.toTimeString(proposedJobInstance.getRampTime()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)){
-//                addProperty(sb, "Starting User Ramp (users/sec)", Integer.toString(proposedJobInstance.getStartRate()));
-                addProperty(sb, "Target User Ramp Rate (users/sec)", Integer.toString(proposedJobInstance.getUserIntervalIncrement()));
+                addProperty(sb, "Agent User Ramp Rate (users/sec)", Double.toString(proposedJobInstance.getTargetRampRate()));
+                addProperty(sb, "Total User Ramp Rate (users/sec)", Double.toString(proposedJobInstance.getTargetRampRate() * proposedJobInstance.getNumAgents()));
+                addProperty(sb, "Estimated Steady State Concurrent Users",
+                        Double.toString(proposedJobInstance.getTargetRampRate() *
+                                ((double) proposedJobInstance.getRampTime() / 1000) *
+                                proposedJobInstance.getNumAgents()));
             }
             addProperty(sb, "Initial Users", Integer.toString(proposedJobInstance.getBaselineVirtualUsers()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
@@ -168,13 +159,6 @@ public class JobDetailFormatter {
                 if (regionPercentage != 100) {
                     addError(errorSB, "Region Percentage does not add up to 100%");
                 }
-
-                if(proposedJobInstance.getNumAgents() > proposedJobInstance.getUserIntervalIncrement()
-                    && proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)) {
-                    addError(errorSB, "Number of Agents cannot be greater than the Target User Ramp Rate"
-                            + "- update Target User Ramp Rate or set Number of Agents equal to or less than " + proposedJobInstance.getUserIntervalIncrement() + " agents");
-                }
-
             }
             sb.append(BREAK);
             sb.append(BREAK);
@@ -240,7 +224,7 @@ public class JobDetailFormatter {
                 if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
                     target = "(" + numUsers + " users)";
                 } else {
-                    target = "(" + proposedJobInstance.getUserIntervalIncrement() + " users/sec)";
+                    target = "(" + proposedJobInstance.getTargetRampRate() * proposedJobInstance.getNumAgents() + " users/sec)";
                 }
                 addProperty(
                         sb,

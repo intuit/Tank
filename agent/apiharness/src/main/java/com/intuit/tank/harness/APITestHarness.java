@@ -24,7 +24,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 import com.google.common.collect.ImmutableMap;
-import com.intuit.tank.harness.logging.LogEvent;
 import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.vm.api.enumerated.*;
 import org.apache.commons.io.FileUtils;
@@ -311,13 +310,10 @@ public class APITestHarness {
             agentRunData.setSimulationTimeMillis(startData.getSimulationTime());
             agentRunData.setAgentInstanceNum(startData.getAgentInstanceNum());
             agentRunData.setTotalAgents(startData.getTotalAgents());
+            agentRunData.setTargetRampRate(startData.getTargetRampRate()); // non-linear: same ramp rate set for each agent - total ramp rate determined by number of agents
 
             ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
 
-            if(startData.getIncrementStrategy().equals(IncrementStrategy.standard)){
-                endRampRate = agentRunData.getUserInterval();
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Nonlinear - targetRampRate = " + endRampRate + " users/sec for job " + agentRunData.getJobId())));
-            }
 
             if (startData.getDataFiles() != null) {
                 for (DataFileRequest dfRequest : startData.getDataFiles()) {
@@ -714,24 +710,14 @@ public class APITestHarness {
         }
         if (hasMetSimulationTime()) {          // && doneSignal.getCount() != 0) {
             if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-                LOG.info(LogUtil.getLogMessage("Max simulation time has been met and there are "
-                        + doneSignal.getCount() + " threads not reporting done."));
+                LOG.info(LogUtil.getLogMessage("Linear - Max simulation time has been met and there are "
+                        + doneSignal.getCount() + " threads not reporting done, interrupting remaining threads."));
                 for (Thread t : sessionThreads) {
                     if (t.isAlive()) {
                         LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
                                 + " is still running with a State of " + t.getState().name(), LogEventType.System));
                         t.interrupt();
                         doneSignal.countDown();
-                    }
-                }
-            } else {
-                LOG.info(LogUtil.getLogMessage("Max simulation time has been met and there are "
-                        + semaphore.availablePermits() + " threads not reporting done."));
-                for (Thread t : sessionThreads) {
-                    if (t.isAlive()) {
-                        LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
-                                + " is still running with a State of " + t.getState().name(), LogEventType.System));
-                        t.interrupt();
                     }
                 }
             }
@@ -741,25 +727,23 @@ public class APITestHarness {
     }
 
     private void configureNonlinearAgentRunData(){
-        double baseDelay = (((double) agentRunData.getRampTimeMillis() / 1000) / (endRampRate));
-        int order = agentRunData.getAgentInstanceNum();
-        int numAgents = agentRunData.getTotalAgents();
+        // non-linear: configure agentRunData for non-linear ramping
+        if(endRampRate < 1){ // if ramp rate < 1, ramp from 0 to ramp rate over ramp time
+            double rampTime = (double) agentRunData.getRampTimeMillis() / 1000;
+            agentRunData.setInitialDelay(rampTime);
+            agentRunData.setRampRateDelay(rampTime);
+            agentRunData.setBaseDelay(rampTime);
+        } else {
+            double baseDelay = (((double) agentRunData.getRampTimeMillis() / 1000) / (endRampRate * agentRunData.getTotalAgents()));
+            int order = agentRunData.getAgentInstanceNum();
 
-        // Calculate the target ramp rate and remaining ramp time for each agent
-        int baseRampRate = (int) (endRampRate / numAgents);
-        int remainingRampRate = (int) (endRampRate % numAgents);
-
-        int targetRampRate = baseRampRate;
-        if(order <= remainingRampRate){
-            targetRampRate += 1;
+            agentRunData.setInitialDelay(order * baseDelay); // order: order # * baseDelay
+            agentRunData.setRampRateDelay((((double) agentRunData.getRampTimeMillis() / 1000) / (endRampRate))); // rampRateDelay:  total ramp time / targetRampRate
+            agentRunData.setBaseDelay(baseDelay); // baseDelay: total ramp time / endRampRate - used to ramp agents from 0 to 1 user/sec
         }
 
-        agentRunData.setInitialDelay(order * baseDelay); // order: order # * baseDelay
-        agentRunData.setRampRateDelay((((double) agentRunData.getRampTimeMillis() / 1000) / (targetRampRate))); // rampRateDelay:  total ramp time / targetRampRate
-        agentRunData.setTargetRampRate(targetRampRate);  // targetRampRate: endRampRate / # of agents while accounting for uneven division
-        agentRunData.setBaseDelay(baseDelay); // baseDelay: total ramp time / endRampRate - used to ramp agents from 0 to 1 user/sec
         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Non-Linear Multi-agent Orchestration: \n" +
-                "agentOrder=" + order + "; \n" +
+                "agentOrder=" + agentRunData.getAgentInstanceNum() + "; \n" +
                 "initialDelay=" + agentRunData.getInitialDelay() + "; \n" +
                 "rampRateDelay=" + agentRunData.getRampRateDelay() + "; \n" +
                 "agentTargetRampRate=" + agentRunData.getTargetRampRate())));
