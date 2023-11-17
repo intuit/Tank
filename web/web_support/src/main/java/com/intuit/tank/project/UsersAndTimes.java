@@ -381,11 +381,10 @@ public class UsersAndTimes implements Serializable {
      * @return the number of users increment for the job
      */
     public String getUserIncrement() {
-        String userIncrement = String.valueOf(projectBean.getJobConfiguration().getUserIntervalIncrement());
-        if(StringUtils.isEmpty(userIncrement)) {
-            return "1";
+        if (projectBean.getJobConfiguration().getUserIntervalIncrement() > 0) {
+            return String.valueOf(projectBean.getJobConfiguration().getUserIntervalIncrement());
         }
-        return userIncrement;
+        return "1";
     }
 
     /**
