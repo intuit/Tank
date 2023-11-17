@@ -28,15 +28,6 @@ import com.intuit.tank.dao.JobNotificationDao;
 import com.intuit.tank.dao.JobRegionDao;
 import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.logging.LoggingProfile;
-import com.intuit.tank.project.DataFile;
-import com.intuit.tank.project.EntityVersion;
-import com.intuit.tank.project.JobInstance;
-import com.intuit.tank.project.JobNotification;
-import com.intuit.tank.project.JobRegion;
-import com.intuit.tank.project.ScriptGroup;
-import com.intuit.tank.project.ScriptGroupStep;
-import com.intuit.tank.project.TestPlan;
-import com.intuit.tank.project.Workload;
 import com.intuit.tank.util.TestParamUtil;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.settings.TimeUtil;
@@ -120,9 +111,12 @@ public class JobDetailFormatter {
             }
             addProperty(sb, "Ramp Time", TimeUtil.toTimeString(proposedJobInstance.getRampTime()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)){
-//                addProperty(sb, "Starting User Ramp (users/sec)", Integer.toString(proposedJobInstance.getStartRate()));
                 addProperty(sb, "Agent User Ramp Rate (users/sec)", Double.toString(proposedJobInstance.getTargetRampRate()));
                 addProperty(sb, "Total User Ramp Rate (users/sec)", Double.toString(proposedJobInstance.getTargetRampRate() * proposedJobInstance.getNumAgents()));
+                addProperty(sb, "Estimated Steady State Concurrent Users",
+                        Double.toString(proposedJobInstance.getTargetRampRate() *
+                                ((double) proposedJobInstance.getRampTime() / 1000) *
+                                proposedJobInstance.getNumAgents()));
             }
             addProperty(sb, "Initial Users", Integer.toString(proposedJobInstance.getBaselineVirtualUsers()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
