@@ -7,7 +7,7 @@
  */
 package com.intuit.tank.script.models;
 
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;

@@ -32,7 +32,7 @@ package org.owasp.proxy.util;
 //import java.util.Date;
 //import java.util.Vector;
 //
-//import javax.security.auth.x500.X500Principal;
+//import jakarta.security.auth.x500.X500Principal;
 //
 //import sun.security.util.ObjectIdentifier;
 //import sun.security.x509.AlgorithmId;

@@ -15,7 +15,7 @@ package com.intuit.tank.harness;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;

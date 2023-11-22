@@ -39,7 +39,7 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 @Service
 public class ScriptServiceV2Impl implements ScriptServiceV2 {

@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.event.Observes;
+import jakarta.enterprise.event.Observes;
 
 import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.qualifier.Modified;

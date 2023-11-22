@@ -33,11 +33,11 @@ import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptStep;
 import org.mockito.*;
 
-import javax.enterprise.context.Conversation;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.context.Flash;
-import javax.security.enterprise.CallerPrincipal;
+import jakarta.enterprise.context.Conversation;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.Flash;
+import jakarta.security.enterprise.CallerPrincipal;
 
 /**
  * The class <code>ScriptEditorTest</code> contains tests for the class <code>{@link ScriptEditor}</code>.

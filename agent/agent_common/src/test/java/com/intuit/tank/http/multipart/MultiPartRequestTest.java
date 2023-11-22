@@ -38,7 +38,7 @@ public class MultiPartRequestTest {
                                 + "\r\n"
                                 + "\r\n"
                                 + "-----------------------------10681713301939738037227942752" + "\r\n"
-                                + "Content-Disposition: form-data; name=\"javax.faces.ViewState\"" + "\r\n"
+                                + "Content-Disposition: form-data; name=\"jakarta.faces.ViewState\"" + "\r\n"
                                 + "\r\n"
                                 + "-1346138416504364622:5284803266475066700" + "\r\n"
                                 + "-----------------------------10681713301939738037227942752--" + "\r\n", 4 ),

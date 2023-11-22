@@ -7,7 +7,7 @@
  */
 package com.intuit.tank.script.models;
 
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 import java.util.List;
 
 @XmlRootElement(name = "scriptUploadRequest", namespace = Namespace.NAMESPACE_V1)

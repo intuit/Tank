@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.intuit.tank.admin.UserLoader;
 import com.intuit.tank.project.User;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * The class <code>UserLoaderTest</code> contains tests for the class <code>{@link UserLoader}</code>.

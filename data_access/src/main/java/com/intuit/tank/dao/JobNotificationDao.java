@@ -17,7 +17,7 @@ package com.intuit.tank.dao;
  */
 
 import javax.annotation.Nullable;
-import javax.persistence.NoResultException;
+import jakarta.persistence.NoResultException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -9,11 +9,11 @@ package com.intuit.tank.rest.mvc.rest.cloud;
 
 import java.io.Serializable;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.logging.ControllerLoggingConfig;

@@ -7,7 +7,7 @@
  */
 package com.intuit.tank.script.models;
 
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 import java.util.Date;
 
 @XmlRootElement(name = "scriptDescription", namespace = Namespace.NAMESPACE_V1)

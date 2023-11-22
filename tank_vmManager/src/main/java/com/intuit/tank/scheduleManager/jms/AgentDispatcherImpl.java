@@ -13,7 +13,7 @@ package com.intuit.tank.scheduleManager.jms;
  * #L%
  */
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.logging.log4j.LogManager;

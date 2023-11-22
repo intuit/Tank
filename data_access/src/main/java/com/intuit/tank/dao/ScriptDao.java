@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.zip.GZIPOutputStream;
 
 import javax.annotation.Nonnull;
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -153,7 +153,7 @@ public class ScriptDao extends BaseDao<Script> {
             begin();
             SerializedScriptStep serializedScriptStep = serialize(script);
             serializedScriptStep.setSerialzedData(
-                    Hibernate.getLobCreator(getHibernateSession()).createBlob(serializedScriptStep.getBytes()));
+                    getHibernateSession().getLobHelper().createBlob(serializedScriptStep.getBytes()));
             SerializedScriptStep savedSerializedStep = new SerializedScriptStepDao().saveOrUpdate(serializedScriptStep);
             script.setSerializedScriptStepId(serializedScriptStep.getId());
             if (script.getId() == 0) {

@@ -10,8 +10,8 @@ package com.intuit.tank.rest.mvc.rest.cloud;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
 
 import javax.annotation.Nonnull;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 
 public class MessageEventSender {
 

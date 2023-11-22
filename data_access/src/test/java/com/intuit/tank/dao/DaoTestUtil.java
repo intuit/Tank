@@ -20,8 +20,8 @@ import java.util.*;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 
 import com.intuit.tank.project.*;
 import com.intuit.tank.vm.api.enumerated.VMRegion;

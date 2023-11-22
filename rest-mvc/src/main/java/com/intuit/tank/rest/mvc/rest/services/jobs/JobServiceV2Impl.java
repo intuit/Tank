@@ -63,7 +63,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 @Service
 public class JobServiceV2Impl implements JobServiceV2 {

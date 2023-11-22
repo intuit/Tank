@@ -19,10 +19,10 @@ package com.intuit.tank.project;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.Dependent;
-import javax.enterprise.event.Observes;
-import javax.faces.model.SelectItem;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.event.Observes;
+import jakarta.faces.model.SelectItem;
+import jakarta.inject.Inject;
 
 import com.intuit.tank.ModifiedProjectMessage;
 import com.intuit.tank.dao.ProjectDao;

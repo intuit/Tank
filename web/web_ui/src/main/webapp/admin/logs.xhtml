@@ -28,7 +28,7 @@
             <div class="float-left h-space">
               Initial Lines:
               <p:inputNumber id="numLines" value="#{logViewer.numLines}" minValue="0"
-                decimalPlaces="0" converter="javax.faces.Integer">
+                decimalPlaces="0" converter="jakarta.faces.Integer">
                 <p:ajax update="numLines" />
               </p:inputNumber>
               <ts:tip tipId="numLinsesTip"
@@ -37,7 +37,7 @@
             <div class="float-left h-space">
               Poll seconds:
               <p:inputNumber id="pollSeconds" value="#{logViewer.pollSeconds}"
-                decimalPlaces="0" minValue="0" converter="javax.faces.Integer">
+                decimalPlaces="0" minValue="0" converter="jakarta.faces.Integer">
                 <p:ajax update="pollSeconds" />
               </p:inputNumber>
               <ts:tip tipId="pollTip"

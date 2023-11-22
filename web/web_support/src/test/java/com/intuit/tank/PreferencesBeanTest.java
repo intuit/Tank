@@ -26,8 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.Preferences;
 
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
 
 /**
  * The class <code>PreferencesBeanTest</code> contains tests for the class <code>{@link PreferencesBean}</code>.

@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.annotation.Nonnull;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 @Service
 public class AgentServiceV2Impl implements AgentServiceV2 {

@@ -22,7 +22,7 @@
 			<exclusions>
 				<exclusion>
 					<artifactId>servlet-api</artifactId>
-					<groupId>javax.servlet</groupId>
+					<groupId>jakarta.servlet</groupId>
 				</exclusion>
 				<exclusion>
 					<groupId>software.amazon.awssdk</groupId>
@@ -38,7 +38,7 @@
 				</exclusion>
 				<exclusion>
 					<artifactId>validation-api</artifactId>
-					<groupId>javax.validation</groupId>
+					<groupId>jakarta.validation</groupId>
 				</exclusion>
 				<exclusion>
 					<artifactId>javassist</artifactId>
@@ -53,11 +53,6 @@
 			      <artifactId>weld-servlet</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.xml.bind</groupId>
-			<artifactId>jaxb-impl</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 
