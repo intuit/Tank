@@ -115,7 +115,7 @@ public class ScriptGroupDaoTest {
             // expected validation
             DaoTestUtil.checkConstraintViolation(e, property, messageContains);
         } catch (PersistenceException e) {
-            assertTrue(e.getCause().getCause().getMessage().startsWith("Value too long for column "));
+            assertTrue(e.getCause().getMessage().startsWith("Value too long for column "));
         }
     }
 

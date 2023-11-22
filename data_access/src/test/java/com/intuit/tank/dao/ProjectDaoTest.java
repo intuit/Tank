@@ -128,11 +128,11 @@ public class ProjectDaoTest {
             // expected validation
             DaoTestUtil.checkConstraintViolation(e, property, messageContains);
         } catch (PersistenceException e) {
-            if (e.getCause() instanceof PropertyValueException) {
-                assertTrue(e.getCause().getMessage().startsWith("not-null property references a null or transient value"));
+            if (e.getCause() == null) {
+                assertTrue(e.getMessage().startsWith("not-null property references a null or transient value"));
                 return;
             }
-            assertTrue(e.getCause().getCause().getMessage().startsWith("Value too long for column "));
+            assertTrue(e.getCause().getMessage().startsWith("Value too long for column "));
         }
     }
 
