@@ -7,7 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.models.agent;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import jakarta.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;

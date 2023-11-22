@@ -18,7 +18,7 @@ package com.intuit.tank.converter;
 
 import java.io.Serializable;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * ScriptStepContainer

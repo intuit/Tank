@@ -19,7 +19,7 @@ package com.intuit.tank.vmManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 
 import com.intuit.tank.vm.vmManager.VMTracker;

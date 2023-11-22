@@ -22,7 +22,7 @@ import java.io.ObjectOutputStream;
 import java.util.*;
 import java.util.zip.GZIPOutputStream;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.EntityManager;
 
 import org.apache.logging.log4j.LogManager;

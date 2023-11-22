@@ -17,7 +17,7 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.*;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.Conversation;
 import jakarta.enterprise.context.ConversationScoped;
 import jakarta.enterprise.event.Event;

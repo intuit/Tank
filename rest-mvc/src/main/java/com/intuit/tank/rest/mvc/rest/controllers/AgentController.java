@@ -31,7 +31,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @RestController
 @RequestMapping(value = "/v2/agent", produces = { MediaType.APPLICATION_JSON_VALUE })

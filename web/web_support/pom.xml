@@ -103,6 +103,7 @@
     <dependency>
       <groupId>org.primefaces.extensions</groupId>
       <artifactId>primefaces-extensions</artifactId>
+      <classifier>jakarta</classifier>
     </dependency>
 
     <dependency>

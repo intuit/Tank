@@ -16,7 +16,7 @@ package com.intuit.tank.service;
  * #L%
  */
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 

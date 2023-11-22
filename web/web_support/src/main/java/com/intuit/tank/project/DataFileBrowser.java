@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.event.Event;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
