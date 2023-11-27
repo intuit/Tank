@@ -106,11 +106,6 @@
       <classifier>jakarta</classifier>
     </dependency>
 
-    <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-    </dependency>
-
     <!-- Bean Validation API (JSR 303) -->
     <dependency>
       <groupId>jakarta.validation</groupId>
@@ -150,8 +145,6 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>RELEASE</version>
-      <scope>compile</scope>
     </dependency>
 
   </dependencies>
