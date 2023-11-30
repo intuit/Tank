@@ -19,7 +19,11 @@
       <artifactId>agent-standalone</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.openjdk.nashorn</groupId>
+      <artifactId>nashorn-core</artifactId>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
 
   <build>
