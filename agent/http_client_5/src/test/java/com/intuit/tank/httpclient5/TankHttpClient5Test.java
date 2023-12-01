@@ -9,6 +9,8 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -21,21 +23,45 @@ import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.test.TestGroups;
 
 import static org.junit.jupiter.api.Assertions.*;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 public class TankHttpClient5Test {
+
+    private WireMockServer wireMockServer;
+
+    @BeforeEach
+    public void setup() {
+        wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort()
+                .withRootDirectory("src/test/resources"));
+        wireMockServer.start();
+        wireMockServer.resetAll();
+        configureFor("localhost", wireMockServer.port());
+    }
+
+    @AfterEach
+    public void teardown() {
+        wireMockServer.stop();
+    }
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testBasicAuth() {
-        BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/basic-auth/test/test_pass");
+        BaseRequest request = getRequest(new TankHttpClient5(), wireMockServer.baseUrl() + "/basic-auth/test/test_pass");
         request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withRealm("bogus").withScheme(AuthScheme.Basic).build());
+        request.addHeader("X-Test-Mode", "Fail");
 
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
         assertEquals(401, response.getHttpCode());
 
-        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withHost("httpbin.org").withRealm("Fake Realm").withScheme(AuthScheme.Basic).build());
+        request = getRequest(new TankHttpClient5(), wireMockServer.baseUrl() + "/basic-auth/test/test_pass");
+        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withHost("localhost").withRealm("Fake Realm").withScheme(AuthScheme.Basic).build());
+        request.addHeader("X-Test-Mode", "Pass");
+
         request.doGet(null);
         response = request.getResponse();
         assertNotNull(response);
@@ -47,15 +73,19 @@ public class TankHttpClient5Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testDigestAuth() {
-        BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/digest-auth/auth/test/test_pass");
+        BaseRequest request = getRequest(new TankHttpClient5(), wireMockServer.baseUrl() + "/digest-auth/auth/test/test_pass");
         request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withRealm("bogus").withScheme(AuthScheme.Digest).build());
+        request.addHeader("X-Test-Mode", "Fail");
 
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
         assertEquals(401, response.getHttpCode());
 
-        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withHost("httpbin.org").withScheme(AuthScheme.Digest).build());
+        request = getRequest(new TankHttpClient5(), wireMockServer.baseUrl() + "/digest-auth/auth/test/test_pass");
+        request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withHost("localhost").withScheme(AuthScheme.Digest).build());
+        request.addHeader("X-Test-Mode", "Pass");
+
         request.doGet(null);
         response = request.getResponse();
         assertNotNull(response);
@@ -68,7 +98,7 @@ public class TankHttpClient5Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void doDelete() {
-        BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/delete");
+        BaseRequest request = getRequest(new TankHttpClient5(), wireMockServer.baseUrl() + "/delete");
         request.doDelete(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
@@ -78,7 +108,7 @@ public class TankHttpClient5Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void doGet() {
-        BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/get");
+        BaseRequest request = getRequest(new TankHttpClient5(), wireMockServer.baseUrl() + "/get");
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
@@ -89,7 +119,7 @@ public class TankHttpClient5Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void doPost() {
-        BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/post");
+        BaseRequest request = getRequest(new TankHttpClient5(), wireMockServer.baseUrl() + "/post");
         request.doPost(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
@@ -100,7 +130,7 @@ public class TankHttpClient5Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void doPut() {
-        BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/put");
+        BaseRequest request = getRequest(new TankHttpClient5(), wireMockServer.baseUrl() + "/put");
         request.doPut(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
@@ -110,8 +140,23 @@ public class TankHttpClient5Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void clearSession() {
-        BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/cookies");
-        request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("httpbin.org").withPath("/").build());
+        wireMockServer.stubFor(get(urlEqualTo("/cookies"))
+                .withCookie("test-cookie", matching(".*"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody("{\"cookies\": {\"test-cookie\": \"test-value\"}}"))
+                .atPriority(1)
+        );
+
+        wireMockServer.stubFor(get(urlEqualTo("/cookies"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody("{\"cookies\": {}}"))
+                .atPriority(2)
+        );
+
+        BaseRequest request = getRequest(new TankHttpClient5(),wireMockServer.baseUrl() + "/cookies");
+        request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("localhost").withPath("/").build());
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
@@ -129,8 +174,16 @@ public class TankHttpClient5Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void setCookie() {
-        BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/cookies");
-        request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("httpbin.org").withPath("/").build());
+        wireMockServer.stubFor(get(urlEqualTo("/cookies"))
+                .withCookie("test-cookie", matching(".*"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody("{\"cookies\": {\"test-cookie\": \"test-value\"}}"))
+                .atPriority(1)
+        );
+
+        BaseRequest request = getRequest(new TankHttpClient5(), wireMockServer.baseUrl() + "/cookies");
+        request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("localhost").withPath("/").build());
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
@@ -191,8 +244,7 @@ public class TankHttpClient5Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void doPostMultipartwithFile() throws IOException {
-        BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/post");
-        request.setContentType(BaseRequest.CONTENT_TYPE_MULTIPART);
+        BaseRequest request = getRequest(new TankHttpClient5(), wireMockServer.baseUrl() + "/post");
         request.setBody(
                 "LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0xNzI2MTE1MzQ5Mjk4MjYNCkNvbnRlbnQtRGlzcG9zaXRpb246IGZvcm0tZGF0YTsgbmFtZT0iY3JlYXRlTmV3"
                 + "U2NyaXB0Rm9ybSINCg0KY3JlYXRlTmV3U2NyaXB0Rm9ybQ0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0xNzI2MTE1MzQ5Mjk4MjYNCkNvbnRlbnQtRG"
@@ -285,7 +337,7 @@ public class TankHttpClient5Test {
 
     /**
      * Returns a string's base64 encoding
-     * 
+     *
      * @param bytes
      * @return base64 string
      */

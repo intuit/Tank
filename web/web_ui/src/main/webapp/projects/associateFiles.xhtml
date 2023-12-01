@@ -13,7 +13,7 @@
           value="Intuit Tank supports only .csv, .txt, or .xml files as Data Files but can accept .zip files. Zip files will be searched recursively for all .csv, .txt, or .xml files." />
         <div class="vertical-spacer" />
         <p:fileUpload id="fileUploadControl" listener="#{fileUploadBean.handleFileUpload}" mode="advanced"
-          allowTypes="/(\.|\/)(csv|zip|txt|xml)$/" update=":mainForm:projectTabPanelID:dataFileShuffleListId, :mainForm:messages"
+          allowTypes="/(\.|\/)(csv|zip|txt|xml)$/" update=":mainForm:projectTabPanelID:datafileListGroup, :mainForm:messages"
           multiple="true" invalidFileMessage="Please select only .csv or .zip files."
           invalidSizeMessage="The selectd file is too large." />
         <div class="vertical-spacer" />
@@ -27,28 +27,120 @@
 
   <div class="vertical-spacer" />
 
+  <h:panelGroup id="datafileListGroup" style="display: flex; justify-content: space-between;">
+    <div class="ui-g">
+      <div class="ui-g-12 ui-md-5 datatable-container">
+        <p:dataTable id="availableFiles" var="datafile" value="#{associateDataFileBean.selectionModel.source}" selection="#{associateDataFileBean.selectedAvailableFiles}" paginator="true" rows="25"
+                     paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}" paginatorPosition="top" scrollable="true" pageLinks="1"
+                     styleClass="scrollable-body" emptyMessage="No records found." selectionMode="multiple" rowKey="#{datafile.id}" style="max-width=">
+          <p:ajax event="rowSelect" listener="#{associateDataFileBean.onSourceSelect}" update=":mainForm:projectTabPanelID:datafileListGroup"/>
+          <p:ajax event="rowDblselect" listener="#{associateDataFileBean.addToTarget}" update=":mainForm:projectTabPanelID:datafileListGroup"/>
+              <p:column id="operationColumn" style="width:20px">
+                <p:commandLink styleClass="no-decor" update=":mainForm:projectTabPanelID:viewPane" oncomplete="PF('viewPane').show()"
+                  ajax="true" action="#{dataFileBrowser.selectDataFile}">
+                  <f:param name="dataFileId" value="#{datafile.id}" />
+                  <h:graphicImage library="gfx" name="16/magnifier.png" width="16px" height="16px" style="padding: 2px;"
+                    title="View sample of #{datafile.path}" />
+                </p:commandLink>
+              </p:column>
+              <p:column headerText="Available Files" filterBy="#{datafile.path}" filterMatchMode="contains" styleClass="wrap">
+                #{datafile.path}
+              </p:column>
+        </p:dataTable>
+      </div>
 
+      <div class="ui-g-12 ui-md-2 ui-picklist-buttons" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div class="ui-picklist-buttons-cell">
+          <p:column>
+            <div>
+              <p:commandButton icon="ui-icon-arrow-1-e" title="Add"
+                               styleClass="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-picklist-button-add"
+                               actionListener="#{associateDataFileBean.addToTarget()}" update=":mainForm:projectTabPanelID:datafileListGroup"/>
+            </div>
+            <div>
+              <p:commandButton icon="ui-icon-arrowstop-1-e" title="Add all"
+                               styleClass="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-picklist-button-add-all"
+                               actionListener="#{associateDataFileBean.addAllToTarget()}" update=":mainForm:projectTabPanelID:datafileListGroup"/>
+            </div>
+            <div>
+              <p:commandButton icon="ui-icon-arrow-1-w" title="Remove"
+                               styleClass="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-picklist-button-remove"
+                               actionListener="#{associateDataFileBean.removeFromTarget()}" update=":mainForm:projectTabPanelID:datafileListGroup"/>
+            </div>
+            <div>
+              <p:commandButton icon="ui-icon-arrowstop-1-w" title="Remove all"
+                               styleClass="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-picklist-button-remove-all"
+                               actionListener="#{associateDataFileBean.removeAllFromTarget()}" update=":mainForm:projectTabPanelID:datafileListGroup"/>
+            </div>
+          </p:column>
+        </div>
+      </div>
 
-  <p:pickList id="dataFileShuffleListId" value="#{associateDataFileBean.selectionModel}" var="datafile"
-    itemValue="#{datafile}" itemLabel="#{datafile.path}" filterMatchMode="contains" showSourceFilter="true" showTargetControls="false" showSourceControls="false" converter="tsDataFileConverter">
-    <p:ajax event="transfer" process="@this"  immediate="true"/>
-    <f:facet name="sourceCaption">Available Files</f:facet>
-    <f:facet name="targetCaption">Selected Files</f:facet>
+      <div class="ui-g-12 ui-md-5 datatable-container">
+        <p:dataTable id="selectedFiles" var="datafile" value="#{associateDataFileBean.selectionModel.target}" selection="#{associateDataFileBean.selectedSelectedFiles}" paginator="true" rows="25"
+                     paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}" paginatorPosition="top" scrollable="true" pageLinks="1"
+                     styleClass="scrollable-body" emptyMessage="No records found." selectionMode="multiple" rowKey="#{datafile.id}">
+          <p:ajax event="rowSelect" listener="#{associateDataFileBean.onTargetSelect}" update=":mainForm:projectTabPanelID:datafileListGroup"/>
+          <p:ajax event="rowDblselect" listener="#{associateDataFileBean.removeFromTarget}" update=":mainForm:projectTabPanelID:datafileListGroup"/>
+            <p:column id="operationColumn" style="width:20px">
+              <p:commandLink styleClass="no-decor" update=":mainForm:projectTabPanelID:viewPane" oncomplete="PF('viewPane').show()"
+                ajax="true" action="#{dataFileBrowser.selectDataFile}">
+                <f:param name="dataFileId" value="#{datafile.id}" />
+                <h:graphicImage library="gfx" name="16/magnifier.png" width="16px" height="16px" style="padding: 2px;"
+                  title="View sample of #{datafile.path}" />
+              </p:commandLink>
+            </p:column>
+            <p:column headerText="Selected Files" filterBy="#{datafile.path}" filterMatchMode="contains" styleClass="wrap">
+              #{datafile.path}
+            </p:column>
+        </p:dataTable>
+      </div>
+    </div>
+  </h:panelGroup>
 
+  <style type="text/css">
+    .datatable-container {
+      max-width: 300px;
+      padding: 10px;
+    }
 
-    <p:column id="operationColumn" style="width:20px" headerText="op">
-      <p:commandLink styleClass="no-decor" update=":mainForm:projectTabPanelID:viewPane" oncomplete="PF('viewPane').show()"
-        ajax="true" action="#{dataFileBrowser.selectDataFile}">
-        <f:param name="dataFileId" value="#{datafile.id}" />
-        <h:graphicImage library="gfx" name="16/magnifier.png" width="16px" height="16px" style="padding: 2px;"
-          title="View sample of #{datafile.path}" />
-      </p:commandLink>
-    </p:column>
+    .scrollable-body .ui-datatable-scrollable-body {
+      max-height: 250px;
+      overflow-y: auto;
+      border-left: 1px solid #a6c9e2;
+      border-right: 1px solid #a6c9e2;
+      border-bottom: 1px solid #a6c9e2;
+      border-radius: 0 0 5px 5px;
+    }
 
-    <p:column headerText="File">
-      <h:outputText value="#{datafile}" title="#{datafile}" />
-    </p:column>
-  </p:pickList>
+    .wrap {
+      white-space: normal !important;
+      word-wrap: break-word;
+    }
+
+    .ui-g {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .ui-picklist-buttons-cell {
+      box-sizing: border-box;
+    }
+
+    .ui-picklist-buttons {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .ui-picklist-button-add,
+    .ui-picklist-button-add-all,
+    .ui-picklist-button-remove,
+    .ui-picklist-button-remove-all {
+      margin-bottom: 10px;
+    }
+  </style>
 
   <p:dialog id="viewPane" appendTo="@(body)" header="Data File" resizable="false" widgetVar="viewPane" modal="true">
     <h:form id="viewPaneForm">

@@ -9,6 +9,7 @@ package com.intuit.tank.rest.mvc.rest.models.projects;
 
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
+import com.intuit.tank.project.TestPlan;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
@@ -29,6 +30,7 @@ import java.util.*;
         "simulationTime",
         "userIntervalIncrement",
         "jobRegions",
+        "testPlans",
         "workloadType",
         "terminationPolicy",
         "comments",
@@ -75,6 +77,9 @@ public class ProjectTO implements Serializable {
 
     @XmlElement(name = "jobRegions", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private Set<AutomationJobRegion> jobRegions = new HashSet<>();
+
+    @XmlElement(name = "testPlans", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private List<AutomationTestPlan> testPlans = new ArrayList<>();
 
     @XmlElement(name = "workloadType", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private IncrementStrategy workloadType;
@@ -221,6 +226,11 @@ public class ProjectTO implements Serializable {
     }
 
     /**
+     * @return the testPlans
+     */
+    public List<AutomationTestPlan> getTestPlans() { return testPlans; }
+
+    /**
      * @return the workloadType
      */
     public IncrementStrategy getWorkloadType() {
@@ -280,6 +290,14 @@ public class ProjectTO implements Serializable {
      */
     public void setJobRegions(Set<AutomationJobRegion> jobRegions) {
         this.jobRegions = jobRegions;
+    }
+
+    /**
+     * @param testPlans
+     *            the testPlans to set
+     */
+    private void setTestPlans(List<AutomationTestPlan> testPlans) {
+        this.testPlans = testPlans;
     }
 
     /**

@@ -122,10 +122,24 @@
 
           <div class="formRow">
             <div class="formLabelDiv">
-              <h:outputText value="Total Users" styleClass="formLabel" />
+              <h:outputText value="Total Users" styleClass="formLabel" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"/>
+              <h:outputText value="Agent User Ramp Rate (users/sec)" styleClass="formLabel" rendered="#{usersAndTimes.incrementStrategy == 'standard'}"/>
             </div>
             <div class="formInputDiv">
-              <h:outputText value="#{usersAndTimes.totalUsers}" id="totalUsersTF" />
+              <h:outputText value="#{usersAndTimes.totalUsers}" id="totalUsersTF" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"/>
+              <p:inplace label="#{usersAndTimes.endRate}" editor="true" rendered="#{usersAndTimes.incrementStrategy == 'standard'}">
+                <h:inputText id="endRateTF"
+                             value="#{usersAndTimes.endRate}"
+                             styleClass="formInput inputWidthSmall" required="true"
+                             requiredMessage="Agent User Ramp Rate cannot be empty." rendered="#{usersAndTimes.incrementStrategy == 'standard'}">
+                  <f:validateDoubleRange minimum = "0.001" maximum = "1.000" />
+                </h:inputText>
+                <p:ajax event="save" update=":mainForm:endRateTF" rendered="#{usersAndTimes.incrementStrategy == 'standard'}" />
+              </p:inplace>
+              <ts:tip tipId="targetRampTip"
+                      text="Agent User Ramp Rate dictates the ending ramp rate in users/sec set for each agent for the nonlinear user ramp. This
+                            will inject users at regular intervals from the starting rate of 0 users/sec to the target rate of up to 1 user/sec for the provided ramp duration.
+                            The Total User Ramp Rate of the job is determined by the Agent User Ramp Rate times the Number of Agents i.e 1 user/sec * 10 agents = 10 users/sec" rendered="#{usersAndTimes.incrementStrategy == 'standard'}" />
             </div>
           </div>
         </div>
@@ -196,24 +210,93 @@
             </div>
           </div>
 
-          <h:panelGroup id="listGroup">
-            <p:pickList id="scriptShuffleListId" value="#{workloadScripts.scriptSelectionModel}" var="script"
-              itemValue="#{script}" itemLabel="#{script.name}" filterMatchMode="contains" showSourceFilter="true"
-              showTargetFilter="true" converter="tsScriptConverter">
-              <f:facet name="sourceCaption">Available</f:facet>
-              <f:facet name="targetCaption">Selected</f:facet>
-            </p:pickList>
+          <h:panelGroup id="listGroup" style="display: flex; justify-content: space-between;">
+            <div class="ui-g">
+              <div class="ui-g-12 ui-md-5">
+                <p:dataTable id="availableItems" var="script" value="#{workloadScripts.scriptSelectionModel.source}" selection="#{workloadScripts.selectedAvailableScripts}" paginator="true" rows="25"
+                             paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}" paginatorPosition="top" scrollable="true" pageLinks="1"
+                             styleClass="scrollable-body" emptyMessage="No records found." selectionMode="multiple" rowKey="#{script.id}">
+                  <p:ajax event="rowSelect" listener="#{workloadScripts.onSourceSelect}" update="editGroupForm:availableItems editGroupForm:selectedItems editGroupForm:listGroup"/>
+                  <p:ajax event="rowDblselect" listener="#{workloadScripts.addToTarget}" update="editGroupForm:availableItems editGroupForm:selectedItems editGroupForm:listGroup"/>
+                  <p:column headerText="Available" filterBy="#{script.name}" filterMatchMode="contains" styleClass="wrap">
+                    #{script.name}
+                  </p:column>
+                </p:dataTable>
+              </div>
+
+              <div class="ui-g-12 ui-md-2 ui-picklist-buttons" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <div class="ui-picklist-buttons-cell">
+                  <p:column>
+                    <div>
+                      <p:commandButton icon="ui-icon-arrow-1-e" title="Add"
+                                       styleClass="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-picklist-button-add"
+                                       actionListener="#{workloadScripts.addToTarget()}" update="editGroupForm:availableItems editGroupForm:selectedItems"/>
+                    </div>
+                    <div>
+                      <p:commandButton icon="ui-icon-arrowstop-1-e" title="Add all"
+                                       styleClass="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-picklist-button-add-all"
+                                       actionListener="#{workloadScripts.addAllToTarget()}" update="editGroupForm:availableItems editGroupForm:selectedItems"/>
+                    </div>
+                    <div>
+                      <p:commandButton icon="ui-icon-arrow-1-w" title="Remove"
+                                       styleClass="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-picklist-button-remove"
+                                       actionListener="#{workloadScripts.removeFromTarget()}" update="editGroupForm:availableItems editGroupForm:selectedItems"/>
+                    </div>
+                    <div>
+                      <p:commandButton icon="ui-icon-arrowstop-1-w" title="Remove all"
+                                       styleClass="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-picklist-button-remove-all"
+                                       actionListener="#{workloadScripts.removeAllFromTarget()}" update="editGroupForm:availableItems editGroupForm:selectedItems"/>
+                    </div>
+                  </p:column>
+              </div>
+            </div>
+
+              <div class="ui-g-12 ui-md-5">
+                <p:dataTable id="selectedItems" var="script" value="#{workloadScripts.scriptSelectionModel.target}" selection="#{workloadScripts.selectedSelectedScripts}" paginator="true" rows="25"
+                             paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}" paginatorPosition="top" scrollable="true" pageLinks="1"
+                             styleClass="scrollable-body" emptyMessage="No records found." selectionMode="multiple" rowKey="#{script.id}">
+                  <p:ajax event="rowSelect" listener="#{workloadScripts.onTargetSelect}" update="editGroupForm:availableItems editGroupForm:selectedItems editGroupForm:listGroup"/>
+                  <p:ajax event="rowDblselect" listener="#{workloadScripts.removeFromTarget}" update="editGroupForm:availableItems editGroupForm:selectedItems editGroupForm:listGroup"/>
+                  <p:column headerText="Selected" filterBy="#{script.name}" filterMatchMode="contains" styleClass="wrap">
+                    #{script.name}
+                  </p:column>
+                </p:dataTable>
+              </div>
+            </div>
           </h:panelGroup>
+
+          <style type="text/css">
+            .scrollable-body .ui-datatable-scrollable-body {
+              max-height: 249px;
+              overflow-y: auto;
+              border-left: 1px solid #a6c9e2;
+              border-right: 1px solid #a6c9e2;
+              border-bottom: 1px solid #a6c9e2;
+              border-radius: 0 0 5px 5px;
+            }
+
+            .wrap {
+              white-space: normal !important;
+              word-wrap: break-word;
+            }
+
+            .ui-picklist-buttons-cell {
+              box-sizing: border-box;
+            }
+
+          </style>
 
           <div id="scriptStepAddForm">
             <p:commandButton value="Add scripts"
-              update=":editGroupForm:scriptShuffleListId, :editGroupForm:scriptStepTableId"
-              action="#{workloadScripts.addScriptGroupStep()}" ajax="true" />
+                             update=":editGroupForm:selectedItems, :editGroupForm:scriptStepTableId"
+                             action="#{workloadScripts.addScriptGroupStep()}" ajax="true" />
           </div>
           <div class="vertical-spacer" />
           <div style="height: 150px; overflow: auto; border: 1px solid black;">
             <p:dataTable id="scriptStepTableId" value="#{workloadScripts.steps}" var="step"
-                         class="pad2" style="width:100%;" noDataLabel="Add Scripts using the selector above.">
+                         class="pad2" style="width:100%;" noDataLabel="Add Scripts using the selector above." draggableRows="true">
+
+              <p:ajax event="rowReorder" update=":editGroupForm:scriptStepTableId"/>
 
               <p:column styleClass="ellipsis min-column-size" style="width: 270px;">
                 <f:facet name="header">

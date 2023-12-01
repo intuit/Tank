@@ -53,7 +53,7 @@ public class ScriptConverter implements Converter {
         } catch (Exception e) {
             // throw new IllegalArgumentException("Passed in value was not a valid date format in the pattern of " +
             // PATTERN);
-            LOG.error("Cannot parse script id value of" + value + ".");
+            LOG.error("ScriptConverter - Cannot parse script id value of" + value + ".");
         }
         return null;
     }
@@ -63,7 +63,12 @@ public class ScriptConverter implements Converter {
      */
     @Override
     public String getAsString(FacesContext facesContext, UIComponent uiComponent, Object obj) {
-        return Integer.toString(((Script) obj).getId());
+        try {
+            return Integer.toString(((Script) obj).getId());
+        } catch (Exception e) {
+            LOG.error("ScriptConverter - Cannot convert script to string.", e);
+        }
+        return "";
     }
 
 }

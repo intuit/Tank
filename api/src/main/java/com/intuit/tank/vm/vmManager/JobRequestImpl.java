@@ -60,7 +60,9 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     private Set<Integer> dataFileIds = new HashSet<Integer>();
     private String vmInstanceType;
     private int numUsersPerAgent;
-
+    private int numAgents;
+    private int startRate;
+    private double endRate;
     private String scriptsXmlUrl;
 
     public static Builder builder() {
@@ -202,6 +204,51 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     }
 
     /**
+     * @return the numAgents
+     */
+    public int getNumAgents() {
+        return numAgents;
+    }
+
+    /**
+     * @param numAgents
+     *            the numAgents to set
+     */
+    public void setNumAgents(int numAgents) {
+        this.numAgents = numAgents;
+    }
+
+    /**
+     * @return the startRate
+     */
+    public int getStartRate() {
+        return startRate;
+    }
+
+    /**
+     * @param startRate
+     *            the startRate to set
+     */
+    public void setStartRate(int startRate) {
+        this.startRate = startRate;
+    }
+
+    /**
+     * @return the endRate
+     */
+    public double getEndRate() {
+        return endRate;
+    }
+
+    /**
+     * @param endRate
+     *            the endRate to set
+     */
+    public void setEndRate(double endRate) {
+        this.endRate = endRate;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -265,6 +312,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
                 .append("useEips", useEips)
                 .append("baselineVirtualUsers", baselineVirtualUsers)
                 .append("userIntervalIncrement", userIntervalIncrement)
+                .append("endRate", endRate)
                 .append("reportingMode", reportingMode)
                 .append("regions", regions)
                 .toString();
@@ -350,6 +398,24 @@ public final class JobRequestImpl implements Serializable, JobRequest {
             instance.numUsersPerAgent = aValue;
             return (GeneratorT) this;
         }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT withNumAgents(int aValue) {
+            instance.numAgents = aValue;
+            return (GeneratorT) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT withStartRate(int aValue) {
+            instance.startRate = aValue;
+            return (GeneratorT) this;
+        }
+
+        public GeneratorT withEndRate(double aValue) {
+            instance.endRate= aValue;
+            return (GeneratorT) this;
+        }
+
         @SuppressWarnings("unchecked")
         public GeneratorT withUseEips(boolean aValue) {
             instance.useEips = aValue;

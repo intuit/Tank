@@ -55,34 +55,11 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
         return "PONG " + getClass().getInterfaces()[0].getSimpleName();
     }
 
-    protected ScriptFilterDao createScriptFilterDao() {
-        return new ScriptFilterDao();
-    }
-
-    protected ScriptFilterGroupDao createScriptFilterGroupDao() {
-        return new ScriptFilterGroupDao();
-    }
-
-    protected ScriptDao createScriptDao() {
-        return new ScriptDao();
-    }
-
-    protected FilterGroupDao createFilterGroupDao() {
-        return new FilterGroupDao();
-    }
-
-    protected void applyFilters(List<Integer> filterIds, Script script) {
-        ScriptFilterUtil.applyFilters(filterIds, script);
-    }
-
-    protected void setScriptStepLabels(Script script) {
-        ScriptUtil.setScriptStepLabels(script);
-    }
 
     @Override
     public FilterTO getFilter(Integer filterId){
         try {
-            ScriptFilterDao dao = createScriptFilterDao();
+            ScriptFilterDao dao = new ScriptFilterDao();
             ScriptFilter filter = dao.findById(filterId);
             return FilterServiceUtil.filterToTO(filter);
         } catch(Exception e){
@@ -94,7 +71,7 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     @Override
     public FilterGroupTO getFilterGroup(Integer filterGroupId){
         try {
-            ScriptFilterGroupDao dao = createScriptFilterGroupDao();
+            ScriptFilterGroupDao dao = new ScriptFilterGroupDao();
             ScriptFilterGroup filterGroup = dao.findById(filterGroupId);
             return FilterServiceUtil.filterGroupToTO(filterGroup);
         } catch(Exception e){
@@ -106,7 +83,7 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     @Override
     public FilterContainer getFilters() {
         try {
-            List<ScriptFilter> all = createScriptFilterDao().findAll();
+            List<ScriptFilter> all = new ScriptFilterDao().findAll();
             List<FilterTO> ret = all.stream()
                     .map(FilterServiceUtil::filterToTO)
                     .collect(Collectors.toList());
@@ -120,7 +97,7 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     @Override
     public FilterGroupContainer getFilterGroups() {
         try {
-        List<ScriptFilterGroup> all = createScriptFilterGroupDao().findAll();
+        List<ScriptFilterGroup> all = new ScriptFilterGroupDao().findAll();
         List<FilterGroupTO> ret = all.stream()
                 .map(FilterServiceUtil::filterGroupToTO)
                 .collect(Collectors.toList());
@@ -135,12 +112,12 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     public String applyFilters(Integer scriptId, ApplyFiltersRequest request) {
         try {
             if (scriptId != null) {
-                Script script = createScriptDao().findById(scriptId);
+                Script script = new ScriptDao().findById(scriptId);
                 if (script == null){
                     return "Script with that script ID does not exist";
                 }
                 List<Integer> filterIds = new ArrayList<>(request.getFilterIds());
-                FilterGroupDao dao = createFilterGroupDao();
+                FilterGroupDao dao = new FilterGroupDao();
                 for (Integer id : request.getFilterGroupIds()) {
                     ScriptFilterGroup group = dao.findById(id);
                     if (group != null) {
@@ -150,9 +127,9 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
                     }
                 }
                 if (!filterIds.isEmpty()) {
-                    applyFilters(filterIds, script);
-                    setScriptStepLabels(script);
-                    script = createScriptDao().saveOrUpdate(script);
+                    ScriptFilterUtil.applyFilters(filterIds, script);
+                    ScriptUtil.setScriptStepLabels(script);
+                    script = new ScriptDao().saveOrUpdate(script);
                     sendMsg(script, ModificationType.UPDATE);
                     return "Filters applied";
                 }
@@ -163,7 +140,7 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
         }
         return null;
     }
-    protected void sendMsg(BaseEntity entity, ModificationType type) {
+    private void sendMsg(BaseEntity entity, ModificationType type) {
         MessageEventSender sender = new ServletInjector<MessageEventSender>().getManagedBean(servletContext, MessageEventSender.class);
         sender.sendEvent(new ModifiedEntityMessage(entity.getClass(), entity.getId(), type));
     }
@@ -171,7 +148,7 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     @Override
     public String deleteFilter(Integer filterId) {
         try {
-            ScriptFilterDao dao = createScriptFilterDao();
+            ScriptFilterDao dao = new ScriptFilterDao();
             ScriptFilter filter = dao.findById(filterId);
             if (filter == null) {
                 LOGGER.warn("Filter with filter id " + filterId + " does not exist");
@@ -189,7 +166,7 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     @Override
     public String deleteFilterGroup(Integer filterGroupId) {
         try {
-            ScriptFilterGroupDao dao = createScriptFilterGroupDao();
+            ScriptFilterGroupDao dao = new ScriptFilterGroupDao();
             ScriptFilterGroup filterGroup = dao.findById(filterGroupId);
             if (filterGroup == null) {
                 LOGGER.warn("Filter Group with id " + filterGroupId + " does not exist");

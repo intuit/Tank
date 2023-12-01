@@ -68,6 +68,9 @@ public abstract class BaseJob extends BaseEntity {
     @Column(name = "num_users_per_agent", columnDefinition = "INT(11) NOT NULL DEFAULT '4000'")
     private int numUsersPerAgent = 4000;
 
+    @Column(name = "num_agents", columnDefinition = "INT(11) NOT NULL DEFAULT '1'")
+    private int numAgents = 1;
+
     @Column(name = "logging_profile")
     private String loggingProfile = LoggingProfile.STANDARD.name();
 
@@ -91,6 +94,9 @@ public abstract class BaseJob extends BaseEntity {
 
     @Column(name = "user_interval_increment_seconds")
     private int userIntervalIncrement;
+
+    @Column(name = "target_rate")
+    private Double targetRampRate = 1.00;
 
     @Column(name = "reporting_mode", nullable = false)
     private String reportingMode = TankConstants.RESULTS_NONE;
@@ -118,6 +124,7 @@ public abstract class BaseJob extends BaseEntity {
         this.simulationTime = copy.simulationTime;
         this.terminationPolicy = copy.terminationPolicy;
         this.userIntervalIncrement = copy.userIntervalIncrement;
+        this.targetRampRate = copy.targetRampRate;
         this.location = copy.location;
         this.reportingMode = copy.reportingMode;
         this.allowOverride = copy.allowOverride;
@@ -127,6 +134,7 @@ public abstract class BaseJob extends BaseEntity {
         this.stopBehavior = copy.stopBehavior;
         this.executionTime = copy.executionTime;
         this.numUsersPerAgent = copy.numUsersPerAgent;
+        this.numAgents = copy.numAgents;
         this.vmInstanceType = copy.vmInstanceType;
         this.useEips = copy.useEips;
         this.tankClientClass = copy.getTankClientClass();
@@ -331,6 +339,21 @@ public abstract class BaseJob extends BaseEntity {
     }
 
     /**
+     * @return the numAgents
+     */
+    public int getNumAgents() {
+        return numAgents;
+    }
+
+    /**
+     * @param numAgents
+     *            the numAgents to set
+     */
+    public void setNumAgents(int numAgents) {
+        this.numAgents = numAgents;
+    }
+
+    /**
      * @return the location
      */
     public String getLocation() {
@@ -413,6 +436,21 @@ public abstract class BaseJob extends BaseEntity {
      */
     public void setUserIntervalIncrement(int userIntervalIncrement) {
         this.userIntervalIncrement = userIntervalIncrement;
+    }
+
+    /**
+     * @return the targetRampRate
+     */
+    public double getTargetRampRate() {
+        return targetRampRate != null ? targetRampRate : 1.0;
+    }
+
+    /**
+     * @param targetRampRate
+     *            the targetRampRate to set
+     */
+    public void setTargetRampRate(double targetRampRate) {
+        this.targetRampRate = targetRampRate;
     }
 
 }

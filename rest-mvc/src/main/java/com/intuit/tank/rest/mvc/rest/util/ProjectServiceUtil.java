@@ -15,16 +15,19 @@ import com.intuit.tank.project.Project;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobRegion;
+import com.intuit.tank.project.ScriptGroup;
+import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.Workload;
-import com.intuit.tank.rest.mvc.rest.models.projects.AutomationJobRegion;
-import com.intuit.tank.rest.mvc.rest.models.projects.KeyPair;
-import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
+import com.intuit.tank.project.TestPlan;
+import com.intuit.tank.rest.mvc.rest.models.projects.*;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -54,6 +57,18 @@ public class ProjectServiceUtil {
 
         for(JobRegion jobRegion : config.getJobRegions()) {
             ret.getJobRegions().add(new AutomationJobRegion(jobRegion.getRegion(), jobRegion.getUsers()));
+        }
+
+        for(TestPlan testPlan : p.getWorkloads().get(0).getTestPlans()) {
+            List<AutomationScriptGroup> retScriptGroups = new ArrayList<>();
+            for(ScriptGroup sg : testPlan.getScriptGroups()) {
+                List<AutomationScriptGroupStep> retScripts = new ArrayList<>();
+                for(ScriptGroupStep script : sg.getScriptGroupSteps()){
+                    retScripts.add(new AutomationScriptGroupStep(script.getScript().getId(), script.getScript().getName(), script.getLoop(), script.getPosition()));
+                }
+                retScriptGroups.add(new AutomationScriptGroup(sg.getName(), sg.getLoop(), sg.getPosition(), retScripts));
+            }
+            ret.getTestPlans().add(new AutomationTestPlan(testPlan.getName(), testPlan.getUserPercentage(), testPlan.getPosition(), retScriptGroups));
         }
 
         for (Entry<String, String> entry : config.getVariables().entrySet()) {

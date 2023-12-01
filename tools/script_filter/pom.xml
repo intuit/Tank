@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>tools-parent</artifactId>
-    <version>3.2.1-SNAPSHOT</version>
+    <version>3.3.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>script-filter</artifactId>
@@ -19,6 +19,12 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>script-engine</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>api</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -62,30 +68,6 @@
         <exclusion>
           <groupId>jakarta.xml.bind</groupId>
           <artifactId>jakarta.xml.bind-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>script-client</artifactId>
-      <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-	      <groupId>org.hibernate</groupId>
-	      <artifactId>hibernate-validator</artifactId>
-        </exclusion>
-        <exclusion>
-	      <groupId>org.hibernate</groupId>
-	      <artifactId>hibernate-envers</artifactId>
-        </exclusion>
-        <exclusion>
-	      <groupId>org.picketlink</groupId>
-	      <artifactId>picketlink</artifactId>
-        </exclusion>
-        <exclusion>
-	      <groupId>software.amazon.awssdk</groupId>
-	      <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

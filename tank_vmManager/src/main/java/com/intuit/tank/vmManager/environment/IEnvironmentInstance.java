@@ -92,16 +92,6 @@ public interface IEnvironmentInstance {
     public void reboot(List<VMInformation> vmInfos);
 
     /**
-     * Tags the instances with the specified tags.
-     * 
-     * @param instanceIds
-     *            the list of instances to tag
-     * @param tag
-     *            the tags to add (varargs)
-     */
-    public void tagInstance(List<String> instanceIds, KeyValuePair... tag);
-
-    /**
      * @param instanceIds
      *             the instance ids to kill
      */

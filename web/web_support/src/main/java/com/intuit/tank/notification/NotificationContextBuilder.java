@@ -34,9 +34,7 @@ import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_SCRIPT
 import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_START_TIME_KEY;
 import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_STEADY_STATE_END_KEY;
 import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_STEADY_STATE_START_KEY;
-import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_SUMMARY_DATA_URL_KEY;
 import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_TERMINATION_POLICY_KEY;
-import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_TIMING_DATA_URL_KEY;
 import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_VALIDATION_FAILURES_KEY;
 import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_VARIABLES_KEY;
 
@@ -53,7 +51,6 @@ import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.vm.vmManager.models.ValidationStatus;
-import com.intuit.tank.api.service.v1.report.ReportService;
 import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.WorkloadDao;
@@ -190,9 +187,6 @@ public class NotificationContextBuilder {
                 TimeUtil.toTimeString(jobInstance.getSimulationTime()));
         String dataFiles = getDataFileString(jobInstance);
         context.addContextEntry(NOTIFICATIONS_EVENT_DATA_FILES_KEY, cleanString(dataFiles));
-        String jobId = Integer.toString(jobInstance.getId());
-        context.addContextEntry(NOTIFICATIONS_EVENT_TIMING_DATA_URL_KEY, getTimingDataUrl(jobId));
-        context.addContextEntry(NOTIFICATIONS_EVENT_SUMMARY_DATA_URL_KEY, getTimingSummaryUrl(jobId));
         context.addContextEntry(NOTIFICATIONS_EVENT_LOAD_START_TIME_KEY, cleanDate(jobInstance.getStartTime()));
     }
 
@@ -281,22 +275,6 @@ public class NotificationContextBuilder {
             }
         }
         context = context.addContextEntry(NOTIFICATIONS_EVENT_SCRIPT_INFO_KEY, ret.toString());
-    }
-
-    private String getTimingDataUrl(String jobId) {
-        return config.getControllerBase() +
-                TankConstants.REST_SERVICE_CONTEXT + ReportService.SERVICE_RELATIVE_PATH
-                + ReportService.METHOD_TIMING_CSV +
-                "/" +
-                jobId;
-    }
-
-    private String getTimingSummaryUrl(String jobId) {
-        return config.getControllerBase() +
-                TankConstants.REST_SERVICE_CONTEXT + ReportService.SERVICE_RELATIVE_PATH
-                + ReportService.METHOD_TIMING_SUMMARY_HTML +
-                "/" +
-                jobId;
     }
 
 }

@@ -13,6 +13,8 @@ package com.intuit.tank.vm.agent.messages;
  * #L%
  */
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -25,7 +27,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataFileRequest", namespace = DataFileRequest.NAMESPACE_V1, propOrder = {
         "fileName",
-        "isDefault",
+        "isDefaultDataFile",
         "fileUrl"
 })
 public class DataFileRequest implements Serializable {
@@ -37,8 +39,9 @@ public class DataFileRequest implements Serializable {
     @XmlElement(name = "fileName", namespace = NAMESPACE_V1, required = true, nillable = false)
     private String fileName = null;
 
-    @XmlElement(name = "isDefault", namespace = NAMESPACE_V1, required = true, nillable = false)
-    private boolean isDefault;
+    @XmlElement(name = "isDefaultDataFile", namespace = NAMESPACE_V1, required = true, nillable = false)
+    @JsonProperty("isDefaultDataFile")
+    private boolean isDefaultDataFile;
 
     @XmlElement(name = "fileUrl", namespace = NAMESPACE_V1, required = true, nillable = false)
     private String fileUrl;
@@ -52,13 +55,13 @@ public class DataFileRequest implements Serializable {
 
     /**
      * @param fileName
-     * @param isDefault
+     * @param isDefaultDataFile
      * @param fileUrl
      */
-    public DataFileRequest(String fileName, boolean isDefault, String fileUrl) {
+    public DataFileRequest(String fileName, boolean isDefaultDataFile, String fileUrl) {
         super();
         this.fileName = fileName;
-        this.isDefault = isDefault;
+        this.isDefaultDataFile = isDefaultDataFile;
         this.fileUrl = fileUrl;
     }
 
@@ -70,10 +73,11 @@ public class DataFileRequest implements Serializable {
     }
 
     /**
-     * @return the isDefault
+     * @return the isDefaultDataFile
      */
-    public boolean isDefault() {
-        return isDefault;
+    @JsonProperty("isDefaultDataFile")
+    public boolean isDefaultDataFile() {
+        return isDefaultDataFile;
     }
 
     /**

@@ -15,6 +15,7 @@ package com.intuit.tank.scheduleManager.jms;
 
 import javax.inject.Inject;
 
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -57,7 +58,10 @@ public class AgentDispatcherImpl implements AgentDispatcher {
             VMRequest vmRequest = new VMJobRequest(agentRequest.getJobId(), agentRequest.getReportingMode(),
                     agentRequest.getLoggingProfile(),
                     agentRequest.getNumberOfUsers(),
-                    agentRequest.getRegion(), agentRequest.getStopBehavior(), agentRequest.getVmInstanceType(),
+                    agentRequest.getRegion(),
+                    agentRequest.getIncrementStrategy(),
+                    agentRequest.getStopBehavior(),
+                    agentRequest.getVmInstanceType(),
                     agentRequest.getNumUsersPerAgent());
             ((VMJobRequest)vmRequest).setUserEips(agentRequest.isUseEips());
             vmManagerRequest(vmRequest);

@@ -13,10 +13,11 @@ import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ExternalScript;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
-import com.intuit.tank.api.model.v1.script.*;
+import com.intuit.tank.script.models.*;
 import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import com.intuit.tank.rest.mvc.rest.util.ScriptServiceUtil;
 import com.intuit.tank.script.processor.ScriptProcessor;
@@ -34,10 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
@@ -56,14 +54,6 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         return "PONG " + getClass().getInterfaces()[0].getSimpleName();
     }
 
-    protected ScriptDao createScriptDao() {
-        return new ScriptDao();
-    }
-
-    protected ExternalScriptDao createExternalScriptDao() {
-        return new ExternalScriptDao();
-    }
-
     @Override
     public ScriptTO createScript(ScriptTO scriptTo) {
         Script savedScript;
@@ -71,7 +61,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         scriptTo.setModified(null);
         scriptTo.setId(0);
         try {
-            savedScript = createScriptDao().saveOrUpdate(ScriptServiceUtil.transferObjectToScript(scriptTo));
+            savedScript = new ScriptDao().saveOrUpdate(ScriptServiceUtil.transferObjectToScript(scriptTo));
             return ScriptServiceUtil.scriptToTransferObject(savedScript);
         } catch (Exception e) {
             LOGGER.error("Error creating script: " + e.getMessage(), e);
@@ -82,7 +72,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public ScriptDescription getScript(Integer scriptId) {
         try {
-            ScriptDao dao = createScriptDao();
+            ScriptDao dao = new ScriptDao();
             Script script = dao.findById(scriptId);
             if (script != null) {
                 return ScriptServiceUtil.scriptToScriptDescription(script);
@@ -97,7 +87,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public ScriptDescriptionContainer getScripts() {
         try {
-            ScriptDao dao = createScriptDao();
+            ScriptDao dao = new ScriptDao();
             List<Script> all = dao.findAll();
             List<ScriptDescription> result = all.stream().map(ScriptServiceUtil::scriptToScriptDescription).collect(Collectors.toList());
             return new ScriptDescriptionContainer(result);
@@ -110,7 +100,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public Map<Integer, String> getAllScriptNames(){
         try {
-            List<Script> all = createScriptDao().findAll();
+            List<Script> all = new ScriptDao().findAll();
             return all.stream().sorted(Comparator.comparing(Script::getModified).reversed())
                                .collect(Collectors.toMap(Script::getId, Script::getName, (e1, e2) -> e1, LinkedHashMap::new));
         } catch (Exception e) {
@@ -124,7 +114,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         try {
             StreamingResponseBody streamingResponse;
             Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-            ScriptDao dao = createScriptDao();
+            ScriptDao dao = new ScriptDao();
             final Script script = dao.findById(scriptId);
             if (script == null) {
                 return null;
@@ -146,7 +136,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         try {
             StreamingResponseBody streamingResponse;
             Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-            ScriptDao dao = createScriptDao();
+            ScriptDao dao = new ScriptDao();
             final Script script = dao.findById(scriptId);
             if (script == null) {
                 return null;
@@ -166,7 +156,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public String deleteScript(Integer scriptId) {
         try {
-            ScriptDao dao = createScriptDao();
+            ScriptDao dao = new ScriptDao();
             Script script = dao.findById(scriptId);
             if (script == null) {
                 LOGGER.warn("Script with script id " +  scriptId + " does not exist");
@@ -186,7 +176,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public ExternalScriptContainer getExternalScripts() {
         try {
-            ExternalScriptDao dao = createExternalScriptDao();
+            ExternalScriptDao dao = new ExternalScriptDao();
             List<ExternalScript> all = dao.findAll();
             ExternalScriptContainer ret = new ExternalScriptContainer();
             for (ExternalScript s : all) {
@@ -202,7 +192,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public ExternalScriptTO getExternalScript(Integer externalScriptId) {
         try {
-            ExternalScriptDao dao = createExternalScriptDao();
+            ExternalScriptDao dao = new ExternalScriptDao();
             ExternalScript script = dao.findById(externalScriptId);
             if (script != null) {
                 return ScriptServiceUtil.externalScriptToTO(script);
@@ -217,7 +207,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
 
     @Override
     public ExternalScriptTO createExternalScript(ExternalScriptTO ExternalScriptRequest) {
-        ExternalScriptDao dao = createExternalScriptDao();
+        ExternalScriptDao dao = new ExternalScriptDao();
         try {
             ExternalScript script = ScriptServiceUtil.TOToExternalScript(ExternalScriptRequest);
             script = dao.saveOrUpdate(script);
@@ -233,7 +223,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         try {
             StreamingResponseBody streamingResponse;
             Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-            ExternalScriptDao dao = createExternalScriptDao();
+            ExternalScriptDao dao = new ExternalScriptDao();
             final ExternalScript script = dao.findById(externalScriptId);
             if (script == null) {
                 return null;
@@ -253,11 +243,12 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public Map<String, String> uploadProxyScript(String name, Integer scriptId, String contentEncoding, MultipartFile file) throws IOException {
         Map<String, String> payload = new HashMap<>();
-        InputStream fileInputStream = file.getInputStream();
         scriptId = scriptId == null ? 0 : scriptId;
         contentEncoding = contentEncoding == null ? "" : contentEncoding;
-        try {
-            Script script = createScriptDao().findById(scriptId);
+        try (BufferedReader bufferedReader = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
+                new BufferedReader(new InputStreamReader(new GZIPInputStream(file.getInputStream()))) :
+                new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            Script script = new ScriptDao().findById(scriptId);
             if (script == null){
                 script = new Script();
                 script.setName("New");
@@ -274,11 +265,8 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                 script.setName(name);
             }
 
-            BufferedReader bufferedReader = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
-                    new BufferedReader(new InputStreamReader(new GZIPInputStream(fileInputStream))) :
-                    new BufferedReader(new InputStreamReader(fileInputStream));
             scriptProcessor.getScriptSteps(bufferedReader, new ArrayList<>());
-            script = createScriptDao().saveOrUpdate(script);
+            script = new ScriptDao().saveOrUpdate(script);
             sendMsg(script, ModificationType.UPDATE);
             if (scriptId.equals(0)) {
                 payload.put("message", "Script with new script ID " + script.getId() + " has been uploaded");
@@ -291,10 +279,6 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         } catch (Exception e) {
             LOGGER.error("Error uploading script file: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("scripts", "new script via script upload", e);
-        } finally {
-            try {
-                fileInputStream.close();
-            } catch (IOException e) {}
         }
         return payload;
     }
@@ -305,8 +289,41 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     }
 
     @Override
+    public Map<String, String> updateTankScript(String  contentEncoding, MultipartFile file) throws IOException {
+        Map<String, String> payload = new HashMap<>();
+        contentEncoding = contentEncoding == null ? "" : contentEncoding;
+
+        try (InputStream fileInputStream = file.getInputStream();
+             InputStream inputStream = "gzip".equalsIgnoreCase(contentEncoding) ? new GZIPInputStream(fileInputStream) : fileInputStream) {
+            ScriptDao dao = new ScriptDao();
+
+            if (inputStream != null) {
+                ScriptTO scriptTo = ScriptServiceUtil.parseXMLtoScriptTO(inputStream);
+                Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
+                if (script.getId() > 0) {
+                    Script existing = dao.findById(script.getId());
+                    if (existing == null) {
+                        throw new GenericServiceBadRequestException("scripts", "updating script", "updating script - Cannot update a script that does not exist (script id " + script.getId() + ")");
+                    }
+                    if (!existing.getName().equals(script.getName())) {
+                        throw new GenericServiceBadRequestException("scripts", "updating script", "updating script - Cannot change the name of the existing script " + existing.getName());
+                    }
+                    script.setSerializedScriptStepId(existing.getSerializedScriptStepId());
+                }
+                script = dao.saveOrUpdate(script);
+                payload.put("message", "Script " + script.getName() + " with script ID " + script.getId() + " updated successfully");
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error updating script file: " + e.getMessage(), e);
+            throw new GenericServiceCreateOrUpdateException("scripts", e.getMessage(), e);
+        }
+
+        return payload;
+    }
+
+    @Override
     public String deleteExternalScript(Integer externalScriptId) {
-        ExternalScriptDao dao = createExternalScriptDao();
+        ExternalScriptDao dao = new ExternalScriptDao();
         try {
             ExternalScript script = dao.findById(externalScriptId);
             if (script == null) {

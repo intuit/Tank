@@ -129,27 +129,6 @@ public class ScriptDao extends BaseDao<Script> {
         return null;
     }
 
-    /**
-     * 
-     * @param productId
-     * @return
-     */
-    public List<Script> getScriptsForProductId(int productId) {
-        // TODO: DA Fix when using real projects in model
-        // List<Script> result = new ArrayList<Script>();
-        // ProjectDao projectDao = new ProjectDao();
-        // Project project = projectDao.findById(projectId);
-        // for (Workload w : project.getWorkloads()) {
-        // for (ScriptGroup g : w.getScriptGroups()) {
-        // for (ScriptGroupStep step : g.getScriptGroupSteps()) {
-        // result.add(step.getScript());
-        // }
-        // }
-        // }
-        // return result;
-        return findAll();
-    }
-
     public Script loadScriptSteps(@Nonnull Script script) {
         if (script.getScriptSteps() == null || script.getScriptSteps().isEmpty()) {
             SerializedScriptStep serializedScriptStep = new SerializedScriptStepDao().findById(script
@@ -220,22 +199,4 @@ public class ScriptDao extends BaseDao<Script> {
         }
         return serializedScriptStep;
     }
-
-    // private String getUniqueProjects(List<ScriptGroupStep> steps) {
-    // Set<String> projectNames = new HashSet<String>();
-    // for (ScriptGroupStep step : steps) {
-    // try {
-    // if (step.getScriptGroup() != null) {
-    // if (step.getScriptGroup().get)
-    // }
-    // projectNames.add(step.getScriptGroup().getWorkload().getProject().getName());
-    // } catch (NullPointerException e) {
-    // projectNames.add("Unkonwn Project with ScriptGroup " + step.getScriptGroup().getName());
-    // }
-    // }
-    // ArrayList<String> list = new ArrayList<String>(projectNames);
-    // Collections.sort(list);
-    // return StringUtils.join(list, ", ");
-    // }
-
 }

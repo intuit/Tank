@@ -47,14 +47,11 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
         return "PONG " + getClass().getInterfaces()[0].getSimpleName();
     }
 
-    protected DataFileDao createDataFileDao() {
-        return new DataFileDao();
-    }
 
     @Override
     public DataFileDescriptor getDatafile(Integer datafileId) {
         try {
-            DataFileDao dao = createDataFileDao();
+            DataFileDao dao = new DataFileDao();
             DataFile df = dao.findById(datafileId);
             if (df != null) {
                 return DataFileServiceUtil.dataFileToDescriptor(df);
@@ -69,7 +66,7 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
     @Override
     public DataFileDescriptorContainer getDatafiles() {
         try {
-            DataFileDao dao = createDataFileDao();
+            DataFileDao dao = new DataFileDao();
             List<DataFile> all = dao.findAll();
             List<DataFileDescriptor> result = all.stream().map(DataFileServiceUtil::dataFileToDescriptor).collect(Collectors.toList());
             return new DataFileDescriptorContainer(result);
@@ -80,9 +77,9 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
     }
 
     @Override
-    public Map<Integer, String> getAllDatafileNames() {
+    public Map<Integer, String> getAllDatafileNames(){
         try {
-            List<DataFile> all = createDataFileDao().findAll();
+            List<DataFile> all = new DataFileDao().findAll();
             return all.stream().collect(Collectors.toMap(DataFile::getId, DataFile::getPath));
         } catch (Exception e) {
             LOGGER.error("Error returning all datafile names: " + e.getMessage(), e);
@@ -90,17 +87,9 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
         }
     }
 
-    protected FileStorage createFileStorage() {
-        return FileStorageFactory.getFileStorage(new TankConfig().getDataFileStorageDir(), false);
-    }
-
-    protected FileData getFileData(DataFile dataFile) {
-        return DataFileUtil.getFileData(dataFile);
-    }
-
     @Override
     public StreamingResponseBody getDatafileContent(Integer datafileId, Integer offset, Integer numLines){
-        DataFileDao dataFileDao = createDataFileDao();
+        DataFileDao dataFileDao = new DataFileDao();
         DataFile dataFile = dataFileDao.findById(datafileId);
         if (dataFile == null){
             return null;
@@ -111,8 +100,8 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
     }
 
     private StreamingResponseBody getStreamingOutput(final Integer offset, final Integer numLines, DataFile dataFile) {
-        final FileStorage fileStorage = createFileStorage();
-        final FileData fd = getFileData(dataFile);
+        final FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getDataFileStorageDir(), false);
+        final FileData fd = DataFileUtil.getFileData(dataFile);
         return outputStream -> {
             try (   BufferedReader in = new BufferedReader(new InputStreamReader(fileStorage.readFileData(fd), StandardCharsets.UTF_8));
                     PrintWriter out = new PrintWriter(outputStream) ) {
@@ -145,7 +134,7 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
 
     public Map<String, StreamingResponseBody> downloadDatafile(Integer datafileId){
         Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-        DataFileDao dataFileDao = createDataFileDao();
+        DataFileDao dataFileDao = new DataFileDao();
         DataFile dataFile = dataFileDao.findById(datafileId);
         if (dataFile == null){
             return null;
@@ -162,9 +151,11 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
         Map<String, String> payload = new HashMap<>();
         datafileId = datafileId == null ? 0 : datafileId;
         contentEncoding = contentEncoding == null ? "" : contentEncoding;
-        BufferedReader bufferedReader = createBufferedReader(contentEncoding, file);
-        try (InputStream decompressed = createInputStream(bufferedReader)) {
-            DataFileDao dao = createDataFileDao();
+        try (BufferedReader bufferedReader = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
+                new BufferedReader(new InputStreamReader(new GZIPInputStream(file.getInputStream()))) :
+                new BufferedReader(new InputStreamReader(file.getInputStream()));
+                InputStream decompressed = IOUtils.toInputStream(IOUtils.toString(bufferedReader), StandardCharsets.UTF_8)) { // correctly handles compressed datafile content
+            DataFileDao dao = new DataFileDao();
             DataFile dataFile = dao.findById(datafileId);
             if (dataFile == null) {
                 dataFile = new DataFile();
@@ -188,12 +179,6 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
                 }
             }
             payload.put("datafileId", Integer.toString(dataFile.getId()));
-            try {
-                decompressed.close();
-            } catch (IOException e) {
-                LOGGER.error("Error uploading datafile: " + e.getMessage(), e);
-                throw new GenericServiceCreateOrUpdateException("datafiles", "new datafile via datafile upload", e);
-            }
         } catch (Exception e) {
             LOGGER.error("Error uploading datafile: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("datafiles", "new datafile via datafile upload", e);
@@ -201,20 +186,11 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
         return payload;
     }
 
-    protected BufferedReader createBufferedReader(String contentEncoding, MultipartFile file) throws IOException {
-        return StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
-                new BufferedReader(new InputStreamReader(new GZIPInputStream(file.getInputStream()))) :
-                new BufferedReader(new InputStreamReader(file.getInputStream()));
-    }
-
-    protected InputStream createInputStream(BufferedReader bufferedReader) throws IOException {
-        return IOUtils.toInputStream(IOUtils.toString(bufferedReader), StandardCharsets.UTF_8);
-    }
 
     @Override
     public String deleteDatafile(Integer datafileId){
         try {
-            DataFileDao dao = createDataFileDao();
+            DataFileDao dao = new DataFileDao();
             DataFile dataFile = dao.findById(datafileId);
             if (dataFile == null) {
                 LOGGER.warn("Datafile with datafile id " + datafileId + " does not exist");

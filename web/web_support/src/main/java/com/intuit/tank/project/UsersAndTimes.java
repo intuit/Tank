@@ -25,6 +25,7 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -352,7 +353,7 @@ public class UsersAndTimes implements Serializable {
     /**
      * Sets the increment strategy for the job
      * 
-     * @param workloadType
+     * @param strategy
      *            The increment strategy for the job.
      */
     public void setIncrementStrategy(IncrementStrategy strategy) {
@@ -395,6 +396,48 @@ public class UsersAndTimes implements Serializable {
     public void setUserIncrement(String startUsers) {
         if (NumberUtils.isCreatable(startUsers)) {
             projectBean.getJobConfiguration().setUserIntervalIncrement(Integer.parseInt(startUsers));
+        }
+    }
+      // TODO: need to update BaseJob to support start rate
+//    /**
+//     * @return get nonlinear start rate for the job
+//     */
+//    public String getStartRate() {
+//        return String.valueOf(projectBean.getJobConfiguration().getStartRate());
+//    }
+//
+//    /**
+//     * set nonlinear start rate for the job
+//     *
+//     * @param startRate
+//     *          the start rate for the job
+//     *
+//     */
+//    public void setStartRate(String startRate) {
+//        projectBean.getJobConfiguration().setStartRate(Integer.parseInt(startRate));
+//    }
+
+     /**
+     * @return get nonlinear end rate for the job
+     */
+    public String getEndRate() {
+        String targetRampRate = String.valueOf(projectBean.getJobConfiguration().getTargetRampRate());
+        if(StringUtils.isEmpty(targetRampRate)) {
+            return "1.0";
+        }
+        return targetRampRate;
+    }
+
+    /**
+     * set nonlinear end rate for the job
+     *
+     * @param endRate
+     *         the end rate for the job
+     *
+     */
+    public void setEndRate(String endRate) {
+        if(this.getIncrementStrategy().equals(IncrementStrategy.standard)) {
+            projectBean.getJobConfiguration().setTargetRampRate(Double.parseDouble(endRate));
         }
     }
 

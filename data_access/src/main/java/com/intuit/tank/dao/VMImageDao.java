@@ -20,6 +20,10 @@ import java.util.Date;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import com.intuit.tank.project.VMInstance;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
@@ -33,9 +37,6 @@ import com.intuit.tank.vm.vmManager.VMInformation;
  */
 public class VMImageDao extends BaseDao<VMInstance> {
 
-    /**
-     * @param entityClass
-     */
     public VMImageDao() {
         super();
 
@@ -50,11 +51,24 @@ public class VMImageDao extends BaseDao<VMInstance> {
      */
     @Nullable
     public VMInstance getImageByInstanceId(@Nonnull String instanceId) {
-        String prefix = "x";
-        NamedParameter parameter = new NamedParameter(VMInstance.PROPERTY_INSTANCE_ID, "iId", instanceId);
-        String sb = buildQlSelect(prefix) + startWhere() +
-                buildWhereClause(Operation.EQUALS, prefix, parameter);
-        return super.findOneWithJQL(sb, parameter);
+        VMInstance results;
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<VMInstance> query = cb.createQuery(entityClass);
+            Root<VMInstance> root = query.from(entityClass);
+            query.where(cb.equal(root.get(VMInstance.PROPERTY_INSTANCE_ID), instanceId));
+            results = em.createQuery(query).getSingleResult();
+            commit();
+        } catch (Exception e) {
+            rollback();
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+            cleanup();
+        }
+        return results;
     }
 
     /**

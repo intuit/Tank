@@ -44,6 +44,8 @@ import org.apache.logging.log4j.message.ObjectMessage;
  */
 public class AmazonUtil {
 
+    private static final HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
+
     private static final Logger LOG = LogManager.getLogger(AmazonUtil.class);
     private static final String BASE = "http://169.254.169.254/latest";
     private static final String USER_DATA = "/user-data";
@@ -248,7 +250,6 @@ public class AmazonUtil {
      * @throws IOException
      */
     private static String getResponseString(String url) throws IOException {
-        HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());

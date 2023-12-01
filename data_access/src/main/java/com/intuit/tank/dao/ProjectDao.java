@@ -39,6 +39,7 @@ import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
+import org.hibernate.jpa.QueryHints;
 
 /**
  * ProductDao
@@ -55,7 +56,8 @@ public class ProjectDao extends OwnableDao<Project> {
     }
 
     /**
-     * 
+     * Shallow project lookup used to avoid name collision
+     *
      * @param name
      * @return
      */
@@ -67,11 +69,8 @@ public class ProjectDao extends OwnableDao<Project> {
     		CriteriaBuilder cb = em.getCriteriaBuilder();
 	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
 	        Root<Project> root = query.from(Project.class);
-	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
-	        wl.fetch(Workload.PROPERTY_JOB_CONFIGURATION);
-	        wl.fetch(Workload.PROPERTY_TEST_PLANS);
-	        query.select(root)
-                    .where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
+	        query.select(root);
+	        query.where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
 	        project = em.createQuery(query).getSingleResult();
     		commit();
         } catch (Exception e) {
@@ -98,18 +97,6 @@ public class ProjectDao extends OwnableDao<Project> {
             JobConfiguration jobConfiguration = w.getJobConfiguration();
             jobConfiguration.setParent(w);
             jobConfiguration.setJobRegions(JobRegionDao.cleanRegions(jobConfiguration.getJobRegions()));
-            // for (TestPl sg : w.getTestPlans()) {
-            // sg.setParent(w);
-            // if (saveAs) {
-            // sg.setId(0);
-            // }
-            // for (ScriptGroupStep sgs : sg.getScriptGroupSteps()) {
-            // sgs.setParent(sg);
-            // if (saveAs) {
-            // sgs.setId(0);
-            // }
-            // }
-            // }
         }
         project = saveOrUpdate(project);
         return project;
@@ -122,7 +109,7 @@ public class ProjectDao extends OwnableDao<Project> {
     }
     
     /**
-     * This is an override of the BaseEntity to initiate eager loading when needed.
+     * Deep lookup of full project, initiate eager loading when needed.
      * 
      * @param id
      *            the primary key
@@ -147,13 +134,15 @@ public class ProjectDao extends OwnableDao<Project> {
     }
 
     /**
-     * Finds all Objects of type T_ENTITY
+     * Override BaseDao to deep lookup finaAll Projects
+     * This is very slow, thousands of queries, don't use this.
      * 
      * @return the nonnull list of entities
      * @throws HibernateException
      *             if there is an error in persistence
      */
     @Nonnull
+    @Override
     public List<Project> findAll() throws HibernateException {
     	List<Project> results = Collections.emptyList();
     	EntityManager em = getEntityManager();
@@ -163,9 +152,9 @@ public class ProjectDao extends OwnableDao<Project> {
 	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
 	        Root<Project> root = query.from(Project.class);
 	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
-	        wl.fetch("jobConfiguration");
-	        query.select(root);
-	        results = em.createQuery(query).getResultList();
+	        wl.fetch(Workload.PROPERTY_JOB_CONFIGURATION);
+	        query.select(root).distinct(true);
+	        results = em.createQuery(query).setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, true).getResultList();
 	        commit();
         } catch (Exception e) {
         	rollback();
@@ -178,7 +167,7 @@ public class ProjectDao extends OwnableDao<Project> {
     }
 
     /**
-     * Finds all Objects of type T_ENTITY
+     * Shallow find of all Projects, used for debugger request.
      *
      * @return the nonnull list of entities
      * @throws HibernateException

@@ -53,11 +53,10 @@ public class AmazonDataConverterTest {
     @Test
     public void testProcessReservation_1()
             throws Exception {
-        AmazonDataConverter fixture = new AmazonDataConverter();
         Reservation reservation = Reservation.builder().build();
         VMRegion region = VMRegion.ASIA_1;
 
-        List<VMInformation> result = fixture.processReservation(reservation.requesterId(), reservation.instances(), region);
+        List<VMInformation> result = AmazonDataConverter.processReservation(reservation.requesterId(), reservation.instances(), region);
 
         assertNotNull(result);
         assertEquals(0, result.size());
@@ -73,11 +72,10 @@ public class AmazonDataConverterTest {
     @Test
     public void testProcessReservation_2()
             throws Exception {
-        AmazonDataConverter fixture = new AmazonDataConverter();
         Reservation reservation = Reservation.builder().build();
         VMRegion region = VMRegion.ASIA_1;
 
-        List<VMInformation> result = fixture.processReservation(reservation.requesterId(), reservation.instances(), region);
+        List<VMInformation> result = AmazonDataConverter.processReservation(reservation.requesterId(), reservation.instances(), region);
 
         assertNotNull(result);
         assertEquals(0, result.size());
@@ -93,10 +91,9 @@ public class AmazonDataConverterTest {
     @Test
     public void testProcessStateChange_1()
             throws Exception {
-        AmazonDataConverter fixture = new AmazonDataConverter();
         List<InstanceStateChange> changes = new LinkedList();
 
-        List<VMInformation> result = fixture.processStateChange(changes);
+        List<VMInformation> result = AmazonDataConverter.processStateChange(changes);
 
         assertNotNull(result);
         assertEquals(0, result.size());
@@ -112,10 +109,9 @@ public class AmazonDataConverterTest {
     @Test
     public void testProcessStateChange_2()
             throws Exception {
-        AmazonDataConverter fixture = new AmazonDataConverter();
         List<InstanceStateChange> changes = new LinkedList();
 
-        List<VMInformation> result = fixture.processStateChange(changes);
+        List<VMInformation> result = AmazonDataConverter.processStateChange(changes);
 
         assertNotNull(result);
         assertEquals(0, result.size());

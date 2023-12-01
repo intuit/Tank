@@ -15,11 +15,15 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.event.JobEvent;
+import org.apache.logging.log4j.message.ObjectMessage;
+import org.apache.logging.log4j.ThreadContext;
 
 @Named
 @ApplicationScoped
@@ -33,9 +37,13 @@ public class JobEventListener implements Serializable {
     private Instance<JobEventSender> controllerSource;
 
     public void observerJobKillRequest(@Observes JobEvent request) {
-        LOG.info("Got Job Event: " + request);
+        ControllerLoggingConfig.setupThreadContext();
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Got Job Event: " + request)));
         if (request.getEvent() == JobLifecycleEvent.JOB_ABORTED) {
             controllerSource.get().killJob(request.getJobId(), false);
+        } else if (request.getEvent() == JobLifecycleEvent.JOB_FINISHED ||
+                request.getEvent() == JobLifecycleEvent.JOB_KILLED) {
+            ThreadContext.clearAll();
         }
     }
 }
