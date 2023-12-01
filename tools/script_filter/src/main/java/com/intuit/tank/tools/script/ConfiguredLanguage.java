@@ -46,9 +46,9 @@ public class ConfiguredLanguage {
     private static final Set<String> extensionSet = new HashSet<String>();
 
     private static final String[][] data = {
-            { "ECMAScript", SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, "Javascript",
-                    "jdk.nashorn.api.scripting.NashornScriptEngineFactory", "js" },
-            { "ruby", SyntaxConstants.SYNTAX_STYLE_RUBY, "Ruby", "com.sun.script.jruby.JRubyScriptEngineFactory", "rb" },
+            { "OpenJDK Nashorn", SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, "Javascript",
+                    "org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory", "js" },
+            { "ruby", SyntaxConstants.SYNTAX_STYLE_RUBY, "Ruby", "org.jruby.embed.jsr223.JRubyEngineFactory", "rb" },
             { "groovy", SyntaxConstants.SYNTAX_STYLE_GROOVY, "Groovy",
                     "org.codehaus.groovy.jsr223.GroovyScriptEngineFactory", "groovy" }
     };
@@ -61,6 +61,7 @@ public class ConfiguredLanguage {
                 if (engineByName == null) {
                     ScriptEngineFactory fact = (ScriptEngineFactory) Class.forName(row[3]).newInstance();
                     manager.registerEngineName(row[0], fact);
+                    engineByName = manager.getEngineByName(row[0]);
                 }
                 configuredLanguages.add(new ConfiguredLanguage(row[0], row[1], row[2], row[4]));
                 extensionSet.addAll(engineByName.getFactory().getExtensions());
