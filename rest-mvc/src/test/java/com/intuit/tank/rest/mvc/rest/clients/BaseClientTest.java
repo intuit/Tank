@@ -7,19 +7,12 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import reactor.netty.http.client.HttpClient;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 
 class BaseClientTest {
-
-    @Mock
-    HttpClient httpClient;
 
     MockWebServer mockWebServer;
 
@@ -36,7 +29,7 @@ class BaseClientTest {
     }
 
     @Test
-    void testConstructorWithProxy() {
+    void testConstructor_WithProxy_SetsCorrectBaseUrlAndCreatesClient() {
 
         BaseClient baseClient = new BaseClient("http://localhost:8080", "proxy.test.com", 8080) {
             @Override
@@ -49,32 +42,32 @@ class BaseClientTest {
     }
 
     @Test
-    void testConstructorWithoutProxy() {
+    void testConstructor_WithoutProxy_SetsCorrectBaseUrlAndCreatesClient() {
         BaseClient baseClient = new BaseClient("http://localhost:8080", null, null) {
             @Override
             protected String getServiceBaseUrl() {
-                return "/v2/data";
+                return "/v2/ping";
             }
         };
-        assertEquals("http://localhost:8080/v2/data", baseClient.baseUrl);
+        assertEquals("http://localhost:8080/v2/ping", baseClient.baseUrl);
         assertNotNull(baseClient.client);
     }
 
     @Test
-    void testSetBaseUrl() {
+    void testSettingBaseUrl_ChangesBaseUrl() {
         BaseClient baseClient = new BaseClient("http://localhost:8080", null, null) {
             @Override
             protected String getServiceBaseUrl() {
-                return "/v2/data";
+                return "/v2/ping";
             }
         };
-        baseClient.setBaseUrl("https://prod-instance.com");
-        assertEquals("https://prod-instance.com/v2/data", baseClient.baseUrl);
+        baseClient.setBaseUrl("https://test-instance.com");
+        assertEquals("https://test-instance.com/v2/ping", baseClient.baseUrl);
     }
 
 
     @Test
-    void testPingSuccess() throws InterruptedException {
+    void testPing_Success_ReturnsOk() throws InterruptedException {
         String serviceUrl = mockWebServer.url("/").toString();
         BaseClient baseClient = new BaseClient(serviceUrl, null, null) {
             @Override
@@ -89,7 +82,7 @@ class BaseClientTest {
 
 
     @Test
-    void testPingFailure() {
+    void testPing_Failure_ThrowsClientException() {
         String serviceUrl = mockWebServer.url("/").toString();
         BaseClient baseClient = new BaseClient(serviceUrl, null, null) {
             @Override
@@ -97,8 +90,9 @@ class BaseClientTest {
                 return "/";
             }
         };
-        mockWebServer.enqueue(new MockResponse().setResponseCode(500).setBody("error message from service"));
-        assertThrows(ClientException.class, baseClient::ping);
+        mockWebServer.enqueue(new MockResponse().setResponseCode(500).setBody("Interval Service Error"));
+        Exception exception = assertThrows(ClientException.class, baseClient::ping);
+        assertTrue(exception.getMessage().contains("Interval Service Error"));
     }
 }
 

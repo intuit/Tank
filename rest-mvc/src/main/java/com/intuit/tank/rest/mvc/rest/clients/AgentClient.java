@@ -20,8 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 
-import java.util.Map;
-
 public class AgentClient extends BaseClient{
 
     private static final String SERVICE_BASE_URL = "/v2/agent";
@@ -44,7 +42,7 @@ public class AgentClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/settings"))
                 .accept(MediaType.APPLICATION_XML)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -57,7 +55,7 @@ public class AgentClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/support-files"))
                 .accept(MediaType.APPLICATION_OCTET_STREAM)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -71,7 +69,7 @@ public class AgentClient extends BaseClient{
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(agentData), AgentData.class)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -84,7 +82,7 @@ public class AgentClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/headers"))
                 .accept(MediaType.APPLICATION_XML)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -97,7 +95,7 @@ public class AgentClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/clients"))
                 .accept(MediaType.APPLICATION_XML)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -111,7 +109,7 @@ public class AgentClient extends BaseClient{
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(availability), AgentAvailability.class)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                         response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -124,7 +122,7 @@ public class AgentClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/instance/status/", instanceId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -138,7 +136,7 @@ public class AgentClient extends BaseClient{
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(VmStatus), CloudVmStatus.class)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -146,12 +144,14 @@ public class AgentClient extends BaseClient{
                 .block();
     }
 
+    // Instance Actions
+
     public String stopInstance(String instanceId) {
         return client.get()
                 .uri(urlBuilder.buildUrl("/instance/stop/", instanceId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -164,7 +164,7 @@ public class AgentClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/instance/pause/", instanceId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -177,7 +177,7 @@ public class AgentClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/instance/resume/", instanceId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -190,7 +190,7 @@ public class AgentClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/instance/kill/", instanceId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))

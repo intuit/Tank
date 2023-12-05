@@ -73,31 +73,6 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     private static final Logger LOGGER = LogManager.getLogger(JobServiceV2Impl.class);
 
-
-    protected JobInstanceDao createJobInstanceDao() {
-        return new JobInstanceDao();
-    }
-
-    protected ProjectDao createProjectDao() {
-        return new ProjectDao();
-    }
-
-    protected JobQueueDao createJobQueueDao() {
-        return new JobQueueDao();
-    }
-
-    protected ServletContext getServletContext() {
-        return servletContext;
-    }
-
-    protected ServletInjector<JobEventSender> getServletInjector() {
-        return new ServletInjector<>();
-    }
-
-    protected void annotateXRaySegment(String key, Number value) {
-        AWSXRay.getCurrentSegment().putAnnotation(key, value);
-    }
-
     @Override
     public String ping() {
         return "PONG " + getClass().getInterfaces()[0].getSimpleName();
@@ -106,7 +81,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
     @Override
     public JobTO getJob(Integer jobId)  {
         try {
-            JobInstanceDao dao = createJobInstanceDao();
+            JobInstanceDao dao = new JobInstanceDao();
             JobInstance job = dao.findById(jobId);
             if (job != null) {
                 return JobServiceUtil.jobToTO(job);
@@ -122,9 +97,9 @@ public class JobServiceV2Impl implements JobServiceV2 {
     @Override
     public JobContainer getJobsByProject(Integer projectId) {
         try {
-            Project prj = createProjectDao().findByIdEager(projectId);
+            Project prj = new ProjectDao().findByIdEager(projectId);
             if (prj != null) {
-                JobQueue queue = createJobQueueDao().findOrCreateForProjectId(projectId);
+                JobQueue queue = new JobQueueDao().findOrCreateForProjectId(projectId);
                 List<JobInstance> jobs = new ArrayList<JobInstance>(queue.getJobs());
                 jobs.sort(new CreateDateComparator(SortOrder.DESCENDING));
                 List<JobTO> list = jobs.stream().map(JobServiceUtil::jobToTO).collect(Collectors.toList());
@@ -141,7 +116,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
     @Override
     public JobContainer getAllJobs() {
         try {
-            JobInstanceDao dao = createJobInstanceDao();
+            JobInstanceDao dao = new JobInstanceDao();
             List<JobInstance> jobs = dao.findAll();
             if (!jobs.isEmpty()) {
                 jobs.sort(new CreateDateComparator(SortOrder.DESCENDING));
@@ -163,7 +138,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
             Integer projectId = request.getProjectId();
             if (projectId != null) {
                 ProjectDao projectDao = new ProjectDao();
-                Project project = projectDao.findByIdEager(projectId);
+                Project project = new ProjectDao().findByIdEager(projectId);
                 buildJobConfiguration(request, project);
                 project = projectDao.saveOrUpdateProject(project);
                 JobInstance job = addJobToQueue(project, request);
@@ -180,7 +155,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
     @Override
     public String getJobStatus(Integer jobId){
         try {
-            JobInstance job = createJobInstanceDao().findById(jobId);
+            JobInstance job = new JobInstanceDao().findById(jobId);
             if (job != null) {
                 return job.getStatus().name();
             }
@@ -194,8 +169,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
     @Override
     public CloudVmStatusContainer getJobVMStatus(String jobId){
         try {
-            JobEventSender controller = getServletInjector().getManagedBean(
-                    getServletContext(), JobEventSender.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
+                    servletContext, JobEventSender.class);
             return controller.getVmStatusForJob(jobId);
         } catch (Exception e) {
             LOGGER.error("Error returning Job Instance Status: " + e.getMessage(), e);
@@ -207,7 +182,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
     public List<Map<String, String>> getAllJobStatus(){
         try {
             List<Map<String, String>> response = new ArrayList<>();
-            JobInstanceDao dao = createJobInstanceDao();
+            JobInstanceDao dao = new JobInstanceDao();
             List<JobInstance> jobs = dao.findAll();
             for (JobInstance job : jobs) {
                 Map<String, String> entry = new HashMap<>();
@@ -266,10 +241,10 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String startJob(Integer jobId) {
-        annotateXRaySegment("jobId", jobId);
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
-            JobEventSender controller = getServletInjector().getManagedBean(
-                    getServletContext(), JobEventSender.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
+                    JobEventSender.class);
             controller.startJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
@@ -280,10 +255,10 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String stopJob(Integer jobId) {
-        annotateXRaySegment("jobId", jobId);
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
-            JobEventSender controller = getServletInjector().getManagedBean(
-                    getServletContext(), JobEventSender.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
+                    JobEventSender.class);
             controller.stopJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
@@ -294,10 +269,10 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String pauseJob(Integer jobId) {
-        annotateXRaySegment("jobId", jobId);
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
-            JobEventSender controller = getServletInjector().getManagedBean(
-                    getServletContext(), JobEventSender.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
+                    JobEventSender.class);
             controller.pauseRampJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
@@ -308,10 +283,10 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String resumeJob(Integer jobId) {
-        annotateXRaySegment("jobId", jobId);
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
-            JobEventSender controller = getServletInjector().getManagedBean(
-                    getServletContext(), JobEventSender.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
+                    JobEventSender.class);
             controller.resumeRampJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
@@ -322,10 +297,10 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String killJob(Integer jobId) {
-        annotateXRaySegment("jobId", jobId);
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
         try {
-            JobEventSender controller = getServletInjector().getManagedBean(
-                    getServletContext(), JobEventSender.class);
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
+                    JobEventSender.class);
             controller.killJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {

@@ -76,7 +76,7 @@ public abstract class BaseClient {
                 .uri(urlBuilder.buildUrl("/ping"))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                            response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))

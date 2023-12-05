@@ -12,6 +12,7 @@ import com.intuit.tank.script.models.ExternalScriptContainer;
 import com.intuit.tank.script.models.ExternalScriptTO;
 import com.intuit.tank.script.models.ScriptDescriptionContainer;
 import com.intuit.tank.script.models.ScriptTO;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -45,7 +46,7 @@ public class ScriptClient extends BaseClient{
                 .uri(baseUrl)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -58,7 +59,7 @@ public class ScriptClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", scriptId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -73,7 +74,7 @@ public class ScriptClient extends BaseClient{
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(scriptTo), ScriptTO.class)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -86,7 +87,7 @@ public class ScriptClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/download", scriptId))
                 .accept(MediaType.APPLICATION_OCTET_STREAM)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                         response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -97,7 +98,7 @@ public class ScriptClient extends BaseClient{
         Flux<DataBuffer> dataBuffers = client.get()
                         .uri(urlBuilder.buildUrl("/harness/download", scriptId))
                         .retrieve()
-                        .onStatus(status -> status.isError(),
+                        .onStatus(HttpStatus::isError,
                                 response -> response.bodyToMono(String.class)
                                         .flatMap(body -> Mono.error(new ClientException(body,
                                                 response.statusCode().value()))))
@@ -125,7 +126,7 @@ public class ScriptClient extends BaseClient{
                         .queryParam("id", finalId)
                         .build())
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                         response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -138,7 +139,7 @@ public class ScriptClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", scriptId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -153,7 +154,7 @@ public class ScriptClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/external"))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -166,7 +167,7 @@ public class ScriptClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/external", externalScriptId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -181,7 +182,7 @@ public class ScriptClient extends BaseClient{
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(script), ExternalScriptTO.class)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -194,7 +195,7 @@ public class ScriptClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/external/download", externalScriptId))
                 .accept(MediaType.APPLICATION_OCTET_STREAM)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                         response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -206,7 +207,7 @@ public class ScriptClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/external", externalScriptId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))

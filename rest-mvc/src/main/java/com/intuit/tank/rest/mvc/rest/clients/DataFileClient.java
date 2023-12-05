@@ -14,6 +14,12 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.http.ResponseEntity;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,7 +49,7 @@ public class DataFileClient extends BaseClient{
                 .uri(baseUrl)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -56,7 +62,7 @@ public class DataFileClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", datafileId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -71,7 +77,7 @@ public class DataFileClient extends BaseClient{
                         .queryParam("id", datafileId.toString())
                         .build())
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                         response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -90,29 +96,30 @@ public class DataFileClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("/download", datafileId))
                 .accept(MediaType.APPLICATION_OCTET_STREAM)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                         response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
                 .bodyToMono(DataBuffer.class);
     }
 
-    public Map<String, String> uploadDatafile(Integer id, MultipartFile file) {
-        return client.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path(urlBuilder.buildUrl("/upload"))
+    public Mono<ResponseEntity<Map<String, String>>> uploadDatafile(Integer id, MultipartFile file) {
+        MultiValueMap<String, Object> formData = new LinkedMultiValueMap<>();
+        formData.add("file", file.getResource());
+
+        return WebClient.create(urlBuilder.buildUrl(""))
+                .post()
+                .uri(uriBuilder -> uriBuilder.path("/upload")
                         .queryParam("id", id)
                         .build())
                 .contentType(MediaType.MULTIPART_FORM_DATA)
-                .accept(MediaType.APPLICATION_JSON)
-                .body(Mono.just(file), MultipartFile.class)
+                .body(BodyInserters.fromMultipartData(formData))
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                         response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
-                .bodyToMono(Map.class)
-                .block();
+                .toEntity(new ParameterizedTypeReference<>() {});
     }
 
     public String deleteDatafile(Integer datafileID) {
@@ -120,7 +127,7 @@ public class DataFileClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", datafileID))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
