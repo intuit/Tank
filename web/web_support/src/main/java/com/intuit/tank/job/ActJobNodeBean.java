@@ -76,7 +76,7 @@ public class ActJobNodeBean extends JobNodeBean {
     }
 
     private String estimateNonlinearSteadyStateUsers(double targetRampRate, long rampTime, int numAgents) {
-        return Double.toString(targetRampRate * ((double) rampTime / 1000) * numAgents);
+        return String.format("%.2f", targetRampRate * ((double) rampTime / 1000) * numAgents);
     }
 
     public String getNonlinearSteadyStateUsers() {
