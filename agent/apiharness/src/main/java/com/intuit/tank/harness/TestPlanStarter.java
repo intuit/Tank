@@ -179,20 +179,20 @@ public class TestPlanStarter implements Runnable {
 
                 currentRampRate = agentRunData.getTargetRampRate(); // after ramp, keep ramp rate at X users per second
 
-                long agentTimeElapsed = System.currentTimeMillis() - agentRunData.getRampTimeMillis(); // agent time elapsed = current time - ramp time
-                double agentTimer = (System.currentTimeMillis() - agentTimeElapsed) / 1000.0; // start agent timer at end of initial ramp
+                long currentAgentTime = System.currentTimeMillis() - agentRunData.getRampTimeMillis(); // track agent time to calculate ramp timer and in case of pause
+                double rampTimer = (System.currentTimeMillis() - currentAgentTime) / 1000.0; // ramp timer starts at end of initial ramp
 
                 long totalPauseTime = 0;
                 long pauseStartTime = 0;
 
-                double previousTotalUsers = calculateTotalUsers(agentTimer);
+                double previousTotalUsers = calculateTotalUsers(rampTimer);
                 double accumulatedUsers = 0.0;
 
                 // start rest of users sleeping between each interval
                 while (!done) {
 
                     // add additional accumulated fractional users to the total users during ramp time to support main loop
-                    double currentUsers = calculateTotalUsers(agentTimer);
+                    double currentUsers = calculateTotalUsers(rampTimer);
                     double expectedUsersToAdd = currentUsers - previousTotalUsers;
                     previousTotalUsers = currentUsers;
 
@@ -235,13 +235,13 @@ public class TestPlanStarter implements Runnable {
 
                     long activeCount = getActiveCount();
 
-                    if(totalPauseTime > 0) { // if paused, add total pause duration to agent time elapsed
-                        agentTimeElapsed += totalPauseTime;
+                    if(totalPauseTime > 0) { // if paused, add total pause duration to current agent time
+                        currentAgentTime += totalPauseTime;
                         totalPauseTime = 0;
                     }
 
-                    // update agent time
-                    agentTimer = (System.currentTimeMillis() - agentTimeElapsed) / 1000.0;
+                    // update ramp timer to account for pauses
+                    rampTimer = (System.currentTimeMillis() - currentAgentTime) / 1000.0;
 
                     createThread(httpClient, this.threadsStarted);
                     this.sessionStarts++; // track session starts
@@ -288,7 +288,7 @@ public class TestPlanStarter implements Runnable {
             long initialRampTimeInterval = 0;
             long activeCount = 0;
 
-            while (System.currentTimeMillis() - startTime < (rampTimeMillis + totalPauseDuration)) { // time elapse + any pause duration = total ramp time
+            while (System.currentTimeMillis() - startTime < (rampTimeMillis + totalPauseDuration)) { // time elapsed + any pause duration = total ramp time
                 try {
                     if (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
                             || APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
