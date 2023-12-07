@@ -175,17 +175,12 @@ public class TestPlanStarter implements Runnable {
                     }
                 }
 
-                intialDelay(); // initial delay
-                if(agentRunData.getTargetRampRate() < 1.0){
-                    currentRampRate = agentRunData.getTargetRampRate(); // after delay, start and keep ramp rate at < 1 user/sec value
-                } else {
-                    currentRampRate++; // after delay, start ramp rate at 1 user/sec
-                }
+                initialRamp(); // non-linear ramp from 0 to X users per second
 
-                long lastRampRateAddition = (long) (System.currentTimeMillis() - (agentRunData.getBaseDelay() * 1000));
-                double agentTimer = ((System.currentTimeMillis() - lastRampRateAddition)) / 1000.0; // start agent timer at base delay
-                long lastRampIncreaseTime = System.currentTimeMillis();
-                long rampRateDelayMillis = (long) (agentRunData.getRampRateDelay() * 1000);
+                currentRampRate = agentRunData.getTargetRampRate(); // after ramp, keep ramp rate at X users per second
+
+                long agentTimeElapsed = System.currentTimeMillis() - agentRunData.getRampTimeMillis(); // agent time elapsed = current time - ramp time
+                double agentTimer = (System.currentTimeMillis() - agentTimeElapsed) / 1000.0; // start agent timer at end of initial ramp
 
                 long totalPauseTime = 0;
                 long pauseStartTime = 0;
@@ -196,7 +191,7 @@ public class TestPlanStarter implements Runnable {
                 // start rest of users sleeping between each interval
                 while (!done) {
 
-                    // add additional fractional users to the total users during ramp time
+                    // add additional accumulated fractional users to the total users during ramp time to support main loop
                     double currentUsers = calculateTotalUsers(agentTimer);
                     double expectedUsersToAdd = currentUsers - previousTotalUsers;
                     previousTotalUsers = currentUsers;
@@ -240,26 +235,13 @@ public class TestPlanStarter implements Runnable {
 
                     long activeCount = getActiveCount();
 
-                    long currentLastRampIncreaseTime;
-                    if(totalPauseTime > 0) { // if paused, add total pause duration to last ramp increase time for next evaluation
-                        currentLastRampIncreaseTime = lastRampIncreaseTime + totalPauseTime;
-                        lastRampRateAddition += totalPauseTime;
+                    if(totalPauseTime > 0) { // if paused, add total pause duration to agent time elapsed
+                        agentTimeElapsed += totalPauseTime;
                         totalPauseTime = 0;
-                    } else {
-                        currentLastRampIncreaseTime = lastRampIncreaseTime;
                     }
 
                     // update agent time
-                    agentTimer = (System.currentTimeMillis() - lastRampRateAddition) / 1000.0;
-                    long currentTime = System.currentTimeMillis();
-
-                    if (currentTime - currentLastRampIncreaseTime > rampRateDelayMillis) {
-                        if(currentRampRate < agentRunData.getTargetRampRate()) {
-                            currentRampRate++;
-                            lastRampIncreaseTime = currentTime;
-                            LOG.info(LogUtil.getLogMessage("Nonlinear - Increasing ramp rate to " + currentRampRate + " users/sec for instance " + agentRunData.getInstanceId()));
-                        }
-                    }
+                    agentTimer = (System.currentTimeMillis() - agentTimeElapsed) / 1000.0;
 
                     createThread(httpClient, this.threadsStarted);
                     this.sessionStarts++; // track session starts
@@ -295,19 +277,18 @@ public class TestPlanStarter implements Runnable {
         return done;
     }
 
-    private void intialDelay() {
+    private void initialRamp() {
         try {
-            long delay = (long) (agentRunData.getInitialDelay() * 1000); // initial delay
-            long baseDelay = (long) (agentRunData.getBaseDelay() * 1000); // base delay
+            long rampTimeMillis = agentRunData.getRampTimeMillis(); // initial delay
             long startTime = System.currentTimeMillis();
             long totalPauseDuration = 0; // keep track of pause duration
             double previousTotalUsers = 0.0;
             double accumulatedUsers = 0.0;
-            long initialRampTimeElapsed = 0;
+            long initialRampTimeElapsed = 0; // ramp time elapsed
             long initialRampTimeInterval = 0;
             long activeCount = 0;
 
-            while (System.currentTimeMillis() - startTime < (delay + totalPauseDuration)) {
+            while (System.currentTimeMillis() - startTime < (rampTimeMillis + totalPauseDuration)) { // time elapse + any pause duration = total ramp time
                 try {
                     if (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
                             || APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
@@ -318,12 +299,12 @@ public class TestPlanStarter implements Runnable {
                             throw new InterruptedException();
                         }
                     }
-                    // each agent ramp 0 to 1 user/sec by adding fractional users to the total users over the initial ramp (not while it's waiting to start)
-                    if((delay - baseDelay) <= initialRampTimeElapsed && initialRampTimeElapsed <= delay) { // if in initial ramp time (delay - baseDelay) to delay
-                        double currentUsers = calculateTotalUsers((double) initialRampTimeInterval / 1000);
-                        double expectedUsersToAdd = currentUsers - previousTotalUsers;
+                    // each agent ramp 0 to X user/sec by adding users to the total users over the initial ramp
+                    if(initialRampTimeElapsed <= rampTimeMillis) {
+                        double currentUsers = calculateTotalUsers((double) initialRampTimeInterval / 1000); // calculate total expected users at current time
+                        double expectedUsersToAdd = currentUsers - previousTotalUsers; // subtract previous total users from current total users = expected users to add
                         previousTotalUsers = currentUsers;
-                        accumulatedUsers += expectedUsersToAdd;
+                        accumulatedUsers += expectedUsersToAdd; // supports fractional users and only adds whole users
                         if (accumulatedUsers >= 1) {
                             int wholeNumberUsers = (int) accumulatedUsers;
                             for (int i = 0; i < wholeNumberUsers; i++) {
@@ -337,7 +318,7 @@ public class TestPlanStarter implements Runnable {
                     initialRampTimeElapsed += 100;
                     activeCount = getActiveCount();
                     sendCloudWatchMetrics(activeCount); // send metrics every 30 seconds
-                    Thread.sleep(100); // check for pause and add fractional users every 1/10th of a second
+                    Thread.sleep(100); // check for pause and add users every 1/10th of a second
                 } catch (InterruptedException e) {
                     long pauseStartTime = System.currentTimeMillis();
                     while (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
@@ -357,7 +338,7 @@ public class TestPlanStarter implements Runnable {
                 }
             }
         } catch (Exception e) {
-            LOG.info(LogUtil.getLogMessage("Nonlinear - Initial Delay Error: " + e));
+            LOG.info(LogUtil.getLogMessage("Nonlinear - Initial Ramp Error: " + e));
         }
     }
 
@@ -453,7 +434,7 @@ public class TestPlanStarter implements Runnable {
 
     private void createThread(Object httpClient, int threadNumber) {
         TestPlanRunner session = new TestPlanRunner(httpClient, plan, threadNumber, tankHttpClientClass);
-        Thread thread = new Thread(threadGroup, session, "AGENT");
+        Thread thread = new Thread(threadGroup, session, "AGENT-" + threadNumber);
         thread.setDaemon(true);// system won't shut down normally until all user threads stop
         session.setUniqueName(threadGroup.getName() + "-" + thread.getId());
         thread.start();
