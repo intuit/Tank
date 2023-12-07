@@ -146,7 +146,7 @@ public class WorkLoadFactory {
                 .withRegions(getRegions(job))
                 .withNofitications(getNotifications(job))
                 .withDataFileIds(getDataFileIds(job));
-        if (job.getTerminationPolicy() == TerminationPolicy.script) {
+        if (job.getTerminationPolicy() == TerminationPolicy.script && job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
             builder.withSimulationTime(0);
         }
         Workload workload = new WorkloadDao().findById(job.getWorkloadId());
