@@ -228,7 +228,7 @@ public class JobDetailFormatter {
                 if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
                     target = "(" + numUsers + " users)";
                 } else {
-                    target = "(" + proposedJobInstance.getTargetRampRate() * proposedJobInstance.getNumAgents() + " users/sec)";
+                    target = "(" + String.format("%.2f",proposedJobInstance.getTargetRampRate() * proposedJobInstance.getNumAgents()) + " users/sec)";
                 }
                 addProperty(
                         sb,
