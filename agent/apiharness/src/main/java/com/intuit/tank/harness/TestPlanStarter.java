@@ -145,7 +145,7 @@ public class TestPlanStarter implements Runnable {
                         activeCount = Arrays.stream(list)
                                 .filter(Objects::nonNull)
                                 .filter(Thread::isAlive)
-                                .filter(thread -> thread.getName() != null && thread.getName().equals("AGENT"))
+                                .filter(thread -> thread.getName() != null && thread.getName().contains("AGENT"))
                                 .count();
                     } catch (SecurityException se) {
                         LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
@@ -372,7 +372,7 @@ public class TestPlanStarter implements Runnable {
             activeCount = Arrays.stream(list)
                     .filter(Objects::nonNull)
                     .filter(Thread::isAlive)
-                    .filter(thread -> thread.getName() != null && thread.getName().equals("AGENT"))
+                    .filter(thread -> thread.getName() != null && thread.getName().contains("AGENT"))
                     .count();
         } catch (SecurityException se) {
             LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
