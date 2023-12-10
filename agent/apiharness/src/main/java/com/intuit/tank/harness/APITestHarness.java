@@ -96,8 +96,6 @@ public class APITestHarness {
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
 
-    private double endRampRate; // ending ramp rate in users/sec
-
     private Date send = new Date();
     private static final int interval = 15; // SECONDS
 
@@ -310,7 +308,7 @@ public class APITestHarness {
             agentRunData.setSimulationTimeMillis(startData.getSimulationTime());
             agentRunData.setAgentInstanceNum(startData.getAgentInstanceNum());
             agentRunData.setTotalAgents(startData.getTotalAgents());
-            agentRunData.setTargetRampRate(startData.getTargetRampRate()); // non-linear: same ramp rate set for each agent - total ramp rate determined by number of agents
+            agentRunData.setTargetRampRate(startData.getTargetRampRate()); // non-linear: same ramp rate set for each agent
 
             ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
 
@@ -499,9 +497,6 @@ public class APITestHarness {
                     plan.setVariables(hdWorkload.getVariables());
                     ThreadGroup threadGroup = new ThreadGroup("Test Plan Runner Group: " + plan.getTestPlanName());
                     threadGroupArray.add(threadGroup);
-                    if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.standard)) {
-                        configureNonlinearAgentRunData();
-                    }
                     TestPlanStarter starter = new TestPlanStarter(httpClient, plan, agentRunData.getNumUsers(), tankHttpClientClass, threadGroup, agentRunData);
                     testPlans.add(starter);
                     LOG.info(LogUtil.getLogMessage("Users for Test Plan " + plan.getTestPlanName() + " at "
@@ -515,7 +510,7 @@ public class APITestHarness {
                         LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Test Plan " + plan.getTestPlanName() + " at "
                                 + plan.getUserPercentage()
                                 + "% running nonlinear workload at "
-                                + endRampRate + " users/sec")));
+                                + agentRunData.getTargetRampRate() * agentRunData.getTotalAgents() + " users/sec")));
                     }
                 }
             }
@@ -726,29 +721,6 @@ public class APITestHarness {
         sessionThreads.removeIf(t -> t.getState().equals(Thread.State.TERMINATED));
     }
 
-    private void configureNonlinearAgentRunData(){
-        // non-linear: configure agentRunData for non-linear ramping
-        if(endRampRate < 1){ // if ramp rate < 1, ramp from 0 to ramp rate over ramp time
-            double rampTime = (double) agentRunData.getRampTimeMillis() / 1000;
-            agentRunData.setInitialDelay(rampTime);
-            agentRunData.setRampRateDelay(rampTime);
-            agentRunData.setBaseDelay(rampTime);
-        } else {
-            double baseDelay = (((double) agentRunData.getRampTimeMillis() / 1000) / (endRampRate * agentRunData.getTotalAgents()));
-            int order = agentRunData.getAgentInstanceNum();
-
-            agentRunData.setInitialDelay(order * baseDelay); // order: order # * baseDelay
-            agentRunData.setRampRateDelay((((double) agentRunData.getRampTimeMillis() / 1000) / (endRampRate))); // rampRateDelay:  total ramp time / targetRampRate
-            agentRunData.setBaseDelay(baseDelay); // baseDelay: total ramp time / endRampRate - used to ramp agents from 0 to 1 user/sec
-        }
-
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Non-Linear Multi-agent Orchestration: \n" +
-                "agentOrder=" + agentRunData.getAgentInstanceNum() + "; \n" +
-                "initialDelay=" + agentRunData.getInitialDelay() + "; \n" +
-                "rampRateDelay=" + agentRunData.getRampRateDelay() + "; \n" +
-                "agentTargetRampRate=" + agentRunData.getTargetRampRate())));
-    }
-
     /**
      * @param newCommand
      */
@@ -883,7 +855,4 @@ public class APITestHarness {
         this.tankHttpClientClass = tankHttpClientClass;
     }
 
-    public void setEndRampRate(long endRampRate) {
-        this.endRampRate = endRampRate;
-    }
 }

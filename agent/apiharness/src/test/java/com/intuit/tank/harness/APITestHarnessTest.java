@@ -176,17 +176,12 @@ public class APITestHarnessTest {
         MockFlowController controller = new MockFlowController();
         instance.setFlowControllerTemplate(controller);
 
-        instance.setEndRampRate(1);
-        instance.getAgentRunData().setAgentInstanceNum(1);
-        instance.getAgentRunData().setTotalAgents(10);
-        instance.getAgentRunData().setRampTimeMillis(500);
+        instance.getAgentRunData().setTargetRampRate(0.7);
+        instance.getAgentRunData().setRampTimeMillis(800);
 
         instance.runConcurrentTestPlans(); // Run nonlinear workflow
 
-        assertEquals(0.05, instance.getAgentRunData().getInitialDelay());
-        assertEquals(0.5, instance.getAgentRunData().getRampRateDelay());
-        assertEquals(1.0, instance.getAgentRunData().getTargetRampRate());
-        assertEquals(0.05, instance.getAgentRunData().getBaseDelay());
+        assertEquals(0.7, instance.getAgentRunData().getTargetRampRate());
     }
 
 }
