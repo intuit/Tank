@@ -1,32 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
     <Appenders>
-        <RollingFile name="http" filename="logs/agent_requests.log" filePattern="logs/agent_requests-%i.log">
+        <Console name="http" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{yyyy-MM-dd  HH:mm:ss,SSS z} %5p %c{1}:%L - %m%n" />
-            <Policies>
-				<SizeBasedTriggeringPolicy size="100 MB" />
-			</Policies>
-        </RollingFile>
-        <RollingFile name="agent" filename="logs/agent.log" filePattern="logs/agent-%i.log">
-            <JsonLayout compact="true" eventEol="true" complete="false" objectMessageAsJsonObject="true" >
-                <KeyValuePair key="timestamp" value="$${date:yyyy-MM-dd'T'HH:mm:ss.SSSZ}"/>
-                <KeyValuePair key="jobId" value="$${ctx:jobId:-unknown}"/>
-                <KeyValuePair key="projectName" value="$${ctx:projectName:-unknown}"/>
-                <KeyValuePair key="instanceId" value="$${ctx:instanceId:-unknown}"/>
-                <KeyValuePair key="publicIp" value="$${ctx:publicIp:-unknown}"/>
-                <KeyValuePair key="location" value="$${ctx:location:-unknown}"/>
-                <KeyValuePair key="httpHost" value="$${ctx:httpHost:-unknown}"/>
-                <KeyValuePair key="loggingProfile" value="$${ctx:loggingProfile:-unknown}"/>
-                <KeyValuePair key="workloadType" value="$${ctx:workloadType:-unknown}"/>
-                <KeyValuePair key="env" value="$${ctx:env:-unknown}"/>
-                <KeyValuePair key="useEips" value="$${ctx:useEips:-unknown}"/>
-                <KeyValuePair key="stopBehavior" value="$${ctx:stopBehavior:-unknown}"/>
-            </JsonLayout>
-
-            <Policies>
-				<SizeBasedTriggeringPolicy size="100 MB" />
-			</Policies>
-        </RollingFile>
+        </Console>
+        <Console name="agent" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd  HH:mm:ss,SSS z} %5p %c{1}:%L - %m%n" />
+        </Console>
     </Appenders>
     <Loggers>
 		<Logger name="com.intuit.tank.http" level="error" additivity="false">
