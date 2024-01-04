@@ -259,8 +259,8 @@ Date.prototype.format = function (mask, utc) {
 };
 
 // V2 API Job/VM Actions
-const JOB_ENDPOINT = 'v2/jobs';
-const VM_ENDPOINT = 'v2/agent/instance';
+const JOB_ENDPOINT = '/v2/jobs';
+const VM_ENDPOINT = '/v2/agent/instance';
 
 function runJobEndpoint(nodeStatus, nodeId, controllerUrl) { //TODO: remove tank_war
 	switch(nodeStatus) {
