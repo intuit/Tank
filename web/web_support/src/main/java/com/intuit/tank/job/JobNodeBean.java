@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.intuit.tank.harness.AmazonUtil;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -337,6 +338,10 @@ public abstract class JobNodeBean implements Serializable {
      */
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+
+    public String getControllerBaseUrl(){
+        return AmazonUtil.getControllerBaseUrl();
     }
 
     /**

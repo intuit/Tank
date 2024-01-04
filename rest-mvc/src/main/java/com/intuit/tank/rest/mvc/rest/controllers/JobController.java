@@ -182,7 +182,7 @@ public class JobController {
                 .body(responseBody);
     }
 
-    // Job Status Setters
+    // Job Actions
 
     @RequestMapping(value = "/start/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Starts a specific job by job id", summary = "Start a specific job")
@@ -236,6 +236,17 @@ public class JobController {
     })
     public ResponseEntity<String> killJob(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {
         String status = jobService.killJob(jobId);
+        return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/delete/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
+    @Operation(description = "Deletes a specific created job by job id", summary = "Delete a specific newly created job that has not been started")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully deleted job"),
+            @ApiResponse(responseCode = "400", description = "Could not update job status due to invalid jobId", content = @Content)
+    })
+    public ResponseEntity<String> deleteJob(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {
+        String status = jobService.deleteJob(jobId);
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 }

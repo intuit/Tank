@@ -9,6 +9,7 @@ package com.intuit.tank.rest.mvc.rest.services.jobs;
 
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.rest.mvc.rest.models.jobs.CreateJobRequest;
 import com.intuit.tank.rest.mvc.rest.models.jobs.JobContainer;
@@ -127,7 +128,7 @@ public interface JobServiceV2 {
     public CloudVmStatusContainer getJobVMStatus(String jobId);
 
 
-    // Job Status operations
+    // Job Actions
 
     /**
      * Starts a job based on the provided jobId
@@ -189,4 +190,16 @@ public interface JobServiceV2 {
      * @return job status
      */
     public String killJob(Integer jobId);
+
+    /**
+     * Delete a job based on the provided jobId
+     *
+     * @throws GenericServiceDeleteException
+     *         if there is an error deleting the job
+     *
+     * @param jobId jobId for job
+     *
+     * @return job status
+     */
+    public String deleteJob(Integer jobId);
 }

@@ -235,7 +235,7 @@ public class JobControllerTest {
         verify(jobService).downloadTestScriptForJob(2);
     }
 
-    // Job Status Setters
+    // Job Actions
 
     @Test
     public void testStartJob() {
@@ -280,5 +280,14 @@ public class JobControllerTest {
         assertEquals("Completed", result.getBody());
         assertEquals(200, result.getStatusCodeValue());
         verify(jobService).killJob(482937134);
+    }
+
+    @Test
+    public void testDeleteJob() {
+        when(jobService.deleteJob(23448964)).thenReturn("Deleted");
+        ResponseEntity<String> result = jobController.deleteJob(23448964);
+        assertEquals("Deleted", result.getBody());
+        assertEquals(200, result.getStatusCodeValue());
+        verify(jobService).deleteJob(23448964);
     }
 }

@@ -849,7 +849,9 @@
                      header="Confirm Delete"
                      message="Are you sure you want to delete this job?">
       <h:form id="jobQueueDeleteForm">
-        <p:commandButton value="OK" id="okBtn3" action="#{projectJobQueueManager.deleteJobInstance(projectJobQueueManager.currentJobInstance)}"
+        <p:commandButton value="OK" id="okBtn3" onclick="callJobAction('delete', '#{projectJobQueueManager.currentJobInstance.id}',
+                         '#{projectJobQueueManager.currentJobInstance.status}', '#{projectJobQueueManager.currentJobInstance.type}',
+                         '#{projectJobQueueManager.currentJobInstance.controllerBaseUrl}'); return false;"
                          update=":mainForm:projectTabPanelID:jobTableId, :mainForm:messages"
                          onsuccess="PF('confirmJobQueueDelete').hide();"/>
         <h:panelGroup styleClass="horizontal-spacer"/>
@@ -860,7 +862,9 @@
                      header="Confirm Kill"
                      message="Are you sure you want to kill this job?">
       <h:form id="jobQueueKillForm">
-        <p:commandButton value="OK" id="okBtn4" action="#{jobQueueAction.kill(projectJobQueueManager.currentJobInstance)}"
+        <p:commandButton value="OK" id="okBtn4" onclick="callJobAction('kill', '#{projectJobQueueManager.currentJobInstance.id}',
+                         '#{projectJobQueueManager.currentJobInstance.status}', '#{projectJobQueueManager.currentJobInstance.type}',
+                         '#{projectJobQueueManager.currentJobInstance.controllerBaseUrl}'); return false;"
                          update=":mainForm:projectTabPanelID:jobTableId, :mainForm:messages"
                          onsuccess="PF('confirmJobQueueKill').hide();"/>
         <h:panelGroup styleClass="horizontal-spacer"/>

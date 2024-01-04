@@ -8,11 +8,13 @@
 package com.intuit.tank.rest.mvc.rest.cloud;
 
 import com.intuit.tank.dao.JobInstanceDao;
+import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.dao.util.ProjectDaoUtil;
 import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.project.JobInstance;
+import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
@@ -118,6 +120,35 @@ public class JobEventSender {
         }
     	return jobs;
     }
+
+    public void deleteJob(String jobId) {
+        JobInstanceDao jobInstanceDao = new JobInstanceDao();
+        JobInstance job = jobInstanceDao.findById(Integer.valueOf(jobId));
+        synchronized (jobId) {
+            if (job != null && job.getStatus() == JobQueueStatus.Created) {// only delete if new job
+                removeJobInstance(job); // remove the job from job queue and save
+                jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_DELETED));
+            }
+        }
+    }
+
+    private void removeJobInstance(JobInstance jobInstance) {
+        JobQueueDao jobQueueDao = new JobQueueDao();
+        WorkloadDao workloadDao = new WorkloadDao();
+
+        Workload workload = workloadDao.findById(jobInstance.getWorkloadId());
+        JobQueue queue = jobQueueDao.findOrCreateForProjectId(workload.getProject().getId());
+        JobInstance instance = queue.getJobs()
+                .stream()
+                .filter(job -> job.getId() == jobInstance.getId())
+                .findFirst()
+                .orElse(null);
+        if (instance != null) {
+            queue.getJobs().remove(instance);
+            jobQueueDao.saveOrUpdate(queue);
+        }
+    }
+
 
     public void killInstance(String instanceId) { killInstances(Collections.singletonList(instanceId)); }
 

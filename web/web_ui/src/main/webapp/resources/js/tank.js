@@ -258,3 +258,86 @@ Date.prototype.format = function (mask, utc) {
 	return dateFormat(this, mask, utc);
 };
 
+// V2 API Job/VM Actions
+const JOB_ENDPOINT = 'v2/jobs';
+const VM_ENDPOINT = 'v2/agent/instance';
+
+function runJobEndpoint(nodeStatus, nodeId, controllerUrl) { //TODO: remove tank_war
+	switch(nodeStatus) {
+		case 'Created':
+			return controllerUrl + JOB_ENDPOINT + '/start/' + nodeId;
+		case 'Paused':
+		case 'RampPaused':
+			return controllerUrl + JOB_ENDPOINT + '/resume/' + nodeId;
+		default:
+			return controllerUrl + JOB_ENDPOINT + '/start/' + nodeId;
+	}
+}
+
+function getActionEndpoint(action, nodeId, controllerUrl, endpoint) {
+	return `${controllerUrl}${endpoint}/${action}/${nodeId}`;
+}
+
+function getJobActionEndpoint(action, nodeStatus, nodeId, controllerUrl) {
+	if (action === "run") {
+		return runJobEndpoint(nodeStatus, nodeId, controllerUrl);
+	}
+	return getActionEndpoint(action, nodeId, controllerUrl, JOB_ENDPOINT);
+}
+
+function callJobAction(action, nodeId, nodeStatus, nodeType, controllerUrl) {
+	let endpoint;
+	switch (nodeType) {
+		case 'job':
+			console.log('Performing ' + action + ' action on job with status: ' + nodeStatus);
+			console.log('jobId: ' + nodeId);
+			endpoint = getJobActionEndpoint(action, nodeStatus, nodeId, controllerUrl);
+			break;
+		case 'vm':
+			console.log('Performing ' + action + ' action on instance with status: ' + nodeStatus);
+			console.log('instanceId: ' + nodeId);
+			if (action === "run") {
+				endpoint = getActionEndpoint('resume', nodeId, controllerUrl, VM_ENDPOINT);
+				break;
+			}
+			endpoint = getActionEndpoint(action, nodeId, controllerUrl, VM_ENDPOINT);
+			break;
+		default:
+			console.log('Unknown node type: ' + nodeType);
+			return;  // don't make the call
+	}
+
+	console.log('Node Endpoint: ' + endpoint);
+
+	callEndpoint(action, endpoint)
+		.then(() => {
+			PF('confirmJobQueueDelete').hide();
+			PF('confirmJobQueueKill').hide();
+			console.log(`${nodeType} ${nodeId} action call was successful: ${action}`);
+		})
+		.catch((error) => {
+			console.log(`Failed calling ${action} on ${nodeType} ${nodeId}:`, error);
+		});
+}
+
+async function callEndpoint(action, endpoint) {
+	try {
+		let response = await fetch(endpoint, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (!response.ok) {
+			throw new Error(`Error calling ${action}: ${response.statusText}`);
+		}
+
+		let data = await response.text();
+		console.log(`Success calling ${action} - Job status: ${data}`);
+	} catch (error) {
+		console.error(`Error calling ${action}:`, error.message);
+		throw error;
+	}
+}
+

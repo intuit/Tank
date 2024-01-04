@@ -42,7 +42,6 @@ import com.intuit.tank.util.TestParamUtil;
 import com.intuit.tank.util.TestParameterContainer;
 import com.intuit.tank.util.CreateDateComparator;
 import com.intuit.tank.util.CreateDateComparator.SortOrder;
-import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.common.util.ReportUtil;
@@ -237,7 +236,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
         return payload;
     }
 
-    // Job Status Setters
+    // Job Actions
 
     @Override
     public String startJob(Integer jobId) {
@@ -306,6 +305,20 @@ public class JobServiceV2Impl implements JobServiceV2 {
         } catch (Exception e) {
             LOGGER.error("Error killing job: " + e);
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to terminate", e);
+        }
+    }
+
+    @Override
+    public String deleteJob(Integer jobId) {
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        try {
+            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
+                    JobEventSender.class);
+            controller.deleteJob(Integer.toString(jobId));
+            return getJobStatus(jobId).equals("Created") ? "Deleted" : "Cannot delete running job";
+        } catch (Exception e) {
+            LOGGER.error("Error deleting job: ", e);
+            throw new GenericServiceCreateOrUpdateException("jobs", "job status to aborted", e);
         }
     }
 

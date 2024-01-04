@@ -42,7 +42,8 @@ public class JobEventListener implements Serializable {
         if (request.getEvent() == JobLifecycleEvent.JOB_ABORTED) {
             controllerSource.get().killJob(request.getJobId(), false);
         } else if (request.getEvent() == JobLifecycleEvent.JOB_FINISHED ||
-                request.getEvent() == JobLifecycleEvent.JOB_KILLED) {
+                request.getEvent() == JobLifecycleEvent.JOB_KILLED ||
+                request.getEvent() == JobLifecycleEvent.JOB_DELETED) {
             ThreadContext.clearAll();
         }
     }

@@ -32,6 +32,7 @@ public enum JobLifecycleEvent {
     JOB_KILLED("Job Killed"),
     JOB_ABORTED("Job Aborted"),
     JOB_FINISHED("Job Finished"),
+    JOB_DELETED("Job Deleted"),
     SUMMARY_REPORT_FINISHED("Summary Ready"),
 
     LOAD_STARTED("Load Started"),

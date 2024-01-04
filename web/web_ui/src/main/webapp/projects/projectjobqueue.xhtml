@@ -188,7 +188,7 @@
         styleClass="ellipsis min-column-size" rendered="#{projectJobQueueManager.tablePrefs.isVisible('actionsColumn')}">
         <div class="float-left">
 
-          <p:commandButton id="btnRun" action="#{jobQueueAction.run(node)}" value="R" title="Run"
+          <p:commandButton id="btnRun" onclick="callJobAction('run', '#{node.id}','#{node.status}', '#{node.type}', '#{node.controllerBaseUrl}'); return false;" value="R" title="Run"
             onerror="window.location.reload()" disabled="#{!node.isRunnable() or !projectJobQueueManager.canControlJob(node)}"
             ajax="true" update=":mainForm:projectTabPanelID:jobTableId" />
           <p:commandButton oncomplete="PF('confirmJobQueueKill').show();" value="K" ajax="true"
@@ -196,14 +196,14 @@
                            action="#{projectJobQueueManager.setCurrentJobInstance(node)}"
                            title="Kill" update=":jobQueueKillPopup">
           </p:commandButton>
-          <p:commandButton id="btnPauseRamp" action="#{jobQueueAction.pauseRamp(node)}" value="PR" title="Pause Ramp"
+          <p:commandButton id="btnPauseRamp" onclick="callJobAction('pause', '#{node.id}','#{node.status}', '#{node.type}', '#{node.controllerBaseUrl}'); return false;" value="PR" title="Pause Ramp"
             onerror="window.location.reload()"
             disabled="#{!node.isRampPauseable() or !jobQueueManager.canControlJob(node)}" ajax="true"
             update=":mainForm:projectTabPanelID:jobTableId" />
           <!-- <p:commandButton id="btnPause" action="#{jobQueueAction.pause(node)}" value="P" title="Pause"
                    onerror="window.location.reload()" disabled="#{!node.isPauseable()}" ajax="true"
                    update=":mainForm:projectTabPanelID:jobTableId" /> -->
-          <p:commandButton id="btnStop" action="#{jobQueueAction.stop(node)}" value="S" title="Stop"
+          <p:commandButton id="btnStop" onclick="callJobAction('stop', '#{node.id}','#{node.status}', '#{node.type}', '#{node.controllerBaseUrl}'); return false;" value="S" title="Stop"
             onerror="window.location.reload()" disabled="#{!node.isStoppable() or !projectJobQueueManager.canControlJob(node)}"
             ajax="true" update=":mainForm:projectTabPanelID:jobTableId" />
 
