@@ -5,34 +5,33 @@
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
  */
-package com.intuit.tank.harness;
+package com.intuit.tank.tools.headless;
 
 
+import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.harness.APITestHarness;
+import com.intuit.tank.harness.TestPlanSingleton;
 import com.intuit.tank.harness.data.*;
 import com.intuit.tank.harness.functions.JexlIOFunctions;
 import com.intuit.tank.harness.functions.JexlStringFunctions;
+import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.logging.LoggingProfile;
-import com.intuit.tank.rest.mvc.rest.clients.AgentClient;
-import com.intuit.tank.rest.mvc.rest.clients.DataFileClient;
 import com.intuit.tank.rest.mvc.rest.clients.ProjectClient;
-import com.intuit.tank.rest.mvc.rest.clients.ScriptClient;
-import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
 import com.intuit.tank.rest.mvc.rest.models.projects.KeyPair;
 import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
 import com.intuit.tank.runner.TestStepContext;
 import com.intuit.tank.vm.agent.messages.Headers;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
-import com.intuit.tank.vm.common.TankConstants;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.juli.logging.Log;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.ObjectMessage;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.swing.*;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -49,56 +48,129 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 
-public class AutomationDebuggerSetup implements Serializable {
+public class HeadlessDebuggerSetup implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LogManager.getLogger(AutomationDebuggerSetup.class);
+    private static final Logger LOG = LogManager.getLogger(HeadlessDebuggerSetup.class);
     private HDWorkload currentWorkload;
     private HDTestPlan currentTestPlan;
     private final Map<String, String> projectVariables = new HashMap<String, String>();
-    private final List<Integer> datafileList = new ArrayList<Integer>();
     private final List<DebugStep> steps = new ArrayList<DebugStep>();
+    private final List<StepListener> stepChangedListeners = new ArrayList<StepListener>();
+    private final List<ScriptChangedListener> scriptChangedListeners = new ArrayList<ScriptChangedListener>();
     private int currentRunningStep;
     private AutomationFlowController flowController;
     private APITestHarness harness;
     private static File workingDir;
     private Thread runningThread;
+    private VariablesOutput variablesOutput;
     private static final String HEADERS_PATH = "/v2/agent/headers";
     private static final char NEWLINE = '\n';
-    private ScriptClient scriptClient;
-    private AgentClient agentClient;
     private ProjectClient projectClient;
-    private DataFileClient dataFileClient;
 
-    public AutomationDebuggerSetup(String serviceUrl, Integer projectId) {
-        workingDir = createWorkingDir(serviceUrl);
+    public HeadlessDebuggerSetup(String serviceUrl, Integer projectId) {
+        try {
+            workingDir = createWorkingDir(serviceUrl);
+            variablesOutput = new VariablesOutput(this);
+            this.projectClient = new ProjectClient(serviceUrl);
 
-        this.scriptClient = new ScriptClient(serviceUrl);
-        this.projectClient = new ProjectClient(serviceUrl);
-        this.agentClient = new AgentClient(serviceUrl);
-        this.dataFileClient = new DataFileClient(serviceUrl);
-
-        // get project workload
-
-        String scriptXml = projectClient.downloadTestScriptForProject(projectId);
-
+            setProject(projectId); // set project to step through
+            if(currentWorkload == null) {
+                LOG.error("Error retrieving project scripts for project with projectId: " + projectId);
+                throw new RuntimeException("Error: Empty or Invalid Test Plan");
+            }
+        } catch (Exception e) {
+            LOG.error("Error setting up project: " + e.getMessage(), e);
+        }
     }
 
-    public static void main(String[] args) {
-        String url = args.length > 0 ? args[0] : "";
-        new AutomationDebuggerSetup(url);
+    public static void main(String[] args) throws InterruptedException {
+        if (args.length < 2) {
+            usage();
+            return;
+        }
+
+        LOG.info("Headless Agent Debugger - STARTING EXECUTION");
+
+        String url = null;
+        int projectId = -1;
+
+        for (String argument : args) {
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "checking arg " + argument)));
+
+            String[] values = argument.split("=");
+            if (values[0].equalsIgnoreCase("-p")) {
+                projectId = Integer.parseInt(values[1]);
+            } else if(values[0].equalsIgnoreCase("-h")) {
+                url = values[1];
+            }
+        }
+
+        if (url == null || projectId == -1) {
+            usage();
+            return;
+        }
+
+        Thread.sleep(3000);
+        HeadlessDebuggerSetup automationRunner = new HeadlessDebuggerSetup(url, projectId);
+
+        try {
+            automationRunner.start();
+            automationRunner.getRunningThread().join(); // wait for runConcurrentTestPlans to finish
+        } catch (Exception e) {
+            LOG.error("Error running headless debugger: " + e.getMessage(), e);
+        } finally {
+            automationRunner.stop();
+            automationRunner.quit();
+        }
     }
 
-    public boolean runTimingSteps() {
-        return true;
-    } // TODO: see where this is used
+    private static void usage() {
+        System.out.println("Headless Agent Debugger");
+        System.out.println("java -jar Headless-Debugger-all.jar -h=<controller_base_url> -p=<projectId>");
+        System.out.println("-h=<controller_base_url>: The url of the controller to get test info from");
+        System.out.println("-p=<projectId>:  The projectId of the Tank project with test plan file to execute");
+    }
 
+    public void setProject(Integer projectId) {
+            try {
+                ProjectTO project = projectClient.getProject(projectId);
+                if (project != null) {
+                    try {
+                        String scriptXml = projectClient.downloadTestScriptForProject(project
+                                .getId());
+                        setProjectVariables(project);
+                        setFromString(scriptXml);
+                    } catch (Exception e1) {
+                        LOG.error("Error downloading project script: " + e1, e1);
+                        throw e1;
+                    }
+                } else {
+                    LOG.error("Error: Project Not Found");
+                    throw new RuntimeException("Error: Project Not Found");
+                }
+            } catch (WebClientRequestException e1) {
+                LOG.error("Error: Empty or Invalid Tank URL");
+                throw e1;
+            } catch (Exception e2) {
+                LOG.error("Error setting project: " + e2);
+                throw new RuntimeException("Error setting project: " + e2);
+            }
+    }
 
     /**
      * @return the steps
      */
     public List<DebugStep> getSteps() {
         return steps;
+    }
+
+    public void addStepChangedListener(StepListener l) {
+        stepChangedListeners.add(l);
+    }
+
+    public void addScriptChangedListener(ScriptChangedListener l) {
+        scriptChangedListeners.add(l);
     }
 
 
@@ -138,14 +210,6 @@ public class AutomationDebuggerSetup implements Serializable {
                 System.out.println("Error deleting directory " + workingDir.getAbsolutePath() + ": " + e);
             }
         }
-        File defaultFile = new File(APITestHarness.getInstance().getTankConfig().getAgentConfig()
-                .getAgentDataFileStorageDir(), TankConstants.DEFAULT_CSV_FILE_NAME);
-        if (defaultFile.exists()) {
-            boolean deleted = defaultFile.delete();
-            if (!deleted) {
-                System.out.println("Error deleting default file " + defaultFile.getAbsolutePath());
-            }
-        }
         System.exit(0);
     }
 
@@ -157,7 +221,7 @@ public class AutomationDebuggerSetup implements Serializable {
         setCurrentTestPlan(null);
         this.currentWorkload = currentWorkload;
         if (currentWorkload != null) {
-            if (currentWorkload.getPlans().size() > 0) {
+            if (!currentWorkload.getPlans().isEmpty()) {
                 setCurrentTestPlan(currentWorkload.getPlans().get(0));
             }
         } else {
@@ -172,16 +236,16 @@ public class AutomationDebuggerSetup implements Serializable {
         return currentTestPlan;
     }
 
-    public void setCurrentStep(final int stepIndex) {
-        currentRunningStep = stepIndex;
-        int stepToSet = Math.max(0, currentRunningStep);
-    }
-
     /**
      * @return the currentRunningStep
      */
     public int getCurrentRunningStep() {
         return currentRunningStep;
+    }
+
+    public void setCurrentStep(final int stepIndex) {
+        currentRunningStep = stepIndex;
+        int stepToSet = Math.max(0, currentRunningStep);
     }
 
     /**
@@ -192,6 +256,25 @@ public class AutomationDebuggerSetup implements Serializable {
         this.currentTestPlan = currentTestPlan;
         steps.clear();
         currentRunningStep = -1;
+        populateDebugStepsList(currentTestPlan);
+        if (!steps.isEmpty()) {
+            fireStepChanged(0);
+        }
+        fireScriptChanged();
+    }
+
+    private void populateDebugStepsList(HDTestPlan currentTestPlan) {
+        if (currentTestPlan != null) {
+            for (HDScriptGroup group : currentTestPlan.getGroup()) {
+                for (HDScript script : group.getGroupSteps()) {
+                    for (HDScriptUseCase useCase : script.getUseCase()) {
+                        for (TestStep step : useCase.getScriptSteps()) {
+                            steps.add(new DebugStep(step));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private HDWorkload buildHDWorkload() {
@@ -209,13 +292,47 @@ public class AutomationDebuggerSetup implements Serializable {
         return workload;
     }
 
-    public void setDataFromProject(ProjectTO selected) {
+    public void setProjectVariables(ProjectTO project) {
         projectVariables.clear();
-        datafileList.clear();
-        for (KeyPair pair : selected.getVariables()) {
+        for (KeyPair pair : project.getVariables()) {
             projectVariables.put(pair.getKey(), pair.getValue());
         }
-        datafileList.addAll(selected.getDataFileIds());
+    }
+
+    void fireScriptChanged() {
+        for (ScriptChangedListener l : scriptChangedListeners) {
+            l.scriptChanged(currentTestPlan);
+        }
+    }
+
+    void fireStepChanged(int stepIndex) {
+        DebugStep step = null;
+        if (stepIndex >= 0 && stepIndex < steps.size()) {
+            step = steps.get(stepIndex);
+        }
+        for (StepListener l : stepChangedListeners) {
+            l.stepChanged(step);
+        }
+    }
+
+    void fireStepStarted(int stepIndex) {
+        DebugStep step = null;
+        if (stepIndex >= 0 && stepIndex < steps.size()) {
+            step = steps.get(stepIndex);
+        }
+        for (StepListener l : stepChangedListeners) {
+            l.stepEntered(step);
+        }
+    }
+
+    void fireStepExited(int stepIndex) {
+        DebugStep step = null;
+        if (stepIndex >= 0 && stepIndex < steps.size()) {
+            step = steps.get(stepIndex);
+        }
+        for (StepListener l : stepChangedListeners) {
+            l.stepExited(step);
+        }
     }
 
     public void next() {
@@ -237,95 +354,67 @@ public class AutomationDebuggerSetup implements Serializable {
         }
     }
 
+    public Thread getRunningThread() {
+        return runningThread;
+    }
+
     public void start() {
         flowController = new AutomationFlowController(this);
 
-        Runnable task = () -> {
-            if (!steps.isEmpty()) {
-                steps.forEach(DebugStep::clear);
-                setCurrentStep(-1);
+        fireStepChanged(-1);
+        if (!steps.isEmpty()) {
+            steps.forEach(DebugStep::clear);
+            setCurrentStep(-1);
 
-                // start apiHarness and get the variables....
-                try {
-                    createHarness();
-                    runningThread = new Thread(() -> harness.runConcurrentTestPlans());
-                    runningThread.start();
-                } catch (Exception e) {
-                    LOG.error("Error starting test: " + e);
-                }
-
+            // start apiHarness and get the variables....
+            try {
+                createHarness();
+                runningThread = new Thread(() -> harness.runConcurrentTestPlans());
+                runningThread.start();
+            } catch (Exception e) {
+                LOG.error("Error starting test: " + e);
             }
-        };
-        new Thread(task).start();
+
+        }
+
     }
 
     private void createHarness() {
         APITestHarness.destroyCurrentInstance();
         harness = APITestHarness.getInstance();
         harness.setFlowControllerTemplate(flowController);
-//        TankClientChoice choice = (TankClientChoice) tankClientChooser.getSelectedItem(); //TODO: default to project DONT hardcode 4.5
-//        harness.setTankHttpClientClass(choice.getClientClass());
+        harness.setTankHttpClientClass(currentWorkload.getTankHttpClientClass());
         harness.getAgentRunData().setActiveProfile(LoggingProfile.VERBOSE);
-        harness.getAgentRunData().setInstanceId("AutomationDebuggerInstance");
-        harness.getAgentRunData().setMachineName("automationDebugger");
+        harness.getAgentRunData().setInstanceId("HeadlessDebuggerInstance");
+        harness.getAgentRunData().setMachineName("headlessDebugger");
         harness.getAgentRunData().setNumUsers(1);
-        harness.getAgentRunData().setJobId("automationDebuggerJob");
+        harness.getAgentRunData().setJobId("headlessDebuggerJob");
         harness.getAgentRunData().setTotalAgents(1);
         harness.setDebug(true);
 
         TestPlanSingleton.getInstance().setTestPlan(buildHDWorkload());
-        downloadDataFiles();
         JexlIOFunctions.resetStatics();
         JexlStringFunctions.resetStatics();
-    }
-
-    private void downloadDataFiles() {
-        if (!datafileList.isEmpty()) {
-            DataFileClient client = dataFileClient;
-            for (Integer id : datafileList) {
-                DataFileDescriptor dataFile = client.getDatafile(id);
-                if (dataFile != null) {
-                    saveDataFile(client, dataFile, datafileList.size() == 1);
-                }
-            }
-        }
-    }
-
-    private void saveDataFile(DataFileClient client, DataFileDescriptor dataFileDescriptor, boolean isDefault) {
-        File dataFile = new File(workingDir, dataFileDescriptor.getName());
-        LOG.info("writing file " + dataFileDescriptor.getName() + " to " + dataFile.getAbsolutePath());
-        try (   FileOutputStream fos = new FileOutputStream(dataFile);
-                InputStream is = IOUtils.toInputStream(client.getDatafileContent(dataFileDescriptor.getId()), StandardCharsets.UTF_8) ) {
-            IOUtils.copy(is, fos);
-            if (isDefault && !dataFileDescriptor.getName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
-                File defaultFile = new File(APITestHarness.getInstance().getTankConfig().getAgentConfig()
-                        .getAgentDataFileStorageDir(), TankConstants.DEFAULT_CSV_FILE_NAME);
-                LOG.info("copying file " + dataFileDescriptor.getName() + " to default file " + defaultFile.getAbsolutePath() + " to read");
-                FileUtils.copyFile(dataFile, defaultFile);
-            }
-        } catch (Exception e) {
-            LOG.error("Error downloading csv file: " + e, e);
-            throw new RuntimeException(e);
-        }
-
     }
 
     public void setNextStep(TestStepContext context) {
         setCurrentStep(context.getTestStep().getStepIndex());
     }
 
-    public void stepStarted(final TestStepContext context) { //TODO: implement differently
+    public void stepStarted(final TestStepContext context) {
         try {
-                int stepIndex = context.getTestStep().getStepIndex();
-                setCurrentStep(stepIndex);
-                DebugStep debugStep = steps.get(currentRunningStep);
-                if (debugStep != null) {
-                    debugStep.setEntryVariables(context.getVariables().getVaribleValues());
-                    debugStep.setRequest(context.getRequest());
-                    debugStep.setResponse(context.getResponse());
-                }
-        } catch (Exception e) {
-            e.printStackTrace();
+            int stepIndex = context.getTestStep().getStepIndex();
+            setCurrentStep(stepIndex);
+            DebugStep debugStep = steps.get(currentRunningStep);
+            if (debugStep != null) {
+                debugStep.setEntryVariables(context.getVariables().getVaribleValues());
+                debugStep.setRequest(context.getRequest());
+                debugStep.setResponse(context.getResponse());
+            }
+            fireStepChanged(stepIndex);
+            fireStepStarted(stepIndex);
+        } catch  (Exception e) {
+            LOG.error("Error starting step: " + e.getMessage(), e);
         }
     }
 
@@ -337,25 +426,37 @@ public class AutomationDebuggerSetup implements Serializable {
                 debugStep.setRequest(context.getRequest());
                 debugStep.setResponse(context.getResponse());
             }
+
             try {
-                if (context.getResponse() != null && (context.getResponse().getHttpCode() >= 400 || context.getResponse().getHttpCode() == -1)) {
-                    // highlight the line
-//                    int lineStartOffset = scriptEditorTA.getLineStartOffset(currentRunningStep);
-//                    int lineEndOffset = scriptEditorTA.getLineEndOffset(currentRunningStep);
-//
-//                    scriptEditorTA.getHighlighter().addHighlight(lineStartOffset, lineEndOffset, new SquiggleUnderlineHighlightPainter(Color.RED)); //TODO: squiggle underline
+                StringBuilder sb = new StringBuilder();
+                if(debugStep.getStepRun() != null) {
+                    sb.append(debugStep.getStepRun().getStepIndex()+1).append(": ").append(debugStep.getStepRun().getInfo()).append(" ");
                 }
+
+                if (context.getResponse() != null) {
+                    if ((context.getResponse().getHttpCode() >= 400 || context.getResponse().getHttpCode() == -1) || !context.getErrors().isEmpty()) { // ERROR - print entire response
+                        sb.append(0).append(NEWLINE); // set error status (0)
+
+                        // log full response
+                        context.getResponse().logResponse(false);
+
+                        // log variables
+                        variablesOutput.displayVars();
+                    } else {
+                        sb.append(1).append(NEWLINE); // set success status (1)
+                        context.getResponse().logResponse(true); // log shorter success response
+                    }
+                } else {
+                    sb.append(0).append(NEWLINE); // set error status (0)
+                }
+                LOG.info("******** STEP INFO *********"); // log  step info and status
+                LOG.info(sb);
+                LOG.info("------------------------------------------------------");
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
-            if (!context.getErrors().isEmpty()) {
-                try {
-                    debugStep.setErrors(context.getErrors());
-//                    scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(scriptEditorTA.getLineStartOffset(currentRunningStep), errorIcon); //TODO: triangle icon
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+
+            fireStepExited(context.getTestStep().getStepIndex());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -364,14 +465,6 @@ public class AutomationDebuggerSetup implements Serializable {
     public void testFinished() {
         runningThread = null;
         harness = null;
-    }
-
-    public void setDataFiles(List<DataFileDescriptor> selectedObjects) {
-        this.datafileList.clear();
-        for (DataFileDescriptor d : selectedObjects) {
-            datafileList.add(d.getId());
-        }
-
     }
 
     public TestStep getStep(int stepIndex) {
@@ -389,7 +482,7 @@ public class AutomationDebuggerSetup implements Serializable {
             writeSettings(workingDir, getHeaders(baseUrl));
             System.setProperty("WATS_PROPERTIES", workingDir.getAbsolutePath());
         } catch (IOException e) {
-            LOG.error("AutomationDebugger - Error creating temp working dir: " + e);
+            LOG.error("HeadlessDebugger - Error creating temp working dir: " + e);
         }
         return workingDir;
     }
@@ -459,7 +552,7 @@ public class AutomationDebuggerSetup implements Serializable {
         s.append("</tank-settings>").append(NEWLINE);
         File settingsFile = new File(workingDir, "settings.xml");
         FileUtils.writeStringToFile(settingsFile, s.toString(), StandardCharsets.UTF_8);
-        System.out.println("Writing settings file to " + settingsFile.getAbsolutePath());
+        LOG.info("Writing settings file to " + settingsFile.getAbsolutePath());
     }
 
     private void setFromString(String scriptXml) {
@@ -470,7 +563,8 @@ public class AutomationDebuggerSetup implements Serializable {
             HDWorkload workload = unmarshalWorkload(scriptXml);
             if (workload != null) {
                 setCurrentWorkload(workload);
-                LOG.info("Workload: " + workload.getName());
+                LOG.info("Workload: " + workload.getName() + NEWLINE);
+                LOG.info("------------------------------------------------------");
             }
         }
     }
@@ -479,7 +573,7 @@ public class AutomationDebuggerSetup implements Serializable {
         try {
             return JaxbUtil.unmarshall(xml, HDWorkload.class);
         } catch (JAXBException | ParserConfigurationException | SAXException e) {
-            LOG
+            LOG.error("Error unmarshalling xml: " + e.getMessage(), e);
         }
         return null;
     }
