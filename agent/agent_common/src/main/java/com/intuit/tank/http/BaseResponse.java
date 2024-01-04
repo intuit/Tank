@@ -95,7 +95,7 @@ public abstract class BaseResponse {
     /**
      * Returns entire header as a Hashmap for this response.
      * 
-     * @return a HashMap<String,String   of the entire response header.
+     * @return a HashMap<String,String> of the entire response header.
      */
     public Map<String, String> getHeaders() {
         return this.headers;
