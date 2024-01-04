@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.intuit.tank.harness.AmazonUtil;
+import com.intuit.tank.vm.settings.TankConfig;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -341,7 +342,8 @@ public abstract class JobNodeBean implements Serializable {
     }
 
     public String getControllerBaseUrl(){
-        return AmazonUtil.getControllerBaseUrl();
+        TankConfig config = new TankConfig();
+        return config.getControllerBase();
     }
 
     /**
