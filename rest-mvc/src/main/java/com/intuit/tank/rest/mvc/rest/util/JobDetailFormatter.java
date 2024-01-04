@@ -91,9 +91,13 @@ public class JobDetailFormatter {
                     .getDisplayName());
             addProperty(sb, "Stop Behavior", StopBehavior.fromString(proposedJobInstance.getStopBehavior())
                     .getDisplay());
-            addProperty(sb, "Run Scripts Until", proposedJobInstance.getTerminationPolicy().getDisplay(),
-                    proposedJobInstance.getTerminationPolicy() == TerminationPolicy.time
-                            && proposedJobInstance.getSimulationTime() == 0 ? "error" : null);
+            if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                addProperty(sb, "Run Scripts Until", proposedJobInstance.getTerminationPolicy().getDisplay(),
+                        proposedJobInstance.getTerminationPolicy() == TerminationPolicy.time
+                                && proposedJobInstance.getSimulationTime() == 0 ? "error" : null);
+            } else {
+                addProperty(sb, "Run Scripts Until", TerminationPolicy.script.getDisplay() + " (default)");
+            }
             sb.append(BREAK);
             addProperty(
                     sb,
@@ -105,10 +109,10 @@ public class JobDetailFormatter {
             }
             addProperty(sb, "Ramp Time", TimeUtil.toTimeString(proposedJobInstance.getRampTime()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)){
-                addProperty(sb, "Agent User Ramp Rate (users/sec)", Double.toString(proposedJobInstance.getTargetRampRate()));
-                addProperty(sb, "Total User Ramp Rate (users/sec)", Double.toString(proposedJobInstance.getTargetRampRate() * proposedJobInstance.getNumAgents()));
+                addProperty(sb, "Agent User Ramp Rate (users/sec)", String.format("%.2f", proposedJobInstance.getTargetRampRate()));
+                addProperty(sb, "Total User Ramp Rate (users/sec)", String.format("%.2f", proposedJobInstance.getTargetRampRate() * proposedJobInstance.getNumAgents()));
                 addProperty(sb, "Estimated Steady State Concurrent Users",
-                        Double.toString(proposedJobInstance.getTargetRampRate() *
+                        String.format("%.2f", proposedJobInstance.getTargetRampRate() *
                                 ((double) proposedJobInstance.getRampTime() / 1000) *
                                 proposedJobInstance.getNumAgents()));
             }
@@ -218,7 +222,7 @@ public class JobDetailFormatter {
                 if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
                     target = "(" + numUsers + " users)";
                 } else {
-                    target = "(" + proposedJobInstance.getTargetRampRate() * proposedJobInstance.getNumAgents() + " users/sec)";
+                    target = "(" + String.format("%.2f",proposedJobInstance.getTargetRampRate() * proposedJobInstance.getNumAgents()) + " users/sec)";
                 }
                 addProperty(
                         sb,

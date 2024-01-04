@@ -137,7 +137,7 @@
                            oncomplete="PF('userDetailsPopup').show();" update=":userDetailsPopupID">
               <h:outputText value="#{node.totalUsers}" rendered="#{node.incrementStrategy == 'Linear'}"/>
             </p:commandLink>
-              <h:outputText value="#{node.targetRampRate} users/sec" rendered="#{node.incrementStrategy == 'Nonlinear'}"/>
+              <h:outputText value="#{node.getNonlinearSteadyStateUsers()} users" rendered="#{node.incrementStrategy == 'Nonlinear'}"/>
           </p:column>
 
           <p:column id="tpsColumn" headerText="TPS" styleClass="ellipsis min-column-size"
