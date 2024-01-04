@@ -255,27 +255,27 @@ public class MethodTimerCpTest {
         assertEquals(" took 0", result.getNaturalTimeMessage());
     }
 
-//    /**
-//     * Run the MethodTimer logMark(String) method test.
-//     *
-//     * @throws Exception
-//     *
-//     * @generatedBy CodePro at 9/3/14 3:41 PM
-//     */
-//    @Test
-//    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
-//    public void testLogMark_2()
-//            throws Exception {
-//        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
-//        fixture.mark();
-//        String message = "";
-//
-//        MethodTimer result = fixture.logMark(message);
-//
-//        assertNotNull(result);
-//        assertEquals(" took 0 ms.", result.getTimeMessage());
-//        assertEquals(" took 0", result.getNaturalTimeMessage());
-//    }
+    /**
+     * Run the MethodTimer logMark(String) method test.
+     * 
+     * @throws Exception
+     * 
+     * @generatedBy CodePro at 9/3/14 3:41 PM
+     */
+    @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_METHODTIMER_TEST", matches = "true")
+    public void testLogMark_2()
+            throws Exception {
+        MethodTimer fixture = new MethodTimer(LogManager.getLogger(LogManager.ROOT_LOGGER_NAME), Object.class, "");
+        fixture.mark();
+        String message = "";
+
+        MethodTimer result = fixture.logMark(message);
+
+        assertNotNull(result);
+        assertEquals(" took 0 ms.", result.getTimeMessage());
+        assertEquals(" took 0", result.getNaturalTimeMessage());
+    }
 
     /**
      * Run the MethodTimer logTime() method test.
