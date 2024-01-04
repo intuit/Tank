@@ -398,7 +398,7 @@ public class TankHttpClient5 implements TankHttpClient {
         } catch (Exception ex) {
             LOG.warn(request.getLogUtil().getLogMessage("Unable to get response: " + ex.getMessage()));
         } finally {
-            response.logResponse();
+//            response.logResponse();
         }
     }
 

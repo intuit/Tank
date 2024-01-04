@@ -1,0 +1,39 @@
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="headlessAppender" target="SYSTEM_OUT">
+            <PatternLayout>
+                <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss} %msg%n</pattern>
+            </PatternLayout>
+        </Console>
+        <RollingFile name="debugger" fileName="debugger.log" filePattern="debugger-%i.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd  HH:mm:ss,SSS z} %5p %c{1}:%L - %m%n" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB" />
+            </Policies>
+        </RollingFile>
+        <RollingFile name="output" fileName="output.log" filePattern="output-%i.log">
+            <PatternLayout pattern="%m%n" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB" />
+            </Policies>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.intuit.tank.tools.headless.HeadlessDebuggerSetup" level="info" additivity="false">
+            <AppenderRef ref="output"/>
+        </Logger>
+        <Logger name="com.intuit.tank.tools.headless.VariablesOutput" level="info" additivity="false">
+            <AppenderRef ref="output"/>
+        </Logger>
+        <Logger name="com.intuit.tank.http.BaseRequest" level="info" additivity="false">
+            <AppenderRef ref="output"/>
+        </Logger>
+        <Logger name="com.intuit.tank.http.BaseResponse" level="info" additivity="false">
+            <AppenderRef ref="output"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="headlessAppender"/>
+            <AppenderRef ref="debugger"/>
+        </Root>
+    </Loggers>
+</Configuration>

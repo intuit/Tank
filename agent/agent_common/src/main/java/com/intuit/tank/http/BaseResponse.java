@@ -95,7 +95,7 @@ public abstract class BaseResponse {
     /**
      * Returns entire header as a Hashmap for this response.
      * 
-     * @return a HashMap<String,String> of the entire response header.
+     * @return a HashMap<String,String   of the entire response header.
      */
     public Map<String, String> getHeaders() {
         return this.headers;
@@ -194,7 +194,7 @@ public abstract class BaseResponse {
     /**
      * Log the response object
      */
-    public void logResponse() {
+    public void logResponse(boolean isRequestSuccessful) {
         try {
             StringBuilder sb = new StringBuilder();
             // System.out.println("******** RESPONSE ***********");
@@ -202,23 +202,25 @@ public abstract class BaseResponse {
             sb.append("RESPONSE HTTP MSG: " + this.rspMessage).append(NEWLINE);
             sb.append("RESPONSE TIME: " + responseTime).append(NEWLINE);
             sb.append("RESPONSE SIZE: " + getResponseSize()).append(NEWLINE);
-            for (Entry<String, String> mapEntry : headers.entrySet()) {
-                sb.append("RESPONSE HEADER: " + (String) mapEntry.getKey() + " = " + (String) mapEntry.getValue()).append(NEWLINE);
-            }
-            for (Entry<String, String> entry : cookies.entrySet()) {
-                sb.append("RESPONSE COOKIE: " + entry.getKey() + " = " + entry.getValue()).append(NEWLINE);
-            }
-            if (response != null) {
-                String contentType = this.headers.get("Content-Type");
-                if (isDataType(contentType)) {
-                    sb.append("RESPONSE BODY: " + this.response).append(NEWLINE);
-                } else {
-                    sb.append("RESPONSE BODY: not logged because " + contentType + " is not a data type.").append(NEWLINE);
+            if(!isRequestSuccessful) {
+                for (Entry<String, String> mapEntry : headers.entrySet()) {
+                    sb.append("RESPONSE HEADER: " + (String) mapEntry.getKey() + " = " + (String) mapEntry.getValue()).append(NEWLINE);
+                }
+                for (Entry<String, String> entry : cookies.entrySet()) {
+                    sb.append("RESPONSE COOKIE: " + entry.getKey() + " = " + entry.getValue()).append(NEWLINE);
+                }
+                if (response != null) {
+                    String contentType = this.headers.get("Content-Type");
+                    if (isDataType(contentType)) {
+                        sb.append("RESPONSE BODY: " + this.response).append(NEWLINE);
+                    } else {
+                        sb.append("RESPONSE BODY: not logged because " + contentType + " is not a data type.").append(NEWLINE);
+                    }
                 }
             }
             this.responseLogMsg = sb.toString();
-            LOG.debug("******** RESPONSE ***********");
-            LOG.debug(this.responseLogMsg);
+            LOG.info("******** RESPONSE ***********");
+            LOG.info(this.responseLogMsg);
 
         } catch (Exception ex) {
             LOG.error("Error processing response: " + ex.getMessage(), ex);

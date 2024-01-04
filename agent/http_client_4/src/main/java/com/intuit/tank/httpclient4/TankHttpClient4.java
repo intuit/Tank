@@ -386,7 +386,7 @@ public class TankHttpClient4 implements TankHttpClient {
         } catch (Exception ex) {
             LOG.warn("Unable to get response: " + ex.getMessage());
         } finally {
-            response.logResponse();
+//            response.logResponse();
         }
     }
 

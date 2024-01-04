@@ -1,0 +1,69 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.intuit.tank</groupId>
+    <artifactId>tools-parent</artifactId>
+    <version>3.3.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>headless-agent-debugger</artifactId>
+
+  <packaging>jar</packaging>
+  <name>Intuit Tank Headless Agent Debugger</name>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>agent</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>tank-api</artifactId>
+      <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springdoc</groupId>
+          <artifactId>springdoc-openapi-ui</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>script-engine</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>data-access</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>tank-vm-manager</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>tank-script-processor</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jakarta.xml.bind</groupId>
+          <artifactId>jakarta.xml.bind-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+
+</project>

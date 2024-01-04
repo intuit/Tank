@@ -793,6 +793,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver-dns-native-macos</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>

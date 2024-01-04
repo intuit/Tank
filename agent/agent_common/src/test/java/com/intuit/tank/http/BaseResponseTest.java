@@ -449,7 +449,7 @@ public class BaseResponseTest {
         fixture.rspMessage = "";
         fixture.responseLogMsg = "";
 
-        fixture.logResponse();
+        fixture.logResponse(false);
         assertEquals("RESPONSE HTTP CODE: 1\n" +
                 "RESPONSE HTTP MSG: \n" +
                 "RESPONSE TIME: 1\n" +
@@ -465,7 +465,7 @@ public class BaseResponseTest {
         fixture.cookies = new HashMap<String, String>();
         fixture.cookies.put("testHeadersKey", "testHeadersValue");
         fixture.response = "testResponse";
-        fixture.logResponse();
+        fixture.logResponse(false);
         assertEquals("RESPONSE HTTP CODE: -1\n" +
                 "RESPONSE HTTP MSG: \n" +
                 "RESPONSE TIME: -1\n" +

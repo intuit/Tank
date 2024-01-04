@@ -298,8 +298,8 @@ public abstract class BaseRequest {
                 sb.append("REQUEST BODY: " + body).append(NEWLINE);
             }
             this.logMsg = sb.toString();
-            LOG.debug("******** REQUEST *********");
-            LOG.debug(this.logMsg);
+            LOG.info("******** REQUEST *********");
+            LOG.info(this.logMsg);
 
         } catch (Exception ex) {
             LOG.error("Unable to log request", ex);

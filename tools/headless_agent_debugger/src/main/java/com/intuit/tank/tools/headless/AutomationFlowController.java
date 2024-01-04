@@ -5,8 +5,9 @@
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
  */
-package com.intuit.tank.harness;
+package com.intuit.tank.tools.headless;
 
+import com.intuit.tank.harness.FlowController;
 import com.intuit.tank.harness.data.SleepTimeStep;
 import com.intuit.tank.harness.data.TestStep;
 import com.intuit.tank.harness.data.ThinkTimeStep;
@@ -20,14 +21,14 @@ import java.util.Set;
 public class AutomationFlowController implements FlowController {
 
     private static Logger LOG = LogManager.getLogger(AutomationFlowController.class);
-    private AutomationDebuggerSetup debuggerSetup;
+    private HeadlessDebuggerSetup debuggerSetup;
     private boolean doNext;
     private int skipToIndex = -1;
     private boolean isSkipping;
     private boolean testStarted;
     private Set<Integer> toSkip = new HashSet<Integer>();
 
-    public AutomationFlowController(AutomationDebuggerSetup debuggerSetup) {
+    public AutomationFlowController(HeadlessDebuggerSetup debuggerSetup) {
         super();
         this.debuggerSetup = debuggerSetup;
     }
@@ -56,8 +57,7 @@ public class AutomationFlowController implements FlowController {
     }
 
     /**
-     * @param doNext
-     *            the doNext to set
+     *
      */
     public void doNext() {
         this.doNext = true;
@@ -80,7 +80,7 @@ public class AutomationFlowController implements FlowController {
      */
     @Override
     public void startStep(TestStepContext context) {
-        debuggerFrame.stepStarted(context);
+        debuggerSetup.stepStarted(context);
     }
 
     /**
@@ -88,8 +88,7 @@ public class AutomationFlowController implements FlowController {
      */
     @Override
     public void endStep(TestStepContext context) {
-        debuggerFrame.stepFinished(context);
-
+        debuggerSetup.stepFinished(context);
     }
 
     /**
@@ -98,17 +97,14 @@ public class AutomationFlowController implements FlowController {
     @Override
     public boolean shouldExecute(TestStepContext context) {
         // push setep from debugger into context
-        context.setTestStep(debuggerFrame.getStep(context.getTestStep().getStepIndex()));
+        context.setTestStep(debuggerSetup.getStep(context.getTestStep().getStepIndex()));
         TestStep step = context.getTestStep();
         if (!toSkip.contains(context.getTestStep().getStepIndex())) {// move if skiplist does not contain line
-            if (debuggerFrame.runTimingSteps()) {
-                return true;
-            } else if (!(step instanceof SleepTimeStep) && !(step instanceof ThinkTimeStep)) {
+            if (!(step instanceof SleepTimeStep) && !(step instanceof ThinkTimeStep)) { // automation skips sleep and think time steps
                 return true;
             }
         }
-        debuggerFrame.moveCursor(context);
-        debuggerFrame.setNextStep(context);
+        debuggerSetup.setNextStep(context);
         return false;
     }
 
@@ -119,25 +115,10 @@ public class AutomationFlowController implements FlowController {
     public void nextStep(TestStepContext context) {
         if (!testStarted) {
             testStarted = true;
-            debuggerFrame.testStarted();
         }
         TestStep step = context.getTestStep();
-        debuggerFrame.moveCursor(context);
-        // block until doNext is true;
-        try {
-            if (!isSkipping || debuggerFrame.hasBreakPoint(step.getStepIndex())) {
-                isSkipping = false;
-                debuggerFrame.pause();
-                while (!doNext) {
-                    Thread.sleep(200);
-                }
-            }
-            debuggerFrame.setNextStep(context);
-        } catch (InterruptedException e) {
-            LOG.warn("Sleep Interrupted:" + e);
-        }
+        debuggerSetup.setNextStep(context);
         doNext = false;
-
     }
 
     /**
@@ -151,8 +132,7 @@ public class AutomationFlowController implements FlowController {
     @Override
     public void endTest() {
         skipToIndex = -1;
-        debuggerFrame.testFinished();
-
+        debuggerSetup.testFinished();
     }
 
 }
