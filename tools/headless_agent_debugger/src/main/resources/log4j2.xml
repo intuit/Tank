@@ -22,6 +22,9 @@
         <Logger name="com.intuit.tank.tools.headless.HeadlessDebuggerSetup" level="info" additivity="false">
             <AppenderRef ref="output"/>
         </Logger>
+        <Logger name="com.intuit.tank.tools.headless.AutomationFlowController" level="info" additivity="false">
+            <AppenderRef ref="output"/>
+        </Logger>
         <Logger name="com.intuit.tank.tools.headless.VariablesOutput" level="info" additivity="false">
             <AppenderRef ref="output"/>
         </Logger>

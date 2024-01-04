@@ -102,6 +102,12 @@ public class AutomationFlowController implements FlowController {
         if (!toSkip.contains(context.getTestStep().getStepIndex())) {// move if skiplist does not contain line
             if (!(step instanceof SleepTimeStep) && !(step instanceof ThinkTimeStep)) { // automation skips sleep and think time steps
                 return true;
+            } else {
+                TestStep skippedStep = debuggerSetup.getStep(context.getTestStep().getStepIndex());
+                String stepInfo = context.getTestStep().getStepIndex()+1 + ": "+ skippedStep.getInfo() + '\n';
+                LOG.info("******** STEP INFO *********"); // log step info regardless
+                LOG.info(stepInfo);
+                LOG.info("------------------------------------------------------");
             }
         }
         debuggerSetup.setNextStep(context);
