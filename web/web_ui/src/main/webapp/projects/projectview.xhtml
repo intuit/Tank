@@ -132,7 +132,6 @@
                              value="#{usersAndTimes.endRate}"
                              styleClass="formInput inputWidthSmall" required="true"
                              requiredMessage="Agent User Ramp Rate cannot be empty." rendered="#{usersAndTimes.incrementStrategy == 'standard'}">
-                  <f:validateDoubleRange minimum = "0.001" maximum = "1.000" />
                 </h:inputText>
                 <p:ajax event="save" update=":mainForm:endRateTF" rendered="#{usersAndTimes.incrementStrategy == 'standard'}" />
               </p:inplace>
