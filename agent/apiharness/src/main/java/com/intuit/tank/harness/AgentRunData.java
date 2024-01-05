@@ -18,7 +18,6 @@ import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.common.TankConstants;
 import org.apache.logging.log4j.message.ObjectMessage;
@@ -31,10 +30,7 @@ public class AgentRunData {
     private IncrementStrategy incrementStrategy = IncrementStrategy.increasing;
     private int numStartUsers = 1;
     private int userInterval = 1;
-    private double baseDelay;
-    private double intialDelay;
-    private double rampRateDelay;
-    private double targetRampRate;
+    private double targetRampRate = 1.0;
     private String testPlans = "";
     private String instanceId;
     private String jobId = "0";
@@ -136,51 +132,6 @@ public class AgentRunData {
         if (userInterval > 0) {
             this.userInterval = userInterval;
         }
-    }
-    /**
-     * @return the baseDelay
-     */
-    public double getBaseDelay() {
-        return baseDelay;
-    }
-
-    /**
-     * @param baseDelay
-     *            the baseDelay to set
-     */
-    public void setBaseDelay(double baseDelay) {
-        this.baseDelay = baseDelay;
-    }
-
-
-    /**
-     * @return the intialDelay
-     */
-    public double getIntialDelay() {
-        return intialDelay;
-    }
-
-    /**
-     * @param intialDelay
-     *            the intialDelay to set
-     */
-    public void setIntialDelay(double intialDelay) {
-        this.intialDelay = intialDelay;
-    }
-
-    /**
-     * @return the rampRateDelay
-     */
-    public double getRampRateDelay() {
-        return rampRateDelay;
-    }
-
-    /**
-     * @param rampRateDelay
-     *            the rampRateDelay to set
-     */
-    public void setRampRateDelay(double rampRateDelay) {
-        this.rampRateDelay = rampRateDelay;
     }
 
     /**

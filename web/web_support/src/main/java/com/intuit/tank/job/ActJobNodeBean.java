@@ -28,6 +28,7 @@ public class ActJobNodeBean extends JobNodeBean {
     private static final long serialVersionUID = 1L;
     private List<VMNodeBean> vmBeans = new ArrayList<VMNodeBean>();
     private String jobDetails;
+    private String estimatedNonlinearSteadyStateUsers;
 
     public ActJobNodeBean(JobInstance job, boolean hasRights, FastDateFormat fmt) {
         super();
@@ -40,7 +41,9 @@ public class ActJobNodeBean extends JobNodeBean {
         this.setRegion("");
         this.setActiveUsers(String.valueOf(job.getBaselineVirtualUsers()));
         this.setTotalUsers(String.valueOf(job.getTotalVirtualUsers()));
+        this.setTargetRampRate(String.valueOf(job.getTargetRampRate() * job.getNumAgents()));
         this.jobDetails = job.getJobDetails();
+        this.estimatedNonlinearSteadyStateUsers = estimateNonlinearSteadyStateUsers(job.getTargetRampRate(), job.getRampTime(), job.getNumAgents());
         this.setStartTime(job.getStartTime());
         this.setEndTime(job.getEndTime());
     }
@@ -70,6 +73,14 @@ public class ActJobNodeBean extends JobNodeBean {
 
     public String getJobDetails() {
         return jobDetails;
+    }
+
+    private String estimateNonlinearSteadyStateUsers(double targetRampRate, long rampTime, int numAgents) {
+        return String.format("%.2f", targetRampRate * ((double) rampTime / 1000) * numAgents);
+    }
+
+    public String getNonlinearSteadyStateUsers() {
+        return estimatedNonlinearSteadyStateUsers;
     }
 
     /**

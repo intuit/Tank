@@ -15,6 +15,7 @@ package com.intuit.tank.harness.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -40,6 +41,17 @@ public class HDTestPlan {
 
     @XmlTransient
     private HDTestVariables variables;
+
+    public HDTestPlan() {
+        super();
+    }
+
+    public HDTestPlan(String testPlanName, int userPercentage, List<HDScriptGroup> group) {
+        super();
+        this.testPlanName = testPlanName;
+        this.userPercentage = userPercentage;
+        this.group = group;
+    }
 
     /**
      * 

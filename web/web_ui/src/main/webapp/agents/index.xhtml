@@ -84,6 +84,15 @@
             <h:outputText value="#{node.name}" title="#{node.name}" rendered="#{!node.jobNode}" />
           </p:column>
 
+          <p:column id="typeColumn" style="width:#{jobQueueManager.tablePrefs.getSize('typeColumn')}px;"
+                    headerText="Type" styleClass="ellipsis min-column-size"
+                    rendered="#{jobQueueManager.tablePrefs.isVisible('typeColumn')}">
+            <p:commandLink ajax="true" action="#{jobQueueManager.setCurrentJobInstance(node)}"
+                           oncomplete="PF('validatePopup').show();" update=":validatePopupID" rendered="#{node.jobNode}">
+              <h:outputText value="#{node.incrementStrategy}" title="#{node.incrementStrategy}" />
+            </p:commandLink>
+            <h:outputText value="#{node.incrementStrategy}" title="#{node.incrementStrategy}" rendered="#{!node.jobNode}" />
+          </p:column>
 
           <p:column id="idColumn" style="width:#{jobQueueManager.tablePrefs.getSize('idColumn')}px; text-align: right;"
             headerText="ID" styleClass="ellipsis min-column-size"
@@ -119,14 +128,16 @@
             </p:commandLink>
           </p:column>
 
+          <!--Update this after jobQueueManager change -->
           <p:column id="totalUsersColumn"
             style="width:#{jobQueueManager.tablePrefs.getSize('totalUsersColumn')}px; text-align:right;"
-            headerText="Total Users" styleClass="ellipsis min-column-size"
+            headerText="Target Users" styleClass="ellipsis min-column-size"
             rendered="#{jobQueueManager.tablePrefs.isVisible('totalUsersColumn')}">
             <p:commandLink ajax="true" id="lnkUserDetails" action="#{jobQueueManager.setCurrentJobInstanceForUser(node)}"
-              oncomplete="PF('userDetailsPopup').show();" update=":userDetailsPopupID">
-              <h:outputText value="#{node.totalUsers}" />
+                           oncomplete="PF('userDetailsPopup').show();" update=":userDetailsPopupID">
+              <h:outputText value="#{node.totalUsers}" rendered="#{node.incrementStrategy == 'Linear'}"/>
             </p:commandLink>
+              <h:outputText value="#{node.getNonlinearSteadyStateUsers()} users" rendered="#{node.incrementStrategy == 'Nonlinear'}"/>
           </p:column>
 
           <p:column id="tpsColumn" headerText="TPS" styleClass="ellipsis min-column-size"

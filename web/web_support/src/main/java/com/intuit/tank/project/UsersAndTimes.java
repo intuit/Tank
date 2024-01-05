@@ -25,6 +25,7 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -397,7 +398,7 @@ public class UsersAndTimes implements Serializable {
             projectBean.getJobConfiguration().setUserIntervalIncrement(Integer.parseInt(startUsers));
         }
     }
-      // TODO: need to update BaseJob to support both start and end rate
+      // TODO: need to update BaseJob to support start rate
 //    /**
 //     * @return get nonlinear start rate for the job
 //     */
@@ -420,7 +421,11 @@ public class UsersAndTimes implements Serializable {
      * @return get nonlinear end rate for the job
      */
     public String getEndRate() {
-        return String.valueOf(projectBean.getJobConfiguration().getUserIntervalIncrement());
+        String targetRampRate = String.valueOf(projectBean.getJobConfiguration().getTargetRampRate());
+        if(StringUtils.isEmpty(targetRampRate)) {
+            return "1.0";
+        }
+        return targetRampRate;
     }
 
     /**
@@ -432,8 +437,7 @@ public class UsersAndTimes implements Serializable {
      */
     public void setEndRate(String endRate) {
         if(this.getIncrementStrategy().equals(IncrementStrategy.standard)) {
-            projectBean.getJobConfiguration().setUserIntervalIncrement(Integer.parseInt(endRate));
-            LOG.info("Nonlinear - Setting end rate to " + endRate + " in UsersAndTimes");
+            projectBean.getJobConfiguration().setTargetRampRate(Double.parseDouble(endRate));
         }
     }
 

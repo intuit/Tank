@@ -41,6 +41,8 @@ public abstract class JobNodeBean implements Serializable {
     private String status;
     private String region;
     private String activeUsers;
+    private String incrementStrategy;
+    private String targetRampRate;
     private ValidationStatus numFailures;
     private List<UserDetail> userDetails = new ArrayList<UserDetail>();
     private String totalFails;
@@ -195,6 +197,36 @@ public abstract class JobNodeBean implements Serializable {
      */
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    /**
+     * @return the increment strategy
+     */
+    public String getIncrementStrategy() {
+        return incrementStrategy;
+    }
+
+    /**
+     * @param incrementStrategy
+     *            the status to set
+     */
+    public void setIncrementStrategy(String incrementStrategy) {
+        this.incrementStrategy = incrementStrategy;
+    }
+
+    /**
+     * @return the target ramp rate
+     */
+    public String getTargetRampRate() {
+        return targetRampRate;
+    }
+
+    /**
+     * @param targetRampRate
+     *            the status to set
+     */
+    public void setTargetRampRate(String targetRampRate) {
+        this.targetRampRate = targetRampRate;
     }
 
     /**

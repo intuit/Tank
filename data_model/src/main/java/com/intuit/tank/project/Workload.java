@@ -14,6 +14,7 @@ package com.intuit.tank.project;
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -239,7 +240,7 @@ public class Workload extends BaseEntity {
         @SuppressWarnings("unchecked")
         public GeneratorT addTestPlans(TestPlan aValue) {
             if (instance.getTestPlans() == null) {
-                instance.setTestPlan(new ArrayList<TestPlan>());
+                instance.setTestPlan(Collections.emptyList());
             }
 
             ((ArrayList<TestPlan>) instance.getTestPlans()).add(aValue);

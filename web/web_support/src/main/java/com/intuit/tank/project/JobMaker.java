@@ -149,9 +149,14 @@ public class JobMaker implements Serializable {
      * @return
      */
     public String getName() {
-        return !StringUtils.isEmpty(name) ? name : projectBean.getName() + "_" + usersAndTimes.getTotalUsers()
-                + "_users_"
-                + preferences.getTimestampFormat().format(new Date());
+        if(projectBean.getJobConfiguration().getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+            return !StringUtils.isEmpty(name) ? name : projectBean.getName() + "_" + usersAndTimes.getTotalUsers()
+                    + "_users_"
+                    + preferences.getTimestampFormat().format(new Date());
+        } else {
+            return !StringUtils.isEmpty(name) ? name : projectBean.getName() + "_nonlinear_"
+                    + preferences.getTimestampFormat().format(new Date());
+        }
     }
 
     /**
@@ -231,8 +236,15 @@ public class JobMaker implements Serializable {
         if (numUsers > 0) {
             projectBean.getJobConfiguration().setNumUsersPerAgent(numUsers);
         }
-        if(projectBean.getJobConfiguration().getIncrementStrategy().equals(IncrementStrategy.standard)){
-            LOG.info("Nonlinear - setting number of agents to " + numUsers + " for job");
+    }
+
+    public int getNumAgents() {
+        return projectBean.getJobConfiguration().getNumAgents();
+    }
+
+    public void setNumAgents(int numAgents) {
+        if (numAgents > 0) {
+            projectBean.getJobConfiguration().setNumAgents(numAgents);
         }
     }
 
@@ -303,6 +315,7 @@ public class JobMaker implements Serializable {
             proposedJobInstance.setLocation(getLocation());
             proposedJobInstance.setVmInstanceType(getVmInstanceType());
             proposedJobInstance.setNumUsersPerAgent(getNumUsersPerAgent());
+            proposedJobInstance.setNumAgents(getNumAgents());
             proposedJobInstance.setReportingMode(getReportingMode());
             proposedJobInstance.getVariables().putAll(workload.getJobConfiguration().getVariables());
             // set version info
@@ -405,7 +418,7 @@ public class JobMaker implements Serializable {
         if (StringUtils.isEmpty(name)) {
             return false;
         }
-        if (proposedJobInstance.getTotalVirtualUsers() <= 0) {
+        if (proposedJobInstance.getTotalVirtualUsers() <= 0 && proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
             return false;
         }
         if (proposedJobInstance.getTerminationPolicy() == TerminationPolicy.time
@@ -419,7 +432,7 @@ public class JobMaker implements Serializable {
         if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)){
             int regionPercentage = 0;
             for (JobRegion r : projectBean.getWorkload().getJobConfiguration().getJobRegions()) {
-                regionPercentage += Integer.parseInt(r.getUsers());
+                regionPercentage += Integer.parseInt(r.getPercentage());
             }
             if (regionPercentage != 100) {
                 return false;

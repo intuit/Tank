@@ -17,8 +17,11 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Entity;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.vmManager.*;
+import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,6 +33,7 @@ import com.intuit.tank.vm.vmManager.JobRequest;
 import com.intuit.tank.vm.vmManager.JobUtil;
 import com.intuit.tank.vm.vmManager.RegionRequest;
 import com.intuit.tank.vm.vmManager.VMChannel;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 public class IncreasingWorkLoad implements Runnable {
 
@@ -41,12 +45,12 @@ public class IncreasingWorkLoad implements Runnable {
         this.job = job;
         this.agentDispatcher = agentDispatcher;
         this.channel = channel;
-        LOG.info("Job requested with values: " + job);
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Job requested with values: " + job)));
     }
 
     @Override
     public void run() {
-        AWSXRay.beginSubsegment("Ask.For.Agents.JobId." + job.getId());
+        AWSXRay.beginSubsegment("Request.Agents.JobId." + job.getId());
         try {
             askForAgents(new JobInstanceAgentModel(job));
         } catch (Exception th) {
@@ -62,27 +66,26 @@ public class IncreasingWorkLoad implements Runnable {
 
     private void askForAgents(JobInstanceAgentModel model) {
 
+        ControllerLoggingConfig.setupThreadContext();
         LOG.debug("asking for agents...");
 
-        // Calculate number of agents per region split for nonlinear workloads
-        Map<RegionRequest, Integer> agentMapping = null;
-        if (job.getIncrementStrategy().equals(IncrementStrategy.standard)){
-            agentMapping = JobVmCalculator.getMachinesForAgentByUserPercentage(job.getNumUsersPerAgent(), job.getRegions());
-        }
-
         // start the non region dependent reporting resources if needed
-        int totalUsers = 0;
         ArrayList<AgentMngrAPIRequest.UserRequest> urList = new ArrayList<AgentMngrAPIRequest.UserRequest>();
-        for (RegionRequest jobRegion : job.getRegions()) {
-            int users = JobUtil.parseUserString(jobRegion.getUsers());
+        Entity segment = AWSXRay.getGlobalRecorder().getTraceEntity();
+        job.getRegions().parallelStream().forEach(jobRegion -> segment.run(() -> {
+            int users;
             if(job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-                LOG.info("Starting " + users + " users in region " + jobRegion.getRegion().getDescription());
+                users = JobUtil.parseUserString(jobRegion.getUsers());
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message","Starting " + users + " users in region " + jobRegion.getRegion().getDescription() + " for job "
+                        + job.getId())));
             } else {
-                LOG.info("Nonlinear - Starting " + users + "% of users in region " + jobRegion.getRegion().getDescription()
-                        + " with " + agentMapping.get(jobRegion) + " allocated agents");
-                users = agentMapping.get(jobRegion); // reassign users to the number of agents allocated for this region
+                int percentage = JobUtil.parseUserString(jobRegion.getPercentage());
+                // Calculate number of agents per region split for nonlinear workloads
+                Map<RegionRequest, Integer> agentMapping = JobVmCalculator.getMachinesForAgentByUserPercentage(job.getNumAgents(), job.getRegions());
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message","Starting " + percentage + "% of users in region " + jobRegion.getRegion().getDescription()
+                        + " with " + agentMapping.get(jobRegion) + " allocated agents for job " + job.getId())));
+                users = agentMapping.get(jobRegion); // reassign users to the number of agents allocated for this region - nonlinear
             }
-            totalUsers += users;
             if (users > 0) {
                 VMRegion region = jobRegion.getRegion();
                 urList.add(new AgentMngrAPIRequest.UserRequest(region, users));
@@ -93,11 +96,10 @@ public class IncreasingWorkLoad implements Runnable {
                 request.setUserEips(job.isUseEips());
                 request.setNumUsersPerAgent(job.getNumUsersPerAgent());
                 agentDispatcher.processAgentsMessage(request);
+            } else if (job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                LOG.warn("Attempt to start a job with no users.");
             }
-        }
-        if (totalUsers <= 0 && job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-            LOG.warn("Attempt to start a job with no users.");
-        }
+        }));
     }
 
 }

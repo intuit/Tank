@@ -61,13 +61,8 @@ public class JobInstanceTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
-    public void testJobInstance_2()
-        throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        String name = "";
-
-        JobInstance result = new JobInstance(workload, name);
+    public void testJobInstance_2() {
+        JobInstance result = new JobInstance(Workload.builder().build(), "");
         assertNotNull(result);
     }
 
@@ -81,9 +76,7 @@ public class JobInstanceTest {
     @Test
     public void testEquals_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -112,9 +105,7 @@ public class JobInstanceTest {
     @Test
     public void testEquals_2()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -130,8 +121,7 @@ public class JobInstanceTest {
         fixture.setJobRegionVersions(new HashSet());
         Object obj = new JobInstance();
 
-        boolean result = fixture.equals(obj);
-        assertTrue(result);
+        assertEquals(fixture, obj);
     }
 
     /**
@@ -144,9 +134,7 @@ public class JobInstanceTest {
     @Test
     public void testEquals_3()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -162,8 +150,7 @@ public class JobInstanceTest {
         fixture.setJobRegionVersions(new HashSet());
         Object obj = new JobInstance();
 
-        boolean result = fixture.equals(obj);
-        assertTrue(result);
+        assertEquals(fixture, obj);
     }
 
     /**
@@ -174,11 +161,8 @@ public class JobInstanceTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
-    public void testGetCreator_1()
-        throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+    public void testGetCreator_1() {
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -193,8 +177,7 @@ public class JobInstanceTest {
         fixture.setJobDetails("");
         fixture.setJobRegionVersions(new HashSet());
 
-        String result = fixture.getCreator();
-        assertNotNull(result);
+        assertNotNull(fixture.getCreator());
     }
 
     /**
@@ -205,11 +188,8 @@ public class JobInstanceTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
-    public void testGetDataFileVersions_1()
-        throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+    public void testGetDataFileVersions_1() {
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -238,9 +218,7 @@ public class JobInstanceTest {
     @Test
     public void testGetEndTime_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -269,9 +247,7 @@ public class JobInstanceTest {
     @Test
     public void testGetJobDetails_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -300,9 +276,7 @@ public class JobInstanceTest {
     @Test
     public void testGetJobRegionVersions_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -329,11 +303,8 @@ public class JobInstanceTest {
      * @generatedBy CodePro at 12/15/14 1:34 PM
      */
     @Test
-    public void testGetName_1()
-        throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+    public void testGetName_1() {
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -362,9 +333,7 @@ public class JobInstanceTest {
     @Test
     public void testGetNotificationVersions_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -393,9 +362,7 @@ public class JobInstanceTest {
     @Test
     public void testGetScheduledTime_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -424,9 +391,7 @@ public class JobInstanceTest {
     @Test
     public void testGetStartTime_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -455,9 +420,7 @@ public class JobInstanceTest {
     @Test
     public void testGetStatus_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -486,9 +449,7 @@ public class JobInstanceTest {
     @Test
     public void testGetTotalVirtualUsers_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -516,9 +477,7 @@ public class JobInstanceTest {
     @Test
     public void testGetVariables_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(null);
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -547,9 +506,7 @@ public class JobInstanceTest {
     @Test
     public void testGetVariables_2()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -578,9 +535,7 @@ public class JobInstanceTest {
     @Test
     public void testGetVmInstances_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -609,9 +564,7 @@ public class JobInstanceTest {
     @Test
     public void testGetWorkloadId_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -639,9 +592,7 @@ public class JobInstanceTest {
     @Test
     public void testHashCode_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -669,9 +620,7 @@ public class JobInstanceTest {
     @Test
     public void testSetCreator_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -700,9 +649,7 @@ public class JobInstanceTest {
     @Test
     public void testSetDataFileVersions_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -731,9 +678,7 @@ public class JobInstanceTest {
     @Test
     public void testSetEndTime_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -762,9 +707,7 @@ public class JobInstanceTest {
     @Test
     public void testSetJobDetails_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -793,9 +736,7 @@ public class JobInstanceTest {
     @Test
     public void testSetJobRegionVersions_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -824,9 +765,7 @@ public class JobInstanceTest {
     @Test
     public void testSetName_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -855,9 +794,7 @@ public class JobInstanceTest {
     @Test
     public void testSetNotificationVersions_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -886,9 +823,7 @@ public class JobInstanceTest {
     @Test
     public void testSetScheduledTime_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -979,9 +914,7 @@ public class JobInstanceTest {
     @Test
     public void testSetTotalVirtualUsers_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -1010,9 +943,7 @@ public class JobInstanceTest {
     @Test
     public void testSetVariables_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -1041,9 +972,7 @@ public class JobInstanceTest {
     @Test
     public void testSetVmInstances_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -1072,9 +1001,7 @@ public class JobInstanceTest {
     @Test
     public void testSetWorkloadId_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());
@@ -1103,9 +1030,7 @@ public class JobInstanceTest {
     @Test
     public void testToString_1()
         throws Exception {
-        Workload workload = new Workload();
-        workload.setJobConfiguration(new JobConfiguration());
-        JobInstance fixture = new JobInstance(workload, "");
+        JobInstance fixture = new JobInstance(Workload.builder().build(), "");
         fixture.setVariables(new HashMap());
         fixture.setStatus(JobQueueStatus.Aborted);
         fixture.setDataFileVersions(new HashSet());

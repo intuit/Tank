@@ -28,15 +28,6 @@ import com.intuit.tank.dao.JobNotificationDao;
 import com.intuit.tank.dao.JobRegionDao;
 import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.logging.LoggingProfile;
-import com.intuit.tank.project.DataFile;
-import com.intuit.tank.project.EntityVersion;
-import com.intuit.tank.project.JobInstance;
-import com.intuit.tank.project.JobNotification;
-import com.intuit.tank.project.JobRegion;
-import com.intuit.tank.project.ScriptGroup;
-import com.intuit.tank.project.ScriptGroupStep;
-import com.intuit.tank.project.TestPlan;
-import com.intuit.tank.project.Workload;
 import com.intuit.tank.util.TestParamUtil;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.settings.TimeUtil;
@@ -75,8 +66,11 @@ public class JobDetailFormatter {
                     long users = TestParamUtil.evaluateExpression(region.getUsers(),
                             proposedJobInstance.getExecutionTime(),
                             proposedJobInstance.getSimulationTime(), proposedJobInstance.getRampTime());
-                    if (users > 0) {
-                        regions.add(new JobRegion(region.getRegion(), Long.toString(users)));
+                    long percentage = TestParamUtil.evaluateExpression(region.getPercentage(),
+                            proposedJobInstance.getExecutionTime(),
+                            proposedJobInstance.getSimulationTime(), proposedJobInstance.getRampTime());
+                    if (users > 0 || percentage > 0) {
+                        regions.add(new JobRegion(region.getRegion(), Long.toString(users), region.getPercentage()));
                     }
                 }
             }
@@ -93,7 +87,7 @@ public class JobDetailFormatter {
             addProperty(sb, "Agent VM Type", getVmDetails(config, proposedJobInstance.getVmInstanceType()));
             addProperty(sb, "Assign Elastic Ips", Boolean.toString(proposedJobInstance.isUseEips()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)) {
-                addProperty(sb, "Number of Agents", Integer.toString(proposedJobInstance.getNumUsersPerAgent()));
+                addProperty(sb, "Number of Agents", Integer.toString(proposedJobInstance.getNumAgents()));
             } else {
                 addProperty(sb, "Max Users per Agent", Integer.toString(proposedJobInstance.getNumUsersPerAgent()));
             }
@@ -103,9 +97,13 @@ public class JobDetailFormatter {
                     .getDisplayName());
             addProperty(sb, "Stop Behavior", StopBehavior.fromString(proposedJobInstance.getStopBehavior())
                     .getDisplay());
-            addProperty(sb, "Run Scripts Until", proposedJobInstance.getTerminationPolicy().getDisplay(),
-                    proposedJobInstance.getTerminationPolicy() == TerminationPolicy.time
-                            && proposedJobInstance.getSimulationTime() == 0 ? "error" : null);
+            if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                addProperty(sb, "Run Scripts Until", proposedJobInstance.getTerminationPolicy().getDisplay(),
+                        proposedJobInstance.getTerminationPolicy() == TerminationPolicy.time
+                                && proposedJobInstance.getSimulationTime() == 0 ? "error" : null);
+            } else {
+                addProperty(sb, "Run Scripts Until", TerminationPolicy.script.getDisplay() + " (default)");
+            }
             sb.append(BREAK);
             addProperty(
                     sb,
@@ -117,8 +115,12 @@ public class JobDetailFormatter {
             }
             addProperty(sb, "Ramp Time", TimeUtil.toTimeString(proposedJobInstance.getRampTime()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)){
-//                addProperty(sb, "Starting User Ramp (users/sec)", Integer.toString(proposedJobInstance.getStartRate()));
-                addProperty(sb, "Target User Ramp (users/sec)", Integer.toString(proposedJobInstance.getUserIntervalIncrement()));
+                addProperty(sb, "Agent User Ramp Rate (users/sec)",String.format("%.2f", proposedJobInstance.getTargetRampRate()));
+                addProperty(sb, "Total User Ramp Rate (users/sec)", String.format("%.2f", proposedJobInstance.getTargetRampRate() * proposedJobInstance.getNumAgents()));
+                addProperty(sb, "Estimated Steady State Concurrent Users",
+                        String.format("%.2f", proposedJobInstance.getTargetRampRate() *
+                                ((double) proposedJobInstance.getRampTime() / 1000) *
+                                proposedJobInstance.getNumAgents()));
             }
             addProperty(sb, "Initial Users", Integer.toString(proposedJobInstance.getBaselineVirtualUsers()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
@@ -151,15 +153,15 @@ public class JobDetailFormatter {
 
                 // Calculate number of agents per region split for nonlinear workloads
                 Set<RegionRequest> regionRequests = new HashSet<>(regions);
-                Map<RegionRequest, Integer> regionAllocation = JobVmCalculator.getMachinesForAgentByUserPercentage(proposedJobInstance.getNumUsersPerAgent(), regionRequests);
+                Map<RegionRequest, Integer> regionAllocation = JobVmCalculator.getMachinesForAgentByUserPercentage(proposedJobInstance.getNumAgents(), regionRequests);
 
                 int regionPercentage = 0;
                 for (JobRegion r : regions) {
-                    addProperty(sb, "  " + r.getRegion().getDescription(), r.getUsers() + "%" + "  (Agents: " + regionAllocation.get(r) + ")");
-                    regionPercentage += Integer.parseInt(r.getUsers());
+                    addProperty(sb, "  " + r.getRegion().getDescription(), r.getPercentage() + "%" + "  (Agents: " + regionAllocation.get(r) + ")");
+                    regionPercentage += Integer.parseInt(r.getPercentage());
                 }
                 if (regionPercentage != 100) {
-                    addError(errorSB, "Region Percentage of Regions does not add up to 100%");
+                    addError(errorSB, "Region Percentage does not add up to 100%");
                 }
             }
             sb.append(BREAK);
@@ -217,16 +219,22 @@ public class JobDetailFormatter {
             addProperty(sb, "Scripts", "", "emphasis");
             // scripts
             List<ScriptGroupStep> stepsList = new ArrayList<ScriptGroupStep>();
+            String target = "";
             for (TestPlan plan : workload.getTestPlans()) {
                 int numUsers = plan.getUserPercentage() > 0 ? proposedJobInstance.getTotalVirtualUsers() : 0;
                 if (plan.getUserPercentage() < 100 && plan.getUserPercentage() > 0) {
                     numUsers = (int) Math.floor(numUsers * ((double) plan.getUserPercentage() / 100D));
                 }
+                if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+                    target = "(" + numUsers + " users)";
+                } else {
+                    target = "(" + String.format("%.2f",proposedJobInstance.getTargetRampRate() * proposedJobInstance.getNumAgents()) + " users/sec)";
+                }
                 addProperty(
                         sb,
                         "  " + plan.getName(),
-                        plan.getUserPercentage() + "% : (" + numUsers
-                                + " users) : estimated Time "
+                        plan.getUserPercentage() + "% : " + target
+                                + " : estimated Time "
                                 + TimeUtil.toTimeString(validator.getExpectedTime(plan.getName())),
                         userPercentage != 100 ? "error" : null);
 
@@ -317,7 +325,7 @@ public class JobDetailFormatter {
         if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
             numMachines = regions.stream().mapToInt(region -> Integer.parseInt(region.getUsers())).filter(users -> users > 0).map(users -> (int) Math.ceil((double) users / (double) proposedJobInstance.getNumUsersPerAgent())).sum();
         } else {
-            numMachines = proposedJobInstance.getNumUsersPerAgent();
+            numMachines = proposedJobInstance.getNumAgents();
         }
         // dynamoDB costs about 1.5 times the instance cost
         BigDecimal cost = estimateCost(numMachines, costPerHour, time);

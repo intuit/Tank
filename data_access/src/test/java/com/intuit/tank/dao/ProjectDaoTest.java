@@ -23,17 +23,19 @@ import java.util.stream.Stream;
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 
+import com.intuit.tank.project.Script;
+import com.intuit.tank.project.TestPlan;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
+import org.hibernate.LazyInitializationException;
 import org.hibernate.PropertyValueException;
 
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.test.TestGroups;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -93,7 +95,7 @@ public class ProjectDaoTest {
             Workload removed = workloads.remove(2);
             workloads.add(0, removed);
             persistedProject = dao.saveOrUpdate(persistedProject);
-            persistedProject = dao.findByIdEager(projectId);
+            persistedProject = dao.findById(projectId);
 
             assertNotEquals(persistedProject.getWorkloads().get(0), originalOrder.get(0));
             assertEquals(persistedProject.getWorkloads().get(0), originalOrder.get(2));
@@ -104,9 +106,9 @@ public class ProjectDaoTest {
             persistedProject.getWorkloads().remove(2);
             persistedProject.getWorkloads().remove(0);
             persistedProject = dao.saveOrUpdate(persistedProject);
-            persistedProject = dao.findByIdEager(projectId);
+            persistedProject = dao.findById(projectId);
             assertEquals(persistedProject.getWorkloads().get(0), originalOrder.get(1));
-            assertEquals(1, persistedProject.getWorkloads().size());
+            assertEquals(2, persistedProject.getWorkloads().size());
 
         } finally {
             // delete it
@@ -136,36 +138,112 @@ public class ProjectDaoTest {
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
-    @Disabled
     public void testBasicCreateUpdateDelete() throws Exception {
-        List<Project> all = dao.findAll();
-        int originalSize = all.size();
+        // Arrange
         Project project = DaoTestUtil.createProject();
+        Project project2 = DaoTestUtil.createProject();
         project.addWorkload(DaoTestUtil.createWorkload());
         project.addWorkload(DaoTestUtil.createWorkload());
+        assertEquals(0, dao.findAll().size());
         Project persistedProject = dao.saveOrUpdate(project);
+        dao.saveOrUpdate(project2);
 
+        // Act & Assert
+        List<Project> projects = dao.findAll();
         validateProject(project, persistedProject, false);
-        project = dao.findByIdEager(persistedProject.getId());
+        assertEquals(2, projects.size());
+        assertEquals(3, projects.get(0).getWorkloads().size());
+
+        // Act & Assert
+        project = dao.findById(persistedProject.getId());
+        assertNotNull(project);
         project.setComments("new Comments");
         persistedProject = dao.saveOrUpdate(project);
         validateProject(project, persistedProject, false);
+        assertEquals(2, dao.findAll().size());
 
-        all = dao.findAll();
-        assertNotNull(all);
-        assertEquals(originalSize + 1, all.size());
+        // Act & Assert
+        projects = dao.findAll();
+        assertNotNull(projects);
+        assertEquals(2, projects.size());
 
-        all = dao.findAll();
-        assertNotNull(all);
-        assertEquals(originalSize + 1, all.size());
-
-        // delete it
+        // cleanup
         dao.delete(persistedProject);
-        project = dao.findByIdEager(project.getId());
-        assertNull(project);
-        all = dao.findAll();
-        assertEquals(originalSize, all.size());
+        dao.delete(project2);
+        assertEquals(0, dao.findAllFast().size());
     }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void test_findByX() throws Exception {
+        // Arrange
+        Project project = DaoTestUtil.createProject();
+        project.getWorkloads().get(0).addTestPlan(DaoTestUtil.createTestPlan());
+        String name = project.getName();
+        String testPlanName = project.getWorkloads().get(0).getTestPlans().get(0).getName();
+        Project persistedProject = dao.saveOrUpdate(project);
+        int id = persistedProject.getId();
+
+        // Act & Assert
+        Project nameProject = dao.findByName(name);
+        assertNotNull(nameProject);
+        assertEquals(name, nameProject.getName());
+        assertThrows(LazyInitializationException.class, () -> nameProject.getWorkloads().get(0));
+
+        // Act & Assert
+        Project idProject = dao.findById(id);
+        assertNotNull(idProject);
+        assertEquals(name, idProject.getName());
+        assertThrows(LazyInitializationException.class, () -> idProject.getWorkloads().get(0).getTestPlans().get(0));
+
+        // Act & Assert
+        Project eagerProject = dao.findByIdEager(persistedProject.getId());
+        assertNotNull(eagerProject);
+        validateProject(project, eagerProject, false);
+        assertEquals(2, eagerProject.getWorkloads().get(0).getTestPlans().size());
+        assertEquals(testPlanName, eagerProject.getWorkloads().get(0).getTestPlans().get(0).getName());
+
+        // cleanup
+        dao.delete(persistedProject);
+        assertEquals(0, dao.findAllFast().size());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void test_saveOrUpdateProject() throws Exception {
+        // Arrange
+        Project project = DaoTestUtil.createProject();
+
+        // Act
+        Project persistedProject = dao.saveOrUpdateProject(project);
+
+        // Assert
+        validateProject(project, persistedProject, false);
+
+        // Cleanup
+        dao.delete(project);
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void test_loadScripts() throws Exception {
+        // Arrange
+        Project project = DaoTestUtil.createProject();
+        Script script = DaoTestUtil.createScript();
+        project.getWorkloads().get(0).getTestPlans().get(0).getScriptGroups().get(0).getScriptGroupSteps().get(0).setScript(script);
+        new ScriptDao().saveOrUpdate(script);
+        Project persistedProject = dao.saveOrUpdate(project);
+
+        // Act & Assert
+        Project returnedProject = dao.loadScripts(persistedProject.getId());
+        assertEquals(0, returnedProject.getWorkloads().get(0).getTestPlans().get(0).getScriptGroups().get(0).getScriptGroupSteps().get(0).getScript().getSteps().size());
+
+        // cleanup
+        dao.delete(persistedProject);
+        assertEquals(0, dao.findAllFast().size());
+        new ScriptDao().delete(script);
+    }
+
 
     private void validateProject(Project project, Project persistedProject, boolean checkCreateAttributes) {
         if (checkCreateAttributes) {

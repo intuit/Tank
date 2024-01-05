@@ -15,14 +15,10 @@ package com.intuit.tank.project;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ConversationScoped;
-import javax.faces.context.FacesContext;
-import javax.faces.context.PartialViewContext;
-import javax.faces.event.AjaxBehaviorEvent;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -109,7 +105,7 @@ public class WorkloadScripts implements Serializable {
 
     public void addToTarget() {
         if(!selectedAvailableScripts.isEmpty()) {
-            scriptSelectionModel.getTarget().addAll(0, selectedAvailableScripts);
+            scriptSelectionModel.getTarget().addAll(selectedAvailableScripts);
             scriptSelectionModel.getSource().removeAll(selectedAvailableScripts);
         }
     }
@@ -334,7 +330,9 @@ public class WorkloadScripts implements Serializable {
     }
 
     public void deleteScriptGroupStep(ScriptGroupStep sgs) {
-        scriptGroup.getScriptGroupSteps().remove(sgs);
+        scriptGroup.removeScriptGroupStep(sgs);
+        scriptSelectionModel.getSource().add(sgs.getScript());
+        initScriptSelectionModel();
     }
 
     public List<ScriptGroupStep> getSteps() {

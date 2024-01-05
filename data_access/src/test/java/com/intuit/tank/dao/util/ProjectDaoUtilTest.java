@@ -14,12 +14,18 @@ package com.intuit.tank.dao.util;
  */
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.dao.util.ProjectDaoUtil;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 /**
  * The class <code>ProjectDaoUtilTest</code> contains tests for the class <code>{@link ProjectDaoUtil}</code>.
@@ -28,20 +34,22 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class ProjectDaoUtilTest {
     
-    /**
-     * Run the File getScriptFile(String) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 6:17 PM
-     */
     @Test
-    public void testGetScriptFile_1()
+    public void testGetScriptFile()
         throws Exception {
         String jobId = "";
 
         File result = ProjectDaoUtil.getScriptFile(jobId);
         assertNotNull(result);
+    }
+
+    @Test
+    public void testStoreScriptFile() {
+        try (MockedStatic<FileUtils> fileUtilsMockedStatic = Mockito.mockStatic(FileUtils.class)) {
+            ProjectDaoUtil.storeScriptFile("1", "STRING TO WRITE");
+            fileUtilsMockedStatic.when(() -> FileUtils.writeStringToFile(any(File.class), anyString(), any(Charset.class))).thenThrow(new IOException());
+            assertThrows(RuntimeException.class, () -> ProjectDaoUtil.storeScriptFile("1", "STRING TO WRITE"));
+        }
     }
 
 }

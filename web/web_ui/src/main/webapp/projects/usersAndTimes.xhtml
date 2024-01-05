@@ -32,10 +32,10 @@
                 &lt;br/&gt;&lt;br/&gt;
                 &lt;b&gt;Note&lt;/b&gt; - expressions with mathematical symbols must be separated by whitespace. 3ET+10m should be written as 3ET + 10m" />
 
-        <p:inplace label="#{jobRegion.users} %" editor="true" rendered="#{usersAndTimes.incrementStrategy == 'standard'}">
+        <p:inplace label="#{jobRegion.percentage} %" editor="true" rendered="#{usersAndTimes.incrementStrategy == 'standard'}">
           <p:message for="percentageTF" />
           <p:spinner id="percentageTF" styleClass="formInput" maxlength="3"
-                     validatorMessage="Region Percentage must be between 0 and 100." value="#{jobRegion.users}"
+                     validatorMessage="Region Percentage must be between 0 and 100." value="#{jobRegion.percentage}"
                      min="0" max="100">
             <f:validateLongRange minimum="0" maximum="100" />
           </p:spinner>
@@ -47,15 +47,15 @@
     <div class="formRow">
       <div class="formLabelDiv">
         <h:outputLabel for="terminationPolicyCB"
-          value="Run Scripts Until" styleClass="formLabel" />
+          value="Run Scripts Until" styleClass="formLabel" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"/>
       </div>
       <div class="formInputDiv">
         <p:selectOneMenu value="#{usersAndTimes.terminationPolicy}"
           styleClass="inputWidthMedium" id="terminationPolicyCB"
-          converter="tsTerminationPolicyConverter">
+          converter="tsTerminationPolicyConverter" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}">
           <f:selectItems value="#{usersAndTimes.terminationPolicyList}"
             var="policy" itemLabel="#{policy.display}"
-            itemValue="#{policy}" />
+            itemValue="#{policy}" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"/>
         </p:selectOneMenu>
       </div>
     </div>

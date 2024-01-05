@@ -6,7 +6,7 @@
 
   <groupId>com.intuit.tank</groupId>
   <artifactId>tank-parent</artifactId>
-  <version>3.2.1-SNAPSHOT</version>
+  <version>3.3.1-SNAPSHOT</version>
 
   <packaging>pom</packaging>
   <name>Tank Parent</name>
@@ -44,7 +44,6 @@
     <version.primefaces-ext>12.0.9</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>3.1.2</version.surefire>
-    <version.jersey>2.38</version.jersey>
     <version.junit>5.9.3</version.junit>
     <version.mockito>5.5.0</version.mockito>
     <version.httpclient>4.5.14</version.httpclient>
@@ -92,7 +91,6 @@
       <modules>
         <module>agent</module>
         <module>tools</module>
-        <module>rest</module>
         <module>rest-mvc</module>
         <module>tank_common</module>
         <module>proxy-parent</module>
@@ -190,7 +188,6 @@
         <module>doc</module>
         <module>agent</module>
         <module>tools</module>
-        <module>rest</module>
         <module>rest-mvc</module>
         <module>proxy-parent</module>
         <module>script_processor</module>
@@ -219,7 +216,6 @@
         <module>doc</module>
         <module>agent</module>
         <module>tools</module>
-        <module>rest</module>
         <module>rest-mvc</module>
         <module>proxy-parent</module>
         <module>script_processor</module>
@@ -577,45 +573,9 @@
       </dependency>
 
       <dependency>
-        <groupId>org.glassfish.jersey.core</groupId>
-        <artifactId>jersey-client</artifactId>
-        <version>${version.jersey}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.glassfish.jersey.core</groupId>
-        <artifactId>jersey-server</artifactId>
-        <version>${version.jersey}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.glassfish.jersey.media</groupId>
-        <artifactId>jersey-media-multipart</artifactId>
-        <version>${version.jersey}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.glassfish.jersey.media</groupId>
-        <artifactId>jersey-media-jaxb</artifactId>
-        <version>${version.jersey}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.glassfish.jersey.media</groupId>
-        <artifactId>jersey-media-json-jackson</artifactId>
-        <version>${version.jersey}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.glassfish.jersey.containers</groupId>
-        <artifactId>jersey-container-servlet</artifactId>
-        <version>${version.jersey}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.glassfish.jersey.inject</groupId>
-        <artifactId>jersey-hk2</artifactId>
-        <version>${version.jersey}</version>
+        <groupId>javax.annotation</groupId>
+        <artifactId>javax.annotation-api</artifactId>
+        <version>1.3.2</version>
       </dependency>
 
       <dependency>
@@ -992,7 +952,7 @@
             <dependency>
               <groupId>${project.groupId}</groupId>
               <artifactId>test-support</artifactId>
-              <version>3.2.1-SNAPSHOT</version>
+              <version>3.3.1-SNAPSHOT</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -1183,6 +1143,10 @@
 
   <repositories>
     <repository>
+      <id>Maven Central</id>
+      <url>https://repo1.maven.org/maven2/</url>
+    </repository>
+    <repository>
       <id>jboss-repo</id>
       <name>Jboss maven repo</name>
       <url>https://repository.jboss.org/nexus/content/groups/public</url>
@@ -1207,10 +1171,6 @@
       <id>codehaus</id>
       <name>Codehaus Repo</name>
       <url>https://repository-master.mulesoft.org/nexus/content/groups/public/</url>
-    </repository>
-    <repository>
-      <id>Maven Central 1</id>
-      <url>https://repo1.maven.org/maven2</url>
     </repository>
   </repositories>
 

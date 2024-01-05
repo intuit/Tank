@@ -36,4 +36,9 @@ public interface RegionRequest {
      */
     public abstract String getUsers();
 
+    /**
+     * @return the percentage
+     */
+    public abstract String getPercentage();
+
 }

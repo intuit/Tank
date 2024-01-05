@@ -25,7 +25,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -34,6 +33,8 @@ import javax.inject.Named;
 import com.amazonaws.xray.contexts.SegmentContextExecutors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.vm.api.enumerated.*;
+import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpStatus;
@@ -61,6 +62,7 @@ import com.intuit.tank.vm.vmManager.JobRequest;
 import com.intuit.tank.vm.vmManager.JobVmCalculator;
 import com.intuit.tank.vm.vmManager.RegionRequest;
 import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
+import org.apache.logging.log4j.message.ObjectMessage;
 
 @Named
 @ApplicationScoped
@@ -98,12 +100,10 @@ public class JobManager implements Serializable {
     public synchronized void startJob(int id) {
         IncreasingWorkLoad project = workLoadFactoryInstance.get().getModelRunner(id);
         JobRequest jobRequest = project.getJob();
-        if(jobRequest.getIncrementStrategy().equals(IncrementStrategy.standard)){
-            jobRequest.getRegions().forEach(r -> LOG.info("Region " + r.getRegion().name() + " has " + r.getUsers() + "% of users"));
-            LOG.info("Target Ramp Rate: " + jobRequest.getUserIntervalIncrement() + " users per second");
-            LOG.info("Number of Agents: " + jobRequest.getNumUsersPerAgent());
-        }
         jobInfoMapLocalCache.put(Integer.toString(id), new JobInfo(jobRequest));
+        ControllerLoggingConfig.initializeControllerThreadContext(jobRequest, tankConfig.getInstanceName(), tankConfig.getControllerBase());
+        ControllerLoggingConfig.setupThreadContext();
+
         if (tankConfig.getStandalone()) {
             JobInstanceDao jobInstanceDao = new JobInstanceDao();
             JobInstance jobInstance = jobInstanceDao.findById(id);
@@ -121,7 +121,7 @@ public class JobManager implements Serializable {
                         sendRequest(a.getInstanceUrl(), standaloneAgentRequest);
                     }
                 } catch (Exception e) {
-                    LOG.error("Error starting agents: " + e, e);
+                    LOG.error(new ObjectMessage(ImmutableMap.of("Message", "Error starting agents: " + e)), e);
 
                     // TODO: kill any agents that were started
                     jobInstance.setStatus(JobQueueStatus.Aborted);
@@ -154,29 +154,27 @@ public class JobManager implements Serializable {
     }
 
     public AgentTestStartData registerAgentForJob(AgentData agentData) {
-        LOG.info("Received Agent Ready call from " + agentData.getInstanceId() + " with Agent Data: " + agentData);
+        ControllerLoggingConfig.setupThreadContext();
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Received Agent Ready call from " + agentData.getInstanceId() + " with Agent Data: " + agentData)));
         AgentTestStartData ret = null;
         JobInfo jobInfo = jobInfoMapLocalCache.get(agentData.getJobId());
         // TODO: figure out controller restarts
         if (jobInfo != null) {
             synchronized (jobInfo) {
                 ret = new AgentTestStartData(jobInfo.scripts, jobInfo.getUsers(agentData), jobInfo.jobRequest.getRampTime());
-                LOG.info("Nonlinear - registerAgentForJob - updated userMap, current userMap keys: " + jobInfo.userMap.keySet());
-                LOG.info("Nonlinear - registerAgentForJob - updated userMap, current userMap values: " + jobInfo.userMap.values());
                 if(jobInfo.jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
                     ret.setAgentInstanceNum(jobInfo.agentData.size());
                 } else {
                     ret.setAgentInstanceNum(jobInfo.agentData.size() + 1); // non-linear: agent instance number is 1-based
                 }
-                LOG.info("Nonlinear - registerAgentForJob - Setting agent order to " + ret.getAgentInstanceNum() + " for instance " + agentData.getInstanceId());
                 ret.setDataFiles(getDataFileRequests(jobInfo));
                 ret.setJobId(agentData.getJobId());
                 ret.setSimulationTime(jobInfo.jobRequest.getSimulationTime());
                 ret.setStartUsers(jobInfo.jobRequest.getBaselineVirtualUsers());
-                LOG.info("Nonlinear - registerAgentForJob - Setting total agents in AgentTestStartData to " + jobInfo.numberOfMachines);
                 ret.setTotalAgents(jobInfo.numberOfMachines);
                 ret.setIncrementStrategy(jobInfo.jobRequest.getIncrementStrategy());
-                ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement()); // non-linear: target ramp rate
+                ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement());
+                ret.setTargetRampRate(jobInfo.jobRequest.getEndRate());
                 jobInfo.agentData.add(agentData);
                 CloudVmStatus status = vmTracker.getStatus(agentData.getInstanceId());
                 if(status != null) {
@@ -192,10 +190,11 @@ public class JobManager implements Serializable {
     }
 
     private void startTest(final JobInfo info) {
+        ControllerLoggingConfig.setupThreadContext();
         String jobId = info.jobRequest.getId();
-        LOG.info("Sending start commands for job " + jobId + " asynchronously to following agents: " +
-                info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)));
-        LOG.info("Sleeping for 30 seconds before starting test, to give time for last agent to process AgentTestStartData.");
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Sending start commands for job " + jobId + " asynchronously to following agents: " +
+                info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)))));
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Sleeping for 30 seconds before starting test, to give time for last agent to process AgentTestStartData.")));
         try {
             Thread.sleep(RETRY_SLEEP);// 30 seconds
         } catch (InterruptedException ignored) { }
@@ -207,9 +206,9 @@ public class JobManager implements Serializable {
                 .forEach(future -> {
                     HttpResponse response = (HttpResponse) future.join();
                     if (response.statusCode() == HttpStatus.SC_OK) {
-                        LOG.info("Start Command to " + response.uri() + " was SUCCESSFUL for job " + jobId);
+                        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Start Command to " + response.uri() + " was SUCCESSFUL for job " + jobId)));
                     } else {
-                        LOG.error("Start Command to " + response.uri() + " returned statusCode " + response.statusCode() + " for job " + jobId);
+                        LOG.error(new ObjectMessage(ImmutableMap.of("Message","Start Command to " + response.uri() + " returned statusCode " + response.statusCode() + " for job " + jobId)));
                     }
                 });
     }
@@ -262,8 +261,7 @@ public class JobManager implements Serializable {
      */
     private AgentData findAgent(String instanceId) {
         for (VMRegion region : tankConfig.getVmManagerConfig().getConfiguredRegions()) {
-            AmazonInstance amazonInstance = new AmazonInstance(region);
-            String instanceUrl = amazonInstance.findDNSName(instanceId);
+            String instanceUrl = new AmazonInstance(region).findDNSName(instanceId);
             if (StringUtils.isNotEmpty(instanceUrl)) {
                 instanceUrl = "http://" + instanceUrl + ":" + tankConfig.getAgentConfig().getAgentPort();
                 return new AgentData("0", instanceId, instanceUrl, 0, region, "zone");
@@ -279,12 +277,13 @@ public class JobManager implements Serializable {
      * @return CompletableFuture Array
      */
     private CompletableFuture<?> sendCommand(final URI uri, final int retry) {
+        ControllerLoggingConfig.setupThreadContext();
         HttpRequest request = HttpRequest.newBuilder(uri).build();
-        LOG.info("Sending command to url " + uri);
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Sending command to url " + uri)));
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .whenCompleteAsync((response, t) -> {
                     if (t != null) {
-                        LOG.error("Error sending command to url " + request.uri() + ": " + t.getMessage(), t);
+                        LOG.error(new ObjectMessage(ImmutableMap.of("Message","Error sending command to url " + request.uri() + ": " + t.getMessage())), t);
                         if (retry > 0) {
                             try {
                                 Thread.sleep(RETRY_SLEEP);// 30 seconds
@@ -294,9 +293,9 @@ public class JobManager implements Serializable {
                     }
                 }).exceptionally( ex -> {
                     if (ex.getCause().getCause() instanceof NoRouteToHostException) {
-                        LOG.error("No Route to Host: " + request.uri() + ", validate host connectivity");
+                        LOG.error(new ObjectMessage(ImmutableMap.of("Message","No Route to Host: " + request.uri() + ", validate host connectivity")));
                     } else {
-                        LOG.error("Exception sending command to url " + request.uri() + ": " + ex.getMessage(), ex);
+                        LOG.error(new ObjectMessage(ImmutableMap.of("Message","Exception sending command to url " + request.uri() + ": " + ex.getMessage())), ex);
                     }
                     return null;
                 });
@@ -362,52 +361,39 @@ public class JobManager implements Serializable {
         public int getUsers(AgentData agent) {
             int ret = 0;
             VMRegion region = agent.getRegion();
-            if(jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-                for (RegionRequest r : jobRequest.getRegions()) {
-                    if (Integer.parseInt(r.getUsers()) > 0) {
-                        if (region == r.getRegion()) {
-                            int numUsersRemaining = userMap.get(r);
-                            ret = Math.min(agent.getCapacity(), numUsersRemaining);
-                            userMap.put(r, numUsersRemaining - ret);
-                            break;
-                        }
-                    }
-                }
-            } else {
-                for (RegionRequest r : jobRequest.getRegions()) {
-                    if (Integer.parseInt(r.getUsers()) > 0) {
-                        if (region == r.getRegion()) {
-                            int numAgentsRemaining = userMap.get(r);
-                            userMap.put(r, numAgentsRemaining - 1);
-                            LOG.info("Nonlinear - getUsers - updating Region " + r.getRegion().name() + ", now has " + (numAgentsRemaining - 1) + " agents remaining");
-                            break;
-                        }
-                    }
+            IncrementStrategy workloadType = jobRequest.getIncrementStrategy();
+            for (RegionRequest r : jobRequest.getRegions()) {
+                if (region != r.getRegion()) continue;
+
+                if (workloadType.equals(IncrementStrategy.increasing) && Integer.parseInt(r.getUsers()) > 0) {
+                    int numUsersRemaining = userMap.get(r);
+                    ret = Math.min(agent.getCapacity(), numUsersRemaining);
+                    userMap.put(r, numUsersRemaining - ret);
+                    break;
+                } else if (Integer.parseInt(r.getPercentage()) > 0) {
+                    int numAgentsRemaining = userMap.get(r);
+                    userMap.put(r, numAgentsRemaining - 1);
+                    break;
                 }
             }
             return ret;
         }
 
         private void initializeUserMap(JobRequest request) {
-            if(jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-                for (RegionRequest r : request.getRegions()) {
+            IncrementStrategy workloadType = jobRequest.getIncrementStrategy();
+            for (RegionRequest r : request.getRegions()) {
+                if(workloadType.equals(IncrementStrategy.increasing)) {
                     int numUsers = NumberUtils.toInt(r.getUsers());
                     if (numUsers > 0) {
                         userMap.put(r, numUsers);
                         numberOfMachines += JobVmCalculator.getMachinesForAgent(numUsers, request.getNumUsersPerAgent());
                     }
-                }
-            } else {
-                Map<RegionRequest, Integer> regionAllocation = JobVmCalculator.getMachinesForAgentByUserPercentage(request.getNumUsersPerAgent(), request.getRegions());
-                for (RegionRequest r : request.getRegions()) {
+                } else {
+                    Map<RegionRequest, Integer> regionAllocation = JobVmCalculator.getMachinesForAgentByUserPercentage(request.getNumAgents(), request.getRegions());
                     int numAgents = regionAllocation.get(r);
                     if (numAgents > 0) {
                         userMap.put(r, numAgents);
                         numberOfMachines += numAgents;
-                        LOG.info("Nonlinear - initializeUserMap - Region " + r.getRegion().name() + " has " + numAgents + " agents");
-                        LOG.info("Nonlinear - initializeUserMap - Region " + r.getRegion().name() + " has " + r.getUsers() + "% of users");
-                        LOG.info("Nonlinear - initializeUserMap - current userMap keys: " + userMap.keySet());
-                        LOG.info("Nonlinear - initializeUserMap - current userMap values: " + userMap.values());
                     }
                 }
             }
