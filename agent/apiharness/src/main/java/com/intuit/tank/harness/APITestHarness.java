@@ -96,6 +96,8 @@ public class APITestHarness {
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
 
+    private double endRampRate; // ending ramp rate in users/sec
+
     private Date send = new Date();
     private static final int interval = 15; // SECONDS
 
@@ -189,8 +191,6 @@ public class APITestHarness {
                 agentRunData.setIncrementStrategy(IncrementStrategy.standard);
             } else if(values[0].equalsIgnoreCase("-e")){
                 endRampRate = Double.parseDouble(values[1]);
-            } else if (values[0].equalsIgnoreCase("-v")) {
-                SwingUtilities.invokeLater(() -> new AgentThreadVisualizer(instance));
             } else if (values[0].equalsIgnoreCase("-o")) {
                 agentRunData.setAgentInstanceNum(Integer.parseInt(values[1]));
             } else if (values[0].equalsIgnoreCase("-a")) {
@@ -326,7 +326,7 @@ public class APITestHarness {
             agentRunData.setSimulationTimeMillis(startData.getSimulationTime());
             agentRunData.setAgentInstanceNum(startData.getAgentInstanceNum());
             agentRunData.setTotalAgents(startData.getTotalAgents());
-            agentRunData.setTargetRampRate(startData.getTargetRampRate()); // non-linear: same ramp rate set for each agent
+            agentRunData.setTargetRampRate(endRampRate); // non-linear: same ramp rate set for each agent
 
             ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
 
