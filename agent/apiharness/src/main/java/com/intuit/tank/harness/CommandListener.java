@@ -81,18 +81,45 @@ public class CommandListener {
 
     public static void getServiceInfo(int port) {
         String command = "lsof -i tcp:" + port;
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-            BufferedReader bufferedReader =
-                    new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            LOG.info(LogUtil.getLogMessage("LIST OF RUNNING PROCESSES: "));
-            while ((line = bufferedReader.readLine()) != null) {
-                LOG.info(LogUtil.getLogMessage(line));
+        int attempts = 0;
+        int maxAttempts = 180;
+        boolean processFound = false;
+
+        while (!processFound && attempts < maxAttempts) {
+            try {
+                Process process = Runtime.getRuntime().exec(command);
+                BufferedReader bufferedReader =
+                        new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line;
+
+                StringBuffer buffer = new StringBuffer();
+                while ((line = bufferedReader.readLine()) != null) {
+                    buffer.append(line);
+                }
+                process.waitFor();
+
+                processFound = !buffer.toString().isEmpty();
+
+                if (!processFound) {
+                    LOG.info(LogUtil.getLogMessage("No process found on port " + port + ". Retrying in 1 second..."));
+                    attempts++;
+
+                    Thread.sleep(1000);
+                } else {
+                    LOG.info(LogUtil.getLogMessage("LIST OF RUNNING PROCESSES: "));
+                    LOG.info(LogUtil.getLogMessage(buffer.toString()));
+                }
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-            process.waitFor();
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
+        }
+
+        if (attempts == maxAttempts) {
+            LOG.error(LogUtil.getLogMessage("Maximum attempts reached. No process found on port " + port));
         }
     }
 
