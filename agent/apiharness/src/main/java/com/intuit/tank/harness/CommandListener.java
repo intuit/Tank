@@ -51,13 +51,14 @@ public class CommandListener {
                 LOG.info(LogUtil.getLogMessage(AmazonUtil.getInstanceId() + "- Port In Use?: " + isPortInUse(port)));
                 if(isPortInUse(port)) {
                     LOG.info(LogUtil.getLogMessage("PORT IN USE BY ANOTHER SERVICE"));
+                    getServiceInfo(port);
                 }
-                getServiceInfo(port);
                 HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
                 HttpContext context = server.createContext("/");
                 context.setHandler(CommandListener::handleRequest);
                 server.start();
                 System.out.println("Starting httpserver on port " + port);
+                getServiceInfo(port);
                 LOG.info(LogUtil.getLogMessage("AFTER STARTING SERVER - Starting httpserver on port " + port));
                 started = true;
             } catch (IOException e) {
@@ -80,12 +81,13 @@ public class CommandListener {
     }
 
     public static void getServiceInfo(int port) {
-        String command = "sudo lsof -i tcp:" + port;
+        String command = "lsof -i tcp:" + port;
         try {
             Process process = Runtime.getRuntime().exec(command);
             BufferedReader bufferedReader =
                     new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
+            LOG.info(LogUtil.getLogMessage("LIST OF RUNNING PROCESSES: "));
             while ((line = bufferedReader.readLine()) != null) {
                 LOG.info(LogUtil.getLogMessage(line));
             }
