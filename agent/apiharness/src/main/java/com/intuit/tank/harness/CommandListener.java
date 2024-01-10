@@ -60,7 +60,6 @@ public class CommandListener {
                 System.out.println("Starting httpserver on port " + port);
                 getServiceInfo(port);
                 LOG.info(LogUtil.getLogMessage("AFTER STARTING SERVER - Starting httpserver on port " + port));
-                started = true;
             } catch (IOException e) {
                 LOG.error(LogUtil.getLogMessage("Error starting httpServer: " + e), e);
                 throw new RuntimeException(e);
