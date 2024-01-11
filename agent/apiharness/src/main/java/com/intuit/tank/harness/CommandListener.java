@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 
@@ -38,6 +39,10 @@ public class CommandListener {
 
     private static boolean started = false;
 
+    private static final int MAX_RETRIES = 180;
+
+    private static final long RETRY_SLEEP = 1000; // 1 second
+
     public static void main(String[] args) {
         APITestHarness.getInstance();
         startHttpServer(8080);
@@ -46,70 +51,35 @@ public class CommandListener {
 
     public synchronized static void startHttpServer(int port) {
         if (!started) {
-            final int MAX_ATTEMPTS = 60;
             int attempt = 1;
-            while (true) {
+            while (attempt <= MAX_RETRIES) {
                 try {
-                    if(isPortInUse(port)) {
-                        LOG.info(LogUtil.getLogMessage("Attempt " + attempt + ": Port " + port + " is currently in use. Waiting..."));
-                        getServiceInfo(port);
-                        Thread.sleep(1000);
-                    } else {
-                        LOG.info(LogUtil.getLogMessage("Attempt " + attempt + ": Starting httpserver on port " + port));
-                        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-                        HttpContext context = server.createContext("/");
-                        context.setHandler(CommandListener::handleRequest);
-                        server.start();
-                        LOG.info(LogUtil.getLogMessage("Successful! Starting httpserver on port " + port));
-                        break;
+                    HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+                    HttpContext context = server.createContext("/");
+                    context.setHandler(CommandListener::handleRequest);
+                    server.start();
+                    LOG.info(LogUtil.getLogMessage("Successful! Starting httpserver on port " + port));
+                    started = true;
+                    return;
+                } catch (BindException e) {
+                    LOG.info(LogUtil.getLogMessage("Attempt " + attempt + ": Port " + port + " is currently in use. Waiting..."));
+                    try {
+                        Thread.sleep(RETRY_SLEEP);
+                    } catch ( InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        LOG.error(LogUtil.getLogMessage("Attempt " + attempt + ": Error starting httpServer: " + e), e);
+                        throw new RuntimeException(e);
                     }
                 } catch (IOException e) {
                     LOG.error(LogUtil.getLogMessage("Attempt " + attempt + ": Error starting httpServer: " + e), e);
                     throw new RuntimeException(e);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    LOG.error(LogUtil.getLogMessage("Attempt " + attempt + ": Error starting httpServer: " + e), e);
-                    throw new RuntimeException(e);
                 }
-
-                if (attempt++ == MAX_ATTEMPTS) {
-                    throw new RuntimeException("Maximum attempts reached. Unable to start server.");
-                }
-            }
-            started = true;
+                attempt++;
+        }
+            LOG.error(LogUtil.getLogMessage("Maximum attempts reached. Unable to start server. Terminating instance"));
+            throw new RuntimeException("Maximum attempts reached. Unable to start server.");
         }
     }
-
-
-    public static boolean isPortInUse(int port) {
-        boolean inUse = false;
-
-        try (ServerSocket ss = new ServerSocket(port)) {
-            ss.setReuseAddress(true);
-        } catch (IOException e) {
-            inUse = true;
-        }
-
-        return inUse;
-    }
-
-    public static void getServiceInfo(int port) {
-        String command = "lsof -i tcp:" + port;
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-            BufferedReader bufferedReader =
-                    new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            LOG.info(LogUtil.getLogMessage("LIST OF RUNNING PROCESSES: "));
-            while ((line = bufferedReader.readLine()) != null) {
-                LOG.info(LogUtil.getLogMessage(line));
-            }
-            process.waitFor();
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
     private static void handleRequest(HttpExchange exchange) {
         try {
