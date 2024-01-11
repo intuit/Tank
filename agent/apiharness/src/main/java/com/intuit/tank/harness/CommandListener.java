@@ -46,26 +46,40 @@ public class CommandListener {
 
     public synchronized static void startHttpServer(int port) {
         if (!started) {
-            try {
-                LOG.info(LogUtil.getLogMessage("BEFORE STARTING SERVER - Starting httpserver on port " + port));
-                LOG.info(LogUtil.getLogMessage(AmazonUtil.getInstanceId() + "- Port In Use?: " + isPortInUse(port)));
-                if(isPortInUse(port)) {
-                    LOG.info(LogUtil.getLogMessage("PORT IN USE BY ANOTHER SERVICE"));
-                    getServiceInfo(port);
+            final int MAX_ATTEMPTS = 60;
+            int attempt = 1;
+            while (true) {
+                try {
+                    if(isPortInUse(port)) {
+                        LOG.info(LogUtil.getLogMessage("Attempt " + attempt + ": Port " + port + " is currently in use. Waiting..."));
+                        getServiceInfo(port);
+                        Thread.sleep(1000);
+                    } else {
+                        LOG.info(LogUtil.getLogMessage("Attempt " + attempt + ": Starting httpserver on port " + port));
+                        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+                        HttpContext context = server.createContext("/");
+                        context.setHandler(CommandListener::handleRequest);
+                        server.start();
+                        LOG.info(LogUtil.getLogMessage("Successful! Starting httpserver on port " + port));
+                        break;
+                    }
+                } catch (IOException e) {
+                    LOG.error(LogUtil.getLogMessage("Attempt " + attempt + ": Error starting httpServer: " + e), e);
+                    throw new RuntimeException(e);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    LOG.error(LogUtil.getLogMessage("Attempt " + attempt + ": Error starting httpServer: " + e), e);
+                    throw new RuntimeException(e);
                 }
-                HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-                HttpContext context = server.createContext("/");
-                context.setHandler(CommandListener::handleRequest);
-                server.start();
-                System.out.println("Starting httpserver on port " + port);
-                getServiceInfo(port);
-                LOG.info(LogUtil.getLogMessage("AFTER STARTING SERVER - Starting httpserver on port " + port));
-            } catch (IOException e) {
-                LOG.error(LogUtil.getLogMessage("Error starting httpServer: " + e), e);
-                throw new RuntimeException(e);
+
+                if (attempt++ == MAX_ATTEMPTS) {
+                    throw new RuntimeException("Maximum attempts reached. Unable to start server.");
+                }
             }
+            started = true;
         }
     }
+
 
     public static boolean isPortInUse(int port) {
         boolean inUse = false;
@@ -81,45 +95,18 @@ public class CommandListener {
 
     public static void getServiceInfo(int port) {
         String command = "lsof -i tcp:" + port;
-        int attempts = 0;
-        int maxAttempts = 180;
-        boolean processFound = false;
-
-        while (!processFound && attempts < maxAttempts) {
-            try {
-                Process process = Runtime.getRuntime().exec(command);
-                BufferedReader bufferedReader =
-                        new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String line;
-
-                StringBuffer buffer = new StringBuffer();
-                while ((line = bufferedReader.readLine()) != null) {
-                    buffer.append(line);
-                }
-                process.waitFor();
-
-                processFound = !buffer.toString().isEmpty();
-
-                if (!processFound) {
-                    LOG.info(LogUtil.getLogMessage("No process found on port " + port + ". Retrying in 1 second..."));
-                    attempts++;
-
-                    Thread.sleep(1000);
-                } else {
-                    LOG.info(LogUtil.getLogMessage("LIST OF RUNNING PROCESSES: "));
-                    LOG.info(LogUtil.getLogMessage(buffer.toString()));
-                }
-
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        try {
+            Process process = Runtime.getRuntime().exec(command);
+            BufferedReader bufferedReader =
+                    new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            LOG.info(LogUtil.getLogMessage("LIST OF RUNNING PROCESSES: "));
+            while ((line = bufferedReader.readLine()) != null) {
+                LOG.info(LogUtil.getLogMessage(line));
             }
-        }
-
-        if (attempts == maxAttempts) {
-            LOG.error(LogUtil.getLogMessage("Maximum attempts reached. No process found on port " + port));
+            process.waitFor();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
