@@ -191,10 +191,6 @@ public class APITestHarness {
                 agentRunData.setIncrementStrategy(IncrementStrategy.standard);
             } else if(values[0].equalsIgnoreCase("-e")){
                 endRampRate = Double.parseDouble(values[1]);
-            } else if (values[0].equalsIgnoreCase("-o")) {
-                agentRunData.setAgentInstanceNum(Integer.parseInt(values[1]));
-            } else if (values[0].equalsIgnoreCase("-a")) {
-                agentRunData.setTotalAgents(Integer.parseInt(values[1]));
             } else {
                 usage();
                 return;
@@ -252,9 +248,6 @@ public class APITestHarness {
         System.out.println("-start=<# of users to start with>:  The number of users to run concurrently when test begins");
         System.out.println("-http=<controller_base_url>:  The url of the controller to get test info from");
         System.out.println("-jobId=<job_id>: The jobId of the controller to get test info from");
-        System.out.println("-o:  Set Agent Instance Order Number (nonlinear)");
-        System.out.println("-a:  Set Number of Agents (nonlinear)");
-        System.out.println("-v:  Enable total concurrent users/thread visualization");
         System.out.println("-d:  Turns debug on to step through each request");
         System.out.println("-t:  Turns trace on to print each request");
     }
