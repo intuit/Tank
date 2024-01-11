@@ -190,7 +190,7 @@ public class APITestHarness {
             } else if(values[0].equalsIgnoreCase("-n")){
                 agentRunData.setIncrementStrategy(IncrementStrategy.standard);
             } else if(values[0].equalsIgnoreCase("-e")){
-                endRampRate = Double.parseDouble(values[1]);
+                agentRunData.setTargetRampRate(Double.parseDouble(values[1]));
             } else {
                 usage();
                 return;
