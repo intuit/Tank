@@ -65,7 +65,7 @@ public class CommandListener {
                     LOG.info(LogUtil.getLogMessage("Attempt " + attempt + ": Port " + port + " is currently in use. Waiting..."));
                     try {
                         Thread.sleep(RETRY_SLEEP);
-                    } catch ( InterruptedException ie) { /*Ignore*/ }
+                    } catch (InterruptedException ignored) {}
                 } catch (IOException e) {
                     LOG.error(LogUtil.getLogMessage("Attempt " + attempt + ": Error starting httpServer: " + e), e);
                     throw new RuntimeException(e);
