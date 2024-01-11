@@ -13,9 +13,13 @@ package com.intuit.tank.harness;
  * #L%
  */
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.BindException;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 
 import com.google.common.collect.ImmutableMap;
 import com.sun.net.httpserver.HttpContext;
@@ -35,6 +39,10 @@ public class CommandListener {
 
     private static boolean started = false;
 
+    private static final int MAX_RETRIES = 180;
+
+    private static final long RETRY_SLEEP = 1000; // 1 second
+
     public static void main(String[] args) {
         APITestHarness.getInstance();
         startHttpServer(8080);
@@ -43,18 +51,29 @@ public class CommandListener {
 
     public synchronized static void startHttpServer(int port) {
         if (!started) {
-            try {
-                HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-                HttpContext context = server.createContext("/");
-                context.setHandler(CommandListener::handleRequest);
-                server.start();
-                System.out.println("Starting httpserver on port " + port);
-                LOG.info(LogUtil.getLogMessage("Starting httpserver on port " + port));
-                started = true;
-            } catch (IOException e) {
-                LOG.error(LogUtil.getLogMessage("Error starting httpServer: " + e), e);
-                throw new RuntimeException(e);
-            }
+            int attempt = 1;
+            while (attempt <= MAX_RETRIES) {
+                try {
+                    HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+                    HttpContext context = server.createContext("/");
+                    context.setHandler(CommandListener::handleRequest);
+                    server.start();
+                    LOG.info(LogUtil.getLogMessage("Successful! Starting httpserver on port " + port));
+                    started = true;
+                    return;
+                } catch (BindException e) {
+                    LOG.info(LogUtil.getLogMessage("Attempt " + attempt + ": Port " + port + " is currently in use. Waiting..."));
+                    try {
+                        Thread.sleep(RETRY_SLEEP);
+                    } catch (InterruptedException ignored) {}
+                } catch (IOException e) {
+                    LOG.error(LogUtil.getLogMessage("Attempt " + attempt + ": Error starting httpServer: " + e), e);
+                    throw new RuntimeException(e);
+                }
+                attempt++;
+        }
+            LOG.error(LogUtil.getLogMessage("Maximum attempts reached. Unable to start server. Terminating instance"));
+            throw new RuntimeException("Maximum attempts reached. Unable to start server.");
         }
     }
 
