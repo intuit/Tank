@@ -76,7 +76,7 @@ public class JobQueueAction {
         AWSXRay.getCurrentSegment().putAnnotation("job.action", "pauseRamp");
         AWSXRay.getCurrentSegment().putAnnotation("jobId", node.getJobId());
         if (node instanceof ActJobNodeBean) {
-            controller.pauseRampJob(node.getId());
+            controller.startAgents(node.getId());
         } else if (node instanceof VMNodeBean) {
             controller.pauseRampInstance(node.getId());
         }

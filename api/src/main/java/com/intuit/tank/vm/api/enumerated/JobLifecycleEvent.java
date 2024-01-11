@@ -35,6 +35,7 @@ public enum JobLifecycleEvent {
     SUMMARY_REPORT_FINISHED("Summary Ready"),
 
     LOAD_STARTED("Load Started"),
+    AGENT_LAUNCHED("Agents Launched"),
     AGENT_STARTED("Agents Started"),
     AGENT_EXCESSIVE_CPU("Agent Excessive CPU"),
     AGENT_REPORTED("Agents Ready"),

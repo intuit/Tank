@@ -162,11 +162,7 @@ public class JobManager implements Serializable {
         if (jobInfo != null) {
             synchronized (jobInfo) {
                 ret = new AgentTestStartData(jobInfo.scripts, jobInfo.getUsers(agentData), jobInfo.jobRequest.getRampTime());
-                if(jobInfo.jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-                    ret.setAgentInstanceNum(jobInfo.agentData.size());
-                } else {
-                    ret.setAgentInstanceNum(jobInfo.agentData.size() + 1); // non-linear: agent instance number is 1-based
-                }
+                ret.setAgentInstanceNum(jobInfo.agentData.size());
                 ret.setDataFiles(getDataFileRequests(jobInfo));
                 ret.setJobId(agentData.getJobId());
                 ret.setSimulationTime(jobInfo.jobRequest.getSimulationTime());
@@ -192,12 +188,19 @@ public class JobManager implements Serializable {
     private void startTest(final JobInfo info) {
         ControllerLoggingConfig.setupThreadContext();
         String jobId = info.jobRequest.getId();
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Sending start commands for job " + jobId + " asynchronously to following agents: " +
-                info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)))));
         LOG.info(new ObjectMessage(ImmutableMap.of("Message","Sleeping for 30 seconds before starting test, to give time for last agent to process AgentTestStartData.")));
         try {
             Thread.sleep(RETRY_SLEEP);// 30 seconds
         } catch (InterruptedException ignored) { }
+        while(!info.isStarted()){
+            try {
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message","Waiting for start agents command to start test for job" + jobId)));
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+            }
+        }
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Start agents command received - Sending start commands for job " + jobId + " asynchronously to following agents: " +
+                info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)))));
         info.agentData.parallelStream()
                 .map(agentData -> agentData.getInstanceUrl() + AgentCommand.start.getPath())
                 .map(URI::create)
@@ -335,12 +338,21 @@ public class JobManager implements Serializable {
         return ret;
     }
 
+    public void startAgents(int jobId){
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Starting agents for job " + jobId)));
+        JobInfo jobInfo = jobInfoMapLocalCache.get(jobId);
+        if(!jobInfo.isStarted()){
+            jobInfo.start();
+        }
+    }
+
     private static class JobInfo {
         public String scripts;
         private JobRequest jobRequest;
         private Set<AgentData> agentData = new HashSet<AgentData>();
         private Map<RegionRequest, Integer> userMap = new HashMap<RegionRequest, Integer>();
         private int numberOfMachines;
+        private boolean started = false;
 
         public JobInfo(JobRequest jobRequest) {
             super();
@@ -356,6 +368,14 @@ public class JobManager implements Serializable {
                 }
             }
             return true;
+        }
+
+        public void start() {
+            started = true;
+        }
+
+        public boolean isStarted() {
+            return started;
         }
 
         public int getUsers(AgentData agent) {
