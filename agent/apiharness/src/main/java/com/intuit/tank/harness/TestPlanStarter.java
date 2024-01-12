@@ -48,7 +48,7 @@ public class TestPlanStarter implements Runnable {
     private Dimension jobId;
     private boolean standalone;
     private Date send = new Date();
-    private static final int interval = 30; // SECONDS
+    private static final int interval = 15; // SECONDS
 
     private final Object httpClient;
     private final HDTestPlan plan;
@@ -58,6 +58,7 @@ public class TestPlanStarter implements Runnable {
     private final AgentRunData agentRunData;
     private int threadsStarted = 0;
     private int sessionStarts = 0;
+    private long prevActiveCount = 0;
     private int totalTps = 0;
     private final long rampDelay;
     private double currentRampRate;
@@ -178,6 +179,8 @@ public class TestPlanStarter implements Runnable {
                 initialRamp(); // non-linear ramp from 0 to X users per second
 
                 currentRampRate = agentRunData.getTargetRampRate(); // after ramp, keep ramp rate at X users per second
+
+                LOG.info(LogUtil.getLogMessage("Nonlinear - Ramp Up Complete - ramping at " + currentRampRate + " users per second"));
 
                 long currentAgentTime = System.currentTimeMillis() - agentRunData.getRampTimeMillis(); // track agent time to calculate ramp timer and in case of pause
                 double rampTimer = (System.currentTimeMillis() - currentAgentTime) / 1000.0; // ramp timer starts at end of initial ramp
