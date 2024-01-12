@@ -193,7 +193,7 @@ public class JobManager implements Serializable {
         try {
             Thread.sleep(RETRY_SLEEP);// 30 seconds
         } catch (InterruptedException ignored) { }
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Waiting for start agents command to start test for job" + jobId)));
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Waiting for start agents command to start test for job " + jobId)));
         try {
             jobInfoMapLocalCache.get(jobId).latch.await();
         } catch (InterruptedException ignored) {}
@@ -336,8 +336,8 @@ public class JobManager implements Serializable {
         return ret;
     }
 
-    public void startAgents(int jobId){
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Sending start agents command to start test for job" + jobId)));
+    public void startAgents(String jobId){
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Sending start agents command to start test for job " + jobId)));
         if(!jobInfoMapLocalCache.get(jobId).isStarted()){
             jobInfoMapLocalCache.get(jobId).start();
         }

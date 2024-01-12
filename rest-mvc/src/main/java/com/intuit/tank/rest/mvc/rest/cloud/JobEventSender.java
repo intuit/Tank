@@ -88,7 +88,7 @@ public class JobEventSender {
         JobInstance job = jobInstanceDao.findById(Integer.valueOf(jobId));
         synchronized (jobId) {
             if (job.getStatus() == JobQueueStatus.Starting) {// only start if agents initialized
-                jobManager.startAgents(job.getId());
+                jobManager.startAgents(jobId);
             }
             jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_STARTED));
         }
