@@ -58,7 +58,6 @@ public class TestPlanStarter implements Runnable {
     private final AgentRunData agentRunData;
     private int threadsStarted = 0;
     private int sessionStarts = 0;
-    private long prevActiveCount = 0;
     private int totalTps = 0;
     private final long rampDelay;
     private double currentRampRate;
