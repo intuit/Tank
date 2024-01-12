@@ -203,13 +203,13 @@
           </p:commandButton>
           <p:commandButton id="btnPauseRamp" action="#{jobQueueAction.pauseRamp(node)}" value="PR" title="Pause Ramp"
             onerror="window.location.reload()"
-            disabled="#{!node.isRampPauseable() or !jobQueueManager.canControlJob(node)}" ajax="true"
+            disabled="#{!node.isRampPauseable() or !jobQueueManager.canControlJob(node) or node.isStartable()}" ajax="true"
             update=":mainForm:projectTabPanelID:jobTableId" />
           <!-- <p:commandButton id="btnPause" action="#{jobQueueAction.pause(node)}" value="P" title="Pause"
                    onerror="window.location.reload()" disabled="#{!node.isPauseable()}" ajax="true"
                    update=":mainForm:projectTabPanelID:jobTableId" /> -->
           <p:commandButton id="btnStop" action="#{jobQueueAction.stop(node)}" value="S" title="Stop"
-            onerror="window.location.reload()" disabled="#{!node.isStoppable() or !projectJobQueueManager.canControlJob(node)}"
+            onerror="window.location.reload()" disabled="#{!node.isStoppable() or !projectJobQueueManager.canControlJob(node)  or node.isStartable()}"
             ajax="true" update=":mainForm:projectTabPanelID:jobTableId" />
 
           <p:commandButton oncomplete="PF('confirmJobQueueDelete').show();" value="X" ajax="true"
