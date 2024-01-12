@@ -192,12 +192,14 @@ public class JobManager implements Serializable {
         try {
             Thread.sleep(RETRY_SLEEP);// 30 seconds
         } catch (InterruptedException ignored) { }
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Waiting for start agents command to start test for job" + jobId)));
         while(!info.isStarted()){
             try {
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message","Waiting for start agents command to start test for job" + jobId)));
                 Thread.sleep(1000);
-            } catch (InterruptedException ignored) {
-            }
+                if(info.isStarted()) {
+                    break;
+                }
+            } catch (InterruptedException ignored) {}
         }
         LOG.info(new ObjectMessage(ImmutableMap.of("Message","Start agents command received - Sending start commands for job " + jobId + " asynchronously to following agents: " +
                 info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)))));
