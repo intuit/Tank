@@ -429,7 +429,7 @@ public class TestPlanStarter implements Runnable {
                     .build();
 
             cloudWatchClient.putMetricData(request);
-            send = DateUtils.addSeconds(new Date(), interval); // 30 SECONDS
+            send = DateUtils.addSeconds(new Date(), interval); // 15 SECONDS
             this.sessionStarts = 0; // reset session starts for next interval
         }
     }
