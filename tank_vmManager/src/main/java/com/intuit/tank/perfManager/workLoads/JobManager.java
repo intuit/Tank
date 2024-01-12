@@ -193,10 +193,10 @@ public class JobManager implements Serializable {
             Thread.sleep(RETRY_SLEEP);// 30 seconds
         } catch (InterruptedException ignored) { }
         LOG.info(new ObjectMessage(ImmutableMap.of("Message","Waiting for start agents command to start test for job" + jobId)));
-        while(!info.isStarted()){
+        while(!jobInfoMapLocalCache.get(jobId).isStarted()){
             try {
                 Thread.sleep(1000);
-                if(info.isStarted()) {
+                if(jobInfoMapLocalCache.get(jobId).isStarted()) {
                     break;
                 }
             } catch (InterruptedException ignored) {}
@@ -341,10 +341,8 @@ public class JobManager implements Serializable {
     }
 
     public void startAgents(int jobId){
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Starting agents for job " + jobId)));
-        JobInfo jobInfo = jobInfoMapLocalCache.get(jobId);
-        if(!jobInfo.isStarted()){
-            jobInfo.start();
+        if(!jobInfoMapLocalCache.get(jobId).isStarted()){
+            jobInfoMapLocalCache.get(jobId).start();
         }
     }
 
@@ -354,7 +352,7 @@ public class JobManager implements Serializable {
         private Set<AgentData> agentData = new HashSet<AgentData>();
         private Map<RegionRequest, Integer> userMap = new HashMap<RegionRequest, Integer>();
         private int numberOfMachines;
-        private boolean started = false;
+        private volatile boolean started = false;
 
         public JobInfo(JobRequest jobRequest) {
             super();
