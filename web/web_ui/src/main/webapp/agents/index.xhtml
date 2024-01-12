@@ -109,7 +109,7 @@
             <h:outputText value="Completed" rendered="#{node.allSubNodesCompleted() and node.type eq 'project'}" />
             <h:outputText value="#{node.status}" rendered="#{not node.hasSubNodes() and node.type eq 'job'}" />
             <h:outputText value="#{node.status} (#{node.getTotalSubNodesReady()}/#{node.getCurrentSubNodes().size()} Agents Ready)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting'}" />
-            <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job'}" />
+            <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status ne 'Starting'}" />
             <h:outputText value="#{node.status}" rendered="#{node.type eq 'vm'}" />
           </p:column>
 
@@ -189,8 +189,7 @@
                 disabled="#{!node.isRunnable() or !jobQueueManager.canControlJob(node)}" ajax="true"
                 update=":mainForm:jobTableId" />
               <p:commandButton id="btnStart" action="#{jobQueueAction.startAgents(node)}" value="L" title="Start Load"
-                               rendered="#{node.type eq 'job'}"
-                               onerror="window.location.reload()"
+                               onerror="window.location.reload()" rendered="#{node.type ne 'project'}"
                                disabled="#{!node.isStartable() or !jobQueueManager.canControlJob(node)}" ajax="true"
                                update=":mainForm:jobTableId" />
               <p:commandButton id="btnKill" action="#{jobQueueAction.kill(node)}" value="K" title="Kill"

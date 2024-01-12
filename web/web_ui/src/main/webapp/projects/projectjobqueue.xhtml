@@ -114,7 +114,7 @@
         rendered="#{projectJobQueueManager.tablePrefs.isVisible('statusColumn')}">
         <h:outputText value="#{node.status}" rendered="#{not node.hasSubNodes()}" />
         <h:outputText value="#{node.status} (#{node.getTotalSubNodesReady()}/#{node.getCurrentSubNodes().size()} Agents Ready)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting'}" />
-        <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job'}" />
+        <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status ne 'Starting'}" />
       </p:column>
 
       <p:column id="regionColumn" headerText="Region" styleClass="ellipsis min-column-size"
@@ -193,8 +193,7 @@
             onerror="window.location.reload()" disabled="#{!node.isRunnable() or !projectJobQueueManager.canControlJob(node)}"
             ajax="true" update=":mainForm:projectTabPanelID:jobTableId" />
           <p:commandButton id="btnStart" action="#{jobQueueAction.startAgents(node)}" value="L" title="Start Load"
-                           rendered="#{node.type eq 'job'}"
-                           onerror="window.location.reload()"
+                           onerror="window.location.reload()" rendered="#{node.type ne 'project'}"
                            disabled="#{!node.isStartable() or !projectJobQueueManager.canControlJob(node)}" ajax="true"
                            update=":mainForm:projectTabPanelID:jobTableId" />
           <p:commandButton oncomplete="PF('confirmJobQueueKill').show();" value="K" ajax="true"
