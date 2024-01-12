@@ -113,7 +113,8 @@
         style="width:#{projectJobQueueManager.tablePrefs.getSize('statusColumn')}px;"
         rendered="#{projectJobQueueManager.tablePrefs.isVisible('statusColumn')}">
         <h:outputText value="#{node.status}" rendered="#{not node.hasSubNodes()}" />
-        <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes()}" />
+        <h:outputText value="#{node.status} (#{node.getTotalSubNodesReady()}/#{node.getCurrentSubNodes().size()} Agents Ready)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting'}" />
+        <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status ne 'Starting'}" />
       </p:column>
 
       <p:column id="regionColumn" headerText="Region" styleClass="ellipsis min-column-size"
@@ -191,6 +192,10 @@
           <p:commandButton id="btnRun" action="#{jobQueueAction.run(node)}" value="R" title="Run"
             onerror="window.location.reload()" disabled="#{!node.isRunnable() or !projectJobQueueManager.canControlJob(node)}"
             ajax="true" update=":mainForm:projectTabPanelID:jobTableId" />
+          <p:commandButton id="btnStart" action="#{jobQueueAction.startAgents(node)}" value="L" title="Start Load"
+                           onerror="window.location.reload()" rendered="#{node.type ne 'project'}"
+                           disabled="#{!node.isStartable() or !projectJobQueueManager.canControlJob(node)}" ajax="true"
+                           update=":mainForm:projectTabPanelID:jobTableId" />
           <p:commandButton oncomplete="PF('confirmJobQueueKill').show();" value="K" ajax="true"
                            onerror="window.location.reload()" disabled="#{!node.isKillable() or !projectJobQueueManager.canControlJob(node)}"
                            action="#{projectJobQueueManager.setCurrentJobInstance(node)}"
@@ -198,13 +203,13 @@
           </p:commandButton>
           <p:commandButton id="btnPauseRamp" action="#{jobQueueAction.pauseRamp(node)}" value="PR" title="Pause Ramp"
             onerror="window.location.reload()"
-            disabled="#{!node.isRampPauseable() or !jobQueueManager.canControlJob(node)}" ajax="true"
+            disabled="#{!node.isRampPauseable() or !jobQueueManager.canControlJob(node) or node.isStartable()}" ajax="true"
             update=":mainForm:projectTabPanelID:jobTableId" />
           <!-- <p:commandButton id="btnPause" action="#{jobQueueAction.pause(node)}" value="P" title="Pause"
                    onerror="window.location.reload()" disabled="#{!node.isPauseable()}" ajax="true"
                    update=":mainForm:projectTabPanelID:jobTableId" /> -->
           <p:commandButton id="btnStop" action="#{jobQueueAction.stop(node)}" value="S" title="Stop"
-            onerror="window.location.reload()" disabled="#{!node.isStoppable() or !projectJobQueueManager.canControlJob(node)}"
+            onerror="window.location.reload()" disabled="#{!node.isStoppable() or !projectJobQueueManager.canControlJob(node)  or node.isStartable()}"
             ajax="true" update=":mainForm:projectTabPanelID:jobTableId" />
 
           <p:commandButton oncomplete="PF('confirmJobQueueDelete').show();" value="X" ajax="true"
@@ -214,12 +219,6 @@
           </p:commandButton>
         </div>
         <div class="float-right">
-          <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'job'}"
-            value="#{request.contextPath}/v2/jobs/download/#{node.id}">
-            <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16"
-              style="padding: 5px 0; margin-right:5px;" />
-          </h:outputLink>
-
           <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'project'}"
             value="#{request.contextPath}/v2/projects/download/#{node.id}">
             <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16"

@@ -19,6 +19,7 @@ public enum VMStatus implements Serializable {
     unknown,
     starting,
     pending,
+    ready,
     rampPaused,
     rebooting,
     running,

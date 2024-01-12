@@ -27,6 +27,10 @@ public class JobStatusHelper {
 				|| status.equals(VMStatus.rampPaused.toString()));
     }
 
+	public static boolean canStartLoad(String status) {
+		return status.equals(JobQueueStatus.Starting.toString());
+	}
+
     public static boolean canBePaused(String status) {
         return (status.equalsIgnoreCase(JobQueueStatus.Running.toString())
         		|| status.equals(JobQueueStatus.Starting.toString())

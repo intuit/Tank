@@ -57,6 +57,17 @@ public class JobQueueAction {
     }
 
     /**
+     * Runs the agents for the job for the given jobId
+     */
+    public void startAgents(JobNodeBean node) {
+        AWSXRay.getCurrentSegment().putAnnotation("job.action", "startAgents");
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", node.getJobId());
+        if (node instanceof ActJobNodeBean) {
+            controller.startAgents(node.getId());
+        }
+    }
+
+    /**
      * Pauses the job for the given jobId
      */
     public void pause(JobNodeBean node) {
