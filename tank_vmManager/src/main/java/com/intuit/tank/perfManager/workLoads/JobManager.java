@@ -23,6 +23,7 @@ import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -193,14 +194,9 @@ public class JobManager implements Serializable {
             Thread.sleep(RETRY_SLEEP);// 30 seconds
         } catch (InterruptedException ignored) { }
         LOG.info(new ObjectMessage(ImmutableMap.of("Message","Waiting for start agents command to start test for job" + jobId)));
-        while(!jobInfoMapLocalCache.get(jobId).isStarted()){
-            try {
-                Thread.sleep(1000);
-                if(jobInfoMapLocalCache.get(jobId).isStarted()) {
-                    break;
-                }
-            } catch (InterruptedException ignored) {}
-        }
+        try {
+            jobInfoMapLocalCache.get(jobId).latch.await();
+        } catch (InterruptedException ignored) {}
         LOG.info(new ObjectMessage(ImmutableMap.of("Message","Start agents command received - Sending start commands for job " + jobId + " asynchronously to following agents: " +
                 info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)))));
         info.agentData.parallelStream()
@@ -341,6 +337,7 @@ public class JobManager implements Serializable {
     }
 
     public void startAgents(int jobId){
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Sending start agents command to start test for job" + jobId)));
         if(!jobInfoMapLocalCache.get(jobId).isStarted()){
             jobInfoMapLocalCache.get(jobId).start();
         }
@@ -352,7 +349,7 @@ public class JobManager implements Serializable {
         private Set<AgentData> agentData = new HashSet<AgentData>();
         private Map<RegionRequest, Integer> userMap = new HashMap<RegionRequest, Integer>();
         private int numberOfMachines;
-        private volatile boolean started = false;
+        private final CountDownLatch latch = new CountDownLatch(1);
 
         public JobInfo(JobRequest jobRequest) {
             super();
@@ -371,11 +368,11 @@ public class JobManager implements Serializable {
         }
 
         public void start() {
-            started = true;
+            latch.countDown();
         }
 
         public boolean isStarted() {
-            return started;
+            return latch.getCount() == 0;
         }
 
         public int getUsers(AgentData agent) {
