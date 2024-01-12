@@ -108,6 +108,7 @@
             <h:outputText value="#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Jobs Running" rendered="#{not node.allSubNodesCompleted() and node.type eq 'project'}" />
             <h:outputText value="Completed" rendered="#{node.allSubNodesCompleted() and node.type eq 'project'}" />
             <h:outputText value="#{node.status}" rendered="#{not node.hasSubNodes() and node.type eq 'job'}" />
+            <h:outputText value="#{node.status} (#{node.getTotalSubNodesReady()}/#{node.getCurrentSubNodes().size()} Agents Ready)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting'}" />
             <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job'}" />
             <h:outputText value="#{node.status}" rendered="#{node.type eq 'vm'}" />
           </p:column>
@@ -187,6 +188,11 @@
                 onerror="window.location.reload()"
                 disabled="#{!node.isRunnable() or !jobQueueManager.canControlJob(node)}" ajax="true"
                 update=":mainForm:jobTableId" />
+              <p:commandButton id="btnStart" action="#{jobQueueAction.startAgents(node)}" value="L" title="Start Load"
+                               rendered="#{node.type eq 'job'}"
+                               onerror="window.location.reload()"
+                               disabled="#{!node.isStartable() or !jobQueueManager.canControlJob(node)}" ajax="true"
+                               update=":mainForm:jobTableId" />
               <p:commandButton id="btnKill" action="#{jobQueueAction.kill(node)}" value="K" title="Kill"
                 onerror="window.location.reload()"
                 disabled="#{!node.isKillable() or !jobQueueManager.canControlJob(node)}" ajax="true"
@@ -208,12 +214,6 @@
                 update=":mainForm:jobTableId, :mainForm:messages" />
             </div>
             <div class="float-right">
-              <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'job'}"
-                value="#{request.contextPath}/v2/jobs/download/#{node.id}">
-                <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16"
-                  style="padding: 5px 0; margin-right:5px;" />
-              </h:outputLink>
-
               <h:outputLink title="Download Harness XML" rendered="#{node.type eq 'project'}"
                 value="#{request.contextPath}/v2/projects/download/#{node.id}">
                 <h:graphicImage library="gfx" name="16/script_go.png" width="16" height="16"

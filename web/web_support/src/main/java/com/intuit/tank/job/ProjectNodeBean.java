@@ -99,6 +99,11 @@ public class ProjectNodeBean extends JobNodeBean {
     }
 
     @Override
+    public String getTotalSubNodesReady() {
+        return "";
+    }
+
+    @Override
     public boolean allSubNodesCompleted(){
         return jobBeans.stream().allMatch(job -> job.getStatus().equals(JobQueueStatus.Completed.toString()));
     }
@@ -115,6 +120,11 @@ public class ProjectNodeBean extends JobNodeBean {
 
     @Override
     public boolean isKillable() {
+        return false;
+    }
+
+    @Override
+    public boolean isStartable() {
         return false;
     }
 

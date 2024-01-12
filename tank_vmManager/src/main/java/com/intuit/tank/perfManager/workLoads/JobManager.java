@@ -193,6 +193,14 @@ public class JobManager implements Serializable {
         try {
             Thread.sleep(RETRY_SLEEP);// 30 seconds
         } catch (InterruptedException ignored) { }
+        info.agentData // set agent status from pending to ready to run
+                .forEach(agentData -> {
+                    CloudVmStatus status = vmTracker.getStatus(agentData.getInstanceId());
+                    if (status != null) {
+                        status.setVmStatus(VMStatus.ready);
+                        vmTracker.setStatus(status);
+                    }
+                });
         LOG.info(new ObjectMessage(ImmutableMap.of("Message","Waiting for start agents command to start test for job " + jobId)));
         try {
             jobInfoMapLocalCache.get(jobId).latch.await();
