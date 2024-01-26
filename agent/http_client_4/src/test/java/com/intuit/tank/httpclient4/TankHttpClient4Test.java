@@ -323,7 +323,7 @@ public class TankHttpClient4Test {
     private BaseRequest getRequest(TankHttpClient client, String url) {
         try {
             URL u = new URL(url);
-            client.setHttpClient(null);
+            client.setHttpClient(null, null);
             BaseRequest request = new MockBaseRequest(client);
             request.setHost(u.getHost());
             request.setPath(u.getPath());

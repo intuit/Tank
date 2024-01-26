@@ -4,6 +4,7 @@ import com.intuit.tank.http.AuthCredentials;
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.TankCookie;
 import com.intuit.tank.http.TankHttpClient;
+import com.intuit.tank.http.RedirectURLs;
 
 /**
  * @author denisa
@@ -86,7 +87,7 @@ public class TestHttpClient implements TankHttpClient {
      * @see com.intuit.tank.http.TankHttpClient#createHttpClient()
      */
     @Override
-    public Object createHttpClient() {
+    public Object createHttpClient(RedirectURLs redirectURLs) {
         return null;
     }
 
@@ -94,5 +95,5 @@ public class TestHttpClient implements TankHttpClient {
      * @see com.intuit.tank.http.TankHttpClient#setHttpClient(Object)
      */
     @Override
-    public void setHttpClient(Object httpClient) {}
+    public void setHttpClient(Object httpClient, RedirectURLs redirectURLs) {}
 }

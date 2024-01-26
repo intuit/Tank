@@ -58,12 +58,12 @@ public class MockTankHttpClient implements TankHttpClient {
     }
 
     @Override
-    public Object createHttpClient() {
+    public Object createHttpClient(RedirectURLs redirectURLs) {
         return null;
     }
 
     @Override
-    public void setHttpClient(Object httpClient) {
+    public void setHttpClient(Object httpClient, RedirectURLs redirectURLs) {
 
     }
 }

@@ -67,6 +67,7 @@ import com.intuit.tank.http.TankCookie;
 import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.http.TankHttpUtil;
 import com.intuit.tank.http.TankHttpUtil.PartHolder;
+import com.intuit.tank.http.RedirectURLs;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.vm.settings.AgentConfig;
 
@@ -88,9 +89,9 @@ public class TankHttpClient3 implements TankHttpClient {
         httpclient.setState(new HttpState());
     }
 
-    public Object createHttpClient() { return null; }
+    public Object createHttpClient(RedirectURLs redirectURLs) { return null; }
 
-    public void setHttpClient(Object httpClient) {}
+    public void setHttpClient(Object httpClient, RedirectURLs redirectURLs) {}
 
     public void setConnectionTimeout(long connectionTimeout) {
         httpclient.getParams().setConnectionManagerTimeout(connectionTimeout);

@@ -73,11 +73,11 @@ public interface TankHttpClient {
     /**
      *
      */
-    public Object createHttpClient();
+    public Object createHttpClient(RedirectURLs redirectURLs);
 
     /**
      *
      * @param httpClient
      */
-    public void setHttpClient(Object httpClient);
+    public void setHttpClient(Object httpClient, RedirectURLs redirectURLs);
 }

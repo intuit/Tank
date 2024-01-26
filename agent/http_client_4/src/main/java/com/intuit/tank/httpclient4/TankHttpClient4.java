@@ -16,6 +16,7 @@ package com.intuit.tank.httpclient4;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -26,10 +27,7 @@ import javax.annotation.Nonnull;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.NameValuePair;
+import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -50,11 +48,9 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.*;
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.http.protocol.HttpContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -62,6 +58,7 @@ import com.intuit.tank.http.AuthCredentials;
 import com.intuit.tank.http.AuthScheme;
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.BaseResponse;
+import com.intuit.tank.http.RedirectURLs;
 import com.intuit.tank.http.TankCookie;
 import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.http.TankHttpUtil;
@@ -99,7 +96,7 @@ public class TankHttpClient4 implements TankHttpClient {
         context.setRequestConfig(requestConfig);
     }
 
-    public Object createHttpClient() {
+    public Object createHttpClient(RedirectURLs redirectURLs) {
         UserTokenHandler userTokenHandler = (httpContext) -> httpContext.getAttribute(HttpClientContext.USER_TOKEN);
         // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
         return HttpClients.custom()
@@ -109,14 +106,22 @@ public class TankHttpClient4 implements TankHttpClient {
                 .evictExpiredConnections()
                 .setMaxConnPerRoute(10240)
                 .setMaxConnTotal(20480)
+                .setRedirectStrategy(new DefaultRedirectStrategy() {
+                    @Override
+                    public URI getLocationURI(final HttpRequest request, final HttpResponse response, final HttpContext context) throws ProtocolException {
+                        URI uri = super.getLocationURI(request, response, context);
+                        redirectURLs.add(uri.toString());
+                        return uri;
+                    }
+                })
                 .build();
     }
 
-    public void setHttpClient(Object httpClient) {
+    public void setHttpClient(Object httpClient, RedirectURLs redirectURLs) {
         if (httpClient instanceof CloseableHttpClient) {
             this.httpclient = (CloseableHttpClient) httpClient;
         } else {
-            this.httpclient = (CloseableHttpClient) createHttpClient();
+            this.httpclient = (CloseableHttpClient) createHttpClient(redirectURLs);
         }
     }
 

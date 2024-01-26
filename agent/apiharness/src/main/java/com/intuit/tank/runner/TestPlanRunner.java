@@ -13,11 +13,14 @@ package com.intuit.tank.runner;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 import com.intuit.tank.harness.StopBehavior;
+import com.intuit.tank.http.RedirectURLs;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -104,7 +107,7 @@ public class TestPlanRunner implements Runnable {
 
     public void run() {
         tankHttpClient = initHttpClient();
-        tankHttpClient.setHttpClient(httpClient);
+        tankHttpClient.setHttpClient(httpClient, null);
 
         MethodTimer mt = new MethodTimer(LOG, getClass(), "runTestPlan(" + testPlan.getTestPlanName() + ")");
         LogEvent logEvent = LogUtil.getLogEvent();
@@ -313,6 +316,16 @@ public class TestPlanRunner implements Runnable {
             } finally {
                 flowController.endStep(tsc);
             }
+
+            RedirectURLs redirectURLs = APITestHarness.getInstance().getRedirectURLs();
+
+            if(!redirectURLs.isEmpty()) {
+                int stepNum = i;
+                IntStream.range(0, redirectURLs.getLocations().size()).forEach(index ->
+                        variables.addVariable("RedirectURLStep-" + stepNum + "-" + index, redirectURLs.getLocations().get(index), false));
+                redirectURLs.clear();
+            }
+
             previousRequest = tsc.getRequest();
             previousResponse = tsc.getResponse();
 

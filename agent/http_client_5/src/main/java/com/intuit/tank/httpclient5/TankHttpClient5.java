@@ -66,6 +66,7 @@ import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.http.TankCookie;
 import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.http.TankHttpUtil;
+import com.intuit.tank.http.RedirectURLs;
 import com.intuit.tank.http.TankHttpUtil.PartHolder;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.vm.settings.AgentConfig;
@@ -100,7 +101,7 @@ public class TankHttpClient5 implements TankHttpClient {
         context.setRequestConfig(requestConfig);
     }
 
-    public Object createHttpClient() {
+    public Object createHttpClient(RedirectURLs redirectURLs) {
         // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
         PoolingAsyncClientConnectionManager cm =
                 PoolingAsyncClientConnectionManagerBuilder.create()
@@ -114,11 +115,11 @@ public class TankHttpClient5 implements TankHttpClient {
                 .build();
     }
 
-    public void setHttpClient(Object httpClient) {
+    public void setHttpClient(Object httpClient, RedirectURLs redirectURLs) {
         if (httpClient instanceof CloseableHttpAsyncClient) {
             this.httpclient = (CloseableHttpAsyncClient) httpClient;
         } else {
-            this.httpclient = (CloseableHttpAsyncClient) createHttpClient();
+            this.httpclient = (CloseableHttpAsyncClient) createHttpClient(redirectURLs);
         }
         this.httpclient.start();
     }

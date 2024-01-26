@@ -24,6 +24,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.http.RedirectURLs;
 import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.vm.api.enumerated.*;
 import org.apache.commons.io.FileUtils;
@@ -95,6 +96,7 @@ public class APITestHarness {
     private TPSMonitor tpsMonitor;
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
+    private RedirectURLs redirectURLs = new RedirectURLs();
 
     private Date send = new Date();
     private static final int interval = 15; // SECONDS
@@ -490,7 +492,7 @@ public class APITestHarness {
             }
             agentRunData.setProjectName(hdWorkload.getName());
             agentRunData.setTankhttpClientClass(tankHttpClientClass);
-            Object httpClient = ((TankHttpClient) Class.forName(tankHttpClientClass).newInstance()).createHttpClient();
+            Object httpClient = ((TankHttpClient) Class.forName(tankHttpClientClass).newInstance()).createHttpClient(redirectURLs);
             List<TestPlanStarter> testPlans = new ArrayList<TestPlanStarter>();
             for (HDTestPlan plan : hdWorkload.getPlans()) {
                 if (plan.getUserPercentage() > 0) {
@@ -855,4 +857,7 @@ public class APITestHarness {
         this.tankHttpClientClass = tankHttpClientClass;
     }
 
+    public RedirectURLs getRedirectURLs() {
+        return redirectURLs;
+    }
 }
