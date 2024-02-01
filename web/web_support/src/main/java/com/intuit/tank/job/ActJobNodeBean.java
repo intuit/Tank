@@ -137,6 +137,11 @@ public class ActJobNodeBean extends JobNodeBean {
     }
 
     @Override
+    public String getTotalSubNodesReady() {
+        return Long.toString(vmBeans.stream().filter(vm -> vm.getStatus().equals(VMStatus.ready.toString())).count());
+    }
+
+    @Override
     public boolean allSubNodesCompleted(){
         return true; // terminated instances no longer sub nodes
     }
@@ -159,6 +164,11 @@ public class ActJobNodeBean extends JobNodeBean {
     @Override
     public boolean isRunnable() {
         return JobStatusHelper.canBeRun(getStatus());
+    }
+
+    @Override
+    public boolean isStartable() {
+        return JobStatusHelper.canStartLoad(getStatus());
     }
 
     @Override

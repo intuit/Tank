@@ -66,7 +66,7 @@ public class JobEventSender {
         JobInstanceDao jobInstanceDao = new JobInstanceDao();
         JobInstance job = jobInstanceDao.findById(Integer.valueOf(jobId));
         synchronized (jobId) {
-            if (job.getStatus() == JobQueueStatus.Created) {// only start if new job
+            if (job.getStatus() == JobQueueStatus.Created) {// only start if new job to init agents
                 // save the job
                 job.setStatus(JobQueueStatus.Starting);
                 jobInstanceDao.saveOrUpdate(job);
@@ -75,8 +75,22 @@ public class JobEventSender {
 
                 vmTracker.removeStatusForJob(jobId);
                 jobManager.startJob(job.getId());
-                jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_STARTED));
+                jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.AGENT_LAUNCHED));
             }
+        }
+        AWSXRay.endSubsegment();
+        return jobId;
+    }
+
+    public String startAgents(String jobId) {
+        AWSXRay.beginSubsegment("Start.Agents." + jobId);
+        JobInstanceDao jobInstanceDao = new JobInstanceDao();
+        JobInstance job = jobInstanceDao.findById(Integer.valueOf(jobId));
+        synchronized (jobId) {
+            if (job.getStatus() == JobQueueStatus.Starting) {// only start if agents initialized
+                jobManager.startAgents(jobId);
+            }
+            jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_STARTED));
         }
         AWSXRay.endSubsegment();
         return jobId;

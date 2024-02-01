@@ -23,6 +23,7 @@ import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -162,11 +163,7 @@ public class JobManager implements Serializable {
         if (jobInfo != null) {
             synchronized (jobInfo) {
                 ret = new AgentTestStartData(jobInfo.scripts, jobInfo.getUsers(agentData), jobInfo.jobRequest.getRampTime());
-                if(jobInfo.jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-                    ret.setAgentInstanceNum(jobInfo.agentData.size());
-                } else {
-                    ret.setAgentInstanceNum(jobInfo.agentData.size() + 1); // non-linear: agent instance number is 1-based
-                }
+                ret.setAgentInstanceNum(jobInfo.agentData.size());
                 ret.setDataFiles(getDataFileRequests(jobInfo));
                 ret.setJobId(agentData.getJobId());
                 ret.setSimulationTime(jobInfo.jobRequest.getSimulationTime());
@@ -192,12 +189,24 @@ public class JobManager implements Serializable {
     private void startTest(final JobInfo info) {
         ControllerLoggingConfig.setupThreadContext();
         String jobId = info.jobRequest.getId();
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Sending start commands for job " + jobId + " asynchronously to following agents: " +
-                info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)))));
         LOG.info(new ObjectMessage(ImmutableMap.of("Message","Sleeping for 30 seconds before starting test, to give time for last agent to process AgentTestStartData.")));
         try {
             Thread.sleep(RETRY_SLEEP);// 30 seconds
         } catch (InterruptedException ignored) { }
+        info.agentData // set agent status from pending to ready to run
+                .forEach(agentData -> {
+                    CloudVmStatus status = vmTracker.getStatus(agentData.getInstanceId());
+                    if (status != null) {
+                        status.setVmStatus(VMStatus.ready);
+                        vmTracker.setStatus(status);
+                    }
+                });
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Waiting for start agents command to start test for job " + jobId)));
+        try {
+            jobInfoMapLocalCache.get(jobId).latch.await();
+        } catch (InterruptedException ignored) {}
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Start agents command received - Sending start commands for job " + jobId + " asynchronously to following agents: " +
+                info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)))));
         info.agentData.parallelStream()
                 .map(agentData -> agentData.getInstanceUrl() + AgentCommand.start.getPath())
                 .map(URI::create)
@@ -335,12 +344,20 @@ public class JobManager implements Serializable {
         return ret;
     }
 
+    public void startAgents(String jobId){
+        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Sending start agents command to start test for job " + jobId)));
+        if(!jobInfoMapLocalCache.get(jobId).isStarted()){
+            jobInfoMapLocalCache.get(jobId).start();
+        }
+    }
+
     private static class JobInfo {
         public String scripts;
         private JobRequest jobRequest;
         private Set<AgentData> agentData = new HashSet<AgentData>();
         private Map<RegionRequest, Integer> userMap = new HashMap<RegionRequest, Integer>();
         private int numberOfMachines;
+        private final CountDownLatch latch = new CountDownLatch(1);
 
         public JobInfo(JobRequest jobRequest) {
             super();
@@ -356,6 +373,14 @@ public class JobManager implements Serializable {
                 }
             }
             return true;
+        }
+
+        public void start() {
+            latch.countDown();
+        }
+
+        public boolean isStarted() {
+            return latch.getCount() == 0;
         }
 
         public int getUsers(AgentData agent) {

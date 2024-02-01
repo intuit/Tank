@@ -240,7 +240,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                     try {
                         RunInstancesResponse response = ec2client.runInstances(
                                 runInstancesRequest
-                                        .subnetId(subnetIds.get(position >= subnetIds.size() ? 0 : position++))
+                                        .subnetId(subnetIds.get(position = (position + 1) % subnetIds.size()))
                                         .minCount(1).maxCount(requestCount).build());
                         result.addAll(AmazonDataConverter.processReservation(
                                 response.requesterId(), response.instances(), vmRegion));
