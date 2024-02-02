@@ -107,6 +107,9 @@ public abstract class BaseJob extends BaseEntity {
     @Column(name = "use_eips")
     private Boolean useEips;
 
+    @Column(name = "use_two_step")
+    private Boolean useTwoStep;
+
     /**
      * 
      */
@@ -137,6 +140,7 @@ public abstract class BaseJob extends BaseEntity {
         this.numAgents = copy.numAgents;
         this.vmInstanceType = copy.vmInstanceType;
         this.useEips = copy.useEips;
+        this.useTwoStep = copy.useTwoStep;
         this.tankClientClass = copy.getTankClientClass();
     }
 
@@ -187,6 +191,21 @@ public abstract class BaseJob extends BaseEntity {
      */
     public void setUseEips(boolean useEips) {
         this.useEips = useEips;
+    }
+
+    /**
+     * @return two-step job start setting
+     */
+    public boolean isUseTwoStep() {
+        return useTwoStep != null ? useTwoStep : false;
+    }
+
+    /**
+     * @param useTwoStep
+     *            enable/disable two-step job starts
+     */
+    public void setUseTwoStep(boolean useTwoStep) {
+        this.useTwoStep = useTwoStep;
     }
 
     /**

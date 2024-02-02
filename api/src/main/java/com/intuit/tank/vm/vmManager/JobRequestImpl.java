@@ -50,6 +50,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     private int baselineVirtualUsers;
     private long simulationTime;
     private boolean useEips;
+    private boolean useTwoStep;
     private int userIntervalIncrement;
     private String reportingMode = TankConstants.RESULTS_NONE;
     private String loggingProfile = LoggingProfile.STANDARD.name();
@@ -85,6 +86,13 @@ public final class JobRequestImpl implements Serializable, JobRequest {
      */
     public boolean isUseEips() {
         return useEips;
+    }
+
+    /**
+     * @return the useTwoStep
+     */
+    public boolean isUseTwoStep() {
+        return useTwoStep;
     }
 
     /**
@@ -310,6 +318,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
                 .append("stopBehavior", StopBehavior.fromString(stopBehavior).getDisplay())
                 .append("simulationTime", simulationTime)
                 .append("useEips", useEips)
+                .append("useTwoStep", useTwoStep)
                 .append("baselineVirtualUsers", baselineVirtualUsers)
                 .append("userIntervalIncrement", userIntervalIncrement)
                 .append("endRate", endRate)
@@ -419,6 +428,12 @@ public final class JobRequestImpl implements Serializable, JobRequest {
         @SuppressWarnings("unchecked")
         public GeneratorT withUseEips(boolean aValue) {
             instance.useEips = aValue;
+            return (GeneratorT) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT withUseTwoStep(boolean aValue) {
+            instance.useTwoStep = aValue;
             return (GeneratorT) this;
         }
 
