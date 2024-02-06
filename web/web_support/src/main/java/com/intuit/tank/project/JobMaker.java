@@ -265,6 +265,22 @@ public class JobMaker implements Serializable {
     }
 
     /**
+     *
+     * @return
+     */
+    public boolean isUseTwoStep() {
+        return projectBean.getJobConfiguration().isUseTwoStep();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public void setUseTwoStep(boolean b) {
+        projectBean.getJobConfiguration().setUseTwoStep(b);
+    }
+
+    /**
      * 
      * @param location
      */
@@ -311,6 +327,7 @@ public class JobMaker implements Serializable {
             proposedJobInstance.setCreator(securityContext.getCallerPrincipal().getName());
             proposedJobInstance.setScheduledTime(new Date());
             proposedJobInstance.setUseEips(isUseEips());
+            proposedJobInstance.setUseTwoStep((isUseTwoStep()));
             proposedJobInstance.setTankClientClass(getTankClientClass());
             proposedJobInstance.setLocation(getLocation());
             proposedJobInstance.setVmInstanceType(getVmInstanceType());

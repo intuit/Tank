@@ -113,8 +113,9 @@
         style="width:#{projectJobQueueManager.tablePrefs.getSize('statusColumn')}px;"
         rendered="#{projectJobQueueManager.tablePrefs.isVisible('statusColumn')}">
         <h:outputText value="#{node.status}" rendered="#{not node.hasSubNodes()}" />
-        <h:outputText value="#{node.status} (#{node.getTotalSubNodesReady()}/#{node.getCurrentSubNodes().size()} Agents Ready)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting'}" />
-        <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status ne 'Starting'}" />
+        <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes()} and not node.useTwoStep}" />
+        <h:outputText value="#{node.status} (#{node.getTotalSubNodesReady()}/#{node.getCurrentSubNodes().size()} Agents Ready)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting' and node.useTwoStep}" />
+        <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting' and node.useTwoStep}" />
       </p:column>
 
       <p:column id="regionColumn" headerText="Region" styleClass="ellipsis min-column-size"
@@ -193,7 +194,7 @@
             onerror="window.location.reload()" disabled="#{!node.isRunnable() or !projectJobQueueManager.canControlJob(node)}"
             ajax="true" update=":mainForm:projectTabPanelID:jobTableId" />
           <p:commandButton id="btnStart" action="#{jobQueueAction.startAgents(node)}" value="L" title="Start Load"
-                           onerror="window.location.reload()" rendered="#{node.type ne 'project'}"
+                           onerror="window.location.reload()" rendered="#{node.type ne 'project' and node.useTwoStep}"
                            disabled="#{!node.isStartable() or !projectJobQueueManager.canControlJob(node)}" ajax="true"
                            update=":mainForm:projectTabPanelID:jobTableId" />
           <p:commandButton oncomplete="PF('confirmJobQueueKill').show();" value="K" ajax="true"

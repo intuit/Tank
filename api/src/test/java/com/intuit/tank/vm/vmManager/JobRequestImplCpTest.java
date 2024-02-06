@@ -171,6 +171,7 @@ public class JobRequestImplCpTest {
                 .append("stopBehavior", StopBehavior.fromString(request.getStopBehavior()).getDisplay())
                 .append("simulationTime", request.getSimulationTime())
                 .append("useEips", request.isUseEips())
+                .append("useTwoStep", request.isUseTwoStep())
                 .append("baselineVirtualUsers", request.getBaselineVirtualUsers())
                 .append("userIntervalIncrement", "0")
                 .append("endRate", "0.0")

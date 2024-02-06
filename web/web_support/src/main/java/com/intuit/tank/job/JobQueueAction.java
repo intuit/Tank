@@ -63,7 +63,9 @@ public class JobQueueAction {
         AWSXRay.getCurrentSegment().putAnnotation("job.action", "startAgents");
         AWSXRay.getCurrentSegment().putAnnotation("jobId", node.getJobId());
         if (node instanceof ActJobNodeBean) {
-            controller.startAgents(node.getId());
+            if(node.isUseTwoStep()) {
+                controller.startAgents(node.getId());
+            }
         }
     }
 

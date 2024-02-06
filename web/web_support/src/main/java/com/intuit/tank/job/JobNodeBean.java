@@ -50,6 +50,7 @@ public abstract class JobNodeBean implements Serializable {
     private Date startTime;
     private Date endTime;
     private boolean hasRights = false;
+    private Boolean useTwoStep = false;
     private Map<Date, List<UserDetail>> statusDetailMap;
     // private Map<Date, Map<String, TPSInfo>> tpsInfoMap;
     private int tps;
@@ -227,6 +228,21 @@ public abstract class JobNodeBean implements Serializable {
      */
     public void setTargetRampRate(String targetRampRate) {
         this.targetRampRate = targetRampRate;
+    }
+
+    /**
+     * @return two-step job start setting
+     */
+    public boolean isUseTwoStep() {
+        return useTwoStep != null ? useTwoStep : false;
+    }
+
+    /**
+     * @param useTwoStep
+     *            two-step job start setting
+     */
+    public void setUseTwoStep(boolean useTwoStep) {
+        this.useTwoStep = useTwoStep;
     }
 
     /**

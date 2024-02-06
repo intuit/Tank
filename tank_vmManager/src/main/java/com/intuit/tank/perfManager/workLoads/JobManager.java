@@ -193,20 +193,23 @@ public class JobManager implements Serializable {
         try {
             Thread.sleep(RETRY_SLEEP);// 30 seconds
         } catch (InterruptedException ignored) { }
-        info.agentData // set agent status from pending to ready to run
-                .forEach(agentData -> {
-                    CloudVmStatus status = vmTracker.getStatus(agentData.getInstanceId());
-                    if (status != null) {
-                        status.setVmStatus(VMStatus.ready);
-                        vmTracker.setStatus(status);
-                    }
-                });
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Waiting for start agents command to start test for job " + jobId)));
-        try {
-            jobInfoMapLocalCache.get(jobId).latch.await();
-        } catch (InterruptedException ignored) {}
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Start agents command received - Sending start commands for job " + jobId + " asynchronously to following agents: " +
-                info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)))));
+        if(info.jobRequest.isUseTwoStep()) { // two-step job start - set agent status to ready and wait for command to start load
+            info.agentData // set agent status from pending to ready to run
+                    .forEach(agentData -> {
+                        CloudVmStatus status = vmTracker.getStatus(agentData.getInstanceId());
+                        if (status != null) {
+                            status.setVmStatus(VMStatus.ready);
+                            vmTracker.setStatus(status);
+                        }
+                    });
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Waiting for start agents command to start test for job " + jobId)));
+            try {
+                jobInfoMapLocalCache.get(jobId).latch.await();
+            } catch (InterruptedException ignored) {
+            }
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Start agents command received - Sending start commands for job " + jobId + " asynchronously to following agents: " +
+                    info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)))));
+        }
         info.agentData.parallelStream()
                 .map(agentData -> agentData.getInstanceUrl() + AgentCommand.start.getPath())
                 .map(URI::create)
