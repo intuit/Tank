@@ -80,6 +80,7 @@ public class JobDetailFormatter {
             addProperty(sb, "Tank Http Client", config.getAgentConfig().getTankClientName(proposedJobInstance.getTankClientClass()));
             addProperty(sb, "Agent VM Type", getVmDetails(config, proposedJobInstance.getVmInstanceType()));
             addProperty(sb, "Assign Elastic Ips", Boolean.toString(proposedJobInstance.isUseEips()));
+            addProperty(sb, "Enable Two-Step Job Start", Boolean.toString(proposedJobInstance.isUseTwoStep()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)) {
                 addProperty(sb, "Number of Agents", Integer.toString(proposedJobInstance.getNumAgents()));
             } else {

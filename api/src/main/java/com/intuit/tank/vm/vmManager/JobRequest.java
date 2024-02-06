@@ -94,6 +94,12 @@ public interface JobRequest extends Serializable {
     public abstract boolean isUseEips();
 
     /**
+     *
+     * @return
+     */
+    public abstract boolean isUseTwoStep();
+
+    /**
      * @return the userIntervalIncrement
      */
     public abstract int getUserIntervalIncrement();
