@@ -33,6 +33,10 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.vm.api.enumerated.JobStatus;
+import com.intuit.tank.vm.api.enumerated.VMImageType;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
+import com.intuit.tank.vm.vmManager.models.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -49,11 +53,6 @@ import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.PropertyComparer;
 import com.intuit.tank.PropertyComparer.SortOrder;
 import com.intuit.tank.vm.vmManager.VMTracker;
-import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
-import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
-import com.intuit.tank.vm.vmManager.models.ProjectStatusContainer;
-import com.intuit.tank.vm.vmManager.models.UserDetail;
-import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.JobQueueDao;
@@ -576,9 +575,15 @@ public abstract class JobTreeTableBean implements Serializable {
                     int jobInstanceActive = 0;
                     int jobInstanceTotal = 0;
                     ValidationStatus jobInstanceFailures = new ValidationStatus();
-                    CloudVmStatusContainer container = vmTracker.getVmStatusForJob(Integer.toString(jobInstance.getId()));
+                    CloudVmStatusContainer container = new CloudVmStatusContainer();
                     if ( container != null ) {
-                        List<VMNodeBean> vmNodes = getVMStatus(container, hasRights);
+                        List<VMNodeBean> vmNodes = new ArrayList<>();
+                        CloudVmStatus vmStatus1 = new CloudVmStatus("instanceId1234", "4567", "SG-446", JobStatus.Running, VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.running, new ValidationStatus(), 1000, 344, new Date(), new Date());
+                        CloudVmStatus vmStatus2 = new CloudVmStatus("instanceId12345", "4568", "SG-446", JobStatus.Running, VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.running, new ValidationStatus(), 500, 98, new Date(), new Date());
+                        VMNodeBean entry1 = new VMNodeBean(vmStatus1, true, null);
+                        VMNodeBean entry2 = new VMNodeBean(vmStatus2, true, null);
+                        vmNodes.add(entry1);
+                        vmNodes.add(entry2);
 
                         for (VMNodeBean vmNodeBean : vmNodes) {
                             jobInstanceNode.addVMBean(vmNodeBean);
