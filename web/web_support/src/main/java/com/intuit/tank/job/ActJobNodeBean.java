@@ -42,6 +42,7 @@ public class ActJobNodeBean extends JobNodeBean {
         this.setActiveUsers(String.valueOf(job.getBaselineVirtualUsers()));
         this.setTotalUsers(String.valueOf(job.getTotalVirtualUsers()));
         this.setTargetRampRate(String.valueOf(job.getTargetRampRate() * job.getNumAgents()));
+        this.setUseTwoStep(job.isUseTwoStep());
         this.jobDetails = job.getJobDetails();
         this.estimatedNonlinearSteadyStateUsers = estimateNonlinearSteadyStateUsers(job.getTargetRampRate(), job.getRampTime(), job.getNumAgents());
         this.setStartTime(job.getStartTime());

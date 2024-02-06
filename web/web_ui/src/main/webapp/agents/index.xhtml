@@ -108,8 +108,9 @@
             <h:outputText value="#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Jobs Running" rendered="#{not node.allSubNodesCompleted() and node.type eq 'project'}" />
             <h:outputText value="Completed" rendered="#{node.allSubNodesCompleted() and node.type eq 'project'}" />
             <h:outputText value="#{node.status}" rendered="#{not node.hasSubNodes() and node.type eq 'job'}" />
-            <h:outputText value="#{node.status} (#{node.getTotalSubNodesReady()}/#{node.getCurrentSubNodes().size()} Agents Ready)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting'}" />
-            <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status ne 'Starting'}" />
+            <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job' and not node.useTwoStep}" />
+            <h:outputText value="#{node.status} (#{node.getTotalSubNodesReady()}/#{node.getCurrentSubNodes().size()} Agents Ready)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting' and node.useTwoStep}" />
+            <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status ne 'Starting' and node.useTwoStep}" />
             <h:outputText value="#{node.status}" rendered="#{node.type eq 'vm'}" />
           </p:column>
 
@@ -189,7 +190,7 @@
                 disabled="#{!node.isRunnable() or !jobQueueManager.canControlJob(node)}" ajax="true"
                 update=":mainForm:jobTableId" />
               <p:commandButton id="btnStart" action="#{jobQueueAction.startAgents(node)}" value="L" title="Start Load"
-                               onerror="window.location.reload()" rendered="#{node.type ne 'project'}"
+                               onerror="window.location.reload()" rendered="#{node.type ne 'project' and node.useTwoStep}"
                                disabled="#{!node.isStartable() or !jobQueueManager.canControlJob(node)}" ajax="true"
                                update=":mainForm:jobTableId" />
               <p:commandButton id="btnKill" action="#{jobQueueAction.kill(node)}" value="K" title="Kill"
