@@ -52,6 +52,11 @@
     <servlet-name>Faces Servlet</servlet-name>
     <url-pattern>*.jsf</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/TankLogo.png</url-pattern>
+    <url-pattern>/TankLogo16x16.png</url-pattern>
+  </servlet-mapping>
 
 
   <!-- AWS X-Ray filter -->
@@ -75,11 +80,14 @@
 
   <error-page>
     <exception-type>org.jboss.weld.contexts.NonexistentConversationException</exception-type>
-    <location>/expired.xhtml</location>
+    <location>/expired.jsf</location>
   </error-page>
-  
   <error-page>
-    <location>/error.xhtml</location>
+    <exception-type>jakarta.faces.application.ViewExpiredException</exception-type>
+    <location>/expired.jsf</location>
+  </error-page>
+  <error-page>
+    <location>/error.jsf</location>
   </error-page>
 
   <session-config>
