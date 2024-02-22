@@ -15,7 +15,7 @@ package com.intuit.tank.util;
 
 import java.util.Locale;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 

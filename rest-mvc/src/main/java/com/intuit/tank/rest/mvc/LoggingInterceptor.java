@@ -4,8 +4,8 @@ import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class LoggingInterceptor implements HandlerInterceptor {
 

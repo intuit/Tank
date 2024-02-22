@@ -19,12 +19,12 @@ package com.intuit.tank.dao;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-import javax.persistence.QueryHint;
-import javax.persistence.criteria.*;
+import jakarta.annotation.Nonnull;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
+import jakarta.persistence.QueryHint;
+import jakarta.persistence.criteria.*;
 
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.User;

@@ -13,12 +13,12 @@ package com.intuit.tank.harness.data;
  * #L%
  */
 
-import javax.annotation.Nonnull;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.annotation.Nonnull;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(name = "response", propOrder = { "respFormat", "assignment", "validation" }, namespace = HarnessDataNamespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)

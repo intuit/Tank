@@ -20,10 +20,10 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import com.intuit.tank.auth.TankSecurityContext;
 import org.apache.commons.io.IOUtils;

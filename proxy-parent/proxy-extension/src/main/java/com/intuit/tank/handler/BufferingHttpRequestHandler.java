@@ -40,7 +40,7 @@ import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.net.InetAddress;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import org.owasp.proxy.http.BufferedRequest;
 import org.owasp.proxy.http.MessageFormatException;

@@ -6,11 +6,11 @@ import org.hibernate.envers.RevisionTimestamp;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.Date;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Transient;
 
 @MappedSuperclass
 public class TankDefaultRevisionEntity implements Serializable {

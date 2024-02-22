@@ -15,7 +15,7 @@ package com.intuit.tank.project;
 
 import java.util.List;
 
-import javax.faces.model.SelectItem;
+import jakarta.faces.model.SelectItem;
 
 import org.junit.jupiter.api.*;
 

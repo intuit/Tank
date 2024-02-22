@@ -16,8 +16,6 @@ package com.intuit.tank.runner.method;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.script.ScriptEngineManager;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,6 +29,7 @@ import com.intuit.tank.tools.script.ScriptIOBean;
 import com.intuit.tank.tools.script.ScriptRunner;
 import com.intuit.tank.vm.common.LogicScriptUtil;
 import com.intuit.tank.vm.common.TankConstants;
+import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
 class LogicRunner implements Runner {
     private static Logger LOG = LogManager.getLogger(LogicRunner.class);
@@ -60,7 +59,7 @@ class LogicRunner implements Runner {
         String scriptToRun = new LogicScriptUtil().buildScript(step.getScript());
         try {
             ScriptIOBean ioBean = new ScriptRunner().runScript(step.getName(), scriptToRun,
-                    new ScriptEngineManager().getEngineByExtension("js"), inputs, outputLogger);
+                    new NashornScriptEngineFactory().getScriptEngine(), inputs, outputLogger);
             String action = (String) ioBean.getOutput("action");
             if (action != null) {
                 ret = handleAction(action);

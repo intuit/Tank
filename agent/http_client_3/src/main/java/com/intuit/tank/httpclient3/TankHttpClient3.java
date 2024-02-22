@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.Credentials;

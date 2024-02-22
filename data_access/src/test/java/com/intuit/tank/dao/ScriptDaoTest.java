@@ -20,8 +20,8 @@ import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.persistence.PersistenceException;
-import javax.validation.ConstraintViolationException;
+import jakarta.persistence.PersistenceException;
+import jakarta.validation.ConstraintViolationException;
 
 import com.intuit.tank.project.Project;
 import com.intuit.tank.test.TestGroups;
@@ -215,11 +215,11 @@ public class ScriptDaoTest {
             // expected validation
             DaoTestUtil.checkConstraintViolation(e, property, messageContains);
         } catch (RuntimeException e) {
-            if (e.getCause().getCause() instanceof PropertyValueException) {
-                assertTrue(e.getCause().getCause().getMessage().startsWith("not-null property references a null or transient value"));
+            if (e.getCause() instanceof PropertyValueException) {
+                assertTrue(e.getCause().getMessage().startsWith("not-null property references a null or transient value"));
                 return;
             }
-            assertTrue(e.getCause().getCause().getCause().getMessage().startsWith("Value too long for column "));
+            assertTrue(e.getCause().getCause().getMessage().startsWith("Value too long for column "));
         }
     }
 

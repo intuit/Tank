@@ -18,10 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import javax.enterprise.context.Conversation;
-import javax.enterprise.context.ConversationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.Conversation;
+import jakarta.enterprise.context.ConversationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import com.intuit.tank.auth.TankSecurityContext;
 import org.apache.commons.lang3.StringUtils;

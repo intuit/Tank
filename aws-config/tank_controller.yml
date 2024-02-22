@@ -24,34 +24,9 @@ Parameters:
   InstanceType:
     Description: EC2 instance type
     Type: String
-    Default: t3a.medium
-    AllowedValues: [ 't3a.medium', 't3.medium', 't3a.large', 't3.large', 't3a.xlarge', 't3.xlarge', 'm5.large', 'm5.xlarge', 'c5.xlarge', 'c5.2xlarge' ]
-    ConstraintDescription: Must be one of t3.medium t3.large t3.xlarge m5.large m5.xlarge c5.xlarge or c5.2xlarge
-
-Mappings:
-  InstanceMap:
-    t3a.medium:
-      JvmHeap: '2g'
-    t3.medium:
-      JvmHeap: '2g'
-    t3a.large:
-      JvmHeap: '4g'
-    t3.large:
-      JvmHeap: '4g'
-    t3a.xlarge:
-      JvmHeap: '10g'
-    t3.xlarge:
-      JvmHeap: '10g'
-    c5.large:
-      JvmHeap: '1g'
-    c5.xlarge:
-      JvmHeap: '5g'
-    c5.2xlarge:
-      JvmHeap: '8g'
-    m5.large:
-      JvmHeap: '4g'
-    m5.xlarge:
-      JvmHeap: '10g'
+    Default: 't4g.large'
+    AllowedValues: [ 't3a.medium', 't4g.medium', 't3a.large', 't4g.large', 't3a.xlarge', 't4g.xlarge', 'm6i.large', 'm6i.xlarge', 'c6i.xlarge', 'c6i.2xlarge' ]
+    ConstraintDescription: 'Must be one of t4g.medium t4g.large t4g.xlarge m6i.large m6i.xlarge c6i.xlarge or c6i.2xlarge'
 
 Resources:
   RDSInstance:
@@ -122,9 +97,7 @@ Resources:
               mode: '000644'
               owner: 'cwagent'
               group: 'cwagent'
-          commands:
-            000_install_tomcat:
-              command: 'amazon-linux-extras install tomcat9'
+          commands: {}
           services:
               amazon-cloudwatch-agent:
                 enabled      : true
@@ -132,20 +105,78 @@ Resources:
                 files:
                   - "/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/tank-cloudwatch-config.json"
         tomcat-config:
-          packages: {}
-          sources: {}
+          packages:
+            yum:
+              tomcat-native: []
+              java-17-amazon-corretto-headless: []
+          users:
+            tomcat: {}
+          groups: {}
+          sources:
+            /opt: https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.16/bin/apache-tomcat-10.1.16.tar.gz
           files:
-            /etc/tomcat/conf.d/catalina_opts.conf:
-              content: !Sub
-                - |
-                  CATALINA_OPTS="-Xms${heap} -Xmx${heap} -XX:+UseG1GC -Dcom.amazonaws.sdk.enableDefaultMetrics=cloudwatchRegion=${AWS::Region} -Xlog:gc=debug:file=/var/log/tomcat/gc.log:time,uptime,level,tags:filecount=3,filesize=200m"
-                - {
-                  heap: !FindInMap [ InstanceMap, !Ref InstanceType, JvmHeap ]
+            /etc/init.d/tomcat:
+              content: |
+                #!/bin/bash
+                #
+                # tomcat         Start tomcat
+                #
+                #
+                # chkconfig: 345 88 12
+                # description: start stop tomcat
+                ### BEGIN INIT INFO
+                # Provides: $tomcat
+                ### END INIT INFO
+                # Source function library.
+                . /etc/init.d/functions
+                . /etc/init.d/java_opts
+
+                ulimit -n 50000
+                export CATALINA_HOME=/opt/tomcat
+                RETVAL=0
+                umask 077
+                start() {
+                       cd $CATALINA_HOME
+                       echo -n $"Starting tomcat: "
+                       daemon $CATALINA_HOME/bin/startup.sh
+                       echo
+                       return $RETVAL
                 }
+                stop() {
+                       echo -n $"Shutting down tomcat: "
+                       daemon $CATALINA_HOME/bin/shutdown.sh
+                       echo
+                       return $RETVAL
+                }
+                restart() {
+                       stop
+                       start
+                }
+                case "$1" in
+                 start)
+                       start
+                       ;;
+                 stop)
+                       stop
+                       ;;
+                 restart|reload)
+                       restart
+                       ;;
+                 *)
+                       echo $"Usage: $0 {start|stop|restart}"
+                       exit 1
+                esac
+                exit $?
               mode: '000755'
-              owner: 'root'
+              owner: 'tomcat'
               group: 'tomcat'
-            /etc/tomcat/context.xml:
+            /etc/init.d/java_opts:
+              content: |
+                export CATALINA_OPTS="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC -Xlog:gc=debug:file=/var/log/tomcat/gc.log:time,uptime,level,tags:filecount=3,filesize=200m"
+              mode: '000755'
+              owner: 'tomcat'
+              group: 'tomcat'
+            /tmp/context.xml:
               content: !Sub |
                 <?xml version="1.0" encoding="UTF-8"?>
 
@@ -165,24 +196,32 @@ Resources:
                     url="jdbc:mysql://${RDSInstance.Endpoint.Address}:${RDSInstance.Endpoint.Port}/tank"/>
                 </Context>
               mode: '000644'
-              owner: 'root'
-              group: 'tomcaat'
+              owner: 'tomcat'
+              group: 'tomcat'
           commands:
-            020_download_settings:
+            010_tomcat_symboliclink:
+              command: 'ln -s /opt/apache-tomcat-10.1.16 /opt/tomcat'
+            011_tomcat_symboliclink:
+              command: 'ln -s /opt/tomcat/logs /var/log/tomcat'
+            020_clear_out_builtin:
+              command: 'rm -rf /opt/tomcat/webapps/*'
+            030_download_settings:
               command: !Sub 'aws s3 cp ${TankSettings} /usr/share/tomcat/settings.xml'
-            030_permissions:
-              command:  'chown root:tomcat /usr/share/tomcat/settings.xml'
+            031_permissions:
+              command:  'chown tomcat:tomcat /usr/share/tomcat/settings.xml'
+            050_copy_context:
+              command: 'cp /tmp/context.xml /opt/tomcat/conf/context.xml'
             #031_set_publicDNSName:
             #  command: !Sub 'sed -i "s/localhost:8080/${ControllerInstance.PublicDnsName}:8080/" /usr/share/tomcat/settings.xml'
-            040_download_tank:
+            060_download_tank:
               command: !Sub 'aws s3 cp ${TankWar} /usr/share/tomcat/webapps/ROOT.war'
+            070_permissions:
+              command: 'chown -R tomcat:tomcat /opt/apache-tomcat-10.1.16'
           services:
             sysvinit:
               tomcat:
                 enabled      : true
                 ensureRunning: true
-          users: {}
-          groups: {}
     Properties:
       ImageId:  !Ref AmiId
       InstanceType:  !Ref InstanceType

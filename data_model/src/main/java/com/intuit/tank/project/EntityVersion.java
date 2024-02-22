@@ -18,9 +18,9 @@ package com.intuit.tank.project;
 
 import java.io.Serializable;
 
-import javax.annotation.Nonnull;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.annotation.Nonnull;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;

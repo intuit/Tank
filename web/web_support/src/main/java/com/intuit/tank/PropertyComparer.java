@@ -21,7 +21,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 /**
  * PropertyComparer

@@ -40,10 +40,10 @@
 
       <!-- H2 settings for automated testing -->
       <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
-      <property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
-      <property name="javax.persistence.jdbc.user" value="sa" />
-      <property name="javax.persistence.jdbc.password" value="" />
-      <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:wats" /> 
+      <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver" />
+      <property name="jakarta.persistence.jdbc.user" value="sa" />
+      <property name="jakarta.persistence.jdbc.password" value="" />
+      <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:mem:wats" />
 
       <!-- JDBC connection pool (use the built-in) -->
       <property name="connection.pool_size" value="10" />

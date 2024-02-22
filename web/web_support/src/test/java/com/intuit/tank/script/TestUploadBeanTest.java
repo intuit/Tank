@@ -23,7 +23,7 @@ import org.primefaces.model.file.UploadedFile;
 
 import com.intuit.tank.script.TestUploadBean;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * The class <code>TestUploadBeanTest</code> contains tests for the class <code>{@link TestUploadBean}</code>.

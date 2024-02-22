@@ -21,8 +21,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 

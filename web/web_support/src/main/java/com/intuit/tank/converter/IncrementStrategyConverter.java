@@ -16,7 +16,7 @@ package com.intuit.tank.converter;
  * #L%
  */
 
-import javax.faces.convert.FacesConverter;
+import jakarta.faces.convert.FacesConverter;
 
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 

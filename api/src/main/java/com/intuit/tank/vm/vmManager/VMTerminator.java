@@ -16,7 +16,7 @@ package com.intuit.tank.vm.vmManager;
  * #L%
  */
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * VMTerminator

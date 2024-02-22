@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.annotation.Nullable;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentAvailabilityStatus;

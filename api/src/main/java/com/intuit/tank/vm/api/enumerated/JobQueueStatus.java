@@ -3,7 +3,7 @@
  */
 package com.intuit.tank.vm.api.enumerated;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /*
  * #%L

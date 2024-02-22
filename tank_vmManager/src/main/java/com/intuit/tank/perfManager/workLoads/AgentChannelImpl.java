@@ -18,7 +18,7 @@ package com.intuit.tank.perfManager.workLoads;
 
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import com.intuit.tank.vm.perfManager.AgentChannel;
