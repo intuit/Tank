@@ -14,6 +14,8 @@ package com.intuit.tank.project;
  * #L%
  */
 
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -30,6 +32,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.intuit.tank.vm.common.PasswordEncoder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -54,10 +57,16 @@ public class User extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+    private static final SecureRandom secureRandom = new SecureRandom();
+
+    private static final Base64.Encoder base64Encoder = Base64.getEncoder();
+
     public static final String PROPERTY_NAME = "name";
     public static final String PROPERTY_GROUPS = "groups";
     public static final String PROPERTY_EMAIL = "email";
     public static final String PROPERTY_TOKEN = "apiToken";
+
+    private static boolean tokenDisplayed = false;
 
     @Column(name = "name", unique = true, nullable = false)
     @NotNull
@@ -125,11 +134,31 @@ public class User extends BaseEntity {
         return apiToken;
     }
 
+    public String displayApiToken(){
+        System.out.println("TOKEN STATUS BEFORE: " + tokenDisplayed);
+        if(!tokenDisplayed) {
+            tokenDisplayed = true;
+            return apiToken;
+        } else {
+            return "<hidden>";
+        }
+    }
+
     /**
      * @return apiToken
      */
     public void generateApiToken() {
-        this.apiToken = UUID.randomUUID().toString();
+        byte[] tokenBytes = new byte[24]; // 256-bit token
+        secureRandom.nextBytes(tokenBytes);
+        this.apiToken = base64Encoder.encodeToString(tokenBytes);
+    }
+
+    /**
+     *
+     */
+    public void deleteApiToken() {
+        this.apiToken = null;
+        tokenDisplayed = false;
     }
 
     /**

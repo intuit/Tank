@@ -94,7 +94,7 @@
                 <h:outputLink value="#{request.contextPath}/login.jsf">Login</h:outputLink>
               </h:panelGroup>
               <h:panelGroup rendered="#{tsAuthenticator.loggedIn}" styleClass="ts-header-menu-itm noBg noBorder">
-                <h:commandLink action="/tools/account.xhtml" value="Change Password" style="font-size: smaller;" />
+                <h:commandLink action="/tools/account.xhtml" value="Account Settings" style="font-size: smaller;" />
                 <br />
                 <h:commandLink action="#{tsAuthenticator.logout}" value="Logout" />
               </h:panelGroup>

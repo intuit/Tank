@@ -87,19 +87,25 @@
               </div>
               <div class="formInputDiv">
                 <h:panelGroup id="tokenGroup">
-                  <h:outputText id="apiToken"
-                    value="#{accountModify.user.apiToken}" />
+                  <h:inputText id="apiToken"
+                               value="#{accountModify.user.displayApiToken()}"
+                               readonly="true" styleClass="formInput inputWidthMedium"
+                               rendered="#{accountModify.user.apiToken ne null}"/>
                   <p:commandButton value="Generate API Token"
-                    action="#{accountModify.generateApiToken}"
-                    immediate="true" update="tokenGroup"
-                    rendered="#{accountModify.user.apiToken == null}"
-                    ajax="true" />
+                                   action="#{accountModify.generateApiToken}"
+                                   immediate="true" update="tokenGroup"
+                                   rendered="#{accountModify.user.apiToken eq null}"
+                                   ajax="true" />
+                </h:panelGroup>
+                <h:panelGroup id="deleteTokenGroup">
+                  <p:commandButton action="#{accountModify.deleteApiToken}"
+                                   value="Delete API Token"
+                                   immediate="true" update="tokenGroup"
+                                   rendered="#{accountModify.user.apiToken ne null}"
+                                   ajax="true" />
                 </h:panelGroup>
               </div>
             </div>
-            
-            
-
           </div>
         </h:panelGroup>
         <h:panelGroup rendered="#{accountModify.succeeded}">

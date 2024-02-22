@@ -58,7 +58,6 @@ public class AccountModify implements Serializable {
     private String password;
     private boolean succeeded;
     private User user;
-
     @Inject
     private Messages messages;
 
@@ -147,6 +146,14 @@ public class AccountModify implements Serializable {
     public void generateApiToken() {
         if (user.getApiToken() == null) {
             user.generateApiToken();
+            user = new UserDao().saveOrUpdate(user);
+
+        }
+    }
+
+    public void deleteApiToken() {
+        if (user.getApiToken() != null) {
+            user.deleteApiToken();
             user = new UserDao().saveOrUpdate(user);
         }
     }
