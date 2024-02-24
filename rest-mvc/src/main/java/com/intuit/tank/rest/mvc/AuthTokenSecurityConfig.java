@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -32,8 +33,8 @@ public class AuthTokenSecurityConfig {
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/").permitAll()
-                .requestMatchers("/v2/**").authenticated())
+                .requestMatchers(new AntPathRequestMatcher("/v2/**")).authenticated()
+                .anyRequest().permitAll())
         .formLogin(AbstractHttpConfigurer::disable)
         .httpBasic(AbstractHttpConfigurer::disable)
         .addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
