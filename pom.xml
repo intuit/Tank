@@ -6,7 +6,7 @@
 
   <groupId>com.intuit.tank</groupId>
   <artifactId>tank-parent</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.1-SNAPSHOT</version>
 
   <packaging>pom</packaging>
   <name>Tank Parent</name>
@@ -946,7 +946,7 @@
             <dependency>
               <groupId>${project.groupId}</groupId>
               <artifactId>test-support</artifactId>
-              <version>4.0.0</version>
+              <version>4.0.1-SNAPSHOT</version>
             </dependency>
           </dependencies>
           <configuration>
