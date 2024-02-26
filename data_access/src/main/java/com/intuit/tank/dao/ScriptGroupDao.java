@@ -16,7 +16,7 @@ package com.intuit.tank.dao;
  * #L%
  */
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import com.intuit.tank.project.ScriptGroup;
 

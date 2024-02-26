@@ -13,9 +13,9 @@ package com.intuit.tank;
  * #L%
  */
 
-import javax.enterprise.context.SessionScoped;
-import javax.faces.model.SelectItem;
-import javax.inject.Inject;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.model.SelectItem;
+import jakarta.inject.Inject;
 
 import org.jboss.weld.junit5.auto.ActivateScopes;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;

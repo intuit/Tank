@@ -19,10 +19,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.enterprise.context.ConversationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.ConversationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.harness.data.HDWorkload;

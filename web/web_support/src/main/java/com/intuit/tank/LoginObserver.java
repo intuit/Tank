@@ -13,8 +13,8 @@ package com.intuit.tank;
  * #L%
  */
 
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 
 import com.intuit.tank.auth.Authenticated;
 import com.intuit.tank.project.User;

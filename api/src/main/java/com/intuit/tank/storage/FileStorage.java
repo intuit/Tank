@@ -3,7 +3,7 @@ package com.intuit.tank.storage;
 import java.io.InputStream;
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * Reads and writes file type data to storage.

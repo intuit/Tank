@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.persistence.PersistenceException;
-import javax.validation.ConstraintViolationException;
+import jakarta.persistence.PersistenceException;
+import jakarta.validation.ConstraintViolationException;
 
 import com.intuit.tank.test.TestGroups;
 import org.apache.logging.log4j.Level;
@@ -115,7 +115,7 @@ public class ScriptGroupDaoTest {
             // expected validation
             DaoTestUtil.checkConstraintViolation(e, property, messageContains);
         } catch (PersistenceException e) {
-            assertTrue(e.getCause().getCause().getMessage().startsWith("Value too long for column "));
+            assertTrue(e.getCause().getMessage().startsWith("Value too long for column "));
         }
     }
 

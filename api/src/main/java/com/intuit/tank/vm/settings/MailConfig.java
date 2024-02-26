@@ -18,7 +18,7 @@ package com.intuit.tank.vm.settings;
 
 import java.io.Serializable;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 

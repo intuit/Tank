@@ -18,9 +18,9 @@ import java.io.Serializable;
 import static com.intuit.tank.util.ButtonLabel.ADD_LABEL;
 import static com.intuit.tank.util.ButtonLabel.EDIT_LABEL;
 
-import javax.enterprise.context.ConversationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.ConversationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import com.intuit.tank.util.Messages;

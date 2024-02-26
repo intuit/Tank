@@ -16,7 +16,7 @@ package com.intuit.tank.script.util;
  * #L%
  */
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import com.intuit.tank.project.RequestData;
 

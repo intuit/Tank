@@ -44,10 +44,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.persistence.NoResultException;
+import jakarta.persistence.NoResultException;
 
 @Service
 public class ProjectServiceV2Impl implements ProjectServiceV2 {
@@ -240,7 +240,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
         } catch (GenericServiceBadRequestException e) {
             throw e;
         } catch (Exception e) {
-            // ignore javax.persistence.NoResultException: project name does not exist
+            // ignore jakarta.persistence.NoResultException: project name does not exist
         }
     }
 

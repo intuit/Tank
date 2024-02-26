@@ -7,7 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.models.projects;
 
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 import java.io.Serializable;
 
 @XmlRootElement(name = "key-pair", namespace = Namespace.NAMESPACE_V1)

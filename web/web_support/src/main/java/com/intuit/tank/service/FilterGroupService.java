@@ -19,9 +19,9 @@ package com.intuit.tank.service;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Model;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Model;
+import jakarta.inject.Inject;
 
 import com.intuit.tank.dao.FilterGroupDao;
 import com.intuit.tank.project.ScriptFilterGroup;

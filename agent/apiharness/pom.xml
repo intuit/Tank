@@ -28,7 +28,7 @@
       <exclusions>
         <exclusion>
           <groupId>org.springdoc</groupId>
-          <artifactId>springdoc-openapi-ui</artifactId>
+          <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </exclusion>
         <exclusion>
           <groupId>${project.groupId}</groupId>
@@ -108,9 +108,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.openjdk.nashorn</groupId>
       <artifactId>nashorn-core</artifactId>
-      <scope>runtime</scope>
     </dependency>
   </dependencies>
 </project>

@@ -13,11 +13,11 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import javax.enterprise.event.Observes;
-import javax.enterprise.event.Reception;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.event.Reception;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import com.intuit.tank.ProjectBean;
 import com.intuit.tank.qualifier.Modified;

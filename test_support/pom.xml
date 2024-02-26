@@ -28,7 +28,7 @@
 
   <properties>
     <version.surefire>2.22.2</version.surefire>
-    <version.jaxb>2.3.3</version.jaxb>
+    <version.jaxb>3.0.1</version.jaxb>
     <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
   </properties>

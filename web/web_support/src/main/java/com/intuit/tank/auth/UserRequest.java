@@ -18,9 +18,9 @@ package com.intuit.tank.auth;
 
 import java.util.Set;
 
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import com.intuit.tank.util.Messages;
 

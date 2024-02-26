@@ -23,8 +23,8 @@ import org.primefaces.model.DualListModel;
 
 import com.intuit.tank.ModifiedDatafileMessage;
 
-import javax.enterprise.context.ConversationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ConversationScoped;
+import jakarta.inject.Inject;
 
 /**
  * The class <code>AssociateDataFileBeanTest</code> contains tests for the class

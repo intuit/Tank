@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Serializable;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import net.sf.json.JSONObject;
 

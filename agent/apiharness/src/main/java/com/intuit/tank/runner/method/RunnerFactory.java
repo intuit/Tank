@@ -13,7 +13,7 @@ package com.intuit.tank.runner.method;
  * #L%
  */
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import com.intuit.tank.harness.data.*;
 import com.intuit.tank.runner.TestStepContext;

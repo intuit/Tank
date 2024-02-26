@@ -7,7 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.models.projects.adapter;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;
 import java.util.Map;
 

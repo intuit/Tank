@@ -16,11 +16,11 @@ package com.intuit.tank.filter;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.enterprise.context.Dependent;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import com.intuit.tank.dao.FilterDao;
 import com.intuit.tank.project.ScriptFilter;

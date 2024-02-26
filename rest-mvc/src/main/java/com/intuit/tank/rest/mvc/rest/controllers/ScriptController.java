@@ -34,7 +34,7 @@ import java.io.*;
 import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @RestController
 @RequestMapping(value = "/v2/scripts", produces = { MediaType.APPLICATION_JSON_VALUE })

@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * The class <code>TankSettingsTest</code> contains tests for the class <code>{@link TankSettings}</code>.

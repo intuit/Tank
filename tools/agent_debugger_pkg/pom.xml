@@ -22,7 +22,7 @@
 			<exclusions>
 				<exclusion>
 					<artifactId>servlet-api</artifactId>
-					<groupId>javax.servlet</groupId>
+					<groupId>jakarta.servlet</groupId>
 				</exclusion>
 				<exclusion>
 					<groupId>software.amazon.awssdk</groupId>
@@ -38,7 +38,7 @@
 				</exclusion>
 				<exclusion>
 					<artifactId>validation-api</artifactId>
-					<groupId>javax.validation</groupId>
+					<groupId>jakarta.validation</groupId>
 				</exclusion>
 				<exclusion>
 					<artifactId>javassist</artifactId>
@@ -55,8 +55,13 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.sun.xml.bind</groupId>
-			<artifactId>jaxb-impl</artifactId>
+			<groupId>org.glassfish.jaxb</groupId>
+			<artifactId>jaxb-runtime</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openjdk.nashorn</groupId>
+			<artifactId>nashorn-core</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
@@ -66,7 +71,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.1.1</version>
+				<version>3.5.1</version>
 				<executions>
 					<execution>
 						<phase>package</phase>

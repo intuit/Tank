@@ -5,9 +5,8 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:p="http://primefaces.org/ui">
   <h:head profile="http://www.w3.org/2005/10/profile">
-    <link rel="icon" 
-      type="image/png" 
-      href="#{request.contextPath}/TankLogo.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="#{request.contextPath}/TankLogo16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="#{request.contextPath}/TankLogo.png" />
     <title>Intuit Tank</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
@@ -29,7 +28,7 @@
           
             <p:toolbarGroup align="left">
               <h:outputLink value="#{request.contextPath}/">
-                <h:graphicImage library="gfx" name="TankLogo.svg" style="height:54px; width:151px; padding: 0 20px 0 0" />
+                <h:graphicImage library="logo" name="TankLogo.svg" style="height:54px; width:151px; padding: 0 20px 0 0" />
               </h:outputLink>
             </p:toolbarGroup>
           </p:toolbar>

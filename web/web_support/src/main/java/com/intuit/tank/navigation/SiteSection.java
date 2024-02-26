@@ -16,7 +16,7 @@ package com.intuit.tank.navigation;
  * #L%
  */
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * SiteSection. Represents a site section. suitable for navigation

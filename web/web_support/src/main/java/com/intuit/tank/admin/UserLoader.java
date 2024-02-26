@@ -18,8 +18,8 @@ package com.intuit.tank.admin;
 
 import java.util.List;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 
 import com.intuit.tank.ModifiedUserMessage;
 import com.intuit.tank.dao.UserDao;

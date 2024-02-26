@@ -16,7 +16,7 @@ package com.intuit.tank.vm.exception;
  * #L%
  */
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.xml.stream.XMLStreamException;
 
 import org.xml.sax.SAXParseException;
