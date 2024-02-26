@@ -106,7 +106,7 @@ public class CommandListener {
             LOG.info(LogUtil.getLogMessage(response));
 
             exchange.getResponseHeaders().set(HTTP.CONTENT_TYPE, "text/plain");
-            exchange.getResponseHeaders().set(HTTP.SERVER_HEADER,"Intuit Tank Agent/3.0.1");
+            exchange.getResponseHeaders().set(HTTP.SERVER_HEADER,"Intuit Tank Agent/4.0.0");
             exchange.sendResponseHeaders(200, response.length());
             OutputStream os = exchange.getResponseBody();
             os.write(response.getBytes());
