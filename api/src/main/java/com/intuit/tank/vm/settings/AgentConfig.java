@@ -57,6 +57,7 @@ public class AgentConfig implements Serializable {
     private static final String KEY_OVER_SIMULATION_MAX_TIME = "over-simulation-max-time";
 
     private static final String KEY_AGENT_PORT = "agent-port";
+    private static final String KEY_AGENT_TOKEN = "agent-token";
     private static final String KEY_LOG_POST_RESPONSE = "log-post-response";
     private static final String KEY_LOG_POST_REQUEST = "log-post-request";
     private static final String KEY_LOG_VARIABLES = "log-variables";
@@ -207,10 +208,17 @@ public class AgentConfig implements Serializable {
     }
 
     /**
-     * @return the Datafile storage root dir
+     * @return the agent port
      */
     public int getAgentPort() {
         return config.getInt(KEY_AGENT_PORT, 8090);
+    }
+
+    /**
+     * @return the agent token
+     */
+    public String getAgentToken() {
+        return config.getString(KEY_AGENT_TOKEN, "");
     }
 
     /**

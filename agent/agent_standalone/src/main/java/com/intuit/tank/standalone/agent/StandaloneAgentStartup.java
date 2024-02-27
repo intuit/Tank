@@ -44,6 +44,8 @@ public class StandaloneAgentStartup implements Runnable {
     private static final long PING_TIME = 1000 * 60 * 5;// five minutes
 
     private String controllerBase;
+
+    private String token;
     private AgentAvailability currentAvailability;
     private AgentClient agentClient;
     private String instanceId;
@@ -53,7 +55,7 @@ public class StandaloneAgentStartup implements Runnable {
     @Override
     public void run() {
         CommandListener.startHttpServer(CommandListener.PORT, this);
-        agentClient = new AgentClient(controllerBase);
+        agentClient = new AgentClient(controllerBase, token);
         
         if (hostname != null) {
             instanceId = hostname;
@@ -168,6 +170,13 @@ public class StandaloneAgentStartup implements Runnable {
                 }
                 agentStartup.controllerBase = values[1];
                 continue;
+            } else if (values[0].equalsIgnoreCase("-token")) {
+                if (values.length < 2) {
+                    usage();
+                    return;
+                }
+                agentStartup.token = values[1];
+                continue;
             } else if (values[0].equalsIgnoreCase("-host")) {
                 if (values.length < 2) {
                     usage();
@@ -192,7 +201,7 @@ public class StandaloneAgentStartup implements Runnable {
             }
 
         }
-        if (StringUtils.isBlank(agentStartup.controllerBase)) {
+        if (StringUtils.isBlank(agentStartup.controllerBase) || StringUtils.isBlank(agentStartup.token)) {
             usage();
             System.exit(1);
         }
@@ -207,6 +216,7 @@ public class StandaloneAgentStartup implements Runnable {
         System.out
                 .println("java -cp standaloneagent-startup-pkg-1.0-all.jar com/intuit/tank/agent/StandaloneAgentStartup <options>");
         System.out.println("-controller=<controller_base_url>:  The url of the controller to get test info from.");
+        System.out.println("-token=<authentication_token>:  The token of authenticated user.");
         System.out
                 .println("-host=<agent ip or host>:  optional. only need if agent cannot determine correct ip. The ip or dns name of this agent.");
         System.out

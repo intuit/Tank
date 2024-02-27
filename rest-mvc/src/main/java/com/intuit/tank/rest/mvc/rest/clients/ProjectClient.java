@@ -27,12 +27,12 @@ public class ProjectClient extends BaseClient{
 
     private static final String SERVICE_BASE_URL = "/v2/projects";
 
-    public ProjectClient(String serviceUrl)  {
-        super(serviceUrl, null, null);
+    public ProjectClient(String serviceUrl, String token)  {
+        super(serviceUrl, token, null, null);
     }
 
-    public ProjectClient(String serviceUrl, final String proxyServer, final Integer proxyPort) {
-        super(serviceUrl, proxyServer, proxyPort);
+    public ProjectClient(String serviceUrl, String token, final String proxyServer, final Integer proxyPort) {
+        super(serviceUrl, token, proxyServer, proxyPort);
     }
 
     protected String getServiceBaseUrl() {

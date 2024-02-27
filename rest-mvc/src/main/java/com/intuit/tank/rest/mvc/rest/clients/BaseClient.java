@@ -8,6 +8,7 @@
 package com.intuit.tank.rest.mvc.rest.clients;
 
 import com.intuit.tank.rest.mvc.rest.clients.util.*;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.reactive.JdkClientHttpConnector;
 import reactor.core.publisher.Mono;
 import org.springframework.http.MediaType;
@@ -29,26 +30,30 @@ public abstract class BaseClient {
 
     protected String baseUrl;
 
+    protected String token;
+
     protected WebClient client;
     protected RestUrlBuilder urlBuilder;
 
-    public BaseClient(String serviceUrl, final String proxyServer, final Integer proxyPort) {
-        setBaseUrl(serviceUrl);
+    public BaseClient(String serviceUrl, String token, final String proxyServer, final Integer proxyPort) {
+        setBaseUrl(serviceUrl, token);
         if (StringUtils.isNotEmpty(proxyServer)) {
             int port = proxyPort != null ? proxyPort : 80;
             client = WebClient.builder().exchangeStrategies(ExchangeStrategies.builder()
                     .codecs(configurer ->
                             configurer.defaultCodecs()
-                                    .maxInMemorySize(200 * 1024)
-                    )
-                    .build()).clientConnector(new JdkClientHttpConnector(build(proxyServer, port))).build();
+                                    .maxInMemorySize(200 * 1024 * 1024)
+                    ).build())
+                    .defaultHeader(HttpHeaders.AUTHORIZATION, "bearer="+token)
+                    .clientConnector(new JdkClientHttpConnector(build(proxyServer, port))).build();
         } else {
             client = WebClient.builder().exchangeStrategies(ExchangeStrategies.builder()
                     .codecs(configurer ->
                             configurer.defaultCodecs()
                                     .maxInMemorySize(200 * 1024 * 1024)
-                    )
-                    .build()).clientConnector(new JdkClientHttpConnector()).build();
+                    ).build())
+                    .defaultHeader(HttpHeaders.AUTHORIZATION, "bearer="+token)
+                    .clientConnector(new JdkClientHttpConnector()).build();
 
         }
         LOGGER.info(new ObjectMessage(ImmutableMap.of("Message", "client for url " + baseUrl + ": proxy="
@@ -59,11 +64,12 @@ public abstract class BaseClient {
         return HttpClient.newBuilder().proxy(ProxySelector.of(InetSocketAddress.createUnresolved(proxyServer, proxyPort))).build();
     }
 
-    public void setBaseUrl(String baseUrl) {
+    public void setBaseUrl(String baseUrl, String token) {
         if (baseUrl != null) {
             this.baseUrl = baseUrl + getServiceBaseUrl();
             urlBuilder = new RestUrlBuilder(this.baseUrl);
         }
+        this.token = (token == null) ? this.token : token;
     }
 
     protected abstract String getServiceBaseUrl();

@@ -13,12 +13,13 @@ package com.intuit.tank.agent;
  * #L%
  */
 
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.ConnectException;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -41,26 +42,35 @@ public class AgentStartup implements Runnable {
     private static final int[] FIBONACCI = new int[] { 1, 1, 2, 3, 5, 8, 13 };
 
     private final String controllerBaseUrl;
+    private final String token;
 
-    public AgentStartup (String controllerBaseUrl ) {
+    public AgentStartup (String controllerBaseUrl, String token ) {
         this.controllerBaseUrl = controllerBaseUrl;
+        this.token = token;
     }
 
     public void run() {
         logger.info("Starting up...");
+        HttpClient client = HttpClient.newHttpClient();
         try {
             logger.info("Starting up: ControllerBaseUrl=" + controllerBaseUrl);
-            URL url = new URL(controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SETTINGS);
-            logger.info("Starting up: making call to tank service url to get settings.xml "
-                    + url.toExternalForm());
-            FileUtils.copyURLToFile(url, new File("settings.xml"));
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(
+                    controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SETTINGS))
+                    .header("Authorization", "bearer="+token).build();
+            logger.info("Starting up: making call to tank service url to get settings.xml " +
+                    controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
+            client.send(request, BodyHandlers.ofFile(Paths.get("settings.xml")));
             logger.info("got settings file...");
             // Download Support Files
-            url = new URL(controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
-            logger.info("Making call to tank service url to get support files " + url.toExternalForm());
+            request = HttpRequest.newBuilder().uri(URI.create(
+                    controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT))
+                    .header("Authorization", "bearer="+token).build();
+            logger.info("Making call to tank service url to get support files " +
+                    controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
             int retryCount = 0;
             while (true) {
-                try (ZipInputStream zip = new ZipInputStream(url.openStream())) {
+                try (ZipInputStream zip = new ZipInputStream(
+                        client.send(request, BodyHandlers.ofInputStream()).body())) {
                     ZipEntry entry = zip.getNextEntry();
                     while (entry != null) {
                         String name = entry.getName();
@@ -90,26 +100,28 @@ public class AgentStartup implements Runnable {
                     + controllerBaseUrl + " : this is normal during the bake : " + ce.getMessage());
         } catch (IOException e) {
             logger.error("Error Executing API Harness Command: " + API_HARNESS_COMMAND + ": " + e, e);
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException ignored) {}
     }
 
     public static void main(String[] args) {
         String controllerBaseUrl = null;
+        String token = null;
         for (String argument : args) {
             String[] values = argument.split("=");
-
-            if (values[0].equalsIgnoreCase("-controller")) {
+            if (values[0].equalsIgnoreCase("-http")) {
                 if (values.length < 2) {
                     usage();
                     return;
                 }
                 controllerBaseUrl = values[1];
+            } else if (values[0].equalsIgnoreCase("-token")) {
+                token = (values.length > 1 ? values[1] : null);
             }
         }
-        if (StringUtils.isEmpty(controllerBaseUrl)) {
-            controllerBaseUrl = AmazonUtil.getControllerBaseUrl();
-        }
-        AgentStartup agentStartup = new AgentStartup(controllerBaseUrl);
+        controllerBaseUrl = (StringUtils.isEmpty(controllerBaseUrl)) ? AmazonUtil.getControllerBaseUrl() : controllerBaseUrl;
+        token = (StringUtils.isEmpty(token)) ? AmazonUtil.getAgentToken() : token;
+
+        AgentStartup agentStartup = new AgentStartup(controllerBaseUrl, token);
         agentStartup.run();
     }
 
@@ -119,7 +131,8 @@ public class AgentStartup implements Runnable {
     private static void usage() {
         System.out.println("Tank Test Startup Usage:");
         System.out.println("java -cp agent-startup-pkg-1.0-all.jar com/intuit/tank/agent/AgentStartup <options>");
-        System.out.println("-controller=<controller_base_url>:  The url of the controller to get test info from");
+        System.out.println("-http=<controller_base_url>:  The url of the controller to get test info from");
+        System.out.println("-token=<agent_token>:  The tank agent token assigned by the controller");
         System.out.println("Service Path: " + SERVICE_RELATIVE_PATH);
         System.out.println("Settings Method: " + METHOD_SETTINGS);
         System.out.println("Support Files Method: " + METHOD_SUPPORT);

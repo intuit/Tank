@@ -94,7 +94,7 @@ public class ScriptFilterRunner extends JFrame {
     /**
      * @throws HeadlessException
      */
-    public ScriptFilterRunner(final boolean terminate, String serviceUrl) throws HeadlessException {
+    public ScriptFilterRunner(final boolean terminate, String serviceUrl, String token) throws HeadlessException {
         super("Intuit Tank Script Filter Editor");
         Taskbar.getTaskbar().setIconImage(new ImageIcon(
                 Thread.currentThread().getContextClassLoader().getResource("tankIcon.png")).getImage());
@@ -110,7 +110,7 @@ public class ScriptFilterRunner extends JFrame {
                 }
             }
         });
-        scriptClient = new ScriptClient(serviceUrl);
+        scriptClient = new ScriptClient(serviceUrl, token);
 
         Component topPanel = createTopPanel();
         Component bottomPanel = createBottomPanel();
@@ -509,11 +509,9 @@ public class ScriptFilterRunner extends JFrame {
      * @param args
      */
     public static void main(String[] args) {
-        String url = "http://localhost:8080/";
-        if (args.length > 0) {
-            url = args[0];
-        }
-        new ScriptFilterRunner(true, url).setVisible(true);
+        String url = (args.length > 0) ? args[0] : "http://localhost:8080/";
+        String token = (args.length > 1) ? args[1] : "";
+        new ScriptFilterRunner(true, url, token).setVisible(true);
     }
 
 }

@@ -18,12 +18,12 @@ public class FilterClient extends BaseClient{
 
     private static final String SERVICE_BASE_URL = "/v2/filters";
 
-    public FilterClient(String serviceUrl)  {
-        super(serviceUrl, null, null);
+    public FilterClient(String serviceUrl, String token)  {
+        super(serviceUrl, token, null, null);
     }
 
-    public FilterClient(String serviceUrl, final String proxyServer, final Integer proxyPort) {
-        super(serviceUrl, proxyServer, proxyPort);
+    public FilterClient(String serviceUrl, String token, final String proxyServer, final Integer proxyPort) {
+        super(serviceUrl, token, proxyServer, proxyPort);
     }
 
     protected String getServiceBaseUrl() {

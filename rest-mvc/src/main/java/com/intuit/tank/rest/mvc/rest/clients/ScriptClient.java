@@ -23,16 +23,16 @@ import reactor.core.publisher.Flux;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
-public class ScriptClient extends BaseClient{
+public class ScriptClient extends BaseClient {
 
     private static final String SERVICE_BASE_URL = "/v2/scripts";
 
-    public ScriptClient(String serviceUrl)  {
-        super(serviceUrl, null, null);
+    public ScriptClient(String serviceUrl, String token)  {
+        super(serviceUrl, token, null, null);
     }
 
-    public ScriptClient(String serviceUrl, final String proxyServer, final Integer proxyPort) {
-        super(serviceUrl, proxyServer, proxyPort);
+    public ScriptClient(String serviceUrl, String token, final String proxyServer, final Integer proxyPort) {
+        super(serviceUrl, token, proxyServer, proxyPort);
     }
 
     protected String getServiceBaseUrl() {
