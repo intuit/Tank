@@ -65,7 +65,7 @@ public class User extends BaseEntity {
     public static final String PROPERTY_TOKEN = "apiToken";
 
     @Column(name = "tokenDisplayed")
-    private boolean tokenDisplayed = false;
+    private Boolean tokenDisplayed = false;
 
     @Column(name = "name", unique = true, nullable = false)
     @NotNull
