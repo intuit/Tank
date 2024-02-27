@@ -38,19 +38,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        try {
-            // check if user is logged in
-            HttpSession session = request.getSession(false); // false prevents creating a new session if not existent
-
-            if (session != null && session.getAttribute("user") != null) {
-                // user is logged in
-                String username = session.getAttribute("user").toString();
-                setAuthentication(username);
-            }
-        } catch (Exception e) {
-            LOG.error("Error authenticating user", e);
-        }
-
         // check bearer token
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
