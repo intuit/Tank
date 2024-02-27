@@ -7,7 +7,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -25,7 +24,6 @@ public class AuthTokenUserDetailService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
 
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         return new org.springframework.security.core.userdetails.User(
                 user.getName(),
                 user.getPassword(),
