@@ -18,7 +18,6 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -32,7 +31,6 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import com.intuit.tank.vm.common.PasswordEncoder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -66,7 +64,8 @@ public class User extends BaseEntity {
     public static final String PROPERTY_EMAIL = "email";
     public static final String PROPERTY_TOKEN = "apiToken";
 
-    private static boolean tokenDisplayed = false;
+    @Column(name = "tokenDisplayed")
+    private boolean tokenDisplayed = false;
 
     @Column(name = "name", unique = true, nullable = false)
     @NotNull

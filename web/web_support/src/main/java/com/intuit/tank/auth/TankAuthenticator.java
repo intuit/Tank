@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.intuit.tank.dao.UserDao;
+import com.intuit.tank.project.User;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
@@ -78,6 +80,7 @@ public class TankAuthenticator implements Serializable {
                 break;
             case SUCCESS:
                 messages.info("You're signed in as " + username);
+                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("user", username);
                 FacesContext.getCurrentInstance().getExternalContext().redirect(
                         FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/projects/index.jsf");
                 break;

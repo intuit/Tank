@@ -788,6 +788,11 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+        <version>${version.spring-webflux}</version>
+      </dependency>
+      <dependency>
         <groupId>org.wiremock</groupId>
         <artifactId>wiremock</artifactId>
         <version>${version.wiremock}</version>

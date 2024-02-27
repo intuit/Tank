@@ -2,6 +2,7 @@ package com.intuit.tank.rest.mvc;
 
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.User;
+import jakarta.servlet.http.HttpSession;
 import org.apache.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +38,20 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        try {
+            // check if user is logged in
+            HttpSession session = request.getSession(false); // false prevents creating a new session if not existent
+
+            if (session != null && session.getAttribute("user") != null) {
+                // user is logged in
+                String username = session.getAttribute("user").toString();
+                setAuthentication(username);
+            }
+        } catch (Exception e) {
+            LOG.error("Error authenticating user", e);
+        }
+
+        // check bearer token
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if(authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -46,20 +61,24 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 if(validateToken(token)) {
                     String username = getUsernameFromToken(token);
                     if(username != null) {
-                        UserDetails userDetails = userDetailService.loadUserByUsername(username);
-                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities());
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                        setAuthentication(username);
                     }
                 }
             } catch (UsernameNotFoundException unfe) {
-                    LOG.error("User not found via auth token", unfe);
+                    LOG.error("User not found", unfe);
             } catch (Exception e) {
-                LOG.error("Error validating token", e);
+                LOG.error("Error authenticating user", e);
             }
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void setAuthentication(String username) {
+        UserDetails userDetails = userDetailService.loadUserByUsername(username);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     private boolean validateToken(String token) {
