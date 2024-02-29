@@ -258,13 +258,6 @@ public class BaseRequestTest {
     }
 
     @Test
-    public void testGetContentTypeCharSet() {
-        BaseRequest fixture = new MockBaseRequest(null);
-        String contentTypeCharSet = fixture.getContentTypeCharSet();
-        assertEquals("UTF-8", contentTypeCharSet);
-    }
-
-    @Test
     public void testAsync() {
         BaseRequest fixture = new MockBaseRequest(null);
         fixture.setAsync(true);

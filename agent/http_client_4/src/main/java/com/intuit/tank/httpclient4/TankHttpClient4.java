@@ -151,7 +151,7 @@ public class TankHttpClient4 implements TankHttpClient {
         HttpPut httpput = new HttpPut(request.getRequestUrl());
         // Multiple calls can be expensive, so get it once
         String requestBody = request.getBody();
-        HttpEntity entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+        HttpEntity entity = new StringEntity(requestBody, ContentType.create(request.getContentType()));
         httpput.setEntity(entity);
         sendRequest(request, httpput, requestBody);
     }
@@ -209,7 +209,7 @@ public class TankHttpClient4 implements TankHttpClient {
         if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
             entity = buildParts(request);
         } else {
-            entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+            entity = new StringEntity(requestBody, ContentType.create(request.getContentType()));
         }
         httppost.setEntity(entity);
         sendRequest(request, httppost, requestBody);

@@ -310,10 +310,6 @@ public abstract class BaseRequest {
         this.timestamp = date;
     }
 
-    public String getContentTypeCharSet() {
-        return contentTypeCharSet;
-    }
-
     public void setAsync(boolean async) {
         this.async = async;
     }
