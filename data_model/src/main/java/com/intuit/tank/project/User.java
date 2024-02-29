@@ -138,7 +138,7 @@ public class User extends BaseEntity {
     }
 
     public boolean isTokenDisplayed() {
-        return tokenDisplayed;
+        return tokenDisplayed != null && tokenDisplayed;
     }
 
     /**
