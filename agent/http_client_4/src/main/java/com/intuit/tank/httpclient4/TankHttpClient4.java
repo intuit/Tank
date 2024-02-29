@@ -209,7 +209,9 @@ public class TankHttpClient4 implements TankHttpClient {
         if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
             entity = buildParts(request);
         } else {
-            entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+            entity = (request.getContentType().equalsIgnoreCase(ContentType.APPLICATION_JSON.toString()))
+                    ? new StringEntity(requestBody, ContentType.create(request.getContentType()))
+                    : new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
         }
         httppost.setEntity(entity);
         sendRequest(request, httppost, requestBody);
