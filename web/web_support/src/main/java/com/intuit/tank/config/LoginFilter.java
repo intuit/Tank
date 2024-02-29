@@ -92,12 +92,10 @@ public class LoginFilter extends HttpFilter {
 				LOG.error("Failed SSO due to unhandled exception", e);
 				InvalidateAndRedirect(request, response);
 			}
-
 			if (Objects.requireNonNull(oidcSsoConfig).getConfiguration() != null ) {
 				String REDIRECT_URL_VALUE = oidcSsoConfig.getRedirectUrl();
 				response.sendRedirect(REDIRECT_URL_VALUE);
 			}
-
 			return;
 		}
 

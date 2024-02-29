@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Objects;
 
-import com.intuit.tank.dao.UserDao;
-import com.intuit.tank.project.User;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
