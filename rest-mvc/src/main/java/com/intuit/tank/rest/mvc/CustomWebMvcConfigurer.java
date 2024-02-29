@@ -41,8 +41,4 @@ public class CustomWebMvcConfigurer implements WebMvcConfigurer {
         registry.addInterceptor(new LoggingInterceptor());
     }
 
-    @Bean
-    public UserDao userDao() {
-        return new UserDao();
-    }
 }
