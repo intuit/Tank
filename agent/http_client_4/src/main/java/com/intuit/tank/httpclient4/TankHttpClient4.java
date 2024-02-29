@@ -283,10 +283,12 @@ public class TankHttpClient4 implements TankHttpClient {
         if (context.getCookieStore().getCookies() != null) {
             cookies = context.getCookieStore().getCookies().stream().map(cookie -> "REQUEST COOKIE: " + cookie.toString()).collect(Collectors.toList());
         }
-        request.logRequest(uri, requestBody, method.getMethod(), request.getHeaderInformation(), cookies, false);
+//        request.logRequest(uri, requestBody, method.getMethod(), request.getHeaderInformation(), cookies, false);
         setHeaders(request, method, request.getHeaderInformation());
         long startTime = System.currentTimeMillis();
         request.setTimestamp(new Date(startTime));
+        request.setMethod(method);
+        request.setCookies(cookies);
         try ( CloseableHttpResponse response = httpclient.execute(method, context) ) {
 
             // read response body

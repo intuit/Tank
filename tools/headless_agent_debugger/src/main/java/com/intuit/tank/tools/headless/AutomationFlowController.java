@@ -96,7 +96,7 @@ public class AutomationFlowController implements FlowController {
      */
     @Override
     public boolean shouldExecute(TestStepContext context) {
-        // push setep from debugger into context
+        // push step from debugger into context
         context.setTestStep(debuggerSetup.getStep(context.getTestStep().getStepIndex()));
         TestStep step = context.getTestStep();
         if (!toSkip.contains(context.getTestStep().getStepIndex())) {// move if skiplist does not contain line
@@ -104,10 +104,12 @@ public class AutomationFlowController implements FlowController {
                 return true;
             } else {
                 TestStep skippedStep = debuggerSetup.getStep(context.getTestStep().getStepIndex());
-                String stepInfo = context.getTestStep().getStepIndex()+1 + ": "+ skippedStep.getInfo() + '\n';
-                LOG.info("******** STEP INFO *********"); // log step info regardless
+                String stepInfo = context.getTestStep().getStepIndex()+1 + ","
+                        + "null" + ","
+                        + skippedStep.getInfo() + ","
+                        + "SKIPPED";
+                debuggerSetup.stepExecuted();
                 LOG.info(stepInfo);
-                LOG.info("------------------------------------------------------");
             }
         }
         debuggerSetup.setNextStep(context);

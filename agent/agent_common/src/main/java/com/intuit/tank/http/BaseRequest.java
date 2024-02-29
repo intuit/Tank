@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,6 +31,8 @@ public abstract class BaseRequest {
     protected String contentType = "application/x-www-form-urlencoded";
     protected String contentTypeCharSet = StandardCharsets.UTF_8.toString();
     protected String requestUrl;
+    protected HttpRequestBase method;
+    protected List<String> cookies;
     private boolean async = false;
 
     protected HashMap<String, String> headerInformation = null;
@@ -83,11 +86,27 @@ public abstract class BaseRequest {
         return logMsg;
     }
 
+    public String getMethod(){
+        return method.getMethod();
+    }
+
+    public List<String> getCookies() {
+        return cookies;
+    }
+
     /**
      * @return the contentType
      */
     public String getContentType() {
         return contentType;
+    }
+
+    public void setMethod(HttpRequestBase method){
+        this.method = method;
+    }
+
+    public void setCookies(List<String> cookies) {
+        this.cookies = cookies;
     }
 
     /**
