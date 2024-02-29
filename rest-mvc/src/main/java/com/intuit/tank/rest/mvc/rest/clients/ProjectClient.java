@@ -45,7 +45,7 @@ public class ProjectClient extends BaseClient{
                 .uri(baseUrl)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -58,7 +58,7 @@ public class ProjectClient extends BaseClient{
                 .get()
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                         response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -71,7 +71,7 @@ public class ProjectClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", projectId))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                          .flatMap(body -> Mono.error(new ClientException(body,
                                  response.statusCode().value()))))
@@ -86,7 +86,7 @@ public class ProjectClient extends BaseClient{
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(request), AutomationRequest.class)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -101,7 +101,7 @@ public class ProjectClient extends BaseClient{
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(request), AutomationRequest.class)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
@@ -113,7 +113,7 @@ public class ProjectClient extends BaseClient{
         Flux<DataBuffer> dataBuffers = client.get()
                         .uri(urlBuilder.buildUrl("/download", projectId))
                         .retrieve()
-                        .onStatus(status -> status.isError(),
+                        .onStatus(HttpStatus::isError,
                                 response -> response.bodyToMono(String.class)
                                         .flatMap(body -> Mono.error(new ClientException(body,
                                                 response.statusCode().value()))))
@@ -136,7 +136,7 @@ public class ProjectClient extends BaseClient{
                 .uri(urlBuilder.buildUrl("", projectId))
                 .accept(MediaType.TEXT_PLAIN)
                 .retrieve()
-                .onStatus(status -> status.isError(),
+                .onStatus(HttpStatus::isError,
                             response -> response.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new ClientException(body,
                                         response.statusCode().value()))))
