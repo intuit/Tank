@@ -45,7 +45,8 @@ public class APIMonitor implements Runnable {
         this.isLocal = isLocal;
         status = vmStatus;
         try {
-            client = new AgentClient(APITestHarness.getInstance().getTankConfig().getControllerBase(), null);
+            String token = APITestHarness.getInstance().getTankConfig().getAgentConfig().getAgentToken();
+            client = new AgentClient(APITestHarness.getInstance().getTankConfig().getControllerBase(), token);
             reportInterval = Math.max(APITestHarness.getInstance().getTankConfig().getAgentConfig()
                     .getStatusReportIntervalMilis(reportInterval), MIN_REPORT_TIME);
         } catch (Exception e) {
