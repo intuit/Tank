@@ -64,7 +64,7 @@ public class User extends BaseEntity {
     public static final String PROPERTY_EMAIL = "email";
     public static final String PROPERTY_TOKEN = "apiToken";
 
-    @Column(name = "tokenDisplayed")
+    @Column(name = "tokenDisplayed", nullable = false, columnDefinition = "boolean default false")
     private Boolean tokenDisplayed = false;
 
     @Column(name = "name", unique = true, nullable = false)
@@ -133,14 +133,12 @@ public class User extends BaseEntity {
         return apiToken;
     }
 
-    public String displayApiToken(){
-        System.out.println("TOKEN STATUS BEFORE: " + tokenDisplayed);
-        if(!tokenDisplayed) {
-            tokenDisplayed = true;
-            return apiToken;
-        } else {
-            return "<hidden>";
-        }
+    public void setTokenDisplayed(boolean tokenDisplayed){
+        this.tokenDisplayed = tokenDisplayed;
+    }
+
+    public boolean isTokenDisplayed() {
+        return tokenDisplayed;
     }
 
     /**

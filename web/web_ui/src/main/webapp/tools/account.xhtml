@@ -88,7 +88,7 @@
               <div class="formInputDiv">
                 <h:panelGroup id="tokenGroup">
                   <h:inputText id="apiToken"
-                               value="#{accountModify.user.displayApiToken()}"
+                               value="#{accountModify.displayApiToken()}"
                                readonly="true" styleClass="formInput inputWidthMedium"
                                rendered="#{accountModify.user.apiToken ne null}"/>
                   <p:commandButton value="Generate API Token"

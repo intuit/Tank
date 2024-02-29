@@ -146,6 +146,7 @@ public class AccountModify implements Serializable {
     public void generateApiToken() {
         if (user.getApiToken() == null) {
             user.generateApiToken();
+            user.setTokenDisplayed(false);
             user = new UserDao().saveOrUpdate(user);
 
         }
@@ -155,6 +156,16 @@ public class AccountModify implements Serializable {
         if (user.getApiToken() != null) {
             user.deleteApiToken();
             user = new UserDao().saveOrUpdate(user);
+        }
+    }
+
+    public String displayApiToken() {
+        if(!user.isTokenDisplayed() && user.getApiToken() != null) {
+            user.setTokenDisplayed(true);
+            user = new UserDao().saveOrUpdate(user);
+            return user.getApiToken();
+        } else {
+            return "<hidden>";
         }
     }
 
