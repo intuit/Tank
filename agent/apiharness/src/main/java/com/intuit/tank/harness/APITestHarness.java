@@ -347,7 +347,7 @@ public class APITestHarness {
      */
     public void writeXmlToFile(String scriptUrl, String token) {
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(scriptUrl))
-                .headers("Accept-Encoding", "gzip", "Authorization", "bearer="+token).build();
+                .headers("Accept-Encoding", "gzip", "Authorization", "bearer "+token).build();
         File script = new File("script.xml");
         int retryCount = 0;
         while (true) {
@@ -381,7 +381,7 @@ public class APITestHarness {
 
     private void saveDataFile(DataFileRequest dataFileRequest, String token) {
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(dataFileRequest.getFileUrl()))
-                .headers("Accept-Encoding", "gzip", "Authorization", "bearer="+token).build();
+                .headers("Accept-Encoding", "gzip", "Authorization", "bearer "+token).build();
         String dataFileDirPath = new TankConfig().getAgentConfig().getAgentDataFileStorageDir();
         File dataFileDir = new File(dataFileDirPath);
         if (!dataFileDir.exists()) {

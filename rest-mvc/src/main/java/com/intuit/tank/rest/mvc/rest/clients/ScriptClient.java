@@ -12,6 +12,7 @@ import com.intuit.tank.script.models.ExternalScriptContainer;
 import com.intuit.tank.script.models.ExternalScriptTO;
 import com.intuit.tank.script.models.ScriptDescriptionContainer;
 import com.intuit.tank.script.models.ScriptTO;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -118,7 +119,10 @@ public class ScriptClient extends BaseClient {
     public Map<String, String> uploadScript(String name, Integer existingScriptId, MultipartFile file) {
         String finalName = name == null ? "" : name;
         Integer finalId = existingScriptId == null ? 0 :existingScriptId;
-        return WebClient.create(urlBuilder.buildUrl("")) // need webclient.create for query params
+        return WebClient.builder()
+                .baseUrl(urlBuilder.buildUrl(""))
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "bearer "+token)
+                .build()
                 .get()
                 .uri(uriBuilder -> uriBuilder.path("/upload")
                         .queryParam("name", finalName)

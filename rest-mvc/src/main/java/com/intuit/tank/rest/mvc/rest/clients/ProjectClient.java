@@ -13,6 +13,8 @@ import com.intuit.tank.rest.mvc.rest.models.projects.ProjectContainer;
 import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.client.reactive.JdkClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -54,7 +56,10 @@ public class ProjectClient extends BaseClient{
     }
 
     public Map<Integer, String> getProjectNames() {
-        return WebClient.create(urlBuilder.buildUrl("/names"))
+        return WebClient.builder()
+                .baseUrl(urlBuilder.buildUrl("/names"))
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "bearer "+token)
+                .build()
                 .get()
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()

@@ -92,7 +92,7 @@ public class PanelBuilder {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(serviceUrl + HEADERS_PATH))
-                    .header(HttpHeaders.AUTHORIZATION, "bearer="+token)
+                    .header(HttpHeaders.AUTHORIZATION, "bearer "+token)
                     .build();
             try ( InputStream settingsStream = client.send(request, HttpResponse.BodyHandlers.ofInputStream()).body() ) {
                 URL url = new URL(serviceUrl + HEADERS_PATH);

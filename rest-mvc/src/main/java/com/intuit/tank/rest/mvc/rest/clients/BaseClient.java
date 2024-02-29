@@ -44,7 +44,7 @@ public abstract class BaseClient {
                             configurer.defaultCodecs()
                                     .maxInMemorySize(200 * 1024 * 1024)
                     ).build())
-                    .defaultHeader(HttpHeaders.AUTHORIZATION, "bearer="+token)
+                    .defaultHeader(HttpHeaders.AUTHORIZATION, "bearer "+token)
                     .clientConnector(new JdkClientHttpConnector(build(proxyServer, port))).build();
         } else {
             client = WebClient.builder().exchangeStrategies(ExchangeStrategies.builder()
@@ -52,7 +52,7 @@ public abstract class BaseClient {
                             configurer.defaultCodecs()
                                     .maxInMemorySize(200 * 1024 * 1024)
                     ).build())
-                    .defaultHeader(HttpHeaders.AUTHORIZATION, "bearer="+token)
+                    .defaultHeader(HttpHeaders.AUTHORIZATION, "bearer "+token)
                     .clientConnector(new JdkClientHttpConnector()).build();
 
         }

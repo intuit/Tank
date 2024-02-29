@@ -56,7 +56,7 @@ public class AgentStartup implements Runnable {
             logger.info("Starting up: ControllerBaseUrl=" + controllerBaseUrl);
             HttpRequest request = HttpRequest.newBuilder().uri(URI.create(
                     controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SETTINGS))
-                    .header("Authorization", "bearer="+token).build();
+                    .header("Authorization", "bearer "+token).build();
             logger.info("Starting up: making call to tank service url to get settings.xml " +
                     controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
             client.send(request, BodyHandlers.ofFile(Paths.get("settings.xml")));
@@ -64,7 +64,7 @@ public class AgentStartup implements Runnable {
             // Download Support Files
             request = HttpRequest.newBuilder().uri(URI.create(
                     controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT))
-                    .header("Authorization", "bearer="+token).build();
+                    .header("Authorization", "bearer "+token).build();
             logger.info("Making call to tank service url to get support files " +
                     controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
             int retryCount = 0;

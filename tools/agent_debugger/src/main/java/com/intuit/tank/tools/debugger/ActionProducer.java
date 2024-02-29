@@ -393,7 +393,7 @@ public class ActionProducer {
                                 JOptionPane.QUESTION_MESSAGE);
                         if (selected == JOptionPane.OK_OPTION) {
                             String url = (String) comboBox.getSelectedItem();
-                            String token = tokenField.getSelectedText().trim();
+                            String token = tokenField.getText().trim();
                             if (url != null) {
                                 int startInd = url.indexOf('(');
                                 int endInd = url.indexOf(')');

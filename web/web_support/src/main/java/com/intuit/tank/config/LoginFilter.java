@@ -6,6 +6,7 @@ import java.util.Objects;
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.User;
 import jakarta.inject.Inject;
+import jakarta.persistence.NoResultException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebFilter;
@@ -52,7 +53,7 @@ public class LoginFilter extends HttpFilter {
 			// check bearer token
 			String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 			boolean isAuthenticated = false;
-			if (authHeader != null && authHeader.startsWith("Bearer ")) {
+			if (authHeader != null && authHeader.toLowerCase().startsWith("bearer ")) {
 				try {
 					String token = authHeader.substring(7);
 					if(validateToken(token)) {
