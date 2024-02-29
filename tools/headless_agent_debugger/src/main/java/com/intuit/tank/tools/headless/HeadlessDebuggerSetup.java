@@ -14,6 +14,7 @@ import com.intuit.tank.harness.TestPlanSingleton;
 import com.intuit.tank.harness.data.*;
 import com.intuit.tank.harness.functions.JexlIOFunctions;
 import com.intuit.tank.harness.functions.JexlStringFunctions;
+import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.rest.mvc.rest.clients.ProjectClient;
@@ -41,10 +42,7 @@ import javax.xml.transform.sax.SAXSource;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 
@@ -67,6 +65,7 @@ public class HeadlessDebuggerSetup implements Serializable {
     private static final String HEADERS_PATH = "/v2/agent/headers";
     private static final char NEWLINE = '\n';
     private ProjectClient projectClient;
+    private int executedStepCounter;
 
     public HeadlessDebuggerSetup(String serviceUrl, Integer projectId) {
         try {
@@ -203,6 +202,11 @@ public class HeadlessDebuggerSetup implements Serializable {
      * Attempts to delete the working dir and exits program
      */
     public void quit() {
+        LOG.info("Headless Agent Debugger - FINISHED EXECUTION");
+        double executedPercentage = ((double) executedStepCounter / steps.size()) * 100;
+        int roundedPercentage = (int) Math.round(executedPercentage);
+        LOG.info("total_executed:" + executedStepCounter);
+        LOG.info("" + roundedPercentage);
         if (workingDir.exists()) {
             try {
                 FileUtils.deleteDirectory(workingDir);
@@ -418,7 +422,8 @@ public class HeadlessDebuggerSetup implements Serializable {
         }
     }
 
-    public void stepFinished(final TestStepContext context) { //TODO: implement differently VERY IMPORTANT - error checking
+    public void stepFinished(final TestStepContext context) { // important - step error checking
+        boolean success_status = true;
         try {
             DebugStep debugStep = steps.get(currentRunningStep);
             if (debugStep != null) {
@@ -430,28 +435,40 @@ public class HeadlessDebuggerSetup implements Serializable {
             try {
                 StringBuilder sb = new StringBuilder();
                 if(debugStep.getStepRun() != null) {
-                    sb.append(debugStep.getStepRun().getStepIndex()+1).append(": ").append(debugStep.getStepRun().getInfo()).append(" ");
+                    sb.append(debugStep.getStepRun().getStepIndex()+1)
+                            .append(",")
+                            .append(debugStep.getRequest().getMethod())
+                            .append(",")
+                            .append(debugStep.getStepRun().getInfo())
+                            .append(",");
                 }
 
                 if (context.getResponse() != null) {
-                    if ((context.getResponse().getHttpCode() >= 400 || context.getResponse().getHttpCode() == -1) || !context.getErrors().isEmpty()) { // ERROR - print entire response
-                        sb.append(0).append(NEWLINE); // set error status (0)
-
-                        // log full response
-                        context.getResponse().logResponse(false);
-
-                        // log variables
-                        variablesOutput.displayVars();
+                    if ((context.getResponse().getHttpCode() >= 400 || context.getResponse().getHttpCode() == -1) || !context.getErrors().isEmpty()) { // ERROR - log all step info
+                        sb.append("FAILURE"); // set error status
+                        success_status = false;
                     } else {
-                        sb.append(1).append(NEWLINE); // set success status (1)
-                        context.getResponse().logResponse(true); // log shorter success response
+                        sb.append("SUCCESS"); // set success status
                     }
                 } else {
-                    sb.append(0).append(NEWLINE); // set error status (0)
+                    sb.append("FAILURE"); // set error status
+                    success_status = false;
                 }
-                LOG.info("******** STEP INFO *********"); // log  step info and status
+
+                stepExecuted();
                 LOG.info(sb);
-                LOG.info("------------------------------------------------------");
+
+                if(!success_status){
+                    BaseRequest request = context.getRequest();
+                    context.getRequest().logRequest(request.getRequestUrl(),
+                                                    request.getBody(),
+                                                    request.getMethod(),
+                                                    request.getHeaderInformation(),
+                                                    request.getCookies(),
+                                                    true);
+                    context.getResponse().logResponse(); // log full response
+                    variablesOutput.displayVars(); // log variables
+                }
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -563,7 +580,12 @@ public class HeadlessDebuggerSetup implements Serializable {
             HDWorkload workload = unmarshalWorkload(scriptXml);
             if (workload != null) {
                 setCurrentWorkload(workload);
-                LOG.info("Workload: " + workload.getName() + NEWLINE);
+                LOG.info("\n");
+                LOG.info("------------------------------------------------------");
+                LOG.info("Headless Agent Debugger - VALIDATION RESULTS");
+                LOG.info("workload=" + workload.getName() + NEWLINE);
+                LOG.info("total_steps=" + steps.size());
+                LOG.info("format:step_number,method,path,validation_status");
                 LOG.info("------------------------------------------------------");
             }
         }
@@ -578,5 +600,8 @@ public class HeadlessDebuggerSetup implements Serializable {
         return null;
     }
 
+    public void stepExecuted() {
+        executedStepCounter++;
+    }
 
 }
