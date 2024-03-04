@@ -42,8 +42,12 @@ import javax.xml.transform.sax.SAXSource;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class HeadlessDebuggerSetup implements Serializable {
@@ -66,12 +70,14 @@ public class HeadlessDebuggerSetup implements Serializable {
     private static final char NEWLINE = '\n';
     private ProjectClient projectClient;
     private int executedStepCounter;
+    private int projectId;
 
     public HeadlessDebuggerSetup(String serviceUrl, Integer projectId) {
         try {
             workingDir = createWorkingDir(serviceUrl);
             variablesOutput = new VariablesOutput(this);
             this.projectClient = new ProjectClient(serviceUrl);
+            this.projectId = projectId;
 
             setProject(projectId); // set project to step through
             if(currentWorkload == null) {
@@ -205,8 +211,32 @@ public class HeadlessDebuggerSetup implements Serializable {
         LOG.info("Headless Agent Debugger - FINISHED EXECUTION");
         double executedPercentage = ((double) executedStepCounter / steps.size()) * 100;
         int roundedPercentage = (int) Math.round(executedPercentage);
-        LOG.info("total_executed:" + executedStepCounter);
-        LOG.info("" + roundedPercentage);
+        LOG.info("validation_summary");
+
+        // get project and project_id
+        Pattern pattern = Pattern.compile("project\\s+(.+)\\s+\\(id(\\d+)\\)");
+        Matcher matcher = pattern.matcher(getCurrentWorkload().getName());
+
+        if (matcher.find()) {
+            String projectName = matcher.group(1);  // get PROJECT_NAME
+            String projectId = matcher.group(2);  // get PROJECT_ID
+
+            LOG.info("project," + projectName);
+            LOG.info("project_id," + projectId);
+        } else {
+            LOG.info("project," + getCurrentWorkload().getName());
+            LOG.info("project_id," + projectId);
+        }
+
+        LOG.info("total_steps," + steps.size());
+        LOG.info("total_executed," + executedStepCounter);
+        LOG.info("execution_percentage," + roundedPercentage);
+
+        // timestamp
+        ZonedDateTime now = ZonedDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        LOG.info("timestamp," + now.format(formatter));
+
         if (workingDir.exists()) {
             try {
                 FileUtils.deleteDirectory(workingDir);
