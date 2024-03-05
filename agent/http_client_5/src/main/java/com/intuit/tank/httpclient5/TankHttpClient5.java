@@ -32,8 +32,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.hc.client5.http.UserTokenHandler;
 import org.apache.hc.client5.http.async.methods.SimpleHttpRequest;
-import org.apache.hc.client5.http.async.methods.SimpleHttpRequests;
 import org.apache.hc.client5.http.async.methods.SimpleHttpResponse;
+import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.NTCredentials;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
@@ -138,7 +138,7 @@ public class TankHttpClient5 implements TankHttpClient {
      */
     @Override
     public void doGet(BaseRequest request) {
-        SimpleHttpRequest httpget = SimpleHttpRequests.get(request.getRequestUrl());
+        SimpleHttpRequest httpget = SimpleRequestBuilder.get(request.getRequestUrl()).build();
         sendRequest(request, httpget);
     }
 
@@ -151,8 +151,9 @@ public class TankHttpClient5 implements TankHttpClient {
      */
     @Override
     public void doPut(BaseRequest request) {
-        SimpleHttpRequest httpput = SimpleHttpRequests.put(request.getRequestUrl());
-        httpput.setBody(request.getBody(), ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+        SimpleHttpRequest httpput = SimpleRequestBuilder.put(request.getRequestUrl())
+                .setBody(request.getBody(), ContentType.create(request.getContentType().split(";")[0], request.getContentTypeCharSet()))
+                .build();
         sendRequest(request, httpput);
     }
 
@@ -165,7 +166,7 @@ public class TankHttpClient5 implements TankHttpClient {
      */
     @Override
     public void doDelete(BaseRequest request) {
-        SimpleHttpRequest httpdelete = SimpleHttpRequests.delete(request.getRequestUrl());
+        SimpleHttpRequest httpdelete = SimpleRequestBuilder.delete(request.getRequestUrl()).build();
         sendRequest(request, httpdelete);
     }
     
@@ -178,7 +179,7 @@ public class TankHttpClient5 implements TankHttpClient {
      */
     @Override
     public void doOptions(BaseRequest request) {
-        SimpleHttpRequest httpoptions = SimpleHttpRequests.options(request.getRequestUrl());
+        SimpleHttpRequest httpoptions = SimpleRequestBuilder.options(request.getRequestUrl()).build();
         sendRequest(request, httpoptions);
     }
 
@@ -191,20 +192,19 @@ public class TankHttpClient5 implements TankHttpClient {
      */
     @Override
     public void doPost(BaseRequest request) {
-        SimpleHttpRequest httppost = SimpleHttpRequests.post(request.getRequestUrl());
-        String requestBody = request.getBody();
+        SimpleRequestBuilder httppost = SimpleRequestBuilder.post(request.getRequestUrl());
         if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
-            HttpEntity entity = buildParts(request);
-            try (ByteArrayOutputStream baoStream = new ByteArrayOutputStream() ) {
+            try ( HttpEntity entity = buildParts(request);
+                  ByteArrayOutputStream baoStream = new ByteArrayOutputStream() ) {
                 entity.writeTo(baoStream);
-                httppost.setBody(baoStream.toByteArray(), ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+                httppost.setBody(baoStream.toByteArray(), ContentType.create(request.getContentType()));
             } catch (IOException e) {
                 LOG.error("Failure to write multipart POST payload.");
             }
         } else {
-            httppost.setBody(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+            httppost.setBody(request.getBody(), ContentType.create(request.getContentType().split(";")[0], request.getContentTypeCharSet()));
         }
-        sendRequest(request, httppost);
+        sendRequest(request, httppost.build());
     }
 
     /*

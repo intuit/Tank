@@ -198,7 +198,7 @@ public class LogEvent implements Serializable {
     private String getVariableValues() {
         StringBuilder sb = new StringBuilder();
         if (variables != null) {
-            for (Entry<String, String> entry : variables.getVaribleValues().entrySet()) {
+            for (Entry<String, String> entry : variables.getVariableValues().entrySet()) {
                 if (entry.getKey().equalsIgnoreCase("password") ||
                         entry.getKey().equalsIgnoreCase("pwd") ||
                         entry.getKey().equalsIgnoreCase("ssn") ||

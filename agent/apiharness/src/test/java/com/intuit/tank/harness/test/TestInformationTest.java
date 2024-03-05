@@ -272,6 +272,6 @@ public class TestInformationTest {
         fixture.processVariables(variables);
         Map<String, String> expected = new HashMap<>();
         expected.put("key", "06-01-2011");
-        assertEquals(expected, variables.getVaribleValues());
+        assertEquals(expected, variables.getVariableValues());
     }
 }

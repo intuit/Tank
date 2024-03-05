@@ -29,7 +29,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -843,7 +842,7 @@ public class AgentDebuggerFrame extends JFrame {
                 setCurrentStep(stepIndex);
                 DebugStep debugStep = steps.get(currentRunningStep);
                 if (debugStep != null) {
-                    debugStep.setEntryVariables(context.getVariables().getVaribleValues());
+                    debugStep.setEntryVariables(context.getVariables().getVariableValues());
                     debugStep.setRequest(context.getRequest());
                     debugStep.setResponse(context.getResponse());
                 }
@@ -861,7 +860,7 @@ public class AgentDebuggerFrame extends JFrame {
                 actionComponents.doneStepping();
                 DebugStep debugStep = steps.get(currentRunningStep);
                 if (debugStep != null) {
-                    debugStep.setExitVariables(context.getVariables().getVaribleValues());
+                    debugStep.setExitVariables(context.getVariables().getVariableValues());
                     debugStep.setRequest(context.getRequest());
                     debugStep.setResponse(context.getResponse());
                 }
