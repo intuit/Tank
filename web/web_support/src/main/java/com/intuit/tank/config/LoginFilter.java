@@ -49,38 +49,40 @@ public class LoginFilter extends HttpFilter {
 
 		String path = request.getRequestURI().substring(request.getContextPath().length());
 
-		if(path.startsWith("/v2/")) {
-			// check bearer token
-			String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-			boolean isAuthenticated = false;
-			if (authHeader != null && authHeader.toLowerCase().startsWith("bearer ")) {
-				try {
-					String token = authHeader.substring(7);
-					// check agent token 
-					if(token.equals(_tankConfig.getAgentConfig().getAgentToken())){
-						isAuthenticated = true;
-					} else {
-						// check user token
-						if(validateToken(token)) {
-							String username = getUsernameFromToken(token);
-							if (username != null) {
-								isAuthenticated = true;
+		if(_tankConfig.getVmManagerConfig().isEnableAuthAPI()) {
+			if (path.startsWith("/v2/")) {
+				// check bearer token
+				String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+				boolean isAuthenticated = false;
+				if (authHeader != null && authHeader.toLowerCase().startsWith("bearer ")) {
+					try {
+						String token = authHeader.substring(7);
+						// check agent token
+						if (token.equals(_tankConfig.getAgentConfig().getAgentToken())) {
+							isAuthenticated = true;
+						} else {
+							// check user token
+							if (validateToken(token)) {
+								String username = getUsernameFromToken(token);
+								if (username != null) {
+									isAuthenticated = true;
+								}
 							}
 						}
+					} catch (Exception e) {
+						LOG.error("Error authenticating user", e);
 					}
-				} catch (Exception e) {
-					LOG.error("Error authenticating user", e);
 				}
-			}
 
-			// check if user is logged in
-			if(!isAuthenticated && _securityContext.getCallerPrincipal() != null){
-				isAuthenticated = true;
-			}
+				// check if user is logged in
+				if (!isAuthenticated && _securityContext.getCallerPrincipal() != null) {
+					isAuthenticated = true;
+				}
 
-			if(!isAuthenticated){
-				response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized access");
-				return;
+				if (!isAuthenticated) {
+					response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized access");
+					return;
+				}
 			}
 		}
 

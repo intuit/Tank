@@ -37,6 +37,8 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 
+import static com.intuit.tank.vm.common.TankConstants.KEY_ENABLE_API_AUTH;
+
 /**
  * VmManagerConfig
  * 
@@ -300,6 +302,10 @@ public class VmManagerConfig implements Serializable {
      */
     public boolean isUseElasticIps() {
         return config.getBoolean("use-agent-elastic-ips", false);
+    }
+
+    public boolean isEnableAuthAPI() {
+        return config.getBoolean(KEY_ENABLE_API_AUTH, false);
     }
 
     /**
