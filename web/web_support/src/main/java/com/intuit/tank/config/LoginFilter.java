@@ -56,16 +56,16 @@ public class LoginFilter extends HttpFilter {
 			if (authHeader != null && authHeader.toLowerCase().startsWith("bearer ")) {
 				try {
 					String token = authHeader.substring(7);
-					// check user token
-					if(validateToken(token)) {
-						String username = getUsernameFromToken(token);
-						if (username != null) {
-							isAuthenticated = true;
-						}
+					// check agent token 
+					if(token.equals(_tankConfig.getAgentConfig().getAgentToken())){
+						isAuthenticated = true;
 					} else {
-						// check agent token
-						if(token.equals(_tankConfig.getAgentConfig().getAgentToken())){
-							isAuthenticated = true;
+						// check user token
+						if(validateToken(token)) {
+							String username = getUsernameFromToken(token);
+							if (username != null) {
+								isAuthenticated = true;
+							}
 						}
 					}
 				} catch (Exception e) {
