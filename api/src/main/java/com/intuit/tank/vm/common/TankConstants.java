@@ -35,7 +35,6 @@ public class TankConstants {
     public static final String KEY_USING_BIND_EIP = "usingBindEip";
     public static final String KEY_CONTROLLER_URL = "controllerUrl";
     public static final String KEY_AGENT_TOKEN = "agentToken";
-    public static final String KEY_ENABLE_API_AUTH = "enableAPIAuth";
     public static final String KEY_REGION = "region";
     public static final String KEY_ENVIRONMENT = "environment";
     public static final String KEY_NUMBER_OF_USERS = "numberOfUsers";
