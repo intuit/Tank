@@ -86,21 +86,18 @@ public class ValidationUtil {
         return false;
     }
 
-    public static final String removeVariableIdentifier(String key) {
+    public static String removeVariableIdentifier(String key) {
         return removeIdentifier(key, identifierChar);
     }
 
-    public static final String removeAllVariableIdentifier(String key) {
+    public static String removeAllVariableIdentifier(String key) {
         key = removeIdentifier(key, identifierChar);
         key = StringUtils.removeStart(key, "#");
         key = StringUtils.removeStart(key, "{");
         return StringUtils.removeEnd(key, "}");
     }
 
-    private static final String removeIdentifier(String key, char c) {
-        if (key.charAt(0) == c) {
-            key = key.replaceFirst(Character.toString(c), "");
-        }
-        return key;
+    private static String removeIdentifier(String key, char c) {
+        return (key.charAt(0) == c) ? key.replaceFirst(Character.toString(c), "") : key;
     }
 }

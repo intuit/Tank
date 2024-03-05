@@ -115,7 +115,7 @@ public class Variables {
     	return s;
     }
 
-    public Map<String, String> getVaribleValues() {
+    public Map<String, String> getVariableValues() {
         Map<String, String> ret = new HashMap<String, String>();
         for (Entry<String, VariableValue> entry : variables.entrySet()) {
             ret.put(entry.getKey(), entry.getValue().getValue());
@@ -186,7 +186,7 @@ public class Variables {
     public String getVariable(String key) {
         key = ValidationUtil.removeVariableIdentifier(key);
         VariableValue variableValue = this.variables.get(key);
-        return variableValue != null ? variableValue.getValue() : null;
+        return variableValue != null ? variableValue.getValue() : "";
 
     }
 

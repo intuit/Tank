@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.net.HttpHeaders;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -616,13 +617,12 @@ public class ConverterUtil {
 
     public static boolean includedHeader(String header) {
 
-        return (header.startsWith("Accept") ||
-                (!header.equalsIgnoreCase("host")
-                        && !header.startsWith("Content")
-                        && !header.equalsIgnoreCase("Connection")
-        //                && !header.equalsIgnoreCase("Authorization")
-                        && !header.equalsIgnoreCase("Cookie")
-        //                && !header.equalsIgnoreCase("Referer")
+        return (header.startsWith(HttpHeaders.ACCEPT) ||
+                (!header.equalsIgnoreCase(HttpHeaders.HOST)
+                        && !header.equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)
+                        && !header.equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH)
+                        && !header.equalsIgnoreCase(HttpHeaders.CONNECTION)
+                        && !header.equalsIgnoreCase(HttpHeaders.COOKIE)
                         && !header.toLowerCase().startsWith("get ")
                         && !header.toLowerCase().startsWith("post ")
                         && !header.equalsIgnoreCase("If-None-Match")

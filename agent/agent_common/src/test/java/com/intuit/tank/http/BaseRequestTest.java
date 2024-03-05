@@ -2,6 +2,7 @@ package com.intuit.tank.http;
 
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -255,6 +256,17 @@ public class BaseRequestTest {
                 "testCookie\n" +
                 "REQUEST SIZE: 8\n" +
                 "REQUEST BODY: testBody\n", fixture.logMsg);
+    }
+
+    @Test
+    public void testGetContentTypeCharSet() {
+        BaseRequest fixture = new MockBaseRequest(null);
+        String contentTypeCharSet = fixture.getContentTypeCharSet();
+        assertEquals(null, contentTypeCharSet);
+
+        fixture.setContentTypeCharSet(StandardCharsets.UTF_8.toString());
+        contentTypeCharSet = fixture.getContentTypeCharSet();
+        assertEquals("UTF-8", contentTypeCharSet);
     }
 
     @Test

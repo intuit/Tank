@@ -152,7 +152,7 @@ public class TankHttpClient5 implements TankHttpClient {
     @Override
     public void doPut(BaseRequest request) {
         SimpleHttpRequest httpput = SimpleRequestBuilder.put(request.getRequestUrl())
-                .setBody(request.getBody(), ContentType.create(request.getContentType()))
+                .setBody(request.getBody(), ContentType.create(request.getContentType().split(";")[0], request.getContentTypeCharSet()))
                 .build();
         sendRequest(request, httpput);
     }
@@ -202,7 +202,7 @@ public class TankHttpClient5 implements TankHttpClient {
                 LOG.error("Failure to write multipart POST payload.");
             }
         } else {
-            httppost.setBody(request.getBody(), ContentType.create(request.getContentType()));
+            httppost.setBody(request.getBody(), ContentType.create(request.getContentType().split(";")[0], request.getContentTypeCharSet()));
         }
         sendRequest(request, httppost.build());
     }
