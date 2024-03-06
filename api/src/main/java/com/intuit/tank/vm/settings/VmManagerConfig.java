@@ -303,7 +303,7 @@ public class VmManagerConfig implements Serializable {
     }
 
     public boolean isEnableAuthAPI() {
-        return config.getBoolean("enable-api-auth", false);
+        return config.getBoolean("rest-security-enabled", false);
     }
 
     /**
