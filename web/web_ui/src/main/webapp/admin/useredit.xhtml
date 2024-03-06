@@ -85,12 +85,20 @@
           </div>
           <div class="formInputDiv">
             <h:panelGroup id="tokenGroup">
-              <h:outputText id="apiToken"
-                value="#{userEdit.user.apiToken}" />
+              <h:inputText id="apiToken"
+                value="#{userEdit.user.apiToken}"
+                readonly="true" styleClass="formInput inputWidthMedium"
+                rendered="#{userEdit.user.apiToken ne null}"/>
               <p:commandButton action="#{userEdit.generateApiToken}"
                 value="Generate API Token"
                 immediate="true" update="tokenGroup"
-                rendered="#{userEdit.user.apiToken == null}" ajax="true" />
+                rendered="#{userEdit.user.apiToken eq null}" ajax="true" />
+            </h:panelGroup>
+            <h:panelGroup id="deleteTokenGroup">
+              <p:commandButton action="#{userEdit.user.deleteApiToken}"
+                               value="Delete API Token"
+                               immediate="true" update="tokenGroup"
+                               rendered="#{userEdit.user.apiToken ne null}" ajax="true" />
             </h:panelGroup>
           </div>
         </div>

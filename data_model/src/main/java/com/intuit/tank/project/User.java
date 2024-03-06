@@ -14,9 +14,10 @@ package com.intuit.tank.project;
  * #L%
  */
 
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -54,10 +55,17 @@ public class User extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+    private static final SecureRandom secureRandom = new SecureRandom();
+
+    private static final Base64.Encoder base64Encoder = Base64.getEncoder();
+
     public static final String PROPERTY_NAME = "name";
     public static final String PROPERTY_GROUPS = "groups";
     public static final String PROPERTY_EMAIL = "email";
     public static final String PROPERTY_TOKEN = "apiToken";
+
+    @Column(name = "tokenDisplayed", nullable = false, columnDefinition = "boolean default false")
+    private Boolean tokenDisplayed = false;
 
     @Column(name = "name", unique = true, nullable = false)
     @NotNull
@@ -125,11 +133,29 @@ public class User extends BaseEntity {
         return apiToken;
     }
 
+    public void setTokenDisplayed(boolean tokenDisplayed){
+        this.tokenDisplayed = tokenDisplayed;
+    }
+
+    public boolean isTokenDisplayed() {
+        return tokenDisplayed != null && tokenDisplayed;
+    }
+
     /**
      * @return apiToken
      */
     public void generateApiToken() {
-        this.apiToken = UUID.randomUUID().toString();
+        byte[] tokenBytes = new byte[24]; // 256-bit token
+        secureRandom.nextBytes(tokenBytes);
+        this.apiToken = base64Encoder.encodeToString(tokenBytes);
+    }
+
+    /**
+     *
+     */
+    public void deleteApiToken() {
+        this.apiToken = null;
+        tokenDisplayed = false;
     }
 
     /**

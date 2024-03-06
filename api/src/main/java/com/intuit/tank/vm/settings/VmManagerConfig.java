@@ -302,6 +302,10 @@ public class VmManagerConfig implements Serializable {
         return config.getBoolean("use-agent-elastic-ips", false);
     }
 
+    public boolean isEnableAuthAPI() {
+        return config.getBoolean("enable-api-auth", false);
+    }
+
     /**
      * 
      * @param defaultResult

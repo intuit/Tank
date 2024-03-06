@@ -10,13 +10,13 @@ public class ScriptFilterRunnerTest {
 
     @Test
     public void testConstructorExit() {
-        ScriptFilterRunner scriptFilterRunner = new ScriptFilterRunner(Boolean.TRUE, "http://localhost:8080/");
+        ScriptFilterRunner scriptFilterRunner = new ScriptFilterRunner(Boolean.TRUE, "http://localhost:8080/", null);
         assertNotNull(scriptFilterRunner);
     }
 
     @Test
     public void testConstructor() {
-        ScriptFilterRunner scriptFilterRunner = new ScriptFilterRunner(Boolean.FALSE, "http://localhost:8080/");
+        ScriptFilterRunner scriptFilterRunner = new ScriptFilterRunner(Boolean.FALSE, "http://localhost:8080/", null);
         assertNotNull(scriptFilterRunner);
     }
 }

@@ -58,7 +58,7 @@ public class AppletLauncher extends JApplet {
             String codeBase = getCodeBase().toString();
             String baseUrl = codeBase.substring(0, codeBase.indexOf('/', 10));
             String context = getParameter("rootContext");
-            frame = new ScriptFilterRunner(false, baseUrl + context);
+            frame = new ScriptFilterRunner(false, baseUrl + context, "token");
         } catch (Exception t) {
             System.out.println("ERROR: " + t.toString());
             t.printStackTrace();

@@ -29,7 +29,7 @@ public class ActionComponentsTest {
 
     @BeforeAll
     public static void setup() {
-        actions = new ActionProducer(new AgentDebuggerFrame(true, null), null);
+        actions = new ActionProducer(new AgentDebuggerFrame(true, null, null), null, null);
         actionComponents = new ActionComponents(
                 true,            // standalone
                 new JComboBox(),                        //testPlanChooser
