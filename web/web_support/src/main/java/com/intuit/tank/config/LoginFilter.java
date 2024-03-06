@@ -49,7 +49,7 @@ public class LoginFilter extends HttpFilter {
 
 		String path = request.getRequestURI().substring(request.getContextPath().length());
 
-		if(path.startsWith("/v2/") && _tankConfig.getVmManagerConfig().isEnableAuthAPI()) {
+		if(path.startsWith("/v2/") && _tankConfig.isRestSecurityEnabled()) {
 			// check bearer token
 			String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 			boolean isAuthenticated = false;
