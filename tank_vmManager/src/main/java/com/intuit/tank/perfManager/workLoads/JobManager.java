@@ -254,7 +254,7 @@ public class JobManager implements Serializable {
      * @return List of InstanceUrls
      */
     protected List<String> getInstanceUrl(List<String> instanceIds) {
-        return instanceIds.stream()
+        return instanceIds.parallelStream()
                 .filter(StringUtils::isNotEmpty)
                 .map(instanceId -> jobInfoMapLocalCache.values().stream()
                         .flatMap(info -> info.agentData.stream())
