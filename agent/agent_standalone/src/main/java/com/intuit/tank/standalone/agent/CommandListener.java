@@ -18,8 +18,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
@@ -84,7 +84,7 @@ public class CommandListener {
                 }
             }
             exchange.getResponseHeaders().set(HTTP.CONTENT_TYPE, "text/plain");
-            exchange.getResponseHeaders().set(HTTP.SERVER_HEADER,"Intuit Tank Agent/3.0.1");
+            exchange.getResponseHeaders().set(HTTP.SERVER_HEADER,"Intuit Tank Agent/4.0.0");
             exchange.sendResponseHeaders(code, response.length());
             OutputStream os = exchange.getResponseBody();
             os.write(response.getBytes());

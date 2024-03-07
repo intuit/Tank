@@ -13,8 +13,7 @@ package com.intuit.tank.tools.debugger;
  * #L%
  */
 
-import java.awt.HeadlessException;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,20 +25,13 @@ import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
@@ -64,7 +56,7 @@ import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.tools.debugger.FindReplaceDialog.DialogType;
 
 public class ActionProducer {
-    private static Logger LOG = LogManager.getLogger(ActionProducer.class);
+    private static final Logger LOG = LogManager.getLogger(ActionProducer.class);
 
     private static final String DEBUGGER_PROPERTIES = "debugger.properties";
     private static final String TS_INSTANCE_START = "tank.instance.";
@@ -108,13 +100,13 @@ public class ActionProducer {
      * @param debuggerFrame
      * @param serviceUrl
      */
-    public ActionProducer(AgentDebuggerFrame debuggerFrame, String serviceUrl) {
+    public ActionProducer(AgentDebuggerFrame debuggerFrame, String serviceUrl, String token) {
         super();
         this.debuggerFrame = debuggerFrame;
-        this.scriptClient = new ScriptClient(serviceUrl);
-        this.projectClient = new ProjectClient(serviceUrl);
-        this.agentClient = new AgentClient(serviceUrl);
-        this.dataFileClient = new DataFileClient(serviceUrl);
+        this.scriptClient = new ScriptClient(serviceUrl, token);
+        this.projectClient = new ProjectClient(serviceUrl, token);
+        this.agentClient = new AgentClient(serviceUrl, token);
+        this.dataFileClient = new DataFileClient(serviceUrl, token);
 
         jFileChooser = new JFileChooser();
         jFileChooser.setFileFilter(new FileFilter() {
@@ -156,12 +148,12 @@ public class ActionProducer {
      * 
      * @param serviceUrl
      */
-    public void setServiceUrl(String serviceUrl) {
-        this.scriptClient = new ScriptClient(serviceUrl);
-        this.projectClient = new ProjectClient(serviceUrl);
-        this.dataFileClient = new DataFileClient(serviceUrl);
-        this.agentClient = new AgentClient(serviceUrl);
-        PanelBuilder.updateServiceUrl(serviceUrl);
+    public void setServiceUrl(String serviceUrl, String token) {
+        this.scriptClient = new ScriptClient(serviceUrl, token);
+        this.projectClient = new ProjectClient(serviceUrl, token);
+        this.dataFileClient = new DataFileClient(serviceUrl, token);
+        this.agentClient = new AgentClient(serviceUrl, token);
+        PanelBuilder.updateServiceUrl(serviceUrl, token);
         setChoiceComboBoxOptions(debuggerFrame.getTankClientChooser());
     }
 
@@ -378,16 +370,30 @@ public class ActionProducer {
         if (ret == null) {
             ret = new AbstractAction(ACTION_SELECT_TANK) {
                 private static final long serialVersionUID = 1L;
-                final JComboBox<String> cb = getComboBox();
-
+                JComboBox<String> comboBox = getComboBox();
                 @Override
                 public void actionPerformed(ActionEvent event) {
+                    JPanel panel = new JPanel();
+                    panel.setPreferredSize(new Dimension(400,125));
+                    panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+                    JPanel baseURLPanel = new JPanel();
+                    baseURLPanel.setBorder(BorderFactory.createTitledBorder("Intuit/Tank Base URL"));
+                    JPanel tokenPanel = new JPanel();
+                    comboBox.setPreferredSize(new Dimension(375,25));
+                    tokenPanel.setBorder(BorderFactory.createTitledBorder("Intuit/Tank Token"));
+                    final JTextField tokenField = new JTextField();
+                    tokenField.setPreferredSize(new Dimension(375,25));
+                    baseURLPanel.add(comboBox);
+                    panel.add(baseURLPanel);
+                    tokenPanel.add(tokenField);
+                    panel.add(tokenPanel);
                     try {
-                        int selected = JOptionPane.showConfirmDialog(debuggerFrame, cb,
-                                "Enter the base URL to Tank:", JOptionPane.OK_CANCEL_OPTION,
+                        int selected = JOptionPane.showConfirmDialog(debuggerFrame, panel,
+                                "Enter the Intuit/Tank URL & Token", JOptionPane.OK_CANCEL_OPTION,
                                 JOptionPane.QUESTION_MESSAGE);
                         if (selected == JOptionPane.OK_OPTION) {
-                            String url = (String) cb.getSelectedItem();
+                            String url = (String) comboBox.getSelectedItem();
+                            String token = tokenField.getText().trim();
                             if (url != null) {
                                 int startInd = url.indexOf('(');
                                 int endInd = url.indexOf(')');
@@ -399,8 +405,8 @@ public class ActionProducer {
                                     url = "http://" + url;
                                 }
                                 try {
-                                    new ScriptClient(url).ping();
-                                    setServiceUrl(url);
+                                    new ScriptClient(url, token).ping();
+                                    setServiceUrl(url, token);
                                 } catch (Exception e) {
                                     showError("Cannot connect to Tank at the url " + url
                                             + ". \nExample: http://tank.mysite.com/");

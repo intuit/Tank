@@ -13,9 +13,9 @@ package com.intuit.tank.job;
  * #L%
  */
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.rest.mvc.rest.cloud.JobEventSender;
@@ -53,6 +53,19 @@ public class JobQueueAction {
             }
         } else if (node instanceof VMNodeBean) {
              controller.restartAgent(node.getId());
+        }
+    }
+
+    /**
+     * Runs the agents for the job for the given jobId
+     */
+    public void startAgents(JobNodeBean node) {
+        AWSXRay.getCurrentSegment().putAnnotation("job.action", "startAgents");
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", node.getJobId());
+        if (node instanceof ActJobNodeBean) {
+            if(node.isUseTwoStep()) {
+                controller.startAgents(node.getId());
+            }
         }
     }
 

@@ -3,6 +3,7 @@
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
   xmlns:f="http://xmlns.jcp.org/jsf/core"
   xmlns:h="http://xmlns.jcp.org/jsf/html"
+  xmlns:ts="http://xmlns.jcp.org/jsf/composite/tag"
   xmlns:p="http://primefaces.org/ui">
 
   <div id="addWorkloads">
@@ -115,6 +116,24 @@
             <div class="formInputDiv">
               <p:selectBooleanCheckbox id="useEipsCB"
                 value="#{jobMaker.useEips}" />
+            </div>
+          </div>
+
+          <div class="formRow">
+            <div class="formLabelDiv">
+              <h:outputLabel for="useTwoStepCB"
+                             value="Enable Two-Step Job Start"
+                             styleClass="formLabel required" />
+              <ts:tip tipId="TwoStepTip"
+                      text="Enabling Two Step Job Start will configure the job to start in a two step process: launching all the agents/load injectors before waiting on the command to start load.
+                            This mode will also enable the `(L) - Start Load` job command in the UI. Running the job with `(R) - Run` will launch and check in the agents for the job. Once all agents are ready to drive load, denoted by
+                            a new 'ready' agent status, the job will wait for the start load command (L) to start load. This feature is particularly useful in the context of gate rush/spike testing where load start times need to be exact.
+                            Note: Agents will need to receive the start load command within 5-10 minutes of checking in to ensure agent connectivity."/>
+            </div>
+            <div class="formInputDiv">
+              <p:selectBooleanCheckbox id="useTwoStepCB"
+                                       value="#{jobMaker.useTwoStep}" />
+
             </div>
           </div>
         </h:panelGroup>

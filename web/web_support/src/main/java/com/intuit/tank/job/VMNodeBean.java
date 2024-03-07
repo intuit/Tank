@@ -87,6 +87,11 @@ public class VMNodeBean extends JobNodeBean {
     }
 
     @Override
+    public String getTotalSubNodesReady() {
+        return "";
+    }
+
+    @Override
     public boolean allSubNodesCompleted(){ return false; }
 
     @Override
@@ -97,6 +102,11 @@ public class VMNodeBean extends JobNodeBean {
     @Override
     public boolean isKillable() {
         return JobStatusHelper.canBeKilled(getStatus());
+    }
+
+    @Override
+    public boolean isStartable() {
+        return false;
     }
 
     @Override

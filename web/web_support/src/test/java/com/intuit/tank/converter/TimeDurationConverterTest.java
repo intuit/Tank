@@ -13,13 +13,14 @@ package com.intuit.tank.converter;
  * #L%
  */
 
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
 
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.mockito.Mockito;
 import org.primefaces.extensions.component.dynaform.DynaForm;
 
 import com.intuit.tank.converter.TimeDurationConverter;
@@ -54,7 +55,7 @@ public class TimeDurationConverterTest {
         throws Exception {
         TimeDurationConverter fixture = new TimeDurationConverter();
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIComponent uiComponent = new DynaForm();
+        UIComponent uiComponent = Mockito.mock(UIComponent.class);
         String value = "";
 
         Object result = fixture.getAsObject(facesContext, uiComponent, value);
@@ -77,7 +78,7 @@ public class TimeDurationConverterTest {
         throws Exception {
         TimeDurationConverter fixture = new TimeDurationConverter();
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIComponent uiComponent = new DynaForm();
+        UIComponent uiComponent = Mockito.mock(UIComponent.class);
         String value = "";
 
         Object result = fixture.getAsObject(facesContext, uiComponent, value);
@@ -100,7 +101,7 @@ public class TimeDurationConverterTest {
         throws Exception {
         TimeDurationConverter fixture = new TimeDurationConverter();
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIComponent uiComponent = new DynaForm();
+        UIComponent uiComponent = Mockito.mock(UIComponent.class);
         Object obj = new Byte((byte) 1);
 
         String result = fixture.getAsString(facesContext, uiComponent, obj);
@@ -123,7 +124,7 @@ public class TimeDurationConverterTest {
         throws Exception {
         TimeDurationConverter fixture = new TimeDurationConverter();
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIComponent uiComponent = new DynaForm();
+        UIComponent uiComponent = Mockito.mock(UIComponent.class);
         Object obj = new Object();
 
         String result = fixture.getAsString(facesContext, uiComponent, obj);

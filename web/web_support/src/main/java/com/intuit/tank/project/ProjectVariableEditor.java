@@ -20,9 +20,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ConversationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.ConversationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import com.intuit.tank.util.Messages;

@@ -12,6 +12,7 @@ import com.intuit.tank.script.models.ExternalScriptContainer;
 import com.intuit.tank.script.models.ExternalScriptTO;
 import com.intuit.tank.script.models.ScriptDescriptionContainer;
 import com.intuit.tank.script.models.ScriptTO;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -23,16 +24,16 @@ import reactor.core.publisher.Flux;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
-public class ScriptClient extends BaseClient{
+public class ScriptClient extends BaseClient {
 
     private static final String SERVICE_BASE_URL = "/v2/scripts";
 
-    public ScriptClient(String serviceUrl)  {
-        super(serviceUrl, null, null);
+    public ScriptClient(String serviceUrl, String token)  {
+        super(serviceUrl, token, null, null);
     }
 
-    public ScriptClient(String serviceUrl, final String proxyServer, final Integer proxyPort) {
-        super(serviceUrl, proxyServer, proxyPort);
+    public ScriptClient(String serviceUrl, String token, final String proxyServer, final Integer proxyPort) {
+        super(serviceUrl, token, proxyServer, proxyPort);
     }
 
     protected String getServiceBaseUrl() {
@@ -118,7 +119,10 @@ public class ScriptClient extends BaseClient{
     public Map<String, String> uploadScript(String name, Integer existingScriptId, MultipartFile file) {
         String finalName = name == null ? "" : name;
         Integer finalId = existingScriptId == null ? 0 :existingScriptId;
-        return WebClient.create(urlBuilder.buildUrl("")) // need webclient.create for query params
+        return WebClient.builder()
+                .baseUrl(urlBuilder.buildUrl(""))
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "bearer "+token)
+                .build()
                 .get()
                 .uri(uriBuilder -> uriBuilder.path("/upload")
                         .queryParam("name", finalName)

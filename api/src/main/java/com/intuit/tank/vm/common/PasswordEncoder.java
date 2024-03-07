@@ -21,7 +21,7 @@ import org.apache.commons.codec.binary.Base64;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * PasswordEncoder

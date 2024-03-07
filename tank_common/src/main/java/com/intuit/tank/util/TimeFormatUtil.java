@@ -20,7 +20,7 @@ import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 

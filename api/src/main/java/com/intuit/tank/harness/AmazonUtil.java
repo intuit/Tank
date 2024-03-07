@@ -22,7 +22,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -216,7 +216,7 @@ public class AmazonUtil {
     }
 
     /**
-     * gewts controller base form user data
+     * get controller base form user data
      *
      * @return
      */
@@ -225,6 +225,18 @@ public class AmazonUtil {
         return StringUtils.isNotEmpty(result)
                 ? result
                 : "http://localhost:8080/";
+    }
+
+    /**
+     * get agent token form user data
+     *
+     * @return
+     */
+    public static String getAgentToken() {
+        String result = getUserDataAsMap().get(TankConstants.KEY_AGENT_TOKEN);
+        return StringUtils.isNotEmpty(result)
+                ? result
+                : "";
     }
 
     /**

@@ -17,8 +17,8 @@ import org.jboss.weld.junit5.auto.ActivateScopes;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
 import static org.junit.jupiter.api.Assertions.*;
 

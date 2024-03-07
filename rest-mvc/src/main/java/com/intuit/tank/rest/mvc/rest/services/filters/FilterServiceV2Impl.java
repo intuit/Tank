@@ -37,7 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

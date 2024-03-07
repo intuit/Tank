@@ -28,9 +28,9 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
 
 import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.StringUtils;

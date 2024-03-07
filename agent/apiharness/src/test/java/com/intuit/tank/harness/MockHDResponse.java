@@ -4,7 +4,7 @@ import com.intuit.tank.harness.data.HDAssignment;
 import com.intuit.tank.harness.data.HDResponse;
 import com.intuit.tank.harness.data.HDValidation;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 public class MockHDResponse extends HDResponse {
     private HDValidation validation = new HDValidation();

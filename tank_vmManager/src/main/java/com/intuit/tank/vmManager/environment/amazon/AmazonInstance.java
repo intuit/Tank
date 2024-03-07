@@ -41,7 +41,7 @@ import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,13 +115,11 @@ public class AmazonInstance implements IEnvironmentInstance {
      * {@inheritDoc}
      */
     @Override
-    public List<VMInformation> describeInstances(String... instanceIds) {
-        HashSet<String> ids = new HashSet<String>(Arrays.asList(instanceIds));
-
+    public List<VMInformation> describeInstances(List<String> instanceIds) {
         return ec2client.describeInstances().reservations().stream()
                 .flatMap(reservationDescription -> reservationDescription.instances()
                         .stream()
-                        .filter(instance -> ids.contains(instance.instanceId()))
+                        .filter(instance -> instanceIds.contains(instance.instanceId()))
                         .map(instance -> AmazonDataConverter.instanceToVmInformation(reservationDescription.requesterId(), instance, vmRegion)))
                 .collect(Collectors.toList());
     }
@@ -182,6 +180,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 }
 
                 instanceRequest.addUserData(TankConstants.KEY_CONTROLLER_URL, config.getControllerBase());
+                instanceRequest.addUserData(TankConstants.KEY_AGENT_TOKEN, config.getAgentConfig().getAgentToken());
                 instanceRequest.addUserData(TankConstants.KEY_NUM_USERS_PER_AGENT, Integer.toString(instanceRequest.getNumUsersPerAgent()));
 
                 if (instanceRequest.isUseEips()) {
@@ -240,7 +239,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                     try {
                         RunInstancesResponse response = ec2client.runInstances(
                                 runInstancesRequest
-                                        .subnetId(subnetIds.get(position >= subnetIds.size() ? 0 : position++))
+                                        .subnetId(subnetIds.get(position = (position + 1) % subnetIds.size()))
                                         .minCount(1).maxCount(requestCount).build());
                         result.addAll(AmazonDataConverter.processReservation(
                                 response.requesterId(), response.instances(), vmRegion));
@@ -367,7 +366,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public void killInstances(List<String> instanceIds) {
         // Filter instanceId list to only instances in the client defined region.
-        List<VMInformation> instancesInRegion = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
+        List<VMInformation> instancesInRegion = describeInstances(instanceIds);
         List<String> instanceIdsInRegion = instancesInRegion.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
 
         if (!instanceIdsInRegion.isEmpty()) {
@@ -484,13 +483,9 @@ public class AmazonInstance implements IEnvironmentInstance {
                         DescribeInstancesResponse describeInstances =
                                 ec2client.describeInstances(
                                         DescribeInstancesRequest.builder().instanceIds(instanceId).build());
-                        for (Reservation reservation : describeInstances.reservations()) {
-                            for (Instance instance : reservation.instances()) {
-                                if (address.publicIp().equals(instance.publicIpAddress())) {
-                                    associated = true;
-                                }
-                            }
-                        }
+                        associated = describeInstances.reservations().stream()
+                                .flatMap(reservation -> reservation.instances().stream())
+                                .anyMatch(instance -> address.publicIp().equals(instance.publicIpAddress()));
                         if (associated) {
                             LOG.info(instanceId + " associated with " + address.publicIp());
                         } else if (count % 5 == 0) {
@@ -517,7 +512,8 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public void reboot(List<VMInformation> instances) {
         List<String> instanceIds = instances.stream()
-                .map(VMInformation::getInstanceId).collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
+                .map(VMInformation::getInstanceId)
+                .collect(Collectors.toCollection(() -> new ArrayList<>(instances.size())));
         ec2client.rebootInstances(RebootInstancesRequest.builder().instanceIds(instanceIds).build());
     }
 
@@ -527,7 +523,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     public void stopInstances(List<String> instanceIds) {
 
         // Filter instanceId list to only instances in the client defined region.
-        List<VMInformation> instancesInRegion = describeInstances(instanceIds.toArray(new String[instanceIds.size()]));
+        List<VMInformation> instancesInRegion = describeInstances(instanceIds);
         List<String> instanceIdsInRegion = instancesInRegion.stream().map(VMInformation::getInstanceId).collect(Collectors.toList());
 
         if (!instanceIdsInRegion.isEmpty()) {
@@ -563,16 +559,14 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     public String findDNSName(String instanceId) {
         try {
-            DescribeInstancesRequest describeInstancesRequest =
-                    DescribeInstancesRequest.builder().instanceIds(instanceId).build();
-            DescribeInstancesResponse response = ec2client.describeInstances(describeInstancesRequest);
-            if (response.reservations() != null && response.reservations().size() == 1) {
-                Instance instance = response.reservations().get(0).instances().get(0);
-                if (StringUtils.isNotEmpty(instance.publicDnsName())) {
-                    return instance.publicDnsName();
-                }
-                return instance.privateDnsName();
-            }
+            return ec2client.describeInstances().reservations().stream()
+                    .flatMap(reservationDescription -> reservationDescription.instances().stream())
+                    .filter(instance -> instanceId.equals(instance.instanceId()))
+                    .findFirst()
+                    .map(instance -> (StringUtils.isNotEmpty(instance.publicDnsName()))
+                            ? instance.publicDnsName()
+                            : instance.privateDnsName())
+                    .toString();
         } catch (Exception e) {
             LOG.error("Error getting public dns in " + vmRegion + ": " + e.getMessage());
         }

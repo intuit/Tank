@@ -15,7 +15,7 @@ public class AgentDebuggerFrameTest {
 
     @BeforeAll
     public static void setup() {
-        agentDebuggerFrame = new AgentDebuggerFrame(true, null);
+        agentDebuggerFrame = new AgentDebuggerFrame(true, null, null);
         assertNotNull(agentDebuggerFrame);
     }
 

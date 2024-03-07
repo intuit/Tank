@@ -50,6 +50,7 @@ public abstract class JobNodeBean implements Serializable {
     private Date startTime;
     private Date endTime;
     private boolean hasRights = false;
+    private Boolean useTwoStep = false;
     private Map<Date, List<UserDetail>> statusDetailMap;
     // private Map<Date, Map<String, TPSInfo>> tpsInfoMap;
     private int tps;
@@ -230,6 +231,21 @@ public abstract class JobNodeBean implements Serializable {
     }
 
     /**
+     * @return two-step job start setting
+     */
+    public boolean isUseTwoStep() {
+        return useTwoStep != null ? useTwoStep : false;
+    }
+
+    /**
+     * @param useTwoStep
+     *            two-step job start setting
+     */
+    public void setUseTwoStep(boolean useTwoStep) {
+        this.useTwoStep = useTwoStep;
+    }
+
+    /**
      * @return the validation errors
      */
     public ValidationStatus getNumFailures() {
@@ -352,6 +368,8 @@ public abstract class JobNodeBean implements Serializable {
 
     public abstract List<? extends JobNodeBean> getCurrentSubNodes();
 
+    public abstract String getTotalSubNodesReady();
+
     public abstract String getTotalSubNodesRunning();
 
     public abstract boolean allSubNodesCompleted();
@@ -363,6 +381,7 @@ public abstract class JobNodeBean implements Serializable {
     public abstract boolean isStoppable();
 
     public abstract boolean isRunnable();
+    public abstract boolean isStartable();
 
     public abstract boolean isPauseable();
 

@@ -14,8 +14,8 @@ package com.intuit.tank.script;
  */
 
 
-import javax.faces.view.ViewScoped;
-import javax.security.enterprise.CallerPrincipal;
+import jakarta.faces.view.ViewScoped;
+import jakarta.security.enterprise.CallerPrincipal;
 
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.auth.TankSecurityContext;

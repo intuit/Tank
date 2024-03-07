@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>agent-parent</artifactId>
-    <version>3.3.1-SNAPSHOT</version>
+    <version>4.0.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>agent</artifactId>
@@ -28,7 +28,7 @@
       <exclusions>
         <exclusion>
           <groupId>org.springdoc</groupId>
-          <artifactId>springdoc-openapi-ui</artifactId>
+          <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </exclusion>
         <exclusion>
           <groupId>${project.groupId}</groupId>
@@ -108,14 +108,13 @@
     </dependency>
 
     <dependency>
-      <groupId>com.sun.xml.bind</groupId>
-      <artifactId>jaxb-impl</artifactId>
-      <scope>runtime</scope>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.openjdk.nashorn</groupId>
       <artifactId>nashorn-core</artifactId>
-      <scope>runtime</scope>
     </dependency>
   </dependencies>
 </project>

@@ -19,8 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.enterprise.context.ConversationScoped;
-import javax.inject.Named;
+import jakarta.enterprise.context.ConversationScoped;
+import jakarta.inject.Named;
 
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;

@@ -18,7 +18,7 @@ package com.intuit.tank.vmManager.environment;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;

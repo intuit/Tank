@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Named;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 

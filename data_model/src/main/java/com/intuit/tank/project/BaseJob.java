@@ -16,11 +16,11 @@ package com.intuit.tank.project;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotNull;
 
 import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.logging.LoggingProfile;
@@ -107,6 +107,9 @@ public abstract class BaseJob extends BaseEntity {
     @Column(name = "use_eips")
     private Boolean useEips;
 
+    @Column(name = "use_two_step")
+    private Boolean useTwoStep;
+
     /**
      * 
      */
@@ -137,6 +140,7 @@ public abstract class BaseJob extends BaseEntity {
         this.numAgents = copy.numAgents;
         this.vmInstanceType = copy.vmInstanceType;
         this.useEips = copy.useEips;
+        this.useTwoStep = copy.useTwoStep;
         this.tankClientClass = copy.getTankClientClass();
     }
 
@@ -187,6 +191,21 @@ public abstract class BaseJob extends BaseEntity {
      */
     public void setUseEips(boolean useEips) {
         this.useEips = useEips;
+    }
+
+    /**
+     * @return two-step job start setting
+     */
+    public boolean isUseTwoStep() {
+        return useTwoStep != null ? useTwoStep : false;
+    }
+
+    /**
+     * @param useTwoStep
+     *            enable/disable two-step job starts
+     */
+    public void setUseTwoStep(boolean useTwoStep) {
+        this.useTwoStep = useTwoStep;
     }
 
     /**

@@ -1,6 +1,6 @@
 package com.intuit.tank.http;
 
-import javax.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnum;
 
 /**
  * 

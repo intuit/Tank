@@ -20,9 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Named;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import jakarta.inject.Named;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
 import com.intuit.tank.dao.ScriptGroupDao;
 import com.intuit.tank.dao.WorkloadDao;

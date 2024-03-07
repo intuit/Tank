@@ -16,9 +16,9 @@ package com.intuit.tank.wrapper;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.behavior.Behavior;
-import javax.faces.event.AjaxBehaviorEvent;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.behavior.Behavior;
+import jakarta.faces.event.AjaxBehaviorEvent;
 
 import org.junit.jupiter.api.*;
 

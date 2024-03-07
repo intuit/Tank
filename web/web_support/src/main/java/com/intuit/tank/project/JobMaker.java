@@ -19,10 +19,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.enterprise.context.ConversationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.ConversationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.harness.data.HDWorkload;
@@ -265,6 +265,22 @@ public class JobMaker implements Serializable {
     }
 
     /**
+     *
+     * @return
+     */
+    public boolean isUseTwoStep() {
+        return projectBean.getJobConfiguration().isUseTwoStep();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public void setUseTwoStep(boolean b) {
+        projectBean.getJobConfiguration().setUseTwoStep(b);
+    }
+
+    /**
      * 
      * @param location
      */
@@ -311,6 +327,7 @@ public class JobMaker implements Serializable {
             proposedJobInstance.setCreator(securityContext.getCallerPrincipal().getName());
             proposedJobInstance.setScheduledTime(new Date());
             proposedJobInstance.setUseEips(isUseEips());
+            proposedJobInstance.setUseTwoStep((isUseTwoStep()));
             proposedJobInstance.setTankClientClass(getTankClientClass());
             proposedJobInstance.setLocation(getLocation());
             proposedJobInstance.setVmInstanceType(getVmInstanceType());

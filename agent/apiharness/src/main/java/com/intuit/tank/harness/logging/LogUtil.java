@@ -26,7 +26,7 @@ import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
 import org.apache.logging.log4j.message.ObjectMessage;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * LogUtil

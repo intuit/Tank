@@ -24,7 +24,7 @@ import java.io.FileReader;
 import java.io.Reader;
 import java.io.StringReader;
 
-import javax.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBContext;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;

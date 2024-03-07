@@ -19,9 +19,9 @@ package com.intuit.tank;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import com.intuit.tank.admin.UserAdmin;
 import com.intuit.tank.auth.Security;

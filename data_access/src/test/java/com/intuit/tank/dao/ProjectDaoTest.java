@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.persistence.PersistenceException;
-import javax.validation.ConstraintViolationException;
+import jakarta.persistence.PersistenceException;
+import jakarta.validation.ConstraintViolationException;
 
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.TestPlan;
@@ -128,11 +128,11 @@ public class ProjectDaoTest {
             // expected validation
             DaoTestUtil.checkConstraintViolation(e, property, messageContains);
         } catch (PersistenceException e) {
-            if (e.getCause() instanceof PropertyValueException) {
-                assertTrue(e.getCause().getMessage().startsWith("not-null property references a null or transient value"));
+            if (e.getCause() == null) {
+                assertTrue(e.getMessage().startsWith("not-null property references a null or transient value"));
                 return;
             }
-            assertTrue(e.getCause().getCause().getMessage().startsWith("Value too long for column "));
+            assertTrue(e.getCause().getMessage().startsWith("Value too long for column "));
         }
     }
 
@@ -194,7 +194,9 @@ public class ProjectDaoTest {
         Project idProject = dao.findById(id);
         assertNotNull(idProject);
         assertEquals(name, idProject.getName());
-        assertThrows(LazyInitializationException.class, () -> idProject.getWorkloads().get(0).getTestPlans().get(0));
+        validateProject(project, idProject, false);
+        assertEquals(2, idProject.getWorkloads().get(0).getTestPlans().size());
+        assertEquals(testPlanName, idProject.getWorkloads().get(0).getTestPlans().get(0).getName());
 
         // Act & Assert
         Project eagerProject = dao.findByIdEager(persistedProject.getId());

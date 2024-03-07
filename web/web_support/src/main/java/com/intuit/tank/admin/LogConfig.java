@@ -18,7 +18,7 @@ package com.intuit.tank.admin;
 
 import java.util.Collection;
 
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;

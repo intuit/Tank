@@ -16,7 +16,7 @@ package com.intuit.tank.perfManager.workLoads;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -136,6 +136,7 @@ public class WorkLoadFactory {
                 .withStopBehavior(job.getStopBehavior())
                 .withReportingMode(job.getReportingMode())
                 .withUseEips(job.isUseEips())
+                .withUseTwoStep(job.isUseTwoStep())
                 .withVmInstanceType(job.getVmInstanceType())
                 .withnumUsersPerAgent(job.getNumUsersPerAgent())
                 .withNumAgents(job.getNumAgents())

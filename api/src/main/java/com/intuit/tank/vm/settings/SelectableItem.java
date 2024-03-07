@@ -18,7 +18,7 @@ package com.intuit.tank.vm.settings;
 
 import java.io.Serializable;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * SelectableItem represents a selectable item with a value and a display name.

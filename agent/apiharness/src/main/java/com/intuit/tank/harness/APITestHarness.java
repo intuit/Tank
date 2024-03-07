@@ -15,13 +15,19 @@ package com.intuit.tank.harness;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
-import java.net.URL;
+import java.net.URI;
 import java.net.UnknownHostException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
+import java.util.zip.GZIPInputStream;
 
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.http.TankHttpClient;
@@ -60,14 +66,15 @@ import com.intuit.tank.vm.settings.TankConfig;
 import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
 
 public class APITestHarness {
-    private static Logger LOG = LogManager.getLogger(APITestHarness.class);
-
+    private static final Logger LOG = LogManager.getLogger(APITestHarness.class);
     private static final int[] FIBONACCI = new int[] { 1, 1, 2, 3, 5, 8, 13 };
     public static final int POLL_INTERVAL = 15000;
 
     private static APITestHarness instance;
 
     private AgentRunData agentRunData;
+
+    private final HttpClient client = HttpClient.newHttpClient();
 
     private String testPlans = "";
     private String instanceId;
@@ -147,6 +154,7 @@ public class APITestHarness {
 
     private void initializeFromArgs(String[] args) {
         String controllerBase = null;
+        String token = null;
         for (String argument : args) {
             LOG.info(new ObjectMessage(ImmutableMap.of("Message", "checking arg " + argument)));
 
@@ -183,6 +191,8 @@ public class APITestHarness {
                 agentRunData.setStopBehavior(StopBehavior.fromString(values[1]));
             } else if (values[0].equalsIgnoreCase("-http")) {
                 controllerBase = (values.length > 1 ? values[1] : null);
+            } else if (values[0].equalsIgnoreCase("-token")) {
+                token = (values.length > 1 ? values[1] : null);
             } else if (values[0].equalsIgnoreCase("-time")) {
                 agentRunData.setSimulationTimeMillis(Integer.parseInt(values[1]) * 60000);
             }
@@ -205,7 +215,7 @@ public class APITestHarness {
 
         if (controllerBase != null) {
             resultsReporter = ReportingFactory.getResultsReporter();
-            startHttp(controllerBase);
+            startHttp(controllerBase, token);
         } else {
             resultsReporter = new DummyResultsReporter();
             TestPlanSingleton.getInstance().setTestPlans(testPlans);
@@ -236,19 +246,19 @@ public class APITestHarness {
         System.out.println("-users=<# of total users>:  The number of total users to run concurrently");
         System.out.println("-start=<# of users to start with>:  The number of users to run concurrently when test begins");
         System.out.println("-http=<controller_base_url>:  The url of the controller to get test info from");
+        System.out.println("-token=<agent_token>:  The tank agent token assigned by the controller");
         System.out.println("-jobId=<job_id>: The jobId of the controller to get test info from");
         System.out.println("-d:  Turns debug on to step through each request");
         System.out.println("-t:  Turns trace on to print each request");
     }
 
-    private void startHttp(String baseUrl) {
+    private void startHttp(String baseUrl, String token) {
         isLocal = false;
         HostInfo hostInfo = new HostInfo();
         CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
-        if (baseUrl == null) {
-            baseUrl = AmazonUtil.getControllerBaseUrl();
-        }
-        AgentClient client = new AgentClient(baseUrl);
+        baseUrl = (baseUrl == null) ? AmazonUtil.getControllerBaseUrl() : baseUrl;
+        token = (token == null) ? AmazonUtil.getAgentToken() : token;
+        AgentClient agentClient = new AgentClient(baseUrl, token);
         String instanceUrl = null;
         int retryCount = 0;
         while (instanceUrl == null) {
@@ -288,16 +298,18 @@ public class APITestHarness {
             AgentTestStartData startData = null;
             int count = 0;
             LOG.info(LogUtil.getLogMessage("Sending AgentData to controller: " + data.toString()));
-            while (count < 10) {
+            while (count < FIBONACCI.length) {
                 try {
-                    startData = client.agentReady(data);
+                    startData = agentClient.agentReady(data);
                     break;
                 } catch (Exception e) {
                     LOG.error("Error sending ready: " + e, e);
-                    count++;
+                    try {
+                        Thread.sleep(FIBONACCI[count++] * 1000);
+                    } catch ( InterruptedException ignored) {}
                 }
             }
-            writeXmlToFile(startData.getScriptUrl());
+            writeXmlToFile(startData.getScriptUrl(), token);
 
             agentRunData.setNumUsers(startData.getConcurrentUsers());
             agentRunData.setNumStartUsers(startData.getStartUsers());
@@ -315,7 +327,7 @@ public class APITestHarness {
 
             if (startData.getDataFiles() != null) {
                 for (DataFileRequest dfRequest : startData.getDataFiles()) {
-                    saveDataFile(dfRequest);
+                    saveDataFile(dfRequest, token);
                 }
             }
             Thread thread = new Thread(new StartedChecker());
@@ -333,20 +345,22 @@ public class APITestHarness {
      * @param scriptUrl as incoming script location
      * 
      */
-    public void writeXmlToFile(String scriptUrl) {
-        File file = new File("script.xml");
-        LOG.info(LogUtil.getLogMessage("Writing xml to " + file.getAbsolutePath()));
+    public void writeXmlToFile(String scriptUrl, String token) {
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(scriptUrl))
+                .headers("Accept-Encoding", "gzip", "Authorization", "bearer "+token).build();
+        File script = new File("script.xml");
         int retryCount = 0;
         while (true) {
             try {
-                if (file.exists()) {
-                	file.delete();
-                    file = new File("script.xml");
+                HttpResponse<InputStream> response = client.send(request, BodyHandlers.ofInputStream());
+                try ( InputStream stream =
+                            ("gzip".equals(response.headers().firstValue("Content-Encoding").orElse("")))
+                                    ? new GZIPInputStream(response.body())
+                                    : response.body()) {
+                    LOG.info(LogUtil.getLogMessage("Downloading file from url " + scriptUrl + " to file " + script.getAbsolutePath()));
+                    FileUtils.copyInputStreamToFile(stream, script);
                 }
-                URL url = new URL(scriptUrl);
-                LOG.info(LogUtil.getLogMessage("Downloading file from url " + scriptUrl + " to file " + file.getAbsolutePath()));
-                FileUtils.copyURLToFile(url, file);
-                String scriptXML = FileUtils.readFileToString(file, "UTF-8");
+                String scriptXML = FileUtils.readFileToString(script, "UTF-8");
                 TestPlanSingleton.getInstance().setTestPlanXML(scriptXML);
                 break;
             } catch (IOException e) {
@@ -356,16 +370,18 @@ public class APITestHarness {
                 if (retryCount < FIBONACCI.length) {
                     try {
                         Thread.sleep(FIBONACCI[retryCount++] * 1000);
-                    } catch ( InterruptedException ie) { /*Ignore*/ }
+                    } catch ( InterruptedException ignored) {}
                 } else {
                     LOG.error(LogUtil.getLogMessage("Error writing script file: " + e, LogEventType.IO), e);
                     throw new RuntimeException(e);
                 }
-            }
+            } catch (InterruptedException ignored) {}
         }
     }
 
-    private void saveDataFile(DataFileRequest dataFileRequest) {
+    private void saveDataFile(DataFileRequest dataFileRequest, String token) {
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(dataFileRequest.getFileUrl()))
+                .headers("Accept-Encoding", "gzip", "Authorization", "bearer "+token).build();
         String dataFileDirPath = new TankConfig().getAgentConfig().getAgentDataFileStorageDir();
         File dataFileDir = new File(dataFileDirPath);
         if (!dataFileDir.exists()) {
@@ -377,11 +393,16 @@ public class APITestHarness {
         int retryCount = 0;
         while (true) {
             try {
-                URL url = new URL(dataFileRequest.getFileUrl());
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message",
-                        "writing file " + dataFileRequest.getFileName() + " to " + dataFile.getAbsolutePath()
-                                + " from url " + url.toExternalForm())));
-                FileUtils.copyURLToFile(url, dataFile);
+                HttpResponse<InputStream> response = client.send(request, BodyHandlers.ofInputStream());
+                try ( InputStream stream =
+                              ("gzip".equals(response.headers().firstValue("Content-Encoding").orElse("")))
+                                      ? new GZIPInputStream(response.body())
+                                      : response.body()) {
+                    LOG.info(new ObjectMessage(ImmutableMap.of("Message",
+                            "writing file " + dataFileRequest.getFileName() + " to " + dataFile.getAbsolutePath()
+                                    + " from url " + dataFileRequest.getFileUrl())));
+                    FileUtils.copyInputStreamToFile(stream, dataFile);
+                }
                 if (dataFileRequest.isDefaultDataFile()
                         && !dataFileRequest.getFileName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "APITestHarness - default file set to " + TankConstants.DEFAULT_CSV_FILE_NAME)));

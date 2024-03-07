@@ -19,9 +19,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ConversationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.ConversationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import com.intuit.tank.project.ScriptFilterAction;
 import com.intuit.tank.script.FailureTypes;

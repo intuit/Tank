@@ -20,13 +20,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Fetch;
-import javax.persistence.criteria.Root;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Fetch;
+import jakarta.persistence.criteria.Root;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -153,8 +153,8 @@ public class ProjectDao extends OwnableDao<Project> {
 	        Root<Project> root = query.from(Project.class);
 	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
 	        wl.fetch(Workload.PROPERTY_JOB_CONFIGURATION);
-	        query.select(root).distinct(true);
-	        results = em.createQuery(query).setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, true).getResultList();
+	        query.select(root);
+	        results = em.createQuery(query).getResultList();
 	        commit();
         } catch (Exception e) {
         	rollback();

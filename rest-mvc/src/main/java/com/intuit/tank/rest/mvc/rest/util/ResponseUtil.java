@@ -21,10 +21,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import javax.ws.rs.core.CacheControl;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import jakarta.ws.rs.core.CacheControl;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import java.io.OutputStream;
 
 public class ResponseUtil {

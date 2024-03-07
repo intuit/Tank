@@ -9,7 +9,7 @@ package com.intuit.tank.rest.mvc.rest.models.filters;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 import java.io.Serializable;
 
 @XmlRootElement(name = "filterGroup", namespace = Namespace.NAMESPACE_V1)

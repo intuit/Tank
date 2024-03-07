@@ -16,7 +16,7 @@ package com.intuit.tank;
  * #L%
  */
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * ModifiedEntityMessage

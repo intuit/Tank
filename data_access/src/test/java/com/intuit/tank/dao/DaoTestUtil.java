@@ -18,14 +18,15 @@ package com.intuit.tank.dao;
 
 import java.util.*;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
+import jakarta.annotation.Nonnull;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 
 import com.intuit.tank.project.*;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.common.PasswordEncoder;
+
+import javax.annotation.Nonnegative;
 
 import static org.junit.jupiter.api.Assertions.*;
 

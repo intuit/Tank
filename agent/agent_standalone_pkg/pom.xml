@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>agent-parent</artifactId>
-    <version>3.3.1-SNAPSHOT</version>
+    <version>4.0.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>agent-standalone-pkg</artifactId>
@@ -19,7 +19,11 @@
       <artifactId>agent-standalone</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.openjdk.nashorn</groupId>
+      <artifactId>nashorn-core</artifactId>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
 
   <build>

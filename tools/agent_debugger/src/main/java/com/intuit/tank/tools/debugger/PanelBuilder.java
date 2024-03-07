@@ -20,7 +20,11 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -28,8 +32,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.text.BadLocationException;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
@@ -37,6 +41,7 @@ import javax.xml.transform.sax.SAXSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -56,7 +61,7 @@ public class PanelBuilder {
     private static final String HEADERS_PATH = "/v2/agent/headers";
     private static final char NEWLINE = '\n';
 
-    public static File createWorkingDir(AgentDebuggerFrame frame, String baseUrl) {
+    public static File createWorkingDir(AgentDebuggerFrame frame, String baseUrl, String token) {
         try {
             File temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
             temp.delete();
@@ -64,7 +69,7 @@ public class PanelBuilder {
             temp.mkdir();
             workingDir = temp;
             // create settings.xml
-            writeSettings(workingDir, getHeaders(baseUrl));
+            writeSettings(workingDir, getHeaders(baseUrl, token));
             System.setProperty("WATS_PROPERTIES", workingDir.getAbsolutePath());
         } catch (IOException e) {
             LOG.error("Error creating temp working dir: " + e);
@@ -73,18 +78,23 @@ public class PanelBuilder {
         return workingDir;
     }
 
-    public static void updateServiceUrl(String serviceUrl) {
+    public static void updateServiceUrl(String serviceUrl, String token) {
         try {
-            Headers h = getHeaders(serviceUrl);
+            Headers h = getHeaders(serviceUrl, token);
             writeSettings(workingDir, h);
         } catch (IOException e) {
             LOG.error("Error getting headers: " + e);
         }
     }
 
-    private static Headers getHeaders(String serviceUrl) {
+    private static Headers getHeaders(String serviceUrl, String token) {
         if (StringUtils.isNotBlank(serviceUrl)) {
-            try ( InputStream settingsStream = new URL(serviceUrl + HEADERS_PATH).openStream() ) {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(serviceUrl + HEADERS_PATH))
+                    .header(HttpHeaders.AUTHORIZATION, "bearer "+token)
+                    .build();
+            try ( InputStream settingsStream = client.send(request, HttpResponse.BodyHandlers.ofInputStream()).body() ) {
                 URL url = new URL(serviceUrl + HEADERS_PATH);
                 LOG.info("Starting up: making call to tank service url to get settings.xml "
                         + url.toExternalForm());

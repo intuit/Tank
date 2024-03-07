@@ -24,7 +24,7 @@ import com.intuit.tank.reporting.databases.TankDatabaseType;
 import com.intuit.tank.results.TankResult;
 import com.intuit.tank.vm.settings.TankConfig;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * WavefrontDatasource

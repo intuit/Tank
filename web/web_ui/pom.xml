@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>web-parent</artifactId>
-    <version>3.3.1-SNAPSHOT</version>
+    <version>4.0.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>tank</artifactId>
@@ -209,8 +209,8 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.servlet.jsp.jstl</groupId>
-      <artifactId>jstl-api</artifactId>
+      <groupId>jakarta.servlet.jsp.jstl</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
       <scope>runtime</scope>
     </dependency>
 
@@ -228,8 +228,8 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.enterprise</groupId>
-      <artifactId>cdi-api</artifactId>
+      <groupId>jakarta.enterprise</groupId>
+      <artifactId>jakarta.enterprise.cdi-api</artifactId>
     </dependency>
 
     <dependency>

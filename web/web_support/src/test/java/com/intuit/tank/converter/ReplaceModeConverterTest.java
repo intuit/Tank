@@ -13,13 +13,14 @@ package com.intuit.tank.converter;
  * #L%
  */
 
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
 
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.mockito.Mockito;
 import org.primefaces.extensions.component.dynaform.DynaForm;
 
 import com.intuit.tank.converter.ReplaceModeConverter;
@@ -59,7 +60,7 @@ public class ReplaceModeConverterTest {
         throws Exception {
         ReplaceModeConverter fixture = new ReplaceModeConverter();
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIComponent uiComponent = new DynaForm();
+        UIComponent uiComponent = Mockito.mock(UIComponent.class);
         Object obj = ReplaceMode.KEY;
 
         String result = fixture.getAsString(facesContext, uiComponent, obj);

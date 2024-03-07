@@ -31,8 +31,8 @@ import com.intuit.tank.project.ScriptFilterGroup;
 import com.intuit.tank.script.ScriptCreationBean;
 import com.intuit.tank.wrapper.SelectableWrapper;
 
-import javax.enterprise.context.ConversationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ConversationScoped;
+import jakarta.inject.Inject;
 
 /**
  * The class <code>ScriptCreationBeanTest</code> contains tests for the class <code>{@link ScriptCreationBean}</code>.

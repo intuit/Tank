@@ -58,7 +58,7 @@ public interface IEnvironmentInstance {
      *            the instanceIds to describe
      * @return list of VmInformation objects
      */
-    public List<VMInformation> describeInstances(String... instanceIds);
+    public List<VMInformation> describeInstances(List<String> instanceIds);
 
     /**
      * Finds instances of the specified type that are currently running.

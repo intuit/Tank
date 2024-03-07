@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.util.ArrayList;
 import java.util.List;
 

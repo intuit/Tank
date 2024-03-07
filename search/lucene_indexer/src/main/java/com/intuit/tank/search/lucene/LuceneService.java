@@ -88,31 +88,13 @@ public class LuceneService {
      * @param docs
      */
     public void indexDocuments(List<Document> docs) {
-        IndexWriter writer = getWriter();
         for (Document document : docs) {
-            try {
+            try (IndexWriter writer = getWriter()){
                 writer.addDocument(document);
             } catch (Exception e) {
                 e.printStackTrace();
-                closeWriter(writer);
                 throw new RuntimeException(e);
             }
-        }
-        closeWriter(writer);
-    }
-
-    /**
-     * Closes the writer after optimizing the writer. One must call the closeWriter after one is done performing
-     * indexing on documents.
-     * 
-     * @param writer
-     */
-    private void closeWriter(IndexWriter writer) {
-        try {
-            writer.close();
-        } catch (Exception e1) {
-            e1.printStackTrace();
-            // throw new RuntimeException(e1);
         }
     }
 
@@ -131,17 +113,14 @@ public class LuceneService {
      * @param queries
      */
     public void removeDocuments(List<Query> queries) {
-        IndexWriter writer = getWriter();
         for (Query query : queries) {
-            try {
+            try (IndexWriter writer = getWriter()){
                 writer.deleteDocuments(query);
             } catch (Exception e) {
                 e.printStackTrace();
-                closeWriter(writer);
                 throw new RuntimeException(e);
             }
         }
-        closeWriter(writer);
     }
 
     /**
@@ -157,7 +136,7 @@ public class LuceneService {
             IndexSearcher searcher = getSearcher();
             TopDocs search = searcher.search(query, 10000);
             for (ScoreDoc scoreDoc : search.scoreDocs) {
-                Document doc = searcher.doc(scoreDoc.doc);
+                Document doc = searcher.storedFields().document(scoreDoc.doc);
                 documents.add(doc);
             }
         } catch (Exception e) {
@@ -171,14 +150,11 @@ public class LuceneService {
      * Clears all the indices from the search index location;
      */
     public void clearIndex() {
-        IndexWriter writer = getWriter();
-        try {
+        try (IndexWriter writer = getWriter()) {
             writer.deleteAll();
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
-        } finally {
-            closeWriter(writer);
         }
     }
 

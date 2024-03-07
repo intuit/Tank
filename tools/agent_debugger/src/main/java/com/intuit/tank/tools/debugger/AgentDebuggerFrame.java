@@ -29,7 +29,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -120,12 +119,12 @@ public class AgentDebuggerFrame extends JFrame {
     /**
      * @throws HeadlessException
      */
-    public AgentDebuggerFrame(final boolean isStandalone, String serviceUrl) throws HeadlessException {
+    public AgentDebuggerFrame(final boolean isStandalone, String serviceUrl, String token) throws HeadlessException {
         super("Intuit Tank Agent Debugger");
         BufferedImage url, url2, url3;
         Taskbar.getTaskbar().setIconImage(new ImageIcon(
                 Thread.currentThread().getContextClassLoader().getResource("tankIcon.png")).getImage());
-        workingDir = PanelBuilder.createWorkingDir(this, serviceUrl);
+        workingDir = PanelBuilder.createWorkingDir(this, serviceUrl, token);
         setSize(new Dimension(1024, 800));
         setBounds(new Rectangle(getSize()));
         setPreferredSize(getSize());
@@ -143,7 +142,7 @@ public class AgentDebuggerFrame extends JFrame {
 
         this.glassPane = new InfiniteProgressPanel();
         setGlassPane(glassPane);
-        debuggerActions = new ActionProducer(this, serviceUrl);
+        debuggerActions = new ActionProducer(this, serviceUrl, token);
         requestResponsePanel = new RequestResponsePanel(this);
         requestResponsePanel.init();
         testPlanChooser = new JComboBox<HDTestPlan>();
@@ -843,7 +842,7 @@ public class AgentDebuggerFrame extends JFrame {
                 setCurrentStep(stepIndex);
                 DebugStep debugStep = steps.get(currentRunningStep);
                 if (debugStep != null) {
-                    debugStep.setEntryVariables(context.getVariables().getVaribleValues());
+                    debugStep.setEntryVariables(context.getVariables().getVariableValues());
                     debugStep.setRequest(context.getRequest());
                     debugStep.setResponse(context.getResponse());
                 }
@@ -861,7 +860,7 @@ public class AgentDebuggerFrame extends JFrame {
                 actionComponents.doneStepping();
                 DebugStep debugStep = steps.get(currentRunningStep);
                 if (debugStep != null) {
-                    debugStep.setExitVariables(context.getVariables().getVaribleValues());
+                    debugStep.setExitVariables(context.getVariables().getVariableValues());
                     debugStep.setRequest(context.getRequest());
                     debugStep.setResponse(context.getResponse());
                 }
@@ -936,7 +935,8 @@ public class AgentDebuggerFrame extends JFrame {
      */
     public static void main(String[] args) {
         String url = args.length > 0 ? args[0] : "";
-        new AgentDebuggerFrame(true, url).setVisible(true);
+        String token = args.length > 1 ? args[1] : "";
+        new AgentDebuggerFrame(true, url, token).setVisible(true);
     }
 
     public void skip() {

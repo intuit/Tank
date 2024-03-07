@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import com.intuit.tank.project.User;
 import com.intuit.tank.test.TestGroups;
 
-import javax.persistence.PersistenceException;
+import jakarta.persistence.PersistenceException;
 
 public class BaseDaoTest {
 
@@ -92,7 +92,7 @@ public class BaseDaoTest {
         // Assert
         assertEquals(1, statistics.getQueryExecutionCount());
         assertEquals(1, statistics.getTransactionCount());
-        assertEquals(2, statistics.getQueries().length);
+        assertEquals(1, statistics.getQueries().length);
         assertEquals(4, returnEntity.size());
 
         // cleanup

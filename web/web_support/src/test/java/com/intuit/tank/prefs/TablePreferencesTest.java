@@ -16,9 +16,9 @@ package com.intuit.tank.prefs;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.faces.component.UIComponent;
-import javax.faces.component.behavior.Behavior;
-import javax.faces.model.SelectItem;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.behavior.Behavior;
+import jakarta.faces.model.SelectItem;
 
 import org.junit.jupiter.api.*;
 

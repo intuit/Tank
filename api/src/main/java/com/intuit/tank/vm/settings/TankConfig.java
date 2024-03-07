@@ -15,8 +15,8 @@ package com.intuit.tank.vm.settings;
 
 import java.io.File;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Named;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.configuration.XMLConfiguration;

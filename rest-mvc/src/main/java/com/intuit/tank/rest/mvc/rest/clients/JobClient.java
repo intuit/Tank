@@ -21,12 +21,12 @@ public class JobClient extends BaseClient{
 
     private static final String SERVICE_BASE_URL = "/v2/jobs";
 
-    public JobClient(String serviceUrl)  {
-        super(serviceUrl, null, null);
+    public JobClient(String serviceUrl, String token)  {
+        super(serviceUrl, token, null, null);
     }
 
-    public JobClient(String serviceUrl, final String proxyServer, final Integer proxyPort) {
-        super(serviceUrl, proxyServer, proxyPort);
+    public JobClient(String serviceUrl, String token, final String proxyServer, final Integer proxyPort) {
+        super(serviceUrl, token, proxyServer, proxyPort);
     }
 
     protected String getServiceBaseUrl() {

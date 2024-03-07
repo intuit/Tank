@@ -42,6 +42,7 @@ public class ActJobNodeBean extends JobNodeBean {
         this.setActiveUsers(String.valueOf(job.getBaselineVirtualUsers()));
         this.setTotalUsers(String.valueOf(job.getTotalVirtualUsers()));
         this.setTargetRampRate(String.valueOf(job.getTargetRampRate() * job.getNumAgents()));
+        this.setUseTwoStep(job.isUseTwoStep());
         this.jobDetails = job.getJobDetails();
         this.estimatedNonlinearSteadyStateUsers = estimateNonlinearSteadyStateUsers(job.getTargetRampRate(), job.getRampTime(), job.getNumAgents());
         this.setStartTime(job.getStartTime());
@@ -137,6 +138,11 @@ public class ActJobNodeBean extends JobNodeBean {
     }
 
     @Override
+    public String getTotalSubNodesReady() {
+        return Long.toString(vmBeans.stream().filter(vm -> vm.getStatus().equals(VMStatus.ready.toString())).count());
+    }
+
+    @Override
     public boolean allSubNodesCompleted(){
         return true; // terminated instances no longer sub nodes
     }
@@ -159,6 +165,11 @@ public class ActJobNodeBean extends JobNodeBean {
     @Override
     public boolean isRunnable() {
         return JobStatusHelper.canBeRun(getStatus());
+    }
+
+    @Override
+    public boolean isStartable() {
+        return JobStatusHelper.canStartLoad(getStatus());
     }
 
     @Override

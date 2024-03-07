@@ -18,11 +18,11 @@ package com.intuit.tank.auth;
 
 import java.io.Serializable;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -58,7 +58,6 @@ public class AccountModify implements Serializable {
     private String password;
     private boolean succeeded;
     private User user;
-
     @Inject
     private Messages messages;
 
@@ -147,7 +146,26 @@ public class AccountModify implements Serializable {
     public void generateApiToken() {
         if (user.getApiToken() == null) {
             user.generateApiToken();
+            user.setTokenDisplayed(false);
             user = new UserDao().saveOrUpdate(user);
+
+        }
+    }
+
+    public void deleteApiToken() {
+        if (user.getApiToken() != null) {
+            user.deleteApiToken();
+            user = new UserDao().saveOrUpdate(user);
+        }
+    }
+
+    public String displayApiToken() {
+        if(!user.isTokenDisplayed() && user.getApiToken() != null) {
+            user.setTokenDisplayed(true);
+            user = new UserDao().saveOrUpdate(user);
+            return user.getApiToken();
+        } else {
+            return "<hidden>";
         }
     }
 

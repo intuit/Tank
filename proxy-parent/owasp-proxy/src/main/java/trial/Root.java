@@ -1,7 +1,7 @@
 package trial;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "root")
 public class Root {

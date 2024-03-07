@@ -18,7 +18,7 @@ import org.junit.jupiter.api.*;
 
 import com.intuit.tank.admin.SearchIndexer;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import static org.junit.jupiter.api.Assertions.*;
 

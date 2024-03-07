@@ -11,6 +11,7 @@ import com.intuit.tank.rest.mvc.rest.clients.util.ClientException;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
 import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptorContainer;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -25,12 +26,12 @@ public class DataFileClient extends BaseClient{
 
     private static final String SERVICE_BASE_URL = "/v2/datafiles";
 
-    public DataFileClient(String serviceUrl)  {
-        super(serviceUrl, null, null);
+    public DataFileClient(String serviceUrl, String token)  {
+        super(serviceUrl, token, null, null);
     }
 
-    public DataFileClient(String serviceUrl, final String proxyServer, final Integer proxyPort) {
-        super(serviceUrl, proxyServer, proxyPort);
+    public DataFileClient(String serviceUrl, String token, final String proxyServer, final Integer proxyPort) {
+        super(serviceUrl, token, proxyServer, proxyPort);
     }
 
     protected String getServiceBaseUrl() {
@@ -65,7 +66,10 @@ public class DataFileClient extends BaseClient{
     }
 
     public String getDatafileContent(Integer datafileId) {
-        Flux<DataBuffer> dataBufferFlux = WebClient.create(urlBuilder.buildUrl("")) // need webclient.create for query params
+        Flux<DataBuffer> dataBufferFlux = WebClient.builder()
+                .baseUrl(urlBuilder.buildUrl(""))
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "bearer "+token)
+                .build()
                 .get()
                 .uri(uriBuilder -> uriBuilder.path("/content")
                         .queryParam("id", datafileId.toString())

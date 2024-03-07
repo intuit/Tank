@@ -22,16 +22,16 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
-public class AgentClient extends BaseClient{
+public class AgentClient extends BaseClient {
 
     private static final String SERVICE_BASE_URL = "/v2/agent";
 
-    public AgentClient(String serviceUrl)  {
-        super(serviceUrl, null, null);
+    public AgentClient(String serviceUrl, String token)  {
+        super(serviceUrl, token, null, null);
     }
 
-    public AgentClient(String serviceUrl, final String proxyServer, final Integer proxyPort) {
-        super(serviceUrl, proxyServer, proxyPort);
+    public AgentClient(String serviceUrl, String token, final String proxyServer, final Integer proxyPort) {
+        super(serviceUrl, token, proxyServer, proxyPort);
     }
 
     protected String getServiceBaseUrl() {
