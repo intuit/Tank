@@ -15,7 +15,6 @@ import com.intuit.tank.harness.data.*;
 import com.intuit.tank.harness.functions.JexlIOFunctions;
 import com.intuit.tank.harness.functions.JexlStringFunctions;
 import com.intuit.tank.http.BaseRequest;
-import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.rest.mvc.rest.clients.ProjectClient;
 import com.intuit.tank.rest.mvc.rest.models.projects.KeyPair;
@@ -26,6 +25,7 @@ import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
@@ -33,14 +33,18 @@ import org.springframework.web.reactive.function.client.WebClientRequestExceptio
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -66,17 +70,17 @@ public class HeadlessDebuggerSetup implements Serializable {
     private static File workingDir;
     private Thread runningThread;
     private VariablesOutput variablesOutput;
-    private static final String HEADERS_PATH = "/v2/agent/headers";
+    private static final String HEADERS_PATH = "v2/agent/headers";
     private static final char NEWLINE = '\n';
     private ProjectClient projectClient;
     private int executedStepCounter;
     private int projectId;
 
-    public HeadlessDebuggerSetup(String serviceUrl, Integer projectId) {
+    public HeadlessDebuggerSetup(String serviceUrl, Integer projectId, String token) {
         try {
-            workingDir = createWorkingDir(serviceUrl);
+            workingDir = createWorkingDir(serviceUrl, token);
             variablesOutput = new VariablesOutput(this);
-            this.projectClient = new ProjectClient(serviceUrl);
+            this.projectClient = new ProjectClient(serviceUrl, token);
             this.projectId = projectId;
 
             setProject(projectId); // set project to step through
@@ -90,7 +94,7 @@ public class HeadlessDebuggerSetup implements Serializable {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        if (args.length < 2) {
+        if (args.length < 3) {
             usage();
             return;
         }
@@ -98,6 +102,7 @@ public class HeadlessDebuggerSetup implements Serializable {
         LOG.info("Headless Agent Debugger - STARTING EXECUTION");
 
         String url = null;
+        String token = "";
         int projectId = -1;
 
         for (String argument : args) {
@@ -108,6 +113,8 @@ public class HeadlessDebuggerSetup implements Serializable {
                 projectId = Integer.parseInt(values[1]);
             } else if(values[0].equalsIgnoreCase("-h")) {
                 url = values[1];
+            } else if(values[0].equalsIgnoreCase("-t")) {
+                token = values[1];
             }
         }
 
@@ -116,8 +123,7 @@ public class HeadlessDebuggerSetup implements Serializable {
             return;
         }
 
-        Thread.sleep(3000);
-        HeadlessDebuggerSetup automationRunner = new HeadlessDebuggerSetup(url, projectId);
+        HeadlessDebuggerSetup automationRunner = new HeadlessDebuggerSetup(url, projectId, token);
 
         try {
             automationRunner.start();
@@ -132,9 +138,10 @@ public class HeadlessDebuggerSetup implements Serializable {
 
     private static void usage() {
         System.out.println("Headless Agent Debugger");
-        System.out.println("java -jar Headless-Debugger-all.jar -h=<controller_base_url> -p=<projectId>");
+        System.out.println("java -jar Headless-Debugger-all.jar -h=<controller_base_url> -p=<projectId> -t=<token>");
         System.out.println("-h=<controller_base_url>: The url of the controller to get test info from");
         System.out.println("-p=<projectId>:  The projectId of the Tank project with test plan file to execute");
+        System.out.println("-t=<token>: Tank API token needed to connect to the Tank controller");
     }
 
     public void setProject(Integer projectId) {
@@ -441,7 +448,7 @@ public class HeadlessDebuggerSetup implements Serializable {
             setCurrentStep(stepIndex);
             DebugStep debugStep = steps.get(currentRunningStep);
             if (debugStep != null) {
-                debugStep.setEntryVariables(context.getVariables().getVaribleValues());
+                debugStep.setEntryVariables(context.getVariables().getVariableValues());
                 debugStep.setRequest(context.getRequest());
                 debugStep.setResponse(context.getResponse());
             }
@@ -457,7 +464,7 @@ public class HeadlessDebuggerSetup implements Serializable {
         try {
             DebugStep debugStep = steps.get(currentRunningStep);
             if (debugStep != null) {
-                debugStep.setExitVariables(context.getVariables().getVaribleValues());
+                debugStep.setExitVariables(context.getVariables().getVariableValues());
                 debugStep.setRequest(context.getRequest());
                 debugStep.setResponse(context.getResponse());
             }
@@ -518,7 +525,7 @@ public class HeadlessDebuggerSetup implements Serializable {
         return steps.get(stepIndex).getStepRun();
     }
 
-    public static File createWorkingDir(String baseUrl) {
+    public static File createWorkingDir(String baseUrl, String token) {
         try {
             File temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
             temp.delete();
@@ -526,7 +533,7 @@ public class HeadlessDebuggerSetup implements Serializable {
             temp.mkdir();
             workingDir = temp;
             // create settings.xml
-            writeSettings(workingDir, getHeaders(baseUrl));
+            writeSettings(workingDir, getHeaders(baseUrl, token));
             System.setProperty("WATS_PROPERTIES", workingDir.getAbsolutePath());
         } catch (IOException e) {
             LOG.error("HeadlessDebugger - Error creating temp working dir: " + e);
@@ -534,9 +541,14 @@ public class HeadlessDebuggerSetup implements Serializable {
         return workingDir;
     }
 
-    private static Headers getHeaders(String serviceUrl) {
+    private static Headers getHeaders(String serviceUrl, String token) {
         if (StringUtils.isNotBlank(serviceUrl)) {
-            try ( InputStream settingsStream = new URL(serviceUrl + HEADERS_PATH).openStream() ) {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(serviceUrl + HEADERS_PATH))
+                    .header(HttpHeaders.AUTHORIZATION, "bearer "+token)
+                    .build();
+            try ( InputStream settingsStream = client.send(request, HttpResponse.BodyHandlers.ofInputStream()).body() ) {
                 URL url = new URL(serviceUrl + HEADERS_PATH);
                 LOG.info("Starting up: making call to tank service url to get settings.xml "
                         + url.toExternalForm());
