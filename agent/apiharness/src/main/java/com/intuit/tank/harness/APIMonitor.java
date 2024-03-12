@@ -156,7 +156,7 @@ public class APIMonitor implements Runnable {
                 .uri(new URI(APITestHarness.getInstance().getTankConfig().getControllerBase() + "/v2/agent/instance/status/" + instanceId))
                 .header(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
                 .header(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
-                .header(HttpHeaders.AUTHORIZATION, "bearer="+token)
+                .header(HttpHeaders.AUTHORIZATION, "bearer "+token)
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString());

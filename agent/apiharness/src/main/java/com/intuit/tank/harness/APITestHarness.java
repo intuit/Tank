@@ -309,12 +309,14 @@ public class APITestHarness {
                             .uri(new URI(baseUrl + "/v2/agent/request"))
                             .header(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
                             .header(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
-                            .header(HttpHeaders.AUTHORIZATION, "bearer="+token)
+                            .header(HttpHeaders.AUTHORIZATION, "bearer "+token)
                             .POST(BodyPublishers.ofString(json))
                             .build();
                     HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-                    startData = objectMapper.readerFor(AgentTestStartData.class).readValue(response.body());
-                    break;
+                    if (response.statusCode() == 200) {
+                        startData = objectMapper.readerFor(AgentTestStartData.class).readValue(response.body());
+                        break;
+                    }
                 } catch (Exception e) {
                     LOG.error("Error sending ready: " + e, e);
                     try {
