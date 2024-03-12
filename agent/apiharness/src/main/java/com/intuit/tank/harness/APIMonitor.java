@@ -13,12 +13,20 @@ package com.intuit.tank.harness;
  * #L%
  */
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Date;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.HttpHeaders;
+import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.rest.mvc.rest.clients.AgentClient;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.vm.vmManager.models.ValidationStatus;
@@ -36,7 +44,7 @@ public class APIMonitor implements Runnable {
     private static final int MIN_REPORT_TIME = 15000;
     private static Logger LOG = LogManager.getLogger(APIMonitor.class);
     private static boolean doMonitor = true;
-    private static AgentClient client;
+    private static final HttpClient client = HttpClient.newHttpClient();
     private static CloudVmStatus status;
     private long reportInterval = APIMonitor.MIN_REPORT_TIME;
     private boolean isLocal;
@@ -45,8 +53,6 @@ public class APIMonitor implements Runnable {
         this.isLocal = isLocal;
         status = vmStatus;
         try {
-            String token = APITestHarness.getInstance().getTankConfig().getAgentConfig().getAgentToken();
-            client = new AgentClient(APITestHarness.getInstance().getTankConfig().getControllerBase(), token);
             reportInterval = Math.max(APITestHarness.getInstance().getTankConfig().getAgentConfig()
                     .getStatusReportIntervalMilis(reportInterval), MIN_REPORT_TIME);
         } catch (Exception e) {
@@ -66,15 +72,13 @@ public class APIMonitor implements Runnable {
                     newStatus.setTotalTps(tpsInfo.getTotalTps());
                     sendTps(tpsInfo);
                 }
-                if (!isLocal) client.setInstanceStatus(newStatus.getInstanceId(), newStatus);
+                if (!isLocal) setInstanceStatus(newStatus.getInstanceId(), newStatus);
                 APITestHarness.getInstance().checkAgentThreads();
                 Thread.sleep(reportInterval);
             } catch (Exception t) {
                 LOG.error(LogUtil.getLogMessage("Unable to send status metrics | " + t.getMessage()), t);
             }
         }
-        CloudVmStatus newStatus = createStatus(APITestHarness.getInstance().getStatus());
-        client.setInstanceStatus(newStatus.getInstanceId(), newStatus);
     }
 
     private void sendTps(final TPSInfoContainer tpsInfo) {
@@ -137,11 +141,24 @@ public class APIMonitor implements Runnable {
                         stats.getMaxVirtualUsers(),
                         stats.getCurrentNumberUsers(), status.getStartTime(), endTime);
                 status.setUserDetails(APITestHarness.getInstance().getUserTracker().getSnapshot());
-                client.setInstanceStatus(status.getInstanceId(), status);
+                setInstanceStatus(status.getInstanceId(), status);
             } catch (Exception e) {
                 LOG.error("Error sending status to controller: " + e.toString(), e);
             }
         }
     }
 
+    private static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException, JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(VmStatus);
+        String token = APITestHarness.getInstance().getTankConfig().getAgentConfig().getAgentToken();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(APITestHarness.getInstance().getTankConfig().getControllerBase() + "/instance/status/" + instanceId))
+                .header(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
+                .header(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
+                .header(HttpHeaders.AUTHORIZATION, "bearer="+token)
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+        client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+    }
 }
