@@ -305,6 +305,11 @@ public class TestPlanRunner implements Runnable {
             String validation = TankConstants.HTTP_CASE_FAIL;
             try {
                 validation = tsr.execute();
+            } catch (Error e) {
+                if(e instanceof OutOfMemoryError){
+                    throw (OutOfMemoryError) e;
+                }
+                throw new Error(e);
             } catch (Exception e) {
                 if (e instanceof RuntimeException) {
                     throw (RuntimeException) e;
