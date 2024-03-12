@@ -303,7 +303,7 @@ public class APITestHarness {
             while (count < FIBONACCI.length) {
                 try {
                     ObjectMapper objectMapper = new ObjectMapper();
-                    String json = objectMapper.writerFor(AgentTestStartData.class)
+                    String json = objectMapper.writerFor(AgentData.class)
                             .withDefaultPrettyPrinter().writeValueAsString(data);
                     HttpRequest request = HttpRequest.newBuilder()
                             .uri(new URI(baseUrl + "/request"))
