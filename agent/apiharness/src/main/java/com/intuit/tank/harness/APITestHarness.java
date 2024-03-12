@@ -303,7 +303,8 @@ public class APITestHarness {
             while (count < FIBONACCI.length) {
                 try {
                     ObjectMapper objectMapper = new ObjectMapper();
-                    String json = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(data);
+                    String json = objectMapper.writerFor(AgentTestStartData.class)
+                            .withDefaultPrettyPrinter().writeValueAsString(data);
                     HttpRequest request = HttpRequest.newBuilder()
                             .uri(new URI(baseUrl + "/request"))
                             .header(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
@@ -312,7 +313,7 @@ public class APITestHarness {
                             .POST(BodyPublishers.ofString(json))
                             .build();
                     HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-                    startData = objectMapper.reader().readValue(response.body());
+                    startData = objectMapper.readerFor(AgentTestStartData.class).readValue(response.body());
                     break;
                 } catch (Exception e) {
                     LOG.error("Error sending ready: " + e, e);

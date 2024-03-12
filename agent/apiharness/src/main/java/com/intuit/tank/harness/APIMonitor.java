@@ -150,7 +150,7 @@ public class APIMonitor implements Runnable {
 
     private static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException, JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(VmStatus);
+        String json = objectMapper.writerFor(CloudVmStatus.class).withDefaultPrettyPrinter().writeValueAsString(VmStatus);
         String token = APITestHarness.getInstance().getTankConfig().getAgentConfig().getAgentToken();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(APITestHarness.getInstance().getTankConfig().getControllerBase() + "/instance/status/" + instanceId))
