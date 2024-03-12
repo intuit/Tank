@@ -153,7 +153,7 @@ public class APIMonitor implements Runnable {
         String json = objectMapper.writerFor(CloudVmStatus.class).withDefaultPrettyPrinter().writeValueAsString(VmStatus);
         String token = APITestHarness.getInstance().getTankConfig().getAgentConfig().getAgentToken();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(APITestHarness.getInstance().getTankConfig().getControllerBase() + "/instance/status/" + instanceId))
+                .uri(new URI(APITestHarness.getInstance().getTankConfig().getControllerBase() + "/v2/agent/instance/status/" + instanceId))
                 .header(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
                 .header(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
                 .header(HttpHeaders.AUTHORIZATION, "bearer="+token)

@@ -306,7 +306,7 @@ public class APITestHarness {
                     String json = objectMapper.writerFor(AgentData.class)
                             .withDefaultPrettyPrinter().writeValueAsString(data);
                     HttpRequest request = HttpRequest.newBuilder()
-                            .uri(new URI(baseUrl + "/request"))
+                            .uri(new URI(baseUrl + "/v2/agent/request"))
                             .header(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
                             .header(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
                             .header(HttpHeaders.AUTHORIZATION, "bearer="+token)
