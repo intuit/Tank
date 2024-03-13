@@ -157,7 +157,7 @@ public class APIMonitor implements Runnable {
                 .header(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
                 .header(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
                 .header(HttpHeaders.AUTHORIZATION, "bearer "+token)
-                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .PUT(HttpRequest.BodyPublishers.ofString(json))
                 .build();
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
