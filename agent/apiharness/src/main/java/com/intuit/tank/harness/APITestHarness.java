@@ -21,6 +21,7 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.text.DateFormat;
@@ -29,12 +30,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.zip.GZIPInputStream;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.vm.api.enumerated.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.http.HttpHeaders;
+import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,7 +48,6 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.message.ObjectMessage;
 
-import com.intuit.tank.rest.mvc.rest.clients.AgentClient;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.vm.vmManager.models.ValidationStatus;
@@ -258,7 +261,6 @@ public class APITestHarness {
         CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
         baseUrl = (baseUrl == null) ? AmazonUtil.getControllerBaseUrl() : baseUrl;
         token = (token == null) ? AmazonUtil.getAgentToken() : token;
-        AgentClient agentClient = new AgentClient(baseUrl, token);
         String instanceUrl = null;
         int retryCount = 0;
         while (instanceUrl == null) {
@@ -300,7 +302,18 @@ public class APITestHarness {
             LOG.info(LogUtil.getLogMessage("Sending AgentData to controller: " + data.toString()));
             while (count < FIBONACCI.length) {
                 try {
-                    startData = agentClient.agentReady(data);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    String json = objectMapper.writerFor(AgentData.class)
+                            .withDefaultPrettyPrinter().writeValueAsString(data);
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(new URI(baseUrl + "/v2/agent/ready"))
+                            .header(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
+                            .header(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
+                            .header(HttpHeaders.AUTHORIZATION, "bearer "+token)
+                            .POST(BodyPublishers.ofString(json))
+                            .build();
+                    HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+                    startData = objectMapper.readerFor(AgentTestStartData.class).readValue(response.body());
                     break;
                 } catch (Exception e) {
                     LOG.error("Error sending ready: " + e, e);
