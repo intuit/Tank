@@ -42,10 +42,10 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>WebConversation</artifactId>
+      <artifactId>tank-api</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>tank-vm-manager</artifactId>
