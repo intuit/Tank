@@ -77,6 +77,7 @@ public class HeadlessDebuggerSetup implements Serializable {
     private int projectId;
     private String username;
     private String authId;
+    private String srsVersion;
 
     public HeadlessDebuggerSetup(String serviceUrl, Integer projectId, String token) {
         try {
@@ -238,6 +239,7 @@ public class HeadlessDebuggerSetup implements Serializable {
         }
         LOG.info("authid," + authId);
         LOG.info("username," + username);
+        LOG.info("srsversion," + srsVersion);
         LOG.info("total_steps," + steps.size());
         LOG.info("total_executed," + executedStepCounter);
         LOG.info("execution_percentage," + roundedPercentage);
@@ -462,10 +464,11 @@ public class HeadlessDebuggerSetup implements Serializable {
         }
     }
 
-    private void setAuthIdAndUsername(DebugStep debugStep) {
+    private void setAuthIdUsernameAndSRS(DebugStep debugStep) {
         final Map<String, String> entryVars = debugStep.getEntryVariables();
         this.authId = entryVars.get("authid");
         this.username = entryVars.get("username");
+        this.srsVersion = entryVars.get("srsversion");
     }
 
     public void stepFinished(final TestStepContext context) { // important - step error checking
@@ -476,7 +479,7 @@ public class HeadlessDebuggerSetup implements Serializable {
                 debugStep.setExitVariables(context.getVariables().getVariableValues());
                 debugStep.setRequest(context.getRequest());
                 debugStep.setResponse(context.getResponse());
-                setAuthIdAndUsername(debugStep);
+                setAuthIdUsernameAndSRS(debugStep);
             }
 
             try {
