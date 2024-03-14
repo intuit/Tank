@@ -36,21 +36,15 @@
 
       <div class="vertical-spacer" />
 
-      <h:form id="banner-form">
-        <h:panelGroup layout="block" style="position:fixed; top:60px; left:0; right:0; z-index:999; text-align:center;">
-          <p:messages id="banner" autoUpdate="true" closable="true" />
-        </h:panelGroup>
-        <p:commandButton id="closeMessageButton" style="display: none;"
-                         action="#{projectDescriptionBean.closeMessage}" ajax="true" />
-      </h:form>
+      <div class="card">
+        <p:notificationBar position="top" effect="slide" styleClass="top" widgetVar="bar">
+          <h:outputLink value = "https://github.intuit.com/pages/cg-sre/proe-docs/perf/tank/usage/" >Guide</h:outputLink>
+        </p:notificationBar>
+      </div>
 
-      <script type="text/javascript">
-        $(document).ready(function() {
-          $('#mainForm\\:banner-form\\:banner .ui-messages-close').click(function() {
-            PrimeFaces.ab({s:'mainForm:banner-form:closeMessageButton'})
-          });
-        });
-      </script>
+      <p:commandButton value="Show" onclick="PF('bar').show()" type="button" icon="pi pi-arrow-down"/>
+      <p:commandButton value="Hide" onclick="PF('bar').hide()" type="button" icon="pi pi-arrow-up"/>
+
       <p:growl globalOnly="true" id="messages" autoUpdate="true" />
 
       <pe:remoteCommand id="resizeListener" name="resizeFinished" update="projectTableId" />
