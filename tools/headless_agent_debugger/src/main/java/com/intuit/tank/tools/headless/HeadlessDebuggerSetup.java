@@ -75,6 +75,8 @@ public class HeadlessDebuggerSetup implements Serializable {
     private ProjectClient projectClient;
     private int executedStepCounter;
     private int projectId;
+    private String username;
+    private String authId;
 
     public HeadlessDebuggerSetup(String serviceUrl, Integer projectId, String token) {
         try {
@@ -234,7 +236,8 @@ public class HeadlessDebuggerSetup implements Serializable {
             LOG.info("project," + getCurrentWorkload().getName());
             LOG.info("project_id," + projectId);
         }
-
+        LOG.info("authid," + authId);
+        LOG.info("username," + username);
         LOG.info("total_steps," + steps.size());
         LOG.info("total_executed," + executedStepCounter);
         LOG.info("execution_percentage," + roundedPercentage);
@@ -459,6 +462,12 @@ public class HeadlessDebuggerSetup implements Serializable {
         }
     }
 
+    private void setAuthIdAndUsername(DebugStep debugStep) {
+        final Map<String, String> entryVars = debugStep.getEntryVariables();
+        this.authId = entryVars.get("authid");
+        this.username = entryVars.get("username");
+    }
+
     public void stepFinished(final TestStepContext context) { // important - step error checking
         boolean success_status = true;
         try {
@@ -467,11 +476,12 @@ public class HeadlessDebuggerSetup implements Serializable {
                 debugStep.setExitVariables(context.getVariables().getVariableValues());
                 debugStep.setRequest(context.getRequest());
                 debugStep.setResponse(context.getResponse());
+                setAuthIdAndUsername(debugStep);
             }
 
             try {
                 StringBuilder sb = new StringBuilder();
-                if(debugStep.getStepRun() != null) {
+                if(debugStep != null && debugStep.getStepRun() != null) {
                     sb.append(debugStep.getStepRun().getStepIndex()+1)
                             .append(",")
                             .append(debugStep.getRequest().getMethod())
