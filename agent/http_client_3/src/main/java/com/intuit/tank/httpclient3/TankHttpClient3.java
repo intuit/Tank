@@ -122,7 +122,7 @@ public class TankHttpClient3 implements TankHttpClient {
             PutMethod httpput = new PutMethod(request.getRequestUrl());
             // Multiple calls can be expensive, so get it once
             String requestBody = request.getBody();
-            StringRequestEntity entity = new StringRequestEntity(requestBody, request.getContentType().split(";")[0], request.getContentTypeCharSet());
+            StringRequestEntity entity = new StringRequestEntity(requestBody, request.getContentType(), null);
             httpput.setRequestEntity(entity);
             sendRequest(request, httpput, requestBody);
         } catch (UnsupportedEncodingException e) {
@@ -197,7 +197,7 @@ public class TankHttpClient3 implements TankHttpClient {
 
                 entity = new MultipartRequestEntity(parts.toArray(new Part[0]), httppost.getParams());
             } else {
-                entity = new StringRequestEntity(requestBody, request.getContentType().split(";")[0], request.getContentTypeCharSet());
+                entity = new StringRequestEntity(requestBody, request.getContentType(), null);
             }
             httppost.setRequestEntity(entity);
             sendRequest(request, httppost, requestBody);

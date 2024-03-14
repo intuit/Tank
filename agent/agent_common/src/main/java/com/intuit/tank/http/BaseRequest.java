@@ -28,7 +28,7 @@ public abstract class BaseRequest {
     protected int port = -1;
     protected String path = "/";
     protected String contentType = "application/x-www-form-urlencoded";
-    protected String contentTypeCharSet = null;
+    protected String contentTypeCharSet = StandardCharsets.UTF_8.toString();
     protected String requestUrl;
     private boolean async = false;
 
@@ -310,9 +310,6 @@ public abstract class BaseRequest {
         this.timestamp = date;
     }
 
-    public void setContentTypeCharSet(String contentTypeCharSet) {
-        this.contentTypeCharSet = contentTypeCharSet;
-    }
     public String getContentTypeCharSet() {
         return contentTypeCharSet;
     }
