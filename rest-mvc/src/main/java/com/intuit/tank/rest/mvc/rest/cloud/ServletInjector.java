@@ -14,7 +14,7 @@ import jakarta.servlet.ServletContext;
 
 public class ServletInjector<T> {
 
-    private BeanManager getBeanManager(ServletContext servletContext) {
+    public BeanManager getBeanManager(ServletContext servletContext) {
         return (BeanManager) servletContext
                 .getAttribute("org.jboss.weld.environment.servlet.jakarta.enterprise.inject.spi.BeanManager");
     }

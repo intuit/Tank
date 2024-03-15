@@ -27,6 +27,9 @@ import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
 import com.intuit.tank.vm.settings.ModificationType;
 
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.BeanManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.commons.lang3.StringUtils;
@@ -245,6 +248,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         Map<String, String> payload = new HashMap<>();
         scriptId = scriptId == null ? 0 : scriptId;
         contentEncoding = contentEncoding == null ? "" : contentEncoding;
+        CreationalContext<?> context = null;
         try (BufferedReader bufferedReader = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
                 new BufferedReader(new InputStreamReader(new GZIPInputStream(file.getInputStream()))) :
                 new BufferedReader(new InputStreamReader(file.getInputStream()))) {
@@ -257,8 +261,11 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                 payload.put("message", "Script with script ID " + scriptId + " overwritten with new script content");
             }
 
-            ScriptProcessor scriptProcessor = new ServletInjector<ScriptProcessor>().getManagedBean(servletContext,
-                    ScriptProcessor.class);
+            // Special Bean Context Management for @Dependent scoped bean
+            BeanManager beanManager = new ServletInjector<ScriptProcessor>().getBeanManager(servletContext);
+            Bean<?> bean = beanManager.getBeans(ScriptProcessor.class).iterator().next();
+            context = beanManager.createCreationalContext(bean);
+            ScriptProcessor scriptProcessor = (ScriptProcessor) beanManager.getReference(bean, ScriptProcessor.class, context);
 
             scriptProcessor.setScript(script);
             if (StringUtils.isNotEmpty(name)) {
@@ -279,6 +286,8 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         } catch (Exception e) {
             LOGGER.error("Error uploading script file: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("scripts", "new script via script upload", e);
+        } finally {
+            if (context !=null) context.release();
         }
         return payload;
     }
