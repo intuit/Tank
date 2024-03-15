@@ -55,6 +55,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.http.cookie.ClientCookie;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -152,7 +153,8 @@ public class TankHttpClient5 implements TankHttpClient {
     @Override
     public void doPut(BaseRequest request) {
         SimpleHttpRequest httpput = SimpleRequestBuilder.put(request.getRequestUrl())
-                .setBody(request.getBody(), ContentType.create(request.getContentType().split(";")[0], request.getContentTypeCharSet()))
+                .setBody(request.getBody(), ContentType.create(request.getContentType(), request.getContentTypeCharSet()))
+                .setHeader(HttpHeaders.CONTENT_TYPE, request.getContentType())
                 .build();
         sendRequest(request, httpput);
     }
@@ -202,7 +204,8 @@ public class TankHttpClient5 implements TankHttpClient {
                 LOG.error("Failure to write multipart POST payload.");
             }
         } else {
-            httppost.setBody(request.getBody(), ContentType.create(request.getContentType().split(";")[0], request.getContentTypeCharSet()));
+            httppost.setBody(request.getBody(), ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+            httppost.setHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
         }
         sendRequest(request, httppost.build());
     }
