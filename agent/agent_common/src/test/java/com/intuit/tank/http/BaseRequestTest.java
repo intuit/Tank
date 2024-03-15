@@ -262,11 +262,11 @@ public class BaseRequestTest {
     public void testGetContentTypeCharSet() {
         BaseRequest fixture = new MockBaseRequest(null);
         String contentTypeCharSet = fixture.getContentTypeCharSet();
-        assertEquals(null, contentTypeCharSet);
-
-        fixture.setContentTypeCharSet(StandardCharsets.UTF_8.toString());
-        contentTypeCharSet = fixture.getContentTypeCharSet();
         assertEquals("UTF-8", contentTypeCharSet);
+
+        fixture.setContentTypeCharSet(StandardCharsets.UTF_16.toString());
+        contentTypeCharSet = fixture.getContentTypeCharSet();
+        assertEquals("UTF-16", contentTypeCharSet);
     }
 
     @Test
