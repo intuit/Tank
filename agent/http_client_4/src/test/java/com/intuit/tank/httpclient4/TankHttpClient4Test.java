@@ -133,8 +133,13 @@ public class TankHttpClient4Test {
     @Tag(TestGroups.FUNCTIONAL)
     public void doPut() {
         BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/put");
+        request.setBody("{\"title\":\"Direct deposit with Credit Karma Money™ checking account¹\"}");
+        request.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         request.doPut(null);
         BaseResponse response = request.getResponse();
+        verify(exactly(1), putRequestedFor(urlEqualTo("/put"))
+                .withHeader("Content-Type", equalTo("application/json"))
+                .withRequestBody(containing("Money™")));
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
         assertNotNull(response.getBody());
