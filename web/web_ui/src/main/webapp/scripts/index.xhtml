@@ -7,10 +7,10 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:pe="http://primefaces.org/ui/extensions"
                 template="/WEB-INF/templates/tank.xhtml">
+  <f:metadata>
+    <f:viewAction action="#{tsConversationManager.end}" />
+  </f:metadata>
   <ui:define name="content">
-    <f:metadata>
-      <f:viewAction action="#{tsConversationManager.end}" />
-    </f:metadata>
     <h:form id="mainForm">
 
       <ts:toolbar title="Scripts" objectName="Scripts"
