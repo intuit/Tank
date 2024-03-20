@@ -19,8 +19,6 @@ import java.util.List;
 import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.event.Event;
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
