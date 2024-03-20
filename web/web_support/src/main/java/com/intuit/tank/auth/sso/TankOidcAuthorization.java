@@ -89,7 +89,7 @@ public class TankOidcAuthorization {
      */
     private String getClientSecret(OidcSsoConfig oidcSsoConfig) {
         String clientKey = oidcSsoConfig.getClientSecret();
-        if (StringUtils.isNotEmpty(clientKey)) {
+        if (clientKey.startsWith("/")) {
             try (SsmClient ssmClient = SsmClient.builder().build()) {
                 GetParameterResponse response = ssmClient.getParameter(GetParameterRequest.builder().name(clientKey).build());
                 return response.parameter().value();
