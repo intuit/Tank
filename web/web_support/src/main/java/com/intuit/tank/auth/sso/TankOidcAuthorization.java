@@ -97,7 +97,7 @@ public class TankOidcAuthorization {
                 LOG.error("Error retrieving client secret from SSM", e);
             }
         }
-        return "";
+        return oidcSsoConfig.getClientSecret();
     }
 
     private Map<Object, Object> getOidcRequestParameters(OidcSsoConfig oidcSsoConfig, String authorizationCode) {
