@@ -125,7 +125,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
      * @return banner text
      */
     public String getTextBanner() {
-        return config.getString( KEY_BANNER_TEXT, "");
+        return config.getString(KEY_BANNER_TEXT, "");
     }
 
     /**
