@@ -72,22 +72,8 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
 
     @PostConstruct
     public void init() {
-        // temporary banner on landing page (project view) informing users on auth API changes
-        if(FacesContext.getCurrentInstance().getExternalContext().getSessionMap().containsKey("showMessage")) {
-            boolean showMessage = (boolean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("showMessage");
-            if (showMessage) {
-                FacesContext.getCurrentInstance().addMessage("formId:banner",
-                        new FacesMessage(FacesMessage.SEVERITY_WARN, "Important Update: Tank V2 API now requires token-based authentication." +
-                        " To generate a Tank API token, go to 'Account Settings' on the upper right and save it somewhere secure for future use." +
-                        " Download the newest version of Tank tools under the 'Tools' tab as well, it now requires that API token to connect to Tank. Feel free to reach out to us on the #cx3-ask-sre channel with any questions.", null));
-            }
-        }
         tablePrefs = new TablePreferences(userPrefs.getPreferences().getProjectTableColumns());
         tablePrefs.registerListener(userPrefs);
-    }
-
-    public void closeMessage(){
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("showMessage", false);
     }
 
     public String getBannerMessage() {
