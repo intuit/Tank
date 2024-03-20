@@ -35,16 +35,20 @@
       </ts:toolbar>
 
       <div class="vertical-spacer" />
+      <br/>
 
-      <div class="card">
-        <p:notificationBar position="top" effect="slide" styleClass="top" widgetVar="bar">
-          <h:outputLink value = "https://github.intuit.com/pages/cg-sre/proe-docs/perf/tank/usage/" >Guide</h:outputLink>
-        </p:notificationBar>
-      </div>
+      <!-- Section for Banners on project page - configurable via settings file -->
 
-      <p:commandButton value="Show" onclick="PF('bar').show()" type="button" icon="pi pi-arrow-down"/>
-      <p:commandButton value="Hide" onclick="PF('bar').hide()" type="button" icon="pi pi-arrow-up"/>
+      <p:panel id="banner-text"
+               styleClass="d-flex align-items-center justify-content-between p-3 flex-wrap"
+               style="background-color: #dfeffc; color: #000; font-size: 0.8rem; font-weight: bold; border-radius: 10px;"
+               visible="#{projectDescriptionBean.bannerVisible}">
+        <h:outputText styleClass="mr-8" value="#{projectDescriptionBean.getBannerMessage()}" />
+        <br/>
+        <br/>
+      </p:panel>
 
+      <br/>
       <p:growl globalOnly="true" id="messages" autoUpdate="true" />
 
       <pe:remoteCommand id="resizeListener" name="resizeFinished" update="projectTableId" />

@@ -302,6 +302,18 @@ public class VmManagerConfig implements Serializable {
         return config.getBoolean("use-agent-elastic-ips", false);
     }
 
+    public String getTextBanner() {
+        String banner = config.getString("banner-text");
+        if (banner != null) {
+            try {
+                return banner;
+            } catch (Exception e) {
+                LOG.error(e.toString());
+            }
+        }
+        return "";
+    }
+
     /**
      * 
      * @param defaultResult

@@ -16,6 +16,7 @@ package com.intuit.tank;
 import java.io.Serializable;
 import java.util.List;
 
+import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.event.Event;
 import jakarta.faces.application.FacesMessage;
@@ -45,6 +46,9 @@ import com.intuit.tank.wrapper.VersionContainer;
 public class ProjectDescriptionBean extends SelectableBean<Project> implements Serializable, Multiselectable<Project> {
 
     private static final long serialVersionUID = 1L;
+
+    @Inject
+    private TankConfig tankConfig;
 
     @Inject
     private ProjectLoader projectLoader;
@@ -84,6 +88,14 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
 
     public void closeMessage(){
         FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("showMessage", false);
+    }
+
+    public String getBannerMessage() {
+        return tankConfig.getVmManagerConfig().getTextBanner();
+    }
+
+    public boolean isBannerVisible() {
+        return !tankConfig.getVmManagerConfig().getTextBanner().isEmpty();
     }
 
     public void deleteSelectedProject() {
