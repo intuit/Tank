@@ -35,6 +35,18 @@
       </ts:toolbar>
 
       <div class="vertical-spacer" />
+
+      <!-- Section for Banners on project page - configurable via settings file -->
+
+      <p:panel id="banner-text"
+               styleClass="d-flex align-items-center justify-content-between p-3 flex-wrap"
+               style="background-color: #dfeffc; color: #000; font-size: 0.8rem; font-weight: bold; border-radius: 10px;"
+               visible="#{projectDescriptionBean.bannerVisible}">
+        <h:outputText styleClass="mr-8" value="#{projectDescriptionBean.getBannerMessage()}" />
+        <br/>
+        <br/>
+      </p:panel>
+
       <p:growl globalOnly="true" id="messages" autoUpdate="true" />
 
       <pe:remoteCommand id="resizeListener" name="resizeFinished" update="projectTableId" />

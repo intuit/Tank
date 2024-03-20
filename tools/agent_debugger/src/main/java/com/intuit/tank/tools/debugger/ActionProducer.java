@@ -380,7 +380,8 @@ public class ActionProducer {
                     baseURLPanel.setBorder(BorderFactory.createTitledBorder("Intuit/Tank Base URL"));
                     JPanel tokenPanel = new JPanel();
                     comboBox.setPreferredSize(new Dimension(375,25));
-                    tokenPanel.setBorder(BorderFactory.createTitledBorder("Intuit/Tank Token"));
+                    tokenPanel.setBorder(BorderFactory.createTitledBorder("Intuit/Tank Token*"));
+                    tokenPanel.setToolTipText("Generate a Tank API token by logging into Tank and going to 'Account Settings' on the upper right to create a token for this specific host. ");
                     final JTextField tokenField = new JTextField();
                     tokenField.setPreferredSize(new Dimension(375,25));
                     baseURLPanel.add(comboBox);
