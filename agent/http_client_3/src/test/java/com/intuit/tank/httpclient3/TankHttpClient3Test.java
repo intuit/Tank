@@ -11,10 +11,8 @@ import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.http.TankCookie;
 import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.test.TestGroups;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.apache.http.entity.ContentType;
+import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -115,8 +113,13 @@ public class TankHttpClient3Test {
     @Tag(TestGroups.FUNCTIONAL)
     public void doPost() {
         BaseRequest request = getRequest(new TankHttpClient3(), wireMockServer.baseUrl() + "/post");
+        request.setBody("{\"title\":\"Direct deposit with Credit Karma Money™ checking account¹\"}");
+        request.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         request.doPost(null);
         BaseResponse response = request.getResponse();
+        verify(exactly(1), postRequestedFor(urlEqualTo("/post"))
+                .withHeader("Content-Type", equalTo("application/json"))
+                .withRequestBody(containing("Money™")));
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
         assertNotNull(response.getBody());
@@ -126,8 +129,13 @@ public class TankHttpClient3Test {
     @Tag(TestGroups.FUNCTIONAL)
     public void doPut() {
         BaseRequest request = getRequest(new TankHttpClient3(), wireMockServer.baseUrl() + "/put");
+        request.setBody("{\"title\":\"Direct deposit with Credit Karma Money™ checking account¹\"}");
+        request.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         request.doPut(null);
         BaseResponse response = request.getResponse();
+        verify(exactly(1), putRequestedFor(urlEqualTo("/put"))
+                .withHeader("Content-Type", equalTo("application/json"))
+                .withRequestBody(containing("Money™")));
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
     }
@@ -186,31 +194,32 @@ public class TankHttpClient3Test {
         assertTrue(response.getBody().contains("test-cookie"));
     }
 
-//    @Test
-//    @Tag(TestGroups.FUNCTIONAL)
-//    public void setProxy() {
-//        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbin.org/ip/");
-//        request.getHttpclient().setProxy("168.9.128.152", 8080);
-//        request.doGet(null);
-//        BaseResponse response = request.getResponse();
-//        assertNotNull(response);
-//        assertEquals(200, response.getHttpCode());
-//        String body = response.getBody();
-//
-//        request.doGet(null);
-//        response = request.getResponse();
-//        assertNotNull(response);
-//        assertEquals(200, response.getHttpCode());
-//        assertEquals(body, response.getBody());
-//
-//        // unset proxy
-//        request.getHttpclient().setProxy(null, -1);
-//        request.doGet(null);
-//        response = request.getResponse();
-//        assertNotNull(response);
-//        assertEquals(200, response.getHttpCode());
-//        assertNotEquals(body, response.getBody());
-//    }
+    @Test
+    @Disabled
+    @Tag(TestGroups.FUNCTIONAL)
+    public void setProxy() {
+        BaseRequest request = getRequest(new TankHttpClient3(), "http://httpbin.org/ip/");
+        request.getHttpclient().setProxy("168.9.128.152", 8080);
+        request.doGet(null);
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        String body = response.getBody();
+
+        request.doGet(null);
+        response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertEquals(body, response.getBody());
+
+        // unset proxy
+        request.getHttpclient().setProxy(null, -1);
+        request.doGet(null);
+        response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotEquals(body, response.getBody());
+    }
 
     @Test
     @Tag(TestGroups.MANUAL)
