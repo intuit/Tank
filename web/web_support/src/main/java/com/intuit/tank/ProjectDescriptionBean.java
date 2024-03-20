@@ -75,11 +75,11 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
     }
 
     public String getBannerMessage() {
-        return tankConfig.getVmManagerConfig().getTextBanner();
+        return tankConfig.getTextBanner();
     }
 
     public boolean isBannerVisible() {
-        return !tankConfig.getVmManagerConfig().getTextBanner().isEmpty();
+        return !tankConfig.getTextBanner().isEmpty();
     }
 
     public void deleteSelectedProject() {
