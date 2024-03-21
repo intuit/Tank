@@ -92,7 +92,7 @@ public class TankOidcAuthorization {
         if (clientKey.startsWith("/")) {
             LOG.info("Found Client Key");
             try (SsmClient ssmClient = SsmClient.builder().build()) {
-                GetParameterResponse response = ssmClient.getParameter(GetParameterRequest.builder().name(clientKey).build());
+                GetParameterResponse response = ssmClient.getParameter(GetParameterRequest.builder().name(clientKey).withDecryption(true).build());
                 return response.parameter().value();
             } catch (Exception e) {
                 LOG.error("Error retrieving client secret from SSM", e);
