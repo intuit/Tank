@@ -90,13 +90,15 @@ public class TankOidcAuthorization {
     private String getClientSecret(OidcSsoConfig oidcSsoConfig) {
         String clientKey = oidcSsoConfig.getClientSecret();
         if (clientKey.startsWith("/")) {
+            LOG.info("Found Client Key");
             try (SsmClient ssmClient = SsmClient.builder().build()) {
                 GetParameterResponse response = ssmClient.getParameter(GetParameterRequest.builder().name(clientKey).build());
                 return response.parameter().value();
             } catch (Exception e) {
-                LOG.info("Error retrieving client secret from SSM", e);
+                LOG.error("Error retrieving client secret from SSM", e);
             }
         }
+        LOG.info("Returning Default");
         return oidcSsoConfig.getClientSecret();
     }
 
