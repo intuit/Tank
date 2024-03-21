@@ -6,11 +6,16 @@ import com.intuit.tank.auth.sso.models.Token;
 import com.intuit.tank.http.WebHttpClient;
 import com.intuit.tank.vm.settings.OidcSsoConfig;
 import com.intuit.tank.vm.settings.TankConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jakarta.inject.Inject;
+import software.amazon.awssdk.services.ssm.SsmClient;
+import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
+import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
+
 import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.util.Base64;
@@ -78,6 +83,25 @@ public class TankOidcAuthorization {
         return userInfo;
     }
 
+    /**
+     * Request the client-secret parameter from SSM
+     * @return The OIDC SSO client secret for the controller
+     */
+    private String getClientSecret(OidcSsoConfig oidcSsoConfig) {
+        String clientKey = oidcSsoConfig.getClientSecret();
+        if (clientKey.startsWith("/")) {
+            LOG.info("Found Client Key");
+            try (SsmClient ssmClient = SsmClient.builder().build()) {
+                GetParameterResponse response = ssmClient.getParameter(GetParameterRequest.builder().name(clientKey).withDecryption(true).build());
+                return response.parameter().value();
+            } catch (Exception e) {
+                LOG.error("Error retrieving client secret from SSM", e);
+            }
+        }
+        LOG.info("Returning Default");
+        return clientKey;
+    }
+
     private Map<Object, Object> getOidcRequestParameters(OidcSsoConfig oidcSsoConfig, String authorizationCode) {
         if(Objects.requireNonNull(oidcSsoConfig).getConfiguration() == null) {
             throw new IllegalArgumentException("Missing OIDC SSO Config");
@@ -86,7 +110,7 @@ public class TankOidcAuthorization {
         Map<Object, Object> requestParameters = new HashMap<>();
 
         requestParameters.put(OidcConstants.CLIENT_ID_KEY, oidcSsoConfig.getClientId());
-        requestParameters.put(OidcConstants.CLIENT_SECRET_KEY, oidcSsoConfig.getClientSecret());
+        requestParameters.put(OidcConstants.CLIENT_SECRET_KEY, getClientSecret(oidcSsoConfig));
         requestParameters.put(OidcConstants.CONTENT_TYPE_KEY, OidcConstants.CONTENT_TYPE_VALUE);
         requestParameters.put(OidcConstants.GRANT_TYPE_KEY, OidcConstants.GRANT_TYPE_VALUE);
         requestParameters.put(OidcConstants.GRANT_CODE_KEY, authorizationCode);
