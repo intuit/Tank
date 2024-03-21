@@ -9,10 +9,7 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import com.intuit.tank.http.AuthCredentials;
 import com.intuit.tank.http.AuthScheme;
@@ -120,8 +117,13 @@ public class TankHttpClient5Test {
     @Tag(TestGroups.FUNCTIONAL)
     public void doPost() {
         BaseRequest request = getRequest(new TankHttpClient5(), wireMockServer.baseUrl() + "/post");
+        request.setBody("{\"title\":\"Direct deposit with Credit Karma Money™ checking account¹\"}");
+        request.setContentType(org.apache.http.entity.ContentType.APPLICATION_JSON.getMimeType());
         request.doPost(null);
         BaseResponse response = request.getResponse();
+        verify(exactly(1), postRequestedFor(urlEqualTo("/post"))
+                .withHeader("Content-Type", equalTo("application/json"))
+                .withRequestBody(containing("Money™")));
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
         assertNotNull(response.getBody());
@@ -131,8 +133,13 @@ public class TankHttpClient5Test {
     @Tag(TestGroups.FUNCTIONAL)
     public void doPut() {
         BaseRequest request = getRequest(new TankHttpClient5(), wireMockServer.baseUrl() + "/put");
+        request.setBody("{\"title\":\"Direct deposit with Credit Karma Money™ checking account¹\"}");
+        request.setContentType(org.apache.http.entity.ContentType.APPLICATION_JSON.getMimeType());
         request.doPut(null);
         BaseResponse response = request.getResponse();
+        verify(exactly(1), putRequestedFor(urlEqualTo("/put"))
+                .withHeader("Content-Type", equalTo("application/json"))
+                .withRequestBody(containing("Money™")));
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
     }
@@ -192,30 +199,30 @@ public class TankHttpClient5Test {
     }
 
     @Test
+    @Disabled
     @Tag(TestGroups.FUNCTIONAL)
     public void setProxy() {
-        // BaseRequest request = getRequest(new TankHttpClient4(),
-        // "http://httpbin.org/ip");
-        // request.getHttpclient().setProxy("168.9.128.152", 8080);
-        // request.doGet(null);
-        // BaseResponse response = request.getResponse();
-        // assertNotNull(response);
-        // assertEquals(200, response.getHttpCode());
-        // String body = response.getBody();
-        //
-        // request.doGet(null);
-        // response = request.getResponse();
-        // assertNotNull(response);
-        // assertEquals(200, response.getHttpCode());
-        // assertEquals(body, response.getBody());
-        //
-        // // unset proxy
-        // request.getHttpclient().setProxy(null, -1);
-        // request.doGet(null);
-        // response = request.getResponse();
-        // assertNotNull(response);
-        // assertEquals(200, response.getHttpCode());
-        // assertNotEquals(body, response.getBody());
+         BaseRequest request = getRequest(new TankHttpClient5(),"http://httpbin.org/ip");
+         request.getHttpclient().setProxy("168.9.128.152", 8080);
+         request.doGet(null);
+         BaseResponse response = request.getResponse();
+         assertNotNull(response);
+         assertEquals(200, response.getHttpCode());
+         String body = response.getBody();
+
+         request.doGet(null);
+         response = request.getResponse();
+         assertNotNull(response);
+         assertEquals(200, response.getHttpCode());
+         assertEquals(body, response.getBody());
+
+         // unset proxy
+         request.getHttpclient().setProxy(null, -1);
+         request.doGet(null);
+         response = request.getResponse();
+         assertNotNull(response);
+         assertEquals(200, response.getHttpCode());
+         assertNotEquals(body, response.getBody());
     }
 
     @Test
@@ -228,18 +235,19 @@ public class TankHttpClient5Test {
 //        assertEquals(response.getHttpCode(), 403);
     }
 
-//    @Test
-//    @Tag(TestGroups.FUNCTIONAL)
-//    public void doPostMultipart() throws IOException {
-//        BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/post");
-//        request.setContentType(BaseRequest.CONTENT_TYPE_MULTIPART);
-//        request.setBody(createMultiPartBody());
-//        request.doPost(null);
-//        BaseResponse response = request.getResponse();
-//        assertNotNull(response);
-//        assertEquals(200, response.getHttpCode());
-//        assertNotNull(response.getBody());
-//    }
+    @Test
+    @Disabled
+    @Tag(TestGroups.FUNCTIONAL)
+    public void doPostMultipart() throws IOException {
+        BaseRequest request = getRequest(new TankHttpClient5(), "http://httpbin.org/post");
+        request.setContentType(BaseRequest.CONTENT_TYPE_MULTIPART);
+        request.setBody(createMultiPartBody());
+        request.doPost(null);
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotNull(response.getBody());
+    }
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)

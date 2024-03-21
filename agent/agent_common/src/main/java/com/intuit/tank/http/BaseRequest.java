@@ -29,7 +29,7 @@ public abstract class BaseRequest {
     protected int port = -1;
     protected String path = "/";
     protected String contentType = "application/x-www-form-urlencoded";
-    protected String contentTypeCharSet = null;
+    protected String contentTypeCharSet = StandardCharsets.UTF_8.toString();
     protected String requestUrl;
     protected HttpRequestBase method;
     protected List<String> cookies;

@@ -16,6 +16,7 @@ package com.intuit.tank;
 import java.io.Serializable;
 import java.util.List;
 
+import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.event.Event;
 import jakarta.faces.model.SelectItem;
@@ -45,6 +46,9 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
     private static final long serialVersionUID = 1L;
 
     @Inject
+    private TankConfig tankConfig;
+
+    @Inject
     private ProjectLoader projectLoader;
 
     @Inject
@@ -68,6 +72,14 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
     public void init() {
         tablePrefs = new TablePreferences(userPrefs.getPreferences().getProjectTableColumns());
         tablePrefs.registerListener(userPrefs);
+    }
+
+    public String getBannerMessage() {
+        return tankConfig.getTextBanner();
+    }
+
+    public boolean isBannerVisible() {
+        return !tankConfig.getTextBanner().isEmpty();
     }
 
     public void deleteSelectedProject() {
