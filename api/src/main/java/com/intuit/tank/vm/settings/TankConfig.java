@@ -58,6 +58,8 @@ public class TankConfig extends BaseCommonsXmlConfig {
     private static final String KEY_REPORTING_NODE = "reporting";
     private static final String KEY_OIDC_SSO_NODE = "oidc-sso";
 
+    private static final String KEY_BANNER_TEXT = "banner-text";
+
     private static String configName = CONFIG_NAME;
 
     static {
@@ -118,6 +120,14 @@ public class TankConfig extends BaseCommonsXmlConfig {
     public boolean isRestSecurityEnabled() {
         return config.getBoolean(KEY_REST_SECURITY_ENABLED, false);
     }
+
+    /**
+     * @return banner text
+     */
+    public String getTextBanner() {
+        return config.getString(KEY_BANNER_TEXT, "");
+    }
+
     /**
      * @return true if rest security is enabled
      */
