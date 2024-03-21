@@ -22,7 +22,7 @@ import java.util.List;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Subsegment;
-import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
@@ -48,7 +48,7 @@ import com.intuit.tank.vm.exception.WatsParseException;
  * 
  */
 @Named
-@Dependent
+@RequestScoped
 public class ScriptProcessor implements Runnable, Serializable {
 
     private static final long serialVersionUID = 1L;
