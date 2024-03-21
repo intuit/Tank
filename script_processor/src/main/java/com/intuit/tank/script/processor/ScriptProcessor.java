@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import jakarta.enterprise.context.Dependent;
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Subsegment;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
@@ -36,7 +38,6 @@ import com.intuit.tank.script.util.OwaspReader;
 import com.intuit.tank.script.util.RecordedScriptReader;
 import com.intuit.tank.script.util.ScriptFilterUtil;
 import com.intuit.tank.vm.common.PercentCompleteMonitor;
-import com.intuit.tank.vm.common.util.MethodTimer;
 import com.intuit.tank.vm.exception.WatsParseException;
 
 /**
@@ -47,7 +48,7 @@ import com.intuit.tank.vm.exception.WatsParseException;
  * 
  */
 @Named
-@Dependent
+@RequestScoped
 public class ScriptProcessor implements Runnable, Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -95,14 +96,14 @@ public class ScriptProcessor implements Runnable, Serializable {
      * @throws WatsParseException
      */
     public List<ScriptStep> parseScript(Reader reader, List<ScriptFilter> filters) throws WatsParseException {
-        MethodTimer timer = new MethodTimer(LOG, getClass(), "parseScript");
-        timer.start();
+        Subsegment document = AWSXRay.beginSubsegment("parseScript");
         // parse xml
         steps = getScriptSteps(reader, filters);
         if (script != null) {
             monitor.setSavingStarted(script.getId());
         }
-        timer.markAndLog("Parse Script with " + steps.size() + " steps");
+        document.putAnnotation("Steps Processed", steps.size());
+        AWSXRay.endSubsegment();
         return steps;
     }
 
@@ -119,13 +120,11 @@ public class ScriptProcessor implements Runnable, Serializable {
 
         ScriptDao scriptDao = new ScriptDao();
         if (script != null) {
-            MethodTimer timer = new MethodTimer(LOG, getClass(), "run");
-            timer.start();
+            Subsegment subsegment = AWSXRay.beginSubsegment("ScriptProcessor.run");
             // save script to db
             try {
                 setScriptSteps(script, steps);
                 scriptDao.saveOrUpdate(script);
-                timer.markAndLog("Save Script of with " + steps.size() + " steps");
                 if (script != null) {
                     monitor.setProcessingComplete(script.getId());
                 }
@@ -133,8 +132,10 @@ public class ScriptProcessor implements Runnable, Serializable {
                 if (script != null) {
                     monitor.setError(script.getId(), 204);
                 }
-                timer.markAndLog("Save Script failed");
+                subsegment.addException(e);
                 LOG.error(e);
+            } finally {
+                AWSXRay.endSubsegment();
             }
         }
     }
