@@ -99,7 +99,7 @@ public class TankOidcAuthorization {
             }
         }
         LOG.info("Returning Default");
-        return oidcSsoConfig.getClientSecret();
+        return clientKey;
     }
 
     private Map<Object, Object> getOidcRequestParameters(OidcSsoConfig oidcSsoConfig, String authorizationCode) {
