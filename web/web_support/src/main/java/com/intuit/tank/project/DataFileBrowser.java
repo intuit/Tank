@@ -13,8 +13,8 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import java.io.IOException;
 import java.io.Serializable;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -223,7 +223,7 @@ public class DataFileBrowser extends SelectableBean<DataFile> implements Seriali
                 try {
                     FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getDataFileStorageDir(), false);
                     currentEntries = IOUtils.readLines(fileStorage.readFileData(fd), StandardCharsets.UTF_8);
-                } catch (IOException e) {
+                } catch (UncheckedIOException e) {
                     LOG.error("Error reading file " + fd.toString()+ ": " + e, e);
                     currentEntries.add("Error reading dataFile: " + e.toString());
                 }
