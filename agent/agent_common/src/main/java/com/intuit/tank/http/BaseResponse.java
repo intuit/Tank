@@ -198,22 +198,22 @@ public abstract class BaseResponse {
         try {
             StringBuilder sb = new StringBuilder();
             // System.out.println("******** RESPONSE ***********");
-            sb.append("RESPONSE HTTP CODE: ").append(this.httpCode).append(NEWLINE)
-                    .append("RESPONSE HTTP MSG: ").append(this.rspMessage).append(NEWLINE)
-                    .append("RESPONSE TIME: ").append(responseTime).append(NEWLINE)
-                    .append("RESPONSE SIZE: ").append(getResponseSize()).append(NEWLINE);
+            sb.append("RESPONSE HTTP CODE: " + this.httpCode).append(NEWLINE);
+            sb.append("RESPONSE HTTP MSG: " + this.rspMessage).append(NEWLINE);
+            sb.append("RESPONSE TIME: " + responseTime).append(NEWLINE);
+            sb.append("RESPONSE SIZE: " + getResponseSize()).append(NEWLINE);
             for (Entry<String, String> mapEntry : headers.entrySet()) {
-                sb.append("RESPONSE HEADER: ").append(mapEntry.getKey()).append(" = ").append(mapEntry.getValue()).append(NEWLINE);
+                sb.append("RESPONSE HEADER: " + (String) mapEntry.getKey() + " = " + (String) mapEntry.getValue()).append(NEWLINE);
             }
             for (Entry<String, String> entry : cookies.entrySet()) {
-                sb.append("RESPONSE COOKIE: ").append(entry.getKey()).append(" = ").append(entry.getValue()).append(NEWLINE);
+                sb.append("RESPONSE COOKIE: " + entry.getKey() + " = " + entry.getValue()).append(NEWLINE);
             }
             if (response != null) {
                 String contentType = this.headers.get("Content-Type");
                 if (isDataType(contentType)) {
-                    sb.append("RESPONSE BODY: ").append(this.response).append(NEWLINE);
+                    sb.append("RESPONSE BODY: " + this.response).append(NEWLINE);
                 } else {
-                    sb.append("RESPONSE BODY: not logged because ").append(contentType).append(" is not a data type.").append(NEWLINE);
+                    sb.append("RESPONSE BODY: not logged because " + contentType + " is not a data type.").append(NEWLINE);
                 }
             }
             this.responseLogMsg = sb.toString();
