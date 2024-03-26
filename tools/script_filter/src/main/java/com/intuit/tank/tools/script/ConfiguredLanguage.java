@@ -46,7 +46,7 @@ public class ConfiguredLanguage {
     private static final Set<String> extensionSet = new HashSet<String>();
 
     private static final String[][] data = {
-            { "OpenJDK Nashorn", SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, "Javascript",
+            { "ECMAScript", SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, "Javascript",
                     "org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory", "js" },
             { "ruby", SyntaxConstants.SYNTAX_STYLE_RUBY, "Ruby", "org.jruby.embed.jsr223.JRubyEngineFactory", "rb" },
             { "groovy", SyntaxConstants.SYNTAX_STYLE_GROOVY, "Groovy",
@@ -68,9 +68,7 @@ public class ConfiguredLanguage {
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 System.out.println("No ScriptEngine for language " + row[0] + " in classpath.");
             }
-            for (ScriptEngineFactory fact : manager.getEngineFactories()) {
-                System.out.println(fact.getLanguageName());
-            }
+            manager.getEngineFactories().stream().map(ScriptEngineFactory::getLanguageName).forEach(System.out::println);
         }
     }
 
@@ -94,7 +92,7 @@ public class ConfiguredLanguage {
      * @param scriptName
      * @return
      */
-    public static ConfiguredLanguage getLanguagebyExtension(String scriptName) {
+    public static ConfiguredLanguage getLanguageByExtension(String scriptName) {
         String extension = FilenameUtils.getExtension(scriptName);
         ScriptEngine engineByExtension = manager.getEngineByExtension(extension);
         return configuredLanguages.stream().filter(lang -> StringUtils.equals(lang.name, engineByExtension.getFactory().getLanguageName())).findFirst().orElse(null);
