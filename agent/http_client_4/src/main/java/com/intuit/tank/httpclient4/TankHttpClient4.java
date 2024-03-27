@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 import jakarta.annotation.Nonnull;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.*;
@@ -293,7 +292,7 @@ public class TankHttpClient4 implements TankHttpClient {
             // check for no content headers
             if (response.getStatusLine().getStatusCode() != 203 && response.getStatusLine().getStatusCode() != 202 && response.getStatusLine().getStatusCode() != 204) {
                 try ( InputStream is = response.getEntity().getContent() ) {
-                    responseBody = IOUtils.toByteArray(is);
+                    responseBody = is.readAllBytes();
                 } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
@@ -385,7 +384,10 @@ public class TankHttpClient4 implements TankHttpClient {
         } catch (Exception ex) {
             LOG.warn("Unable to get response: " + ex.getMessage());
         } finally {
-            response.logResponse();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("******** RESPONSE ***********");
+                LOG.debug(response.getLogMsg());
+            }
         }
     }
 

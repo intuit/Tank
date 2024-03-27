@@ -160,7 +160,7 @@ public class TestPlanStarter implements Runnable {
                 }
                 done = true;
             } catch (final Throwable t) {
-                LOG.error(LogUtil.getLogMessage("Linear - TestPlanStarter Unknown Error:"), t);
+                LOG.error(LogUtil.getLogMessage("Linear - TestPlanStarter Error:" + t.getMessage()), t);
                 throwUnchecked(t);
             }
         } else { // Nonlinear Workload
@@ -257,7 +257,7 @@ public class TestPlanStarter implements Runnable {
                 }
                 done = true;
             } catch (final Throwable t) {
-                LOG.error(LogUtil.getLogMessage("Nonlinear - TestPlanStarter Unknown Error:"), t);
+                LOG.error(LogUtil.getLogMessage("Nonlinear - TestPlanStarter Error:" + t.getMessage()), t);
                 throwUnchecked(t);
             }
         }

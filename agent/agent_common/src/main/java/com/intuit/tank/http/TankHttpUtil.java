@@ -52,18 +52,13 @@ public class TankHttpUtil {
         if (urlVariables != null && !urlVariables.isEmpty()) {
             return "?" + urlVariables.entrySet().stream()
                     .map(entry -> {
-                        try {
-                            if (StringUtils.isBlank(entry.getValue())) {
-                                return URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.name());
-                            } else {
-                                return URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.name())
-                                        + "="
-                                        + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.name());
-                            }
-                        } catch (UnsupportedEncodingException ex) {
-                            LOG.warn("Unable to set query string value: " + ex.getMessage());
+                        if (StringUtils.isBlank(entry.getValue())) {
+                            return URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8);
+                        } else {
+                            return URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8)
+                                    + "="
+                                    + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8);
                         }
-                        return "";
                     })
                     .collect(joining("&"));
         }

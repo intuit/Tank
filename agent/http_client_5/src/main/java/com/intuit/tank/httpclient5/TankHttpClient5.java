@@ -27,7 +27,6 @@ import java.util.zip.GZIPInputStream;
 
 import jakarta.annotation.Nonnull;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.hc.client5.http.UserTokenHandler;
@@ -393,7 +392,7 @@ public class TankHttpClient5 implements TankHttpClient {
 
             String contentEncoding = response.getHttpHeader("content-ecncoding");
             bResponse = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
-                    IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(bResponse))) :
+                    new GZIPInputStream(new ByteArrayInputStream(bResponse)).readAllBytes() :
                     bResponse;
 
             response.setResponseBody(bResponse);
@@ -401,7 +400,10 @@ public class TankHttpClient5 implements TankHttpClient {
         } catch (Exception ex) {
             LOG.warn(request.getLogUtil().getLogMessage("Unable to get response: " + ex.getMessage()));
         } finally {
-            response.logResponse();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("******** RESPONSE ***********");
+                LOG.debug(response.getLogMsg());
+            }
         }
     }
 
