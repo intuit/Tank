@@ -16,7 +16,6 @@ import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.ScriptGroup;
-import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.rest.mvc.rest.models.projects.*;
@@ -29,7 +28,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ProjectServiceUtil {
 
@@ -38,46 +37,60 @@ public class ProjectServiceUtil {
     private ProjectServiceUtil() { }
 
     public static ProjectTO projectToTransferObject(Project p) {
-        ProjectTO ret = new ProjectTO();
-        ret.setComments(p.getComments());
-        ret.setCreated(p.getCreated());
-        ret.setModified(p.getModified());
-        ret.setCreator(p.getCreator());
-        ret.setId(p.getId());
-        ret.setName(p.getName());
-        ret.setProductName(p.getProductName());
         JobConfiguration config = p.getWorkloads().get(0).getJobConfiguration();
-        ret.setRampTime(config.getRampTimeExpression());
-        ret.setStopBehavior(config.getStopBehavior());
-        ret.setSimulationTime(config.getSimulationTime());
-        ret.setTerminationPolicy(config.getTerminationPolicy());
-        ret.setWorkloadType(config.getIncrementStrategy());
-        ret.setLocation(config.getLocation());
-        ret.setUserIntervalIncrement(config.getUserIntervalIncrement());
+        ProjectTO.ProjectTOBuilder ret = ProjectTO.builder()
+                .withComments(p.getComments())
+                .withCreated(p.getCreated())
+                .withModified(p.getModified())
+                .withCreator(p.getCreator())
+                .withId(p.getId())
+                .withName(p.getName())
+                .withProductName(p.getProductName())
+                .withRampTime(config.getRampTimeExpression())
+                .withStopBehavior(config.getStopBehavior())
+                .withSimulationTime(config.getSimulationTime())
+                .withTerminationPolicy(config.getTerminationPolicy())
+                .withWorkloadType(config.getIncrementStrategy())
+                .withLocation(config.getLocation())
+                .withUserIntervalIncrement(config.getUserIntervalIncrement());
 
         for(JobRegion jobRegion : config.getJobRegions()) {
-            ret.getJobRegions().add(new AutomationJobRegion(jobRegion.getRegion(), jobRegion.getUsers()));
+            ret.withJobRegion(new AutomationJobRegion(jobRegion.getRegion(), jobRegion.getUsers()));
         }
 
         for(TestPlan testPlan : p.getWorkloads().get(0).getTestPlans()) {
             List<AutomationScriptGroup> retScriptGroups = new ArrayList<>();
             for(ScriptGroup sg : testPlan.getScriptGroups()) {
-                List<AutomationScriptGroupStep> retScripts = new ArrayList<>();
-                for(ScriptGroupStep script : sg.getScriptGroupSteps()){
-                    retScripts.add(new AutomationScriptGroupStep(script.getScript().getId(), script.getScript().getName(), script.getLoop(), script.getPosition()));
-                }
-                retScriptGroups.add(new AutomationScriptGroup(sg.getName(), sg.getLoop(), sg.getPosition(), retScripts));
+                List<AutomationScriptGroupStep> retScripts = sg.getScriptGroupSteps().stream()
+                        .map(script -> AutomationScriptGroupStep.builder()
+                                .withScriptId(script.getScript().getId())
+                                .withName(script.getScript().getName())
+                                .withLoop(script.getLoop())
+                                .withPosition(script.getPosition())
+                                .build())
+                        .collect(Collectors.toList());
+                retScriptGroups.add(AutomationScriptGroup.builder()
+                        .withName(sg.getName())
+                        .withLoop(sg.getLoop())
+                        .withPosition(sg.getPosition())
+                        .withScripts(retScripts)
+                        .build());
             }
-            ret.getTestPlans().add(new AutomationTestPlan(testPlan.getName(), testPlan.getUserPercentage(), testPlan.getPosition(), retScriptGroups));
+            ret.withTestPlan(AutomationTestPlan.builder()
+                    .withName(testPlan.getName())
+                    .withUserPercentage(testPlan.getUserPercentage())
+                    .withPosition(testPlan.getPosition())
+                    .withScriptGroups(retScriptGroups)
+                    .build());
         }
 
         for (Entry<String, String> entry : config.getVariables().entrySet()) {
-            ret.getVariables().add(new KeyPair(entry.getKey(), entry.getValue()));
+            ret.withVariable(new KeyPair(entry.getKey(), entry.getValue()));
         }
         for (Integer dataFileId : config.getDataFileIds()) {
-            ret.getDataFileIds().add(dataFileId);
+            ret.withDataFileId(dataFileId);
         }
-        return ret;
+        return ret.build();
     }
 
     /**

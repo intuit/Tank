@@ -8,10 +8,14 @@
 package com.intuit.tank.rest.mvc.rest.models.filters;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.Builder;
+import lombok.Singular;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "FilterGroupContainer", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "FilterGroupContainer", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -21,24 +25,11 @@ public class FilterGroupContainer implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElementWrapper(name = "projects", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "project", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<FilterGroupTO> filterGroups = new ArrayList<FilterGroupTO>();
+    private List<FilterGroupTO> filterGroups;
 
-    /**
-     * @param filterGroups
-     */
-    public FilterGroupContainer(List<FilterGroupTO> filterGroups) {
-        super();
-        this.filterGroups = filterGroups;
-    }
-
-    /**
-     * 
-     */
-    public FilterGroupContainer() {
-        super();
-    }
 
     /**
      * @return the filterGroups

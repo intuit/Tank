@@ -28,6 +28,6 @@ public class DefaultControllerTest {
     public void testGetPing() {
         ResponseEntity<String> result = defaultController.ping();
         assertEquals(result.getBody(), "PONG Tank V2 API");
-        assertEquals(result.getStatusCodeValue(), 200);
+        assertEquals(result.getStatusCode().value(), 200);
     }
 }

@@ -8,10 +8,14 @@
 package com.intuit.tank.rest.mvc.rest.models.jobs;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.Builder;
+import lombok.Singular;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "FilterContainer", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "FilterContainer", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -21,24 +25,10 @@ public class JobContainer implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElementWrapper(name = "jobs", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "job", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<JobTO> jobs = new ArrayList<JobTO>();
-
-    /**
-     * @param jobs
-     */
-    public JobContainer(List<JobTO> jobs) {
-        super();
-        this.jobs = jobs;
-    }
-
-    /**
-     * 
-     */
-    public JobContainer() {
-        super();
-    }
+    private List<JobTO> jobs;
 
     /**
      * @return the jobs

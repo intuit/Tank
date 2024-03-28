@@ -8,9 +8,12 @@
 package com.intuit.tank.rest.mvc.rest.models.datafiles;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.Builder;
+
 import java.io.Serializable;
 import java.util.Date;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "dataFile", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataFile", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -46,13 +49,6 @@ public class DataFileDescriptor implements Serializable {
 
     @XmlElement(name = "comments", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private String comments;
-
-    /**
-     * 
-     */
-    public DataFileDescriptor() {
-        super();
-    }
 
     /**
      * @return the id

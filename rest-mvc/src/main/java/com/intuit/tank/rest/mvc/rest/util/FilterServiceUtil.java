@@ -19,18 +19,19 @@ public class FilterServiceUtil {
      * @return
      */
     public static FilterGroupTO filterGroupToTO(ScriptFilterGroup g) {
-        FilterGroupTO ret = new FilterGroupTO();
-        ret.setId(g.getId());
-        ret.setName(g.getName());
-        ret.setProductName(g.getProductName());
-        return ret;
+        return FilterGroupTO.builder()
+                .withId(g.getId())
+                .withName(g.getName())
+                .withProductName(g.getProductName())
+                .build();
     }
 
     public static FilterTO filterToTO(ScriptFilter g) {
-        FilterTO ret = new FilterTO();
-        ret.setId(g.getId());
-        ret.setName(g.getName());
-        ret.setProductName(g.getProductName());
-        return ret;
+        return FilterTO.builder()
+                .withId(g.getId())
+                .withName(g.getName())
+                .withProductName(g.getProductName())
+                .build();
+
     }
 }

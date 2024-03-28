@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.models.projects;
 
+import lombok.Builder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.xml.bind.annotation.*;
 import java.io.Serializable;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "automationScriptGroupStep", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AutomationScriptGroupStep", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -32,26 +34,12 @@ public class AutomationScriptGroupStep implements Serializable {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String name;
 
+    @Builder.Default
     @XmlElement(name = "loop", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int loop = 1;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer position;
-
-    /**
-     * @param scriptId
-     * @param loop
-     * @param position
-     */
-    public AutomationScriptGroupStep(Integer scriptId, String name, int loop, Integer position) {
-        this.scriptId = scriptId;
-        this.name = name;
-        this.loop = loop;
-        this.position = position;
-    }
-
-    protected AutomationScriptGroupStep() {
-    }
 
     /**
      * @return the scriptId

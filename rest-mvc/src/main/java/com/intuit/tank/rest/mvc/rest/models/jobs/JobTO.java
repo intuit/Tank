@@ -7,12 +7,14 @@
  */
 package com.intuit.tank.rest.mvc.rest.models.jobs;
 
+import lombok.Builder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import jakarta.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.Date;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "job", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Job", namespace = Namespace.NAMESPACE_V1, propOrder = {

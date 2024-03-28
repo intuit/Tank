@@ -13,6 +13,8 @@ import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.Location;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 
+import lombok.Builder;
+import lombok.Singular;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -22,6 +24,7 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.util.*;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "automationRequest", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AutomationRequest", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -76,32 +79,38 @@ public class AutomationRequest implements Serializable {
     @XmlElement(name = "stopBehavior", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private StopBehavior stopBehavior = StopBehavior.END_OF_SCRIPT_GROUP;
 
+    @Singular(ignoreNullCollections = true)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @XmlElementWrapper(name = "filterIds", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "id", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<Integer> filterIds = new ArrayList<Integer>();
+    private List<Integer> filterIds;
 
+    @Singular(ignoreNullCollections = true)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @XmlElementWrapper(name = "filterGroupIds", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "id", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<Integer> filterGroupIds = new ArrayList<Integer>();
+    private List<Integer> filterGroupIds;
 
+    @Singular(ignoreNullCollections = true)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @XmlElementWrapper(name = "externalScripts", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "id", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<Integer> externalScriptIds = new ArrayList<Integer>();
+    private List<Integer> externalScriptIds;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElementWrapper(name = "dataFileIds", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "id", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<Integer> dataFileIds = new ArrayList<Integer>();
+    private List<Integer> dataFileIds;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElementWrapper(name = "jobRegions", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "region", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private Set<AutomationJobRegion> jobRegions = new HashSet<AutomationJobRegion>();
+    private Set<AutomationJobRegion> jobRegions;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElementWrapper(name = "testPlans", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "testPlans", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<AutomationTestPlan> testPlans = new ArrayList<>();
+    private List<AutomationTestPlan> testPlans;
 
     @XmlElement(name = "workloadType", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private IncrementStrategy workloadType;
@@ -109,18 +118,10 @@ public class AutomationRequest implements Serializable {
     @XmlElement(name = "terminationPolicy", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private TerminationPolicy terminationPolicy;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElement(name = "variables", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    private Map<String, String> variables = new HashMap<String, String>();
-
-    /**
-     * Fluent interface for Building automation requests.
-     * 
-     * @return the builder
-     */
-    public static AutomationRequestBuilder builder() {
-        return new AutomationRequestBuilder();
-    }
+    private Map<String, String> variables;
 
     /**
      * @return the scriptName
@@ -165,13 +166,6 @@ public class AutomationRequest implements Serializable {
      */
     private void setName(String name) {
         this.name = name;
-    }
-
-    /**
-     * 
-     */
-    private AutomationRequest() {
-
     }
 
     /**
@@ -420,228 +414,6 @@ public class AutomationRequest implements Serializable {
     public int hashCode() {
         return new HashCodeBuilder(59, 25).append(productName).append(rampTime).append(simulationTime)
                 .append(userIntervalIncrement).append(jobRegions).append(variables).toHashCode();
-    }
-
-    public static class AutomationRequestBuilder extends AutomationRequestBuilderBase<AutomationRequestBuilder> {
-
-        public AutomationRequestBuilder() {
-            super(new AutomationRequest());
-        }
-
-        public AutomationRequest build() {
-            return getInstance();
-        }
-    }
-
-    static class AutomationRequestBuilderBase<GeneratorT extends AutomationRequestBuilderBase<GeneratorT>> {
-        private AutomationRequest instance;
-
-        /**
-         * 
-         */
-        public AutomationRequestBuilderBase() {
-            this(new AutomationRequest());
-        }
-
-        protected AutomationRequestBuilderBase(AutomationRequest aInstance) {
-            instance = aInstance;
-        }
-
-        protected AutomationRequest getInstance() {
-            return instance;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withName(String aValue) {
-            instance.setName(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withScriptName(String aValue) {
-            instance.setScriptName(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withProductName(String aValue) {
-            instance.setProductName(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withLocation(Location aValue) {
-            instance.setLocation(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withStopBehavior(StopBehavior aValue) {
-            instance.setStopBehavior(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withComments(String aValue) {
-            instance.setComments(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withRampTime(String aValue) {
-            instance.setRampTime(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withSimulationTime(String aValue) {
-            instance.setSimulationTime(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withUserIntervalIncrement(int aValue) {
-            instance.setUserIntervalIncrement(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withFilterIds(List<Integer> aValue) {
-            instance.setFilterIds(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withAddedFilterId(Integer aValue) {
-            if (instance.getFilterIds() == null) {
-                instance.setFilterIds(new ArrayList<Integer>());
-            }
-
-            ((ArrayList<Integer>) instance.getFilterIds()).add(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withDataFileIds(List<Integer> aValue) {
-            instance.setDataFileIds(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withAddedDataFileId(Integer aValue) {
-            if (instance.getDataFileIds() == null) {
-                instance.setDataFileIds(new ArrayList<Integer>());
-            }
-
-            ((ArrayList<Integer>) instance.getDataFileIds()).add(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withExternalScriptIds(List<Integer> aValue) {
-            instance.setExternalScriptIds(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withAddedExternalScriptId(Integer aValue) {
-            if (instance.getExternalScriptIds() == null) {
-                instance.setExternalScriptIds(new ArrayList<Integer>());
-            }
-
-            ((ArrayList<Integer>) instance.getExternalScriptIds()).add(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withFilterGroupIds(List<Integer> aValue) {
-            instance.setFilterGroupIds(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withAddedFilterGroupId(Integer aValue) {
-            if (instance.getFilterGroupIds() == null) {
-                instance.setFilterGroupIds(new ArrayList<Integer>());
-            }
-
-            ((ArrayList<Integer>) instance.getFilterGroupIds()).add(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withJobRegions(Set<AutomationJobRegion> aValue) {
-            instance.setJobRegions(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withAddedJobRegion(AutomationJobRegion aValue) {
-            if (instance.getJobRegions() == null) {
-                instance.setJobRegions(new HashSet<AutomationJobRegion>());
-            }
-
-            ((Set<AutomationJobRegion>) instance.getJobRegions()).add(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withTestPlans(List<AutomationTestPlan> aValue) {
-            instance.setTestPlans(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withAddedTestPlan(AutomationTestPlan aValue) {
-            if (instance.getTestPlans() == null) {
-                instance.setTestPlans(new ArrayList<>());
-            }
-
-            ((List<AutomationTestPlan>) instance.getTestPlans()).add(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withWorkloadType(IncrementStrategy aValue) {
-            instance.setWorkloadType(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withTerminationPolicy(TerminationPolicy aValue) {
-            instance.setTerminationPolicy(aValue);
-
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withVariables(Map<String, String> aValue) {
-            instance.setVariables(aValue);
-
-            return (GeneratorT) this;
-        }
     }
 
 }

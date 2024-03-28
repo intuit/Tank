@@ -7,6 +7,8 @@
  */
 package com.intuit.tank.rest.mvc.rest.models.projects;
 
+import lombok.Builder;
+import lombok.Singular;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -16,6 +18,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "automationTestPlan", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AutomationTestPlan", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -31,30 +34,16 @@ public class AutomationTestPlan implements Serializable {
     @XmlElement(name = "name", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private String name;
 
+    @Builder.Default
     @XmlElement(name = "user_percentage", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int userPercentage = 100;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer position;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElement(name = "script_groups", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<AutomationScriptGroup> scriptGroups = new ArrayList<AutomationScriptGroup>();
-
-    /**
-     * @param name
-     * @param userPercentage
-     * @param position
-     * @param scriptGroups
-     */
-    public AutomationTestPlan(String name, int userPercentage, Integer position, List<AutomationScriptGroup> scriptGroups) {
-        this.name = name;
-        this.userPercentage = userPercentage;
-        this.position = position;
-        this.scriptGroups = scriptGroups;
-    }
-
-    protected AutomationTestPlan() {
-    }
+    private List<AutomationScriptGroup> scriptGroups;
 
     /**
      * @return the name

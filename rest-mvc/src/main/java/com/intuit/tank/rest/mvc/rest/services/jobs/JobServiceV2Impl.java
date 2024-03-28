@@ -103,7 +103,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
                 List<JobInstance> jobs = new ArrayList<JobInstance>(queue.getJobs());
                 jobs.sort(new CreateDateComparator(SortOrder.DESCENDING));
                 List<JobTO> list = jobs.stream().map(JobServiceUtil::jobToTO).collect(Collectors.toList());
-                return new JobContainer(list);
+                return JobContainer.builder().withJobs(list).build();
             } else {
                 return null;
             }
@@ -121,7 +121,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
             if (!jobs.isEmpty()) {
                 jobs.sort(new CreateDateComparator(SortOrder.DESCENDING));
                 List<JobTO> list = jobs.stream().map(JobServiceUtil::jobToTO).collect(Collectors.toList());
-                return new JobContainer(list);
+                return JobContainer.builder().withJobs(list).build();
             } else {
                 return null;
             }

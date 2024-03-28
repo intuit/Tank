@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.servlet.ServletContext;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -84,10 +85,10 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     public FilterContainer getFilters() {
         try {
             List<ScriptFilter> all = new ScriptFilterDao().findAll();
-            List<FilterTO> ret = all.stream()
+            List<FilterTO> filters = all.stream()
                     .map(FilterServiceUtil::filterToTO)
                     .collect(Collectors.toList());
-            return new FilterContainer(ret);
+            return FilterContainer.builder().withFilters(filters).build();
         } catch(Exception e){
             LOGGER.error("Error returning all filters: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("filter", "all filters", e);
@@ -98,10 +99,10 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     public FilterGroupContainer getFilterGroups() {
         try {
         List<ScriptFilterGroup> all = new ScriptFilterGroupDao().findAll();
-        List<FilterGroupTO> ret = all.stream()
+        List<FilterGroupTO> filterGroups = all.stream()
                 .map(FilterServiceUtil::filterGroupToTO)
                 .collect(Collectors.toList());
-        return new FilterGroupContainer(ret);
+        return FilterGroupContainer.builder().withFilterGroups(filterGroups).build();
         } catch(Exception e){
             LOGGER.error("Error returning all filter groups: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("filter", "all filter groups", e);
@@ -118,14 +119,14 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
                 }
                 List<Integer> filterIds = new ArrayList<>(request.getFilterIds());
                 FilterGroupDao dao = new FilterGroupDao();
-                for (Integer id : request.getFilterGroupIds()) {
-                    ScriptFilterGroup group = dao.findById(id);
-                    if (group != null) {
-                        for (ScriptFilter filter : group.getFilters()) {
-                            filterIds.add(filter.getId());
-                        }
-                    }
-                }
+
+                request.getFilterGroupIds().stream()
+                        .map(dao::findById)
+                        .filter(Objects::nonNull)
+                        .flatMap(group -> group.getFilters().stream())
+                        .map(ScriptFilter::getId)
+                        .forEach(filterIds::add);
+
                 if (!filterIds.isEmpty()) {
                     ScriptFilterUtil.applyFilters(filterIds, script);
                     ScriptUtil.setScriptStepLabels(script);

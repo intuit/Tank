@@ -28,15 +28,15 @@ public final class DataFileServiceUtil {
      * @return the Descriptor
      */
     public static DataFileDescriptor dataFileToDescriptor(DataFile dataFile) {
-        DataFileDescriptor ret = new DataFileDescriptor();
-        ret.setId(dataFile.getId());
-        ret.setCreated(dataFile.getCreated());
-        ret.setModified(dataFile.getModified());
-        ret.setCreator(dataFile.getCreator());
-        ret.setName(dataFile.getPath());
-        ret.setDataUrl(getRelativeDataUrl(dataFile.getId()));
-        ret.setComments(dataFile.getComments());
-        return ret;
+        return DataFileDescriptor.builder()
+                .withId(dataFile.getId())
+                .withCreated(dataFile.getCreated())
+                .withModified(dataFile.getModified())
+                .withCreator(dataFile.getCreator())
+                .withName(dataFile.getPath())
+                .withDataUrl(getRelativeDataUrl(dataFile.getId()))
+                .withComments(dataFile.getComments())
+                .build();
     }
 
     private static String getRelativeDataUrl(int id) {
