@@ -62,13 +62,12 @@ public class FilterControllerTest {
 
     @Test
     public void testGetFilters() {
-        List<FilterTO> filters = new ArrayList<>();
-        FilterTO testFilter = new FilterTO();
-        testFilter.setId(5);
-        testFilter.setName("testFilterName");
-        testFilter.setProductName("testProductName");
-        filters.add(testFilter);
-        FilterContainer filterContainer = new FilterContainer(filters);
+        FilterTO testFilter = FilterTO.builder()
+                .withId(5)
+                .withName("testFilterName")
+                .withProductName("testProductName")
+                .build();
+        FilterContainer filterContainer = FilterContainer.builder().withFilter(testFilter).build();
         when(filterService.getFilters()).thenReturn(filterContainer);
 
         ResponseEntity<FilterContainer> result = filterController.getFilters();
@@ -81,13 +80,12 @@ public class FilterControllerTest {
 
     @Test
     public void testGetFilterGroups() {
-        List<FilterGroupTO> filters = new ArrayList<>();
-        FilterGroupTO testFilterGroup = new FilterGroupTO();
-        testFilterGroup.setId(4);
-        testFilterGroup.setName("testFilterGroupName");
-        testFilterGroup.setProductName("testProductName");
-        filters.add(testFilterGroup);
-        FilterGroupContainer filterGroupContainer = new FilterGroupContainer(filters);
+        FilterGroupTO testFilterGroup = FilterGroupTO.builder()
+                .withId(4)
+                .withName("testFilterGroupName")
+                .withProductName("testProductName")
+                .build();
+        FilterGroupContainer filterGroupContainer = FilterGroupContainer.builder().withFilterGroup(testFilterGroup).build();
         when(filterService.getFilterGroups()).thenReturn(filterGroupContainer);
 
         ResponseEntity<FilterGroupContainer> result = filterController.getFilterGroups();
@@ -100,10 +98,11 @@ public class FilterControllerTest {
 
     @Test
     public void testGetFilter() {
-        FilterTO testFilter = new FilterTO();
-        testFilter.setId(5);
-        testFilter.setName("testFilterName");
-        testFilter.setProductName("testProductName");
+        FilterTO testFilter = FilterTO.builder()
+                .withId(5)
+                .withName("testFilterName")
+                .withProductName("testProductName")
+                .build();
 
         when(filterService.getFilter(2)).thenReturn(testFilter);
         ResponseEntity<FilterTO> result = filterController.getFilter(2);
@@ -116,10 +115,11 @@ public class FilterControllerTest {
 
     @Test
     public void testGetFilterGroup() {
-        FilterGroupTO testFilterGroup = new FilterGroupTO();
-        testFilterGroup.setId(4);
-        testFilterGroup.setName("testFilterGroupName");
-        testFilterGroup.setProductName("testProductName");
+        FilterGroupTO testFilterGroup = FilterGroupTO.builder()
+                .withId(4)
+                .withName("testFilterGroupName")
+                .withProductName("testProductName")
+                .build();
 
         when(filterService.getFilterGroup(1)).thenReturn(testFilterGroup);
         ResponseEntity<FilterGroupTO> result = filterController.getFilterGroup(1);

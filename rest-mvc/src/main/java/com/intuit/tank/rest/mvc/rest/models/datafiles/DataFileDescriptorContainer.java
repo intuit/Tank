@@ -8,10 +8,14 @@
 package com.intuit.tank.rest.mvc.rest.models.datafiles;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.Builder;
+import lombok.Singular;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "ExternalScriptContainer", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ExternalScriptContainer", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -21,17 +25,10 @@ public class DataFileDescriptorContainer implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElementWrapper(name = "data-files", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "data-file", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<DataFileDescriptor> dataFiles = new ArrayList<DataFileDescriptor>();
-
-    public DataFileDescriptorContainer() {
-
-    }
-
-    public DataFileDescriptorContainer(List<DataFileDescriptor> list) {
-        this.dataFiles = list;
-    }
+    private List<DataFileDescriptor> dataFiles;
 
     /**
      * @return the dataFiles

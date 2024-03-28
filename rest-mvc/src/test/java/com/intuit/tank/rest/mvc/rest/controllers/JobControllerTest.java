@@ -66,62 +66,47 @@ public class JobControllerTest {
         when(jobService.ping()).thenReturn("PONG");
         ResponseEntity<String> result = jobController.ping();
         assertEquals("PONG", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
     }
 
     @Test
     public void testGetJobs() {
-        List<JobTO> jobs = new ArrayList<>();
-        JobTO testJob = new JobTO();
-        testJob.setId(5);
-        testJob.setName("testJobName");
-        testJob.setStatus("testJobStatus");
-
-        jobs.add(testJob);
-        JobContainer jobContainer = new JobContainer(jobs);
+        JobTO job = JobTO.builder().withId(5).withName("testJobName").withStatus("testJobStatus").build();
+        JobContainer jobContainer = JobContainer.builder().withJob(job).build();
         when(jobService.getAllJobs()).thenReturn(jobContainer);
 
         ResponseEntity<JobContainer> result = jobController.getAllJobs();
         assertEquals(5, result.getBody().getJobs().get(0).getId());
         assertEquals("testJobName", result.getBody().getJobs().get(0).getName());
         assertEquals("testJobStatus", result.getBody().getJobs().get(0).getStatus());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(jobService).getAllJobs();
     }
 
     @Test
     public void testGetJob() {
-        JobTO testJob = new JobTO();
-        testJob.setId(9);
-        testJob.setName("testSingleJob");
-        testJob.setStatus("testSingleJobStatus");
+        JobTO testJob = JobTO.builder().withId(9).withName("testSingleJob").withStatus("testSingleJobStatus").build();
 
         when(jobService.getJob(2)).thenReturn(testJob);
         ResponseEntity<JobTO> result = jobController.getJob(2);
         assertEquals(9, result.getBody().getId());
         assertEquals("testSingleJob", result.getBody().getName());
         assertEquals("testSingleJobStatus", result.getBody().getStatus());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(jobService).getJob(2);
     }
 
     @Test
     public void testGetJobsByProject() {
-        List<JobTO> jobs = new ArrayList<>();
-        JobTO testJob = new JobTO();
-        testJob.setId(11);
-        testJob.setName("testJobNameProject");
-        testJob.setStatus("testJobStatusProject");
-
-        jobs.add(testJob);
-        JobContainer jobContainer = new JobContainer(jobs);
+        JobTO job = JobTO.builder().withId(11).withName("testJobNameProject").withStatus("testJobStatusProject").build();
+        JobContainer jobContainer = JobContainer.builder().withJob(job).build();
         when(jobService.getJobsByProject(6)).thenReturn(jobContainer);
 
         ResponseEntity<JobContainer> result = jobController.getJobsByProject(6);
         assertEquals(11, result.getBody().getJobs().get(0).getId());
         assertEquals("testJobNameProject", result.getBody().getJobs().get(0).getName());
         assertEquals("testJobStatusProject", result.getBody().getJobs().get(0).getStatus());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(jobService).getJobsByProject(6);
     }
 
@@ -133,7 +118,7 @@ public class JobControllerTest {
         when(jobService.createJob(request)).thenReturn(response);
         ResponseEntity<Map<String, String>> result = jobController.createJob(request);
         assertEquals("testJobStatus", result.getBody().get("testJobId"));
-        assertEquals(201, result.getStatusCodeValue());
+        assertEquals(201, result.getStatusCode().value());
         assertNotNull(result.getHeaders().getLocation());
         verify(jobService).createJob(request);
     }
@@ -150,12 +135,12 @@ public class JobControllerTest {
         Map<String, String> expectedEntry = result.getBody().get(0);
         assertEquals("67", expectedEntry.get("jobId"));
         assertEquals("Created", expectedEntry.get("status"));
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(jobService).getAllJobStatus();
 
         when(jobService.getAllJobStatus()).thenReturn(null);
         result = jobController.getAllJobStatus();
-        assertEquals(404, result.getStatusCodeValue());
+        assertEquals(404, result.getStatusCode().value());
     }
 
     @Test
@@ -163,12 +148,12 @@ public class JobControllerTest {
         when(jobService.getJobStatus(4)).thenReturn("Created");
         ResponseEntity<String> result = jobController.getJobStatus(4);
         assertEquals("Created", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(jobService).getJobStatus(4);
 
         when(jobService.getJobStatus(4)).thenReturn(null);
         result = jobController.getJobStatus(4);
-        assertEquals(404, result.getStatusCodeValue());
+        assertEquals(404, result.getStatusCode().value());
     }
 
     @Test
@@ -190,12 +175,12 @@ public class JobControllerTest {
         assertEquals(JobStatus.Starting, expectedStatus.getJobStatus());
         assertEquals(VMImageType.AGENT, expectedStatus.getRole());
         assertEquals(VMRegion.US_WEST_2, expectedStatus.getVmRegion());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(jobService).getJobVMStatus("testJobId");
 
         when(jobService.getJobVMStatus("testJobId")).thenReturn(null);
         result = jobController.getJobVMStatuses("testJobId");
-        assertEquals(404, result.getStatusCodeValue());
+        assertEquals(404, result.getStatusCode().value());
     }
 
     @Test
@@ -214,7 +199,7 @@ public class JobControllerTest {
                     "csv, 3, 4\n" +
                     "file, 5, 6\n", out.toString());
         }
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(jobService).getTestScriptForJob(2);
     }
 
@@ -231,7 +216,7 @@ public class JobControllerTest {
         ResponseEntity<StreamingResponseBody> result = jobController.downloadTestScriptForJob(2);
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
         assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(jobService).downloadTestScriptForJob(2);
     }
 
@@ -242,7 +227,7 @@ public class JobControllerTest {
         when(jobService.startJob(385594786)).thenReturn("Starting");
         ResponseEntity<String> result = jobController.startJob(385594786);
         assertEquals("Starting", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(jobService).startJob(385594786);
     }
 
@@ -251,7 +236,7 @@ public class JobControllerTest {
         when(jobService.stopJob(808242333)).thenReturn("Stopped");
         ResponseEntity<String> result = jobController.stopJob(808242333);
         assertEquals("Stopped", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(jobService).stopJob(808242333);
     }
 
@@ -260,7 +245,7 @@ public class JobControllerTest {
         when(jobService.pauseJob(375886587)).thenReturn("RampPaused");
         ResponseEntity<String> result = jobController.pauseJob(375886587);
         assertEquals("RampPaused", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(jobService).pauseJob(375886587);
     }
 
@@ -269,7 +254,7 @@ public class JobControllerTest {
         when(jobService.resumeJob(100403047)).thenReturn("Running");
         ResponseEntity<String> result = jobController.resumeJob(100403047);
         assertEquals("Running", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(jobService).resumeJob(100403047);
     }
 
@@ -278,7 +263,7 @@ public class JobControllerTest {
         when(jobService.killJob(482937134)).thenReturn("Completed");
         ResponseEntity<String> result = jobController.killJob(482937134);
         assertEquals("Completed", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(jobService).killJob(482937134);
     }
 }

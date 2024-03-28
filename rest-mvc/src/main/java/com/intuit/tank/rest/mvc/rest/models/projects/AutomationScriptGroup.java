@@ -7,6 +7,8 @@
  */
 package com.intuit.tank.rest.mvc.rest.models.projects;
 
+import lombok.Builder;
+import lombok.Singular;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -16,6 +18,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "automationScriptGroup", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AutomationScriptGroup", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -30,29 +33,16 @@ public class AutomationScriptGroup implements Serializable {
     @XmlElement(name = "name", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private String name;
 
+    @Builder.Default
     @XmlElement(name = "loop", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int loop = 1;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer position;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElement(name = "scripts", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<AutomationScriptGroupStep> scripts = new ArrayList<AutomationScriptGroupStep>();
-
-    /**
-     * @param name
-     * @param loop
-     * @param position
-     */
-    public AutomationScriptGroup(String name, int loop, Integer position, List<AutomationScriptGroupStep> scripts) {
-        this.name = name;
-        this.loop = loop;
-        this.position = position;
-        this.scripts = scripts;
-    }
-
-    protected AutomationScriptGroup() {
-    }
+    private List<AutomationScriptGroupStep> scripts;
 
     /**
      * @return the name

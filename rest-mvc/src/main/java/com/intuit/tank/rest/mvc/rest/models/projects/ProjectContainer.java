@@ -8,10 +8,14 @@
 package com.intuit.tank.rest.mvc.rest.models.projects;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.Builder;
+import lombok.Singular;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "ProjectContainer", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ProjectContainer", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -21,20 +25,10 @@ public class ProjectContainer implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElementWrapper(name = "projects", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "project", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<ProjectTO> projects = new ArrayList<ProjectTO>();
-
-    public ProjectContainer() {
-
-    }
-
-    /**
-     * @param projects
-     */
-    public ProjectContainer(List<ProjectTO> projects) {
-        this.projects = projects;
-    }
+    private List<ProjectTO> projects;
 
     /**
      * @return the scripts

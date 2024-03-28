@@ -70,7 +70,7 @@ public class DataFileControllerTest {
         all.add(firstDatafile);
         all.add(secondDatafile);
         List<DataFileDescriptor> allDatafiles = all.stream().map(DataFileServiceUtil::dataFileToDescriptor).collect(Collectors.toList());
-        DataFileDescriptorContainer input = new DataFileDescriptorContainer(allDatafiles);
+        DataFileDescriptorContainer input = DataFileDescriptorContainer.builder().withDataFiles(allDatafiles).build();
         when(datafileService.getDatafiles()).thenReturn(input);
         ResponseEntity<DataFileDescriptorContainer> result = datafileController.getDatafiles();
         List<DataFileDescriptor> expected = result.getBody().getDataFiles();
