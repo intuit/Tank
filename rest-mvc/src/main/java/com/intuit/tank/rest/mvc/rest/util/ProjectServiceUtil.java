@@ -52,11 +52,13 @@ public class ProjectServiceUtil {
                 .withTerminationPolicy(config.getTerminationPolicy())
                 .withWorkloadType(config.getIncrementStrategy())
                 .withLocation(config.getLocation())
-                .withUserIntervalIncrement(config.getUserIntervalIncrement());
-
-        for(JobRegion jobRegion : config.getJobRegions()) {
-            ret.withJobRegion(new AutomationJobRegion(jobRegion.getRegion(), jobRegion.getUsers()));
-        }
+                .withUserIntervalIncrement(config.getUserIntervalIncrement())
+                .withJobRegions(config.getJobRegions().stream()
+                        .map(jobRegion -> AutomationJobRegion.builder()
+                                .withRegion(jobRegion.getRegion())
+                                .withUsers(jobRegion.getUsers())
+                                .build())
+                        .collect(Collectors.toSet()));
 
         for(TestPlan testPlan : p.getWorkloads().get(0).getTestPlans()) {
             List<AutomationScriptGroup> retScriptGroups = new ArrayList<>();
