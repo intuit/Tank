@@ -252,7 +252,7 @@ public class TankHttpClient3 implements TankHttpClient {
 
         try {
             uri = method.getURI().toString();
-            LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getName() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
+            LOG.debug(() -> request.getLogUtil().getLogMessage("About to " + method.getName() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
             List<String> cookies = new ArrayList<String>();
             if (httpclient != null && httpclient.getState() != null && httpclient.getState().getCookies() != null) {
                 cookies = Arrays.stream(httpclient.getState().getCookies()).map(cookie -> "REQUEST COOKIE: " + cookie.toExternalForm() + " (domain=" + cookie.getDomain() + " : path=" + cookie.getPath() + ")").collect(Collectors.toList());
@@ -270,7 +270,7 @@ public class TankHttpClient3 implements TankHttpClient {
                 try ( InputStream is = method.getResponseBodyAsStream() ) {
                     responseBody = is.readAllBytes();
                 } catch (IOException | NullPointerException e) {
-                    LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
+                    LOG.warn(() -> request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
             }
             waitTime = System.currentTimeMillis() - startTime;
@@ -286,10 +286,10 @@ public class TankHttpClient3 implements TankHttpClient {
             try {
                 method.releaseConnection();
             } catch (Exception e) {
-                LOG.warn("Could not release connection: " + e, e);
+                LOG.warn(() -> "Could not release connection: " + e, e);
             }
             if (method.getName().equalsIgnoreCase("post") && request.getLogUtil().getAgentConfig().getLogPostResponse()) {
-                LOG.info(request.getLogUtil().getLogMessage(
+                LOG.info(() -> request.getLogUtil().getLogMessage(
                         "Response from POST to " + request.getRequestUrl() + " got status code " + request.getResponse().getHttpCode() + " BODY { " + request.getResponse().getBody() + " }",
                         LogEventType.Informational));
             }
@@ -316,11 +316,11 @@ public class TankHttpClient3 implements TankHttpClient {
             long maxAgentResponseTime = config.getMaxAgentResponseTime();
             if (maxAgentResponseTime < responseTime) {
                 long waitTime = Math.min(config.getMaxAgentWaitTime(), responseTime);
-                LOG.warn(request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
+                LOG.warn(() -> request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
                 Thread.sleep(waitTime);
             }
         } catch (InterruptedException e) {
-            LOG.warn("Interrupted", e);
+            LOG.warn(() -> "Interrupted", e);
         }
     }
 
@@ -362,7 +362,7 @@ public class TankHttpClient3 implements TankHttpClient {
             response.setResponseBody(bResponse);
 
         } catch (Exception ex) {
-            LOG.warn("Unable to get response: " + ex.getMessage());
+            LOG.warn(() -> "Unable to get response: " + ex.getMessage());
         } finally {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("******** RESPONSE ***********");
@@ -388,7 +388,7 @@ public class TankHttpClient3 implements TankHttpClient {
                 method.setRequestHeader((String) mapEntry.getKey(), (String) mapEntry.getValue());
             }
         } catch (Exception ex) {
-            LOG.warn(request.getLogUtil().getLogMessage("Unable to set header: " + ex.getMessage(), LogEventType.System));
+            LOG.warn(() -> request.getLogUtil().getLogMessage("Unable to set header: " + ex.getMessage(), LogEventType.System));
         }
     }
 

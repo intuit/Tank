@@ -200,7 +200,7 @@ public class TankHttpClient5 implements TankHttpClient {
                 entity.writeTo(baoStream);
                 httppost.setBody(baoStream.toByteArray(), ContentType.create(request.getContentType()));
             } catch (IOException e) {
-                LOG.error("Failure to write multipart POST payload.");
+                LOG.error(() -> "Failure to write multipart POST payload.");
             }
         } else {
             httppost.setBody(request.getBody(), ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
@@ -273,7 +273,7 @@ public class TankHttpClient5 implements TankHttpClient {
     }
 
     private void sendRequest(BaseRequest request, @Nonnull SimpleHttpRequest method) {
-        LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + method.getRequestUri() + " with requestBody  " + method.getBody(), LogEventType.Informational));
+        LOG.debug(() -> request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + method.getRequestUri() + " with requestBody  " + method.getBody(), LogEventType.Informational));
         List<String> cookies = new ArrayList<String>();
         if (context.getCookieStore().getCookies() != null) {
             cookies = context.getCookieStore().getCookies().stream()
@@ -301,15 +301,15 @@ public class TankHttpClient5 implements TankHttpClient {
                 @Override
                 public void failed(final Exception ex) {
                     if (ex instanceof UnknownHostException) {
-                        LOG.error(request.getLogUtil()
+                        LOG.error(() -> request.getLogUtil()
                                 .getLogMessage("UnknownHostException to url: " + method.getRequestUri() + " |  error: " + ex.toString(), LogEventType.IO), ex);
                     }
                     else if (ex instanceof SocketException) {
-                        LOG.error(request.getLogUtil()
+                        LOG.error(() -> request.getLogUtil()
                                 .getLogMessage("SocketException to url: " + method.getRequestUri() + " |  error: " + ex.toString(), LogEventType.IO), ex);
                     }
                     else if (ex instanceof Exception) {
-                        LOG.error(request.getLogUtil()
+                        LOG.error(() -> request.getLogUtil()
                                 .getLogMessage("Could not do " + method.getMethod() + " to url " + method.getRequestUri() + " |  error: " + ex.toString(), LogEventType.IO), ex);
                         throw new RuntimeException(ex);
                     }
@@ -331,7 +331,7 @@ public class TankHttpClient5 implements TankHttpClient {
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error(request.getLogUtil().getLogMessage("Execution Interrupted: " + e.getMessage()), e);
+            LOG.error(() -> request.getLogUtil().getLogMessage("Execution Interrupted: " + e.getMessage()), e);
         }
     }
 
@@ -352,11 +352,11 @@ public class TankHttpClient5 implements TankHttpClient {
             long maxAgentResponseTime = config.getMaxAgentResponseTime();
             if (maxAgentResponseTime < responseTime) {
                 long waitTime = Math.min(config.getMaxAgentWaitTime(), responseTime);
-                LOG.warn(request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
+                LOG.warn(() -> request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
                 Thread.sleep(waitTime);
             }
         } catch (InterruptedException e) {
-            LOG.warn(request.getLogUtil().getLogMessage("Interrupted"), e);
+            LOG.warn(() -> request.getLogUtil().getLogMessage("Interrupted"), e);
         }
     }
 
@@ -398,7 +398,7 @@ public class TankHttpClient5 implements TankHttpClient {
             response.setResponseBody(bResponse);
 
         } catch (Exception ex) {
-            LOG.warn(request.getLogUtil().getLogMessage("Unable to get response: " + ex.getMessage()));
+            LOG.warn(() -> request.getLogUtil().getLogMessage("Unable to get response: " + ex.getMessage()));
         } finally {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("******** RESPONSE ***********");

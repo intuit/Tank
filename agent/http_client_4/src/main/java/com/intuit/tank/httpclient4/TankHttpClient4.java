@@ -276,7 +276,7 @@ public class TankHttpClient4 implements TankHttpClient {
     private void sendRequest(BaseRequest request, @Nonnull HttpRequestBase method, String requestBody) {
         long waitTime = 0L;
         String uri = method.getURI().toString();
-        LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
+        LOG.debug(() -> request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
         List<String> cookies = new ArrayList<String>();
         if (context.getCookieStore().getCookies() != null) {
             cookies = context.getCookieStore().getCookies().stream().map(cookie -> "REQUEST COOKIE: " + cookie.toString()).collect(Collectors.toList());
@@ -294,27 +294,27 @@ public class TankHttpClient4 implements TankHttpClient {
                 try ( InputStream is = response.getEntity().getContent() ) {
                     responseBody = is.readAllBytes();
                 } catch (IOException | NullPointerException e) {
-                    LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
+                    LOG.warn(() -> request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
             }
             waitTime = System.currentTimeMillis() - startTime;
             processResponse(responseBody, waitTime, request, response.getStatusLine().getReasonPhrase(), response.getStatusLine().getStatusCode(), response.getAllHeaders());
             
         } catch (UnknownHostException uhex) {
-            LOG.error(request.getLogUtil().getLogMessage("UnknownHostException to url: " + uri + " |  error: " + uhex.toString(), LogEventType.IO), uhex);
+            LOG.error(() -> request.getLogUtil().getLogMessage("UnknownHostException to url: " + uri + " |  error: " + uhex.toString(), LogEventType.IO), uhex);
         } catch (SocketException sex) {
-            LOG.error(request.getLogUtil().getLogMessage("SocketException to url: " + uri + " |  error: " + sex.toString(), LogEventType.IO), sex);
+            LOG.error(() -> request.getLogUtil().getLogMessage("SocketException to url: " + uri + " |  error: " + sex.toString(), LogEventType.IO), sex);
         } catch (Exception ex) {
-            LOG.error(request.getLogUtil().getLogMessage("Could not do " + method.getMethod() + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO), ex);
+            LOG.error(() -> request.getLogUtil().getLogMessage("Could not do " + method.getMethod() + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO), ex);
             throw new RuntimeException(ex);
         } finally {
             try {
                 method.releaseConnection();
             } catch (Exception e) {
-                LOG.warn("Could not release connection: " + e, e);
+                LOG.warn(() -> "Could not release connection: " + e, e);
             }
             if (method.getMethod().equalsIgnoreCase("post") && request.getLogUtil().getAgentConfig().getLogPostResponse()) {
-                LOG.info(request.getLogUtil().getLogMessage(
+                LOG.info(() -> request.getLogUtil().getLogMessage(
                         "Response from POST to " + request.getRequestUrl() + " got status code " + request.getResponse().getHttpCode() + " BODY { " + request.getResponse().getBody() + " }",
                         LogEventType.Informational));
             }
@@ -341,11 +341,11 @@ public class TankHttpClient4 implements TankHttpClient {
             long maxAgentResponseTime = config.getMaxAgentResponseTime();
             if (maxAgentResponseTime < responseTime) {
                 long waitTime = Math.min(config.getMaxAgentWaitTime(), responseTime);
-                LOG.warn(request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
+                LOG.warn(() -> request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
                 Thread.sleep(waitTime);
             }
         } catch (InterruptedException e) {
-            LOG.warn("Interrupted", e);
+            LOG.warn(() -> "Interrupted", e);
         }
     }
 
@@ -382,7 +382,7 @@ public class TankHttpClient4 implements TankHttpClient {
             response.setResponseBody(bResponse);
 
         } catch (Exception ex) {
-            LOG.warn("Unable to get response: " + ex.getMessage());
+            LOG.warn(() -> "Unable to get response: " + ex.getMessage());
         } finally {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("******** RESPONSE ***********");
@@ -408,7 +408,7 @@ public class TankHttpClient4 implements TankHttpClient {
                 method.setHeader((String) mapEntry.getKey(), (String) mapEntry.getValue());
             }
         } catch (Exception ex) {
-            LOG.warn(request.getLogUtil().getLogMessage("Unable to set header: " + ex.getMessage(), LogEventType.System));
+            LOG.warn(() -> request.getLogUtil().getLogMessage("Unable to set header: " + ex.getMessage(), LogEventType.System));
         }
     }
 
