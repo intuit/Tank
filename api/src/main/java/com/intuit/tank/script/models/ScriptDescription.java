@@ -8,8 +8,11 @@
 package com.intuit.tank.script.models;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.Builder;
+
 import java.util.Date;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "scriptDescription", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ScriptDescription", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -47,10 +50,6 @@ public class ScriptDescription {
 
     @XmlElement(name = "comments", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private String comments;
-
-    public ScriptDescription() {
-
-    }
 
     /**
      * @return the id

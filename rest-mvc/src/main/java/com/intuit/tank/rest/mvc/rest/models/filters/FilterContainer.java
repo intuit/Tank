@@ -12,7 +12,6 @@ import lombok.Builder;
 import lombok.Singular;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @Builder(setterPrefix = "with")

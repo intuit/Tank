@@ -8,11 +8,14 @@
 package com.intuit.tank.script.models;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.Builder;
+import lombok.Singular;
+
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
+@Builder(setterPrefix = "with", toBuilder = true)
 @XmlRootElement(name = "scriptStep", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ScriptStepTO", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -117,36 +120,37 @@ public class ScriptStepTO implements Serializable {
     @XmlElement(name = "reqFormat", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private String reqFormat;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElement(name = "requestheaders", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private Set<StepDataTO> requestheaders = new HashSet<StepDataTO>();
+    private Set<StepDataTO> requestheaders;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElement(name = "responseheaders", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private Set<StepDataTO> responseheaders = new HashSet<StepDataTO>();
+    private Set<StepDataTO> responseheaders;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElement(name = "requestCookies", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private Set<StepDataTO> requestCookies = new HashSet<StepDataTO>(); // sent cookies
+    private Set<StepDataTO> requestCookies; // sent cookies
 
+    @Singular(ignoreNullCollections = true)
     @XmlElement(name = "responseCookies", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private Set<StepDataTO> responseCookies = new HashSet<StepDataTO>(); // received cookies
+    private Set<StepDataTO> responseCookies; // received cookies
 
+    @Singular(ignoreNullCollections = true)
     @XmlElement(name = "postDatas", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private Set<StepDataTO> postDatas = new HashSet<StepDataTO>();
+    private Set<StepDataTO> postDatas;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElement(name = "queryStrings", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private Set<StepDataTO> queryStrings = new HashSet<StepDataTO>();
+    private Set<StepDataTO> queryStrings;
 
+    @Singular(value="eachData", ignoreNullCollections = true)
     @XmlElement(name = "data", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private Set<StepDataTO> data = new HashSet<StepDataTO>();
+    private Set<StepDataTO> data;
 
+    @Singular(value="eachResponseData", ignoreNullCollections = true)
     @XmlElement(name = "responseData", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private Set<StepDataTO> responseData = new HashSet<StepDataTO>();
-
-    /**
-     * 
-     */
-    public ScriptStepTO() {
-
-    }
+    private Set<StepDataTO> responseData;
 
     /**
      * @return the payload
@@ -171,7 +175,7 @@ public class ScriptStepTO implements Serializable {
     }
 
     /**
-     * @param id
+     * @param uuid
      *            the id to set
      */
     public void setUuid(String uuid) {
