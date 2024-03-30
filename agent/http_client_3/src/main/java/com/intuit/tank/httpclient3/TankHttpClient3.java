@@ -252,7 +252,8 @@ public class TankHttpClient3 implements TankHttpClient {
 
         try {
             uri = method.getURI().toString();
-            LOG.debug(() -> request.getLogUtil().getLogMessage("About to " + method.getName() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
+            final String finalUri = uri;
+            LOG.debug(() -> request.getLogUtil().getLogMessage("About to " + method.getName() + " request to " + finalUri + " with requestBody  " + requestBody, LogEventType.Informational));
             List<String> cookies = new ArrayList<String>();
             if (httpclient != null && httpclient.getState() != null && httpclient.getState().getCookies() != null) {
                 cookies = Arrays.stream(httpclient.getState().getCookies()).map(cookie -> "REQUEST COOKIE: " + cookie.toExternalForm() + " (domain=" + cookie.getDomain() + " : path=" + cookie.getPath() + ")").collect(Collectors.toList());
