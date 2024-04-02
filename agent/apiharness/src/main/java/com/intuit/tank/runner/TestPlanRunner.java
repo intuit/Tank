@@ -371,7 +371,7 @@ public class TestPlanRunner implements Runnable {
             if (shouldStop(StopBehavior.END_OF_STEP)) {
                 LOG.info(LogUtil.getLogMessage("Stop command received. Stop set to end of step. End of step "
                         + testStep.getStepIndex() + " reached. Exiting..."));
-                return;
+                break;
             }
         }
     }
