@@ -32,7 +32,7 @@ public class ThreadLocalLogEvent extends ThreadLocal<LogEvent> {
         logEvent.setJobId(APITestHarness.getInstance().getAgentRunData().getJobId());
         logEvent.setInstanceId(APITestHarness.getInstance().getAgentRunData().getInstanceId());
         logEvent.setSourceType(SourceType.agent);
-        HostInfo hostInfo = new HostInfo();
+        HostInfo hostInfo = new HostInfo(APITestHarness.getInstance().isLocal());
         logEvent.setPublicIp(hostInfo.getPublicIp());
         logEvent.setHostname(hostInfo.getPublicHostname());
         logEvent.setThreadId(Thread.currentThread().getName() + " " + Thread.currentThread().getId());
@@ -41,12 +41,14 @@ public class ThreadLocalLogEvent extends ThreadLocal<LogEvent> {
         ThreadContext.put("projectName", APITestHarness.getInstance().getAgentRunData().getProjectName());
         ThreadContext.put("instanceId", APITestHarness.getInstance().getAgentRunData().getInstanceId());
         ThreadContext.put("publicIp", hostInfo.getPublicIp());
-        ThreadContext.put("location", AmazonUtil.getZone());
-        ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
         ThreadContext.put("loggingProfile", APITestHarness.getInstance().getAgentRunData().getActiveProfile().getDisplayName());
         ThreadContext.put("env", APITestHarness.getInstance().getTankConfig().getInstanceName());
-        ThreadContext.put("useEips", String.valueOf(AmazonUtil.usingEip()));
-        ThreadContext.put("stopBehavior", AmazonUtil.getStopBehavior().getDisplay());
+        if (!APITestHarness.getInstance().isLocal()) {
+            ThreadContext.put("location", AmazonUtil.getZone());
+            ThreadContext.put("httpHost", AmazonUtil.getControllerBaseUrl());
+            ThreadContext.put("useEips", String.valueOf(AmazonUtil.usingEip()));
+            ThreadContext.put("stopBehavior", AmazonUtil.getStopBehavior().getDisplay());
+        }
 
         return logEvent;
 
