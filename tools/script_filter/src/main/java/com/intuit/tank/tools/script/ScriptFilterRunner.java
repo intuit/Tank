@@ -58,7 +58,6 @@ import org.xml.sax.SAXException;
 import com.intuit.tank.script.models.ExternalScriptTO;
 import com.intuit.tank.script.models.ScriptTO;
 import com.intuit.tank.rest.mvc.rest.clients.ScriptClient;
-import com.intuit.tank.tools.script.ScriptRunner;
 
 /**
  * ScrioptFilterRunner
@@ -307,13 +306,13 @@ public class ScriptFilterRunner extends JFrame {
             int showOpenDialog = loadChooser.showOpenDialog(ScriptFilterRunner.this);
             if (showOpenDialog == JFileChooser.APPROVE_OPTION) {
                 File file = loadChooser.getSelectedFile();
-                ConfiguredLanguage languagebyExtension = ConfiguredLanguage.getLanguagebyExtension(file
+                ConfiguredLanguage languageByExtension = ConfiguredLanguage.getLanguageByExtension(file
                         .getName());
-                if (languagebyExtension != null) {
+                if (languageByExtension != null) {
                     try {
                         scriptEditorTA.setText(FileUtils.readFileToString(file, StandardCharsets.UTF_8));
                         currentExternalScript = null;
-                        languageSelector.setSelectedItem(languagebyExtension);
+                        languageSelector.setSelectedItem(languageByExtension);
                     } catch (IOException e) {
                         JOptionPane.showMessageDialog(ScriptFilterRunner.this, e.getMessage(),
                                 "Error loading script", JOptionPane.ERROR_MESSAGE);
@@ -364,7 +363,7 @@ public class ScriptFilterRunner extends JFrame {
         scriptSelectDialog.setVisible(true);
         if (scriptSelectDialog.getSelectedObject() != null) {
             ExternalScriptTO selectedScript = scriptSelectDialog.getSelectedObject();
-            ConfiguredLanguage languagebyExtension = ConfiguredLanguage.getLanguagebyExtension(selectedScript
+            ConfiguredLanguage languagebyExtension = ConfiguredLanguage.getLanguageByExtension(selectedScript
                     .getName());
             if (languagebyExtension != null) {
                 languageSelector.setSelectedItem(languagebyExtension);

@@ -37,11 +37,19 @@ public class HostInfo implements Serializable {
     public String publicHostname;
 
     public HostInfo() {
-        try {
-            publicHostname = AmazonUtil.getPublicHostName();
-            publicIp = AmazonUtil.getPublicIp();
-        } catch (IOException e) {
-            LOG.debug("Cannot find hostname from amazon. trying local...");
+        this(false);
+    }
+    public HostInfo(boolean isLocal) {
+        if (!isLocal) {
+            try {
+                publicHostname = AmazonUtil.getPublicHostName();
+                publicIp = AmazonUtil.getPublicIp();
+            } catch (IOException e) {
+                LOG.debug("Cannot find hostname from amazon. trying local...");
+                publicHostname = UNKNOWN;
+                publicIp = UNKNOWN;
+            }
+        } else {
             try {
                 publicIp = InetAddress.getLocalHost().getHostAddress();
                 Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -56,6 +64,7 @@ public class HostInfo implements Serializable {
                     }
                 }
             } catch (Exception e1) {
+                LOG.debug("Cannot find hostname from local lookup...");
                 publicHostname = UNKNOWN;
                 publicIp = UNKNOWN;
             }

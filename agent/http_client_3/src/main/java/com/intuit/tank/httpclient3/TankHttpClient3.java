@@ -54,7 +54,6 @@ import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.PartSource;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpHeaders;
@@ -253,7 +252,8 @@ public class TankHttpClient3 implements TankHttpClient {
 
         try {
             uri = method.getURI().toString();
-            LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getName() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
+            if (LOG.isDebugEnabled()) LOG.debug(request.getLogUtil().getLogMessage(
+                    "About to " + method.getName() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
             List<String> cookies = new ArrayList<String>();
             if (httpclient != null && httpclient.getState() != null && httpclient.getState().getCookies() != null) {
                 cookies = Arrays.stream(httpclient.getState().getCookies()).map(cookie -> "REQUEST COOKIE: " + cookie.toExternalForm() + " (domain=" + cookie.getDomain() + " : path=" + cookie.getPath() + ")").collect(Collectors.toList());
@@ -269,7 +269,7 @@ public class TankHttpClient3 implements TankHttpClient {
             // check for no content headers
             if (method.getStatusCode() != 203 && method.getStatusCode() != 202 && method.getStatusCode() != 204) {
                 try ( InputStream is = method.getResponseBodyAsStream() ) {
-                    responseBody = IOUtils.toByteArray(is);
+                    responseBody = is.readAllBytes();
                 } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
@@ -358,14 +358,17 @@ public class TankHttpClient3 implements TankHttpClient {
 
             String contentEncoding = response.getHttpHeader("Content-Encoding");
             bResponse = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
-                    IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(bResponse))) :
+                    new GZIPInputStream(new ByteArrayInputStream(bResponse)).readAllBytes() :
                     bResponse;
             response.setResponseBody(bResponse);
 
         } catch (Exception ex) {
             LOG.warn("Unable to get response: " + ex.getMessage());
         } finally {
-            response.logResponse();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("******** RESPONSE ***********");
+                LOG.debug(response.getLogMsg());
+            }
         }
     }
 

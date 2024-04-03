@@ -187,38 +187,6 @@ public class TankHttpUtilTest {
      * @generatedBy CodePro at 12/16/14 3:57 PM
      */
     @Test
-    public void testGetQueryString_4()
-        throws Exception {
-        Map<String, String> urlVariables = new HashMap();
-
-        String result = TankHttpUtil.getQueryString(urlVariables);
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String getQueryString(Map<String,String>) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
-    public void testGetQueryString_5()
-        throws Exception {
-        Map<String, String> urlVariables = new HashMap();
-
-        String result = TankHttpUtil.getQueryString(urlVariables);
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String getQueryString(Map<String,String>) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/16/14 3:57 PM
-     */
-    @Test
     public void testGetQueryString_6()
         throws Exception {
         Map<String, String> urlVariables = null;

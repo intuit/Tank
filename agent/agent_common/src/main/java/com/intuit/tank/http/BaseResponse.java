@@ -47,6 +47,35 @@ public abstract class BaseResponse {
      * @return the responseLogMsg
      */
     public String getLogMsg() {
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("RESPONSE HTTP CODE: ").append(this.httpCode).append(NEWLINE)
+                    .append("RESPONSE HTTP MSG: ").append(this.rspMessage).append(NEWLINE)
+                    .append("RESPONSE TIME: ").append(responseTime).append(NEWLINE)
+                    .append("RESPONSE SIZE: ").append(getResponseSize()).append(NEWLINE);
+            for (Entry<String, String> mapEntry : headers.entrySet()) {
+                sb.append("RESPONSE HEADER: ")
+                        .append((String) mapEntry.getKey()).append(" = ")
+                        .append((String) mapEntry.getValue()).append(NEWLINE);
+            }
+            for (Entry<String, String> entry : cookies.entrySet()) {
+                sb.append("RESPONSE COOKIE: ")
+                        .append(entry.getKey()).append(" = ")
+                        .append(entry.getValue()).append(NEWLINE);
+            }
+            if (response != null) {
+                String contentType = this.headers.get("Content-Type");
+                if (isDataType(contentType)) {
+                    sb.append("RESPONSE BODY: ").append(this.response).append(NEWLINE);
+                } else {
+                    sb.append("RESPONSE BODY: not logged because ")
+                            .append(contentType).append(" is not a data type.").append(NEWLINE);
+                }
+            }
+            this.responseLogMsg = sb.toString();
+        } catch (Exception ex) {
+            LOG.error("Error processing response: " + ex.getMessage(), ex);
+        }
         return responseLogMsg;
     }
 
@@ -189,40 +218,6 @@ public abstract class BaseResponse {
 
     public Map<String, String> getCookies() {
         return cookies;
-    }
-
-    /**
-     * Log the response object
-     */
-    public void logResponse() {
-        try {
-            StringBuilder sb = new StringBuilder();
-            // System.out.println("******** RESPONSE ***********");
-            sb.append("RESPONSE HTTP CODE: " + this.httpCode).append(NEWLINE);
-            sb.append("RESPONSE HTTP MSG: " + this.rspMessage).append(NEWLINE);
-            sb.append("RESPONSE TIME: " + responseTime).append(NEWLINE);
-            sb.append("RESPONSE SIZE: " + getResponseSize()).append(NEWLINE);
-            for (Entry<String, String> mapEntry : headers.entrySet()) {
-                sb.append("RESPONSE HEADER: " + (String) mapEntry.getKey() + " = " + (String) mapEntry.getValue()).append(NEWLINE);
-            }
-            for (Entry<String, String> entry : cookies.entrySet()) {
-                sb.append("RESPONSE COOKIE: " + entry.getKey() + " = " + entry.getValue()).append(NEWLINE);
-            }
-            if (response != null) {
-                String contentType = this.headers.get("Content-Type");
-                if (isDataType(contentType)) {
-                    sb.append("RESPONSE BODY: " + this.response).append(NEWLINE);
-                } else {
-                    sb.append("RESPONSE BODY: not logged because " + contentType + " is not a data type.").append(NEWLINE);
-                }
-            }
-            this.responseLogMsg = sb.toString();
-            LOG.debug("******** RESPONSE ***********");
-            LOG.debug(this.responseLogMsg);
-
-        } catch (Exception ex) {
-            LOG.error("Error processing response: " + ex.getMessage(), ex);
-        }
     }
 
     public static final boolean isDataType(String contentType) {
