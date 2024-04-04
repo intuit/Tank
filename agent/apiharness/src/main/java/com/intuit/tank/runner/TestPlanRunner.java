@@ -198,6 +198,10 @@ public class TestPlanRunner implements Runnable {
                             }
                             try {
                                 runScriptSteps(hdScriptUseCase);
+                                // If command is stop and stop behavior is end of step, exit the loop.
+                                if (shouldStop(StopBehavior.END_OF_STEP)) {
+                                    return;
+                                }
                             } catch (GotoScriptException e) {
                                 i = 0;
                                 gotoGroup = e.getGotoTarget();
