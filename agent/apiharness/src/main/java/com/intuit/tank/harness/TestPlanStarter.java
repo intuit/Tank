@@ -292,7 +292,6 @@ public class TestPlanStarter implements Runnable {
 
             while (System.currentTimeMillis() - startTime < (rampTimeMillis + totalPauseDuration)) { // time elapsed + any pause duration = total ramp time
                 try {
-                    // if paused, check if simulation time has been met and stop ramp accordingly
                     if (APITestHarness.getInstance().getCmd() == AgentCommand.pause_ramp
                             || APITestHarness.getInstance().getCmd() == AgentCommand.pause) {
                         if (APITestHarness.getInstance().hasMetSimulationTime()) {
