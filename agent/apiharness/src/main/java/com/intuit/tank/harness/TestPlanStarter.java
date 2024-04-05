@@ -338,9 +338,6 @@ public class TestPlanStarter implements Runnable {
                         if (APITestHarness.getInstance().hasMetSimulationTime()) {
                             APITestHarness.getInstance().setCommand(AgentCommand.stop);
                             return;
-                        }
-                        else if (APITestHarness.getInstance().getCmd() == AgentCommand.stop) {
-                            return;
                         } else {
                             try {
                                 Thread.sleep(1000);
