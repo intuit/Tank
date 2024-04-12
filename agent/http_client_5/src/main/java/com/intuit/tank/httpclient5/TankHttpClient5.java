@@ -273,7 +273,8 @@ public class TankHttpClient5 implements TankHttpClient {
     }
 
     private void sendRequest(BaseRequest request, @Nonnull SimpleHttpRequest method) {
-        LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + method.getRequestUri() + " with requestBody  " + method.getBody(), LogEventType.Informational));
+        if (LOG.isDebugEnabled()) LOG.debug(request.getLogUtil().getLogMessage(
+                "About to " + method.getMethod() + " request to " + method.getRequestUri() + " with requestBody  " + method.getBody(), LogEventType.Informational));
         List<String> cookies = new ArrayList<String>();
         if (context.getCookieStore().getCookies() != null) {
             cookies = context.getCookieStore().getCookies().stream()
