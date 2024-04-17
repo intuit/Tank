@@ -43,7 +43,6 @@ import org.primefaces.event.NodeCollapseEvent;
 import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
-import org.primefaces.model.chart.ChartSeries;
 
 import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.PropertyComparer;
@@ -69,6 +68,8 @@ import com.intuit.tank.reporting.api.ResultsReader;
 import com.intuit.tank.reporting.api.TPSInfo;
 import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.util.ExceptionHandler;
+import org.primefaces.model.charts.ChartData;
+import org.primefaces.model.charts.line.LineChartDataSet;
 
 /**
  * JobTreeTableBean
@@ -261,22 +262,25 @@ public abstract class JobTreeTableBean implements Serializable {
         if (currentJobInstance != null && currentJobInstance.getStatusDetailMap() != null) {
             chartModel = new TrackingCartesianChartModel();
 
-            Map<String, ChartSeries> seriesMap = new HashMap<String, ChartSeries>();
+            Map<String, List<Number>> seriesMap = new HashMap<>();
             Map<Date, List<UserDetail>> detailMap = currentJobInstance.getStatusDetailMap();
             List<Date> dateList = new ArrayList<Date>(detailMap.keySet());
             Collections.sort(dateList);
             for (Date d : dateList) {
                 for (UserDetail detail : detailMap.get(d)) {
-                    ChartSeries series = seriesMap.get(detail.getScript());
-                    if (series == null) {
-                        series = new ChartSeries(detail.getScript());
-                        chartModel.addSeries(series);
-                        seriesMap.put(detail.getScript(), series);
-                    }
-                    series.set(d.getTime(), detail.getUsers());
+                    List<Number> series = seriesMap.computeIfAbsent(detail.getScript(), k -> new ArrayList<>());
+                    series.add(detail.getUsers());
                     chartModel.addDate(d);
                 }
             }
+            ChartData data = new ChartData();
+            for ( Map.Entry<String, List<Number>> entry : seriesMap.entrySet()) {
+                LineChartDataSet dataSet = new LineChartDataSet();
+                dataSet.setLabel(entry.getKey());
+                dataSet.setData(Collections.singletonList(entry.getValue()));
+                data.addChartDataSet(dataSet);
+            }
+            chartModel.setData(data);
             chartModel.setExtender("userDetailsExtender");
         }
 
@@ -298,14 +302,12 @@ public abstract class JobTreeTableBean implements Serializable {
             }
             tpsChartModel = new TrackingCartesianChartModel();
             tpsChartModel.setExtender("tpsDetailsExtender");
-            Map<String, ChartSeries> seriesMap = new HashMap<String, ChartSeries>();
+            Map<String, List<Number>> seriesMap = new HashMap<>();
             Map<Date, Map<String, TPSInfo>> tpsDetailMap = getTpsMap();
             List<Date> dateList = new ArrayList<Date>(tpsDetailMap.keySet());
             Collections.sort(dateList);
-//            if (dateList.size() > 0) {
-//                lastDate = new Date(dateList.get(dateList.size() - 1).getTime() + 1000);
-//            }
-            ChartSeries totalSeries = new ChartSeries(TOTAL_TPS_SERIES_KEY);
+            List<Number> totalSeries = new ArrayList<>();
+            //(TOTAL_TPS_SERIES_KEY);
             for (Date d : dateList) {
                 int total = 0;
                 for (TPSInfo info : tpsDetailMap.get(d).values()) {
@@ -314,22 +316,29 @@ public abstract class JobTreeTableBean implements Serializable {
                     }
                     keySet.add(info.getKey());
                     if (list.contains(info.getKey())) {
-                        ChartSeries series = seriesMap.get(info.getKey());
-                        if (series == null) {
-                            series = new ChartSeries(info.getKey());
-                            tpsChartModel.addSeries(series);
-                            seriesMap.put(info.getKey(), series);
-                        }
-                        series.set(d.getTime(), info.getTPS());
+                        List<Number> series = seriesMap.computeIfAbsent(info.getKey(), k -> new ArrayList<>());
+                        seriesMap.put(info.getKey(), series);
+                        series.add(info.getTPS());
                     }
                     total += info.getTPS();
                     tpsChartModel.addDate(d);
                 }
-                totalSeries.set(d.getTime(), total);
+                totalSeries.add(total);
             }
-            if (list.contains(TOTAL_TPS_SERIES_KEY) && totalSeries.getData().size() > 0) {
-                tpsChartModel.addSeries(totalSeries);
+            ChartData data = new ChartData();
+            for ( Map.Entry<String, List<Number>> entry : seriesMap.entrySet()) {
+                LineChartDataSet dataSet = new LineChartDataSet();
+                dataSet.setLabel(entry.getKey());
+                dataSet.setData(Collections.singletonList(entry.getValue()));
+                data.addChartDataSet(dataSet);
             }
+            if (list.contains(TOTAL_TPS_SERIES_KEY) && !totalSeries.isEmpty()) {
+                LineChartDataSet dataSet = new LineChartDataSet();
+                dataSet.setLabel(TOTAL_TPS_SERIES_KEY);
+                dataSet.setData(Collections.singletonList(totalSeries));
+                data.addChartDataSet(dataSet);
+            }
+            tpsChartModel.setData(data);
             allTpsKeys = new ArrayList<String>(keySet);
             Collections.sort(allTpsKeys);
             allTpsKeys.add(0, TOTAL_TPS_SERIES_KEY);

@@ -437,7 +437,7 @@
 
       //]]>
       </script>
-            <p:chart type="line" model="#{jobQueueManager.chartModel}"  style="height:400px"
+            <p:lineChart model="#{jobQueueManager.chartModel}"  style="height:400px"
               title="User Details over Time" extender="userDetailsExtender" />
           </h:panelGroup>
           <div class="vertical-spacer" />
@@ -579,7 +579,7 @@
       }
       //]]>
       </script>
-            <p:chart type="line" model="#{jobQueueManager.tpsChartModel}" style="height:400px"
+            <p:lineChart model="#{jobQueueManager.tpsChartModel}" style="height:400px"
               title="TPS Details over Time" extender="tpsDetailsExtender" />
           </h:panelGroup>
           <div class="vertical-spacer" />

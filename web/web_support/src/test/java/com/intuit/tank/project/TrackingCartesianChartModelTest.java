@@ -19,11 +19,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.primefaces.model.chart.CartesianChartModel;
-import org.primefaces.model.chart.ChartSeries;
-
-import com.intuit.tank.project.TrackingCartesianChartModel;
-
 /**
  * The class <code>TrackingCartesianChartModelTest</code> contains tests for the class
  * <code>{@link TrackingCartesianChartModel}</code>.
@@ -51,181 +46,11 @@ public class TrackingCartesianChartModelTest {
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
-    public void testAddDate_1()
+    public void testAddDate()
             throws Exception {
         TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
-        Date d = new Date();
 
-        fixture.addDate(d);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.project.TrackingCartesianChartModel.addDate(TrackingCartesianChartModel.java:43)
-    }
-
-    /**
-     * Run the void addDate(Date) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testAddDate_2()
-            throws Exception {
-        TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
-        Date d = new Date();
-
-        fixture.addDate(d);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.project.TrackingCartesianChartModel.addDate(TrackingCartesianChartModel.java:43)
-    }
-
-    /**
-     * Run the void addDate(Date) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testAddDate_3()
-            throws Exception {
-        TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
-        Date d = new Date();
-
-        fixture.addDate(d);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.project.TrackingCartesianChartModel.addDate(TrackingCartesianChartModel.java:43)
-    }
-
-    /**
-     * Run the void addDate(Date) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testAddDate_4()
-            throws Exception {
-        TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
-        Date d = new Date();
-
-        fixture.addDate(d);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.project.TrackingCartesianChartModel.addDate(TrackingCartesianChartModel.java:43)
-    }
-
-    /**
-     * Run the void addDate(Date) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testAddDate_5()
-            throws Exception {
-        TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
-        Date d = new Date();
-
-        fixture.addDate(d);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.project.TrackingCartesianChartModel.addDate(TrackingCartesianChartModel.java:43)
-    }
-
-    /**
-     * Run the void addDate(Date) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testAddDate_6()
-            throws Exception {
-        TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
-        Date d = new Date();
-
-        fixture.addDate(d);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.project.TrackingCartesianChartModel.addDate(TrackingCartesianChartModel.java:43)
-    }
-
-    /**
-     * Run the void addDate(Date) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testAddDate_7()
-            throws Exception {
-        TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
-        Date d = new Date();
-
-        fixture.addDate(d);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.project.TrackingCartesianChartModel.addDate(TrackingCartesianChartModel.java:43)
-    }
-
-    /**
-     * Run the void addDate(Date) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testAddDate_8()
-            throws Exception {
-        TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
-        Date d = new Date();
-
-        fixture.addDate(d);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.project.TrackingCartesianChartModel.addDate(TrackingCartesianChartModel.java:43)
-    }
-
-    /**
-     * Run the void addDate(Date) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testAddDate_9()
-            throws Exception {
-        TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
-        Date d = new Date();
-
-        fixture.addDate(d);
+        fixture.addDate(new Date());
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
@@ -243,28 +68,6 @@ public class TrackingCartesianChartModelTest {
     public void testGetMax_1()
             throws Exception {
         TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
-
-        long result = fixture.getMax();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.project.TrackingCartesianChartModel.getMax(TrackingCartesianChartModel.java:26)
-        assertEquals(0L, result);
-    }
-
-    /**
-     * Run the long getMax() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testGetMax_2()
-            throws Exception {
-        TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
 
         long result = fixture.getMax();
 
@@ -285,7 +88,6 @@ public class TrackingCartesianChartModelTest {
     public void testGetMaxDate_1()
             throws Exception {
         TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
         Date result = fixture.getMaxDate();
     }
 
@@ -300,28 +102,6 @@ public class TrackingCartesianChartModelTest {
     public void testGetMin_1()
             throws Exception {
         TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
-
-        long result = fixture.getMin();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.project.TrackingCartesianChartModel.getMin(TrackingCartesianChartModel.java:22)
-        assertEquals(0L, result);
-    }
-
-    /**
-     * Run the long getMin() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testGetMin_2()
-            throws Exception {
-        TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
 
         long result = fixture.getMin();
 
@@ -342,7 +122,6 @@ public class TrackingCartesianChartModelTest {
     public void testGetMinDate_1()
             throws Exception {
         TrackingCartesianChartModel fixture = new TrackingCartesianChartModel();
-        fixture.addSeries(new ChartSeries());
 
         Date result = fixture.getMinDate();
     }
