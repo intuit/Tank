@@ -8,7 +8,9 @@
 package com.intuit.tank.script.models;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.Singular;
 
 import java.io.Serializable;
@@ -16,6 +18,8 @@ import java.util.Date;
 import java.util.Set;
 
 @Builder(setterPrefix = "with", toBuilder = true)
+@NoArgsConstructor  // makes JAXB happy, will never be invoked
+@AllArgsConstructor
 @XmlRootElement(name = "scriptStep", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ScriptStepTO", namespace = Namespace.NAMESPACE_V1, propOrder = {
