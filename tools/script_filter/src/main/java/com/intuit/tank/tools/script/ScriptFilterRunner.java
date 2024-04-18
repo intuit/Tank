@@ -342,9 +342,7 @@ public class ScriptFilterRunner extends JFrame {
             String retVal = JOptionPane.showInputDialog("Script Name: ", "<Script Name>");
             if (retVal != null) {
                 retVal = retVal + "." + language.getDefaultExtension();
-                currentExternalScript = new ExternalScriptTO();
-                currentExternalScript.setName(retVal);
-                currentExternalScript.setCreator("");
+                currentExternalScript = ExternalScriptTO.builder().withName(retVal).withCreator("").build();
             } else {
                 return;
             }

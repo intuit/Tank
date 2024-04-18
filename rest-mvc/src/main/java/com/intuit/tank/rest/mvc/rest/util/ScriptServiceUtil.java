@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,17 +50,17 @@ public class ScriptServiceUtil {
      * @param script
      */
     public static ScriptTO scriptToTransferObject(Script script) {
-        ScriptTO ret = new ScriptTO();
-        ret.setComments(script.getComments());
-        ret.setCreated(script.getCreated());
-        ret.setCreator(script.getCreator());
-        ret.setId(script.getId());
-        ret.setModified(script.getModified());
-        ret.setName(script.getName());
-        ret.setProductName(script.getProductName());
-        ret.setRuntime(script.getRuntime());
-        ret.setSteps(scriptStepsToTransferobjectList(script.getScriptSteps()));
-        return ret;
+        return ScriptTO.builder()
+                .withComments(script.getComments())
+                .withCreated(script.getCreated())
+                .withCreator(script.getCreator())
+                .withId(script.getId())
+                .withModified(script.getModified())
+                .withName(script.getName())
+                .withProductName(script.getProductName())
+                .withRuntime(script.getRuntime())
+                .withSteps(scriptStepsToTransferobjectList(script.getScriptSteps()))
+                .build();
     }
 
     public static List<ScriptStepTO> scriptStepsToTransferobjectList(List<ScriptStep> steps) {
@@ -93,43 +94,36 @@ public class ScriptServiceUtil {
      *            the step
      */
     public static ScriptStepTO scriptStepToTransferObject(ScriptStep step) {
-        ScriptStepTO ret = new ScriptStepTO();
-        ret.setUuid(step.getUuid());
-        ret.setScriptGroupName(step.getScriptGroupName());
-        ret.setMethod(step.getMethod());
-        ret.setType(step.getType());
-        ret.setLabel(step.getLabel());
-        ret.setUrl(step.getUrl());
-        ret.setResult(step.getResult());
-        ret.setMimetype(step.getMimetype());
-        ret.setLoggingKey(step.getLoggingKey());
-        ret.setName(step.getName());
-        ret.setOnFail(step.getOnFail());
-        ret.setStepIndex(step.getStepIndex());
-        ret.setPayload(step.getPayload());
-        if (step.getResponse() != null) {
-            try {
-                ret.setResponse(URLEncoder.encode(step.getResponse(), "utf-8"));
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        ret.setSimplePath(step.getSimplePath());
-        ret.setHostname(step.getHostname());
-        ret.setProtocol(step.getProtocol());
-        ret.setComments(step.getComments());
-        ret.setRespFormat(step.getRespFormat());
-        ret.setReqFormat(step.getReqFormat());
-
-        ret.setData(convertData(step.getData()));
-        ret.setPostDatas(convertData(step.getPostDatas()));
-        ret.setQueryStrings(convertData(step.getQueryStrings()));
-        ret.setRequestCookies(convertData(step.getRequestCookies()));
-        ret.setRequestheaders(convertData(step.getRequestheaders()));
-        ret.setResponseCookies(convertData(step.getResponseCookies()));
-        ret.setResponseData(convertData(step.getResponseData()));
-        ret.setResponseheaders(convertData(step.getResponseheaders()));
-        return ret;
+        return ScriptStepTO.builder()
+                .withUuid(step.getUuid())
+                .withScriptGroupName(step.getScriptGroupName())
+                .withMethod(step.getMethod())
+                .withType(step.getType())
+                .withLabel(step.getLabel())
+                .withUrl(step.getUrl())
+                .withResult(step.getResult())
+                .withMimetype(step.getMimetype())
+                .withLoggingKey(step.getLoggingKey())
+                .withName(step.getName())
+                .withOnFail(step.getOnFail())
+                .withStepIndex(step.getStepIndex())
+                .withPayload(step.getPayload())
+                .withResponse((step.getResponse() != null) ? URLEncoder.encode(step.getResponse(), StandardCharsets.UTF_8) : null)
+                .withSimplePath(step.getSimplePath())
+                .withHostname(step.getHostname())
+                .withProtocol(step.getProtocol())
+                .withComments(step.getComments())
+                .withRespFormat(step.getRespFormat())
+                .withReqFormat(step.getReqFormat())
+                .withData(convertData(step.getData()))
+                .withPostDatas(convertData(step.getPostDatas()))
+                .withQueryStrings(convertData(step.getQueryStrings()))
+                .withRequestCookies(convertData(step.getRequestCookies()))
+                .withRequestheaders(convertData(step.getRequestheaders()))
+                .withResponseCookies(convertData(step.getResponseCookies()))
+                .withResponseData(convertData(step.getResponseData()))
+                .withResponseheaders(convertData(step.getResponseheaders()))
+                .build();
     }
 
     /**
@@ -137,43 +131,7 @@ public class ScriptServiceUtil {
      *            the step
      */
     public static ScriptStepTO copy(ScriptStepTO step) {
-        ScriptStepTO ret = new ScriptStepTO();
-        ret.setUuid(step.getUuid());
-        ret.setScriptGroupName(step.getScriptGroupName());
-        ret.setMethod(step.getMethod());
-        ret.setType(step.getType());
-        ret.setLabel(step.getLabel());
-        ret.setUrl(step.getUrl());
-        ret.setResult(step.getResult());
-        ret.setMimetype(step.getMimetype());
-        ret.setLoggingKey(step.getLoggingKey());
-        ret.setName(step.getName());
-        ret.setOnFail(step.getOnFail());
-        ret.setStepIndex(step.getStepIndex());
-        ret.setPayload(step.getPayload());
-        if (step.getResponse() != null) {
-            try {
-                ret.setResponse(URLEncoder.encode(step.getResponse(), "utf-8"));
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        ret.setSimplePath(step.getSimplePath());
-        ret.setHostname(step.getHostname());
-        ret.setProtocol(step.getProtocol());
-        ret.setComments(step.getComments());
-        ret.setRespFormat(step.getRespFormat());
-        ret.setReqFormat(step.getReqFormat());
-
-        ret.setData(copyData(step.getData()));
-        ret.setPostDatas(copyData(step.getPostDatas()));
-        ret.setQueryStrings(copyData(step.getQueryStrings()));
-        ret.setRequestCookies(copyData(step.getRequestCookies()));
-        ret.setRequestheaders(copyData(step.getRequestheaders()));
-        ret.setResponseCookies(copyData(step.getResponseCookies()));
-        ret.setResponseData(copyData(step.getResponseData()));
-        ret.setResponseheaders(copyData(step.getResponseheaders()));
-        return ret;
+        return step.toBuilder().build();
     }
 
     public static ScriptStep transferObjectToScriptStep(ScriptStepTO to) {
@@ -216,21 +174,16 @@ public class ScriptServiceUtil {
     }
 
     public static StepDataTO requestDataToTransferObject(RequestData data) {
-        StepDataTO ret = new StepDataTO();
-        ret.setKey(data.getKey());
-        ret.setValue(data.getValue());
-        ret.setType(data.getType());
-        ret.setPhase(data.getPhase().name());
-        return ret;
+        return StepDataTO.builder()
+                .withKey(data.getKey())
+                .withValue(data.getValue())
+                .withType(data.getType())
+                .withPhase(data.getPhase().name())
+                .build();
     }
 
     public static StepDataTO copyStepDataTO(StepDataTO data) {
-        StepDataTO ret = new StepDataTO();
-        ret.setKey(data.getKey());
-        ret.setValue(data.getValue());
-        ret.setType(data.getType());
-        ret.setPhase(data.getPhase());
-        return ret;
+        return data.toBuilder().build();
     }
 
     /**
@@ -260,16 +213,16 @@ public class ScriptServiceUtil {
      * @param script
      */
     public static ScriptDescription scriptToScriptDescription(Script script) {
-        ScriptDescription ret = new ScriptDescription();
-        ret.setComments(script.getComments());
-        ret.setCreated(script.getCreated());
-        ret.setCreator(script.getCreator());
-        ret.setId(script.getId());
-        ret.setModified(script.getModified());
-        ret.setName(script.getName());
-        ret.setProductName(script.getProductName());
-        ret.setRuntime(script.getRuntime());
-        return ret;
+        return ScriptDescription.builder()
+                .withComments(script.getComments())
+                .withCreated(script.getCreated())
+                .withCreator(script.getCreator())
+                .withId(script.getId())
+                .withModified(script.getModified())
+                .withName(script.getName())
+                .withProductName(script.getProductName())
+                .withRuntime(script.getRuntime())
+                .build();
     }
 
     /**
@@ -324,15 +277,15 @@ public class ScriptServiceUtil {
      * @return
      */
     public static ExternalScriptTO externalScriptToTO(ExternalScript script) {
-        ExternalScriptTO ret = new ExternalScriptTO();
-        ret.setId(script.getId());
-        ret.setCreated(script.getCreated());
-        ret.setCreator(script.getCreator());
-        ret.setModified(script.getModified());
-        ret.setName(script.getName());
-        ret.setProductName(script.getProductName());
-        ret.setScript(script.getScript());
-        return ret;
+        return ExternalScriptTO.builder()
+                .withId(script.getId())
+                .withCreated(script.getCreated())
+                .withCreator(script.getCreator())
+                .withModified(script.getModified())
+                .withName(script.getName())
+                .withProductName(script.getProductName())
+                .withScript(script.getScript())
+                .build();
     }
 
     /**

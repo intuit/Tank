@@ -8,8 +8,15 @@
 package com.intuit.tank.script.models;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
 
+@Builder(setterPrefix = "with", toBuilder = true)
+@NoArgsConstructor  // makes JAXB happy, will never be invoked
+@AllArgsConstructor
 @XmlRootElement(name = "stepData", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "StepDataTO", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -33,10 +40,6 @@ public class StepDataTO implements Serializable {
 
     @XmlElement(name = "phase", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private String phase;
-
-    public StepDataTO() {
-
-    }
 
     /**
      * @return the key

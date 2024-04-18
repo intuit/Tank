@@ -8,7 +8,6 @@
 package com.intuit.tank.script.models;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -17,6 +16,8 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+import lombok.Builder;
+import lombok.Singular;
 
 /**
  * ScriptStepContainer jaxb container for script steps
@@ -24,6 +25,7 @@ import jakarta.xml.bind.annotation.XmlType;
  * @author dangleton
  * 
  */
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "ExternalScriptContainer", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ExternalScriptContainer", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -33,13 +35,10 @@ public class ExternalScriptContainer implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElementWrapper(name = "scripts", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "externalScript", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<ExternalScriptTO> scripts = new ArrayList<ExternalScriptTO>();
-
-    public ExternalScriptContainer() {
-
-    }
+    private List<ExternalScriptTO> scripts;
 
     /**
      * @return the scripts

@@ -54,19 +54,18 @@ public class ProjectControllerTest {
         when(projectService.ping()).thenReturn("PONG");
         ResponseEntity<String> result = projectController.ping();
         assertEquals("PONG", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
     }
 
     @Test
     public void testGetAllProjects() {
-        List<ProjectTO> projects = new ArrayList<>();
-        ProjectTO testProject = new ProjectTO();
-        testProject.setId(5);
-        testProject.setCreator("Test");
-        testProject.setName("testProjectName");
-        testProject.setProductName("testProductName");
-        projects.add(testProject);
-        ProjectContainer projectContainer = new ProjectContainer(projects);
+        ProjectTO project = ProjectTO.builder()
+                .withId(5)
+                .withCreator("Test")
+                .withName("testProjectName")
+                .withProductName("testProductName")
+                .build();
+        ProjectContainer projectContainer = ProjectContainer.builder().withProject(project).build();
         when(projectService.getAllProjects()).thenReturn(projectContainer);
 
         ResponseEntity<ProjectContainer> result = projectController.getAllProjects();
@@ -74,7 +73,7 @@ public class ProjectControllerTest {
         assertEquals("Test", result.getBody().getProjects().get(0).getCreator());
         assertEquals("testProjectName", result.getBody().getProjects().get(0).getName());
         assertEquals("testProductName", result.getBody().getProjects().get(0).getProductName());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(projectService).getAllProjects();
     }
 
@@ -85,23 +84,24 @@ public class ProjectControllerTest {
         when(projectService.getAllProjectNames()).thenReturn(projectMap);
         ResponseEntity<Map<Integer, String>> result = projectController.getAllProjectNames();
         assertEquals("testProject", result.getBody().get(3));
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(projectService).getAllProjectNames();
     }
 
     @Test
     public void testGetProject() {
-        ProjectTO testProject = new ProjectTO();
-        testProject.setId(9);
-        testProject.setName("testProjectName");
-        testProject.setProductName("testProductName");
+        ProjectTO testProject = ProjectTO.builder()
+                .withId(9)
+                .withName("testProjectName")
+                .withProductName("testProductName")
+                .build();
 
         when(projectService.getProject(3)).thenReturn(testProject);
         ResponseEntity<ProjectTO> result = projectController.getProject(3);
         assertEquals(9, result.getBody().getId());
         assertEquals("testProjectName", result.getBody().getName());
         assertEquals("testProductName", result.getBody().getProductName());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(projectService).getProject(3);
     }
 
@@ -114,14 +114,17 @@ public class ProjectControllerTest {
                 .withRampTime("1920s")
                 .withSimulationTime("7200s")
                 .withUserIntervalIncrement(1)
-                .withAddedTestPlan(new AutomationTestPlan("Main", 100, 0,
-                        new ArrayList<AutomationScriptGroup>(List.of(new AutomationScriptGroup("testScriptGroup", 0, 0,
-                                new ArrayList<AutomationScriptGroupStep>(List.of(new AutomationScriptGroupStep(123, "testScript", 1, 0))))))));
+                .withTestPlan(AutomationTestPlan.builder().withName("Main").withUserPercentage(100).withPosition(0).withScriptGroup(
+                        AutomationScriptGroup.builder().withName("testScriptGroup").withLoop(0).withPosition(0).withScript(
+                                AutomationScriptGroupStep.builder().withScriptId(123).withName("testScript").withLoop(1).withPosition(0)
+                                        .build())
+                                .build())
+                        .build());
         AutomationRequest request = builder.build();
         when(projectService.createProject(request)).thenReturn(response);
         ResponseEntity<Map<String, String>> result = projectController.createProject(request);
         assertEquals("testProjectStatus", result.getBody().get("testProjectId"));
-        assertEquals(201, result.getStatusCodeValue());
+        assertEquals(201, result.getStatusCode().value());
         assertNotNull(result.getHeaders().getLocation());
         verify(projectService).createProject(request);
     }
@@ -139,19 +142,20 @@ public class ProjectControllerTest {
         when(projectService.updateProject(1, request)).thenReturn(response);
         ResponseEntity<Map<String, String>> result = projectController.updateProject(1, request);
         assertEquals("testProjectStatus", result.getBody().get("testProjectId"));
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(projectService).updateProject(1, request);
     }
 
     @Test
     public void testDownloadTestScriptForProject() throws IOException {
         Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-        ProjectTO projectTO = new ProjectTO();
-        projectTO.setId(4);
-        projectTO.setCreator("Test");
-        projectTO.setName("testName");
-        projectTO.setLocation("testLocation");
-        projectTO.setProductName("testProductName");
+        ProjectTO projectTO = ProjectTO.builder()
+                .withId(4)
+                .withCreator("Test")
+                .withName("testName")
+                .withLocation("testLocation")
+                .withProductName("testProductName")
+                .build();
         StreamingResponseBody streamingResponse = ResponseUtil.getXMLStream(projectTO);
         String filename = "project_test_H.xml";
         payload.put(filename, streamingResponse);
@@ -159,7 +163,7 @@ public class ProjectControllerTest {
         ResponseEntity<StreamingResponseBody> result = projectController.downloadTestScriptForProject(4);
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
         assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(projectService).downloadTestScriptForProject(4);
     }
 
@@ -168,13 +172,13 @@ public class ProjectControllerTest {
         when(projectService.deleteProject(2)).thenReturn("");
         ResponseEntity<String> result = projectController.deleteProject(2);
         assertTrue(result.getBody().contains(""));
-        assertEquals(204, result.getStatusCodeValue());
+        assertEquals(204, result.getStatusCode().value());
         verify(projectService).deleteProject(2);
 
         when(projectService.deleteProject(3)).thenReturn("Project with id 2 does not exist");
         ResponseEntity<String> error = projectController.deleteProject(3);
         assertTrue(error.getBody().contains("not exist"));
-        assertEquals(404, error.getStatusCodeValue());
+        assertEquals(404, error.getStatusCode().value());
     }
 
 }

@@ -60,7 +60,7 @@ public class ScriptControllerTest {
         when(scriptService.ping()).thenReturn("PONG");
         ResponseEntity<String> result = scriptController.ping();
         assertEquals("PONG", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(scriptService).ping();
     }
 
@@ -74,13 +74,13 @@ public class ScriptControllerTest {
         all.add(firstScript);
         all.add(secondScript);
         List<ScriptDescription> allScripts = all.stream().map(ScriptServiceUtil::scriptToScriptDescription).collect(Collectors.toList());
-        ScriptDescriptionContainer input = new ScriptDescriptionContainer(allScripts);
+        ScriptDescriptionContainer input = ScriptDescriptionContainer.builder().withScripts(allScripts).build();
         when(scriptService.getScripts()).thenReturn(input);
         ResponseEntity<ScriptDescriptionContainer> result = scriptController.getScripts();
         List<ScriptDescription> expected = result.getBody().getScripts();
         assertEquals("testName", expected.get(0).getName());
         assertEquals(5, expected.get(1).getRuntime());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(scriptService).getScripts();
     }
 
@@ -91,7 +91,7 @@ public class ScriptControllerTest {
         when(scriptService.getAllScriptNames()).thenReturn(scriptMap);
         ResponseEntity<Map<Integer, String>> result = scriptController.getAllScriptNames();
         assertEquals("testScript", result.getBody().get(3));
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(scriptService).getAllScriptNames();
     }
 
@@ -104,27 +104,28 @@ public class ScriptControllerTest {
         ResponseEntity<ScriptDescription> result = scriptController.getScript(2);
         assertEquals("testName", result.getBody().getName());
         assertEquals("testProductName", result.getBody().getProductName());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(scriptService).getScript(2);
 
         when(scriptService.getScript(2)).thenReturn(null);
         ResponseEntity<ScriptDescription> notFound = scriptController.getScript(2);
-        assertEquals(404, notFound.getStatusCodeValue());
+        assertEquals(404, notFound.getStatusCode().value());
     }
 
     @Test
     public void testCreateScript() {
-        ScriptTO payload = new ScriptTO();
-        payload.setId(4);
-        payload.setCreator("Test");
-        payload.setName("testName");
-        payload.setRuntime(3);
+        ScriptTO payload = ScriptTO.builder()
+                .withId(4)
+                .withCreator("Test")
+                .withName("testName")
+                .withRuntime(3)
+                .build();
         when(scriptService.createScript(payload)).thenReturn(payload);
         ResponseEntity<ScriptTO> result = scriptController.createScript(payload);
         assertEquals(4, result.getBody().getId());
         assertEquals("testName", result.getBody().getName());
         assertEquals(3, result.getBody().getRuntime());
-        assertEquals(201, result.getStatusCodeValue());
+        assertEquals(201, result.getStatusCode().value());
         assertNotNull(result.getHeaders().getLocation());
         verify(scriptService).createScript(payload);
     }
@@ -132,11 +133,12 @@ public class ScriptControllerTest {
     @Test
     public void testDownloadScript() throws IOException {
         Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-        ScriptTO scriptTO = new ScriptTO();
-        scriptTO.setId(4);
-        scriptTO.setCreator("Test");
-        scriptTO.setName("testName");
-        scriptTO.setRuntime(3);
+        ScriptTO scriptTO = ScriptTO.builder()
+                .withId(4)
+                .withCreator("Test")
+                .withName("testName")
+                .withRuntime(3)
+                .build();
         StreamingResponseBody streamingResponse = ResponseUtil.getXMLStream(scriptTO);
         String filename = "test_TS.xml";
         payload.put(filename, streamingResponse);
@@ -144,18 +146,19 @@ public class ScriptControllerTest {
         ResponseEntity<StreamingResponseBody> result = scriptController.downloadScript(4);
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
         assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(scriptService).downloadScript(4);
     }
 
     @Test
     public void testDownloadHarnessScript() throws IOException {
         Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-        ScriptTO scriptTO = new ScriptTO();
-        scriptTO.setId(4);
-        scriptTO.setCreator("Test");
-        scriptTO.setName("testName");
-        scriptTO.setRuntime(3);
+        ScriptTO scriptTO = ScriptTO.builder()
+                .withId(4)
+                .withCreator("Test")
+                .withName("testName")
+                .withRuntime(3)
+                .build();
         StreamingResponseBody streamingResponse = ResponseUtil.getXMLStream(scriptTO);
         String filename = "test_H.xml";
         payload.put(filename, streamingResponse);
@@ -163,7 +166,7 @@ public class ScriptControllerTest {
         ResponseEntity<StreamingResponseBody> result = scriptController.downloadHarnessScript(4);
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
         assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(scriptService).downloadHarnessScript(4);
     }
 
@@ -180,7 +183,7 @@ public class ScriptControllerTest {
         Map<String, String> response = result.getBody();
         assertEquals("7", response.get("scriptId"));
         assertTrue(response.get("message").contains("uploaded"));
-        assertEquals(201, result.getStatusCodeValue());
+        assertEquals(201, result.getStatusCode().value());
         verify(scriptService).uploadProxyScript("testName", 0, "gzip", mockMultipartFile);
 
         when(scriptService.uploadProxyScript("testName", 0, "", mockMultipartFile)).thenReturn(payload);
@@ -188,7 +191,7 @@ public class ScriptControllerTest {
         response = result.getBody();
         assertEquals("7", response.get("scriptId"));
         assertTrue(response.get("message").contains("uploaded"));
-        assertEquals(201, result.getStatusCodeValue());
+        assertEquals(201, result.getStatusCode().value());
         verify(scriptService).uploadProxyScript("testName", 0, "", mockMultipartFile);
 
         // File Not Found
@@ -211,14 +214,14 @@ public class ScriptControllerTest {
         ResponseEntity<Map<String, String>> result = scriptController.updateTankScript("gzip",mockMultipartFile);
         Map<String, String> response = result.getBody();
         assertTrue(response.get("message").contains("Script with script ID 7 updated successfully"));
-        assertEquals(201, result.getStatusCodeValue());
+        assertEquals(201, result.getStatusCode().value());
         verify(scriptService).updateTankScript( "gzip", mockMultipartFile);
 
         when(scriptService.updateTankScript("", mockMultipartFile)).thenReturn(payload);
         result = scriptController.updateTankScript("", mockMultipartFile);
         response = result.getBody();
         assertTrue(response.get("message").contains("Script with script ID 7 updated successfully"));
-        assertEquals(201, result.getStatusCodeValue());
+        assertEquals(201, result.getStatusCode().value());
         verify(scriptService).updateTankScript( "", mockMultipartFile);
 
         // File Not Found
@@ -258,13 +261,13 @@ public class ScriptControllerTest {
         when(scriptService.deleteScript(1)).thenReturn("");
         ResponseEntity<String> result = scriptController.deleteScript(1);
         assertTrue(result.getBody().contains(""));
-        assertEquals(204, result.getStatusCodeValue());
+        assertEquals(204, result.getStatusCode().value());
         verify(scriptService).deleteScript(1);
 
         when(scriptService.deleteScript(1)).thenReturn("Script with script id 1 does not exist");
         ResponseEntity<String> error = scriptController.deleteScript(1);
         assertTrue(error.getBody().contains("not exist"));
-        assertEquals(404, error.getStatusCodeValue());
+        assertEquals(404, error.getStatusCode().value());
     }
 
     // External Scripts
@@ -278,48 +281,49 @@ public class ScriptControllerTest {
         ResponseEntity<ExternalScriptTO> result = scriptController.getExternalScript(2);
         assertEquals("testName", result.getBody().getName());
         assertEquals("testProductName", result.getBody().getProductName());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(scriptService).getExternalScript(2);
 
         when(scriptService.getExternalScript(2)).thenReturn(null);
         result = scriptController.getExternalScript(2);
-        assertEquals(404, result.getStatusCodeValue());
+        assertEquals(404, result.getStatusCode().value());
     }
 
     @Test
     public void testGetExternalScripts() {
-        List<ExternalScript> all = new ArrayList<>();
         ExternalScript firstScript = new ExternalScript();
         ExternalScript secondScript = new ExternalScript();
         firstScript.setName("testName");
         secondScript.setProductName("testProduct");
-        all.add(firstScript);
-        all.add(secondScript);
-        ExternalScriptContainer ret = new ExternalScriptContainer();
-        for (ExternalScript s : all) {
-            ret.getScripts().add(ScriptServiceUtil.externalScriptToTO(s));
-        }
+        List<ExternalScript> all = List.of(firstScript, secondScript);
+        ExternalScriptContainer ret = ExternalScriptContainer.builder()
+                .withScripts(all.stream()
+                        .map(ScriptServiceUtil::externalScriptToTO)
+                        .collect(Collectors.toList()))
+                .build();
+
         when(scriptService.getExternalScripts()).thenReturn(ret);
         ResponseEntity<ExternalScriptContainer> result = scriptController.getExternalScripts();
         List<ExternalScriptTO> expected = result.getBody().getScripts();
         assertEquals("testName", expected.get(0).getName());
         assertEquals("testProduct", expected.get(1).getProductName());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(scriptService).getExternalScripts();
     }
 
     @Test
     public void testCreateExternalScript() {
-        ExternalScriptTO payload = new ExternalScriptTO();
-        payload.setScript("testScript");
-        payload.setName("testName");
-        payload.setProductName("testProduct");
+        ExternalScriptTO payload = ExternalScriptTO.builder()
+                .withScript("testScript")
+                .withName("testName")
+                .withProductName("testProduct")
+                .build();
         when(scriptService.createExternalScript(payload)).thenReturn(payload);
         ResponseEntity<ExternalScriptTO> result = scriptController.createExternalScript(payload);
         assertEquals("testScript", result.getBody().getScript());
         assertEquals("testName", result.getBody().getName());
         assertEquals("testProduct", result.getBody().getProductName());
-        assertEquals(201, result.getStatusCodeValue());
+        assertEquals(201, result.getStatusCode().value());
         assertNotNull(result.getHeaders().getLocation());
         verify(scriptService).createExternalScript(payload);
     }
@@ -327,10 +331,11 @@ public class ScriptControllerTest {
     @Test
     public void testDownloadExternalScript() throws IOException {
         Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
-        ExternalScriptTO externalScriptTO = new ExternalScriptTO();
-        externalScriptTO.setId(5);
-        externalScriptTO.setCreator("Test");
-        externalScriptTO.setName("testExternalName");
+        ExternalScriptTO externalScriptTO = ExternalScriptTO.builder()
+                .withId(5)
+                .withCreator("Test")
+                .withName("testExternalName")
+                .build();
         StreamingResponseBody streamingResponse = ResponseUtil.getXMLStream(externalScriptTO);
         String filename = "test_ETS.xml";
         payload.put(filename, streamingResponse);
@@ -338,7 +343,7 @@ public class ScriptControllerTest {
         ResponseEntity<StreamingResponseBody> result = scriptController.downloadExternalScript(5);
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
         assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(scriptService).downloadExternalScript(5);
     }
 
@@ -347,12 +352,12 @@ public class ScriptControllerTest {
         when(scriptService.deleteExternalScript(2)).thenReturn("");
         ResponseEntity<String> result = scriptController.deleteExternalScript(2);
         assertTrue(result.getBody().contains(""));
-        assertEquals(204, result.getStatusCodeValue());
+        assertEquals(204, result.getStatusCode().value());
         verify(scriptService).deleteExternalScript(2);
 
         when(scriptService.deleteExternalScript(2)).thenReturn("External script with external script id 2 does not exist");
         ResponseEntity<String> error = scriptController.deleteExternalScript(2);
         assertTrue(error.getBody().contains("not exist"));
-        assertEquals(404, error.getStatusCodeValue());
+        assertEquals(404, error.getStatusCode().value());
     }
 }

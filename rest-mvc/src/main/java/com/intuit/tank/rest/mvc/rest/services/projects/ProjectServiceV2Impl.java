@@ -66,8 +66,8 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     public ProjectContainer getAllProjects(){
         try {
             List<Project> all = new ProjectDao().findAll();
-            List<ProjectTO> to = all.stream().map(ProjectServiceUtil::projectToTransferObject).collect(Collectors.toList());
-            return new ProjectContainer(to);
+            List<ProjectTO> projects = all.stream().map(ProjectServiceUtil::projectToTransferObject).collect(Collectors.toList());
+            return ProjectContainer.builder().withProjects(projects).build();
         } catch (Exception e) {
             LOGGER.error("Error returning all projects: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("projects", "all project", e);
