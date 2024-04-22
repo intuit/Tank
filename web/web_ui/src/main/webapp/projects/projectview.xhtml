@@ -563,7 +563,7 @@
 
           <div class="vertical-spacer" />
           <h:panelGroup
-            rendered="#{projectJobQueueManager.chartModel ne null and projectJobQueueManager.chartModel.series.size() ne 0}"
+            rendered="#{projectJobQueueManager.chartModel ne null and projectJobQueueManager.chartModel.data.dataSet.size() ne 0}"
             id="chartScript">
             <script type="text/javascript">
       //<![CDATA[
@@ -710,7 +710,7 @@
 
           <div class="vertical-spacer" />
           <h:panelGroup
-            rendered="#{projectJobQueueManager.tpsChartModel ne null and projectJobQueueManager.tpsChartModel.series.size() ne 0}"
+            rendered="#{projectJobQueueManager.tpsChartModel ne null and projectJobQueueManager.tpsChartModel.data.dataSet.size() ne 0}"
             id="chartScript">
             <script type="text/javascript">
       //<![CDATA[
