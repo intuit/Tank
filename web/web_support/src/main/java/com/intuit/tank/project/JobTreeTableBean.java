@@ -262,22 +262,22 @@ public abstract class JobTreeTableBean implements Serializable {
         if (currentJobInstance != null && currentJobInstance.getStatusDetailMap() != null) {
             chartModel = new TrackingCartesianChartModel();
 
-            Map<String, List<Number>> seriesMap = new HashMap<>();
+            Map<String, List<Object>> seriesMap = new HashMap<>();
             Map<Date, List<UserDetail>> detailMap = currentJobInstance.getStatusDetailMap();
             List<Date> dateList = new ArrayList<Date>(detailMap.keySet());
             Collections.sort(dateList);
             for (Date d : dateList) {
                 for (UserDetail detail : detailMap.get(d)) {
-                    List<Number> series = seriesMap.computeIfAbsent(detail.getScript(), k -> new ArrayList<>());
+                    List<Object> series = seriesMap.computeIfAbsent(detail.getScript(), k -> new ArrayList<>());
                     series.add(detail.getUsers());
                     chartModel.addDate(d);
                 }
             }
             ChartData data = new ChartData();
-            for ( Map.Entry<String, List<Number>> entry : seriesMap.entrySet()) {
+            for ( Map.Entry<String, List<Object>> entry : seriesMap.entrySet()) {
                 LineChartDataSet dataSet = new LineChartDataSet();
                 dataSet.setLabel(entry.getKey());
-                dataSet.setData(Collections.singletonList(entry.getValue()));
+                dataSet.setData(entry.getValue());
                 data.addChartDataSet(dataSet);
             }
             chartModel.setData(data);
@@ -302,11 +302,11 @@ public abstract class JobTreeTableBean implements Serializable {
             }
             tpsChartModel = new TrackingCartesianChartModel();
             tpsChartModel.setExtender("tpsDetailsExtender");
-            Map<String, List<Number>> seriesMap = new HashMap<>();
+            Map<String, List<Object>> seriesMap = new HashMap<>();
             Map<Date, Map<String, TPSInfo>> tpsDetailMap = getTpsMap();
             List<Date> dateList = new ArrayList<Date>(tpsDetailMap.keySet());
             Collections.sort(dateList);
-            List<Number> totalSeries = new ArrayList<>();
+            List<Object> totalSeries = new ArrayList<>();
             //(TOTAL_TPS_SERIES_KEY);
             for (Date d : dateList) {
                 int total = 0;
@@ -316,7 +316,7 @@ public abstract class JobTreeTableBean implements Serializable {
                     }
                     keySet.add(info.getKey());
                     if (list.contains(info.getKey())) {
-                        List<Number> series = seriesMap.computeIfAbsent(info.getKey(), k -> new ArrayList<>());
+                        List<Object> series = seriesMap.computeIfAbsent(info.getKey(), k -> new ArrayList<>());
                         seriesMap.put(info.getKey(), series);
                         series.add(info.getTPS());
                     }
@@ -326,16 +326,16 @@ public abstract class JobTreeTableBean implements Serializable {
                 totalSeries.add(total);
             }
             ChartData data = new ChartData();
-            for ( Map.Entry<String, List<Number>> entry : seriesMap.entrySet()) {
+            for ( Map.Entry<String, List<Object>> entry : seriesMap.entrySet()) {
                 LineChartDataSet dataSet = new LineChartDataSet();
                 dataSet.setLabel(entry.getKey());
-                dataSet.setData(Collections.singletonList(entry.getValue()));
+                dataSet.setData(entry.getValue());
                 data.addChartDataSet(dataSet);
             }
             if (list.contains(TOTAL_TPS_SERIES_KEY) && !totalSeries.isEmpty()) {
                 LineChartDataSet dataSet = new LineChartDataSet();
                 dataSet.setLabel(TOTAL_TPS_SERIES_KEY);
-                dataSet.setData(Collections.singletonList(totalSeries));
+                dataSet.setData(totalSeries);
                 data.addChartDataSet(dataSet);
             }
             tpsChartModel.setData(data);
