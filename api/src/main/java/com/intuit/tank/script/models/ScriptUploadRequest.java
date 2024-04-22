@@ -8,8 +8,11 @@
 package com.intuit.tank.script.models;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.Builder;
+
 import java.util.List;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "scriptUploadRequest", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ScriptUploadRequest", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -23,20 +26,6 @@ public class ScriptUploadRequest {
 
     @XmlElement(name = "filterIds", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private List<Integer> filterIds;
-
-    public ScriptUploadRequest() {
-
-    }
-
-    /**
-     * create a descriptor from the script object
-     * 
-     * @param script
-     */
-    public ScriptUploadRequest(ScriptDescription script, List<Integer> filterIds) {
-        this.script = script;
-        this.filterIds = filterIds;
-    }
 
     /**
      * @return the script

@@ -90,7 +90,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
             ScriptDao dao = new ScriptDao();
             List<Script> all = dao.findAll();
             List<ScriptDescription> result = all.stream().map(ScriptServiceUtil::scriptToScriptDescription).collect(Collectors.toList());
-            return new ScriptDescriptionContainer(result);
+            return ScriptDescriptionContainer.builder().withScripts(result).build();
         } catch (Exception e) {
             LOGGER.error("Error returning all script: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("scripts", "all script", e);
@@ -177,12 +177,11 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     public ExternalScriptContainer getExternalScripts() {
         try {
             ExternalScriptDao dao = new ExternalScriptDao();
-            List<ExternalScript> all = dao.findAll();
-            ExternalScriptContainer ret = new ExternalScriptContainer();
-            for (ExternalScript s : all) {
-                ret.getScripts().add(ScriptServiceUtil.externalScriptToTO(s));
-            }
-            return ret;
+            List<ExternalScript> allScripts = dao.findAll();
+            return ExternalScriptContainer.builder()
+                    .withScripts(allScripts.stream()
+                            .map(ScriptServiceUtil::externalScriptToTO).collect(Collectors.toList()))
+                    .build();
         } catch (Exception e) {
             LOGGER.error("Error returning all external script : " + e, e);
             throw new GenericServiceResourceNotFoundException("script", "all external scripts", e);
@@ -297,22 +296,20 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
              InputStream inputStream = "gzip".equalsIgnoreCase(contentEncoding) ? new GZIPInputStream(fileInputStream) : fileInputStream) {
             ScriptDao dao = new ScriptDao();
 
-            if (inputStream != null) {
-                ScriptTO scriptTo = ScriptServiceUtil.parseXMLtoScriptTO(inputStream);
-                Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
-                if (script.getId() > 0) {
-                    Script existing = dao.findById(script.getId());
-                    if (existing == null) {
-                        throw new GenericServiceBadRequestException("scripts", "updating script", "updating script - Cannot update a script that does not exist (script id " + script.getId() + ")");
-                    }
-                    if (!existing.getName().equals(script.getName())) {
-                        throw new GenericServiceBadRequestException("scripts", "updating script", "updating script - Cannot change the name of the existing script " + existing.getName());
-                    }
-                    script.setSerializedScriptStepId(existing.getSerializedScriptStepId());
+            ScriptTO scriptTo = ScriptServiceUtil.parseXMLtoScriptTO(inputStream);
+            Script script = ScriptServiceUtil.transferObjectToScript(scriptTo);
+            if (script.getId() > 0) {
+                Script existing = dao.findById(script.getId());
+                if (existing == null) {
+                    throw new GenericServiceBadRequestException("scripts", "updating script", "updating script - Cannot update a script that does not exist (script id " + script.getId() + ")");
                 }
-                script = dao.saveOrUpdate(script);
-                payload.put("message", "Script " + script.getName() + " with script ID " + script.getId() + " updated successfully");
+                if (!existing.getName().equals(script.getName())) {
+                    throw new GenericServiceBadRequestException("scripts", "updating script", "updating script - Cannot change the name of the existing script " + existing.getName());
+                }
+                script.setSerializedScriptStepId(existing.getSerializedScriptStepId());
             }
+            script = dao.saveOrUpdate(script);
+            payload.put("message", "Script " + script.getName() + " with script ID " + script.getId() + " updated successfully");
         } catch (Exception e) {
             LOGGER.error("Error updating script file: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("scripts", e.getMessage(), e);

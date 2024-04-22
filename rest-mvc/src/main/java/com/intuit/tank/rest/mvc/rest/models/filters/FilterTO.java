@@ -7,11 +7,13 @@
  */
 package com.intuit.tank.rest.mvc.rest.models.filters;
 
+import lombok.Builder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import jakarta.xml.bind.annotation.*;
 import java.io.Serializable;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "filter", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Filter", namespace = Namespace.NAMESPACE_V1, propOrder = {

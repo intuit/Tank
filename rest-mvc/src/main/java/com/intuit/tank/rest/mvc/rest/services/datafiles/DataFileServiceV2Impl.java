@@ -69,7 +69,7 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
             DataFileDao dao = new DataFileDao();
             List<DataFile> all = dao.findAll();
             List<DataFileDescriptor> result = all.stream().map(DataFileServiceUtil::dataFileToDescriptor).collect(Collectors.toList());
-            return new DataFileDescriptorContainer(result);
+            return DataFileDescriptorContainer.builder().withDataFiles(result).build();
         } catch (Exception e) {
             LOGGER.error("Error returning all datafiles: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("datafiles", "all datafiles", e);

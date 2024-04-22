@@ -8,10 +8,17 @@
 package com.intuit.tank.script.models;
 
 import jakarta.xml.bind.annotation.*;
-import java.util.ArrayList;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.Singular;
+
 import java.util.Date;
 import java.util.List;
 
+@Builder(setterPrefix = "with")
+@NoArgsConstructor  // makes JAXB happy, will never be invoked
+@AllArgsConstructor
 @XmlRootElement(name = "script", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ScriptTO", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -51,13 +58,10 @@ public class ScriptTO {
     @XmlElement(name = "comments", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private String comments;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElementWrapper(name = "steps", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "step", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<ScriptStepTO> steps = new ArrayList<ScriptStepTO>();
-
-    public ScriptTO() {
-
-    }
+    private List<ScriptStepTO> steps;
 
     /**
      * {@inheritDoc}

@@ -10,6 +10,7 @@ package com.intuit.tank.rest.mvc.rest.models.projects;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.vmManager.RegionRequest;
 
+import lombok.Builder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -17,6 +18,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import jakarta.xml.bind.annotation.*;
 import java.io.Serializable;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "automationJobRegion", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AutomationJobRegion", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -27,6 +29,7 @@ public class AutomationJobRegion implements Serializable, RegionRequest {
 
     private static final long serialVersionUID = 1L;
 
+    @Builder.Default
     @XmlElement(name = "region", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private VMRegion region = VMRegion.US_WEST_1;
 
@@ -35,32 +38,6 @@ public class AutomationJobRegion implements Serializable, RegionRequest {
 
     @XmlElement(name = "percentage", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private String percentage;
-
-    /**
-     * @param region
-     * @param users
-     */
-    public AutomationJobRegion(VMRegion region, String users) {
-        this.region = region != null ? region : VMRegion.US_EAST;
-        this.users = users;
-    }
-
-    /**
-     * @param region
-     * @param users
-     * @param percentage
-     */
-    public AutomationJobRegion(VMRegion region, String users, String percentage) {
-        this.region = region != null ? region : VMRegion.US_EAST;
-        this.users = users;
-        this.percentage = percentage;
-    }
-
-    /**
-     * {@Framework_use_only}
-     */
-    protected AutomationJobRegion() {
-    }
 
     /**
      * @return the region

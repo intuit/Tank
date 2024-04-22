@@ -13,21 +13,21 @@ import com.intuit.tank.rest.mvc.rest.models.jobs.JobTO;
 public class JobServiceUtil {
 
     /**
-     * @param g
-     * @return
+     * @param job
+     * @return JobTO
      */
     public static JobTO jobToTO(JobInstance job) {
-        JobTO ret = new JobTO();
-        ret.setId(job.getId());
-        ret.setName(job.getName());
-        ret.setEndTime(job.getEndTime());
-        ret.setStartTime(job.getStartTime());
-        ret.setLocation(job.getLocation());
-        ret.setStatus(job.getStatus().name());
-        ret.setNumUsers(job.getTotalVirtualUsers());
-        ret.setRampTimeMilis(job.getRampTime());
-        ret.setSimulationTimeMilis(job.getSimulationTime());
-        return ret;
+        return JobTO.builder()
+                .withId(job.getId())
+                .withName(job.getName())
+                .withEndTime(job.getEndTime())
+                .withStartTime(job.getStartTime())
+                .withLocation(job.getLocation())
+                .withStatus(job.getStatus().name())
+                .withNumUsers(job.getTotalVirtualUsers())
+                .withRampTimeMilis(job.getRampTime())
+                .withSimulationTimeMilis(job.getSimulationTime())
+                .build();
     }
 
 }

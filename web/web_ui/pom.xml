@@ -142,7 +142,7 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>tank-api</artifactId>
+      <artifactId>tank-rest-api</artifactId>
       <version>${project.version}</version>
     </dependency>
 

@@ -12,9 +12,13 @@ import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.project.TestPlan;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.Builder;
+import lombok.Singular;
+
 import java.io.Serializable;
 import java.util.*;
 
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "project", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ProjectTO", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -75,11 +79,13 @@ public class ProjectTO implements Serializable {
     @XmlElement(name = "userIntervalIncrement", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private int userIntervalIncrement;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElement(name = "jobRegions", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private Set<AutomationJobRegion> jobRegions = new HashSet<>();
+    private Set<AutomationJobRegion> jobRegions;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElement(name = "testPlans", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<AutomationTestPlan> testPlans = new ArrayList<>();
+    private List<AutomationTestPlan> testPlans;
 
     @XmlElement(name = "workloadType", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private IncrementStrategy workloadType;
@@ -93,13 +99,15 @@ public class ProjectTO implements Serializable {
     @XmlElement(name = "useEips", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private boolean useEips;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElementWrapper(name = "variables", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "variable", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<KeyPair> variables = new ArrayList<KeyPair>();
+    private List<KeyPair> variables;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElementWrapper(name = "data-file-ids", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "data-file-id", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<Integer> dataFileIds = new ArrayList<Integer>();
+    private List<Integer> dataFileIds;
 
     /**
      * @return the id

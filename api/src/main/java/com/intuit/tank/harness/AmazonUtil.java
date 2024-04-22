@@ -47,9 +47,9 @@ public class AmazonUtil {
     private static final HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
 
     private static final Logger LOG = LogManager.getLogger(AmazonUtil.class);
-    private static final String BASE = "http://169.254.169.254/latest";
-    private static final String USER_DATA = "/user-data";
-    private static final String META_DATA = "/meta-data";
+    protected static String BASE = "http://169.254.169.254/latest";
+    protected static final String USER_DATA = "/user-data";
+    protected static final String META_DATA = "/meta-data";
 
     public static VMRegion getVMRegion() {
         try {

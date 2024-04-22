@@ -47,12 +47,13 @@ public class ScriptServiceUtilTest {
     @Test
     public void testTOToExternalScript_1()
         throws Exception {
-        ExternalScriptTO script = new ExternalScriptTO();
-        script.setCreator("");
-        script.setName("");
-        script.setId(0);
-        script.setProductName("");
-        script.setScript("");
+        ExternalScriptTO script = ExternalScriptTO.builder()
+                .withCreator("")
+                .withName("")
+                .withId(0)
+                .withProductName("")
+                .withScript("")
+                .build();
 
         ExternalScript result = ScriptServiceUtil.TOToExternalScript(script);
 
@@ -72,21 +73,22 @@ public class ScriptServiceUtilTest {
     @Test
     public void testCopy_1()
         throws Exception {
-        ScriptStepTO step = new ScriptStepTO();
-        step.setType("");
-        step.setMimetype("");
-        step.setScriptGroupName("");
-        step.setPayload("");
-        step.setLoggingKey("");
-        step.setResult("");
-        step.setMethod("");
-        step.setName("");
-        step.setUrl("");
-        step.setOnFail("");
-        step.setStepIndex(1);
-        step.setUuid("");
-        step.setLabel("");
-        step.setResponse("");
+        ScriptStepTO step = ScriptStepTO.builder()
+                .withType("")
+                .withMimetype("")
+                .withScriptGroupName("")
+                .withPayload("")
+                .withLoggingKey("")
+                .withResult("")
+                .withMethod("")
+                .withName("")
+                .withUrl("")
+                .withOnFail("")
+                .withStepIndex(1)
+                .withUuid("")
+                .withLabel("")
+                .withResponse("")
+                .build();
 
         ScriptStepTO result = ScriptServiceUtil.copy(step);
 
@@ -106,11 +108,12 @@ public class ScriptServiceUtilTest {
     @Test
     public void testCopyStepDataTO_1()
         throws Exception {
-        StepDataTO data = new StepDataTO();
-        data.setValue("");
-        data.setPhase("");
-        data.setType("");
-        data.setKey("");
+        StepDataTO data = StepDataTO.builder()
+                .withValue("")
+                .withPhase("")
+                .withType("")
+                .withKey("")
+                .build();
 
         StepDataTO result = ScriptServiceUtil.copyStepDataTO(data);
 
@@ -175,15 +178,16 @@ public class ScriptServiceUtilTest {
     @Test
     public void testScriptDescriptionToScript_1()
         throws Exception {
-        ScriptDescription sd = new ScriptDescription();
-        sd.setProductName("");
-        sd.setName("");
-        sd.setCreated(new Date());
-        sd.setId(new Integer(1));
-        sd.setRuntime(1);
-        sd.setModified(new Date());
-        sd.setComments("");
-        sd.setCreator("");
+        ScriptDescription sd = ScriptDescription.builder()
+                .withProductName("")
+                .withName("")
+                .withCreated(new Date())
+                .withId(Integer.valueOf(1))
+                .withRuntime(1)
+                .withModified(new Date())
+                .withComments("")
+                .withCreator("")
+                .build();
 
         Script result = ScriptServiceUtil.scriptDescriptionToScript(sd);
 
@@ -224,7 +228,7 @@ public class ScriptServiceUtilTest {
     @Test
     public void testScriptStepsToTransferobjectList_1()
         throws Exception {
-        List<ScriptStep> steps = new LinkedList();
+        List<ScriptStep> steps = List.of();
 
         List<ScriptStepTO> result = ScriptServiceUtil.scriptStepsToTransferobjectList(steps);
 
@@ -244,7 +248,7 @@ public class ScriptServiceUtilTest {
     @Test
     public void testScriptStepsToTransferobjectList_2()
         throws Exception {
-        List<ScriptStep> steps = new LinkedList();
+        List<ScriptStep> steps = List.of();
 
         List<ScriptStepTO> result = ScriptServiceUtil.scriptStepsToTransferobjectList(steps);
 
@@ -289,7 +293,7 @@ public class ScriptServiceUtilTest {
     public void testScriptToTransferObject_1()
         throws Exception {
         Script script = new Script();
-        script.setSteps(new LinkedList());
+        script.setSteps(List.of());
         script.setRuntime(1);
         script.setName("");
         script.setProductName("");
@@ -313,11 +317,12 @@ public class ScriptServiceUtilTest {
     @Test
     public void testTransferObjectToRequestData_1()
         throws Exception {
-        StepDataTO to = new StepDataTO();
-        to.setValue("");
-        to.setPhase("");
-        to.setType("");
-        to.setKey("");
+        StepDataTO to = StepDataTO.builder()
+                .withValue("")
+                .withPhase("")
+                .withType("")
+                .withKey("")
+                .build();
 
         RequestData result = ScriptServiceUtil.transferObjectToRequestData(to);
 
@@ -337,16 +342,17 @@ public class ScriptServiceUtilTest {
     @Test
     public void testTransferObjectToScript_1()
         throws Exception {
-        ScriptTO to = new ScriptTO();
-        to.setProductName("");
-        to.setCreated(new Date());
-        to.setRuntime(1);
-        to.setModified(new Date());
-        to.setName("");
-        to.setId(new Integer(1));
-        to.setSteps(new LinkedList());
-        to.setComments("");
-        to.setCreator("");
+        ScriptTO to = ScriptTO.builder()
+                .withProductName("")
+                .withCreated(new Date())
+                .withRuntime(1)
+                .withModified(new Date())
+                .withName("")
+                .withId(Integer.valueOf(1))
+                .withSteps(List.of())
+                .withComments("")
+                .withCreator("")
+                .build();
 
         Script result = ScriptServiceUtil.transferObjectToScript(to);
 
@@ -366,16 +372,17 @@ public class ScriptServiceUtilTest {
     @Test
     public void testTransferObjectToScriptStep_1()
         throws Exception {
-        ScriptStepTO to = new ScriptStepTO();
-        to.setMimetype("");
-        to.setComments("");
-        to.setPayload("");
-        to.setLoggingKey("");
-        to.setMethod("");
-        to.setUuid("");
-        to.setHostname("");
-        to.setLabel("");
-        to.setResponse("");
+        ScriptStepTO to = ScriptStepTO.builder()
+                .withMimetype("")
+                .withComments("")
+                .withPayload("")
+                .withLoggingKey("")
+                .withMethod("")
+                .withUuid("")
+                .withHostname("")
+                .withLabel("")
+                .withResponse("")
+                .build();
 
         ScriptStep result = ScriptServiceUtil.transferObjectToScriptStep(to);
 
