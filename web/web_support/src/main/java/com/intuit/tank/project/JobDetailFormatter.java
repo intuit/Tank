@@ -88,7 +88,8 @@ public class JobDetailFormatter {
             addProperty(sb, "Assign Elastic Ips", Boolean.toString(proposedJobInstance.isUseEips()));
             addProperty(sb, "Enable Two-Step Job Start", Boolean.toString(proposedJobInstance.isUseTwoStep()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)) {
-                addProperty(sb, "Number of Agents", Integer.toString(proposedJobInstance.getNumAgents()));
+                addProperty(sb, "Number of Agents", Integer.toString(JobVmCalculator.getMachinesForAgentByTargetRate(proposedJobInstance.getTargetRampRate(), proposedJobInstance.getTargetRatePerAgent()).keySet().iterator().next()));
+                addProperty(sb, "Max Users/Sec Per Agent", Double.toString(JobVmCalculator.getMachinesForAgentByTargetRate(proposedJobInstance.getTargetRampRate(), proposedJobInstance.getTargetRatePerAgent()).values().iterator().next()));
             } else {
                 addProperty(sb, "Max Users per Agent", Integer.toString(proposedJobInstance.getNumUsersPerAgent()));
             }
@@ -116,8 +117,7 @@ public class JobDetailFormatter {
             }
             addProperty(sb, "Ramp Time", TimeUtil.toTimeString(proposedJobInstance.getRampTime()));
             if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)){
-                addProperty(sb, "Agent User Ramp Rate (users/sec)",String.format("%.2f", proposedJobInstance.getTargetRampRate()));
-                addProperty(sb, "Total User Ramp Rate (users/sec)", String.format("%.2f", proposedJobInstance.getTargetRampRate() * proposedJobInstance.getNumAgents()));
+                addProperty(sb, "Target Users Per Second",String.format("%.2f", proposedJobInstance.getTargetRampRate()));
                 addProperty(sb, "Estimated Steady State Concurrent Users",
                         String.format("%.2f", proposedJobInstance.getTargetRampRate() *
                                 ((double) proposedJobInstance.getRampTime() / 1000) *
@@ -154,7 +154,8 @@ public class JobDetailFormatter {
 
                 // Calculate number of agents per region split for nonlinear workloads
                 Set<RegionRequest> regionRequests = new HashSet<>(regions);
-                Map<RegionRequest, Integer> regionAllocation = JobVmCalculator.getMachinesForAgentByUserPercentage(proposedJobInstance.getNumAgents(), regionRequests);
+                int numAgents = JobVmCalculator.getMachinesForAgentByTargetRate(proposedJobInstance.getTargetRampRate(), proposedJobInstance.getTargetRatePerAgent()).keySet().iterator().next();
+                Map<RegionRequest, Integer> regionAllocation = JobVmCalculator.getMachinesForAgentByUserPercentage(numAgents, regionRequests);
 
                 int regionPercentage = 0;
                 for (JobRegion r : regions) {
