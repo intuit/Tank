@@ -293,7 +293,13 @@ public class TankHttpClient4 implements TankHttpClient {
             // check for no content headers
             if (response.getStatusLine().getStatusCode() != 203 && response.getStatusLine().getStatusCode() != 202 && response.getStatusLine().getStatusCode() != 204) {
                 try ( InputStream is = response.getEntity().getContent() ) {
-                    responseBody = is.readAllBytes();
+                    Header contentTypeHeader = response.getFirstHeader("Content-Type");
+                    String contentType = contentTypeHeader != null ? contentTypeHeader.getValue() : "";
+                    if (checkContentType(contentType)) {
+                        responseBody = is.readAllBytes();
+                    } else {
+                        is.readAllBytes();
+                    }
                 } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
@@ -323,6 +329,16 @@ public class TankHttpClient4 implements TankHttpClient {
         if (waitTime != 0) {
             doWaitDueToLongResponse(request, waitTime, uri);
         }
+    }
+
+    /**
+     * Checks content-type to filter whether to assign the response data to responseBody
+     * returns true if the content type is not audio, video, image, or application/pdf
+     *
+     * @param contentType
+     */
+    private boolean checkContentType(String contentType) {
+        return !contentType.matches("audio/.*|video/.*|image/.*|application/pdf");
     }
 
     /**
