@@ -305,10 +305,7 @@ public class TankHttpClient3 implements TankHttpClient {
      */
     private String getContentHeader(HttpMethod method) {
         HeaderElement[] responseHeaders = method.getResponseHeader("content-type").getElements();
-        if (0 < responseHeaders.length) {
-            return responseHeaders[0].getName();
-        }
-        return "";
+        return (0 < responseHeaders.length) ? responseHeaders[0].getName() : "";
     }
 
     /**

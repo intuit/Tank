@@ -292,7 +292,13 @@ public class TankHttpClient5 implements TankHttpClient {
                 public void completed(final SimpleHttpResponse response) {
                     if (request.getAsync() && response.getCode() != 203 && response.getCode() != 202 && response.getCode() != 204) {
                         long waitTime = System.currentTimeMillis() - startTime;
-                        processResponse(response.getBodyBytes(), waitTime, request, response.getReasonPhrase(), response.getCode(), response.getHeaders());
+                        byte[] responseBody = new byte[0];
+                        if (checkContentType(response.getContentType().getMimeType())) {
+                            responseBody = response.getBodyBytes();
+                        } else {
+                            response.getBodyBytes();
+                        }
+                        processResponse(responseBody, waitTime, request, response.getReasonPhrase(), response.getCode(), response.getHeaders());
                         if (waitTime != 0) {
                             doWaitDueToLongResponse(request, waitTime, method.getRequestUri());
                         }
@@ -334,6 +340,16 @@ public class TankHttpClient5 implements TankHttpClient {
         } catch (InterruptedException | ExecutionException e) {
             LOG.error(request.getLogUtil().getLogMessage("Execution Interrupted: " + e.getMessage()), e);
         }
+    }
+
+    /**
+     * Checks content-type to filter whether to assign the response data to responseBody
+     * returns true if the content type is not audio, video, image, or application/pdf
+     *
+     * @param contentType
+     */
+    private boolean checkContentType(String contentType) {
+        return !contentType.matches("audio/.*|video/.*|image/.*|application/pdf");
     }
 
     /**
