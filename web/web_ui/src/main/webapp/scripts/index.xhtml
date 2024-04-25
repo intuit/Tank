@@ -115,6 +115,18 @@
             ajax="true">
             <h:outputText value="#{selectable.entity.name}" />
           </p:commandLink>
+          <h:panelGroup layout="block" rendered="#{selectable.entity.isFiltered()}" style="display:inline-block;vertical-align:middle;">
+            <p:outputPanel styleClass="filterIcon" id="filterIcon" layout="inline">
+              <i class="pi pi-filter" style="margin-left:5px;"/>
+            </p:outputPanel>
+            <p:tooltip for="filterIcon" >
+              <h:outputText value="Applied Filters:" style="margin-bottom:0; padding-bottom:0;" />
+              <ul style="margin-top:0; padding-top:0;">
+                <li>Filter Groups: #{selectable.entity.filterGroupIds}</li>
+                <li>Filters: #{selectable.entity.filterIds}</li>
+              </ul>
+            </p:tooltip>
+          </h:panelGroup>
         </p:column>
 
         <p:column id="productColumn" headerText="Product"

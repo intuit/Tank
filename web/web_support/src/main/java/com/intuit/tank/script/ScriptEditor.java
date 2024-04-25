@@ -301,6 +301,10 @@ public class ScriptEditor implements Serializable {
         try {
             ScriptFilterUtil.applyFilters(selectedFilterIds, script);
             ScriptUtil.setScriptStepLabels(script);
+            List<Integer> filterIds = script.getFilterIds();
+            filterIds.addAll(selectedFilterIds);
+            List<Integer> distinctFilterIds = new ArrayList<>(new HashSet<>(filterIds));
+            script.setFilterIds(distinctFilterIds);
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Applied " + selectedFilterIds.size()
                     + " filter(s) to \"" + script.getName() + "\".", null));
             return "success";

@@ -82,10 +82,8 @@
             <h:outputLabel value="Name" styleClass="formLabel required" />
           </div>
           <div class="formInputDiv">
-            <p:inplace styleClass="block ellipsis" label="#{scriptEditor.scriptName}" editor="true"
-              style="width: 200px;">
-              <h:inputText value="#{scriptEditor.scriptName}" styleClass="formInput inputWidthMedium"
-                style="width:140px;" />
+            <p:inplace styleClass="block ellipsis" label="#{scriptEditor.scriptName}" editor="true" style="width: 200px;">
+              <h:inputText value="#{scriptEditor.scriptName}" styleClass="formInput inputWidthMedium" style="width:140px;" />
             </p:inplace>
           </div>
         </div>
@@ -95,9 +93,23 @@
             <h:outputLabel for="productSelectionBox" value="Product" styleClass="formLabel" />
           </div>
           <div class="formInputDiv">
-            <p:selectOneMenu id="productSelectionBox" value="#{scriptEditor.script.productName}">
-              <f:selectItems value="#{projectUtilBean.productNames}" />
-            </p:selectOneMenu>
+            <div style="display:flex; align-items:center;">
+              <p:selectOneMenu id="productSelectionBox" value="#{scriptEditor.script.productName}">
+                <f:selectItems value="#{projectUtilBean.productNames}" />
+              </p:selectOneMenu>
+              <h:panelGroup rendered="#{scriptEditor.script.isFiltered()}" style="margin-left:5px;">
+                <p:outputPanel id="filterIconInplace" layout="inline">
+                  <i class="pi pi-filter"/>
+                </p:outputPanel>
+                <p:tooltip for="filterIconInplace">
+                  <h:outputText value="Applied Filters:" style="margin-bottom:0; padding-bottom:0;" />
+                  <ul style="margin-top:0; padding-top:0;">
+                    <li>Filter Groups: #{scriptEditor.script.filterGroupIds}</li>
+                    <li>Filters: #{scriptEditor.script.filterIds}</li>
+                  </ul>
+                </p:tooltip>
+              </h:panelGroup>
+            </div>
           </div>
         </div>
 

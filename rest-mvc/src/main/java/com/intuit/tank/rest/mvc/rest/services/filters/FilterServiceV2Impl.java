@@ -12,10 +12,7 @@ import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.dao.ScriptFilterDao;
 import com.intuit.tank.dao.ScriptFilterGroupDao;
 import com.intuit.tank.dao.FilterGroupDao;
-import com.intuit.tank.project.BaseEntity;
-import com.intuit.tank.project.ScriptFilter;
-import com.intuit.tank.project.ScriptFilterGroup;
-import com.intuit.tank.project.Script;
+import com.intuit.tank.project.*;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
@@ -39,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import jakarta.servlet.ServletContext;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -130,6 +128,18 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
                 if (!filterIds.isEmpty()) {
                     ScriptFilterUtil.applyFilters(filterIds, script);
                     ScriptUtil.setScriptStepLabels(script);
+
+                    // attach new filterGroups
+                    List<Integer> filterGroups = script.getFilterGroupIds();
+                    filterGroups.addAll(request.getFilterGroupIds());
+                    List<Integer> distinctFilterGroupIds = new ArrayList<>(new HashSet<>(filterGroups));
+                    script.setFilterGroupIds(distinctFilterGroupIds);
+                    // attach new filters
+                    List<Integer> filters = script.getFilterIds();
+                    filters.addAll(request.getFilterIds());
+                    List<Integer> distinctFilterIds = new ArrayList<>(new HashSet<>(filters));
+                    script.setFilterIds(distinctFilterIds);
+
                     script = new ScriptDao().saveOrUpdate(script);
                     sendMsg(script, ModificationType.UPDATE);
                     return "Filters applied";

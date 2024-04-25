@@ -10,7 +10,9 @@ package com.intuit.tank.script.models;
 import jakarta.xml.bind.annotation.*;
 import lombok.Builder;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Builder(setterPrefix = "with")
 @XmlRootElement(name = "scriptDescription", namespace = Namespace.NAMESPACE_V1)
@@ -50,6 +52,12 @@ public class ScriptDescription {
 
     @XmlElement(name = "comments", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private String comments;
+
+    @XmlElement(name = "filterIds", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private List<Integer> filterIds;
+
+    @XmlElement(name = "filterGroupIds", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private List<Integer> filterGroupIds;
 
     /**
      * @return the id
@@ -169,6 +177,22 @@ public class ScriptDescription {
      */
     public void setComments(String comments) {
         this.comments = comments;
+    }
+
+    public List<Integer> getFilterIds() {
+        return filterIds;
+    }
+
+    public void setFilterIds(List<Integer> filterIds) {
+        this.filterIds = (filterIds != null) ? new ArrayList<>(filterIds) : null;
+    }
+
+    public List<Integer> getFilterGroupIds() {
+        return filterGroupIds;
+    }
+
+    public void setFilterGroupIds(List<Integer> filterGroupIds) {
+        this.filterGroupIds = (filterGroupIds != null) ? new ArrayList<>(filterGroupIds) : null;
     }
 
     @Override

@@ -222,6 +222,8 @@ public class ScriptServiceUtil {
                 .withName(script.getName())
                 .withProductName(script.getProductName())
                 .withRuntime(script.getRuntime())
+                .withFilterIds(script.getFilterIds())
+                .withFilterGroupIds(script.getFilterGroupIds())
                 .build();
     }
 

@@ -18,13 +18,10 @@ import java.io.ObjectInputStream;
 import java.io.PushbackInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -55,6 +52,12 @@ public class Script extends OwnableEntity implements Comparable<Script> {
     @Column(name = "comments", length = 1024)
     @Size(max = 1024)
     private String comments;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Integer> filterGroupIds = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Integer> filterIds = new ArrayList<>();
 
     @Transient
     private List<ScriptStep> steps = new ArrayList<ScriptStep>();
@@ -175,6 +178,22 @@ public class Script extends OwnableEntity implements Comparable<Script> {
         this.comments = comments;
     }
 
+    public List<Integer> getFilterGroupIds() {
+        return filterGroupIds;
+    }
+
+    public void setFilterGroupIds(List<Integer> filterGroupIds) {
+        this.filterGroupIds = filterGroupIds;
+    }
+
+    public List<Integer> getFilterIds() {
+        return filterIds;
+    }
+
+    public void setFilterIds(List<Integer> filterIds) {
+        this.filterIds = filterIds;
+    }
+
     /**
      * @return the steps
      */
@@ -210,6 +229,11 @@ public class Script extends OwnableEntity implements Comparable<Script> {
     public void addStep(ScriptStep step) {
         // step.setScript(this);
         this.steps.add(step);
+    }
+
+    public boolean isFiltered() {
+        return (filterIds != null && !filterIds.isEmpty())
+                || (filterGroupIds != null && !filterGroupIds.isEmpty());
     }
 
     /**
@@ -299,6 +323,16 @@ public class Script extends OwnableEntity implements Comparable<Script> {
         public GeneratorT comments(String aValue) {
             instance.setComments(aValue);
 
+            return (GeneratorT) this;
+        }
+
+        public GeneratorT filterGroupIds(List<Integer> aValue) {
+            instance.setFilterGroupIds(aValue);
+            return (GeneratorT) this;
+        }
+
+        public GeneratorT filterIds(List<Integer> aValue) {
+            instance.setFilterIds(aValue);
             return (GeneratorT) this;
         }
 
