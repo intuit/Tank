@@ -45,9 +45,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -259,8 +257,17 @@ public class ScriptServiceUtil {
                 .withName(script.getName())
                 .withProductName(script.getProductName())
                 .withRuntime(script.getRuntime())
-                .withFilterIds(script.getFilterIds())
-                .withFilterGroupIds(script.getFilterGroupIds())
+                .withFilterIds(script.getFilterIds() != null && !script.getFilterIds().isEmpty()
+                        ? Arrays.stream(script.getFilterIds().trim().split(","))
+                        .map(Integer::parseInt)
+                        .collect(Collectors.toList())
+                        : new ArrayList<>())
+                .withFilterGroupIds(script.getFilterGroupIds() != null && !script.getFilterGroupIds().isEmpty()
+                        ? Arrays.stream(script.getFilterGroupIds().split(","))
+                        .map(Integer::parseInt)
+                        .collect(Collectors.toList())
+                        : new ArrayList<>())
+                .withIsFiltered(script.isFiltered())
                 .build();
     }
 

@@ -35,10 +35,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import jakarta.servlet.ServletContext;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -130,15 +128,22 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
                     ScriptUtil.setScriptStepLabels(script);
 
                     // attach new filterGroups
-                    List<Integer> filterGroups = script.getFilterGroupIds();
+                    List<Integer> filterGroups = script.getFilterGroupIds() != null && !script.getFilterGroupIds().isEmpty()
+                            ? Arrays.stream(script.getFilterGroupIds().trim().split(",")).map(Integer::parseInt).collect(Collectors.toList())
+                            : new ArrayList<>();
+
                     filterGroups.addAll(request.getFilterGroupIds());
                     List<Integer> distinctFilterGroupIds = new ArrayList<>(new HashSet<>(filterGroups));
-                    script.setFilterGroupIds(distinctFilterGroupIds);
+                    script.setFilterGroupIds(distinctFilterGroupIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
+
                     // attach new filters
-                    List<Integer> filters = script.getFilterIds();
+                    List<Integer> filters = script.getFilterIds() != null && !script.getFilterIds().isEmpty()
+                            ? Arrays.stream(script.getFilterIds().trim().split(",")).map(Integer::parseInt).collect(Collectors.toList())
+                            : new ArrayList<>();
+
                     filters.addAll(request.getFilterIds());
                     List<Integer> distinctFilterIds = new ArrayList<>(new HashSet<>(filters));
-                    script.setFilterIds(distinctFilterIds);
+                    script.setFilterIds(distinctFilterIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
 
                     script = new ScriptDao().saveOrUpdate(script);
                     sendMsg(script, ModificationType.UPDATE);

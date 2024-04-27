@@ -13,6 +13,7 @@ import lombok.Builder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Builder(setterPrefix = "with")
 @XmlRootElement(name = "scriptDescription", namespace = Namespace.NAMESPACE_V1)
@@ -25,7 +26,10 @@ import java.util.List;
         "name",
         "runtime",
         "productName",
-        "comments"
+        "comments",
+        "filterIds",
+        "filterGroupIds",
+        "isFiltered"
 })
 public class ScriptDescription {
 
@@ -58,6 +62,9 @@ public class ScriptDescription {
 
     @XmlElement(name = "filterGroupIds", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private List<Integer> filterGroupIds;
+
+    @XmlElement(name = "isFiltered", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private Boolean isFiltered;
 
     /**
      * @return the id
@@ -193,6 +200,10 @@ public class ScriptDescription {
 
     public void setFilterGroupIds(List<Integer> filterGroupIds) {
         this.filterGroupIds = (filterGroupIds != null) ? new ArrayList<>(filterGroupIds) : null;
+    }
+
+    public boolean isFiltered() {
+        return Objects.requireNonNullElse(isFiltered, false);
     }
 
     @Override

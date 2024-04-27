@@ -19,6 +19,7 @@ import java.io.PushbackInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 
 import jakarta.persistence.*;
@@ -53,11 +54,14 @@ public class Script extends OwnableEntity implements Comparable<Script> {
     @Size(max = 1024)
     private String comments;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<Integer> filterGroupIds = new ArrayList<>();
+    @Column(name = "filterGroupIds")
+    private String filterGroupIds;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<Integer> filterIds = new ArrayList<>();
+    @Column(name = "filterIds")
+    private String filterIds;
+
+    @Column(name = "is_filtered")
+    private Boolean isFiltered = false;
 
     @Transient
     private List<ScriptStep> steps = new ArrayList<ScriptStep>();
@@ -178,20 +182,26 @@ public class Script extends OwnableEntity implements Comparable<Script> {
         this.comments = comments;
     }
 
-    public List<Integer> getFilterGroupIds() {
+    public String getFilterGroupIds() {
         return filterGroupIds;
     }
 
-    public void setFilterGroupIds(List<Integer> filterGroupIds) {
+    public void setFilterGroupIds(String filterGroupIds) {
         this.filterGroupIds = filterGroupIds;
+        this.isFiltered = true;
     }
 
-    public List<Integer> getFilterIds() {
+    public String getFilterIds() {
         return filterIds;
     }
 
-    public void setFilterIds(List<Integer> filterIds) {
+    public void setFilterIds(String filterIds) {
         this.filterIds = filterIds;
+        this.isFiltered = true;
+    }
+
+    public boolean isFiltered() {
+        return Objects.requireNonNullElse(isFiltered, false);
     }
 
     /**
@@ -229,11 +239,6 @@ public class Script extends OwnableEntity implements Comparable<Script> {
     public void addStep(ScriptStep step) {
         // step.setScript(this);
         this.steps.add(step);
-    }
-
-    public boolean isFiltered() {
-        return (filterIds != null && !filterIds.isEmpty())
-                || (filterGroupIds != null && !filterGroupIds.isEmpty());
     }
 
     /**
@@ -326,12 +331,12 @@ public class Script extends OwnableEntity implements Comparable<Script> {
             return (GeneratorT) this;
         }
 
-        public GeneratorT filterGroupIds(List<Integer> aValue) {
+        public GeneratorT filterGroupIds(String aValue) {
             instance.setFilterGroupIds(aValue);
             return (GeneratorT) this;
         }
 
-        public GeneratorT filterIds(List<Integer> aValue) {
+        public GeneratorT filterIds(String aValue) {
             instance.setFilterIds(aValue);
             return (GeneratorT) this;
         }

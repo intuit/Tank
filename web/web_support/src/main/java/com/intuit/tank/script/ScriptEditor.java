@@ -16,6 +16,7 @@ package com.intuit.tank.script;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.Conversation;
@@ -301,10 +302,14 @@ public class ScriptEditor implements Serializable {
         try {
             ScriptFilterUtil.applyFilters(selectedFilterIds, script);
             ScriptUtil.setScriptStepLabels(script);
-            List<Integer> filterIds = script.getFilterIds();
+            List<Integer> filterIds = script.getFilterIds() != null && !script.getFilterIds().isEmpty()
+                    ? Arrays.stream(script.getFilterIds().trim().split(",")).map(Integer::parseInt).collect(Collectors.toList())
+                    : new ArrayList<>();
             filterIds.addAll(selectedFilterIds);
             List<Integer> distinctFilterIds = new ArrayList<>(new HashSet<>(filterIds));
-            script.setFilterIds(distinctFilterIds);
+            script.setFilterIds(distinctFilterIds.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(",")));
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Applied " + selectedFilterIds.size()
                     + " filter(s) to \"" + script.getName() + "\".", null));
             return "success";
