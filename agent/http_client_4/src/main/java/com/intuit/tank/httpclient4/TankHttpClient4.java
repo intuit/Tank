@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.Nonnull;
 
 import org.apache.commons.lang3.StringUtils;
@@ -333,12 +334,17 @@ public class TankHttpClient4 implements TankHttpClient {
 
     /**
      * Checks content-type to filter whether to assign the response data to responseBody
-     * returns true if the content type is not audio, video, image, or application/pdf
      *
      * @param contentType
      */
     private boolean checkContentType(String contentType) {
-        return !contentType.matches("audio/.*|video/.*|image/.*|application/pdf");
+        Collection<String> mimeTypes = new TankConfig().getAgentConfig().getTextMimeTypeRegex();
+        for (String regex : mimeTypes) {
+            if (contentType.matches(regex)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

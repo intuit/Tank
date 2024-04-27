@@ -20,16 +20,11 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.Nonnull;
 
 import org.apache.commons.httpclient.*;
@@ -314,7 +309,13 @@ public class TankHttpClient3 implements TankHttpClient {
      * @param contentType
      */
     private boolean checkContentType(String contentType) {
-        return !contentType.matches("audio/.*|video/.*|image/.*|application/pdf");
+        Collection<String> mimeTypes = new TankConfig().getAgentConfig().getTextMimeTypeRegex();
+        for (String regex : mimeTypes) {
+            if (contentType.matches(regex)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
