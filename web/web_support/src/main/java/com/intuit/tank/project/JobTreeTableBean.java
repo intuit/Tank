@@ -263,6 +263,7 @@ public abstract class JobTreeTableBean implements Serializable {
             chartModel = new TrackingCartesianChartModel();
 
             Map<String, List<Object>> seriesMap = new HashMap<>();
+            List<String> labels = new ArrayList<>();
             Map<Date, List<UserDetail>> detailMap = currentJobInstance.getStatusDetailMap();
             List<Date> dateList = new ArrayList<Date>(detailMap.keySet());
             Collections.sort(dateList);
@@ -270,8 +271,9 @@ public abstract class JobTreeTableBean implements Serializable {
                 for (UserDetail detail : detailMap.get(d)) {
                     List<Object> series = seriesMap.computeIfAbsent(detail.getScript(), k -> new ArrayList<>());
                     series.add(detail.getUsers());
-                    chartModel.addDate(d);
                 }
+                labels.add(d.toString());
+                chartModel.addDate(d);
             }
             ChartData data = new ChartData();
             for ( Map.Entry<String, List<Object>> entry : seriesMap.entrySet()) {
@@ -280,8 +282,18 @@ public abstract class JobTreeTableBean implements Serializable {
                 dataSet.setData(entry.getValue());
                 data.addChartDataSet(dataSet);
             }
+            data.setLabels(labels);
             chartModel.setData(data);
             chartModel.setExtender("userDetailsExtender");
+        } else {
+            chartModel = new TrackingCartesianChartModel();
+            LineChartDataSet dataSet = new LineChartDataSet();
+            dataSet.setLabel("TEST");
+            dataSet.setData(List.of(10,20,30,20));
+            ChartData data = new ChartData();
+            data.addChartDataSet(dataSet);
+            data.setLabels(List.of("1", "2", "3", "4"));
+            chartModel.setData(data);
         }
 
     }
@@ -303,6 +315,7 @@ public abstract class JobTreeTableBean implements Serializable {
             tpsChartModel = new TrackingCartesianChartModel();
             tpsChartModel.setExtender("tpsDetailsExtender");
             Map<String, List<Object>> seriesMap = new HashMap<>();
+            List<String> labels = new ArrayList<>();
             Map<Date, Map<String, TPSInfo>> tpsDetailMap = getTpsMap();
             List<Date> dateList = new ArrayList<Date>(tpsDetailMap.keySet());
             Collections.sort(dateList);
@@ -321,9 +334,10 @@ public abstract class JobTreeTableBean implements Serializable {
                         series.add(info.getTPS());
                     }
                     total += info.getTPS();
-                    tpsChartModel.addDate(d);
                 }
                 totalSeries.add(total);
+                labels.add(d.toString());
+                tpsChartModel.addDate(d);
             }
             ChartData data = new ChartData();
             for ( Map.Entry<String, List<Object>> entry : seriesMap.entrySet()) {
