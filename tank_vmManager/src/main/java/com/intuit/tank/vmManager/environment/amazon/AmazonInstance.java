@@ -206,6 +206,8 @@ public class AmazonInstance implements IEnvironmentInstance {
                 LOG.info(new ObjectMessage(ImmutableMap.of("Message","Requesting " + remaining + " instances in " + vmRegion.getName() + " with AMI=" + image)));
 
                 RunInstancesRequest.Builder runInstancesRequestTemplate = RunInstancesRequest.builder();
+                runInstancesRequestTemplate.metadataOptions(
+                        InstanceMetadataOptionsRequest.builder().httpTokens(HttpTokensState.REQUIRED).build());
                 Tenancy tenancy = StringUtils.isEmpty(instanceDescription.getTenancy()) ? Tenancy.DEFAULT : Tenancy.fromValue(instanceDescription.getTenancy());
                 runInstancesRequestTemplate.imageId(image)
                         .instanceType(instanceType.toString())
