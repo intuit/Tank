@@ -10,10 +10,12 @@ package com.intuit.tank.script.models;
 import jakarta.xml.bind.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+@Getter
 @Builder(setterPrefix = "with", toBuilder = true)
 @NoArgsConstructor  // makes JAXB happy, will never be invoked
 @AllArgsConstructor

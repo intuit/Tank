@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +29,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.rest.mvc.rest.clients.AgentClient;
+import com.intuit.tank.clients.AgentClient;
 import com.intuit.tank.harness.HostInfo;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentAvailabilityStatus;
@@ -56,7 +57,7 @@ public class StandaloneAgentStartup implements Runnable {
     public void run() {
         CommandListener.startHttpServer(CommandListener.PORT, this);
         agentClient = new AgentClient(controllerBase, token);
-        
+
         if (hostname != null) {
             instanceId = hostname;
         } else {
@@ -109,7 +110,11 @@ public class StandaloneAgentStartup implements Runnable {
             } catch (Exception e) {
                 LOG.error("Error in AgentStartup " + e, e);
                 currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.AVAILABLE);
-                sendAvailability();
+                try {
+                    sendAvailability();
+                } catch (JsonProcessingException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
         t.start();
@@ -148,7 +153,7 @@ public class StandaloneAgentStartup implements Runnable {
         t.start();
     }
 
-    private void sendAvailability() {
+    private void sendAvailability() throws JsonProcessingException {
         // create new availability as a copy of the original
         AgentAvailability availability = new AgentAvailability(currentAvailability.getInstanceId(),
                 currentAvailability.getInstanceUrl(), currentAvailability.getCapacity(),
