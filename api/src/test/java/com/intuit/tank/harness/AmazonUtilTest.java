@@ -7,6 +7,7 @@ import com.intuit.tank.vm.api.enumerated.VMRegion;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.util.Map;
 
@@ -90,6 +91,7 @@ public class AmazonUtilTest {
 	}
 
 	@Test
+	@DisabledIfEnvironmentVariable(named = "SKIP_GUI_TEST", matches = "true")
 	void testGetLoggingProfile_standalone() {
 		LoggingProfile loggingProfile = AmazonUtil.getLoggingProfile();
 		assertNotNull(loggingProfile);
