@@ -37,7 +37,6 @@ public class AmazonUtilTest {
 	}
 
 	@Test
-	@DisabledIfEnvironmentVariable(named = "SKIP_GUI_TEST", matches = "true")
 	void testGetVMRegion_standalone() {
 		VMRegion vmRegion = AmazonUtil.getVMRegion();
 		assertNotNull(vmRegion);
@@ -92,6 +91,7 @@ public class AmazonUtilTest {
 	}
 
 	@Test
+	@DisabledIfEnvironmentVariable(named = "SKIP_GUI_TEST", matches = "true")
 	void testGetLoggingProfile_standalone() {
 		LoggingProfile loggingProfile = AmazonUtil.getLoggingProfile();
 		assertNotNull(loggingProfile);
