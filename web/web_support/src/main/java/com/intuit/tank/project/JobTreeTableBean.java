@@ -258,6 +258,7 @@ public abstract class JobTreeTableBean implements Serializable {
 
     private void initChartModel() {
         LOG.info("Initializing user chart model...");
+        AWSXRay.beginSubsegment("Initialize User Chart Model");
         chartModel = null;
         if (currentJobInstance != null && currentJobInstance.getStatusDetailMap() != null) {
             chartModel = new TrackingCartesianChartModel();
@@ -285,16 +286,16 @@ public abstract class JobTreeTableBean implements Serializable {
             data.setLabels(labels);
             chartModel.setData(data);
             chartModel.setExtender("userDetailsExtender");
-            LOG.warn("TEST ChartModel: DataSetCount:(" + chartModel.getData().getDataSet().size() + ") First DataSet Count:" + ((LineChartDataSet)tpsChartModel.getData().getDataSet().get(0)).getData().size());
+            LOG.warn("TEST ChartModel: DataSetCount:(" + chartModel.getData().getDataSet().size() + ") First DataSet Count:" + ((LineChartDataSet)chartModel.getData().getDataSet().get(0)).getData().size());
         } else {
             LOG.info("currentJobInstance is null");
         }
-
+        AWSXRay.endSubsegment();
     }
 
     private void initializeTpsModel() {
         LOG.info("Initializing TPS chart model...");
-        AWSXRay.beginSubsegment("Initialize TpsModel");
+        AWSXRay.beginSubsegment("Initialize Tps Chart Model");
         tpsChartModel = null;
         if (currentJobInstance != null) {
             Set<String> keySet = new HashSet<String>();
