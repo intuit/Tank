@@ -134,8 +134,8 @@ public class DataFileClient extends BaseClient{
     }
 
     public String downloadDatafile(Integer datafileId) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(urlBuilder.buildUrl("/download", datafileId)))
+        HttpRequest request = requestBuilder("/download", datafileId)
+                .header("Accept", "application/octet-stream")
                 .GET()
                 .build();
 

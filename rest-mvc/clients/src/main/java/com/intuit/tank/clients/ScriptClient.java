@@ -135,8 +135,7 @@ public class ScriptClient extends BaseClient {
     }
 
     public String downloadScript(Integer scriptId) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(urlBuilder.buildUrl("/download", scriptId)))
+        HttpRequest request = requestBuilder("/download", scriptId)
                 .GET()
                 .build();
 
@@ -168,8 +167,7 @@ public class ScriptClient extends BaseClient {
     }
 
     public String downloadHarnessScript(Integer scriptId) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(urlBuilder.buildUrl("/harness/download", scriptId)))
+        HttpRequest request = requestBuilder("/harness/download", scriptId)
                 .GET()
                 .build();
 
@@ -200,7 +198,6 @@ public class ScriptClient extends BaseClient {
         return null;
     }
 
-    // TODO - update for script changes
     public Map<String, String> uploadScript(String name, Integer existingScriptId, Path filepath) throws IOException {
         URI uri;
 
@@ -350,8 +347,7 @@ public class ScriptClient extends BaseClient {
 
 
     public String downloadExternalScript(Integer externalScriptId) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(urlBuilder.buildUrl("/external/download", externalScriptId)))
+        HttpRequest request = requestBuilder("/external/download", externalScriptId)
                 .GET()
                 .build();
 

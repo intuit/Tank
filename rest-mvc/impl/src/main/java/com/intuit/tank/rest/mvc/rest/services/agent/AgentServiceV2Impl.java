@@ -191,11 +191,9 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     @Override
     public void setStandaloneAgentAvailability(AgentAvailability availability) {
         try {
-//            StandaloneAgentTracker tracker = new ServletInjector<StandaloneAgentTracker>().getManagedBean(servletContext, StandaloneAgentTracker.class);
-//            LOGGER.info("Adding agent availability: " + availability);
-//            tracker.addAvailability(availability);
-            LOGGER.info("Availability ID: " + availability.getInstanceId());
-            LOGGER.info("Availability Status: " + availability.getAvailabilityStatus());
+            StandaloneAgentTracker tracker = new ServletInjector<StandaloneAgentTracker>().getManagedBean(servletContext, StandaloneAgentTracker.class);
+            LOGGER.info("Adding agent availability: " + availability);
+            tracker.addAvailability(availability);
         } catch (Exception e) {
             LOGGER.error("Error setting agent availability: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("agent", "agent availability", e);
@@ -224,7 +222,6 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         segment.putAnnotation("TotalUsers", status.getTotalUsers());
         segment.putAnnotation("totalTps", status.getTotalTps());
         try {
-            LOGGER.info("Setting instance status: " + status + " for instance: " + instanceId);
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
                     servletContext, JobEventSender.class);
             controller.setVmStatus(instanceId, status);

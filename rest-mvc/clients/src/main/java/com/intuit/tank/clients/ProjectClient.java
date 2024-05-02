@@ -72,8 +72,7 @@ public class ProjectClient extends BaseClient{
     public Map<Integer, String> getProjectNames() throws IOException, InterruptedException {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(urlBuilder.buildUrl("/names")))
+        HttpRequest request = requestBuilder("/names")
                 .GET()
                 .build();
 
@@ -183,8 +182,7 @@ public class ProjectClient extends BaseClient{
     }
 
     public String downloadTestScriptForProject(Integer projectId) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(urlBuilder.buildUrl("/download", projectId)))
+        HttpRequest request = requestBuilder("/download", projectId)
                 .GET()
                 .build();
 

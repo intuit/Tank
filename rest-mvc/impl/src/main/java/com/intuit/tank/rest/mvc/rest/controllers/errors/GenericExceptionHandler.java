@@ -80,6 +80,11 @@ public class GenericExceptionHandler {
     }
 
     @ExceptionHandler
+    public SimpleErrorResponse handleClientException(ClientException e) {
+        return genericErrorResponse(HttpStatus.valueOf(e.getStatusCode()), e.getErrorMessage(), e);
+    }
+
+    @ExceptionHandler
     public SimpleErrorResponse handleOtherErrors(Throwable t) {
         LOGGER.error("handling an unexpected exception", t);
         return genericErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,
