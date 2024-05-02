@@ -285,15 +285,9 @@ public abstract class JobTreeTableBean implements Serializable {
             data.setLabels(labels);
             chartModel.setData(data);
             chartModel.setExtender("userDetailsExtender");
+            LOG.warn("TEST ChartModel: DataSetCount:" + chartModel.getData().getDataSet().size() + "First DataSet Count:" + chartModel.getData().getDataSet().get(0).toString());
         } else {
-            chartModel = new TrackingCartesianChartModel();
-            LineChartDataSet dataSet = new LineChartDataSet();
-            dataSet.setLabel("TEST");
-            dataSet.setData(List.of(10,20,30,20));
-            ChartData data = new ChartData();
-            data.addChartDataSet(dataSet);
-            data.setLabels(List.of("1", "2", "3", "4"));
-            chartModel.setData(data);
+            LOG.info("currentJobInstance is null");
         }
 
     }
@@ -352,10 +346,12 @@ public abstract class JobTreeTableBean implements Serializable {
                 dataSet.setData(totalSeries);
                 data.addChartDataSet(dataSet);
             }
+            data.setLabels(labels);
             tpsChartModel.setData(data);
             allTpsKeys = new ArrayList<String>(keySet);
             Collections.sort(allTpsKeys);
             allTpsKeys.add(0, TOTAL_TPS_SERIES_KEY);
+            LOG.warn("TEST ChartModel: DataSetCount:" + tpsChartModel.getData().getDataSet().size() + "First DataSet Count:" + tpsChartModel.getData().getDataSet().get(0).toString());
         } else {
             LOG.info("currentJobInstance is null");
         }
