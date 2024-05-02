@@ -285,7 +285,7 @@ public abstract class JobTreeTableBean implements Serializable {
             data.setLabels(labels);
             chartModel.setData(data);
             chartModel.setExtender("userDetailsExtender");
-            LOG.warn("TEST ChartModel: DataSetCount:" + chartModel.getData().getDataSet().size() + "First DataSet Count:" + chartModel.getData().getDataSet().get(0).toString());
+            LOG.warn("TEST ChartModel: DataSetCount:(" + chartModel.getData().getDataSet().size() + ") First DataSet Count:" + ((LineChartDataSet)tpsChartModel.getData().getDataSet().get(0)).getData().size());
         } else {
             LOG.info("currentJobInstance is null");
         }
@@ -351,7 +351,7 @@ public abstract class JobTreeTableBean implements Serializable {
             allTpsKeys = new ArrayList<String>(keySet);
             Collections.sort(allTpsKeys);
             allTpsKeys.add(0, TOTAL_TPS_SERIES_KEY);
-            LOG.warn("TEST ChartModel: DataSetCount:" + tpsChartModel.getData().getDataSet().size() + "First DataSet Count:" + tpsChartModel.getData().getDataSet().get(0).toString());
+            LOG.warn("TEST TPSChartModel: DataSetCount:(" + tpsChartModel.getData().getDataSet().size() + ") First DataSet Count:" + ((LineChartDataSet)tpsChartModel.getData().getDataSet().get(0)).getData().size());
         } else {
             LOG.info("currentJobInstance is null");
         }
