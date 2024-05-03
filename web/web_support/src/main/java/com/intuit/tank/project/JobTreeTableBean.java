@@ -63,6 +63,8 @@ import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.util.ExceptionHandler;
 import org.primefaces.model.charts.ChartData;
 import org.primefaces.model.charts.line.LineChartDataSet;
+import org.primefaces.model.charts.line.LineChartOptions;
+import org.primefaces.model.charts.optionconfig.title.Title;
 
 /**
  * JobTreeTableBean
@@ -266,7 +268,6 @@ public abstract class JobTreeTableBean implements Serializable {
                 for (UserDetail detail : detailMap.get(d)) {
                     List<Object> series = seriesMap.computeIfAbsent(detail.getScript(), k -> new ArrayList<>());
                     series.add(detail.getUsers());
-                    LOG.warn("Add Value: " + detail.getUsers() + " For Label: " + sdf.format(d));
                 }
                 labels.add(sdf.format(d));
                 chartModel.addDate(d);
@@ -276,25 +277,17 @@ public abstract class JobTreeTableBean implements Serializable {
                 LineChartDataSet dataSet = new LineChartDataSet();
                 dataSet.setLabel(entry.getKey());
                 dataSet.setData(entry.getValue());
-                LOG.warn("Add Label: " + entry.getKey() + " Contents: " + Arrays.toString(entry.getValue().toArray()));
                 data.addChartDataSet(dataSet);
             }
             data.setLabels(labels);
+            LineChartOptions options = new LineChartOptions();
+            Title title = new Title();
+            title.setDisplay(true);
+            title.setText("User Details over Time");
+            options.setTitle(title);
+            chartModel.setOptions(options);
             chartModel.setData(data);
-            chartModel.setExtender("userDetailsExtender");
         } else {
-            chartModel = new TrackingCartesianChartModel();
-            LineChartDataSet dataSet = new LineChartDataSet();
-            dataSet.setLabel("TEST");
-            dataSet.setData(List.of(10,20,30,25));
-            ChartData testData = new ChartData();
-            testData.addChartDataSet(dataSet);
-            testData.setLabels(List.of(
-                    sdf.format(new Date()),
-                    sdf.format(DateUtils.addMinutes(new Date(), 1 )),
-                    sdf.format(DateUtils.addMinutes(new Date(), 2 )),
-                    sdf.format(DateUtils.addMinutes(new Date(), 3 ))));
-            chartModel.setData(testData);
             LOG.info("currentJobInstance is null");
         }
         AWSXRay.endSubsegment();
