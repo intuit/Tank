@@ -17,6 +17,7 @@ package com.intuit.tank.project;
  */
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -83,6 +84,7 @@ public abstract class JobTreeTableBean implements Serializable {
     private static final String TOTAL_TPS_SERIES_KEY = "Total TPS";
     private static final long serialVersionUID = 1L;
     private static final String DEFAULT_TIME_ZONE = "America/Los_Angeles";
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("kk:mm:ss");
 
     private static final int MIN_REFRESH = 10;
     private static final int INITIAL_SIZE = 10;
@@ -273,7 +275,7 @@ public abstract class JobTreeTableBean implements Serializable {
                     List<Object> series = seriesMap.computeIfAbsent(detail.getScript(), k -> new ArrayList<>());
                     series.add(detail.getUsers());
                 }
-                labels.add(d.toString());
+                labels.add(sdf.format(d));
                 chartModel.addDate(d);
             }
             ChartData data = new ChartData();
@@ -286,8 +288,15 @@ public abstract class JobTreeTableBean implements Serializable {
             data.setLabels(labels);
             chartModel.setData(data);
             chartModel.setExtender("userDetailsExtender");
-            LOG.warn("TEST ChartModel: LineChartDataSet Count:" + ((LineChartDataSet)chartModel.getData().getDataSet().get(0)).getData().size() + " LineChartDataSet First<Number>:" + ((LineChartDataSet)chartModel.getData().getDataSet().get(0)).getData().get(0).toString());
         } else {
+            chartModel = new TrackingCartesianChartModel();
+            LineChartDataSet dataSet = new LineChartDataSet();
+            dataSet.setLabel("TEST");
+            dataSet.setData(List.of(10,20,30,20));
+            ChartData testData = new ChartData();
+            testData.addChartDataSet(dataSet);
+            testData.setLabels(List.of("6:1", "6:2", "6:3", "6:4"));
+            chartModel.setData(testData);
             LOG.info("currentJobInstance is null");
         }
         AWSXRay.endSubsegment();
@@ -331,7 +340,7 @@ public abstract class JobTreeTableBean implements Serializable {
                     total += info.getTPS();
                 }
                 totalSeries.add(total);
-                labels.add(d.toString());
+                labels.add(sdf.format(d));
                 tpsChartModel.addDate(d);
             }
             ChartData data = new ChartData();
@@ -352,7 +361,6 @@ public abstract class JobTreeTableBean implements Serializable {
             allTpsKeys = new ArrayList<String>(keySet);
             Collections.sort(allTpsKeys);
             allTpsKeys.add(0, TOTAL_TPS_SERIES_KEY);
-            LOG.warn("TEST TPSChartModel: LineChartDataSet Count:" + ((LineChartDataSet)tpsChartModel.getData().getDataSet().get(0)).getData().size() + " LineChartDataSet First<Number>:" + ((LineChartDataSet)tpsChartModel.getData().getDataSet().get(0)).getData().get(0).toString());
         } else {
             LOG.info("currentJobInstance is null");
         }
