@@ -15,13 +15,28 @@ package com.intuit.tank.project;
 
 import java.util.Date;
 
+import org.primefaces.model.charts.axes.cartesian.CartesianScales;
+import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearAxes;
 import org.primefaces.model.charts.line.LineChartModel;
+import org.primefaces.model.charts.line.LineChartOptions;
 
 public class TrackingCartesianChartModel extends LineChartModel {
 
     private static final long serialVersionUID = 1L;
     private Date minDate;
     private Date maxDate;
+
+    TrackingCartesianChartModel() {
+        super();
+        LineChartOptions options = new LineChartOptions();
+        CartesianScales cScales = new CartesianScales();
+        CartesianLinearAxes linearAxes = new CartesianLinearAxes();
+        linearAxes.setBeginAtZero(true);
+        linearAxes.setPosition("left");
+        cScales.addYAxesData(linearAxes);
+        options.setScales(cScales);
+        this.setOptions(options);
+    }
 
     /**
      * @return the minDate
