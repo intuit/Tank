@@ -286,7 +286,7 @@ public abstract class JobTreeTableBean implements Serializable {
             data.setLabels(labels);
             chartModel.setData(data);
             chartModel.setExtender("userDetailsExtender");
-            LOG.warn("TEST ChartModel: DataSetCount:(" + chartModel.getData().getDataSet().size() + ") First DataSet Count:" + ((LineChartDataSet)chartModel.getData().getDataSet().get(0)).getData().size());
+            LOG.warn("TEST ChartModel: LineChartDataSet Count:" + ((LineChartDataSet)chartModel.getData().getDataSet().get(0)).getData().size() + " LineChartDataSet First<Number>:" + ((LineChartDataSet)chartModel.getData().getDataSet().get(0)).getData().get(0).toString());
         } else {
             LOG.info("currentJobInstance is null");
         }
@@ -352,7 +352,7 @@ public abstract class JobTreeTableBean implements Serializable {
             allTpsKeys = new ArrayList<String>(keySet);
             Collections.sort(allTpsKeys);
             allTpsKeys.add(0, TOTAL_TPS_SERIES_KEY);
-            LOG.warn("TEST TPSChartModel: DataSetCount:(" + tpsChartModel.getData().getDataSet().size() + ") First DataSet Count:" + ((LineChartDataSet)tpsChartModel.getData().getDataSet().get(0)).getData().size());
+            LOG.warn("TEST TPSChartModel: LineChartDataSet Count:" + ((LineChartDataSet)tpsChartModel.getData().getDataSet().get(0)).getData().size() + " LineChartDataSet First<Number>:" + ((LineChartDataSet)tpsChartModel.getData().getDataSet().get(0)).getData().get(0).toString());
         } else {
             LOG.info("currentJobInstance is null");
         }
