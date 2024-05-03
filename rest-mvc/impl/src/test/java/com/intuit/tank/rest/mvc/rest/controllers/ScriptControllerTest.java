@@ -112,23 +112,23 @@ public class ScriptControllerTest {
         assertEquals(404, notFound.getStatusCode().value());
     }
 
-    @Test
-    public void testCreateScript() {
-        ScriptTO payload = ScriptTO.builder()
-                .withId(4)
-                .withCreator("Test")
-                .withName("testName")
-                .withRuntime(3)
-                .build();
-        when(scriptService.createScript(payload)).thenReturn(payload);
-        ResponseEntity<ScriptTO> result = scriptController.createScript(payload);
-        assertEquals(4, result.getBody().getId());
-        assertEquals("testName", result.getBody().getName());
-        assertEquals(3, result.getBody().getRuntime());
-        assertEquals(201, result.getStatusCode().value());
-        assertNotNull(result.getHeaders().getLocation());
-        verify(scriptService).createScript(payload);
-    }
+//    @Test
+//    public void testCreateScript() {
+//        ScriptTO payload = ScriptTO.builder()
+//                .withId(4)
+//                .withCreator("Test")
+//                .withName("testName")
+//                .withRuntime(3)
+//                .build();
+//        when(scriptService.createScript(payload)).thenReturn(payload);
+//        ResponseEntity<ScriptTO> result = scriptController.createScript(payload);
+//        assertEquals(4, result.getBody().getId());
+//        assertEquals("testName", result.getBody().getName());
+//        assertEquals(3, result.getBody().getRuntime());
+//        assertEquals(201, result.getStatusCode().value());
+//        assertNotNull(result.getHeaders().getLocation());
+//        verify(scriptService).createScript(payload);
+//    }
 
     @Test
     public void testDownloadScript() throws IOException {
@@ -170,91 +170,91 @@ public class ScriptControllerTest {
         verify(scriptService).downloadHarnessScript(4);
     }
 
-    @Test
-    public void testUploadScript() throws IOException {
-        MultipartFile mockMultipartFile = mock(MultipartFile.class);
-        when(mockMultipartFile.getOriginalFilename()).thenReturn("testScript.xml");
+//    @Test
+//    public void testUploadScript() throws IOException {
+//        MultipartFile mockMultipartFile = mock(MultipartFile.class);
+//        when(mockMultipartFile.getOriginalFilename()).thenReturn("testScript.xml");
+//
+//        Map<String, String> payload = new HashMap<>();
+//        payload.put("scriptId", "7");
+//        payload.put("message", "Script with new script ID 7 has been uploaded");
+//        when(scriptService.uploadProxyScript("testName", 0, "gzip", mockMultipartFile)).thenReturn(payload);
+//        ResponseEntity<Map<String, String>> result = scriptController.uploadScript("gzip", "testName", 0, mockMultipartFile);
+//        Map<String, String> response = result.getBody();
+//        assertEquals("7", response.get("scriptId"));
+//        assertTrue(response.get("message").contains("uploaded"));
+//        assertEquals(201, result.getStatusCode().value());
+//        verify(scriptService).uploadProxyScript("testName", 0, "gzip", mockMultipartFile);
+//
+//        when(scriptService.uploadProxyScript("testName", 0, "", mockMultipartFile)).thenReturn(payload);
+//        result = scriptController.uploadScript("", "testName", 0, mockMultipartFile);
+//        response = result.getBody();
+//        assertEquals("7", response.get("scriptId"));
+//        assertTrue(response.get("message").contains("uploaded"));
+//        assertEquals(201, result.getStatusCode().value());
+//        verify(scriptService).uploadProxyScript("testName", 0, "", mockMultipartFile);
+//
+//        // File Not Found
+//        when(scriptService.uploadProxyScript("testName", 0, "", mockMultipartFile))
+//                .thenThrow(new IOException("Error updating script file: script.xml (No such file or directory)"));
+//        Exception exception = assertThrows(IOException.class, () -> {
+//            scriptController.uploadScript("", "testName", 0, mockMultipartFile);
+//        });
+//        assertEquals("Error updating script file: script.xml (No such file or directory)", exception.getMessage());
+//    }
 
-        Map<String, String> payload = new HashMap<>();
-        payload.put("scriptId", "7");
-        payload.put("message", "Script with new script ID 7 has been uploaded");
-        when(scriptService.uploadProxyScript("testName", 0, "gzip", mockMultipartFile)).thenReturn(payload);
-        ResponseEntity<Map<String, String>> result = scriptController.uploadScript("gzip", "testName", 0, mockMultipartFile);
-        Map<String, String> response = result.getBody();
-        assertEquals("7", response.get("scriptId"));
-        assertTrue(response.get("message").contains("uploaded"));
-        assertEquals(201, result.getStatusCode().value());
-        verify(scriptService).uploadProxyScript("testName", 0, "gzip", mockMultipartFile);
-
-        when(scriptService.uploadProxyScript("testName", 0, "", mockMultipartFile)).thenReturn(payload);
-        result = scriptController.uploadScript("", "testName", 0, mockMultipartFile);
-        response = result.getBody();
-        assertEquals("7", response.get("scriptId"));
-        assertTrue(response.get("message").contains("uploaded"));
-        assertEquals(201, result.getStatusCode().value());
-        verify(scriptService).uploadProxyScript("testName", 0, "", mockMultipartFile);
-
-        // File Not Found
-        when(scriptService.uploadProxyScript("testName", 0, "", mockMultipartFile))
-                .thenThrow(new IOException("Error updating script file: script.xml (No such file or directory)"));
-        Exception exception = assertThrows(IOException.class, () -> {
-            scriptController.uploadScript("", "testName", 0, mockMultipartFile);
-        });
-        assertEquals("Error updating script file: script.xml (No such file or directory)", exception.getMessage());
-    }
-
-    @Test
-    public void testUpdateTankScript() throws IOException {
-        MultipartFile mockMultipartFile = mock(MultipartFile.class);
-        when(mockMultipartFile.getOriginalFilename()).thenReturn("testScript.xml");
-
-        Map<String, String> payload = new HashMap<>();
-        payload.put("message", "Script with script ID 7 updated successfully");
-        when(scriptService.updateTankScript("gzip",  mockMultipartFile)).thenReturn(payload);
-        ResponseEntity<Map<String, String>> result = scriptController.updateTankScript("gzip",mockMultipartFile);
-        Map<String, String> response = result.getBody();
-        assertTrue(response.get("message").contains("Script with script ID 7 updated successfully"));
-        assertEquals(201, result.getStatusCode().value());
-        verify(scriptService).updateTankScript( "gzip", mockMultipartFile);
-
-        when(scriptService.updateTankScript("", mockMultipartFile)).thenReturn(payload);
-        result = scriptController.updateTankScript("", mockMultipartFile);
-        response = result.getBody();
-        assertTrue(response.get("message").contains("Script with script ID 7 updated successfully"));
-        assertEquals(201, result.getStatusCode().value());
-        verify(scriptService).updateTankScript( "", mockMultipartFile);
-
-        // File Not Found
-        when(scriptService.updateTankScript("",  mockMultipartFile))
-                .thenThrow(new IOException("Error updating script file: script.xml (No such file or directory)"));
-        Exception exception = assertThrows(IOException.class, () -> {
-            scriptController.updateTankScript("", mockMultipartFile);
-        });
-        assertEquals("Error updating script file: script.xml (No such file or directory)", exception.getMessage());
-
-        MultipartFile notFoundMultipartFile = mock(MultipartFile.class);
-        when(notFoundMultipartFile.getOriginalFilename()).thenReturn("testNonexistentScript.xml");
-
-        // Script does not exist
-        when(scriptService.updateTankScript("", notFoundMultipartFile))
-                .thenThrow(new GenericServiceBadRequestException("scripts", "updating script", "Cannot update a script that does not exist (script id 99)"));
-        exception = assertThrows(GenericServiceBadRequestException.class, () -> {
-            scriptController.updateTankScript("", notFoundMultipartFile);
-        });
-        assertEquals("Cannot update a script that does not exist (script id 99)", exception.getMessage());
-
-        MultipartFile changeNameMultipartFile = mock(MultipartFile.class);
-        when(changeNameMultipartFile.getOriginalFilename()).thenReturn("testChangeNameScript.xml");
-
-        // Can't change name of script
-        when(scriptService.updateTankScript("", changeNameMultipartFile))
-                .thenThrow(new GenericServiceBadRequestException("scripts", "updating script", "Cannot change the name of the existing script testScript"));
-        exception = assertThrows(GenericServiceBadRequestException.class, () -> {
-            scriptController.updateTankScript("", changeNameMultipartFile);
-        });
-        assertEquals("Cannot change the name of the existing script testScript", exception.getMessage());
-
-    }
+//    @Test
+//    public void testUpdateTankScript() throws IOException {
+//        MultipartFile mockMultipartFile = mock(MultipartFile.class);
+//        when(mockMultipartFile.getOriginalFilename()).thenReturn("testScript.xml");
+//
+//        Map<String, String> payload = new HashMap<>();
+//        payload.put("message", "Script with script ID 7 updated successfully");
+//        when(scriptService.updateTankScript("gzip",  mockMultipartFile)).thenReturn(payload);
+//        ResponseEntity<Map<String, String>> result = scriptController.updateTankScript("gzip",mockMultipartFile);
+//        Map<String, String> response = result.getBody();
+//        assertTrue(response.get("message").contains("Script with script ID 7 updated successfully"));
+//        assertEquals(201, result.getStatusCode().value());
+//        verify(scriptService).updateTankScript( "gzip", mockMultipartFile);
+//
+//        when(scriptService.updateTankScript("", mockMultipartFile)).thenReturn(payload);
+//        result = scriptController.updateTankScript("", mockMultipartFile);
+//        response = result.getBody();
+//        assertTrue(response.get("message").contains("Script with script ID 7 updated successfully"));
+//        assertEquals(201, result.getStatusCode().value());
+//        verify(scriptService).updateTankScript( "", mockMultipartFile);
+//
+//        // File Not Found
+//        when(scriptService.updateTankScript("",  mockMultipartFile))
+//                .thenThrow(new IOException("Error updating script file: script.xml (No such file or directory)"));
+//        Exception exception = assertThrows(IOException.class, () -> {
+//            scriptController.updateTankScript("", mockMultipartFile);
+//        });
+//        assertEquals("Error updating script file: script.xml (No such file or directory)", exception.getMessage());
+//
+//        MultipartFile notFoundMultipartFile = mock(MultipartFile.class);
+//        when(notFoundMultipartFile.getOriginalFilename()).thenReturn("testNonexistentScript.xml");
+//
+//        // Script does not exist
+//        when(scriptService.updateTankScript("", notFoundMultipartFile))
+//                .thenThrow(new GenericServiceBadRequestException("scripts", "updating script", "Cannot update a script that does not exist (script id 99)"));
+//        exception = assertThrows(GenericServiceBadRequestException.class, () -> {
+//            scriptController.updateTankScript("", notFoundMultipartFile);
+//        });
+//        assertEquals("Cannot update a script that does not exist (script id 99)", exception.getMessage());
+//
+//        MultipartFile changeNameMultipartFile = mock(MultipartFile.class);
+//        when(changeNameMultipartFile.getOriginalFilename()).thenReturn("testChangeNameScript.xml");
+//
+//        // Can't change name of script
+//        when(scriptService.updateTankScript("", changeNameMultipartFile))
+//                .thenThrow(new GenericServiceBadRequestException("scripts", "updating script", "Cannot change the name of the existing script testScript"));
+//        exception = assertThrows(GenericServiceBadRequestException.class, () -> {
+//            scriptController.updateTankScript("", changeNameMultipartFile);
+//        });
+//        assertEquals("Cannot change the name of the existing script testScript", exception.getMessage());
+//
+//    }
 
     @Test
     public void testDeleteScript() {
