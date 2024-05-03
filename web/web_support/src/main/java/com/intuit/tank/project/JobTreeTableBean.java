@@ -257,26 +257,23 @@ public abstract class JobTreeTableBean implements Serializable {
         chartModel = null;
         if (currentJobInstance != null && currentJobInstance.getStatusDetailMap() != null) {
             chartModel = new TrackingCartesianChartModel();
-
             Map<String, List<Object>> seriesMap = new HashMap<>();
             List<String> labels = new ArrayList<>();
             Map<Date, List<UserDetail>> detailMap = currentJobInstance.getStatusDetailMap();
-            List<Date> dateList = new ArrayList<Date>(detailMap.keySet());
-            Collections.sort(dateList);
-            for (Date d : dateList) {
-                for (UserDetail detail : detailMap.get(d)) {
-                    List<Object> series = seriesMap.computeIfAbsent(detail.getScript(), k -> new ArrayList<>());
-                    series.add(detail.getUsers());
-                }
-                labels.add(sdf.format(d));
-                chartModel.addDate(d);
-            }
+            detailMap.entrySet().stream().sorted().forEachOrdered(dateListEntry -> {
+                labels.add(sdf.format(dateListEntry.getKey()));
+                chartModel.addDate(dateListEntry.getKey());
+                dateListEntry.getValue().forEach(userDetail -> {
+                    List<Object> series = seriesMap.computeIfAbsent(userDetail.getScript(), k -> new ArrayList<>());
+                    series.add(userDetail.getUsers());
+                });
+            });
             ChartData data = new ChartData();
             for ( Map.Entry<String, List<Object>> entry : seriesMap.entrySet()) {
                 LineChartDataSet dataSet = new LineChartDataSet();
                 dataSet.setLabel(entry.getKey());
                 dataSet.setData(entry.getValue());
-                dataSet.setTension(0.5);
+                dataSet.setTension(0.25);
                 data.addChartDataSet(dataSet);
             }
             data.setLabels(labels);
@@ -288,19 +285,6 @@ public abstract class JobTreeTableBean implements Serializable {
             chartModel.setOptions(options);
             chartModel.setData(data);
         } else {
-            chartModel = new TrackingCartesianChartModel();
-            LineChartDataSet dataSet = new LineChartDataSet();
-            dataSet.setLabel("TEST");
-            dataSet.setData(List.of(10,20,30,25));
-            dataSet.setTension(0.5);
-            ChartData testData = new ChartData();
-            testData.addChartDataSet(dataSet);
-            testData.setLabels(List.of(
-                    sdf.format(new Date()),
-                    sdf.format(DateUtils.addMinutes(new Date(), 1 )),
-                    sdf.format(DateUtils.addMinutes(new Date(), 2 )),
-                    sdf.format(DateUtils.addMinutes(new Date(), 3 ))));
-            chartModel.setData(testData);
             LOG.info("currentJobInstance is null");
         }
         AWSXRay.endSubsegment();
@@ -351,14 +335,14 @@ public abstract class JobTreeTableBean implements Serializable {
                 LineChartDataSet dataSet = new LineChartDataSet();
                 dataSet.setLabel(entry.getKey());
                 dataSet.setData(entry.getValue());
-                dataSet.setTension(0.5);
+                dataSet.setTension(0.25);
                 data.addChartDataSet(dataSet);
             }
             if (list.contains(TOTAL_TPS_SERIES_KEY) && !totalSeries.isEmpty()) {
                 LineChartDataSet dataSet = new LineChartDataSet();
                 dataSet.setLabel(TOTAL_TPS_SERIES_KEY);
                 dataSet.setData(totalSeries);
-                dataSet.setTension(0.5);
+                dataSet.setTension(0.25);
                 data.addChartDataSet(dataSet);
             }
             data.setLabels(labels);
