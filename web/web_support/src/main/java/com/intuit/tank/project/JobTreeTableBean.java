@@ -18,15 +18,7 @@ package com.intuit.tank.project;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import jakarta.annotation.Nonnull;
@@ -274,6 +266,7 @@ public abstract class JobTreeTableBean implements Serializable {
                 for (UserDetail detail : detailMap.get(d)) {
                     List<Object> series = seriesMap.computeIfAbsent(detail.getScript(), k -> new ArrayList<>());
                     series.add(detail.getUsers());
+                    LOG.warn("Add Value: " + detail.getUsers() + " For Label: " + sdf.format(d));
                 }
                 labels.add(sdf.format(d));
                 chartModel.addDate(d);
@@ -283,6 +276,7 @@ public abstract class JobTreeTableBean implements Serializable {
                 LineChartDataSet dataSet = new LineChartDataSet();
                 dataSet.setLabel(entry.getKey());
                 dataSet.setData(entry.getValue());
+                LOG.warn("Add Label: " + entry.getKey() + " Contents: " + Arrays.toString(entry.getValue().toArray()));
                 data.addChartDataSet(dataSet);
             }
             data.setLabels(labels);
@@ -292,10 +286,14 @@ public abstract class JobTreeTableBean implements Serializable {
             chartModel = new TrackingCartesianChartModel();
             LineChartDataSet dataSet = new LineChartDataSet();
             dataSet.setLabel("TEST");
-            dataSet.setData(List.of(10,20,30,20));
+            dataSet.setData(List.of(10,20,30,25));
             ChartData testData = new ChartData();
             testData.addChartDataSet(dataSet);
-            testData.setLabels(List.of("6:1", "6:2", "6:3", "6:4"));
+            testData.setLabels(List.of(
+                    sdf.format(new Date()),
+                    sdf.format(DateUtils.addMinutes(new Date(), 1 )),
+                    sdf.format(DateUtils.addMinutes(new Date(), 2 )),
+                    sdf.format(DateUtils.addMinutes(new Date(), 3 ))));
             chartModel.setData(testData);
             LOG.info("currentJobInstance is null");
         }
