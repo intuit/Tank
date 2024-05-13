@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Default")
 public class DefaultController {
 
-
     @GetMapping(value ="/v2/ping",  produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Pings Tank V2 API default service", summary = "Check if Tank V2 API is up")
     @ApiResponses(value = {
