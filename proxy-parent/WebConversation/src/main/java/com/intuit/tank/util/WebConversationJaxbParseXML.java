@@ -40,9 +40,12 @@ public class WebConversationJaxbParseXML {
      */
     public List<Transaction> parse(Reader reader) throws WatsParseException {
         try {
-            XMLInputFactory xmlif = XMLInputFactory.newInstance();
-            XMLEventReader xmler = xmlif.createXMLEventReader(reader);
-            return parse(xmlif, xmler);
+            //Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
+            XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+            // This disables DTDs entirely for that factory
+            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+            XMLEventReader xmler = xmlInputFactory.createXMLEventReader(reader);
+            return parse(xmlInputFactory, xmler);
         } catch (Exception e) {
             throw ParseExceptionConverter.handleException(e);
         }
