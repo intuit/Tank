@@ -16,7 +16,9 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.Singular;
 
 /**
@@ -26,6 +28,8 @@ import lombok.Singular;
  * 
  */
 @Builder(setterPrefix = "with")
+@NoArgsConstructor
+@AllArgsConstructor
 @XmlRootElement(name = "ExternalScriptContainer", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ExternalScriptContainer", namespace = Namespace.NAMESPACE_V1, propOrder = {

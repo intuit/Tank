@@ -8,12 +8,16 @@
 package com.intuit.tank.script.models;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
 
 @Builder(setterPrefix = "with")
+@NoArgsConstructor
+@AllArgsConstructor
 @XmlRootElement(name = "externalScript", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ExternalScriptTO", namespace = Namespace.NAMESPACE_V1, propOrder = {
