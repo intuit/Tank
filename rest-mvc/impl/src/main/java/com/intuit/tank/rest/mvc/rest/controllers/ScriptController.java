@@ -86,19 +86,21 @@ public class ScriptController {
         return ResponseEntity.notFound().build();
     }
 
-    @RequestMapping(method = RequestMethod.POST, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @RequestMapping(method = RequestMethod.POST)
     @Operation(description = "Creates a new Tank script through either script file upload or copying an existing script. \n\n " +
             "Tank Script Upload (default): \n\n" +
-            "        curl -v -X POST -H 'Content-Type: multipart/form-data' -F \"file=@<filename>\" 'https://{tank-base-url}/v2/scripts' \n\n" +
+            "        curl -v -X POST -H \"Authorization: Bearer <token>\" -F \"file=@<filename>\" 'https://{tank-base-url}/v2/scripts' \n\n" +
             "\n\n" +
             "        gzip <filename>\n\n" +
-            "        curl -v -X POST -H 'Content-Type: multipart/form-data' -H 'Content-Encoding: gzip' -F \"file=@<filename>.gz\" 'https://{tank-base-url}/v2/scripts'\n\n" +
+            "        curl -v -X POST -H \"Authorization: Bearer <token>\" -H 'Content-Encoding: gzip' -F \"file=@<filename>.gz\" 'https://{tank-base-url}/v2/scripts'\n\n" +
             "\n\n" +
             "Tank Proxy Recording Upload: \n\n" +
-            "        curl -v -X POST -H 'Content-Type: multipart/form-data' -F \"file=@<filename>\" 'https://{tank-base-url}/v2/scripts?recording?id=<scriptId>&name=<script-name>' \n\n" +
+            "        curl -v -X POST -H \"Authorization: Bearer <token>\" -F \"file=@<filename>\" 'https://{tank-base-url}/v2/scripts?recording&id=<scriptId>&name=<script-name>' \n\n" +
             "\n\n" +
+            "        gzip <filename>\n\n" +
+            "        curl -v -X POST -H \"Authorization: Bearer <token>\" -H 'Content-Encoding: gzip' -F \"file=@<filename>.gz\" 'https://{tank-base-url}/v2/scripts?recording&id=<scriptId>&name=<script-name>' \n\n" +
             "Creating a copy of an existing script: \n\n" +
-            "        curl -v -X POST -H 'https://{tank-base-url}/v2/scripts?copy&source=<scriptId>&name=<script-name>' \n\n" +
+            "        curl -v -X POST -H \"Authorization: Bearer <token>\" 'https://{tank-base-url}/v2/scripts?copy&sourceId=<scriptId>&name=<script-name>' \n\n" +
             "Notes: \n\n " +
             " - **Tank Script Upload**: Only accepts Tank script XML files for an existing Tank script to update. The script ID and script name defined in the first few lines of script XML file should match an existing script entry in Tank to update that script, but setting the script ID to 0 will create a new script with any name.\n\n" +
             " - **Tank Proxy Recording Upload**: Only accepts the XML script file recorded and produced by the Tank Proxy Package (see Tools tab in Tank), setting id to an existing scriptId will overwrite that script, both scriptId and name parameters are optional \n\n " +
@@ -111,7 +113,7 @@ public class ScriptController {
     public ResponseEntity<Map<String, String>> createScript(@RequestHeader(value = HttpHeaders.CONTENT_ENCODING, required = false) @Parameter(description = "Content-Encoding", required = false) String contentEncoding,
                                                  @RequestParam(required = false) @Parameter(description = "Script Name", required = false) String name,
                                                  @RequestParam(required = false) @Parameter(description = "Existing Script ID to overwrite (optional)", required = false) Integer id,
-                                                 @RequestParam(required = false) @Parameter(description = "Enables Tank Proxy Recording file upload mode", required = false) String recording,
+                                                 @RequestParam(name = "recording", required = false) @Parameter(description = "Enables Tank Proxy Recording file upload mode", required = false) String recording,
                                                  @RequestParam(required = false) @Parameter(description = "Enables copying from existing Tank Script", required = false) String copy,
                                                  @RequestParam(required = false) @Parameter(description = "Source ScriptId to copy from", required = false) Integer sourceId,
                                                  @RequestParam(value = "file", required = false) @Parameter(schema = @Schema(type = "string", format = "binary", description = "Script file")) MultipartFile file) throws IOException{

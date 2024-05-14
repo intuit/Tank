@@ -90,7 +90,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                             "System"
                             , name, script);
                     copyScript = new ScriptDao().saveOrUpdate(copyScript);
-                    payload.put("message", "Script " + copyScript.getName() + " with script ID " + copyScript.getId() + " created successfully (copied from script " + script.getName());
+                    payload.put("message", "Script " + copyScript.getName() + " with script ID " + copyScript.getId() + " created successfully (copied from script ID " + sourceId + " - " + script.getName());
                 } else {
                     throw new IllegalArgumentException("Source script cannot be found");
                 }

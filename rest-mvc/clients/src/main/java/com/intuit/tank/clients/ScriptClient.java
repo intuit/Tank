@@ -103,37 +103,6 @@ public class ScriptClient extends BaseClient {
         return null;
     }
 
-
-    public ScriptTO createScript(ScriptTO scriptTo) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String requestBody;
-
-        try {
-            requestBody = objectMapper.writeValueAsString(scriptTo);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Failed to serialize JSON object: ", e);
-        }
-
-        HttpRequest request = requestBuilder("")
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if(checkStatusCode(response.statusCode())) {
-                return objectMapper.readValue(response.body(), ScriptTO.class);
-            } else {
-                throw new ClientException(response.body(), response.statusCode());
-            }
-        } catch (InterruptedException | IOException e2) {
-            handleError(request, e2);
-        }
-        return null;
-    }
-
     public String downloadScript(Integer scriptId) {
         HttpRequest request = requestBuilder("/download", scriptId)
                 .GET()
@@ -195,48 +164,6 @@ public class ScriptClient extends BaseClient {
         } catch (Exception e) {
             handleError(request, e);
         }
-        return null;
-    }
-
-    public Map<String, String> uploadScript(String name, Integer existingScriptId, Path filepath) throws IOException {
-        URI uri;
-
-        if(existingScriptId == null) {
-            uri = URI.create(urlBuilder.buildUrl("/upload"));
-        } else {
-            uri = URI.create(urlBuilder.buildUrl("/upload") + "?id=" + existingScriptId);
-        }
-
-        String boundary = "Boundary-" + Long.toHexString(System.currentTimeMillis());
-
-        var byteArrays = new ArrayList<byte[]>();
-        byteArrays.add(("--" + boundary + "\r\nContent-Disposition: form-data; name=\"file\"; filename=\"" + filepath.getFileName() + "\"\r\nContent-Type: application/octet-stream\r\n\r\n").getBytes(StandardCharsets.UTF_8));
-        byteArrays.add(Files.readAllBytes(filepath));
-        byteArrays.add(("\r\n--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8));
-
-        HttpRequest.BodyPublisher bodyPublishers = HttpRequest.BodyPublishers.ofByteArrays(byteArrays);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
-                .header("Authorization", "Bearer " + token)
-                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
-                .POST(bodyPublishers)
-                .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if(checkStatusCode(response.statusCode())) {
-                return new ObjectMapper().readValue(response.body(), Map.class);
-            } else {
-                throw new ClientException(response.body(), response.statusCode());
-            }
-        } catch (ClientException e1) {
-            throw e1;
-        } catch (Exception e2) {
-            handleError(request, e2);
-        }
-
         return null;
     }
 
