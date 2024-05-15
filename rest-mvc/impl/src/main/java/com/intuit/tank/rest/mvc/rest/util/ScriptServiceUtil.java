@@ -252,7 +252,7 @@ public class ScriptServiceUtil {
         if(data != null) {
             return data.stream().map(com.intuit.tank.script.util.ScriptServiceUtil::transferObjectToRequestData).collect(Collectors.toSet());
         }
-        return Set.of();
+        return new HashSet<RequestData>();
     }
 
     /**

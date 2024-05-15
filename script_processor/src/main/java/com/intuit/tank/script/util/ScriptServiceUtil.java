@@ -289,7 +289,7 @@ public class ScriptServiceUtil {
         if(data != null) {
             return data.stream().map(ScriptServiceUtil::transferObjectToRequestData).collect(Collectors.toSet());
         }
-        return Set.of();
+        return new HashSet<RequestData>();
     }
 
     /**
