@@ -49,10 +49,10 @@ import org.fife.ui.rsyntaxtextarea.SquiggleUnderlineHighlightPainter;
 import org.fife.ui.rtextarea.GutterIconInfo;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
-import com.intuit.tank.rest.mvc.rest.models.projects.KeyPair;
-import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
-import com.intuit.tank.rest.mvc.rest.clients.DataFileClient;
+import com.intuit.tank.datafiles.models.DataFileDescriptor;
+import com.intuit.tank.projects.models.KeyPair;
+import com.intuit.tank.projects.models.ProjectTO;
+import com.intuit.tank.clients.DataFileClient;
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.TestPlanSingleton;
 import com.intuit.tank.harness.data.HDScript;

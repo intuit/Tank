@@ -8,11 +8,17 @@
 package com.intuit.tank.script.models;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
 
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder(setterPrefix = "with")
 @XmlRootElement(name = "scriptDescriptions", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
