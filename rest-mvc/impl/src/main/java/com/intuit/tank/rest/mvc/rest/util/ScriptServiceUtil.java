@@ -249,7 +249,10 @@ public class ScriptServiceUtil {
      * @return
      */
     private static Set<RequestData> convertDataTO(Set<StepDataTO> data) {
-        return data.stream().map(ScriptServiceUtil::transferObjectToRequestData).collect(Collectors.toSet());
+        if(data != null) {
+            return data.stream().map(com.intuit.tank.script.util.ScriptServiceUtil::transferObjectToRequestData).collect(Collectors.toSet());
+        }
+        return new HashSet<RequestData>();
     }
 
     /**

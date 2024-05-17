@@ -32,17 +32,36 @@ public interface ScriptServiceV2 {
     public String ping();
 
     /**
-     * Creates a new script
+     * Creates a new Tank script through script file upload or creates a copy from existing script
      *
-     * @param scriptTo
-     *       script JSON request payload
+     * @param name
+     *            name to assign to new or updated Tank script
+     *
+     * @param id
+     *            existing script's scriptID to overwrite with new script content
+     *
+     * @param recording
+     *           set for uploading Tank Proxy recording file (defaults to uploading Tank XML script if not passed)
+     *
+     * @param copy
+     *           set for copying from an existing script
+     *
+     * @param sourceId
+     *           the scriptId of the source script to copy from
+     *
+     * @param contentEncoding
+     *            content encoding of file (checks for gzip file)
+     *
+     * @param file
+     *            script XML file to be uploaded
      *
      * @throws GenericServiceCreateOrUpdateException
-     *         if there are any errors creating the script
-     *
-     * @return script JSON response with (201 Created) and URL in Location header
+     *         if there are errors uploading script
      */
-    public ScriptTO createScript(ScriptTO scriptTo);
+    public Map<String, String> createScript(String name, Integer id,
+                                            String recording, String copy,
+                                            Integer sourceId, String contentEncoding,
+                                            MultipartFile file) throws IOException;
 
     /**
      * Retrieves a specific script description by script ID
@@ -101,45 +120,6 @@ public interface ScriptServiceV2 {
      * @return script harness XML file
      */
     public Map<String, StreamingResponseBody> downloadHarnessScript(Integer scriptId);
-
-
-    /**
-     * Upload external script recorded from Tank Proxy Package
-     *
-     * @param name
-     *            name to assign to new or updated Tank script
-     *
-     * @param scriptId
-     *            existing script's scriptID to overwrite with new script content
-     *
-     * @param contentEncoding
-     *            content encoding of file (checks for gzip file)
-     *
-     * @param file
-     *            script XML file to be uploaded
-     *
-     * @throws GenericServiceCreateOrUpdateException
-     *         if there are errors uploading script
-     *
-     * @return scriptId with upload status JSON payload
-     */
-    public Map<String, String> uploadProxyScript(String name, Integer scriptId, String contentEncoding, MultipartFile file) throws IOException;
-
-    /**
-     * Update an existing Tank script with a Tank XML file
-     *
-     * @param contentEncoding
-     *           content encoding of file (checks for gzip file)
-     *
-     * @param file
-     *            Tank script XML file to be uploaded
-     *
-     * @throws GenericServiceCreateOrUpdateException
-     *         if there are errors uploading script
-     *
-     * @return scriptId with upload status JSON payload
-     */
-    public Map<String, String> updateTankScript(String contentEncoding, MultipartFile file) throws IOException;
 
     /**
      * Deletes a script associated with scriptID
