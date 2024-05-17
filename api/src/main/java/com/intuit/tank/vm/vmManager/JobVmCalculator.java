@@ -13,6 +13,8 @@ package com.intuit.tank.vm.vmManager;
  * #L%
  */
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -31,6 +33,29 @@ public class JobVmCalculator {
             return 0;
         }
         return (int) Math.ceil((double) numberOfUsers / (double) numUsersPerAgent);
+    }
+
+    /**
+     *
+     * @param targetRate
+     * @param targetRatePerAgent
+     * @return
+     */
+    public static Map<Integer, Double> getMachinesForAgentByTargetRate(double targetRate, Double targetRatePerAgent) {
+        Map<Integer, Double> agentAllocation = new HashMap<>();
+        if (targetRate <= 0.0 || targetRatePerAgent <= 0.0) {
+            return agentAllocation;
+        }
+
+        // divide the (target rate) by the (target rate per agent) to get the number of agents needed (always round up)
+        BigDecimal targetRateBD = BigDecimal.valueOf(targetRate);
+        BigDecimal targetRatePerAgentBD = BigDecimal.valueOf(targetRatePerAgent);
+        int numAgents = targetRateBD.divide(targetRatePerAgentBD, 2, RoundingMode.CEILING).setScale(0, RoundingMode.CEILING).intValue();
+
+        // adjusts the rate per agent if needed due to rounding up (always less than or equal to the initial rate per agent)
+        double ratePerAgent = targetRate / numAgents;
+
+        return Map.of(numAgents, ratePerAgent);
     }
 
     /**
