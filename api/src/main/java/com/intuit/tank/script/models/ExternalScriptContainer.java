@@ -16,8 +16,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
-import lombok.Builder;
-import lombok.Singular;
+import lombok.*;
 
 /**
  * ScriptStepContainer jaxb container for script steps
@@ -25,6 +24,9 @@ import lombok.Singular;
  * @author dangleton
  * 
  */
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder(setterPrefix = "with")
 @XmlRootElement(name = "ExternalScriptContainer", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)

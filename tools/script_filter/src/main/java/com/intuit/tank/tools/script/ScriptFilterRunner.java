@@ -59,7 +59,7 @@ import org.xml.sax.SAXException;
 
 import com.intuit.tank.script.models.ExternalScriptTO;
 import com.intuit.tank.script.models.ScriptTO;
-import com.intuit.tank.rest.mvc.rest.clients.ScriptClient;
+import com.intuit.tank.clients.ScriptClient;
 
 /**
  * ScrioptFilterRunner
@@ -328,9 +328,12 @@ public class ScriptFilterRunner extends JFrame {
             }
 
         } else {
-            selectScript(new SelectDialog<ExternalScriptTO>(ScriptFilterRunner.this, scriptClient
-                    .getExternalScripts().getScripts()));
-
+            try {
+                selectScript(new SelectDialog<ExternalScriptTO>(ScriptFilterRunner.this, scriptClient
+                        .getExternalScripts().getScripts()));
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Error loading scripts", JOptionPane.ERROR_MESSAGE);
+            }
         }
 
     }
@@ -353,7 +356,11 @@ public class ScriptFilterRunner extends JFrame {
                     + language.getDefaultExtension());
         }
         currentExternalScript.setScript(scriptEditorTA.getText());
-        currentExternalScript = scriptClient.createExternalScript(currentExternalScript);
+        try {
+            currentExternalScript = scriptClient.createExternalScript(currentExternalScript);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error saving script", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
