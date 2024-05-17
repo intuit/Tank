@@ -62,6 +62,7 @@ public final class JobRequestImpl implements Serializable, JobRequest {
     private String vmInstanceType;
     private int numUsersPerAgent;
     private int numAgents;
+    private double targetRatePerAgent;
     private int startRate;
     private double endRate;
     private String scriptsXmlUrl;
@@ -224,6 +225,21 @@ public final class JobRequestImpl implements Serializable, JobRequest {
      */
     public void setNumAgents(int numAgents) {
         this.numAgents = numAgents;
+    }
+
+    /**
+     * @return the targetRatePerAgent
+     */
+    public double getTargetRatePerAgent() {
+        return targetRatePerAgent;
+    }
+
+    /**
+     * @param targetRatePerAgent
+     *            the targetRatePerAgent to set
+     */
+    public void setTargetRatePerAgent(double targetRatePerAgent) {
+        this.targetRatePerAgent = targetRatePerAgent;
     }
 
     /**
@@ -411,6 +427,12 @@ public final class JobRequestImpl implements Serializable, JobRequest {
         @SuppressWarnings("unchecked")
         public GeneratorT withNumAgents(int aValue) {
             instance.numAgents = aValue;
+            return (GeneratorT) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT withTargetRatePerAgent(double aValue) {
+            instance.targetRatePerAgent = aValue;
             return (GeneratorT) this;
         }
 

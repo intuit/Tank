@@ -71,6 +71,9 @@ public abstract class BaseJob extends BaseEntity {
     @Column(name = "num_agents", columnDefinition = "INT(11) NOT NULL DEFAULT '1'")
     private int numAgents = 1;
 
+    @Column(name = "target_rate_per_agent", columnDefinition="DECIMAL(10,2) NOT NULL DEFAULT '1.00'")
+    private Double targetRatePerAgent = 1.00;
+
     @Column(name = "logging_profile")
     private String loggingProfile = LoggingProfile.STANDARD.name();
 
@@ -138,6 +141,7 @@ public abstract class BaseJob extends BaseEntity {
         this.executionTime = copy.executionTime;
         this.numUsersPerAgent = copy.numUsersPerAgent;
         this.numAgents = copy.numAgents;
+        this.targetRatePerAgent = copy.targetRatePerAgent;
         this.vmInstanceType = copy.vmInstanceType;
         this.useEips = copy.useEips;
         this.useTwoStep = copy.useTwoStep;
@@ -370,6 +374,21 @@ public abstract class BaseJob extends BaseEntity {
      */
     public void setNumAgents(int numAgents) {
         this.numAgents = numAgents;
+    }
+
+    /**
+     * @return the targetRatePerAgent
+     */
+    public Double getTargetRatePerAgent() {
+        return targetRatePerAgent;
+    }
+
+    /**
+     * @param targetRatePerAgent
+     *            the targetRatePerAgent to set
+     */
+    public void setTargetRatePerAgent(Double targetRatePerAgent) {
+        this.targetRatePerAgent = targetRatePerAgent;
     }
 
     /**
