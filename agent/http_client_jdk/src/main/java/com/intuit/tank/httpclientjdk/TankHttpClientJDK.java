@@ -174,7 +174,6 @@ public class TankHttpClientJDK implements TankHttpClient {
         sessionCookie.setPath(cookie.getPath());
 
         cookieManager.getCookieStore().add(URI.create(cookie.getDomain()), sessionCookie);
-
     }
 
     /*
@@ -240,7 +239,8 @@ public class TankHttpClientJDK implements TankHttpClient {
      * the response time is over some threshold specified in the properties
      * file. This will ensure users don't bunch up together after a blip on the
      * system under test
-     * 
+     *
+     * @param request
      * @param responseTime
      *            - response time of the request; this will also be the time to
      *            sleep
