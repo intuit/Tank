@@ -30,6 +30,7 @@ import com.intuit.tank.rest.mvc.rest.util.ProjectServiceUtil;
 import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import com.intuit.tank.rest.mvc.rest.cloud.MessageEventSender;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
+import com.intuit.tank.vm.api.enumerated.Location;
 import com.intuit.tank.vm.api.enumerated.ScriptDriver;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.ModificationType;
@@ -125,23 +126,39 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
 
             if(projectId != null) {
                 project  = projectDao.findByIdEager(projectId);
-                project.setName(request.getName());
-                project.setProductName(request.getProductName());
-                project.setComments(request.getComments());
-                if(!request.getTestPlans().isEmpty()){
+                if(request.getName() != null) {
+                    project.setName(request.getName());
+                }
+                if(request.getProductName() != null) {
+                    project.setProductName(request.getProductName());
+                }
+                if(request.getComments() != null) {
+                    project.setComments(request.getComments());
+                }
+                if(request.getTestPlans() != null && !request.getTestPlans().isEmpty()){
                     project.getWorkloads().get(0).getTestPlans().clear(); // overwrite existing test plans
                     addTestPlans(project.getWorkloads().get(0), request);
                 }
             } else {
-                checkProjectName(request.getName());
+                if(request.getName() != null) {
+                    checkProjectName(request.getName());
+                }
                 Workload workload = new Workload();
                 List<Workload> workloads = new ArrayList<>();
-                project.setName(request.getName());
-                project.setProductName(request.getProductName());
-                project.setComments(request.getComments());
+                if(request.getName() != null) {
+                    project.setName(request.getName());
+                }
+                if(request.getProductName() != null) {
+                    project.setProductName(request.getProductName());
+                }
+                if(request.getComments() != null) {
+                    project.setComments(request.getComments());
+                }
                 project.setCreator(TankConstants.TANK_USER_SYSTEM);
-                workload.setName(request.getName());
-                if(!request.getTestPlans().isEmpty()){
+                if(request.getName() != null) {
+                    workload.setName(request.getName());
+                }
+                if(request.getTestPlans() != null && !request.getTestPlans().isEmpty()){
                     addTestPlans(workload, request);
                 } else {
                     TestPlan testPlan = TestPlan.builder().name("Main").usersPercentage(100).build();
@@ -156,25 +173,42 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
             }
 
             JobConfiguration jobConfiguration = project.getWorkloads().get(0).getJobConfiguration();
-            jobConfiguration.setRampTimeExpression(request.getRampTime());
+            if(request.getRampTime() != null) {
+                jobConfiguration.setRampTimeExpression(request.getRampTime());
+            }
             jobConfiguration.setStopBehavior(request.getStopBehavior() != null ? request.getStopBehavior().name()
                     : StopBehavior.END_OF_SCRIPT_GROUP.name());
-            jobConfiguration.setSimulationTimeExpression(request.getSimulationTime());
-            jobConfiguration.setTerminationPolicy(request.getTerminationPolicy());
-            jobConfiguration.setIncrementStrategy(request.getWorkloadType());
-            jobConfiguration.setLocation(request.getLocation().name());
-            jobConfiguration.setDataFileIds(Set.copyOf(request.getDataFileIds()));
+            if(request.getSimulationTime() != null) {
+                jobConfiguration.setSimulationTimeExpression(request.getSimulationTime());
+            }
+            if(request.getTerminationPolicy() != null) {
+                jobConfiguration.setTerminationPolicy(request.getTerminationPolicy());
+            }
+            if(request.getWorkloadType() != null) {
+                jobConfiguration.setIncrementStrategy(request.getWorkloadType());
+            }
+            if(request.getLocation() != null) {
+                String location = jobConfiguration.getLocation() != null ? jobConfiguration.getLocation() : Location.unspecified.name();
+                jobConfiguration.setLocation(request.getLocation() != null ? request.getLocation().name() : location);
+            }
+            if(request.getDataFileIds() != null) {
+                jobConfiguration.setDataFileIds(Set.copyOf(request.getDataFileIds()));
+            }
             jobConfiguration.setUserIntervalIncrement(request.getUserIntervalIncrement());
-            jobConfiguration.getJobRegions().clear();
-            JobRegionDao jrd = new JobRegionDao();
-            for (AutomationJobRegion r : request.getJobRegions()) {
-                JobRegion jr = jrd.saveOrUpdate(new JobRegion(r.getRegion(), r.getUsers()));
-                jobConfiguration.getJobRegions().add(jr);
+
+            if(request.getJobRegions() != null) {
+                jobConfiguration.getJobRegions().clear();
+                JobRegionDao jrd = new JobRegionDao();
+                for (AutomationJobRegion r : request.getJobRegions()) {
+                    JobRegion jr = jrd.saveOrUpdate(new JobRegion(r.getRegion(), r.getUsers()));
+                    jobConfiguration.getJobRegions().add(jr);
+                }
             }
 
             Map<String, String> varMap = jobConfiguration.getVariables();
-            varMap.putAll(request.getVariables());
-
+            if(request.getVariables() != null) {
+                varMap.putAll(request.getVariables());
+            }
             project = projectDao.saveOrUpdateProject(project);
             sendMsg(project, type);
             return project;
