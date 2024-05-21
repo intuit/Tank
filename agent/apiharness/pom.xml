@@ -59,7 +59,7 @@
     
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>http_client_apache_5</artifactId>
+      <artifactId>http_client_jdk</artifactId>
       <version>${project.version}</version>
     </dependency>
 
