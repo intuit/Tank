@@ -17,10 +17,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.intuit.tank.harness.AmazonUtil;
 import jakarta.annotation.Nonnull;
 
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +66,11 @@ import com.intuit.tank.http.TankHttpUtil;
 import com.intuit.tank.http.TankHttpUtil.PartHolder;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.vm.settings.AgentConfig;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
+import software.amazon.awssdk.services.cloudwatch.model.Dimension;
+import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
+import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
+import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
 public class TankHttpClient4 implements TankHttpClient {
 
@@ -71,6 +78,12 @@ public class TankHttpClient4 implements TankHttpClient {
 
     private CloseableHttpClient httpclient;
     private HttpClientContext context;
+
+    private static final String namespace = "Intuit/Tank";
+    private CloudWatchAsyncClient cloudWatchClient;
+    private Dimension instanceId;
+    private Dimension jobId;
+    private Dimension requestPath;
 
     /**
      * no-arg constructor for client
@@ -93,6 +106,8 @@ public class TankHttpClient4 implements TankHttpClient {
         context.setUserToken(UUID.randomUUID());
         context.setCookieStore(new BasicCookieStore());
         context.setRequestConfig(requestConfig);
+
+        this.cloudWatchClient = CloudWatchAsyncClient.builder().build();
     }
 
     public Object createHttpClient() {
@@ -342,6 +357,7 @@ public class TankHttpClient4 implements TankHttpClient {
             long maxAgentResponseTime = config.getMaxAgentResponseTime();
             if (maxAgentResponseTime < responseTime) {
                 long waitTime = Math.min(config.getMaxAgentWaitTime(), responseTime);
+                sendRTCloudWatchMetrics(responseTime, uri);
                 LOG.warn(request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
                 Thread.sleep(waitTime);
             }
@@ -390,6 +406,45 @@ public class TankHttpClient4 implements TankHttpClient {
                 LOG.debug(response.getLogMsg());
             }
         }
+    }
+
+    private void sendRTCloudWatchMetrics(long responseTime, String uri) {
+        Instant timestamp = new Date().toInstant();
+        List<MetricDatum> datumList = new ArrayList<>();
+
+        this.instanceId = Dimension.builder()
+                .name("InstanceId")
+                .value(AmazonUtil.getInstanceId())
+                .build();
+        this.jobId = Dimension.builder()
+                .name("JobId")
+                .value(AmazonUtil.getJobId())
+                .build();
+
+        this.requestPath = Dimension.builder()
+                .name("request")
+                .value(uri)
+                .build();
+
+        datumList.add(MetricDatum.builder()
+                .metricName("responseTime")
+                .unit(StandardUnit.COUNT)
+                .value((double) responseTime)
+                .timestamp(timestamp)
+                .dimensions(requestPath, instanceId, jobId)
+                .build());
+        datumList.add(MetricDatum.builder()
+                .metricName("requestPath")
+                .unit(StandardUnit.COUNT)
+                .value((double) responseTime)
+                .timestamp(timestamp)
+                .dimensions(requestPath, instanceId, jobId)
+                .build());
+        PutMetricDataRequest request = PutMetricDataRequest.builder()
+                .namespace(namespace)
+                .metricData(datumList)
+                .build();
+        cloudWatchClient.putMetricData(request);
     }
 
     /**
