@@ -422,19 +422,12 @@ public class TankHttpClient4 implements TankHttpClient {
                 .build();
 
         this.requestPath = Dimension.builder()
-                .name("request")
+                .name("slowRequestPath")
                 .value(uri)
                 .build();
 
         datumList.add(MetricDatum.builder()
                 .metricName("responseTime")
-                .unit(StandardUnit.COUNT)
-                .value((double) responseTime)
-                .timestamp(timestamp)
-                .dimensions(requestPath, instanceId, jobId)
-                .build());
-        datumList.add(MetricDatum.builder()
-                .metricName("requestPath")
                 .unit(StandardUnit.COUNT)
                 .value((double) responseTime)
                 .timestamp(timestamp)
