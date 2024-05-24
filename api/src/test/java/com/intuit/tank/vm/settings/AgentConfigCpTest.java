@@ -45,7 +45,7 @@ public class AgentConfigCpTest {
         Map<String, String> empty = new HashMap<String, String>();
 
         assertNotNull(result);
-        assertEquals(new Long(40000L), result.getConnectionTimeout());
+        assertEquals(Long.valueOf(40000L), result.getConnectionTimeout());
         assertEquals(false, result.getLogVariables());
         assertEquals(false, result.getLogPostResponse());
         assertEquals(8090, result.getAgentPort());
@@ -63,7 +63,7 @@ public class AgentConfigCpTest {
         assertEquals("com.intuit.tank.httpclient4.TankHttpClient4", result.getTankClientClassDefault());
         assertEquals("Apache HttpClient 4.5", result.getTankClientName("test"));
         empty.put("Apache HttpClient 4.5", "com.intuit.tank.httpclient4.TankHttpClient4");
-        empty.put("Apache HttpClient 5", "com.intuit.tank.httpclient5.TankHttpClient5");
+        empty.put("JDK Http Client", "com.intuit.tank.httpclientjdk.TankHttpClientJDK");
         empty.put("Apache HttpClient 3.1", "com.intuit.tank.httpclient3.TankHttpClient3");
         assertEquals(empty, result.getTankClientMap());
     }

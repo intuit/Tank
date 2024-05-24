@@ -47,11 +47,10 @@
     <version.junit>5.10.2</version.junit>
     <version.mockito>5.10.0</version.mockito>
     <version.httpclient>4.5.14</version.httpclient>
-    <version.httpclient5>5.3.1</version.httpclient5>
     <version.lucene>9.10.0</version.lucene>
     <version.jaxb>4.0.1</version.jaxb>
     <version.spring-webflux>6.0.17</version.spring-webflux>
-    <version.wiremock>3.4.2</version.wiremock>
+    <version.wiremock>3.5.4</version.wiremock>
     <version.jackson>2.16.1</version.jackson>
 
     <!-- maven-compiler-plugin -->
@@ -520,12 +519,6 @@
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
         <version>${version.httpclient}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.httpcomponents.client5</groupId>
-        <artifactId>httpclient5</artifactId>
-        <version>${version.httpclient5}</version>
       </dependency>
 
       <dependency>

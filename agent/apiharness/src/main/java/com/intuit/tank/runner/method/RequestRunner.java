@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -678,7 +677,7 @@ public class RequestRunner implements Runner {
                     value = variables.getVariable(value);
                 }
                 value = variables.evaluate(value);
-                if (header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
+                if (header.getKey().equalsIgnoreCase("Content-Type")) {
                     baseRequest.setContentType(value.split(";")[0]);
                     if (value.split(";").length == 2 && (value.split(";")[1].contains("charset="))) {
                         baseRequest.setContentTypeCharSet(value.split("charset=")[1]);

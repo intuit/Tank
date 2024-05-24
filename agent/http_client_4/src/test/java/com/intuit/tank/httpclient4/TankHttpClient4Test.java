@@ -98,6 +98,7 @@ public class TankHttpClient4Test {
         BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/delete");
         request.doDelete(null);
         BaseResponse response = request.getResponse();
+        verify(exactly(1), deleteRequestedFor(urlEqualTo("/delete")));
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
     }
@@ -108,6 +109,7 @@ public class TankHttpClient4Test {
         BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/get");
         request.doGet(null);
         BaseResponse response = request.getResponse();
+        verify(exactly(1), getRequestedFor(urlEqualTo("/get")));
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
         assertNotNull(response.getBody());
@@ -176,6 +178,7 @@ public class TankHttpClient4Test {
         response = request.getResponse();
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
+        assertFalse(response.getBody().contains("test-cookie"));
         assertTrue(response.getCookies().isEmpty());
     }
 
