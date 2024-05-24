@@ -215,11 +215,11 @@ public abstract class BaseRequest {
     }
 
     public void addHeader(String key, String value) {
-        this.headerInformation.put(key, value);
+        this.headerInformation.put(key.toLowerCase(), value);
     }
 
     public void removeHeader(String key) {
-        this.headerInformation.remove(key);
+        this.headerInformation.remove(key.toLowerCase());
     }
 
     /**
