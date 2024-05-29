@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.intuit.tank.httpclient5;
+package com.intuit.tank.httpclientjdk;
 
 import java.util.HashMap;
 import java.util.Map;

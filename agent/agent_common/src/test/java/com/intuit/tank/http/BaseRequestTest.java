@@ -3,7 +3,9 @@ package com.intuit.tank.http;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -66,8 +68,7 @@ public class BaseRequestTest {
     public void testGetHeaderInformation() {
         BaseRequest fixture = new MockBaseRequest(null);
         Map<String, String> headerInformation = fixture.getHeaderInformation();
-        Map<String, String> expected = new HashMap<String, String>();
-        assertEquals(expected, headerInformation);
+        assertEquals(Map.of(), headerInformation);
     }
 
     @Test
@@ -139,8 +140,7 @@ public class BaseRequestTest {
     public void testAddURLVariable() {
         BaseRequest fixture = new MockBaseRequest(null);
         fixture.addURLVariable("testKey", "testValue");
-        Map<String, String> urlVariable = new HashMap<String, String>();
-        urlVariable.put("testKey", "testValue");
+        Map<String, String> urlVariable = Map.of("testKey", "testValue");
         assertEquals(urlVariable, fixture.urlVariables);
     }
 
@@ -148,17 +148,15 @@ public class BaseRequestTest {
     public void testRemoveURLVariable() {
         BaseRequest fixture = new MockBaseRequest(null);
         fixture.addURLVariable("testKey", "testValue");
-        Map<String, String> urlVariable = new HashMap<String, String>();
         fixture.removeURLVariable("testKey");
-        assertEquals(urlVariable, fixture.urlVariables);
+        assertEquals(Map.of(), fixture.urlVariables);
     }
 
     @Test
     public void testAddHeader() {
         BaseRequest fixture = new MockBaseRequest(null);
         fixture.addHeader("testKey", "testValue");
-        Map<String, String> header = new HashMap<String, String>();
-        header.put("testKey", "testValue");
+        Map<String, String> header = Map.of("testKey".toLowerCase(), "testValue");
         assertEquals(header, fixture.headerInformation);
     }
 
@@ -166,9 +164,8 @@ public class BaseRequestTest {
     public void testRemoveHeader() {
         BaseRequest fixture = new MockBaseRequest(null);
         fixture.addHeader("testKey", "testValue");
-        Map<String, String> header = new HashMap<String, String>();
         fixture.removeHeader("testKey");
-        assertEquals(header, fixture.headerInformation);
+        assertEquals(Map.of(), fixture.headerInformation);
     }
 
     @Test
@@ -244,10 +241,8 @@ public class BaseRequestTest {
     @Test
     public void testLogRequest() {
         BaseRequest fixture = new MockBaseRequest(null);
-        Map <String, String> headerInformation = new HashMap<>();
-        headerInformation.put("testHeaderKey", "testHeaderValue");
-        List <String> cookies = new ArrayList<>();
-        cookies.add("testCookie");
+        Map <String, String> headerInformation = Map.of("testHeaderKey", "testHeaderValue");
+        List<String> cookies = List.of("testCookie");
         fixture.logRequest("testUrl", "testBody", "testMethod", headerInformation,
                                 cookies, false);
         assertEquals("REQUEST URL: testMethod testUrl\n" +
