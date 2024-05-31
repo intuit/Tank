@@ -2,16 +2,22 @@ package com.intuit.tank.harness;
 
 import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.data.HDTestVariables;
+import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.harness.test.MockFlowController;
+import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.agent.messages.WatsAgentStatusResponse;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import org.apache.logging.log4j.message.ObjectMessage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.stream.IntStream;
 
@@ -46,27 +52,36 @@ public class APITestHarnessTest {
     }
 
     @Test
-    public void testInitializeFromMainArgs() {
-        APITestHarness instance = APITestHarness.getInstance();
+    public void testInitializeFromMainArgs() throws IOException {
+        try (MockedStatic<AmazonUtil> amazonUtil = Mockito.mockStatic(AmazonUtil.class)) {
+            amazonUtil.when(AmazonUtil::getJobId).thenReturn("123456");
+            amazonUtil.when(AmazonUtil::getProjectName).thenReturn("Test Project");
+            amazonUtil.when(AmazonUtil::getZone).thenReturn("c");
+            amazonUtil.when(AmazonUtil::getControllerBaseUrl).thenReturn("https://localhost");
+            amazonUtil.when(AmazonUtil::getLoggingProfile).thenReturn(LoggingProfile.STANDARD);
+            amazonUtil.when(AmazonUtil::usingEip).thenReturn(Boolean.FALSE);
+            amazonUtil.when(AmazonUtil::getStopBehavior).thenReturn(StopBehavior.END_OF_SCRIPT);
+            APITestHarness instance = APITestHarness.getInstance();
 
-        instance.setDebug(true);
-        instance.setFlowControllerTemplate(new MockFlowController());
+            instance.setDebug(true);
+            instance.setFlowControllerTemplate(new MockFlowController());
 
-        String tankHttpClientClass = "com.intuit.tank.httpclient4.TankHttpClient4";
+            String tankHttpClientClass = "com.intuit.tank.httpclient4.TankHttpClient4";
 
-        String[] args = {"-instanceId=testInstance", "-logging=Standard", "-users=10", "-capacity=100", "-start=5",
-                "-jobId=2345", "-stopBehavior=Script Group", "-time=5", "-client=" + tankHttpClientClass};
+            String[] args = {"-instanceId=testInstance", "-logging=Standard", "-users=10", "-capacity=100", "-start=5",
+                    "-jobId=2345", "-stopBehavior=Script Group", "-time=5", "-client=" + tankHttpClientClass};
 
-        APITestHarness.main(args);
+            APITestHarness.main(args);
 
-        assertEquals("testInstance", instance.getInstanceId());
-        assertEquals("Standard", instance.getAgentRunData().getActiveProfile().getDisplayName());
-        assertEquals(10, instance.getAgentRunData().getNumUsers());
-        assertEquals(5, instance.getAgentRunData().getNumStartUsers());
-        assertEquals("2345", instance.getAgentRunData().getJobId());
-        assertEquals("Script Group", instance.getAgentRunData().getStopBehavior().getDisplay());
-        assertEquals(300000L, instance.getAgentRunData().getSimulationTimeMillis());
-        assertEquals(tankHttpClientClass, instance.getTankHttpClientClass());
+            assertEquals("testInstance", instance.getInstanceId());
+            assertEquals("Standard", instance.getAgentRunData().getActiveProfile().getDisplayName());
+            assertEquals(10, instance.getAgentRunData().getNumUsers());
+            assertEquals(5, instance.getAgentRunData().getNumStartUsers());
+            assertEquals("2345", instance.getAgentRunData().getJobId());
+            assertEquals("Script Group", instance.getAgentRunData().getStopBehavior().getDisplay());
+            assertEquals(300000L, instance.getAgentRunData().getSimulationTimeMillis());
+            assertEquals(tankHttpClientClass, instance.getTankHttpClientClass());
+        }
     }
 
     @Test
@@ -105,34 +120,37 @@ public class APITestHarnessTest {
 
     @Test
     public void testRunConcurrentTestPlans(){
-        APITestHarness instance = APITestHarness.getInstance();
-        MockHDWorkload workload = new MockHDWorkload();
-        HDTestPlan testPlan = new HDTestPlan();
-        testPlan.setUserPercentage(5);
-        testPlan.setTestPlanName("testPlan");
-        workload.setVariables(new HDTestVariables());
-        workload.addPlan(testPlan);
-        TestPlanSingleton.getInstance().setTestPlan(workload);
-        String tankHttpClientClass = "com.intuit.tank.httpclient4.TankHttpClient4";
-        instance.getAgentRunData().setSimulationTimeMillis(1L);
-        instance.getAgentRunData().setIncrementStrategy(IncrementStrategy.increasing);
-        instance.setFlowControllerTemplate(new MockFlowController());
-        instance.setDebug(true);
+        try (MockedStatic<LogUtil> logUtilMockedStatic = Mockito.mockStatic(LogUtil.class)) {
+            logUtilMockedStatic.when(() -> LogUtil.getLogMessage(Mockito.anyString())).thenReturn(new ObjectMessage("test"));
+            APITestHarness instance = APITestHarness.getInstance();
+            MockHDWorkload workload = new MockHDWorkload();
+            HDTestPlan testPlan = new HDTestPlan();
+            testPlan.setUserPercentage(5);
+            testPlan.setTestPlanName("testPlan");
+            workload.setVariables(new HDTestVariables());
+            workload.addPlan(testPlan);
+            TestPlanSingleton.getInstance().setTestPlan(workload);
+            String tankHttpClientClass = "com.intuit.tank.httpclient4.TankHttpClient4";
+            instance.getAgentRunData().setSimulationTimeMillis(1L);
+            instance.getAgentRunData().setIncrementStrategy(IncrementStrategy.increasing);
+            instance.setFlowControllerTemplate(new MockFlowController());
+            instance.setDebug(true);
 
-        assertFalse(instance.isStarted());
-        assertEquals(0, instance.getCurrentUsers());
-        instance.runConcurrentTestPlans();
-        instance.threadStarted(new Thread());
-        assertEquals(1, instance.getCurrentUsers());
-        assertTrue(instance.isStarted());
-        assertEquals(tankHttpClientClass, instance.getTankHttpClientClass());
-        assertEquals(tankHttpClientClass, instance.getAgentRunData().getTankhttpClientClass());
-        assertNotEquals(0, instance.getStartTime());
-        assertNotNull(instance.getTPSMonitor());
-        assertEquals(new TPSMonitor(30).getTPSInfo().getPeriod(),
-                instance.getTPSMonitor().getTPSInfo().getPeriod());
-        instance.threadComplete();
-        assertEquals(0, instance.getCurrentUsers());
+            assertFalse(instance.isStarted());
+            assertEquals(0, instance.getCurrentUsers());
+            instance.runConcurrentTestPlans();
+            instance.threadStarted(new Thread());
+            assertEquals(1, instance.getCurrentUsers());
+            assertTrue(instance.isStarted());
+            assertEquals(tankHttpClientClass, instance.getTankHttpClientClass());
+            assertEquals(tankHttpClientClass, instance.getAgentRunData().getTankhttpClientClass());
+            assertNotEquals(0, instance.getStartTime());
+            assertNotNull(instance.getTPSMonitor());
+            assertEquals(new TPSMonitor(30).getTPSInfo().getPeriod(),
+                    instance.getTPSMonitor().getTPSInfo().getPeriod());
+            instance.threadComplete();
+            assertEquals(0, instance.getCurrentUsers());
+        }
     }
 
     @Test
