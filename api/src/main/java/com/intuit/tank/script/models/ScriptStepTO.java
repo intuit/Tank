@@ -12,6 +12,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -152,7 +153,7 @@ public class ScriptStepTO implements Serializable {
 
     @Singular(value="eachResponseData", ignoreNullCollections = true)
     @XmlElement(name = "responseData", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private Set<StepDataTO> responseData;
+    private Set<StepDataTO> responseData = new HashSet<>();
 
     /**
      * @return the payload
