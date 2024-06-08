@@ -8,6 +8,8 @@
 package com.intuit.tank.jobs.models;
 
 import com.intuit.tank.harness.StopBehavior;
+import com.intuit.tank.projects.models.Namespace;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -39,7 +41,10 @@ public class CreateJobRequest implements Serializable {
     
     @XmlElement(name="userIntervalIncrement")
     private int userIntervalIncrement;
-    
+
+    @XmlElement(name="targetRampRate")
+    private double targetRampRate;
+
     @XmlElement(name="stopBehavior")
     private String stopBehavior = StopBehavior.END_OF_TEST.name();
 
@@ -48,9 +53,15 @@ public class CreateJobRequest implements Serializable {
 
     @XmlElement(name="numUsersPerAgent")
     private int numUsersPerAgent;
+
+    @XmlElement(name="targetRatePerAgent")
+    private double targetRatePerAgent;
     
     @XmlElement(name="jobRegions")
     private Set<CreateJobRegion> jobRegions = new HashSet<CreateJobRegion>();
+
+    @XmlElement(name = "workloadType")
+    private IncrementStrategy workloadType;
 
     public CreateJobRequest(String projectName) {
     	this.projectName = projectName;
@@ -101,13 +112,26 @@ public class CreateJobRequest implements Serializable {
     }
 
     /**
+     * @return the targetRampRate
+     */
+    public double getTargetRampRate() {
+        return targetRampRate;
+    }
+
+    /**
      * @return the jobRegions
      */
     public Set<CreateJobRegion> getJobRegions() {
         return jobRegions;
     }
-    
-    
+
+    /**
+     * @return the workloadType (linear / nonlinear)
+     */
+    public IncrementStrategy getWorkloadType() {
+        return workloadType;
+    }
+
     /**
      * @return the stopBehavior
      */
@@ -128,7 +152,12 @@ public class CreateJobRequest implements Serializable {
     public int getNumUsersPerAgent() {
         return numUsersPerAgent;
     }
-    
+
+    /**
+     * @return the targetRatePerAgent
+     */
+    public double getTargetRatePerAgent() { return targetRatePerAgent; }
+
     /**
      * @param jobRegions
      *            the jobRegions to set
