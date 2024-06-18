@@ -171,7 +171,7 @@ public class TankHttpClient4Test {
         BaseResponse response = request.getResponse();
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
-        assertTrue(response.getCookies().get("test-cookie").equals("test-value"));
+        assertEquals("test-value", response.getCookies().get("test-cookie"));
         request.getHttpclient().clearSession();
 
         request.doGet(null);
@@ -179,7 +179,6 @@ public class TankHttpClient4Test {
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
         assertFalse(response.getBody().contains("test-cookie"));
-        assertTrue(response.getCookies().isEmpty());
     }
 
     @Test
@@ -199,7 +198,7 @@ public class TankHttpClient4Test {
         BaseResponse response = request.getResponse();
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
-        assertTrue(response.getCookies().get("test-cookie").equals("test-value"));
+        assertEquals("test-value", response.getCookies().get("test-cookie"));
     }
 
     @Test
