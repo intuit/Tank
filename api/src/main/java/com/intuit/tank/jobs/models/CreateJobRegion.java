@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.jobs.models;
 
+import com.intuit.tank.projects.models.Namespace;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -18,12 +19,16 @@ public class CreateJobRegion {
 	
 	@XmlElement(name="users")
 	private String users;
+
+	@XmlElement(name = "percentage")
+	private String percentage;
 	
 	public CreateJobRegion() {}
 	
-	public CreateJobRegion(String region, String users) {
+	public CreateJobRegion(String region, String users, String percentage) {
 		this.region = region;
 		this.users = users;
+		this.percentage = percentage;
 	}
 	
     /**
@@ -39,4 +44,11 @@ public class CreateJobRegion {
     public String getUsers() {
         return users;
     }
+
+	/**
+	 * @return the percentage
+	 */
+	public String getPercentage() {
+		return percentage;
+	}
 }
