@@ -30,6 +30,7 @@ import com.intuit.tank.project.Workload;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceInternalServerException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.jobs.models.JobContainer;
 import com.intuit.tank.jobs.models.JobTO;
@@ -311,7 +312,13 @@ public class JobServiceV2Impl implements JobServiceV2 {
     // Job Service Util
 
     public static void buildJobConfiguration(@Nonnull CreateJobRequest request, Project project) {
-        JobConfiguration jobConfiguration = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jobConfiguration = (project != null && project.getWorkloads() != null && !project.getWorkloads().isEmpty())
+                ? project.getWorkloads().get(0).getJobConfiguration()
+                : null;
+
+        if(jobConfiguration == null){
+           throw new GenericServiceCreateOrUpdateException("jobs", "job", null);
+        }
 
         if (StringUtils.isNotEmpty(request.getRampTime())) {
             jobConfiguration.setRampTimeExpression(request.getRampTime());
@@ -321,11 +328,20 @@ public class JobServiceV2Impl implements JobServiceV2 {
             jobConfiguration.setSimulationTimeExpression(request.getSimulationTime());
         }
 
+        if(request.getWorkloadType() != null) {
+            jobConfiguration.setIncrementStrategy(request.getWorkloadType());
+        }
+
         jobConfiguration.setUserIntervalIncrement(request.getUserIntervalIncrement());
+        jobConfiguration.setTargetRampRate(request.getTargetRampRate());
+        jobConfiguration.setTargetRatePerAgent(request.getTargetRatePerAgent());
+
         jobConfiguration.setStopBehavior(StringUtils.isNotEmpty(request.getStopBehavior())
                 ? request.getStopBehavior() : StopBehavior.END_OF_SCRIPT_GROUP.name());
 
-        jobConfiguration.setVmInstanceType(request.getVmInstance());
+        if (StringUtils.isNotEmpty(request.getVmInstance())) {
+            jobConfiguration.setVmInstanceType(request.getVmInstance());
+        }
         jobConfiguration.setNumUsersPerAgent(request.getNumUsersPerAgent());
 
         boolean hasSimTime = jobConfiguration.getSimulationTime() > 0
@@ -340,13 +356,20 @@ public class JobServiceV2Impl implements JobServiceV2 {
     }
 
     private static void setJobRegions(@Nonnull CreateJobRequest request, JobConfiguration jobConfiguration) {
+        if(jobConfiguration == null || jobConfiguration.getJobRegions() == null){
+            return;
+        }
         jobConfiguration.getJobRegions().clear();
         JobRegionDao jrd = new JobRegionDao();
-        for (CreateJobRegion r : request.getJobRegions()) {
-            if (StringUtils.isNotEmpty(r.getRegion())) {
-                JobRegion jr = jrd.saveOrUpdate(
-                        new JobRegion(VMRegion.getRegionFromZone(r.getRegion()), r.getUsers()));
-                jobConfiguration.getJobRegions().add(jr);
+        if (request.getJobRegions() != null) {
+            for (CreateJobRegion r : request.getJobRegions()) {
+                if (StringUtils.isNotEmpty(r.getRegion())) {
+                    String users = r.getUsers() != null ? r.getUsers() : "0";
+                    String percentage = r.getPercentage() != null ? r.getPercentage() : "0";
+                    JobRegion jr = jrd.saveOrUpdate(
+                            new JobRegion(VMRegion.getRegionFromZone(r.getRegion()), users, percentage));
+                    jobConfiguration.getJobRegions().add(jr);
+                }
             }
         }
     }
@@ -406,9 +429,12 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     private static String buildJobInstanceName(CreateJobRequest request, Workload workload, Project project) {
         String projectName = request.getProjectName() == null ? project.getName() : request.getProjectName();
+        String jobType = "_nonlinear_";
+        if(request.getWorkloadType().equals(IncrementStrategy.increasing)) {
+            jobType = "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"; // set to total users for linear
+        }
         return StringUtils.isNotEmpty(request.getJobInstanceName()) ? request.getJobInstanceName()
-                : projectName + "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"
-                + ReportUtil.getTimestamp(new Date());
+                : projectName + jobType + ReportUtil.getTimestamp(new Date());
     }
 
     private static Set<EntityVersion> getVersions(BaseDao dao, Collection<Integer> dataFileIds,
