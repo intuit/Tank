@@ -277,7 +277,8 @@ public class TankHttpClient4 implements TankHttpClient {
     private void sendRequest(BaseRequest request, @Nonnull HttpRequestBase method, String requestBody) {
         long waitTime = 0L;
         String uri = method.getURI().toString();
-        LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getMethod() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
+        if (LOG.isDebugEnabled()) LOG.debug(request.getLogUtil().getLogMessage(
+                "About to " + method.getMethod() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
         List<String> cookies = new ArrayList<String>();
         if (context.getCookieStore().getCookies() != null) {
             cookies = context.getCookieStore().getCookies().stream().map(cookie -> "REQUEST COOKIE: " + cookie.toString()).collect(Collectors.toList());
@@ -295,7 +296,7 @@ public class TankHttpClient4 implements TankHttpClient {
             // check for no content headers
             if (response.getStatusLine().getStatusCode() != 203 && response.getStatusLine().getStatusCode() != 202 && response.getStatusLine().getStatusCode() != 204) {
                 try ( InputStream is = response.getEntity().getContent() ) {
-                    responseBody = IOUtils.toByteArray(is);
+                    responseBody = is.readAllBytes();
                 } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
@@ -343,9 +344,8 @@ public class TankHttpClient4 implements TankHttpClient {
             AgentConfig config = request.getLogUtil().getAgentConfig();
             long maxAgentResponseTime = config.getMaxAgentResponseTime();
             if (maxAgentResponseTime < responseTime) {
-                long waitTime = Math.min(config.getMaxAgentWaitTime(), responseTime);
-                LOG.warn(request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
-                Thread.sleep(waitTime);
+                LOG.warn(request.getLogUtil().getLogMessage("Response time too slow"));
+                Thread.sleep(Math.min(config.getMaxAgentWaitTime(), responseTime));
             }
         } catch (InterruptedException e) {
             LOG.warn("Interrupted", e);

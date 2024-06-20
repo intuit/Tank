@@ -63,6 +63,11 @@ public interface JobRequest extends Serializable {
     public abstract int getNumAgents();
 
     /**
+     * @return the targetRatePerAgent
+     */
+    public abstract double getTargetRatePerAgent();
+
+    /**
      * @return the location
      */
     public abstract String getLocation();

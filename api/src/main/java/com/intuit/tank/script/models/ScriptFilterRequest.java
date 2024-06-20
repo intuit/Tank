@@ -8,10 +8,16 @@
 package com.intuit.tank.script.models;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.*;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "filterRequest", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ScriptFilterRequest", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -25,24 +31,9 @@ public class ScriptFilterRequest implements Serializable {
     @XmlElement(name = "scriptId", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int scriptId;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElement(name = "filterId", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
-    private List<Integer> filterIds = new ArrayList<Integer>();
-
-    /**
-     * @FrameworkUseOnly
-     */
-    protected ScriptFilterRequest() {
-
-    }
-
-    /**
-     * @param scriptId
-     * @param scripts
-     */
-    public ScriptFilterRequest(int scriptId, List<Integer> filterIds) {
-        this.scriptId = scriptId;
-        this.filterIds = filterIds;
-    }
+    private List<Integer> filterIds;
 
     /**
      * @return the scriptId

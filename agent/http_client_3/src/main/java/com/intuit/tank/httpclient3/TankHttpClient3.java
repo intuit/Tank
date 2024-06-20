@@ -253,7 +253,8 @@ public class TankHttpClient3 implements TankHttpClient {
 
         try {
             uri = method.getURI().toString();
-            LOG.debug(request.getLogUtil().getLogMessage("About to " + method.getName() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
+            if (LOG.isDebugEnabled()) LOG.debug(request.getLogUtil().getLogMessage(
+                    "About to " + method.getName() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
             List<String> cookies = new ArrayList<String>();
             if (httpclient != null && httpclient.getState() != null && httpclient.getState().getCookies() != null) {
                 cookies = Arrays.stream(httpclient.getState().getCookies()).map(cookie -> "REQUEST COOKIE: " + cookie.toExternalForm() + " (domain=" + cookie.getDomain() + " : path=" + cookie.getPath() + ")").collect(Collectors.toList());
@@ -269,7 +270,7 @@ public class TankHttpClient3 implements TankHttpClient {
             // check for no content headers
             if (method.getStatusCode() != 203 && method.getStatusCode() != 202 && method.getStatusCode() != 204) {
                 try ( InputStream is = method.getResponseBodyAsStream() ) {
-                    responseBody = IOUtils.toByteArray(is);
+                    responseBody = is.readAllBytes();
                 } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
@@ -316,9 +317,8 @@ public class TankHttpClient3 implements TankHttpClient {
             AgentConfig config = request.getLogUtil().getAgentConfig();
             long maxAgentResponseTime = config.getMaxAgentResponseTime();
             if (maxAgentResponseTime < responseTime) {
-                long waitTime = Math.min(config.getMaxAgentWaitTime(), responseTime);
-                LOG.warn(request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
-                Thread.sleep(waitTime);
+                LOG.warn(request.getLogUtil().getLogMessage("Response time too slow"));
+                Thread.sleep(Math.min(config.getMaxAgentWaitTime(), responseTime));
             }
         } catch (InterruptedException e) {
             LOG.warn("Interrupted", e);
@@ -358,7 +358,7 @@ public class TankHttpClient3 implements TankHttpClient {
 
             String contentEncoding = response.getHttpHeader("Content-Encoding");
             bResponse = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
-                    IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(bResponse))) :
+                    new GZIPInputStream(new ByteArrayInputStream(bResponse)).readAllBytes() :
                     bResponse;
             response.setResponseBody(bResponse);
 

@@ -8,10 +8,16 @@
 package com.intuit.tank.script.models;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.*;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "scriptSteps", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ScriptStepContainer", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -25,9 +31,10 @@ public class ScriptStepContainer implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Singular(ignoreNullCollections = true)
     @XmlElementWrapper(name = "steps", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "step", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private List<ScriptStepTO> steps = new ArrayList<ScriptStepTO>();
+    private List<ScriptStepTO> steps;
 
     @XmlElement(name = "startIndex", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int startIndex;
@@ -40,19 +47,6 @@ public class ScriptStepContainer implements Serializable {
 
     @XmlElement(name = "numRemaining", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private int numRemaining;
-
-    private ScriptStepContainer() {
-
-    }
-
-    /**
-     * create a descriptor from the script object
-     * 
-     * @param script
-     */
-    public ScriptStepContainer(List<ScriptStepTO> steps) {
-        this.steps = steps;
-    }
 
     /**
      * @return the steps
@@ -88,73 +82,4 @@ public class ScriptStepContainer implements Serializable {
     public int getNumRemaining() {
         return numRemaining;
     }
-
-    /**
-     * Gets a builder for ScriptStepContainers
-     * 
-     * @return
-     */
-    public static ScriptStepContainerBuilder builder() {
-        return new ScriptStepContainerBuilder();
-    }
-
-    /**
-     * Fluent builder for ScriptStepContainers
-     */
-    public static class ScriptStepContainerBuilder extends ScriptStepContainerBuilderBase<ScriptStepContainerBuilder> {
-
-        public ScriptStepContainerBuilder() {
-            super(new ScriptStepContainer());
-        }
-
-        public ScriptStepContainer build() {
-            return getInstance();
-        }
-    }
-
-    static class ScriptStepContainerBuilderBase<GeneratorT extends ScriptStepContainerBuilderBase<GeneratorT>> {
-        private ScriptStepContainer instance;
-
-        public ScriptStepContainerBuilderBase() {
-        }
-
-        protected ScriptStepContainerBuilderBase(ScriptStepContainer aInstance) {
-            instance = aInstance;
-        }
-
-        protected ScriptStepContainer getInstance() {
-            return instance;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withSteps(List<ScriptStepTO> aValue) {
-            instance.steps = aValue;
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withStartIndex(int aValue) {
-            instance.startIndex = aValue;
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withNumRequsted(int aValue) {
-            instance.numRequsted = aValue;
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withNumReturned(int aValue) {
-            instance.numReturned = aValue;
-            return (GeneratorT) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public GeneratorT withNumRemaining(int aValue) {
-            instance.numRemaining = aValue < 0 ? 0 : aValue;
-            return (GeneratorT) this;
-        }
-    }
-
 }

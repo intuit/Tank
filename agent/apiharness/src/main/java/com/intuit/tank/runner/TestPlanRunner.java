@@ -198,6 +198,10 @@ public class TestPlanRunner implements Runnable {
                             }
                             try {
                                 runScriptSteps(hdScriptUseCase);
+                                // If command is stop and stop behavior is end of step, exit the loop.
+                                if (shouldStop(StopBehavior.END_OF_STEP)) {
+                                    return;
+                                }
                             } catch (GotoScriptException e) {
                                 i = 0;
                                 gotoGroup = e.getGotoTarget();
@@ -305,6 +309,11 @@ public class TestPlanRunner implements Runnable {
             String validation = TankConstants.HTTP_CASE_FAIL;
             try {
                 validation = tsr.execute();
+            } catch (Error e) {
+                if(e instanceof OutOfMemoryError){
+                    throw (OutOfMemoryError) e;
+                }
+                throw new Error(e);
             } catch (Exception e) {
                 if (e instanceof RuntimeException) {
                     throw (RuntimeException) e;
@@ -374,7 +383,7 @@ public class TestPlanRunner implements Runnable {
     public TankHttpClient initHttpClient() {
         try {
             //get the client from a factory and set it here.
-            TankHttpClient tankhttpclient = (TankHttpClient) Class.forName(httpClientClass).newInstance();
+            TankHttpClient tankhttpclient = (TankHttpClient) Class.forName(httpClientClass).getDeclaredConstructor().newInstance();
             Long connectionTimeout = APITestHarness.getInstance().getTankConfig().getAgentConfig().getConnectionTimeout();
             if (connectionTimeout != null) {
                 tankhttpclient.setConnectionTimeout(connectionTimeout);

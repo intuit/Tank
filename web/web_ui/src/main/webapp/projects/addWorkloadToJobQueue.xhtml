@@ -95,15 +95,15 @@
               <h:outputLabel for="numUsersPerInstance"
                              value="Max Users Per Agent"
                              styleClass="formLabel required" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"/>
-              <h:outputLabel for="numAgents"
-                             value="Number of Agents"
+              <h:outputLabel for="targetRatePerAgent"
+                             value="Max Users/Sec Per Agent"
                              styleClass="formLabel required" rendered="#{usersAndTimes.incrementStrategy == 'standard'}"/>
             </div>
             <div class="formInputDiv">
               <p:inputText id="numUsersPerInstance"
                            value="#{jobMaker.numUsersPerAgent}" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"/>
-              <p:inputText id="numAgents"
-                           value="#{jobMaker.numAgents}" rendered="#{usersAndTimes.incrementStrategy == 'standard'}"/>
+              <p:inputText id="targetRatePerAgent"
+                           value="#{jobMaker.targetRatePerAgent}" rendered="#{usersAndTimes.incrementStrategy == 'standard'}"/>
             </div>
           </div>
 

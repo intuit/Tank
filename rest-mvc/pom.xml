@@ -8,50 +8,13 @@
         <version>4.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>tank-api</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>tank-rest-api</artifactId>
+    <packaging>pom</packaging>
 
     <name>Tank V2 REST API</name>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webflux</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>script-engine</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>data-access</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>tank-vm-manager</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>tank-script-processor</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
-
+    <modules>
+        <module>impl</module>
+        <module>clients</module>
+    </modules>
 
 </project>

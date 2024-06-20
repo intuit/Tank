@@ -22,18 +22,18 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-jsr223</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.jruby</groupId>
-      <artifactId>jruby-core</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jaxb</groupId>
-      <artifactId>jaxb-runtime</artifactId>
+      <artifactId>jruby</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -50,7 +50,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-
         <configuration>
           <finalName>Tank-Script-Runner</finalName>
           <descriptors>
@@ -76,7 +75,6 @@
           </execution>
         </executions>
       </plugin>
-      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jarsigner-plugin</artifactId>

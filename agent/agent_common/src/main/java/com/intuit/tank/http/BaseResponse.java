@@ -70,7 +70,7 @@ public abstract class BaseResponse {
     }
 
     public void setHeader(String key, String value) {
-        this.headers.put(key, value);
+        this.headers.put(key.toLowerCase(), value);
     }
 
     /**
@@ -89,7 +89,7 @@ public abstract class BaseResponse {
      * @return The value associated with the key, or null if it doesn't exist.
      */
     public String getHttpHeader(String header) {
-        return this.headers.get(header);
+        return this.headers.get(header.toLowerCase());
     }
 
     /**
@@ -180,11 +180,11 @@ public abstract class BaseResponse {
      *         header
      */
     public String getCookie(String key) {
-        return cookies.get(key);
+        return cookies.get(key.toLowerCase());
     }
 
     public void setCookie(String key, String value) {
-        this.cookies.put(key, value);
+        this.cookies.put(key.toLowerCase(), value);
     }
 
     public Map<String, String> getCookies() {

@@ -8,9 +8,18 @@
 package com.intuit.tank.script.models;
 
 import jakarta.xml.bind.annotation.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
 import java.util.List;
 
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(setterPrefix = "with")
 @XmlRootElement(name = "scriptDescriptions", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ScriptDescriptionContainer", namespace = Namespace.NAMESPACE_V1, propOrder = {
@@ -23,19 +32,6 @@ public class ScriptDescriptionContainer implements Serializable {
     @XmlElementWrapper(name = "scripts", namespace = Namespace.NAMESPACE_V1)
     @XmlElement(name = "script", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private List<ScriptDescription> scripts;
-
-    public ScriptDescriptionContainer() {
-
-    }
-
-    /**
-     * create a descriptor from the script object
-     * 
-     * @param script
-     */
-    public ScriptDescriptionContainer(List<ScriptDescription> scripts) {
-        this.scripts = scripts;
-    }
 
     /**
      * @return the scripts

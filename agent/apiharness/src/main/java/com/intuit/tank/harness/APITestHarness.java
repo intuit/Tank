@@ -228,13 +228,10 @@ public class APITestHarness {
 
     private String getLocalInstanceId() {
         isLocal = true;
-        String iId = "local-instance";
         try {
-            iId = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e1) {
-            // cannot determine instanceid
-        }
-        return iId;
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException ignored) {}
+        return "local-instance";
     }
 
     /**
@@ -524,7 +521,7 @@ public class APITestHarness {
             }
             agentRunData.setProjectName(hdWorkload.getName());
             agentRunData.setTankhttpClientClass(tankHttpClientClass);
-            Object httpClient = ((TankHttpClient) Class.forName(tankHttpClientClass).newInstance()).createHttpClient();
+            Object httpClient = ((TankHttpClient) Class.forName(tankHttpClientClass).getDeclaredConstructor().newInstance()).createHttpClient();
             List<TestPlanStarter> testPlans = new ArrayList<TestPlanStarter>();
             for (HDTestPlan plan : hdWorkload.getPlans()) {
                 if (plan.getUserPercentage() > 0) {
@@ -873,6 +870,13 @@ public class APITestHarness {
      */
     public ResultsReporter getResultsReporter() {
         return resultsReporter;
+    }
+
+    /**
+     * @return the isLocal
+     */
+    public boolean isLocal() {
+        return isLocal;
     }
 
     /**

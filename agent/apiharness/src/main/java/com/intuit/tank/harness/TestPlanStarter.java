@@ -160,7 +160,7 @@ public class TestPlanStarter implements Runnable {
                 }
                 done = true;
             } catch (final Throwable t) {
-                LOG.error(LogUtil.getLogMessage("Linear - TestPlanStarter Unknown Error:"), t);
+                LOG.error(LogUtil.getLogMessage("Linear - TestPlanStarter Error:" + t.getMessage()), t);
                 throwUnchecked(t);
             }
         } else { // Nonlinear Workload
@@ -257,7 +257,7 @@ public class TestPlanStarter implements Runnable {
                 }
                 done = true;
             } catch (final Throwable t) {
-                LOG.error(LogUtil.getLogMessage("Nonlinear - TestPlanStarter Unknown Error:"), t);
+                LOG.error(LogUtil.getLogMessage("Nonlinear - TestPlanStarter Error:" + t.getMessage()), t);
                 throwUnchecked(t);
             }
         }
@@ -301,6 +301,15 @@ public class TestPlanStarter implements Runnable {
                             throw new InterruptedException();
                         }
                     }
+                    // check for stop/kill command during initial ramp
+                    if (APITestHarness.getInstance().getCmd() == AgentCommand.stop
+                            || APITestHarness.getInstance().getCmd() == AgentCommand.kill
+                            || APITestHarness.getInstance().hasMetSimulationTime()
+                            || APITestHarness.getInstance().isDebug()) {
+                        done = true;
+                        break;
+                    }
+
                     // each agent ramp 0 to X user/sec by adding users to the total users over the initial ramp
                     if(initialRampTimeElapsed <= rampTimeMillis) {
                         double currentUsers = calculateTotalUsers((double) initialRampTimeInterval / 1000); // calculate total expected users at current time
