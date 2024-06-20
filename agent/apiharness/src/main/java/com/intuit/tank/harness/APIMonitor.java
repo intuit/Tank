@@ -75,9 +75,12 @@ public class APIMonitor implements Runnable {
                 if (!isLocal) setInstanceStatus(newStatus.getInstanceId(), newStatus);
                 causeUnknownError();
                 APITestHarness.getInstance().checkAgentThreads();
-                Thread.sleep(reportInterval);
             } catch (Exception t) {
                 LOG.error(LogUtil.getLogMessage("Unable to send status metrics | " + t.getMessage()), t);
+            } finally {
+                try {
+                    Thread.sleep(reportInterval);
+                } catch ( InterruptedException ie) { /*Ignore*/ }
             }
         }
     }
