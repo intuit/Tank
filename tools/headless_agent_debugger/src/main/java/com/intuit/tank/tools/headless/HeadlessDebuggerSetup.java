@@ -16,9 +16,9 @@ import com.intuit.tank.harness.functions.JexlIOFunctions;
 import com.intuit.tank.harness.functions.JexlStringFunctions;
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.logging.LoggingProfile;
-import com.intuit.tank.rest.mvc.rest.clients.ProjectClient;
-import com.intuit.tank.rest.mvc.rest.models.projects.KeyPair;
-import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
+import com.intuit.tank.clients.ProjectClient;
+import com.intuit.tank.projects.models.KeyPair;
+import com.intuit.tank.projects.models.ProjectTO;
 import com.intuit.tank.runner.TestStepContext;
 import com.intuit.tank.vm.agent.messages.Headers;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
@@ -29,7 +29,6 @@ import org.apache.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -147,7 +146,7 @@ public class HeadlessDebuggerSetup implements Serializable {
         System.out.println("-t=<token>: Tank API token needed to connect to the Tank controller");
     }
 
-    public void setProject(Integer projectId) {
+    public void setProject(Integer projectId) throws IOException, InterruptedException {
             try {
                 ProjectTO project = projectClient.getProject(projectId);
                 if (project != null) {
@@ -164,7 +163,7 @@ public class HeadlessDebuggerSetup implements Serializable {
                     LOG.error("Error: Project Not Found");
                     throw new RuntimeException("Error: Project Not Found");
                 }
-            } catch (WebClientRequestException e1) {
+            } catch (InterruptedException | IOException e1) {
                 LOG.error("Error: Empty or Invalid Tank URL");
                 throw e1;
             } catch (Exception e2) {
