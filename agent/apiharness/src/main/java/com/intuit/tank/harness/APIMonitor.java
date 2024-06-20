@@ -73,7 +73,6 @@ public class APIMonitor implements Runnable {
                     sendTps(tpsInfo);
                 }
                 if (!isLocal) setInstanceStatus(newStatus.getInstanceId(), newStatus);
-                causeUnknownError();
                 APITestHarness.getInstance().checkAgentThreads();
             } catch (Exception t) {
                 LOG.error(LogUtil.getLogMessage("Unable to send status metrics | " + t.getMessage()), t);
@@ -150,10 +149,6 @@ public class APIMonitor implements Runnable {
                 LOG.error("Error sending status to controller: " + e.toString(), e);
             }
         }
-    }
-
-    private static void causeUnknownError() throws IllegalArgumentException {
-        throw new IllegalArgumentException("throwing unknown error in APIMonitor");
     }
 
     private static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException, JsonProcessingException {
