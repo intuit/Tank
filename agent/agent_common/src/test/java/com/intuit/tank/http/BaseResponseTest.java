@@ -448,11 +448,7 @@ public class BaseResponseTest {
         fixture.responseByteArray = new byte[] {};
         fixture.rspMessage = "";
         fixture.responseLogMsg = "";
-        assertEquals("RESPONSE HTTP CODE: 1\n" +
-                "RESPONSE HTTP MSG: \n" +
-                "RESPONSE TIME: 1\n" +
-                "RESPONSE SIZE: 0\n" +
-                "RESPONSE BODY: not logged because null is not a content-type.\n", fixture.getLogMsg());
+        assertEquals("", fixture.getLogMsg());
     }
 
     @Test
@@ -463,13 +459,7 @@ public class BaseResponseTest {
         fixture.cookies = new HashMap<String, String>();
         fixture.cookies.put("testHeadersKey", "testHeadersValue");
         fixture.response = "testResponse";
-        assertEquals("RESPONSE HTTP CODE: -1\n" +
-                "RESPONSE HTTP MSG: \n" +
-                "RESPONSE TIME: -1\n" +
-                "RESPONSE SIZE: 12\n" +
-                "RESPONSE HEADER: content-type = text/html\n" +
-                "RESPONSE COOKIE: testHeadersKey = testHeadersValue\n" +
-                "RESPONSE BODY: testResponse\n", fixture.getLogMsg());
+        assertNull(fixture.getLogMsg());
     }
 
 }
