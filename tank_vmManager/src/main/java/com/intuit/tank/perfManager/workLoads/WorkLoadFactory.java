@@ -16,6 +16,7 @@ package com.intuit.tank.perfManager.workLoads;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.intuit.tank.vm.vmManager.*;
 import jakarta.inject.Inject;
 
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
@@ -39,11 +40,6 @@ import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.service.v1.project.ProjectServiceUrlBuilder;
 import com.intuit.tank.vm.scheduleManager.AgentDispatcher;
-import com.intuit.tank.vm.vmManager.JobRequest;
-import com.intuit.tank.vm.vmManager.JobRequestImpl;
-import com.intuit.tank.vm.vmManager.Notification;
-import com.intuit.tank.vm.vmManager.RegionRequest;
-import com.intuit.tank.vm.vmManager.VMChannel;
 import com.intuit.tank.vm.vmManager.JobRequestImpl.Builder;
 
 public class WorkLoadFactory {
@@ -139,7 +135,8 @@ public class WorkLoadFactory {
                 .withUseTwoStep(job.isUseTwoStep())
                 .withVmInstanceType(job.getVmInstanceType())
                 .withnumUsersPerAgent(job.getNumUsersPerAgent())
-                .withNumAgents(job.getNumAgents())
+                .withNumAgents(JobVmCalculator.getMachinesForAgentByTargetRate(job.getTargetRampRate(), job.getTargetRatePerAgent()).keySet().iterator().next())
+                .withTargetRatePerAgent(JobVmCalculator.getMachinesForAgentByTargetRate(job.getTargetRampRate(), job.getTargetRatePerAgent()).values().iterator().next())
                 .withSimulationTime(job.getSimulationTime()).withStatus(job.getStatus())
                 .withTerminationPolicy(job.getTerminationPolicy())
                 .withUserIntervalIncrement(job.getUserIntervalIncrement())

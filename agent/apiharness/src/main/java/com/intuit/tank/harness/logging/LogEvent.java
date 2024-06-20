@@ -215,11 +215,9 @@ public class LogEvent implements Serializable {
     }
 
     private String getResponseTime() {
-        String ret = null;
-        if (request != null && request.getResponse() != null && request.getResponse().getResponseTime() >= 0) {
-            ret = Long.toString(request.getResponse().getResponseTime()) + " ms";
-        }
-        return ret;
+        return (request != null && request.getResponse() != null && request.getResponse().getResponseTime() >= 0)
+                ? Long.toString(request.getResponse().getResponseTime())
+                : null;
     }
 
     public String getStepGroupName() {

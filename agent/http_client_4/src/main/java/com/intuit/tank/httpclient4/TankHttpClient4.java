@@ -341,9 +341,8 @@ public class TankHttpClient4 implements TankHttpClient {
             AgentConfig config = request.getLogUtil().getAgentConfig();
             long maxAgentResponseTime = config.getMaxAgentResponseTime();
             if (maxAgentResponseTime < responseTime) {
-                long waitTime = Math.min(config.getMaxAgentWaitTime(), responseTime);
-                LOG.warn(request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
-                Thread.sleep(waitTime);
+                LOG.warn(request.getLogUtil().getLogMessage("Response time too slow"));
+                Thread.sleep(Math.min(config.getMaxAgentWaitTime(), responseTime));
             }
         } catch (InterruptedException e) {
             LOG.warn("Interrupted", e);

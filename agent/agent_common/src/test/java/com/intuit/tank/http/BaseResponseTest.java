@@ -452,14 +452,14 @@ public class BaseResponseTest {
                 "RESPONSE HTTP MSG: \n" +
                 "RESPONSE TIME: 1\n" +
                 "RESPONSE SIZE: 0\n" +
-                "RESPONSE BODY: not logged because null is not a data type.\n", fixture.getLogMsg());
+                "RESPONSE BODY: not logged because null is not a content-type.\n", fixture.getLogMsg());
     }
 
     @Test
     public void testLogResponse_2() {
         BaseResponse fixture = new MockResponse();
         fixture.headers = new HashMap<String, String>();
-        fixture.headers.put("Content-Type", "text/html");
+        fixture.headers.put("content-type", "text/html");
         fixture.cookies = new HashMap<String, String>();
         fixture.cookies.put("testHeadersKey", "testHeadersValue");
         fixture.response = "testResponse";
@@ -467,7 +467,7 @@ public class BaseResponseTest {
                 "RESPONSE HTTP MSG: \n" +
                 "RESPONSE TIME: -1\n" +
                 "RESPONSE SIZE: 12\n" +
-                "RESPONSE HEADER: Content-Type = text/html\n" +
+                "RESPONSE HEADER: content-type = text/html\n" +
                 "RESPONSE COOKIE: testHeadersKey = testHeadersValue\n" +
                 "RESPONSE BODY: testResponse\n", fixture.getLogMsg());
     }

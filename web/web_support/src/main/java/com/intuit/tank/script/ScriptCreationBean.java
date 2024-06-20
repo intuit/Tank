@@ -14,7 +14,6 @@ package com.intuit.tank.script;
  */
 
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +43,6 @@ import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.script.processor.ScriptProcessor;
 import com.intuit.tank.util.UploadedFileIterator;
-import com.intuit.tank.vm.common.util.MethodTimer;
-import com.intuit.tank.vm.exception.WatsParseException;
 import com.intuit.tank.vm.settings.AccessRight;
 import com.intuit.tank.wrapper.FileInputStreamWrapper;
 import com.intuit.tank.wrapper.SelectableWrapper;
@@ -219,7 +216,7 @@ public class ScriptCreationBean implements Serializable {
                         return null;
                     }
                     scriptProcessor.setScript(script);
-                    List<ScriptStep> steps = parseScript(new InputStreamReader(w.getInputStream()),
+                    List<ScriptStep> steps = scriptProcessor.parseScript(new InputStreamReader(w.getInputStream()),
                             getSelectedFilters());
                     // iterate through the other files if needed
                     while ((w = uploadedFileIterator.getNext()) != null) {
@@ -279,18 +276,6 @@ public class ScriptCreationBean implements Serializable {
      */
     private void updateFilterWrapperForGroup(ScriptFilter filter, boolean flag) {
         getFilterWrappers().stream().filter(filterWrapper -> filterWrapper.getEntity().getId() == filter.getId()).findFirst().ifPresent(filterWrapper -> filterWrapper.setSelected(flag));
-    }
-
-    private List<ScriptStep> parseScript(Reader reader, List<ScriptFilter> filters) throws WatsParseException {
-        MethodTimer timer = new MethodTimer(LOG, getClass(), "parseScript");
-        timer.start();
-        long st = System.currentTimeMillis();
-        List<ScriptStep> steps = scriptProcessor.parseScript(reader, filters);
-        long end = System.currentTimeMillis();
-        LOG.debug("parsing xml:" + (end - st));
-
-        timer.markAndLog("Parse Script with " + steps.size() + " steps");
-        return steps;
     }
 
     private void setScriptSteps(Script script, List<ScriptStep> steps) {

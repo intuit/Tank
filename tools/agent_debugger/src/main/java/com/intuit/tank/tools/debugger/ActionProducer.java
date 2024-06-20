@@ -39,17 +39,16 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.xml.sax.SAXException;
 
-import com.intuit.tank.rest.mvc.rest.clients.AgentClient;
-import com.intuit.tank.rest.mvc.rest.clients.DataFileClient;
-import com.intuit.tank.rest.mvc.rest.clients.ProjectClient;
-import com.intuit.tank.rest.mvc.rest.clients.ScriptClient;
-import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinition;
-import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContainer;
-import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
-import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
+import com.intuit.tank.clients.AgentClient;
+import com.intuit.tank.clients.DataFileClient;
+import com.intuit.tank.clients.ProjectClient;
+import com.intuit.tank.clients.ScriptClient;
+import com.intuit.tank.agent.models.TankHttpClientDefinition;
+import com.intuit.tank.agent.models.TankHttpClientDefinitionContainer;
+import com.intuit.tank.datafiles.models.DataFileDescriptor;
+import com.intuit.tank.projects.models.ProjectTO;
 import com.intuit.tank.script.models.ScriptDescription;
 import com.intuit.tank.script.models.ScriptDescriptionContainer;
 import com.intuit.tank.harness.data.HDWorkload;
@@ -441,7 +440,7 @@ public class ActionProducer {
             // This is just a filler for the UI before you select a tank instance to import from.
             cb.addItem(new TankClientChoice("Apache HttpClient 3.1", "com.intuit.tank.httpclient3.TankHttpClient3"));
             cb.addItem(new TankClientChoice("Apache HttpClient 4.5", "com.intuit.tank.httpclient4.TankHttpClient4"));
-            cb.addItem(new TankClientChoice("Apache HttpClient 5", "com.intuit.tank.httpclient5.TankHttpClient5"));
+            cb.addItem(new TankClientChoice("JDK Http Client", "com.intuit.tank.httpclientjdk.TankHttpClientJDK"));
             cb.setSelectedIndex(2);
         }
     }
@@ -517,7 +516,7 @@ public class ActionProducer {
                                 }
                             }).start();
                         }
-                    } catch (WebClientRequestException e1) {
+                    } catch (InterruptedException | IOException e1) {
                         showError("Error: Empty or Invalid Tank URL");
                         LOG.error("Error: Empty or Invalid Tank URL");
                     } catch (Exception e2) {
@@ -555,7 +554,7 @@ public class ActionProducer {
                         if (!selectedObjects.isEmpty()) {
                             debuggerFrame.setDataFiles(selectedObjects);
                         }
-                    } catch (WebClientRequestException e1) {
+                    } catch (InterruptedException | IOException e1) {
                         showError("Error: Empty or Invalid Tank URL");
                         LOG.error("Error: Empty or Invalid Tank URL");
                     } catch (Exception e2) {
@@ -644,7 +643,7 @@ public class ActionProducer {
                                 }).start();
                             }
                         }
-                    } catch (WebClientRequestException e1) {
+                    } catch (InterruptedException | IOException e1) {
                         showError("Error: Empty or Invalid Tank URL");
                         LOG.error("Error: Empty or Invalid Tank URL");
                     } catch (Exception e2) {

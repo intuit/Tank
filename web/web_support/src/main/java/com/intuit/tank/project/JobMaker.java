@@ -238,6 +238,17 @@ public class JobMaker implements Serializable {
         }
     }
 
+    public double getTargetRatePerAgent() {
+        return (projectBean.getJobConfiguration().getTargetRatePerAgent() != null) ?
+                projectBean.getJobConfiguration().getTargetRatePerAgent() : 1.00 ;
+    }
+
+    public void setTargetRatePerAgent(double targetRatePerAgent) {
+        if (targetRatePerAgent > 0.0) {
+            projectBean.getJobConfiguration().setTargetRatePerAgent(targetRatePerAgent);
+        }
+    }
+
     public int getNumAgents() {
         return projectBean.getJobConfiguration().getNumAgents();
     }
