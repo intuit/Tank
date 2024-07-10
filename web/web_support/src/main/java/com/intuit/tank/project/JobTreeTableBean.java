@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
+import com.intuit.tank.harness.AmazonUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
@@ -471,6 +472,7 @@ public abstract class JobTreeTableBean implements Serializable {
 
     private void buildTree() {
         AWSXRay.beginSubsegment("Build.Tree");
+        LOG.info("JobTree: building tree on controller " + AmazonUtil.getInstanceId());
         Integer rootJob = getRootJobId();
         Set<String> trackerJobs = getTrackerJobIds();
         Map<Integer, TreeNode> jobNodeMap = new HashMap<Integer, TreeNode>();
