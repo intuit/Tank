@@ -237,6 +237,7 @@ public class JobManager implements Serializable {
      * @return Array of CompletableFuture that will probably never be looked at.
      */
     public List<CompletableFuture<?>> sendCommand(List<String> instanceIds, AgentCommand cmd) {
+        LOG.info("JobManager: sending command {} to agents: {}", cmd.getPath(), String.join(",", instanceIds));
         List<String> instanceUrls = getInstanceUrl(instanceIds);
         if (!instanceUrls.isEmpty()) {
             return instanceUrls.parallelStream()

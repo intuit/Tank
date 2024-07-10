@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import com.intuit.tank.harness.AmazonUtil;
 import jakarta.annotation.Nonnull;
@@ -170,7 +171,7 @@ public class VMTrackerImpl implements VMTracker {
                 cloudVmStatusContainer.setJobId(jobId);
 
                 jobMap.put(jobId, cloudVmStatusContainer);
-                LOG.info("VMTrackerImpl: agent status {} adding to jobMap {}", cloudVmStatusContainer.toString(), jobMap.toString());
+                LOG.info("VMTrackerImpl: cloudVmStatusContainer status {} adding to jobMap {}", cloudVmStatusContainer.toString(), jobMap.toString());
                 LOG.info("VMTrackerImpl: attempting to pull job");
                 JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(jobId));
                 if (job != null) {
@@ -309,7 +310,9 @@ public class VMTrackerImpl implements VMTracker {
 
     @Override
     public void stopJob(String id) {
+        LOG.info("VMTrackerImpl: Stopping Job {}", id);
         stoppedJobs.add(id);
+        LOG.info("VMTrackerImpl: stoppedJobs {}", stoppedJobs.stream().collect(Collectors.joining(",")));
     }
 
     /**

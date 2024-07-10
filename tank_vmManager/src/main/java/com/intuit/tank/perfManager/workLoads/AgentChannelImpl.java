@@ -22,6 +22,8 @@ import jakarta.inject.Inject;
 
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import com.intuit.tank.vm.perfManager.AgentChannel;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * AgentChannelImpl communication channel for agents.
@@ -32,10 +34,16 @@ import com.intuit.tank.vm.perfManager.AgentChannel;
 
 public class AgentChannelImpl implements AgentChannel {
 
+    private static final Logger LOG = LogManager.getLogger(AgentChannelImpl.class);
+
+
     @Inject
     private JobManager jobManager;
 
-    public void stopAgents(List<String> instanceIds) { jobManager.sendCommand(instanceIds, AgentCommand.stop); }
+    public void stopAgents(List<String> instanceIds) {
+        LOG.info("AgentChannelImpl: stopping agents: {}", String.join(",", instanceIds));
+        jobManager.sendCommand(instanceIds, AgentCommand.stop);
+    }
 
     public void pauseAgents(List<String> instanceIds) { jobManager.sendCommand(instanceIds, AgentCommand.pause); }
 
