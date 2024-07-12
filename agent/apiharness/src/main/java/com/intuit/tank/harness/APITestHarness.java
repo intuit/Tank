@@ -86,6 +86,7 @@ public class APITestHarness {
     private long startTime = 0;
     private int capacity = -1;
     private boolean DEBUG = false;
+    private String instanceUrl = "";
 
     private boolean logTiming = true;
     private boolean isLocal = true;
@@ -287,6 +288,7 @@ public class APITestHarness {
         if (capacity < 0) {
             capacity = AmazonUtil.getCapacity();
         }
+        setInstanceUrl(instanceUrl);
         agentRunData.setJobId(AmazonUtil.getJobId());
         agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
         LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
@@ -635,12 +637,12 @@ public class APITestHarness {
                 region = AmazonUtil.getVMRegion();
                 secGroups = EC2MetadataUtils.getSecurityGroups().get(0);
             }
-            status = new CloudVmStatus(instanceId, agentRunData.getJobId(), secGroups, JobStatus.Unknown,
+            status = new CloudVmStatus(instanceId, getInstanceUrl(), agentRunData.getJobId(), secGroups, JobStatus.Unknown,
                     VMImageType.AGENT, region, VMStatus.running,
                     new ValidationStatus(), 0, 0, new Date(), null);
         } catch (Exception e) {
             LOG.error(LogUtil.getLogMessage("Error creating intial status."));
-            status = new CloudVmStatus(instanceId, "unknown", "wats-dev", JobStatus.Unknown,
+            status = new CloudVmStatus(instanceId, getInstanceUrl(), "unknown", "wats-dev", JobStatus.Unknown,
                     VMImageType.AGENT, VMRegion.US_EAST, VMStatus.running,
                     new ValidationStatus(), 0, 0, new Date(), null);
         }
@@ -893,4 +895,11 @@ public class APITestHarness {
         this.tankHttpClientClass = tankHttpClientClass;
     }
 
+    public String getInstanceUrl() {
+        return instanceUrl;
+    }
+
+    public void setInstanceUrl(String instanceUrl) {
+        this.instanceUrl = instanceUrl;
+    }
 }

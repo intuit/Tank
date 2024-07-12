@@ -97,7 +97,7 @@ public class APIMonitor implements Runnable {
      * @return
      */
     private CloudVmStatus createStatus(WatsAgentStatusResponse agentStatus) {
-        return new CloudVmStatus(status.getInstanceId(), status.getJobId(), status.getSecurityGroup(),
+        return new CloudVmStatus(status.getInstanceId(), status.getInstanceUrl(), status.getJobId(), status.getSecurityGroup(),
                 calculateJobStatus(agentStatus, status.getJobStatus()), status.getRole(), status.getVmRegion(),
                 status.getVmStatus(),
                 new ValidationStatus(agentStatus.getKills(), agentStatus.getAborts(),
@@ -137,7 +137,7 @@ public class APIMonitor implements Runnable {
                 WatsAgentStatusResponse stats = APITestHarness.getInstance().getStatus();
                 Date endTime = (jobStatus == JobStatus.Completed) ? new Date() : status
                         .getEndTime();
-                status = new CloudVmStatus(status.getInstanceId(), status.getJobId(), status.getSecurityGroup(),
+                status = new CloudVmStatus(status.getInstanceId(), status.getInstanceUrl(), status.getJobId(), status.getSecurityGroup(),
                         jobStatus, status.getRole(), status.getVmRegion(), vmStatus,
                         new ValidationStatus(stats.getKills(), stats.getAborts(),
                                 stats.getGotos(), stats.getSkips(), stats.getSkipGroups(), stats.getRestarts()),

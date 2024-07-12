@@ -259,14 +259,14 @@ public class AgentWatchdog implements Runnable {
      * @return
      */
     private CloudVmStatus createCloudStatus(VMInstanceRequest req, VMInformation info) {
-        return new CloudVmStatus(info.getInstanceId(), req.getJobId(),
+        return new CloudVmStatus(info.getInstanceId(), "", req.getJobId(),
                 req.getInstanceDescription() != null ? req.getInstanceDescription().getSecurityGroup() : "unknown",
                 JobStatus.Starting,
                 VMImageType.AGENT, req.getRegion(), VMStatus.pending, new ValidationStatus(), 0, 0, null, null);
     }
 
     private CloudVmStatus createTerminatedVmStatus(VMInformation info) {
-        return new CloudVmStatus(info.getInstanceId(), instanceRequest.getJobId(), "unknown",
+        return new CloudVmStatus(info.getInstanceId(), "", instanceRequest.getJobId(), "unknown",
                 JobStatus.Stopped, VMImageType.AGENT, instanceRequest.getRegion(),
                 VMStatus.terminated, new ValidationStatus(), 0, 0, null, null);
     }

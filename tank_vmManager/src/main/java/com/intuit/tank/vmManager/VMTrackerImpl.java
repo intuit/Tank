@@ -94,6 +94,7 @@ public class VMTrackerImpl implements VMTracker {
     private Map<String, ProjectStatusContainer> projectContainerMap = new ConcurrentHashMap<String, ProjectStatusContainer>();
     private Map<String, CloudVmStatus> statusMap = new ConcurrentHashMap<String, CloudVmStatus>();
     private Map<String, CloudVmStatusContainer> jobMap = new ConcurrentHashMap<String, CloudVmStatusContainer>();
+    private Map<String, String> currentInstances = new ConcurrentHashMap<>();
     private Set<String> stoppedJobs = new HashSet<String>();
 
     private static final ThreadPoolExecutor EXECUTOR =
@@ -150,6 +151,8 @@ public class VMTrackerImpl implements VMTracker {
     private void setStatusThread(@Nonnull final CloudVmStatus status) {
         AWSXRay.getGlobalRecorder().beginNoOpSegment();  //initiation call has already returned 204
         LOG.info("VMTrackerImpl: agent setStatus hit controller {} with agent: {}", AmazonUtil.getInstanceId(), status);
+        currentInstances.put(status.getInstanceId(), status.getInstanceUrl());
+        LOG.info("VMTrackerImpl: added instance {} with instanceURL {} to currentInstance mapping {}", status.getInstanceId(), status.getInstanceUrl(), currentInstances.toString());
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
             CloudVmStatus currentStatus = getStatus(status.getInstanceId());
@@ -313,6 +316,11 @@ public class VMTrackerImpl implements VMTracker {
         LOG.info("VMTrackerImpl: Stopping Job {}", id);
         stoppedJobs.add(id);
         LOG.info("VMTrackerImpl: stoppedJobs {}", stoppedJobs.stream().collect(Collectors.joining(",")));
+    }
+
+    @Override
+    public Map<String, String> getCurrentInstances() {
+        return currentInstances;
     }
 
     /**

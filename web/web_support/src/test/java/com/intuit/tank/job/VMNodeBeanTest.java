@@ -45,7 +45,7 @@ public class VMNodeBeanTest {
     @Test
     public void testVMNodeBean_1()
             throws Exception {
-        CloudVmStatus vmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1,
+        CloudVmStatus vmStatus = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1,
                 VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         vmStatus.setTotalTps(1);
         vmStatus.setUserDetails(new LinkedList());
@@ -71,7 +71,7 @@ public class VMNodeBeanTest {
     @Test
     public void testGetSubNodes_1()
             throws Exception {
-        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
+        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT,
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
@@ -95,7 +95,7 @@ public class VMNodeBeanTest {
     @Test
     public void testGetType_1()
             throws Exception {
-        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
+        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT,
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
@@ -119,7 +119,7 @@ public class VMNodeBeanTest {
     @Test
     public void testHasSubNodes_1()
             throws Exception {
-        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
+        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT,
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
@@ -143,7 +143,7 @@ public class VMNodeBeanTest {
     @Test
     public void testIsKillable_1()
             throws Exception {
-        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
+        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT,
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
@@ -167,7 +167,7 @@ public class VMNodeBeanTest {
     @Test
     public void testIsPausable_1()
             throws Exception {
-        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
+        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT,
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
@@ -191,7 +191,7 @@ public class VMNodeBeanTest {
     @Test
     public void testisRampPauseable_1()
             throws Exception {
-        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
+        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT,
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
@@ -215,7 +215,7 @@ public class VMNodeBeanTest {
     @Test
     public void testIsRunnable_1()
             throws Exception {
-        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
+        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT,
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
@@ -239,7 +239,7 @@ public class VMNodeBeanTest {
     @Test
     public void testisStoppable_1()
             throws Exception {
-        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
+        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT,
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
@@ -263,7 +263,7 @@ public class VMNodeBeanTest {
     @Test
     public void testReCalculate_1()
             throws Exception {
-        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
+        CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT,
                 VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());

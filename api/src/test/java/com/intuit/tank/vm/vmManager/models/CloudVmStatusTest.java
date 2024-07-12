@@ -72,7 +72,7 @@ public class CloudVmStatusTest {
     @Test
     public void testCloudVmStatus_2()
         throws Exception {
-        CloudVmStatus copy = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus copy = new CloudVmStatus("", "", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         copy.setTotalTps(1);
 
         CloudVmStatus result = new CloudVmStatus(copy);
@@ -98,6 +98,7 @@ public class CloudVmStatusTest {
     public void testCloudVmStatus_3()
         throws Exception {
         String instanceId = "";
+        String instanceUrl = "";
         String jobId = "";
         String securityGroup = "";
         JobStatus jobStatus = JobStatus.Completed;
@@ -110,7 +111,7 @@ public class CloudVmStatusTest {
         Date startTime = new Date();
         Date endTime = new Date();
 
-        CloudVmStatus result = new CloudVmStatus(instanceId, jobId, securityGroup, jobStatus, role, vmRegion, vmStatus, validationFailures, totalUsers, currentUsers, startTime, endTime);
+        CloudVmStatus result = new CloudVmStatus(instanceId, instanceUrl, jobId, securityGroup, jobStatus, role, vmRegion, vmStatus, validationFailures, totalUsers, currentUsers, startTime, endTime);
 
         assertNotNull(result);
         assertEquals("", result.getJobId());
@@ -132,7 +133,7 @@ public class CloudVmStatusTest {
     @Test
     public void testEquals_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -153,11 +154,11 @@ public class CloudVmStatusTest {
     @Test
     public void testEquals_2()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
-        Object obj = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        Object obj = new CloudVmStatus("", "", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
 
         boolean result = fixture.equals(obj);
 
@@ -174,11 +175,11 @@ public class CloudVmStatusTest {
     @Test
     public void testEquals_3()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
-        Object obj = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        Object obj = new CloudVmStatus("", "", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
 
         boolean result = fixture.equals(obj);
 
@@ -195,7 +196,7 @@ public class CloudVmStatusTest {
     @Test
     public void testGetCurrentUsers_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -215,7 +216,7 @@ public class CloudVmStatusTest {
     @Test
     public void testGetEndTime_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -235,7 +236,7 @@ public class CloudVmStatusTest {
     @Test
     public void testGetInstanceId_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -255,7 +256,7 @@ public class CloudVmStatusTest {
     @Test
     public void testGetJobId_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -275,7 +276,7 @@ public class CloudVmStatusTest {
     @Test
     public void testGetJobStatus_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -298,7 +299,7 @@ public class CloudVmStatusTest {
     @Test
     public void testGetReportTime_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -318,7 +319,7 @@ public class CloudVmStatusTest {
     @Test
     public void testGetRole_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -341,7 +342,7 @@ public class CloudVmStatusTest {
     @Test
     public void testGetSecurityGroup_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -361,7 +362,7 @@ public class CloudVmStatusTest {
     @Test
     public void testGetStartTime_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -381,7 +382,7 @@ public class CloudVmStatusTest {
     @Test
     public void testGetTotalTps_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -401,7 +402,7 @@ public class CloudVmStatusTest {
     @Test
     public void testGetTotalUsers_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -421,7 +422,7 @@ public class CloudVmStatusTest {
     @Test
     public void testGetUserDetails_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -442,7 +443,7 @@ public class CloudVmStatusTest {
     @Test
     public void testGetValidationFailures_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -469,7 +470,7 @@ public class CloudVmStatusTest {
     @Test
     public void testGetVmRegion_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -495,7 +496,7 @@ public class CloudVmStatusTest {
     @Disabled
     public void testGetVmStatus_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -518,7 +519,7 @@ public class CloudVmStatusTest {
     @Test
     public void testHashCode_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -538,7 +539,7 @@ public class CloudVmStatusTest {
     @Test
     public void testSetCurrentUsers_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -558,7 +559,7 @@ public class CloudVmStatusTest {
     @Test
     public void testSetEndTime_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -578,7 +579,7 @@ public class CloudVmStatusTest {
     @Test
     public void testSetJobStatus_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -598,7 +599,7 @@ public class CloudVmStatusTest {
     @Test
     public void testSetReportTime_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -618,7 +619,7 @@ public class CloudVmStatusTest {
     @Test
     public void testSetTotalTps_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -638,7 +639,7 @@ public class CloudVmStatusTest {
     @Test
     public void testSetUserDetails_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -658,7 +659,7 @@ public class CloudVmStatusTest {
     @Test
     public void testSetVmStatus_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());
@@ -678,7 +679,7 @@ public class CloudVmStatusTest {
     @Test
     public void testToString_1()
         throws Exception {
-        CloudVmStatus fixture = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus fixture = new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         fixture.setReportTime(new Date());
         fixture.setTotalTps(1);
         fixture.setUserDetails(new LinkedList());

@@ -19,6 +19,7 @@ package com.intuit.tank.vm.vmManager;
 import java.util.Set;
 
 import jakarta.annotation.Nonnull;
+import java.util.Map;
 
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
@@ -113,4 +114,5 @@ public interface VMTracker {
      */
     public void stopJob(String id);
 
+    public Map<String, String> getCurrentInstances();
 }

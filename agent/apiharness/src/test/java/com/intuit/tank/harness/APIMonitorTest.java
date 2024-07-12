@@ -28,7 +28,7 @@ public class APIMonitorTest {
 
     @Test
     public void testAPIMonitorTest_1() {
-        CloudVmStatus status = new CloudVmStatus(null, "unknown", "wats-dev", JobStatus.Unknown,
+        CloudVmStatus status = new CloudVmStatus(null, null, "unknown", "wats-dev", JobStatus.Unknown,
                 VMImageType.AGENT, VMRegion.US_EAST, VMStatus.running,
                 new ValidationStatus(), 0, 0, new Date(), null);
         APIMonitor apiMonitor = new APIMonitor(false, status);

@@ -155,7 +155,7 @@ public class JobControllerTest {
 
     @Test
     public void testGetJobVMStatuses() {
-        CloudVmStatus testStatus = new CloudVmStatus("testInstanceId", "2", "testSecurityGroup", JobStatus.Starting,
+        CloudVmStatus testStatus = new CloudVmStatus("testInstanceId", "", "2", "testSecurityGroup", JobStatus.Starting,
                 VMImageType.AGENT, VMRegion.US_WEST_2, null, null, 0, 0, null, null);
 
         CloudVmStatusContainer container = new CloudVmStatusContainer();

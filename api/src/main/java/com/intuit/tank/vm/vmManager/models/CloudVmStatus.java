@@ -46,6 +46,7 @@ import com.intuit.tank.vm.api.enumerated.VMRegion;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "CloudVm", namespace = Namespace.NAMESPACE_V1, propOrder = {
         "instanceId",
+        "instanceUrl",
         "jobId",
         "securityGroup",
         "jobStatus",
@@ -67,6 +68,9 @@ public class CloudVmStatus implements Serializable {
 
     @XmlElement(name = "instanceId", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private String instanceId;
+
+    @XmlElement(name = "instance-url", namespace = com.intuit.tank.vm.agent.messages.Namespace.NAMESPACE_V1, required = true, nillable = false)
+    private String instanceUrl;
 
     @XmlElement(name = "jobId", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private String jobId;
@@ -116,6 +120,7 @@ public class CloudVmStatus implements Serializable {
 
     /**
      * @param instanceId
+     * @param instanceUrl
      * @param jobId
      * @param securityGroup
      * @param jobStatus
@@ -123,12 +128,13 @@ public class CloudVmStatus implements Serializable {
      * @param totalUsers
      * @param currentUsers
      */
-    public CloudVmStatus(String instanceId, String jobId, String securityGroup, JobStatus jobStatus, VMImageType role,
+    public CloudVmStatus(String instanceId, String instanceUrl, String jobId, String securityGroup, JobStatus jobStatus, VMImageType role,
             VMRegion vmRegion,
             VMStatus vmStatus, ValidationStatus validationFailures,
             int totalUsers, int currentUsers, Date startTime, Date endTime) {
         super();
         this.instanceId = instanceId;
+        this.instanceUrl = instanceUrl;
         this.jobId = jobId;
         this.securityGroup = securityGroup;
         this.vmRegion = vmRegion;
@@ -148,6 +154,7 @@ public class CloudVmStatus implements Serializable {
      */
     public CloudVmStatus(CloudVmStatus copy) {
         this.instanceId = copy.instanceId;
+        this.instanceUrl = copy.instanceUrl;
         this.jobId = copy.jobId;
         this.securityGroup = copy.securityGroup;
         this.vmRegion = copy.vmRegion;
@@ -204,6 +211,13 @@ public class CloudVmStatus implements Serializable {
      */
     public String getInstanceId() {
         return instanceId;
+    }
+
+    /**
+     * @return the instanceUrl
+     */
+    public String getInstanceUrl() {
+        return instanceUrl;
     }
 
     /**

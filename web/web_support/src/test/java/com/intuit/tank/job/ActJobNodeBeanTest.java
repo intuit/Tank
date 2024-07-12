@@ -116,7 +116,7 @@ public class ActJobNodeBeanTest {
         jobInstance.setStartTime(new Date());
         ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
         fixture.setVmBeans(new LinkedList());
-        VMNodeBean vmNode = new VMNodeBean(new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date()), true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
+        VMNodeBean vmNode = new VMNodeBean(new CloudVmStatus("", "", "", "",  JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date()), true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
 
         fixture.addVMBean(vmNode);
 

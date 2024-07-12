@@ -226,7 +226,7 @@ public class JobManager implements Serializable {
     }
 
     private CloudVmStatus createFailureStatus(AgentData data) {
-        return new CloudVmStatus(data.getInstanceId(), data.getJobId(), null, JobStatus.Unknown, VMImageType.AGENT,
+        return new CloudVmStatus(data.getInstanceId(), data.getInstanceUrl(), data.getJobId(), null, JobStatus.Unknown, VMImageType.AGENT,
                 data.getRegion(), VMStatus.stopped, new ValidationStatus(), data.getUsers(), 0, null, null);
     }
 
@@ -239,6 +239,7 @@ public class JobManager implements Serializable {
     public List<CompletableFuture<?>> sendCommand(List<String> instanceIds, AgentCommand cmd) {
         LOG.info("JobManager: sending command {} to agents: {}", cmd.getPath(), String.join(",", instanceIds));
         List<String> instanceUrls = getInstanceUrl(instanceIds);
+        LOG.info("JobManager: retrieved the following instanceUrls {}", String.join(",", instanceUrls));
         if (!instanceUrls.isEmpty()) {
             return instanceUrls.parallelStream()
                     .map(instanceUrl -> instanceUrl + cmd.getPath())
@@ -273,11 +274,21 @@ public class JobManager implements Serializable {
      * @return AgentData
      */
     private AgentData findAgent(String instanceId) {
+        LOG.info("JobManager: Calling findAgent with {}", instanceId);
         for (VMRegion region : tankConfig.getVmManagerConfig().getConfiguredRegions()) {
             String instanceUrl = new AmazonInstance(region).findDNSName(instanceId);
+            LOG.info("JobManager: findDNSName returned {}", instanceUrl);
             if (StringUtils.isNotEmpty(instanceUrl)) {
                 instanceUrl = "http://" + instanceUrl + ":" + tankConfig.getAgentConfig().getAgentPort();
                 return new AgentData("0", instanceId, instanceUrl, 0, region, "zone");
+            } else {
+                LOG.info("JobManager: unable to findDNSName, pulling from VMTracker {}", vmTracker.getCurrentInstances());
+                instanceUrl = vmTracker.getCurrentInstances().get(instanceId);
+                LOG.info("JobManager: vmTracker.getInstances() hit: {}", instanceUrl);
+                if (StringUtils.isNotEmpty(instanceUrl)) {
+                    instanceUrl = "http://" + instanceUrl + ":" + tankConfig.getAgentConfig().getAgentPort();
+                    return new AgentData("0", instanceId, instanceUrl, 0, region, "zone");
+                }
             }
         }
         return null;
