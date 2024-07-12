@@ -43,16 +43,7 @@ import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
 import jakarta.annotation.Nonnull;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -559,7 +550,7 @@ public class AmazonInstance implements IEnvironmentInstance {
 
     }
 
-    public String findDNSName(String instanceId) {
+    public Optional<String> findDNSName(String instanceId) {
         try {
             return ec2client.describeInstances().reservations().stream()
                     .flatMap(reservationDescription -> reservationDescription.instances().stream())
@@ -567,12 +558,11 @@ public class AmazonInstance implements IEnvironmentInstance {
                     .findFirst()
                     .map(instance -> (StringUtils.isNotEmpty(instance.publicDnsName()))
                             ? instance.publicDnsName()
-                            : instance.privateDnsName())
-                    .toString();
+                            : instance.privateDnsName());
         } catch (Exception e) {
             LOG.error("Error getting public dns in " + vmRegion + ": " + e.getMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
 }
