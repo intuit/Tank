@@ -151,7 +151,7 @@ public class VMTrackerImpl implements VMTracker {
     private void setStatusThread(@Nonnull final CloudVmStatus status) {
         AWSXRay.getGlobalRecorder().beginNoOpSegment();  //initiation call has already returned 204
         LOG.info("VMTrackerImpl: agent setStatus hit controller {} with agent: {}", AmazonUtil.getInstanceId(), status);
-        currentInstances.put(status.getInstanceId(), status.getInstanceUrl());
+        currentInstances.putIfAbsent(status.getInstanceId(), status.getInstanceUrl());
         LOG.info("VMTrackerImpl: added instance {} with instanceURL {} to currentInstance mapping {}", status.getInstanceId(), status.getInstanceUrl(), currentInstances.toString());
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
