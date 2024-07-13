@@ -287,7 +287,6 @@ public class JobManager implements Serializable {
                 instanceUrl = vmTracker.getCurrentInstances().get(instanceId);
                 LOG.info("JobManager: vmTracker.getInstances() hit: {}", instanceUrl);
                 if (StringUtils.isNotEmpty(instanceUrl)) {
-                    instanceUrl = "http://" + instanceUrl + ":" + tankConfig.getAgentConfig().getAgentPort();
                     return new AgentData("0", instanceId, instanceUrl, 0, region, "zone");
                 }
             }
