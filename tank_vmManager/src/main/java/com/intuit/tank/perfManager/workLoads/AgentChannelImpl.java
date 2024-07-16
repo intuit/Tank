@@ -45,13 +45,28 @@ public class AgentChannelImpl implements AgentChannel {
         jobManager.sendCommand(instanceIds, AgentCommand.stop);
     }
 
-    public void pauseAgents(List<String> instanceIds) { jobManager.sendCommand(instanceIds, AgentCommand.pause); }
+    public void pauseAgents(List<String> instanceIds) {
+        LOG.info("AgentChannelImpl: pausing agents: {}", String.join(",", instanceIds));
+        jobManager.sendCommand(instanceIds, AgentCommand.pause);
+    }
 
-    public void pauseRamp(List<String> instanceIds) { jobManager.sendCommand(instanceIds, AgentCommand.pause_ramp); }
+    public void pauseRamp(List<String> instanceIds) {
+        LOG.info("AgentChannelImpl: pausing ramp: {}", String.join(",", instanceIds));
+        jobManager.sendCommand(instanceIds, AgentCommand.pause_ramp);
+    }
 
-    public void resumeRamp(List<String> instanceIds) { jobManager.sendCommand(instanceIds, AgentCommand.resume_ramp); }
+    public void resumeRamp(List<String> instanceIds) {
+        LOG.info("AgentChannelImpl: resuming ramp: {}", String.join(",", instanceIds));
+        jobManager.sendCommand(instanceIds, AgentCommand.resume_ramp);
+    }
 
-    public void killAgents(List<String> instanceIds) { jobManager.sendCommand(instanceIds, AgentCommand.kill); }
+    public void killAgents(List<String> instanceIds) {
+        LOG.info("AgentChannelImpl: killing agents: {}", String.join(",", instanceIds));
+        jobManager.sendCommand(instanceIds, AgentCommand.kill);
+    }
 
-    public void restartAgents(List<String> instanceIds) { jobManager.sendCommand(instanceIds, AgentCommand.resume_ramp); }
+    public void restartAgents(List<String> instanceIds) {
+        LOG.info("AgentChannelImpl: restarting agents: {}", String.join(",", instanceIds));
+        jobManager.sendCommand(instanceIds, AgentCommand.resume_ramp);
+    }
 }

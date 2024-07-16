@@ -248,10 +248,7 @@ public class JobEventSender {
         CloudVmStatusContainer statuses = vmTracker.getVmStatusForJob(jobId);
         if (statuses != null) {
             instanceIds = statuses.getStatuses().stream().map(CloudVmStatus::getInstanceId).collect(Collectors.toList());
-            String commaSeparatedIds = statuses.getStatuses().stream()
-                    .map(CloudVmStatus::getInstanceId)
-                    .collect(Collectors.joining(","));
-            LOG.info("JobEventSender getInstancesForJob yields {} for jobId {}", commaSeparatedIds, jobId);
+            LOG.info("JobEventSender getInstancesForJob yields {} for jobId {}", String.join(",", instanceIds), jobId);
         }
         return instanceIds;
     }

@@ -150,9 +150,7 @@ public class VMTrackerImpl implements VMTracker {
 
     private void setStatusThread(@Nonnull final CloudVmStatus status) {
         AWSXRay.getGlobalRecorder().beginNoOpSegment();  //initiation call has already returned 204
-        LOG.info("VMTrackerImpl: agent setStatus hit controller {} with agent: {}", AmazonUtil.getInstanceId(), status);
         currentInstances.putIfAbsent(status.getInstanceId(), status.getInstanceUrl());
-        LOG.info("VMTrackerImpl: added instance {} with instanceURL {} to currentInstance mapping {}", status.getInstanceId(), status.getInstanceUrl(), currentInstances.toString());
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
             CloudVmStatus currentStatus = getStatus(status.getInstanceId());
@@ -166,48 +164,36 @@ public class VMTrackerImpl implements VMTracker {
                 }
             }
             String jobId = status.getJobId();
-            LOG.info("VMTrackerImpl: attempting to pull agent status {} from current jobMap: {}", status, jobMap.toString());
             CloudVmStatusContainer cloudVmStatusContainer = jobMap.get(jobId);
             if (cloudVmStatusContainer == null) {
-                LOG.info("VMTrackerImpl: agent status {} not found, adding to jobMap", status.toString());
                 cloudVmStatusContainer = new CloudVmStatusContainer();
                 cloudVmStatusContainer.setJobId(jobId);
 
                 jobMap.put(jobId, cloudVmStatusContainer);
-                LOG.info("VMTrackerImpl: cloudVmStatusContainer status {} adding to jobMap {}", cloudVmStatusContainer.toString(), jobMap.toString());
-                LOG.info("VMTrackerImpl: attempting to pull job");
                 JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(jobId));
                 if (job != null) {
                     JobQueueStatus newStatus = getQueueStatus(job.getStatus(), status.getJobStatus());
                     cloudVmStatusContainer.setStatus(newStatus);
-                    LOG.info("VMTrackerImpl: job found {} setting status {}", job.toString(), newStatus.toString());
                     if (newStatus != job.getStatus()) {
                         job.setStatus(newStatus);
                         new JobInstanceDao().saveOrUpdate(job);
                     }
                 } else {
                     JobQueueStatus newStatus = getQueueStatus(cloudVmStatusContainer.getStatus(), status.getJobStatus());
-                    LOG.info("VMTrackerImpl: job not found setting new status {}", newStatus.toString());
                     cloudVmStatusContainer.setStatus(newStatus);
                 }
             }
             cloudVmStatusContainer.setReportTime(status.getReportTime());
             addStatusToJobContainer(status, cloudVmStatusContainer);
-            LOG.info("VMTrackerImpl: added status {} to job container {}", status.toString(), cloudVmStatusContainer.toString());
             String projectId = getProjectForJobId(jobId);
-            LOG.info("VMTrackerImpl: pulling project from jobId {}", jobId);
             if (projectId != null) {
-                LOG.info("VMTrackerImpl: project {} found, pulling projectStatusContainer", projectId);
                 ProjectStatusContainer projectStatusContainer = getProjectStatusContainer(projectId);
                 if (projectStatusContainer == null) {
-                    LOG.info("VMTrackerImpl: projectStatusContainer not found, creating new one to add to projectContainerMap {}", projectContainerMap);
                     projectStatusContainer = new ProjectStatusContainer();
                     projectContainerMap.put(projectId, projectStatusContainer);
-                    LOG.info("VMTrackerImpl: projectStatusContainer {} added to projectContainerMap {}", projectStatusContainer, projectContainerMap);
                 }
                 projectStatusContainer.addStatusContainer(cloudVmStatusContainer);
-                LOG.info("VMTrackerImpl: projectStatusContainer {} added cloudVmStatusContainer {}", projectStatusContainer, cloudVmStatusContainer);
-            }
+             }
         }
         AWSXRay.endSegment();
     }
@@ -313,9 +299,7 @@ public class VMTrackerImpl implements VMTracker {
 
     @Override
     public void stopJob(String id) {
-        LOG.info("VMTrackerImpl: Stopping Job {}", id);
         stoppedJobs.add(id);
-        LOG.info("VMTrackerImpl: stoppedJobs {}", stoppedJobs.stream().collect(Collectors.joining(",")));
     }
 
     @Override
