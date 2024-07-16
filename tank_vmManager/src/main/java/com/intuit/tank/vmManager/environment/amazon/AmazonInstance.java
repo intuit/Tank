@@ -66,30 +66,34 @@ public class AmazonInstance implements IEnvironmentInstance {
     public AmazonInstance(@Nonnull VMRegion vmRegion) {
         this.vmRegion = vmRegion;
         try {
-            CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-            Ec2ClientBuilder ec2ClientBuilder = Ec2Client.builder();
-            if (creds != null && StringUtils.isNotBlank(creds.getProxyHost())) {
-                try {
-                    ProxyConfiguration.Builder proxyConfig = ProxyConfiguration.builder().endpoint(URI.create(creds.getProxyHost()));
-                    if (StringUtils.isNotBlank(creds.getProxyPort())) {
-                        proxyConfig.endpoint(URI.create(creds.getProxyHost() + ":" + Integer.parseInt(System.getProperty(creds.getProxyPort()))));
-                    }
-                    SdkHttpClient.Builder<ApacheHttpClient.Builder> httpClientBuilder =
-                            ApacheHttpClient.builder().proxyConfiguration(proxyConfig.build());
-                    ec2ClientBuilder.httpClientBuilder(httpClientBuilder);
-                } catch (NumberFormatException e) {
-                    LOG.error("invalid proxy setup.");
-                }
-            }
-            if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
-                AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
-                ec2ClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
-            }
-            ec2client = ec2ClientBuilder.region(Region.of(vmRegion.getRegion())).build();
+            ec2client = buildEc2Client(vmRegion);
         } catch (Exception ex) {
             LOG.error("Error initializing amazon client: " + ex, ex);
             throw new RuntimeException(ex);
         }
+    }
+
+    public Ec2Client buildEc2Client(@Nonnull VMRegion vmRegion) {
+        CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
+        Ec2ClientBuilder ec2ClientBuilder = Ec2Client.builder();
+        if (creds != null && StringUtils.isNotBlank(creds.getProxyHost())) {
+            try {
+                ProxyConfiguration.Builder proxyConfig = ProxyConfiguration.builder().endpoint(URI.create(creds.getProxyHost()));
+                if (StringUtils.isNotBlank(creds.getProxyPort())) {
+                    proxyConfig.endpoint(URI.create(creds.getProxyHost() + ":" + Integer.parseInt(System.getProperty(creds.getProxyPort()))));
+                }
+                SdkHttpClient.Builder<ApacheHttpClient.Builder> httpClientBuilder =
+                        ApacheHttpClient.builder().proxyConfiguration(proxyConfig.build());
+                ec2ClientBuilder.httpClientBuilder(httpClientBuilder);
+            } catch (NumberFormatException e) {
+                LOG.error("invalid proxy setup.");
+            }
+        }
+        if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
+            AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
+            ec2ClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
+        }
+        return ec2ClientBuilder.region(Region.of(vmRegion.getRegion())).build();
     }
 
     public void attachVolume(String volumneId, String instanceId, String device) {
@@ -551,16 +555,32 @@ public class AmazonInstance implements IEnvironmentInstance {
     }
 
     public Optional<String> findDNSName(String instanceId) {
+        VMRegion currRegion = null;
         try {
-            return ec2client.describeInstances().reservations().stream()
-                    .flatMap(reservationDescription -> reservationDescription.instances().stream())
-                    .filter(instance -> instanceId.equals(instance.instanceId()))
-                    .findFirst()
-                    .map(instance -> (StringUtils.isNotEmpty(instance.publicDnsName()))
-                            ? instance.publicDnsName()
-                            : instance.privateDnsName());
+            Set<VMRegion> regions = new TankConfig().getVmManagerConfig().getRegions();
+            LOG.info("findDNSName: regions returned by TankConfig: {}", regions.stream().map(VMRegion::getName));
+            for (VMRegion region : regions) {
+                currRegion = region;
+                try {
+                    try (Ec2Client ec2Client = buildEc2Client(region)) {
+                        Optional<String> dnsName = ec2Client.describeInstances().reservations().stream()
+                                .flatMap(reservationDescription -> reservationDescription.instances().stream())
+                                .filter(instance -> instanceId.equals(instance.instanceId()))
+                                .findFirst()
+                                .map(instance -> (StringUtils.isNotEmpty(instance.publicDnsName()))
+                                        ? instance.publicDnsName()
+                                        : instance.privateDnsName());
+                        if (dnsName.isPresent()) {
+                            return dnsName;
+                        }
+                    }
+                } catch (Exception ex) {
+                    LOG.error("Error initializing findDNSName ec2 client: " + ex, ex);
+                    throw new RuntimeException(ex);
+                }
+            }
         } catch (Exception e) {
-            LOG.error("Error getting public dns in " + vmRegion + ": " + e.getMessage());
+            LOG.error("Error getting public dns in " + currRegion + ": " + e.getMessage());
         }
         return Optional.empty();
     }
