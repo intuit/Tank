@@ -272,10 +272,11 @@ public class JobManager implements Serializable {
      * @return AgentData
      */
     private AgentData findAgent(String instanceId) {
-        for (VMRegion region : tankConfig.getVmManagerConfig().getConfiguredRegions()) {
-            String instanceUrl = new AmazonInstance(region).findDNSName(instanceId);
-            if (StringUtils.isNotEmpty(instanceUrl)) {
-                instanceUrl = "http://" + instanceUrl + ":" + tankConfig.getAgentConfig().getAgentPort();
+        String instanceUrl;
+        for (VMRegion region : tankConfig.getVmManagerConfig().getRegions()) {
+            Optional<String> instanceUrlOptional = new AmazonInstance(region).findDNSName(instanceId);
+            if (instanceUrlOptional.isPresent()) {
+                instanceUrl = "http://" + instanceUrlOptional.get() + ":" + tankConfig.getAgentConfig().getAgentPort();
                 return new AgentData("0", instanceId, instanceUrl, 0, region, "zone");
             }
         }
