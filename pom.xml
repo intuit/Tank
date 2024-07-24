@@ -633,11 +633,6 @@
         <version>2.7.3</version>
       </dependency>
       <dependency>
-        <groupId>axis</groupId>
-        <artifactId>axis</artifactId>
-        <version>1.4</version>
-      </dependency>
-      <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-core</artifactId>
         <version>${version.lucene}</version>
