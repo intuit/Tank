@@ -18,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -97,9 +98,8 @@ public class StandaloneAgentStartup implements Runnable {
                     }
                 }
                 // now start the harness
-                String cmd = API_HARNESS_COMMAND + " -http=" + controllerBase + " -jobId=" + request.getJobId()
-                        + " -stopBehavior=" + request.getStopBehavior();
-                LOG.info("Starting apiharness with command: " + cmd);
+                String[] cmd = {API_HARNESS_COMMAND, " -http=", controllerBase, " -jobId=", request.getJobId(), " -stopBehavior=", request.getStopBehavior()};
+                LOG.info("Starting apiharness with command: {}", Arrays.toString(cmd));
                 currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.RUNNING_JOB);
                 sendAvailability();
                 Process exec = Runtime.getRuntime().exec(cmd);
@@ -108,7 +108,7 @@ public class StandaloneAgentStartup implements Runnable {
                 sendAvailability();
                 //
             } catch (Exception e) {
-                LOG.error("Error in AgentStartup " + e, e);
+                LOG.error("Error in AgentStartup {}", e, e);
                 currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.AVAILABLE);
                 try {
                     sendAvailability();
