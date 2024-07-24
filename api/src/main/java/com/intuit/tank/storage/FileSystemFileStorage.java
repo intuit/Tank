@@ -48,16 +48,23 @@ public class FileSystemFileStorage implements FileStorage, Serializable {
 
     @Override
     public void storeFileData(FileData fileData, InputStream input) {
-        File file = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + fileData.getFileName()));
-        if (!file.getParentFile().exists()) {
-            file.getParentFile().mkdirs();
-        }
-        try (OutputStream output = compress ?
-                new GZIPOutputStream(new FileOutputStream(file)) :
-                new FileOutputStream(file) ) {
-            IOUtils.copy(input, output);
-        } catch (IOException e) {
-            LOG.error("Error storing file: " + e, e);
+        try {
+            File file = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + fileData.getFileName()));
+            if (!file.toPath().normalize().startsWith(basePath)) // Protect "Zip Slip"
+                throw new Exception("Bad zip entry");
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            try (OutputStream output = compress ?
+                    new GZIPOutputStream(new FileOutputStream(file)) :
+                    new FileOutputStream(file)) {
+                IOUtils.copy(input, output);
+            } catch (IOException e) {
+                LOG.error("Error storing file: {}", e, e);
+                throw new RuntimeException(e);
+            }
+        } catch (Exception e) {
+            LOG.error("Error storing file: {}", e, e);
             throw new RuntimeException(e);
         }
     }
