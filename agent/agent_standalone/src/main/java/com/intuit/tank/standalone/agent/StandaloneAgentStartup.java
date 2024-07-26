@@ -43,6 +43,7 @@ public class StandaloneAgentStartup implements Runnable {
     private static String API_HARNESS_COMMAND = "./startAgent.sh";
     public static final String METHOD_SETTINGS = "/settings";
     public static final String METHOD_SUPPORT = "/support-files";
+    private static final String TANK_AGENT_DIR = "/opt/tank_agent";
     private static final long PING_TIME = 1000 * 60 * 5;// five minutes
 
     private String controllerBase;
@@ -74,24 +75,25 @@ public class StandaloneAgentStartup implements Runnable {
             try {
                 currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.DELEGATING);
                 sendAvailability();
-                LOG.info("Starting up: ControllerBaseUrl=" + controllerBase);
+                LOG.info("Starting up: ControllerBaseUrl={}", controllerBase);
                 URL url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SETTINGS);
-                LOG.info("Starting up: making call to tank service url to get settings.xml "
-                        + url.toExternalForm());
+                LOG.info("Starting up: making call to tank service url to get settings.xml {}", url.toExternalForm());
                 try ( InputStream settingsStream = url.openStream() ) {
                     String settings = IOUtils.toString(settingsStream, StandardCharsets.UTF_8);
-                    FileUtils.writeStringToFile(new File("settings.xml"), settings, StandardCharsets.UTF_8);
+                    FileUtils.writeStringToFile(new File(TANK_AGENT_DIR, "settings.xml"), settings, StandardCharsets.UTF_8);
                     LOG.info("got settings file...");
                 }
                 url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
-                LOG.info("Making call to tank service url to get support files " + url.toExternalForm());
+                LOG.info("Making call to tank service url to get support files {}", url.toExternalForm());
                 try( ZipInputStream zip = new ZipInputStream(url.openStream()) ) {
                     ZipEntry entry = zip.getNextEntry();
                     while (entry != null) {
                         String name = entry.getName();
-                        LOG.info("Got file from controller: " + name);
-                        File f = new File(name);
-                        try ( FileOutputStream fout = FileUtils.openOutputStream(f) ){
+                        LOG.info("Got file from controller: {}", name);
+                        File file = new File(TANK_AGENT_DIR, name);
+                        if (!file.toPath().normalize().startsWith(TANK_AGENT_DIR)) // Protect "Zip Slip"
+                            throw new Exception("Bad zip entry");
+                        try ( FileOutputStream fout = FileUtils.openOutputStream(file) ){
                             IOUtils.copy(zip, fout);
                         }
                         entry = zip.getNextEntry();
