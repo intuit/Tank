@@ -49,7 +49,12 @@ public class FileSystemFileStorage implements FileStorage, Serializable {
     @Override
     public void storeFileData(FileData fileData, InputStream input) {
         try {
-            File file = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + fileData.getFileName()));
+            String filename = fileData.getFileName();
+            // ensure that the filename has no path separators or parent directory references
+            if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+                throw new IllegalArgumentException("Invalid filename");
+            }
+            File file = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + filename));
             if (!file.toPath().normalize().startsWith(basePath)) // Protect "Zip Slip"
                 throw new Exception("Bad zip entry");
             if (!file.getParentFile().exists()) {
