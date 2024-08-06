@@ -21,13 +21,13 @@
     <inceptionYear>2010</inceptionYear>
     <organization>
         <name>Intuit Inc.</name>
-        <url>http://www.intuit.com</url>
+        <url>https://www.intuit.com</url>
     </organization>
 
     <licenses>
         <license>
             <name>eclipse</name>
-            <url>http://www.eclipse.org/legal/epl-v10.html</url>
+            <url>https://www.eclipse.org/legal/epl-v10.html</url>
             <distribution>repo</distribution>
             <comments>A business-friendly OSS license</comments>
         </license>
@@ -78,13 +78,13 @@
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
-            <url>http://repo.jenkins-ci.org/public/</url>
+            <url>https://repo.jenkins-ci.org/public/</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>repo.jenkins-ci.org</id>
-            <url>http://repo.jenkins-ci.org/public/</url>
+            <url>https://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
 

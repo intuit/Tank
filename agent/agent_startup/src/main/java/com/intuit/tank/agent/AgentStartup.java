@@ -94,7 +94,8 @@ public class AgentStartup implements Runnable {
             String jvmArgs = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_JVM_ARGS);
             logger.info("Starting apiharness with command: "
                     + API_HARNESS_COMMAND + " -http=" + controllerBaseUrl + " " + jvmArgs);
-            Runtime.getRuntime().exec(API_HARNESS_COMMAND + " -http=" + controllerBaseUrl + " " + jvmArgs);
+            Runtime.getRuntime().exec(
+                    new String[] {API_HARNESS_COMMAND, "-http=", controllerBaseUrl, jvmArgs});
         } catch (ConnectException ce) {
             logger.error("Error creating connection to "
                     + controllerBaseUrl + " : this is normal during the bake : " + ce.getMessage());

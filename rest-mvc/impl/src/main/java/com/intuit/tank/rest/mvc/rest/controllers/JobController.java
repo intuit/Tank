@@ -90,9 +90,11 @@ public class JobController {
             "  - rampTime and simulationTime are accepted as time strings i.e 60s, 12m, 24h \n\n" +
             "  - stopBehavior is matched against accepted values ( END_OF_STEP,  END_OF_SCRIPT,  END_OF_SCRIPT_GROUP,  END_OF_TEST ) \n\n" +
             "  - vmInstance matches against AWS EC2 Instance Types i.e c5.large, c5.xlarge, etc \n\n"+
+            "  - workloadType can be set to increasing (linear workload) or standard (nonlinear workload)  \n\n"+
+            "  - targetRampRate, targetRatePerAgent, and jobRegions.percentage fields apply to standard workloadType jobs (nonlinear) \n\n"+
             "  - projectId, userIntervalIncrement and numUsersPerAgent are accepted as integers \n\n" +
             "  - jobRegions.regions correspond to AWS regions in lowercase i.e us-west-2, us-east-2 \n\n" +
-            "  - jobRegions.users are accepted as integer strings i.e \"100\", \"4000\" \n\n", summary =  "Create a new job")
+            "  - jobRegions.users and jobRegions.percentage are accepted as integer strings i.e \"100\", \"4000\" \n\n", summary =  "Create a new job")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successfully created job", content = @Content),
             @ApiResponse(responseCode = "400", description = "Could not create job due to bad request", content = @Content)
