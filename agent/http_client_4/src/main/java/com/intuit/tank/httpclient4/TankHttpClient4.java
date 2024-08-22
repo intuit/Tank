@@ -70,12 +70,16 @@ public class TankHttpClient4 implements TankHttpClient {
     private static final Logger LOG = LogManager.getLogger(TankHttpClient4.class);
 
     private CloseableHttpClient httpclient;
+    private HttpHost proxy;
     private HttpClientContext context;
 
     /**
      * no-arg constructor for client
      */
     public TankHttpClient4() {
+        // Set up proxy
+        proxy = new HttpHost("proxyhost", 8080);
+
         RequestConfig requestConfig = RequestConfig.custom()
                 .setSocketTimeout(30000)
         		.setConnectTimeout(30000)
@@ -84,6 +88,7 @@ public class TankHttpClient4 implements TankHttpClient {
         		.setRedirectsEnabled(true)
         		.setCookieSpec(CookieSpecs.STANDARD)
                 .setMaxRedirects(100)
+                .setProxy(proxy)
                 .build();
 
         // Make sure the same context is used to execute logically related
@@ -105,6 +110,7 @@ public class TankHttpClient4 implements TankHttpClient {
                 .evictExpiredConnections()
                 .setMaxConnPerRoute(10240)
                 .setMaxConnTotal(20480)
+                .addInterceptorFirst(new LoggingInterceptor())
                 .build();
     }
 
@@ -276,9 +282,8 @@ public class TankHttpClient4 implements TankHttpClient {
     private void sendRequest(BaseRequest request, @Nonnull HttpRequestBase method, String requestBody) {
         long waitTime = 0L;
         String uri = method.getURI().toString();
-        if (LOG.isDebugEnabled()) LOG.debug(request.getLogUtil().getLogMessage(
-                "About to " + method.getMethod() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
-        List<String> cookies = new ArrayList<String>();
+
+        List<String> cookies = new ArrayList<>();
         if (context.getCookieStore().getCookies() != null) {
             cookies = context.getCookieStore().getCookies().stream().map(cookie -> "REQUEST COOKIE: " + cookie.toString()).collect(Collectors.toList());
         }
@@ -324,6 +329,7 @@ public class TankHttpClient4 implements TankHttpClient {
             doWaitDueToLongResponse(request, waitTime, uri);
         }
     }
+
 
     /**
      * Wait for the amount of time it took to get a response from the system if
