@@ -93,11 +93,11 @@ public class AgentStartup implements Runnable {
                 }
             }
             // now start the harness
-            String controllerArg = "-http=" + controllerBaseUrl;
+            String controllerArg = " -http=" + controllerBaseUrl;
             String jvmArgs = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_JVM_ARGS);
             logger.info("Starting apiharness with command: {} {} {}",
                     API_HARNESS_COMMAND, controllerArg, jvmArgs);
-            Runtime.getRuntime().exec(API_HARNESS_COMMAND + " -http=" + controllerBaseUrl + " " + jvmArgs);
+            Runtime.getRuntime().exec(API_HARNESS_COMMAND + controllerArg + " " + jvmArgs);
         } catch (ConnectException ce) {
             logger.error("Error creating connection to {} : this is normal during the bake : {}",
                     controllerBaseUrl, ce.getMessage());
