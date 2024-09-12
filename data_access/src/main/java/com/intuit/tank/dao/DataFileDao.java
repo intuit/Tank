@@ -23,6 +23,7 @@ import java.util.UUID;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -109,7 +110,8 @@ public class DataFileDao extends BaseDao<DataFile> {
      */
     private void storeFile(InputStream is, DataFile df) throws IOException, IllegalAccessException {
         FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getDataFileStorageDir(), false);
-        String fileName = UUID.randomUUID().toString() + "_" + df.getPath();
+        String newPath = StringUtils.replaceEach(df.getPath(), new String[] { "\\", "/", ".." }, new String[] { "_", "_", "_" });
+        String fileName = newPath  + "_" + UUID.randomUUID();
         df.setFileName(fileName);
         FileData fd = DataFileUtil.getFileData(df);
         fileStorage.storeFileData(fd, is);
