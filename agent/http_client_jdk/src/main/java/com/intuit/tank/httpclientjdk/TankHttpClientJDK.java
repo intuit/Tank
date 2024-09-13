@@ -29,6 +29,9 @@ import java.util.zip.GZIPInputStream;
 
 import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -205,9 +208,12 @@ public class TankHttpClientJDK implements TankHttpClient {
             if (LOG.isDebugEnabled()) LOG.debug(request.getLogUtil().getLogMessage(
                     "About to " + method.method() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
             List<String> cookies = cookieManager.getCookieStore().getCookies().stream().map(httpcookie -> "REQUEST COOKIE: " + httpcookie.toString()).collect(Collectors.toList());
-            request.logRequest(uri, requestBody, method.method(), request.getHeaderInformation(), cookies, false);
+//            request.logRequest(uri, requestBody, method.method(), request.getHeaderInformation(), cookies, false);
             long startTime = System.currentTimeMillis();
             request.setTimestamp(new Date(startTime));
+//            request.setMethod(); TODO
+            request.setCookies(cookies);
+
             HttpResponse<byte[]> response = httpclient.send(method, HttpResponse.BodyHandlers.ofByteArray());
             // read response body
             byte[] responseBody = (response.statusCode() != 203 && response.statusCode() != 202 && response.statusCode() != 204)
