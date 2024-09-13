@@ -241,9 +241,10 @@ public class TankHttpClientJDK implements TankHttpClient {
             if (LOG.isDebugEnabled()) LOG.debug(request.getLogUtil().getLogMessage(
                     "About to " + method.method() + " request to " + uri + " with requestBody  " + requestBody, LogEventType.Informational));
             List<String> cookies = cookieManager.getCookieStore().getCookies().stream().map(httpcookie -> "REQUEST COOKIE: " + httpcookie.toString()).collect(Collectors.toList());
-            request.logRequest(uri, requestBody, method.method(), request.getHeaderInformation(), cookies, false);
+//            request.logRequest(uri, requestBody, method.method(), request.getHeaderInformation(), cookies, false);
             long startTime = System.currentTimeMillis();
             request.setTimestamp(new Date(startTime));
+            request.setCookies(cookies);
             HttpResponse<InputStream> response = httpclient.send(method, HttpResponse.BodyHandlers.ofInputStream());
 
             // Read response body:
