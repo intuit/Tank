@@ -52,11 +52,13 @@ public class TankHttpClientJDK implements TankHttpClient {
     private HttpClient httpclient;
     private HttpClient.Builder httpclientBuilder;
     private final CookieManager cookieManager = new CookieManager();
+    private TankConfig tankConfig;
 
     /**
      * no-arg constructor for client
      */
     public TankHttpClientJDK() {
+        tankConfig = new TankConfig();
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         httpclientBuilder = HttpClient.newBuilder()
                 .cookieHandler(cookieManager)
@@ -256,7 +258,7 @@ public class TankHttpClientJDK implements TankHttpClient {
      * @param contentType
      */
     private boolean checkContentType(String contentType) {
-        Collection<String> mimeTypes = new TankConfig().getAgentConfig().getTextMimeTypeRegex();
+        Collection<String> mimeTypes = tankConfig.getAgentConfig().getTextMimeTypeRegex();
         for (String regex : mimeTypes) {
             if (contentType.matches(regex)) {
                 return true;
