@@ -72,13 +72,12 @@ public class TankHttpClient4 implements TankHttpClient {
 
     private CloseableHttpClient httpclient;
     private HttpClientContext context;
-    private TankConfig tankConfig;
+    private final Collection<String> mimeTypes = new TankConfig().getAgentConfig().getTextMimeTypeRegex();
 
     /**
      * no-arg constructor for client
      */
     public TankHttpClient4() {
-        tankConfig = new TankConfig();
         RequestConfig requestConfig = RequestConfig.custom()
                 .setSocketTimeout(30000)
         		.setConnectTimeout(30000)
@@ -340,13 +339,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * @param contentType
      */
     private boolean checkContentType(String contentType) {
-        Collection<String> mimeTypes = tankConfig.getAgentConfig().getTextMimeTypeRegex();
-        for (String regex : mimeTypes) {
-            if (contentType.matches(regex)) {
-                return true;
-            }
-        }
-        return false;
+        return mimeTypes.stream().anyMatch(contentType::matches);
     }
 
     /**

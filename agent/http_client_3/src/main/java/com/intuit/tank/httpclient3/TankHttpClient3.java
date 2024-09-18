@@ -64,13 +64,12 @@ public class TankHttpClient3 implements TankHttpClient {
 
     private HttpClient httpclient;
 
-    private TankConfig tankConfig;
+    private final Collection<String> mimeTypes = new TankConfig().getAgentConfig().getTextMimeTypeRegex();
 
     /**
      * no-arg constructor for client
      */
     public TankHttpClient3() {
-        tankConfig = new TankConfig();
         httpclient = new HttpClient();
         httpclient.getParams().setCookiePolicy(org.apache.commons.httpclient.cookie.CookiePolicy.BROWSER_COMPATIBILITY);
         httpclient.getParams().setBooleanParameter("http.protocol.single-cookie-header", true);
@@ -312,13 +311,7 @@ public class TankHttpClient3 implements TankHttpClient {
      * @param contentType
      */
     private boolean checkContentType(String contentType) {
-        Collection<String> mimeTypes = tankConfig.getAgentConfig().getTextMimeTypeRegex();
-        for (String regex : mimeTypes) {
-            if (contentType.matches(regex)) {
-                return true;
-            }
-        }
-        return false;
+        return mimeTypes.stream().anyMatch(contentType::matches);
     }
 
     /**
