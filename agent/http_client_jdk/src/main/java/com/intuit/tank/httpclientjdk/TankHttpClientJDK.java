@@ -15,6 +15,8 @@ import java.io.ByteArrayInputStream;
  * #L%
  */
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.*;
 import java.net.http.HttpClient;
@@ -27,6 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -49,6 +52,8 @@ public class TankHttpClientJDK implements TankHttpClient {
     private HttpClient httpclient;
     private HttpClient.Builder httpclientBuilder;
     private final CookieManager cookieManager = new CookieManager();
+    private final Collection<String> mimeTypes = new TankConfig().getAgentConfig().getTextMimeTypeRegex();
+
 
     /**
      * no-arg constructor for client
@@ -208,11 +213,24 @@ public class TankHttpClientJDK implements TankHttpClient {
             request.logRequest(uri, requestBody, method.method(), request.getHeaderInformation(), cookies, false);
             long startTime = System.currentTimeMillis();
             request.setTimestamp(new Date(startTime));
-            HttpResponse<byte[]> response = httpclient.send(method, HttpResponse.BodyHandlers.ofByteArray());
-            // read response body
-            byte[] responseBody = (response.statusCode() != 203 && response.statusCode() != 202 && response.statusCode() != 204)
-                    ? response.body()
-                    : new byte[0];
+            HttpResponse<InputStream> response = httpclient.send(method, HttpResponse.BodyHandlers.ofInputStream());
+
+            // Read response body:
+            byte[] responseBody = new byte[0];
+            // check for no content headers
+            if (response.statusCode() != 203 && response.statusCode() != 202 && response.statusCode() != 204) {
+                try (InputStream is = response.body()) {
+                    String contentTypeHeader = response.headers().firstValue("Content-Type").orElse("");
+                    if (checkContentType(contentTypeHeader)) {
+                        responseBody = is.readAllBytes();
+                    } else {
+                        is.readAllBytes();
+                    }
+                } catch (IOException | NullPointerException e) {
+                    LOG.warn(request.getLogUtil().getLogMessage("Could not get response body" + e));
+                }
+            }
+
             waitTime = System.currentTimeMillis() - startTime;
             processResponse(responseBody, waitTime, request, response.version().name(), response.statusCode(), response.headers());
         } catch (UnknownHostException uhex) {
@@ -232,6 +250,15 @@ public class TankHttpClientJDK implements TankHttpClient {
         if (waitTime != 0) {
             doWaitDueToLongResponse(request, waitTime, uri);
         }
+    }
+
+    /**
+     * Checks content-type to filter whether to assign the response data to responseBody
+     *
+     * @param contentType
+     */
+    private boolean checkContentType(String contentType) {
+        return mimeTypes.stream().anyMatch(contentType::matches);
     }
 
     /**
