@@ -839,7 +839,7 @@
           update=":mainForm:projectTabPanelID:testPlanTabViewID, :mainForm:messages"
           onsuccess="PF('confirmScriptGroupDelete').hide();" />
         <h:panelGroup styleClass="horizontal-spacer" />
-        <p:commandButton value="Cancel" onclick="confirmScriptGroupDelete.hide();" type="button" />
+        <p:commandButton value="Cancel" type="button" styleClass="h-space" onclick="PF('confirmScriptGroupDelete').hide();" />
       </h:form>
     </p:confirmDialog>
 
