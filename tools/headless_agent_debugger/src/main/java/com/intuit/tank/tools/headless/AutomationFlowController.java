@@ -100,7 +100,7 @@ public class AutomationFlowController implements FlowController {
         context.setTestStep(debuggerSetup.getStep(context.getTestStep().getStepIndex()));
         TestStep step = context.getTestStep();
         if (!toSkip.contains(context.getTestStep().getStepIndex())) {// move if skiplist does not contain line
-            if (!(step instanceof SleepTimeStep) && !(step instanceof ThinkTimeStep)) { // automation skips sleep and think time steps
+            if (!(step instanceof SleepTimeStep) && !(step instanceof ThinkTimeStep) && (!step.getInfo().contains("EFE Logic Step"))) { // automation skips sleep, think time steps, and EFE logic step (custom logic, similar to setting EFE to 100%)
                 return true;
             } else {
                 TestStep skippedStep = debuggerSetup.getStep(context.getTestStep().getStepIndex());

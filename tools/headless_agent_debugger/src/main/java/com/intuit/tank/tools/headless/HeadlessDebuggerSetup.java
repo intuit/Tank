@@ -8,6 +8,8 @@
 package com.intuit.tank.tools.headless;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.TestPlanSingleton;
@@ -34,6 +36,8 @@ import org.xml.sax.SAXException;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
+
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
@@ -77,6 +81,7 @@ public class HeadlessDebuggerSetup implements Serializable {
     private String username;
     private String authId;
     private String srsVersion;
+    private boolean transmitStatus;
 
     public HeadlessDebuggerSetup(String serviceUrl, Integer projectId, String token) {
         try {
@@ -242,6 +247,9 @@ public class HeadlessDebuggerSetup implements Serializable {
         LOG.info("total_steps," + steps.size());
         LOG.info("total_executed," + executedStepCounter);
         LOG.info("execution_percentage," + roundedPercentage);
+        if(!getCurrentWorkload().getName().contains("UC2")){
+            LOG.info("transmit_status," + transmitStatus);
+        }
 
         // timestamp
         ZonedDateTime now = ZonedDateTime.now();
@@ -319,6 +327,29 @@ public class HeadlessDebuggerSetup implements Serializable {
                     }
                 }
             }
+        }
+    }
+
+    private boolean hostnameReplacementCheck() {
+        LOG.info("Headless Agent Debugger - PRE-VALIDATION CHECK: HOSTNAME REPLACEMENT");
+        int stepCount = steps.size();
+        LOG.info("Total Script Steps: " + stepCount);
+
+        long replacedCount = steps.stream()
+                .map(step -> step.getStepRun().getInfo())
+                .peek(url -> LOG.info("Checking URL: {}", url))  // Logging each URL
+                .filter(url -> url.contains("#{"))
+                .count();
+
+        double replacementPercentage = (double) replacedCount / stepCount * 100;
+        LOG.info(String.format("Steps with hostname replacement: %d (%.2f%%)", replacedCount, replacementPercentage));
+
+        if (replacementPercentage >= 95.0) {
+            LOG.info("Hostname replacement check PASSED: At least 95% of steps have been replaced.");
+            return true;
+        } else {
+            LOG.info("Hostname replacement check FAILED: Less than 95% of steps have been replaced.");
+            return false;
         }
     }
 
@@ -507,6 +538,24 @@ public class HeadlessDebuggerSetup implements Serializable {
                 stepExecuted();
                 LOG.info(sb);
 
+                if(debugStep != null && debugStep.getStepRun() != null) {
+                    if(debugStep.getStepRun().getInfo().contains("transmit-return")) {
+                        LOG.info("transmit-return response body: {}", debugStep.getResponse().getBody());
+
+                        try {
+                            ObjectMapper objectMapper = new ObjectMapper();
+                            String responseBody = debugStep.getResponse().getBody();
+                            JsonNode rootNode = objectMapper.readTree(responseBody);
+                            JsonNode transmitStatusNode = rootNode.path("data").path("transmitResponse").path("TransmitStatus");
+                            if (transmitStatusNode.asText().equals("success")) {
+                                transmitStatus = true;
+                            }
+                        } catch (Exception e) {
+                            LOG.error("Error parsing JSON response body", e);
+                        }
+                    }
+                }
+
                 if(!success_status){
                     BaseRequest request = context.getRequest();
                     context.getRequest().logRequest(request.getRequestUrl(),
@@ -545,7 +594,7 @@ public class HeadlessDebuggerSetup implements Serializable {
             temp.mkdir();
             workingDir = temp;
             // create settings.xml
-            writeSettings(workingDir, getHeaders(baseUrl, token));
+            writeSettings(workingDir);
             System.setProperty("WATS_PROPERTIES", workingDir.getAbsolutePath());
         } catch (IOException e) {
             LOG.error("HeadlessDebugger - Error creating temp working dir: " + e);
@@ -553,37 +602,7 @@ public class HeadlessDebuggerSetup implements Serializable {
         return workingDir;
     }
 
-    private static Headers getHeaders(String serviceUrl, String token) {
-        if (StringUtils.isNotBlank(serviceUrl)) {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(serviceUrl + HEADERS_PATH))
-                    .header(HttpHeaders.AUTHORIZATION, "bearer "+token)
-                    .build();
-            try ( InputStream settingsStream = client.send(request, HttpResponse.BodyHandlers.ofInputStream()).body() ) {
-                URL url = new URL(serviceUrl + HEADERS_PATH);
-                LOG.info("Starting up: making call to tank service url to get settings.xml "
-                        + url.toExternalForm());
-
-                //Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
-                SAXParserFactory spf = SAXParserFactory.newInstance();
-                spf.setNamespaceAware(true);
-                spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
-                spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-                spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-
-                Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(settingsStream));
-
-                JAXBContext ctx = JAXBContext.newInstance(Headers.class.getPackage().getName());
-                return (Headers) ctx.createUnmarshaller().unmarshal(xmlSource);
-            } catch (Exception e) {
-                LOG.error("Error gettting headers: " + e, e);
-            }
-        }
-        return null;
-    }
-
-    private static void writeSettings(File workingDir, Headers headers) throws IOException {
+    private static void writeSettings(File workingDir) throws IOException {
         StringBuilder s = new StringBuilder();
         s.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>").append(NEWLINE);
         s.append("<tank-settings>").append(NEWLINE);
@@ -597,16 +616,6 @@ public class HeadlessDebuggerSetup implements Serializable {
         s.append("<mime-type-regex>.*json.*</mime-type-regex>").append(NEWLINE);
         s.append("<mime-type-regex>.*xml.*</mime-type-regex>").append(NEWLINE);
         s.append("</valid-mime-types>").append(NEWLINE);
-        if (headers != null) {
-            s.append("<request-headers>").append(NEWLINE);
-            // <header key="intuit_test">intuit_test</header>
-            for (com.intuit.tank.vm.agent.messages.Header h : headers.getHeaders()) {
-                s.append("<header key=\"").append(h.getKey()).append("\">").append(h.getValue()).append("</header>")
-                        .append(NEWLINE);
-            }
-
-            s.append("</request-headers>").append(NEWLINE);
-        }
         s.append("</agent-config>");
         s.append("<logic-step>").append(NEWLINE);
         s.append("<insert-before><![CDATA[").append(NEWLINE);
@@ -634,6 +643,10 @@ public class HeadlessDebuggerSetup implements Serializable {
             HDWorkload workload = unmarshalWorkload(scriptXml);
             if (workload != null) {
                 setCurrentWorkload(workload);
+                if(!hostnameReplacementCheck()) { // check if prod filters applied; < 95% of hostname should be replaced to pass
+                    LOG.error("ERROR - script failed hostname replacement check and is not properly filtered, exiting...");
+                    System.exit(1);
+                }
                 LOG.info("\n");
                 LOG.info("------------------------------------------------------");
                 LOG.info("Headless Agent Debugger - VALIDATION RESULTS");
