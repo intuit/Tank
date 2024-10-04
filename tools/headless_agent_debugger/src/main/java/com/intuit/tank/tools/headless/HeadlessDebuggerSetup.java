@@ -247,7 +247,7 @@ public class HeadlessDebuggerSetup implements Serializable {
         LOG.info("total_steps," + steps.size());
         LOG.info("total_executed," + executedStepCounter);
         LOG.info("execution_percentage," + roundedPercentage);
-        if(!getCurrentWorkload().getName().contains("UC2")){
+        if(!getCurrentWorkload().getName().contains("UC2") || !getCurrentWorkload().getName().contains("UC7")){
             LOG.info("transmit_status," + transmitStatus);
         }
 
