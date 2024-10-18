@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>tank-parent</artifactId>
-    <version>4.0.1-SNAPSHOT</version>
+    <version>4.1.0</version>
   </parent>
 
   <artifactId>jacoco-report-aggregator</artifactId>
@@ -19,92 +19,92 @@
       <groupId>com.intuit.tank</groupId>
       <artifactId>agent-common</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>agent-standalone</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>agent-startup</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>agent</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>http_client_apache_3</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>http_client_apache_4</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>http_client_jdk</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>api</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>harness-data</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
 
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>tank-script-processor</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>document-util</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>lucene-indexer</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>script-search</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>tank-common</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>tank-vm-manager</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
 
     <!-- tools -->
@@ -112,19 +112,19 @@
       <groupId>com.intuit.tank</groupId>
       <artifactId>agent-debugger</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>script-engine</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>script-filter</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
 
 
@@ -132,19 +132,19 @@
       <groupId>com.intuit.tank</groupId>
       <artifactId>data-access</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>data-model</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
       <artifactId>web-support</artifactId>
       <scope>compile</scope>
-      <version>4.0.1-SNAPSHOT</version>
+      <version>4.1.0</version>
     </dependency>
   </dependencies>
 
