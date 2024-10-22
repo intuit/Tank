@@ -81,7 +81,8 @@ public class HeadlessDebuggerSetup implements Serializable {
     private String username;
     private String authId;
     private String srsVersion;
-    private boolean transmitStatus;
+    private boolean filingStatus;
+    private boolean taxhubFlow;
 
     public HeadlessDebuggerSetup(String serviceUrl, Integer projectId, String token) {
         try {
@@ -247,8 +248,9 @@ public class HeadlessDebuggerSetup implements Serializable {
         LOG.info("total_steps," + steps.size());
         LOG.info("total_executed," + executedStepCounter);
         LOG.info("execution_percentage," + roundedPercentage);
+        LOG.info("taxhub_flow," + taxhubFlow);
         if(!getCurrentWorkload().getName().contains("UC2") || !getCurrentWorkload().getName().contains("UC7")){
-            LOG.info("transmit_status," + transmitStatus);
+            LOG.info("filing_status," + filingStatus);
         }
 
         // timestamp
@@ -542,20 +544,23 @@ public class HeadlessDebuggerSetup implements Serializable {
                 LOG.info(sb);
 
                 if(debugStep != null && debugStep.getStepRun() != null) {
-                    if(debugStep.getStepRun().getInfo().contains("transmit-return")) {
-                        LOG.info("transmit-return response body: {}", debugStep.getResponse().getBody());
+                    if(debugStep.getStepRun().getInfo().contains("filing-return")) {
+                        LOG.info("filing-return response body: {}", debugStep.getResponse().getBody());
 
                         try {
                             ObjectMapper objectMapper = new ObjectMapper();
                             String responseBody = debugStep.getResponse().getBody();
                             JsonNode rootNode = objectMapper.readTree(responseBody);
-                            JsonNode transmitStatusNode = rootNode.path("data").path("transmitResponse").path("TransmitStatus");
-                            if (transmitStatusNode.asText().equals("success")) {
-                                transmitStatus = true;
+                            JsonNode filingStatusNode = rootNode.path("data").path("transmitResponse").path("TransmitStatus");
+                            if (filingStatusNode.asText().equals("success")) {
+                                filingStatus = true;
                             }
                         } catch (Exception e) {
                             LOG.error("Error parsing JSON response body", e);
                         }
+                    }
+                    if(debugStep.getStepRun().getInfo().contains("taxhub")) {
+                        taxhubFlow = true;
                     }
                 }
 
