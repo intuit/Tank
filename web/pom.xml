@@ -17,6 +17,7 @@
   <modules>
     <module>web_support</module>
     <module>web_ui</module>
+      <module>react_ui</module>
   </modules>
 
 </project>
