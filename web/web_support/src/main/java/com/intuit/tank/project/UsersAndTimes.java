@@ -228,32 +228,46 @@ public class UsersAndTimes implements Serializable {
 
     public void copyTo(Workload copyTo) {
         JobConfiguration jobConfiguration = projectBean.getJobConfiguration();
-        JobConfiguration jc = copyTo.getJobConfiguration();
-        jc.setBaselineVirtualUsers(jobConfiguration.getBaselineVirtualUsers());
-        jc.setDataFileIds(new HashSet<Integer>(jobConfiguration.getDataFileIds()));
-        jc.setIncrementStrategy(jobConfiguration.getIncrementStrategy());
-        jc.setLocation(jobConfiguration.getLocation());
-        jc.setRampTime(jobConfiguration.getRampTime());
-        jc.setReportingMode(jobConfiguration.getReportingMode());
-        jc.setSimulationTime(jobConfiguration.getSimulationTime());
-        jc.setTerminationPolicy(jobConfiguration.getTerminationPolicy());
-        jc.setUserIntervalIncrement(jobConfiguration.getUserIntervalIncrement());
-        jc.setVariables(jobConfiguration.getVariables());
-        Set<JobRegion> regions = jobConfiguration.getJobRegions().stream().map(this::copyRegion).collect(Collectors.toSet());
-        jc.setJobRegions(regions);
-        jc.setParent(copyTo);
+        JobConfiguration jc = copyJobConfiguration(jobConfiguration, copyTo);
         copyTo.setJobConfiguration(jc);
     }
 
+    private JobConfiguration copyJobConfiguration(JobConfiguration original, Workload newParent) {
+        JobConfiguration copy = new JobConfiguration();
+        copy.setBaselineVirtualUsers(original.getBaselineVirtualUsers());
+        copy.setTargetRampRate(original.getTargetRampRate());
+        copy.setDataFileIds(new HashSet<>(original.getDataFileIds()));
+        copy.setIncrementStrategy(original.getIncrementStrategy());
+        copy.setLocation(original.getLocation());
+        copy.setReportingMode(original.getReportingMode());
+        copy.setSimulationTime(original.getSimulationTime());
+        copy.setSimulationTimeExpression(original.getSimulationTimeExpression());
+        copy.setRampTime(original.getRampTime());
+        copy.setRampTimeExpression(original.getRampTimeExpression());
+        copy.setTerminationPolicy(original.getTerminationPolicy());
+        copy.setUserIntervalIncrement(original.getUserIntervalIncrement());
+        copy.setNumUsersPerAgent(original.getNumUsersPerAgent());
+        copy.setTargetRatePerAgent(original.getTargetRatePerAgent());
+        copy.setStopBehavior(original.getStopBehavior());
+        copy.setVmInstanceType(original.getVmInstanceType());
+        copy.setVariables(original.getVariables());
+        copy.setJobRegions(original.getJobRegions().stream()
+                .map(this::copyRegion)
+                .collect(Collectors.toSet()));
+        copy.setParent(newParent);
+        return copy;
+    }
+
     /**
-     * @param jr
-     * @return
+     * @param original
+     * @return copy
      */
-    private JobRegion copyRegion(JobRegion jr) {
-        JobRegion ret = new JobRegion();
-        ret.setRegion(jr.getRegion());
-        ret.setUsers(jr.getUsers());
-        return ret;
+    private JobRegion copyRegion(JobRegion original) {
+        JobRegion copy = new JobRegion();
+        copy.setRegion(original.getRegion());
+        copy.setUsers(original.getUsers());
+        copy.setPercentage(original.getPercentage());
+        return copy;
     }
 
     /**
