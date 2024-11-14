@@ -95,6 +95,7 @@ public class APITestHarness {
     private CountDownLatch doneSignal;
     private Semaphore semaphore;
     private boolean loggedSimTime;
+    private volatile boolean simulationTimeMet = false;
     private int currentUsers = 0;
     private Vector<TankResult> results = new Vector<TankResult>();
     private ValidationStatus validationFailures;
@@ -704,16 +705,23 @@ public class APITestHarness {
     }
 
     public boolean hasMetSimulationTime() {
-        if (agentRunData.getSimulationTimeMillis() > 0) {
+        if (!simulationTimeMet && agentRunData.getSimulationTimeMillis() > 0) {
             if (System.currentTimeMillis() > getSimulationEndTimeMillis()) {
                 if (!loggedSimTime) {
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Simulation time met")));
                     loggedSimTime = true;
                 }
+                simulationTimeMet = true;
                 return true;
             }
         }
-        return false;
+        return simulationTimeMet;
+    }
+
+    public void checkSimulationTime() {
+        if (!simulationTimeMet) {
+            hasMetSimulationTime();
+        }
     }
 
     public long getStartTime() {
