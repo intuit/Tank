@@ -290,7 +290,7 @@ public class ProjectBean implements Serializable {
         Workload workload = new Workload();
         workload.setParent(ret);
         workload.setName(saveAsName);
-        ret.setWorkloads(Collections.singletonList(workload));
+        ret.setWorkloads(List.of(workload));
         ret.setComments(project.getComments());
         ret.setCreator(securityContext.getCallerPrincipal().getName());
         ret.setName(saveAsName);
@@ -311,7 +311,7 @@ public class ProjectBean implements Serializable {
         JobConfiguration copy = new JobConfiguration();
         copy.setBaselineVirtualUsers(original.getBaselineVirtualUsers());
         copy.setTargetRampRate(original.getTargetRampRate());
-        copy.setDataFileIds(new HashSet<>(original.getDataFileIds()));
+        copy.setDataFileIds(Set.copyOf(original.getDataFileIds()));
         copy.setIncrementStrategy(original.getIncrementStrategy());
         copy.setLocation(original.getLocation());
         copy.setReportingMode(original.getReportingMode());
@@ -325,7 +325,7 @@ public class ProjectBean implements Serializable {
         copy.setTargetRatePerAgent(original.getTargetRatePerAgent());
         copy.setStopBehavior(original.getStopBehavior());
         copy.setVmInstanceType(original.getVmInstanceType());
-        copy.setVariables(new HashMap<>(original.getVariables()));
+        copy.setVariables(Map.copyOf(original.getVariables()));
         copy.setJobRegions(original.getJobRegions().stream()
                 .map(this::copyRegion)
                 .collect(Collectors.toSet()));

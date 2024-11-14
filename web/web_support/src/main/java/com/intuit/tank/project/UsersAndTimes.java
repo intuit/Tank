@@ -14,11 +14,7 @@ package com.intuit.tank.project;
  */
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ConversationScoped;
@@ -236,7 +232,7 @@ public class UsersAndTimes implements Serializable {
         JobConfiguration copy = new JobConfiguration();
         copy.setBaselineVirtualUsers(original.getBaselineVirtualUsers());
         copy.setTargetRampRate(original.getTargetRampRate());
-        copy.setDataFileIds(new HashSet<>(original.getDataFileIds()));
+        copy.setDataFileIds(Set.copyOf(original.getDataFileIds()));
         copy.setIncrementStrategy(original.getIncrementStrategy());
         copy.setLocation(original.getLocation());
         copy.setReportingMode(original.getReportingMode());
@@ -250,7 +246,7 @@ public class UsersAndTimes implements Serializable {
         copy.setTargetRatePerAgent(original.getTargetRatePerAgent());
         copy.setStopBehavior(original.getStopBehavior());
         copy.setVmInstanceType(original.getVmInstanceType());
-        copy.setVariables(original.getVariables());
+        copy.setVariables(Map.copyOf(original.getVariables()));
         copy.setJobRegions(original.getJobRegions().stream()
                 .map(this::copyRegion)
                 .collect(Collectors.toSet()));
