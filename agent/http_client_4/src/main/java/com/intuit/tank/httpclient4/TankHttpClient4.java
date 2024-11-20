@@ -147,11 +147,15 @@ public class TankHttpClient4 implements TankHttpClient {
     @Override
     public void doPut(BaseRequest request) {
         HttpPut httpput = new HttpPut(request.getRequestUrl());
-        // Multiple calls can be expensive, so get it once
         String requestBody = request.getBody();
-        HttpEntity entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
-        httpput.setHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
+        HttpEntity entity;
+        if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
+            entity = buildParts(request);
+        } else {
+            entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+        }
         httpput.setEntity(entity);
+        setHeaders(request, httpput, request.getHeaderInformation());
         sendRequest(request, httpput, requestBody);
     }
 
@@ -432,19 +436,19 @@ public class TankHttpClient4 implements TankHttpClient {
 
     private HttpEntity buildParts(BaseRequest request) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        String contentType = request.getContentType();
+        String boundary = contentType.substring(contentType.indexOf("boundary=") + 9);
+        builder.setBoundary(boundary);
+
         for (PartHolder h : TankHttpUtil.getPartsFromBody(request)) {
+            ContentType partContentType = h.isContentTypeSet()
+                    ? ContentType.create(h.getContentType())
+                    : ContentType.DEFAULT_BINARY;
+
             if (h.getFileName() == null) {
-                if (h.isContentTypeSet()) {
-                    builder.addTextBody(h.getPartName(), h.getBodyAsString(), ContentType.create(h.getContentType()));
-                } else {
-                    builder.addTextBody(h.getPartName(), h.getBodyAsString());
-                }
+                builder.addTextBody(h.getPartName(), h.getBodyAsString(), partContentType);
             } else {
-                if (h.isContentTypeSet()) {
-                    builder.addBinaryBody(h.getPartName(), h.getBody(), ContentType.create(h.getContentType()), h.getFileName());
-                } else {
-                    builder.addBinaryBody(h.getFileName(), h.getBody());
-                }
+                builder.addBinaryBody(h.getPartName(), h.getBody(), partContentType, h.getFileName());
             }
         }
         return builder.build();
