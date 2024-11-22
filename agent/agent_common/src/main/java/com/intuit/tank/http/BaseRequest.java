@@ -172,6 +172,16 @@ public abstract class BaseRequest {
     }
 
     /**
+     * Execute the PATCH.
+     */
+    public void doPatch(BaseResponse response) {
+        this.response = response;
+        requestUrl = TankHttpUtil.buildUrl(protocol, host, port, path, urlVariables).toString();
+        httpclient.doPatch(this);
+
+    }
+
+    /**
      * Set as value in the request
      * 
      * @param key

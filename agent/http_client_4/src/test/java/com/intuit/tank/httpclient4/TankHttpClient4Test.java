@@ -140,7 +140,7 @@ public class TankHttpClient4Test {
         request.doPut(null);
         BaseResponse response = request.getResponse();
         verify(exactly(1), putRequestedFor(urlEqualTo("/put"))
-                .withHeader("Content-Type", equalTo("application/json; charset=UTF-8"))
+                .withHeader("Content-Type", equalTo("application/json"))
                 .withRequestBody(containing("Money™")));
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());

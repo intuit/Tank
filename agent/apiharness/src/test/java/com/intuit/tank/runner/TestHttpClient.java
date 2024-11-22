@@ -48,6 +48,13 @@ public class TestHttpClient implements TankHttpClient {
     }
 
     /* (non-Javadoc)
+     * @see com.intuit.tank.http.TankHttpClient#doPatch(com.intuit.tank.http.BaseRequest)
+     */
+    @Override
+    public void doPatch(BaseRequest request) {
+    }
+
+    /* (non-Javadoc)
      * @see com.intuit.tank.http.TankHttpClient#addAuth(com.intuit.tank.http.AuthCredentials)
      */
     @Override

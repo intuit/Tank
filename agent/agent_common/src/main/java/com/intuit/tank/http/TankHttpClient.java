@@ -30,13 +30,20 @@ public interface TankHttpClient {
      *            The response object to populate
      */
     public void doOptions(BaseRequest request);
-    
+
     /**
      * Execute the POST.
      *
      * @param request
      */
     public void doPost(BaseRequest request);
+
+    /**
+     * Execute the PATCH.
+     *
+     * @param request
+     */
+    public void doPatch(BaseRequest request);
 
     /**
      * Adds the authentication
