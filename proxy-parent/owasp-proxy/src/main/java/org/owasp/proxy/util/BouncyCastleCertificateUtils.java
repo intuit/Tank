@@ -34,14 +34,10 @@ import java.util.Vector;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.bouncycastle.asn1.x509.BasicConstraints;
-import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
-import org.bouncycastle.asn1.x509.KeyPurposeId;
-import org.bouncycastle.asn1.x509.X509Extensions;
+import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.jce.X509KeyUsage;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.bouncycastle.x509.extension.AuthorityKeyIdentifierStructure;
-import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
 
 @SuppressWarnings("deprecation")
 public class BouncyCastleCertificateUtils {
@@ -116,7 +112,7 @@ public class BouncyCastleCertificateUtils {
         // new SubjectKeyIdentifierExtension(new KeyIdentifier(pubKey)
         // .getIdentifier()));
         certGen.addExtension(X509Extensions.SubjectKeyIdentifier, false,
-                new SubjectKeyIdentifierStructure(pubKey));
+                SubjectKeyIdentifier.getInstance(pubKey));
         //
         // ext.set(AuthorityKeyIdentifierExtension.NAME,
         // new AuthorityKeyIdentifierExtension(

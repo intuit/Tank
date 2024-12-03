@@ -32,14 +32,14 @@
   <dependencies>
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk15on</artifactId>
-      <version>1.47</version>
+      <artifactId>bcprov-jdk18on</artifactId>
+      <version>1.79</version>
     </dependency>
 
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcpkix-jdk15on</artifactId>
-      <version>1.47</version>
+      <artifactId>bcpkix-jdk18on</artifactId>
+      <version>1.79</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
@@ -48,7 +48,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>2.5.6</version>
+      <version>6.2.0</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
