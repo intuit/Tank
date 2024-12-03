@@ -74,9 +74,20 @@ public abstract class BaseResponse {
             }
             this.responseLogMsg = sb.toString();
         } catch (Exception ex) {
-            LOG.error("Error processing response: " + ex.getMessage(), ex);
+            LOG.error("Error processing response: {}", ex.getMessage(), ex);
         }
         return responseLogMsg;
+    }
+
+    public String convertToCSV() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.httpCode).append(",");
+        sb.append(this.rspMessage).append(",");
+        sb.append(responseTime).append(",");
+        sb.append(getResponseSize()).append(",");
+        headers.forEach((key, value) -> sb.append(key).append(" = ").append(value.replace(",", "")).append(","));
+        cookies.forEach((key, value) -> sb.append(key).append(" = ").append(value).append(","));
+        return sb.toString();
     }
 
     /**
