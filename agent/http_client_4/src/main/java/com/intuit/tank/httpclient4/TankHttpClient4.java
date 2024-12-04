@@ -17,12 +17,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.intuit.tank.harness.AmazonUtil;
+import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.Nonnull;
 
 import org.apache.commons.lang3.StringUtils;
@@ -66,11 +65,6 @@ import com.intuit.tank.http.TankHttpUtil;
 import com.intuit.tank.http.TankHttpUtil.PartHolder;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.vm.settings.AgentConfig;
-import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
-import software.amazon.awssdk.services.cloudwatch.model.Dimension;
-import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
-import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
-import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
 public class TankHttpClient4 implements TankHttpClient {
 
@@ -78,12 +72,7 @@ public class TankHttpClient4 implements TankHttpClient {
 
     private CloseableHttpClient httpclient;
     private HttpClientContext context;
-
-    private static final String namespace = "Intuit/Tank";
-    private CloudWatchAsyncClient cloudWatchClient;
-    private Dimension instanceId;
-    private Dimension jobId;
-    private Dimension requestPath;
+    private final Collection<String> mimeTypes = new TankConfig().getAgentConfig().getTextMimeTypeRegex();
 
     /**
      * no-arg constructor for client
@@ -106,8 +95,6 @@ public class TankHttpClient4 implements TankHttpClient {
         context.setUserToken(UUID.randomUUID());
         context.setCookieStore(new BasicCookieStore());
         context.setRequestConfig(requestConfig);
-
-        this.cloudWatchClient = CloudWatchAsyncClient.builder().build();
     }
 
     public Object createHttpClient() {
@@ -308,7 +295,13 @@ public class TankHttpClient4 implements TankHttpClient {
             // check for no content headers
             if (response.getStatusLine().getStatusCode() != 203 && response.getStatusLine().getStatusCode() != 202 && response.getStatusLine().getStatusCode() != 204) {
                 try ( InputStream is = response.getEntity().getContent() ) {
-                    responseBody = is.readAllBytes();
+                    Header contentTypeHeader = response.getFirstHeader("Content-Type");
+                    String contentType = contentTypeHeader != null ? contentTypeHeader.getValue() : "";
+                    if (checkContentType(contentType)) {
+                        responseBody = is.readAllBytes();
+                    } else {
+                        is.readAllBytes();
+                    }
                 } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
@@ -341,6 +334,15 @@ public class TankHttpClient4 implements TankHttpClient {
     }
 
     /**
+     * Checks content-type to filter whether to assign the response data to responseBody
+     *
+     * @param contentType
+     */
+    private boolean checkContentType(String contentType) {
+        return mimeTypes.stream().anyMatch(contentType::matches);
+    }
+
+    /**
      * Wait for the amount of time it took to get a response from the system if
      * the response time is over some threshold specified in the properties
      * file. This will ensure users don't bunch up together after a blip on the
@@ -356,10 +358,8 @@ public class TankHttpClient4 implements TankHttpClient {
             AgentConfig config = request.getLogUtil().getAgentConfig();
             long maxAgentResponseTime = config.getMaxAgentResponseTime();
             if (maxAgentResponseTime < responseTime) {
-                long waitTime = Math.min(config.getMaxAgentWaitTime(), responseTime);
-                sendRTCloudWatchMetrics(responseTime, uri);
-                LOG.warn(request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
-                Thread.sleep(waitTime);
+                LOG.warn(request.getLogUtil().getLogMessage("Response time too slow"));
+                Thread.sleep(Math.min(config.getMaxAgentWaitTime(), responseTime));
             }
         } catch (InterruptedException e) {
             LOG.warn("Interrupted", e);
@@ -406,38 +406,6 @@ public class TankHttpClient4 implements TankHttpClient {
                 LOG.debug(response.getLogMsg());
             }
         }
-    }
-
-    private void sendRTCloudWatchMetrics(long responseTime, String uri) {
-        Instant timestamp = new Date().toInstant();
-        List<MetricDatum> datumList = new ArrayList<>();
-
-        this.instanceId = Dimension.builder()
-                .name("InstanceId")
-                .value(AmazonUtil.getInstanceId())
-                .build();
-        this.jobId = Dimension.builder()
-                .name("JobId")
-                .value(AmazonUtil.getJobId())
-                .build();
-
-        this.requestPath = Dimension.builder()
-                .name("slowRequestPath")
-                .value(uri)
-                .build();
-
-        datumList.add(MetricDatum.builder()
-                .metricName("responseTime")
-                .unit(StandardUnit.COUNT)
-                .value((double) responseTime)
-                .timestamp(timestamp)
-                .dimensions(requestPath, instanceId, jobId)
-                .build());
-        PutMetricDataRequest request = PutMetricDataRequest.builder()
-                .namespace(namespace)
-                .metricData(datumList)
-                .build();
-        cloudWatchClient.putMetricData(request);
     }
 
     /**

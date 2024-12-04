@@ -71,7 +71,7 @@ public abstract class BaseJob extends BaseEntity {
     @Column(name = "num_agents", columnDefinition = "INT(11) NOT NULL DEFAULT '1'")
     private int numAgents = 1;
 
-    @Column(name = "target_rate_per_agent", columnDefinition="DECIMAL(10,2) NOT NULL DEFAULT '1.00'")
+    @Column(name = "target_rate_per_agent", columnDefinition="DECIMAL(10,4) NOT NULL DEFAULT '1.00'")
     private Double targetRatePerAgent = 1.00;
 
     @Column(name = "logging_profile")

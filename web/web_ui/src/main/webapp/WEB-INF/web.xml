@@ -87,6 +87,7 @@
     <location>/expired.jsf</location>
   </error-page>
   <error-page>
+    <exception-type>java.lang.Throwable</exception-type>
     <location>/error.jsf</location>
   </error-page>
 
