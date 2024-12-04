@@ -29,6 +29,7 @@ public abstract class BaseResponse {
 
     protected String response;
     protected long responseTime = -1;
+    protected long istioResponseTime = -1;
     protected int httpCode = -1;
     protected String rspMessage = "";
     protected HashMap<String, String> headers = new HashMap<String, String>();
@@ -52,6 +53,7 @@ public abstract class BaseResponse {
             sb.append("RESPONSE HTTP CODE: ").append(this.httpCode).append(NEWLINE)
                     .append("RESPONSE HTTP MSG: ").append(this.rspMessage).append(NEWLINE)
                     .append("RESPONSE TIME: ").append(responseTime).append(NEWLINE)
+                    .append("ISTIO RESPONSE TIME: ").append(istioResponseTime).append(NEWLINE)
                     .append("RESPONSE SIZE: ").append(getResponseSize()).append(NEWLINE);
             for (Entry<String, String> mapEntry : headers.entrySet()) {
                 sb.append("RESPONSE HEADER: ")
@@ -84,6 +86,7 @@ public abstract class BaseResponse {
         sb.append(this.httpCode).append(",");
         sb.append(this.rspMessage).append(",");
         sb.append(responseTime).append(",");
+        sb.append(istioResponseTime).append(",");
         sb.append(getResponseSize()).append(",");
         headers.forEach((key, value) -> sb.append(key).append(" = ").append(value.replace(",", "")).append(","));
         cookies.forEach((key, value) -> sb.append(key).append(" = ").append(value).append(","));
@@ -169,6 +172,14 @@ public abstract class BaseResponse {
      */
     public void setResponseBody(String body) {
         this.response = body;
+    }
+
+    public long getIstioResponseTime() {
+        return this.istioResponseTime;
+    }
+
+    public void setIstioResponseTime(long istioResponseTime) {
+        this.istioResponseTime = istioResponseTime;
     }
 
     /**
