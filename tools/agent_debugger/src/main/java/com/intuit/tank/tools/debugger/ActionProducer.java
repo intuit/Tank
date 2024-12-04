@@ -72,6 +72,7 @@ public class ActionProducer {
     public static final String ACTION_STOP = "Stop";
     public static final String ACTION_RUN_TO = "Run to Breakpoint...";
     private static final String ACTION_PAUSE = "Pause";
+    private static final String ACTION_EXPORT = "Export Responses";
     private static final String ACTION_FIND = "Find...";
     private static final String ACTION_SKIP = "Skip";
     private static final String ACTION_SKIP_STEP = "Toggle Skip Step";
@@ -106,20 +107,6 @@ public class ActionProducer {
         this.projectClient = new ProjectClient(serviceUrl, token);
         this.agentClient = new AgentClient(serviceUrl, token);
         this.dataFileClient = new DataFileClient(serviceUrl, token);
-
-        jFileChooser = new JFileChooser();
-        jFileChooser.setFileFilter(new FileFilter() {
-
-            @Override
-            public String getDescription() {
-                return "Agent XML Files";
-            }
-
-            @Override
-            public boolean accept(File f) {
-                return f.isDirectory() || f.getName().toLowerCase().endsWith("_h.xml");
-            }
-        });
     }
 
     /**
@@ -264,6 +251,19 @@ public class ActionProducer {
     public Action getOpenAction() {
         Action ret = actionMap.get(ACTION_OPEN);
         if (ret == null) {
+            jFileChooser = new JFileChooser();
+            jFileChooser.setFileFilter(new FileFilter() {
+
+                @Override
+                public String getDescription() {
+                    return "Agent XML Files";
+                }
+
+                @Override
+                public boolean accept(File f) {
+                    return f.isDirectory() || f.getName().toLowerCase().endsWith("_h.xml");
+                }
+            });
             ret = new AbstractAction(ACTION_OPEN, getIcon("script_go.png", IconSize.SMALL)) {
                 private static final long serialVersionUID = 1L;
 
@@ -824,6 +824,32 @@ public class ActionProducer {
             };
             ret.putValue(Action.SHORT_DESCRIPTION, ACTION_PAUSE);
             actionMap.put(ACTION_PAUSE, ret);
+        }
+        return ret;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Action getCSVAction() {
+        Action ret = actionMap.get(ACTION_EXPORT);
+        if (ret == null) {
+            jFileChooser = new JFileChooser();
+            ret = new AbstractAction(ACTION_EXPORT, getIcon("database_tabs.png", IconSize.SMALL)) {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int option = jFileChooser.showSaveDialog(debuggerFrame);
+                    if (option != JFileChooser.CANCEL_OPTION) {
+                        File selectedFile = jFileChooser.getSelectedFile();
+                        debuggerFrame.exportCSV(selectedFile);
+                    }
+                }
+            };
+            ret.putValue(Action.SHORT_DESCRIPTION, ACTION_EXPORT);
+            actionMap.put(ACTION_EXPORT, ret);
         }
         return ret;
     }
