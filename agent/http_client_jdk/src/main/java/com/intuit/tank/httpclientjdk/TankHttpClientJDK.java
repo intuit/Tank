@@ -314,6 +314,20 @@ public class TankHttpClientJDK implements TankHttpClient {
                 }
             }
 
+            // Extract Istio response/service time header
+            List<String> istioResponseTimeHeaders = headers.map().get("x-envoy-upstream-service-time");
+            if (istioResponseTimeHeaders != null && !istioResponseTimeHeaders.isEmpty()) {
+                try {
+                    long istioResponseTime = Long.parseLong(istioResponseTimeHeaders.get(0));
+                    response.setIstioResponseTime(istioResponseTime);
+                } catch (NumberFormatException e) {
+                    LOG.warn("could not parse istio service time header: " + istioResponseTimeHeaders.get(0));
+                    response.setIstioResponseTime(-1);
+                }
+            } else {
+                response.setIstioResponseTime(-1);
+            }
+
             List<HttpCookie> cookies = cookieManager.getCookieStore().getCookies();
             if (!cookies.isEmpty()) {
                 for (HttpCookie cookie : cookies) {
