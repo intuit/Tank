@@ -107,7 +107,7 @@ public class TankHttpClient4 implements TankHttpClient {
                 .evictIdleConnections(1L, TimeUnit.MINUTES)
                 .evictExpiredConnections()
                 .setMaxConnPerRoute(10240)
-                .setMaxConnTotal(20480)
+                .setMaxConnTotal(40960)
                 .build();
     }
 

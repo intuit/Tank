@@ -26,6 +26,9 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -61,6 +64,9 @@ public class TankHttpClientJDK implements TankHttpClient {
     public TankHttpClientJDK() {
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         httpclientBuilder = HttpClient.newBuilder()
+                .executor(new ThreadPoolExecutor(0, 50,
+                        60L, TimeUnit.SECONDS,
+                        new SynchronousQueue<Runnable>()))
                 .cookieHandler(cookieManager)
                 .connectTimeout(Duration.ofSeconds(30))
                 .followRedirects(HttpClient.Redirect.ALWAYS);
