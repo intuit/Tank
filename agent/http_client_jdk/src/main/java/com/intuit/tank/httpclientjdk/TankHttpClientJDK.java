@@ -64,7 +64,7 @@ public class TankHttpClientJDK implements TankHttpClient {
     public TankHttpClientJDK() {
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         httpclientBuilder = HttpClient.newBuilder()
-                .executor(new ThreadPoolExecutor(0, 500,
+                .executor(new ThreadPoolExecutor(0, 50,
                         60L, TimeUnit.SECONDS,
                         new SynchronousQueue<Runnable>()))
                 .cookieHandler(cookieManager)
