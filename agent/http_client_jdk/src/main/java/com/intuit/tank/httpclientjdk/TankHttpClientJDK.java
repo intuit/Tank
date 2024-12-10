@@ -26,6 +26,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -63,7 +64,8 @@ public class TankHttpClientJDK implements TankHttpClient {
         httpclientBuilder = HttpClient.newBuilder()
                 .cookieHandler(cookieManager)
                 .connectTimeout(Duration.ofSeconds(30))
-                .followRedirects(HttpClient.Redirect.ALWAYS);
+                .followRedirects(HttpClient.Redirect.ALWAYS)
+                .executor(Executors.newSingleThreadExecutor());
         httpclient = httpclientBuilder.build();
     }
 
