@@ -49,7 +49,6 @@ import com.intuit.tank.runner.method.TimerMap;
 import com.intuit.tank.script.ScriptConstants;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import com.intuit.tank.vm.common.TankConstants;
-import com.intuit.tank.vm.common.util.MethodTimer;
 import com.intuit.tank.vm.settings.TankConfig;
 
 public class TestPlanRunner implements Runnable {
@@ -106,7 +105,6 @@ public class TestPlanRunner implements Runnable {
         tankHttpClient = initHttpClient();
         tankHttpClient.setHttpClient(httpClient);
 
-        MethodTimer mt = new MethodTimer(LOG, getClass(), "runTestPlan(" + testPlan.getTestPlanName() + ")");
         LogEvent logEvent = LogUtil.getLogEvent();
         variables = new Variables();
         logEvent.setVariables(variables);
@@ -163,68 +161,58 @@ public class TestPlanRunner implements Runnable {
             LOG.error(LogUtil.getLogMessage("Unexpected exception in test: " + e.toString()), e);
         } finally {
             APITestHarness.getInstance().threadComplete();
-            LOG.info(LogUtil.getLogMessage(mt.getNaturalTimeMessage() + " Test complete. Exiting..."));
+            LOG.info(LogUtil.getLogMessage(" Test complete. Exiting..."));
         }
     }
 
     private void runTestGroup(List<HDScript> scripts, HDScriptGroup parent)
             throws KillScriptException, RestartScriptException {
-        MethodTimer mt = new MethodTimer(LOG, getClass(), "runScriptGroup(" + parent.getName() + ")");
         LogEvent logEvent = LogUtil.getLogEvent();
-        try {
-            for (HDScript hdscript : scripts) {
-                MethodTimer mt1 = new MethodTimer(LOG, getClass(), "runScript(" + hdscript.getName() + ")");
-                logEvent.setScript(hdscript);
-                //LOG.info(LogUtil.getLogMessage("Entering Script", LogEventType.Informational));
-                hdscript.setParent(parent);
-                int scriptLoop = 0;
-                APITestHarness.getInstance().getUserTracker().add(hdscript.getName());
-                try {
-                    while (scriptLoop < hdscript.getLoop()) {
-                        String gotoGroup = null;
-                        List<HDScriptUseCase> useCaseList = hdscript.getUseCase();
-                        for (int i = 0; i < useCaseList.size(); i++) {
-                            if (APITestHarness.getInstance().getCmd() == AgentCommand.kill) {
-                                return;
-                            }
-                            HDScriptUseCase hdScriptUseCase = useCaseList.get(i);
-                            hdScriptUseCase.setParent(hdscript);
-                            if (gotoGroup != null) {
-                                if (!checkGotoGroupUseCase(hdScriptUseCase, gotoGroup)) {
-                                    continue;
-                                } else {
-                                    gotoGroup = null;
-                                }
-                            }
-                            try {
-                                runScriptSteps(hdScriptUseCase);
-                                // If command is stop and stop behavior is end of step, exit the loop.
-                                if (shouldStop(StopBehavior.END_OF_STEP)) {
-                                    return;
-                                }
-                            } catch (GotoScriptException e) {
-                                i = 0;
-                                gotoGroup = e.getGotoTarget();
+        for (HDScript hdscript : scripts) {
+            logEvent.setScript(hdscript);
+            hdscript.setParent(parent);
+            int scriptLoop = 0;
+            APITestHarness.getInstance().getUserTracker().add(hdscript.getName());
+            try {
+                while (scriptLoop < hdscript.getLoop()) {
+                    String gotoGroup = null;
+                    List<HDScriptUseCase> useCaseList = hdscript.getUseCase();
+                    for (int i = 0; i < useCaseList.size(); i++) {
+                        if (APITestHarness.getInstance().getCmd() == AgentCommand.kill) {
+                            return;
+                        }
+                        HDScriptUseCase hdScriptUseCase = useCaseList.get(i);
+                        hdScriptUseCase.setParent(hdscript);
+                        if (gotoGroup != null) {
+                            if (!checkGotoGroupUseCase(hdScriptUseCase, gotoGroup)) {
+                                continue;
+                            } else {
+                                gotoGroup = null;
                             }
                         }
-
-                        scriptLoop++;
+                        try {
+                            runScriptSteps(hdScriptUseCase);
+                            // If command is stop and stop behavior is end of step, exit the loop.
+                            if (shouldStop(StopBehavior.END_OF_STEP)) {
+                                return;
+                            }
+                        } catch (GotoScriptException e) {
+                            i = 0;
+                            gotoGroup = e.getGotoTarget();
+                        }
                     }
-                } catch (AbortScriptException ase) {
-                    // ignore and go to next script
-                } finally {
-                    LOG.info(LogUtil.getLogMessage(mt1.getNaturalTimeMessage()));
-                    APITestHarness.getInstance().getUserTracker().remove(hdscript.getName());
+                    scriptLoop++;
                 }
-                // If stop command received, and stop behavior is end of script, exit here.
-                if (shouldStop(StopBehavior.END_OF_SCRIPT)) {
-                    LOG.info(LogUtil.getLogMessage("Stop command received. Stop set to end of script. End of script "
-                            + hdscript.getName() + " reached. Exiting..."));
-                    return;
-                }
+            } catch (AbortScriptException ignored) { // ignore and go to next script
+            } finally {
+                APITestHarness.getInstance().getUserTracker().remove(hdscript.getName());
             }
-        } finally {
-            LOG.info(LogUtil.getLogMessage(mt.getNaturalTimeMessage()));
+            // If stop command received, and stop behavior is end of script, exit here.
+            if (shouldStop(StopBehavior.END_OF_SCRIPT)) {
+                LOG.info(LogUtil.getLogMessage("Stop command received. Stop set to end of script. End of script "
+                        + hdscript.getName() + " reached. Exiting..."));
+                return;
+            }
         }
     }
 
