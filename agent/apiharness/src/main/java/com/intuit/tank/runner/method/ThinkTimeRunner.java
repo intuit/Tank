@@ -33,12 +33,10 @@ class ThinkTimeRunner implements Runner {
 
     private TestStepContext tsc;
     private ThinkTimeStep testStep;
-    private Variables variables;
 
     ThinkTimeRunner(TestStepContext tsc) {
         this.tsc = tsc;
         this.testStep = (ThinkTimeStep) tsc.getTestStep();
-        this.variables = tsc.getVariables();
     }
 
     @Override
@@ -52,13 +50,13 @@ class ThinkTimeRunner implements Runner {
         String maxTime = testStep.getMaxTime();
 
         try {
-            min = Integer.parseInt(eval(minTime, variables));
+            min = Integer.parseInt(eval(minTime, tsc.getVariables()));
         } catch (NumberFormatException e1) {
             LOG.warn(LogUtil.getLogMessage("Error parsing min Think Time from step " + testPlanName)
                     + " with value of " + minTime);
         }
         try {
-            max = Integer.parseInt(eval(maxTime, variables));
+            max = Integer.parseInt(eval(maxTime, tsc.getVariables()));
         } catch (NumberFormatException e1) {
             LOG.warn(LogUtil.getLogMessage("Error parsing max Think Time from step " + testPlanName)
                     + " with value of " + maxTime);
