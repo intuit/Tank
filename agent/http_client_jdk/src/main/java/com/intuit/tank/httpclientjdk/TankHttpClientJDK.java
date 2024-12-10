@@ -62,10 +62,10 @@ public class TankHttpClientJDK implements TankHttpClient {
     public TankHttpClientJDK() {
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         httpclientBuilder = HttpClient.newBuilder()
+                .executor(Executors.newSingleThreadExecutor())
                 .cookieHandler(cookieManager)
                 .connectTimeout(Duration.ofSeconds(30))
-                .followRedirects(HttpClient.Redirect.ALWAYS)
-                .executor(Executors.newSingleThreadExecutor());
+                .followRedirects(HttpClient.Redirect.ALWAYS);
         httpclient = httpclientBuilder.build();
     }
 
