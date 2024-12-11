@@ -20,6 +20,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -97,7 +100,12 @@ public class AgentStartup implements Runnable {
             String jvmArgs = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_JVM_ARGS);
             logger.info("Starting apiharness with command: {} {} {}",
                     API_HARNESS_COMMAND, controllerArg, jvmArgs);
-            Runtime.getRuntime().exec(API_HARNESS_COMMAND + "\"" + controllerArg + "\" \"" + jvmArgs + "\"");
+            List<String> command = new ArrayList<>();
+            command.add(API_HARNESS_COMMAND);
+            command.add(controllerArg);
+            command.addAll(Arrays.asList((jvmArgs).split("\\s+")));
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            processBuilder.start();
         } catch (ConnectException ce) {
             logger.error("Error creating connection to {} : this is normal during the bake : {}",
                     controllerBaseUrl, ce.getMessage());
