@@ -50,6 +50,17 @@ public abstract class BaseResponse {
         return responseLogMsg;
     }
 
+    public String convertToCSV() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.httpCode).append(",");
+        sb.append(this.rspMessage).append(",");
+        sb.append(responseTime).append(",");
+        sb.append(getResponseSize()).append(",");
+        headers.forEach((key, value) -> sb.append(key).append(" = ").append(value.replace(",", "")).append(","));
+        cookies.forEach((key, value) -> sb.append(key).append(" = ").append(value).append(","));
+        return sb.toString();
+    }
+
     /**
      * Common codes are 200 OK, 202 accepted, 204 no content, 400 bad request,
      * 404 not found, 500 internal server error, 503 Service Unavailable

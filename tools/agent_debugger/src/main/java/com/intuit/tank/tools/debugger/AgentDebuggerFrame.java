@@ -24,10 +24,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -1013,6 +1010,18 @@ public class AgentDebuggerFrame extends JFrame {
 
     public RequestResponsePanel getRequestResponsePanel() {
         return requestResponsePanel;
+    }
+
+    public void exportCSV(File csvOutputFile) {
+        try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
+            pw.println("URL,HTTP Code,HTTP Msg,Response Time,Response Size,Headers...,Cookies...");
+            steps.stream()
+                    .filter(step -> step.getResponse() != null)
+                    .map(step -> step.getRequest().getRequestUrl() + "," + step.getResponse().convertToCSV())
+                    .forEach(pw::println);
+        } catch ( FileNotFoundException e) {
+            LOG.error("Error exporting CSV: {}", String.valueOf(e));
+        }
     }
 
 }

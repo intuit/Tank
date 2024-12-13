@@ -102,6 +102,7 @@ public class TankHttpClient4 implements TankHttpClient {
         UserTokenHandler userTokenHandler = (httpContext) -> httpContext.getAttribute(HttpClientContext.USER_TOKEN);
         // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
         return HttpClients.custom()
+                .setConnectionManagerShared(true)
                 .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
                 .setUserTokenHandler(userTokenHandler)
                 .evictIdleConnections(1L, TimeUnit.MINUTES)

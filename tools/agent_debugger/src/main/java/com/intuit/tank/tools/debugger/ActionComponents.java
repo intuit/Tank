@@ -185,6 +185,8 @@ public class ActionComponents implements ScriptChangedListener {
             toolBar.add(new JLabel(" "));
             toolBar.add(actions.getPauseAction());
             toolBar.addSeparator();
+            toolBar.add(actions.getCSVAction());
+            toolBar.addSeparator();
 
             toolBar.add(actions.getClearBookmarksAction());
             toolBar.add(new JLabel(" "));

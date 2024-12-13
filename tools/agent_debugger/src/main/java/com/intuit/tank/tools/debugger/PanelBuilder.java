@@ -184,7 +184,7 @@ public class PanelBuilder {
             public void mousePressed(MouseEvent e) {
                 scriptEditorTA.grabFocus();
                 try {
-                    int offs = scriptEditorTA.viewToModel(e.getPoint());
+                    int offs = scriptEditorTA.viewToModel2D(e.getPoint());
                     if (offs > -1) {
                         int line = scriptEditorTA.getLineOfOffset(offs);
                         if (frame.getSteps().size() > line) {
