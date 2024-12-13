@@ -42,10 +42,10 @@ import org.owasp.proxy.io.CountingInputStream;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
@@ -66,11 +66,11 @@ public class JdbcMessageDAO extends NamedParameterJdbcDaoSupport implements
     private static final String RESPONSE_HEADER_TIME = "headerTime";
     private static final String RESPONSE_CONTENT_TIME = "contentTime";
 
-    private static final ParameterizedRowMapper<MutableBufferedRequest> REQUEST_MAPPER = new RequestMapper();
-    private static final ParameterizedRowMapper<MutableBufferedResponse> RESPONSE_MAPPER = new ResponseMapper();
-    private static final ParameterizedRowMapper<byte[]> CONTENT_MAPPER = new ContentMapper();
-    private static final ParameterizedRowMapper<Integer> ID_MAPPER = new IdMapper();
-    private static final ParameterizedRowMapper<Conversation> CONVERSATION_MAPPER = new ConversationMapper();
+    private static final RowMapper<MutableBufferedRequest> REQUEST_MAPPER = new RequestMapper();
+    private static final RowMapper<MutableBufferedResponse> RESPONSE_MAPPER = new ResponseMapper();
+    private static final RowMapper<byte[]> CONTENT_MAPPER = new ContentMapper();
+    private static final RowMapper<Integer> ID_MAPPER = new IdMapper();
+    private static final RowMapper<Conversation> CONVERSATION_MAPPER = new ConversationMapper();
 
     private final static String INSERT_CONTENT = "INSERT INTO contents (content, size) VALUES (:content, :size)";
 
@@ -188,9 +188,8 @@ public class JdbcMessageDAO extends NamedParameterJdbcDaoSupport implements
         MapSqlParameterSource params = new MapSqlParameterSource();
         try {
             params.addValue(ID, id, Types.INTEGER);
-            SimpleJdbcTemplate template = new SimpleJdbcTemplate(
-                    getNamedParameterJdbcTemplate());
-            return template.query(SELECT_CONVERSATIONS, ID_MAPPER, params);
+            NamedParameterJdbcTemplate template = getNamedParameterJdbcTemplate();
+            return template.query(SELECT_CONVERSATIONS, params, ID_MAPPER);
         } catch (EmptyResultDataAccessException erdae) {
             return Collections.emptyList();
         }
@@ -205,9 +204,8 @@ public class JdbcMessageDAO extends NamedParameterJdbcDaoSupport implements
         try {
             MapSqlParameterSource params = new MapSqlParameterSource();
             params.addValue(ID, headerId, Types.INTEGER);
-            SimpleJdbcTemplate template = new SimpleJdbcTemplate(
-                    getNamedParameterJdbcTemplate());
-            return template.queryForInt(SELECT_CONTENT_ID, params);
+            NamedParameterJdbcTemplate template = getNamedParameterJdbcTemplate();
+            return template.queryForObject(SELECT_CONTENT_ID, params, Integer.class);
         } catch (EmptyResultDataAccessException erdae) {
             return -1;
         }
@@ -222,9 +220,8 @@ public class JdbcMessageDAO extends NamedParameterJdbcDaoSupport implements
         try {
             MapSqlParameterSource params = new MapSqlParameterSource();
             params.addValue(ID, id, Types.INTEGER);
-            SimpleJdbcTemplate template = new SimpleJdbcTemplate(
-                    getNamedParameterJdbcTemplate());
-            return template.queryForInt(SELECT_CONTENT_SIZE, params);
+            NamedParameterJdbcTemplate template = getNamedParameterJdbcTemplate();
+            return template.queryForObject(SELECT_CONTENT_SIZE, params, Integer.class);
         } catch (EmptyResultDataAccessException erdae) {
             return -1;
         }
@@ -239,10 +236,8 @@ public class JdbcMessageDAO extends NamedParameterJdbcDaoSupport implements
         try {
             MapSqlParameterSource params = new MapSqlParameterSource();
             params.addValue(ID, id, Types.INTEGER);
-            SimpleJdbcTemplate template = new SimpleJdbcTemplate(
-                    getNamedParameterJdbcTemplate());
-            return template.queryForObject(SELECT_SUMMARY, CONVERSATION_MAPPER,
-                    params);
+            NamedParameterJdbcTemplate template = getNamedParameterJdbcTemplate();
+            return template.queryForObject(SELECT_SUMMARY, params, CONVERSATION_MAPPER);
         } catch (EmptyResultDataAccessException erdae) {
             return null;
         }
@@ -286,10 +281,8 @@ public class JdbcMessageDAO extends NamedParameterJdbcDaoSupport implements
         try {
             MapSqlParameterSource params = new MapSqlParameterSource();
             params.addValue(ID, id, Types.INTEGER);
-            SimpleJdbcTemplate template = new SimpleJdbcTemplate(
-                    getNamedParameterJdbcTemplate());
-            return template.queryForObject(SELECT_CONTENT, CONTENT_MAPPER,
-                    params);
+            NamedParameterJdbcTemplate template = getNamedParameterJdbcTemplate();
+            return template.queryForObject(SELECT_CONTENT, params, CONTENT_MAPPER);
         } catch (EmptyResultDataAccessException erdae) {
             return null;
         }
@@ -319,10 +312,8 @@ public class JdbcMessageDAO extends NamedParameterJdbcDaoSupport implements
         MapSqlParameterSource params = new MapSqlParameterSource();
         try {
             params.addValue(ID, id, Types.INTEGER);
-            SimpleJdbcTemplate template = new SimpleJdbcTemplate(
-                    getNamedParameterJdbcTemplate());
-            return template.queryForObject(SELECT_REQUEST, REQUEST_MAPPER,
-                    params);
+            NamedParameterJdbcTemplate template = getNamedParameterJdbcTemplate();
+            return template.queryForObject(SELECT_REQUEST, params, REQUEST_MAPPER);
         } catch (EmptyResultDataAccessException erdae) {
             return null;
         }
@@ -354,10 +345,8 @@ public class JdbcMessageDAO extends NamedParameterJdbcDaoSupport implements
         try {
             MapSqlParameterSource params = new MapSqlParameterSource();
             params.addValue(ID, id, Types.INTEGER);
-            SimpleJdbcTemplate template = new SimpleJdbcTemplate(
-                    getNamedParameterJdbcTemplate());
-            return template.queryForObject(SELECT_RESPONSE, RESPONSE_MAPPER,
-                    params);
+            NamedParameterJdbcTemplate template = getNamedParameterJdbcTemplate();
+            return template.queryForObject(SELECT_RESPONSE, params, RESPONSE_MAPPER);
         } catch (EmptyResultDataAccessException erdae) {
             return null;
         }
@@ -478,7 +467,7 @@ public class JdbcMessageDAO extends NamedParameterJdbcDaoSupport implements
     }
 
     private static class RequestMapper implements
-            ParameterizedRowMapper<MutableBufferedRequest> {
+            RowMapper<MutableBufferedRequest> {
 
         public MutableBufferedRequest mapRow(ResultSet rs, int rowNum)
                 throws SQLException {
@@ -504,7 +493,7 @@ public class JdbcMessageDAO extends NamedParameterJdbcDaoSupport implements
     }
 
     private static class ResponseMapper implements
-            ParameterizedRowMapper<MutableBufferedResponse> {
+            RowMapper<MutableBufferedResponse> {
 
         public MutableBufferedResponse mapRow(ResultSet rs, int rowNum)
                 throws SQLException {
@@ -529,14 +518,14 @@ public class JdbcMessageDAO extends NamedParameterJdbcDaoSupport implements
     }
 
     private static class ContentMapper implements
-            ParameterizedRowMapper<byte[]> {
+            RowMapper<byte[]> {
 
         public byte[] mapRow(ResultSet rs, int rowNum) throws SQLException {
             return rs.getBytes(CONTENT);
         }
     }
 
-    private static class IdMapper implements ParameterizedRowMapper<Integer> {
+    private static class IdMapper implements RowMapper<Integer> {
 
         public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
             return Integer.valueOf(rs.getInt(ID));
@@ -544,7 +533,7 @@ public class JdbcMessageDAO extends NamedParameterJdbcDaoSupport implements
     }
 
     private static class ConversationMapper implements
-            ParameterizedRowMapper<Conversation> {
+            RowMapper<Conversation> {
 
         public Conversation mapRow(ResultSet rs, int rowNum)
                 throws SQLException {
