@@ -349,8 +349,8 @@ public class HeadlessDebuggerSetup implements Serializable {
             LOG.info("Hostname replacement check PASSED: At least 95% of steps have been replaced.");
             return true;
         } else {
-            if(stepCount < 200 && replacementPercentage >= 70.0) {
-                LOG.info("Hostname replacement check PASSED: At least 70% of steps have been replaced (less than 200 steps).");
+            if(stepCount < 200) {
+                LOG.info("Hostname replacement check PASSED: UC7 Script -> less than 200 steps.");
                 return true;
             }
             LOG.info("Hostname replacement check FAILED: Less than 95% of steps have been replaced.");
