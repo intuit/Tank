@@ -89,7 +89,7 @@ public class JobController {
             "  - passing only projectName creates jobs named:   '{projectName}_{total_users}\\_users\\_{timestamp}' \n\n" +
             "  - rampTime and simulationTime are accepted as time strings i.e 60s, 12m, 24h \n\n" +
             "  - stopBehavior is matched against accepted values ( END_OF_STEP,  END_OF_SCRIPT,  END_OF_SCRIPT_GROUP,  END_OF_TEST ) \n\n" +
-            "  - vmInstance matches against AWS EC2 Instance Types i.e c5.large, c5.xlarge, etc \n\n"+
+            "  - vmInstance matches against AWS EC2 Instance Types i.e m8g.large, m8g.xlarge, etc \n\n"+
             "  - workloadType can be set to increasing (linear workload) or standard (nonlinear workload)  \n\n"+
             "  - targetRampRate, targetRatePerAgent, and jobRegions.percentage fields apply to standard workloadType jobs (nonlinear) \n\n"+
             "  - projectId, userIntervalIncrement and numUsersPerAgent are accepted as integers \n\n" +
