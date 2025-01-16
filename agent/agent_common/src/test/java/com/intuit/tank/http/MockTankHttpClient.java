@@ -33,6 +33,11 @@ public class MockTankHttpClient implements TankHttpClient {
     }
 
     @Override
+    public void doPatch(BaseRequest request) {
+
+    }
+
+    @Override
     public void addAuth(AuthCredentials creds) {
 
     }
