@@ -18,28 +18,17 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.Nonnull;
 
-import org.apache.commons.httpclient.Cookie;
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpState;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -75,6 +64,8 @@ public class TankHttpClient3 implements TankHttpClient {
     private static final Logger LOG = LogManager.getLogger(TankHttpClient3.class);
 
     private HttpClient httpclient;
+
+    private final Collection<String> mimeTypes = new TankConfig().getAgentConfig().getTextMimeTypeRegex();
 
     /**
      * no-arg constructor for client
@@ -120,15 +111,26 @@ public class TankHttpClient3 implements TankHttpClient {
     public void doPut(BaseRequest request) {
         try {
             PutMethod httpput = new PutMethod(request.getRequestUrl());
-            // Multiple calls can be expensive, so get it once
             String requestBody = request.getBody();
-            StringRequestEntity entity = new StringRequestEntity(requestBody, request.getContentType(), request.getContentTypeCharSet());
-            httpput.addRequestHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
+            RequestEntity entity;
+            if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
+                List<Part> parts = buildParts(request);
+                String boundary = generateBoundary();
+                entity = new MultipartRequestEntity(parts.toArray(new Part[0]), httpput.getParams());
+                httpput.addRequestHeader(HttpHeaders.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
+            } else {
+                entity = new StringRequestEntity(requestBody, request.getContentType(), request.getContentTypeCharSet());
+                httpput.addRequestHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
+            }
             httpput.setRequestEntity(entity);
             sendRequest(request, httpput, requestBody);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String generateBoundary() {
+        return "----WebKitFormBoundary" + new BigInteger(128, new Random()).toString(16);
     }
 
     /**
@@ -192,11 +194,12 @@ public class TankHttpClient3 implements TankHttpClient {
         try {
             PostMethod httppost = new PostMethod(request.getRequestUrl());
             String requestBody = request.getBody();
-            RequestEntity entity = null;
+            RequestEntity entity;
             if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
                 List<Part> parts = buildParts(request);
-
+                String boundary = generateBoundary();
                 entity = new MultipartRequestEntity(parts.toArray(new Part[0]), httppost.getParams());
+                httppost.addRequestHeader(HttpHeaders.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
             } else {
                 entity = new StringRequestEntity(requestBody, request.getContentType(), request.getContentTypeCharSet());
                 httppost.addRequestHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
@@ -206,6 +209,18 @@ public class TankHttpClient3 implements TankHttpClient {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * com.intuit.tank.httpclient3.TankHttpClient#doPatch(com.intuit.tank.http.
+     * BaseRequest)
+     */
+    @Override
+    public void doPatch(BaseRequest request) {
+        doGet(request);
     }
 
     /*
@@ -269,7 +284,12 @@ public class TankHttpClient3 implements TankHttpClient {
             // check for no content headers
             if (method.getStatusCode() != 203 && method.getStatusCode() != 202 && method.getStatusCode() != 204) {
                 try ( InputStream is = method.getResponseBodyAsStream() ) {
-                    responseBody = is.readAllBytes();
+                    String contentType = getContentHeader(method);
+                    if (checkContentType(contentType)) {
+                        responseBody = is.readAllBytes();
+                    } else {
+                        is.readAllBytes();
+                    }
                 } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
@@ -301,6 +321,25 @@ public class TankHttpClient3 implements TankHttpClient {
     }
 
     /**
+     * Gets Content Header from the response
+     *
+     * @param method
+     */
+    private String getContentHeader(HttpMethod method) {
+        HeaderElement[] responseHeaders = method.getResponseHeader("content-type").getElements();
+        return (0 < responseHeaders.length) ? responseHeaders[0].getName() : "";
+    }
+
+    /**
+     * Checks content-type to filter whether to assign the response data to responseBody
+     *
+     * @param contentType
+     */
+    private boolean checkContentType(String contentType) {
+        return mimeTypes.stream().anyMatch(contentType::matches);
+    }
+
+    /**
      * Wait for the amount of time it took to get a response from the system if
      * the response time is over some threshold specified in the properties
      * file. This will ensure users don't bunch up together after a blip on the
@@ -316,9 +355,8 @@ public class TankHttpClient3 implements TankHttpClient {
             AgentConfig config = request.getLogUtil().getAgentConfig();
             long maxAgentResponseTime = config.getMaxAgentResponseTime();
             if (maxAgentResponseTime < responseTime) {
-                long waitTime = Math.min(config.getMaxAgentWaitTime(), responseTime);
-                LOG.warn(request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
-                Thread.sleep(waitTime);
+                LOG.warn(request.getLogUtil().getLogMessage("Response time too slow"));
+                Thread.sleep(Math.min(config.getMaxAgentWaitTime(), responseTime));
             }
         } catch (InterruptedException e) {
             LOG.warn("Interrupted", e);

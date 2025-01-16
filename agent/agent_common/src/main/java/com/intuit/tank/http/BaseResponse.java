@@ -55,8 +55,8 @@ public abstract class BaseResponse {
                     .append("RESPONSE SIZE: ").append(getResponseSize()).append(NEWLINE);
             for (Entry<String, String> mapEntry : headers.entrySet()) {
                 sb.append("RESPONSE HEADER: ")
-                        .append((String) mapEntry.getKey()).append(" = ")
-                        .append((String) mapEntry.getValue()).append(NEWLINE);
+                        .append(mapEntry.getKey()).append(" = ")
+                        .append(mapEntry.getValue()).append(NEWLINE);
             }
             for (Entry<String, String> entry : cookies.entrySet()) {
                 sb.append("RESPONSE COOKIE: ")
@@ -64,19 +64,30 @@ public abstract class BaseResponse {
                         .append(entry.getValue()).append(NEWLINE);
             }
             if (response != null) {
-                String contentType = this.headers.get("Content-Type");
+                String contentType = this.headers.get("content-type");
                 if (isDataType(contentType)) {
                     sb.append("RESPONSE BODY: ").append(this.response).append(NEWLINE);
                 } else {
                     sb.append("RESPONSE BODY: not logged because ")
-                            .append(contentType).append(" is not a data type.").append(NEWLINE);
+                            .append(contentType).append(" is not a content-type.").append(NEWLINE);
                 }
             }
             this.responseLogMsg = sb.toString();
         } catch (Exception ex) {
-            LOG.error("Error processing response: " + ex.getMessage(), ex);
+            LOG.error("Error processing response: {}", ex.getMessage(), ex);
         }
         return responseLogMsg;
+    }
+
+    public String convertToCSV() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.httpCode).append(",");
+        sb.append(this.rspMessage).append(",");
+        sb.append(responseTime).append(",");
+        sb.append(getResponseSize()).append(",");
+        headers.forEach((key, value) -> sb.append(key).append(" = ").append(value.replace(",", "")).append(","));
+        cookies.forEach((key, value) -> sb.append(key).append(" = ").append(value).append(","));
+        return sb.toString();
     }
 
     /**
@@ -99,7 +110,7 @@ public abstract class BaseResponse {
     }
 
     public void setHeader(String key, String value) {
-        this.headers.put(key, value);
+        this.headers.put(key.toLowerCase(), value);
     }
 
     /**
@@ -118,7 +129,7 @@ public abstract class BaseResponse {
      * @return The value associated with the key, or null if it doesn't exist.
      */
     public String getHttpHeader(String header) {
-        return this.headers.get(header);
+        return this.headers.get(header.toLowerCase());
     }
 
     /**
@@ -209,11 +220,11 @@ public abstract class BaseResponse {
      *         header
      */
     public String getCookie(String key) {
-        return cookies.get(key);
+        return cookies.get(key.toLowerCase());
     }
 
     public void setCookie(String key, String value) {
-        this.cookies.put(key, value);
+        this.cookies.put(key.toLowerCase(), value);
     }
 
     public Map<String, String> getCookies() {

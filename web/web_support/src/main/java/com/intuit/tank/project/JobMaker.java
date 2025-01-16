@@ -47,7 +47,6 @@ import com.intuit.tank.util.TestParamUtil;
 import com.intuit.tank.util.TestParameterContainer;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
-import com.intuit.tank.vm.common.util.MethodTimer;
 import com.intuit.tank.vm.event.JobEvent;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.settings.VmInstanceType;
@@ -81,7 +80,7 @@ public class JobMaker implements Serializable {
     @Inject
     private UsersAndTimes usersAndTimes;
 
-    private JobInstance proposedJobInstance;
+    protected JobInstance proposedJobInstance;
 
     private String jobDetails;
 
@@ -238,6 +237,17 @@ public class JobMaker implements Serializable {
         }
     }
 
+    public double getTargetRatePerAgent() {
+        return (projectBean.getJobConfiguration().getTargetRatePerAgent() != null) ?
+                projectBean.getJobConfiguration().getTargetRatePerAgent() : 1.00 ;
+    }
+
+    public void setTargetRatePerAgent(double targetRatePerAgent) {
+        if (targetRatePerAgent > 0.0) {
+            projectBean.getJobConfiguration().setTargetRatePerAgent(targetRatePerAgent);
+        }
+    }
+
     public int getNumAgents() {
         return projectBean.getJobConfiguration().getNumAgents();
     }
@@ -347,21 +357,18 @@ public class JobMaker implements Serializable {
             proposedJobInstance.getJobRegionVersions().addAll(getVersions(jobRegionDao, jobRegions));
             JobValidator validator = new JobValidator(workload.getTestPlans(), proposedJobInstance.getVariables(),
                     false);
-            long maxDuration = 0;
-            for (TestPlan plan : workload.getTestPlans()) {
-                maxDuration = Math.max(validator.getDurationMs(plan.getName()), maxDuration);
-            }
+            long maxDuration = workload.getTestPlans().stream()
+                    .mapToLong(plan -> validator.getDurationMs(plan.getName()))
+                    .max().orElse(0);
             TestParameterContainer times = TestParamUtil.evaluateTestTimes(maxDuration, projectBean
                     .getJobConfiguration().getRampTimeExpression(), projectBean.getJobConfiguration()
                     .getSimulationTimeExpression());
             proposedJobInstance.setExecutionTime(maxDuration);
             proposedJobInstance.setRampTime(times.getRampTime());
             proposedJobInstance.setSimulationTime(times.getSimulationTime());
-            int totalVirtualUsers = 0;
-            for (JobRegion region : jobRegions) {
-                totalVirtualUsers += TestParamUtil.evaluateExpression(region.getUsers(), maxDuration,
-                        times.getSimulationTime(), times.getRampTime());
-            }
+            int totalVirtualUsers = jobRegions.stream()
+                    .mapToInt(region -> (int) TestParamUtil.evaluateExpression(region.getUsers(), maxDuration,
+                            times.getSimulationTime(), times.getRampTime())).sum();
             proposedJobInstance.setTotalVirtualUsers(totalVirtualUsers);
         }
     }
@@ -371,7 +378,7 @@ public class JobMaker implements Serializable {
             try {
                 jobDetails = createJobDetails();
             } catch (Exception e) {
-                LOG.error("Error building jobDetails: " + e, e);
+                LOG.error("Error building jobDetails: {}", e, e);
                 return "Error building jobDetails: ";
             }
         }
@@ -390,27 +397,19 @@ public class JobMaker implements Serializable {
 
     public void addJobToQueue() {
         if (proposedJobInstance != null) {
-            MethodTimer mt = new MethodTimer(LOG, this.getClass(), "addJobToQueue");
             JobQueueDao jobQueueDao = new JobQueueDao();
             Workload workload = projectBean.getWorkload();
             JobQueue queue = jobQueueDao.findOrCreateForProjectId(projectBean.getProject().getId());
             proposedJobInstance.setJobDetails(jobDetails);
-            mt.markAndLog("Create Job Details");
             queue.addJob(proposedJobInstance);
-            mt.markAndLog("Add job to queue");
             jobQueueDao.saveOrUpdate(queue);
-            mt.markAndLog("save queue");
             storeScript(Integer.toString(proposedJobInstance.getId()), workload, proposedJobInstance);
-            mt.markAndLog("store script");
             messages.info("Job has been submitted successfully");
             jobQueueEvent.fire(queue);
-            mt.markAndLog("fire queue event");
             jobEventProducer.fire(new JobEvent(Integer.toString(proposedJobInstance.getId()), "",
                     JobLifecycleEvent.QUEUE_ADD));
-            mt.markAndLog("fire job event QUEUE_ADD");
             setName(null);
             proposedJobInstance = null;
-            mt.endAndLog();
         }
     }
 
@@ -447,10 +446,8 @@ public class JobMaker implements Serializable {
             return false;
         }
         if(proposedJobInstance.getIncrementStrategy().equals(IncrementStrategy.standard)){
-            int regionPercentage = 0;
-            for (JobRegion r : projectBean.getWorkload().getJobConfiguration().getJobRegions()) {
-                regionPercentage += Integer.parseInt(r.getPercentage());
-            }
+            int regionPercentage = projectBean.getWorkload().getJobConfiguration().getJobRegions().stream()
+                    .mapToInt(r -> Integer.parseInt(r.getPercentage())).sum();
             if (regionPercentage != 100) {
                 return false;
             }
@@ -459,16 +456,9 @@ public class JobMaker implements Serializable {
     }
 
     private boolean hasScripts() {
-        Workload workload = projectBean.getWorkload();
-        workload.getTestPlans();
-        for (TestPlan plan : workload.getTestPlans()) {
-            for (ScriptGroup group : plan.getScriptGroups()) {
-                if (!group.getScriptGroupSteps().isEmpty()) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return projectBean.getWorkload().getTestPlans().stream()
+                .flatMap(testPlan -> testPlan.getScriptGroups().stream())
+                .anyMatch(scriptGroup -> !scriptGroup.getScriptGroupSteps().isEmpty());
     }
 
     /**

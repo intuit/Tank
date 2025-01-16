@@ -39,17 +39,16 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.xml.sax.SAXException;
 
-import com.intuit.tank.rest.mvc.rest.clients.AgentClient;
-import com.intuit.tank.rest.mvc.rest.clients.DataFileClient;
-import com.intuit.tank.rest.mvc.rest.clients.ProjectClient;
-import com.intuit.tank.rest.mvc.rest.clients.ScriptClient;
-import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinition;
-import com.intuit.tank.rest.mvc.rest.models.agent.TankHttpClientDefinitionContainer;
-import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
-import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
+import com.intuit.tank.clients.AgentClient;
+import com.intuit.tank.clients.DataFileClient;
+import com.intuit.tank.clients.ProjectClient;
+import com.intuit.tank.clients.ScriptClient;
+import com.intuit.tank.agent.models.TankHttpClientDefinition;
+import com.intuit.tank.agent.models.TankHttpClientDefinitionContainer;
+import com.intuit.tank.datafiles.models.DataFileDescriptor;
+import com.intuit.tank.projects.models.ProjectTO;
 import com.intuit.tank.script.models.ScriptDescription;
 import com.intuit.tank.script.models.ScriptDescriptionContainer;
 import com.intuit.tank.harness.data.HDWorkload;
@@ -73,6 +72,7 @@ public class ActionProducer {
     public static final String ACTION_STOP = "Stop";
     public static final String ACTION_RUN_TO = "Run to Breakpoint...";
     private static final String ACTION_PAUSE = "Pause";
+    private static final String ACTION_EXPORT = "Export Responses";
     private static final String ACTION_FIND = "Find...";
     private static final String ACTION_SKIP = "Skip";
     private static final String ACTION_SKIP_STEP = "Toggle Skip Step";
@@ -107,20 +107,6 @@ public class ActionProducer {
         this.projectClient = new ProjectClient(serviceUrl, token);
         this.agentClient = new AgentClient(serviceUrl, token);
         this.dataFileClient = new DataFileClient(serviceUrl, token);
-
-        jFileChooser = new JFileChooser();
-        jFileChooser.setFileFilter(new FileFilter() {
-
-            @Override
-            public String getDescription() {
-                return "Agent XML Files";
-            }
-
-            @Override
-            public boolean accept(File f) {
-                return f.isDirectory() || f.getName().toLowerCase().endsWith("_h.xml");
-            }
-        });
     }
 
     /**
@@ -265,6 +251,19 @@ public class ActionProducer {
     public Action getOpenAction() {
         Action ret = actionMap.get(ACTION_OPEN);
         if (ret == null) {
+            jFileChooser = new JFileChooser();
+            jFileChooser.setFileFilter(new FileFilter() {
+
+                @Override
+                public String getDescription() {
+                    return "Agent XML Files";
+                }
+
+                @Override
+                public boolean accept(File f) {
+                    return f.isDirectory() || f.getName().toLowerCase().endsWith("_h.xml");
+                }
+            });
             ret = new AbstractAction(ACTION_OPEN, getIcon("script_go.png", IconSize.SMALL)) {
                 private static final long serialVersionUID = 1L;
 
@@ -441,7 +440,7 @@ public class ActionProducer {
             // This is just a filler for the UI before you select a tank instance to import from.
             cb.addItem(new TankClientChoice("Apache HttpClient 3.1", "com.intuit.tank.httpclient3.TankHttpClient3"));
             cb.addItem(new TankClientChoice("Apache HttpClient 4.5", "com.intuit.tank.httpclient4.TankHttpClient4"));
-            cb.addItem(new TankClientChoice("Apache HttpClient 5", "com.intuit.tank.httpclient5.TankHttpClient5"));
+            cb.addItem(new TankClientChoice("JDK Http Client", "com.intuit.tank.httpclientjdk.TankHttpClientJDK"));
             cb.setSelectedIndex(2);
         }
     }
@@ -517,7 +516,7 @@ public class ActionProducer {
                                 }
                             }).start();
                         }
-                    } catch (WebClientRequestException e1) {
+                    } catch (InterruptedException | IOException e1) {
                         showError("Error: Empty or Invalid Tank URL");
                         LOG.error("Error: Empty or Invalid Tank URL");
                     } catch (Exception e2) {
@@ -555,7 +554,7 @@ public class ActionProducer {
                         if (!selectedObjects.isEmpty()) {
                             debuggerFrame.setDataFiles(selectedObjects);
                         }
-                    } catch (WebClientRequestException e1) {
+                    } catch (InterruptedException | IOException e1) {
                         showError("Error: Empty or Invalid Tank URL");
                         LOG.error("Error: Empty or Invalid Tank URL");
                     } catch (Exception e2) {
@@ -644,7 +643,7 @@ public class ActionProducer {
                                 }).start();
                             }
                         }
-                    } catch (WebClientRequestException e1) {
+                    } catch (InterruptedException | IOException e1) {
                         showError("Error: Empty or Invalid Tank URL");
                         LOG.error("Error: Empty or Invalid Tank URL");
                     } catch (Exception e2) {
@@ -825,6 +824,32 @@ public class ActionProducer {
             };
             ret.putValue(Action.SHORT_DESCRIPTION, ACTION_PAUSE);
             actionMap.put(ACTION_PAUSE, ret);
+        }
+        return ret;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Action getCSVAction() {
+        Action ret = actionMap.get(ACTION_EXPORT);
+        if (ret == null) {
+            jFileChooser = new JFileChooser();
+            ret = new AbstractAction(ACTION_EXPORT, getIcon("database_tabs.png", IconSize.SMALL)) {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int option = jFileChooser.showSaveDialog(debuggerFrame);
+                    if (option != JFileChooser.CANCEL_OPTION) {
+                        File selectedFile = jFileChooser.getSelectedFile();
+                        debuggerFrame.exportCSV(selectedFile);
+                    }
+                }
+            };
+            ret.putValue(Action.SHORT_DESCRIPTION, ACTION_EXPORT);
+            actionMap.put(ACTION_EXPORT, ret);
         }
         return ret;
     }

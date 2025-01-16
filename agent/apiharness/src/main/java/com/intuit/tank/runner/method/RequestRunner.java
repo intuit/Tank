@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -179,6 +178,8 @@ public class RequestRunner implements Runner {
                 baseRequest.doPost(baseResponse);
             } else if (method.equalsIgnoreCase("PUT")) {
                 baseRequest.doPut(baseResponse);
+            } else if (method.equalsIgnoreCase("PATCH")) {
+                baseRequest.doPatch(baseResponse);
             } else if (method.equalsIgnoreCase("DELETE")) {
                 baseRequest.doDelete(baseResponse);
             } else if (method.equalsIgnoreCase("OPTIONS")) {
@@ -433,7 +434,6 @@ public class RequestRunner implements Runner {
         }
 
         for (AssignmentData assignmentData : bodyVariable) {
-            variables.addVariable("RESPONSE_BODY", reqResponse.getResponseBody());
             String value = stripEquals(assignmentData.getValue());
             String realValue = null;
             if (ValidationUtil.isFunction(value)) {
@@ -447,7 +447,6 @@ public class RequestRunner implements Runner {
             }
             variables.addVariable(assignmentData.getKey(), realValue);
             LOG.debug("Setting variable " + assignmentData.getKey() + "=" + realValue);
-            variables.removeVariable("RESPONSE_BODY");
         }
     }
 
@@ -678,7 +677,7 @@ public class RequestRunner implements Runner {
                     value = variables.getVariable(value);
                 }
                 value = variables.evaluate(value);
-                if (header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
+                if (header.getKey().equalsIgnoreCase("Content-Type")) {
                     baseRequest.setContentType(value.split(";")[0]);
                     if (value.split(";").length == 2 && (value.split(";")[1].contains("charset="))) {
                         baseRequest.setContentTypeCharSet(value.split("charset=")[1]);

@@ -42,6 +42,8 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
+
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
@@ -57,7 +59,7 @@ import org.xml.sax.SAXException;
 
 import com.intuit.tank.script.models.ExternalScriptTO;
 import com.intuit.tank.script.models.ScriptTO;
-import com.intuit.tank.rest.mvc.rest.clients.ScriptClient;
+import com.intuit.tank.clients.ScriptClient;
 
 /**
  * ScrioptFilterRunner
@@ -326,9 +328,12 @@ public class ScriptFilterRunner extends JFrame {
             }
 
         } else {
-            selectScript(new SelectDialog<ExternalScriptTO>(ScriptFilterRunner.this, scriptClient
-                    .getExternalScripts().getScripts()));
-
+            try {
+                selectScript(new SelectDialog<ExternalScriptTO>(ScriptFilterRunner.this, scriptClient
+                        .getExternalScripts().getScripts()));
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Error loading scripts", JOptionPane.ERROR_MESSAGE);
+            }
         }
 
     }
@@ -342,9 +347,7 @@ public class ScriptFilterRunner extends JFrame {
             String retVal = JOptionPane.showInputDialog("Script Name: ", "<Script Name>");
             if (retVal != null) {
                 retVal = retVal + "." + language.getDefaultExtension();
-                currentExternalScript = new ExternalScriptTO();
-                currentExternalScript.setName(retVal);
-                currentExternalScript.setCreator("");
+                currentExternalScript = ExternalScriptTO.builder().withName(retVal).withCreator("").build();
             } else {
                 return;
             }
@@ -353,7 +356,11 @@ public class ScriptFilterRunner extends JFrame {
                     + language.getDefaultExtension());
         }
         currentExternalScript.setScript(scriptEditorTA.getText());
-        currentExternalScript = scriptClient.createExternalScript(currentExternalScript);
+        try {
+            currentExternalScript = scriptClient.createExternalScript(currentExternalScript);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error saving script", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
@@ -446,9 +453,12 @@ public class ScriptFilterRunner extends JFrame {
         	//Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
         	SAXParserFactory spf = SAXParserFactory.newInstance();
         	spf.setNamespaceAware(true);
+            spf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         	spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
         	spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
         	spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            spf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            spf.setXIncludeAware(false);
         	
         	Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(new FileInputStream(selectedFile)));
         	

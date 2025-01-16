@@ -34,6 +34,8 @@ import javax.swing.JToolBar;
 import javax.swing.text.BadLocationException;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
+
+import javax.xml.XMLConstants;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
@@ -102,9 +104,12 @@ public class PanelBuilder {
             	//Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
             	SAXParserFactory spf = SAXParserFactory.newInstance();
             	spf.setNamespaceAware(true);
+                spf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             	spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
             	spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
             	spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+                spf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                spf.setXIncludeAware(false);
             	
             	Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(settingsStream));
             	
@@ -179,7 +184,7 @@ public class PanelBuilder {
             public void mousePressed(MouseEvent e) {
                 scriptEditorTA.grabFocus();
                 try {
-                    int offs = scriptEditorTA.viewToModel(e.getPoint());
+                    int offs = scriptEditorTA.viewToModel2D(e.getPoint());
                     if (offs > -1) {
                         int line = scriptEditorTA.getLineOfOffset(offs);
                         if (frame.getSteps().size() > line) {

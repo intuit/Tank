@@ -95,6 +95,7 @@ public class APITestHarness {
     private CountDownLatch doneSignal;
     private Semaphore semaphore;
     private boolean loggedSimTime;
+    private volatile boolean simulationTimeMet = false;
     private int currentUsers = 0;
     private Vector<TankResult> results = new Vector<TankResult>();
     private ValidationStatus validationFailures;
@@ -228,13 +229,10 @@ public class APITestHarness {
 
     private String getLocalInstanceId() {
         isLocal = true;
-        String iId = "local-instance";
         try {
-            iId = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e1) {
-            // cannot determine instanceid
-        }
-        return iId;
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException ignored) {}
+        return "local-instance";
     }
 
     /**
@@ -524,7 +522,7 @@ public class APITestHarness {
             }
             agentRunData.setProjectName(hdWorkload.getName());
             agentRunData.setTankhttpClientClass(tankHttpClientClass);
-            Object httpClient = ((TankHttpClient) Class.forName(tankHttpClientClass).newInstance()).createHttpClient();
+            Object httpClient = ((TankHttpClient) Class.forName(tankHttpClientClass).getDeclaredConstructor().newInstance()).createHttpClient();
             List<TestPlanStarter> testPlans = new ArrayList<TestPlanStarter>();
             for (HDTestPlan plan : hdWorkload.getPlans()) {
                 if (plan.getUserPercentage() > 0) {
@@ -707,16 +705,23 @@ public class APITestHarness {
     }
 
     public boolean hasMetSimulationTime() {
-        if (agentRunData.getSimulationTimeMillis() > 0) {
+        if (!simulationTimeMet && agentRunData.getSimulationTimeMillis() > 0) {
             if (System.currentTimeMillis() > getSimulationEndTimeMillis()) {
                 if (!loggedSimTime) {
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Simulation time met")));
                     loggedSimTime = true;
                 }
+                simulationTimeMet = true;
                 return true;
             }
         }
-        return false;
+        return simulationTimeMet;
+    }
+
+    public void checkSimulationTime() {
+        if (!simulationTimeMet) {
+            hasMetSimulationTime();
+        }
     }
 
     public long getStartTime() {
@@ -873,6 +878,13 @@ public class APITestHarness {
      */
     public ResultsReporter getResultsReporter() {
         return resultsReporter;
+    }
+
+    /**
+     * @return the isLocal
+     */
+    public boolean isLocal() {
+        return isLocal;
     }
 
     /**

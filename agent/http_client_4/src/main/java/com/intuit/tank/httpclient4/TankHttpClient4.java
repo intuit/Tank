@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.Nonnull;
 
 import org.apache.commons.lang3.StringUtils;
@@ -32,13 +33,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.UserTokenHandler;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.cookie.ClientCookie;
@@ -71,6 +66,7 @@ public class TankHttpClient4 implements TankHttpClient {
 
     private CloseableHttpClient httpclient;
     private HttpClientContext context;
+    private final Collection<String> mimeTypes = new TankConfig().getAgentConfig().getTextMimeTypeRegex();
 
     /**
      * no-arg constructor for client
@@ -99,6 +95,7 @@ public class TankHttpClient4 implements TankHttpClient {
         UserTokenHandler userTokenHandler = (httpContext) -> httpContext.getAttribute(HttpClientContext.USER_TOKEN);
         // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
         return HttpClients.custom()
+                .setConnectionManagerShared(true)
                 .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
                 .setUserTokenHandler(userTokenHandler)
                 .evictIdleConnections(1L, TimeUnit.MINUTES)
@@ -145,10 +142,14 @@ public class TankHttpClient4 implements TankHttpClient {
     @Override
     public void doPut(BaseRequest request) {
         HttpPut httpput = new HttpPut(request.getRequestUrl());
-        // Multiple calls can be expensive, so get it once
         String requestBody = request.getBody();
-        HttpEntity entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
-        httpput.setHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
+        HttpEntity entity = null;
+        if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
+            entity = buildParts(request);
+        } else {
+            entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+            httpput.setHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
+        }
         httpput.setEntity(entity);
         sendRequest(request, httpput, requestBody);
     }
@@ -211,6 +212,28 @@ public class TankHttpClient4 implements TankHttpClient {
         }
         httppost.setEntity(entity);
         sendRequest(request, httppost, requestBody);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * com.intuit.tank.httpclient3.TankHttpClient#doPatch(com.intuit.tank.http.
+     * BaseRequest)
+     */
+    @Override
+    public void doPatch(BaseRequest request) {
+        HttpPatch httpPatch = new HttpPatch(request.getRequestUrl());
+        String requestBody = request.getBody();
+        HttpEntity entity = null;
+        if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
+            entity = buildParts(request);
+        } else {
+            entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+            httpPatch.setHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
+        }
+        httpPatch.setEntity(entity);
+        sendRequest(request, httpPatch, requestBody);
     }
 
     /*
@@ -293,7 +316,13 @@ public class TankHttpClient4 implements TankHttpClient {
             // check for no content headers
             if (response.getStatusLine().getStatusCode() != 203 && response.getStatusLine().getStatusCode() != 202 && response.getStatusLine().getStatusCode() != 204) {
                 try ( InputStream is = response.getEntity().getContent() ) {
-                    responseBody = is.readAllBytes();
+                    Header contentTypeHeader = response.getFirstHeader("Content-Type");
+                    String contentType = contentTypeHeader != null ? contentTypeHeader.getValue() : "";
+                    if (checkContentType(contentType)) {
+                        responseBody = is.readAllBytes();
+                    } else {
+                        is.readAllBytes();
+                    }
                 } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                 }
@@ -326,6 +355,15 @@ public class TankHttpClient4 implements TankHttpClient {
     }
 
     /**
+     * Checks content-type to filter whether to assign the response data to responseBody
+     *
+     * @param contentType
+     */
+    private boolean checkContentType(String contentType) {
+        return mimeTypes.stream().anyMatch(contentType::matches);
+    }
+
+    /**
      * Wait for the amount of time it took to get a response from the system if
      * the response time is over some threshold specified in the properties
      * file. This will ensure users don't bunch up together after a blip on the
@@ -341,9 +379,8 @@ public class TankHttpClient4 implements TankHttpClient {
             AgentConfig config = request.getLogUtil().getAgentConfig();
             long maxAgentResponseTime = config.getMaxAgentResponseTime();
             if (maxAgentResponseTime < responseTime) {
-                long waitTime = Math.min(config.getMaxAgentWaitTime(), responseTime);
-                LOG.warn(request.getLogUtil().getLogMessage("Response time to slow | delaying " + waitTime + " ms | url --> " + uri, LogEventType.Script));
-                Thread.sleep(waitTime);
+                LOG.warn(request.getLogUtil().getLogMessage("Response time too slow"));
+                Thread.sleep(Math.min(config.getMaxAgentWaitTime(), responseTime));
             }
         } catch (InterruptedException e) {
             LOG.warn("Interrupted", e);
@@ -416,19 +453,19 @@ public class TankHttpClient4 implements TankHttpClient {
 
     private HttpEntity buildParts(BaseRequest request) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        String contentType = request.getContentType();
+        String boundary = contentType.substring(contentType.indexOf("boundary=") + 9);
+        builder.setBoundary(boundary);
+
         for (PartHolder h : TankHttpUtil.getPartsFromBody(request)) {
+            ContentType partContentType = h.isContentTypeSet()
+                    ? ContentType.create(h.getContentType())
+                    : ContentType.DEFAULT_BINARY;
+
             if (h.getFileName() == null) {
-                if (h.isContentTypeSet()) {
-                    builder.addTextBody(h.getPartName(), h.getBodyAsString(), ContentType.create(h.getContentType()));
-                } else {
-                    builder.addTextBody(h.getPartName(), h.getBodyAsString());
-                }
+                builder.addTextBody(h.getPartName(), h.getBodyAsString(), partContentType);
             } else {
-                if (h.isContentTypeSet()) {
-                    builder.addBinaryBody(h.getPartName(), h.getBody(), ContentType.create(h.getContentType()), h.getFileName());
-                } else {
-                    builder.addBinaryBody(h.getFileName(), h.getBody());
-                }
+                builder.addBinaryBody(h.getPartName(), h.getBody(), partContentType, h.getFileName());
             }
         }
         return builder.build();

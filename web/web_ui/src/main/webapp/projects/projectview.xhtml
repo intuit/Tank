@@ -123,7 +123,7 @@
           <div class="formRow">
             <div class="formLabelDiv">
               <h:outputText value="Total Users" styleClass="formLabel" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"/>
-              <h:outputText value="Agent User Ramp Rate (users/sec)" styleClass="formLabel" rendered="#{usersAndTimes.incrementStrategy == 'standard'}"/>
+              <h:outputText value="Target Users Per Second" styleClass="formLabel" rendered="#{usersAndTimes.incrementStrategy == 'standard'}"/>
             </div>
             <div class="formInputDiv">
               <h:outputText value="#{usersAndTimes.totalUsers}" id="totalUsersTF" rendered="#{usersAndTimes.incrementStrategy == 'increasing'}"/>
@@ -131,14 +131,13 @@
                 <h:inputText id="endRateTF"
                              value="#{usersAndTimes.endRate}"
                              styleClass="formInput inputWidthSmall" required="true"
-                             requiredMessage="Agent User Ramp Rate cannot be empty." rendered="#{usersAndTimes.incrementStrategy == 'standard'}">
+                             requiredMessage="Target Users Per Second cannot be empty." rendered="#{usersAndTimes.incrementStrategy == 'standard'}">
                 </h:inputText>
                 <p:ajax event="save" update=":mainForm:endRateTF" rendered="#{usersAndTimes.incrementStrategy == 'standard'}" />
               </p:inplace>
               <ts:tip tipId="targetRampTip"
-                      text="Agent User Ramp Rate dictates the ending ramp rate in users/sec set for each agent for the nonlinear user ramp. This
-                            will inject users at regular intervals from the starting rate of 0 users/sec to the target rate of up to 1 user/sec for the provided ramp duration.
-                            The Total User Ramp Rate of the job is determined by the Agent User Ramp Rate times the Number of Agents i.e 1 user/sec * 10 agents = 10 users/sec" rendered="#{usersAndTimes.incrementStrategy == 'standard'}" />
+                      text="Target Users Per Second dictates the target user ramp rate in users/sec set for the nonlinear user ramp. This
+                            will inject users at regular intervals from the starting rate of 0 users/sec to the target rate of X user/sec during the provided ramp duration." rendered="#{usersAndTimes.incrementStrategy == 'standard'}" />
             </div>
           </div>
         </div>
@@ -840,7 +839,7 @@
           update=":mainForm:projectTabPanelID:testPlanTabViewID, :mainForm:messages"
           onsuccess="PF('confirmScriptGroupDelete').hide();" />
         <h:panelGroup styleClass="horizontal-spacer" />
-        <p:commandButton value="Cancel" onclick="confirmScriptGroupDelete.hide();" type="button" />
+        <p:commandButton value="Cancel" type="button" styleClass="h-space" onclick="PF('confirmScriptGroupDelete').hide();" />
       </h:form>
     </p:confirmDialog>
 

@@ -14,10 +14,10 @@ package com.intuit.tank;
  */
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import com.intuit.tank.project.*;
 import jakarta.enterprise.context.ConversationScoped;
 import jakarta.enterprise.context.Conversation;
 import jakarta.enterprise.event.Event;
@@ -34,15 +34,6 @@ import com.intuit.tank.util.Messages;
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.ProjectDao;
 import com.intuit.tank.dao.WorkloadDao;
-import com.intuit.tank.project.AssociateDataFileBean;
-import com.intuit.tank.project.JobConfiguration;
-import com.intuit.tank.project.JobMaker;
-import com.intuit.tank.project.NotificationsEditor;
-import com.intuit.tank.project.Project;
-import com.intuit.tank.project.ProjectVariableEditor;
-import com.intuit.tank.project.UsersAndTimes;
-import com.intuit.tank.project.Workload;
-import com.intuit.tank.project.WorkloadScripts;
 import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.util.ExceptionHandler;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
@@ -298,21 +289,56 @@ public class ProjectBean implements Serializable {
         Project ret = new Project();
         Workload workload = new Workload();
         workload.setParent(ret);
-        List<Workload> workloads = new ArrayList<Workload>();
         workload.setName(saveAsName);
-        workloads.add(workload);
-        ret.setWorkloads(workloads);
+        ret.setWorkloads(List.of(workload));
         ret.setComments(project.getComments());
         ret.setCreator(securityContext.getCallerPrincipal().getName());
         ret.setName(saveAsName);
         ret.setProductName(project.getProductName());
         ret.setScriptDriver(project.getScriptDriver());
 
+        JobConfiguration originalJobConfig = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration newJobConfig = copyJobConfiguration(originalJobConfig, workload);
+        workload.setJobConfiguration(newJobConfig);
+
         usersAndTimes.copyTo(workload);
         workloadScripts.copyTo(workload);
-
         notificationsEditor.copyTo(workload);
         return ret;
+    }
+
+    private JobConfiguration copyJobConfiguration(JobConfiguration original, Workload newParent) {
+        JobConfiguration copy = new JobConfiguration();
+        copy.setBaselineVirtualUsers(original.getBaselineVirtualUsers());
+        copy.setTargetRampRate(original.getTargetRampRate());
+        copy.setDataFileIds(Set.copyOf(original.getDataFileIds()));
+        copy.setIncrementStrategy(original.getIncrementStrategy());
+        copy.setLocation(original.getLocation());
+        copy.setReportingMode(original.getReportingMode());
+        copy.setSimulationTime(original.getSimulationTime());
+        copy.setSimulationTimeExpression(original.getSimulationTimeExpression());
+        copy.setRampTime(original.getRampTime());
+        copy.setRampTimeExpression(original.getRampTimeExpression());
+        copy.setTerminationPolicy(original.getTerminationPolicy());
+        copy.setUserIntervalIncrement(original.getUserIntervalIncrement());
+        copy.setNumUsersPerAgent(original.getNumUsersPerAgent());
+        copy.setTargetRatePerAgent(original.getTargetRatePerAgent());
+        copy.setStopBehavior(original.getStopBehavior());
+        copy.setVmInstanceType(original.getVmInstanceType());
+        copy.setVariables(Map.copyOf(original.getVariables()));
+        copy.setJobRegions(original.getJobRegions().stream()
+                .map(this::copyRegion)
+                .collect(Collectors.toSet()));
+        copy.setParent(newParent);
+        return copy;
+    }
+
+    private JobRegion copyRegion(JobRegion original) {
+        JobRegion copy = new JobRegion();
+        copy.setRegion(original.getRegion());
+        copy.setUsers(original.getUsers());
+        copy.setPercentage(original.getPercentage());
+        return copy;
     }
 
     /**

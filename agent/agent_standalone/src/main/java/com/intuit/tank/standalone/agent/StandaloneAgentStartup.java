@@ -18,9 +18,11 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +30,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.rest.mvc.rest.clients.AgentClient;
+import com.intuit.tank.clients.AgentClient;
 import com.intuit.tank.harness.HostInfo;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentAvailabilityStatus;
@@ -41,6 +43,7 @@ public class StandaloneAgentStartup implements Runnable {
     private static String API_HARNESS_COMMAND = "./startAgent.sh";
     public static final String METHOD_SETTINGS = "/settings";
     public static final String METHOD_SUPPORT = "/support-files";
+    private static final String TANK_AGENT_DIR = "/opt/tank_agent";
     private static final long PING_TIME = 1000 * 60 * 5;// five minutes
 
     private String controllerBase;
@@ -56,7 +59,7 @@ public class StandaloneAgentStartup implements Runnable {
     public void run() {
         CommandListener.startHttpServer(CommandListener.PORT, this);
         agentClient = new AgentClient(controllerBase, token);
-        
+
         if (hostname != null) {
             instanceId = hostname;
         } else {
@@ -72,33 +75,33 @@ public class StandaloneAgentStartup implements Runnable {
             try {
                 currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.DELEGATING);
                 sendAvailability();
-                LOG.info("Starting up: ControllerBaseUrl=" + controllerBase);
+                LOG.info("Starting up: ControllerBaseUrl={}", controllerBase);
                 URL url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SETTINGS);
-                LOG.info("Starting up: making call to tank service url to get settings.xml "
-                        + url.toExternalForm());
+                LOG.info("Starting up: making call to tank service url to get settings.xml {}", url.toExternalForm());
                 try ( InputStream settingsStream = url.openStream() ) {
                     String settings = IOUtils.toString(settingsStream, StandardCharsets.UTF_8);
-                    FileUtils.writeStringToFile(new File("settings.xml"), settings, StandardCharsets.UTF_8);
+                    FileUtils.writeStringToFile(new File(TANK_AGENT_DIR, "settings.xml"), settings, StandardCharsets.UTF_8);
                     LOG.info("got settings file...");
                 }
                 url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
-                LOG.info("Making call to tank service url to get support files " + url.toExternalForm());
+                LOG.info("Making call to tank service url to get support files {}", url.toExternalForm());
                 try( ZipInputStream zip = new ZipInputStream(url.openStream()) ) {
                     ZipEntry entry = zip.getNextEntry();
                     while (entry != null) {
                         String name = entry.getName();
-                        LOG.info("Got file from controller: " + name);
-                        File f = new File(name);
-                        try ( FileOutputStream fout = FileUtils.openOutputStream(f) ){
+                        LOG.info("Got file from controller: {}", name);
+                        File file = new File(TANK_AGENT_DIR, name);
+                        if (!file.toPath().normalize().startsWith(TANK_AGENT_DIR)) // Protect "Zip Slip"
+                            throw new Exception("Bad zip entry");
+                        try ( FileOutputStream fout = FileUtils.openOutputStream(file) ){
                             IOUtils.copy(zip, fout);
                         }
                         entry = zip.getNextEntry();
                     }
                 }
                 // now start the harness
-                String cmd = API_HARNESS_COMMAND + " -http=" + controllerBase + " -jobId=" + request.getJobId()
-                        + " -stopBehavior=" + request.getStopBehavior();
-                LOG.info("Starting apiharness with command: " + cmd);
+                String[] cmd = {API_HARNESS_COMMAND, " -http=", controllerBase, " -jobId=", request.getJobId(), " -stopBehavior=", request.getStopBehavior()};
+                LOG.info("Starting apiharness with command: {}", Arrays.toString(cmd));
                 currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.RUNNING_JOB);
                 sendAvailability();
                 Process exec = Runtime.getRuntime().exec(cmd);
@@ -107,9 +110,13 @@ public class StandaloneAgentStartup implements Runnable {
                 sendAvailability();
                 //
             } catch (Exception e) {
-                LOG.error("Error in AgentStartup " + e, e);
+                LOG.error("Error in AgentStartup {}", e, e);
                 currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.AVAILABLE);
-                sendAvailability();
+                try {
+                    sendAvailability();
+                } catch (JsonProcessingException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
         t.start();
@@ -148,7 +155,7 @@ public class StandaloneAgentStartup implements Runnable {
         t.start();
     }
 
-    private void sendAvailability() {
+    private void sendAvailability() throws JsonProcessingException {
         // create new availability as a copy of the original
         AgentAvailability availability = new AgentAvailability(currentAvailability.getInstanceId(),
                 currentAvailability.getInstanceUrl(), currentAvailability.getCapacity(),

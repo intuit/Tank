@@ -22,6 +22,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
@@ -42,7 +43,8 @@ public class APIMonitor implements Runnable {
      * 
      */
     private static final int MIN_REPORT_TIME = 15000;
-    private static Logger LOG = LogManager.getLogger(APIMonitor.class);
+    private static final Logger LOG = LogManager.getLogger(APIMonitor.class);
+    private static final ObjectWriter objectWriter = new ObjectMapper().writerFor(CloudVmStatus.class).withDefaultPrettyPrinter();
     private static boolean doMonitor = true;
     private static final HttpClient client = HttpClient.newHttpClient();
     private static CloudVmStatus status;
@@ -74,9 +76,12 @@ public class APIMonitor implements Runnable {
                 }
                 if (!isLocal) setInstanceStatus(newStatus.getInstanceId(), newStatus);
                 APITestHarness.getInstance().checkAgentThreads();
-                Thread.sleep(reportInterval);
             } catch (Exception t) {
                 LOG.error(LogUtil.getLogMessage("Unable to send status metrics | " + t.getMessage()), t);
+            } finally {
+                try {
+                    Thread.sleep(reportInterval);
+                } catch ( InterruptedException ie) { /*Ignore*/ }
             }
         }
     }
@@ -143,22 +148,21 @@ public class APIMonitor implements Runnable {
                 status.setUserDetails(APITestHarness.getInstance().getUserTracker().getSnapshot());
                 setInstanceStatus(status.getInstanceId(), status);
             } catch (Exception e) {
-                LOG.error("Error sending status to controller: " + e.toString(), e);
+                LOG.error("Error sending status to controller: {}", e.toString(), e);
             }
         }
     }
 
     private static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException, JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writerFor(CloudVmStatus.class).withDefaultPrettyPrinter().writeValueAsString(VmStatus);
+        String json = objectWriter.writeValueAsString(VmStatus);
         String token = APITestHarness.getInstance().getTankConfig().getAgentConfig().getAgentToken();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(APITestHarness.getInstance().getTankConfig().getControllerBase() + "/v2/agent/instance/status/" + instanceId))
                 .header(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
                 .header(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
-                .header(HttpHeaders.AUTHORIZATION, "bearer "+token)
+                .header(HttpHeaders.AUTHORIZATION, "bearer " + token)
                 .PUT(HttpRequest.BodyPublishers.ofString(json))
                 .build();
-        client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+        client.sendAsync(request, HttpResponse.BodyHandlers.discarding());
     }
 }

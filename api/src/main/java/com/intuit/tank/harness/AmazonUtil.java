@@ -47,9 +47,10 @@ public class AmazonUtil {
     private static final HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
 
     private static final Logger LOG = LogManager.getLogger(AmazonUtil.class);
-    private static final String BASE = "http://169.254.169.254/latest";
-    private static final String USER_DATA = "/user-data";
-    private static final String META_DATA = "/meta-data";
+    protected static String BASE = "http://169.254.169.254/latest";
+    protected static String TOKEN = "/api/token";
+    protected static final String USER_DATA = "/user-data";
+    protected static final String META_DATA = "/meta-data";
 
     public static VMRegion getVMRegion() {
         try {
@@ -262,7 +263,10 @@ public class AmazonUtil {
      * @throws IOException
      */
     private static String getResponseString(String url) throws IOException {
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("X-aws-ec2-metadata-token", getToken())
+                .build();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) return response.body();
@@ -270,5 +274,24 @@ public class AmazonUtil {
             LOG.error(new ObjectMessage(ImmutableMap.of("Message","Unable to read userdata/metadata: " + e.getMessage())));
         }
         throw new IOException("Bad Response From AWS data");
+    }
+
+    /**
+     * @return
+     * @throws IOException
+     */
+    private static String getToken() throws IOException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .PUT(HttpRequest.BodyPublishers.noBody())
+                .uri(URI.create(BASE + TOKEN))
+                .header("X-aws-ec2-metadata-token-ttl-seconds", "60")
+                .build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) return response.body();
+        } catch (InterruptedException e) {
+            LOG.error(new ObjectMessage(ImmutableMap.of("Message","Unable to read token: " + e.getMessage())));
+        }
+        throw new IOException("Bad Response From AWS token");
     }
 }

@@ -24,10 +24,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -49,10 +46,10 @@ import org.fife.ui.rsyntaxtextarea.SquiggleUnderlineHighlightPainter;
 import org.fife.ui.rtextarea.GutterIconInfo;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-import com.intuit.tank.rest.mvc.rest.models.datafiles.DataFileDescriptor;
-import com.intuit.tank.rest.mvc.rest.models.projects.KeyPair;
-import com.intuit.tank.rest.mvc.rest.models.projects.ProjectTO;
-import com.intuit.tank.rest.mvc.rest.clients.DataFileClient;
+import com.intuit.tank.datafiles.models.DataFileDescriptor;
+import com.intuit.tank.projects.models.KeyPair;
+import com.intuit.tank.projects.models.ProjectTO;
+import com.intuit.tank.clients.DataFileClient;
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.TestPlanSingleton;
 import com.intuit.tank.harness.data.HDScript;
@@ -1013,6 +1010,18 @@ public class AgentDebuggerFrame extends JFrame {
 
     public RequestResponsePanel getRequestResponsePanel() {
         return requestResponsePanel;
+    }
+
+    public void exportCSV(File csvOutputFile) {
+        try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
+            pw.println("URL,HTTP Code,HTTP Msg,Response Time,Response Size,Headers...,Cookies...");
+            steps.stream()
+                    .filter(step -> step.getResponse() != null)
+                    .map(step -> step.getRequest().getRequestUrl() + "," + step.getResponse().convertToCSV())
+                    .forEach(pw::println);
+        } catch ( FileNotFoundException e) {
+            LOG.error("Error exporting CSV: {}", String.valueOf(e));
+        }
     }
 
 }

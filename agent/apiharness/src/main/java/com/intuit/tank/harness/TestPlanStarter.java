@@ -108,6 +108,7 @@ public class TestPlanStarter implements Runnable {
                 LOG.info(LogUtil.getLogMessage("Linear - Starting ramp of additional " + (numThreads - threadsStarted)
                         + " users for plan " + plan.getTestPlanName() + "..."));
                 while (!done) {
+                    APITestHarness.getInstance().checkSimulationTime();
                     if ((threadsStarted - numInitialUsers) % agentRunData.getUserInterval() == 0) {
                         try {
                             Thread.sleep(rampDelay);
@@ -192,6 +193,7 @@ public class TestPlanStarter implements Runnable {
 
                 // start rest of users sleeping between each interval
                 while (!done) {
+                    APITestHarness.getInstance().checkSimulationTime();
 
                     // add additional accumulated fractional users to the total users during ramp time to support main loop
                     double currentUsers = calculateTotalUsers(rampTimer);
@@ -301,6 +303,15 @@ public class TestPlanStarter implements Runnable {
                             throw new InterruptedException();
                         }
                     }
+                    // check for stop/kill command during initial ramp
+                    if (APITestHarness.getInstance().getCmd() == AgentCommand.stop
+                            || APITestHarness.getInstance().getCmd() == AgentCommand.kill
+                            || APITestHarness.getInstance().hasMetSimulationTime()
+                            || APITestHarness.getInstance().isDebug()) {
+                        done = true;
+                        break;
+                    }
+
                     // each agent ramp 0 to X user/sec by adding users to the total users over the initial ramp
                     if(initialRampTimeElapsed <= rampTimeMillis) {
                         double currentUsers = calculateTotalUsers((double) initialRampTimeInterval / 1000); // calculate total expected users at current time
