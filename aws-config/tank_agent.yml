@@ -11,7 +11,7 @@ Parameters:
   InstanceType:
     Description: Amazon EC2 instance type
     Type: 'String'
-    Default: 'c5.large'
+    Default: 'm8g.large'
   KeyName:
     Type: 'AWS::EC2::KeyPair::KeyName'
     Description: Amazon EC2 Key Pair
