@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 import com.intuit.tank.harness.MockResponse;
 import com.intuit.tank.harness.data.*;
@@ -47,7 +48,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -78,7 +79,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -109,7 +110,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -150,7 +151,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -189,7 +190,7 @@ public class LogEventTest {
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -229,7 +230,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -325,7 +326,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -355,7 +356,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -385,7 +386,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -417,7 +418,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -447,7 +448,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -477,7 +478,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("testInstanceId");
@@ -507,7 +508,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -537,7 +538,7 @@ public class LogEventTest {
         fixture.setJobId("testJobId");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -566,7 +567,7 @@ public class LogEventTest {
         fixture.setGroup(new HDScriptGroup());
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -596,7 +597,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -626,7 +627,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -656,7 +657,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -686,7 +687,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -718,7 +719,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -748,7 +749,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -780,7 +781,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -810,7 +811,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -842,7 +843,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -874,7 +875,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -906,7 +907,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -938,7 +939,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -970,7 +971,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -1001,7 +1002,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
@@ -1010,10 +1011,10 @@ public class LogEventTest {
         fixture.setMessage("");
         fixture.setIteration("");
         fixture.setScript(new HDScript());
-        String transactionId = "testTransactionId";
+        UUID transactionId = UUID.fromString("45c8356b-6ae8-408b-96f3-9038cc358439");
         fixture.setTransactionId(transactionId);
 
-        assertEquals("testTransactionId", fixture.getTransactionId());
+        assertEquals(transactionId, fixture.getTransactionId());
     }
 
     @Test
@@ -1032,7 +1033,7 @@ public class LogEventTest {
         fixture.setJobId("");
         fixture.setRequest(new MockRequest());
         fixture.setLoggingKey("");
-        fixture.setTransactionId("");
+        fixture.setTransactionId(UUID.randomUUID());
         fixture.setStepGroupName("");
         fixture.setSourceType(SourceType.agent);
         fixture.setInstanceId("");
