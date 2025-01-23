@@ -18,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.*;
@@ -110,15 +111,26 @@ public class TankHttpClient3 implements TankHttpClient {
     public void doPut(BaseRequest request) {
         try {
             PutMethod httpput = new PutMethod(request.getRequestUrl());
-            // Multiple calls can be expensive, so get it once
             String requestBody = request.getBody();
-            StringRequestEntity entity = new StringRequestEntity(requestBody, request.getContentType(), request.getContentTypeCharSet());
-            httpput.addRequestHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
+            RequestEntity entity;
+            if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
+                List<Part> parts = buildParts(request);
+                String boundary = generateBoundary();
+                entity = new MultipartRequestEntity(parts.toArray(new Part[0]), httpput.getParams());
+                httpput.addRequestHeader(HttpHeaders.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
+            } else {
+                entity = new StringRequestEntity(requestBody, request.getContentType(), request.getContentTypeCharSet());
+                httpput.addRequestHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
+            }
             httpput.setRequestEntity(entity);
             sendRequest(request, httpput, requestBody);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String generateBoundary() {
+        return "----WebKitFormBoundary" + new BigInteger(128, new Random()).toString(16);
     }
 
     /**
@@ -182,11 +194,12 @@ public class TankHttpClient3 implements TankHttpClient {
         try {
             PostMethod httppost = new PostMethod(request.getRequestUrl());
             String requestBody = request.getBody();
-            RequestEntity entity = null;
+            RequestEntity entity;
             if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
                 List<Part> parts = buildParts(request);
-
+                String boundary = generateBoundary();
                 entity = new MultipartRequestEntity(parts.toArray(new Part[0]), httppost.getParams());
+                httppost.addRequestHeader(HttpHeaders.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
             } else {
                 entity = new StringRequestEntity(requestBody, request.getContentType(), request.getContentTypeCharSet());
                 httppost.addRequestHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
@@ -196,6 +209,18 @@ public class TankHttpClient3 implements TankHttpClient {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * com.intuit.tank.httpclient3.TankHttpClient#doPatch(com.intuit.tank.http.
+     * BaseRequest)
+     */
+    @Override
+    public void doPatch(BaseRequest request) {
+        doGet(request);
     }
 
     /*

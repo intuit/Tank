@@ -39,6 +39,13 @@ public interface TankHttpClient {
     public void doPost(BaseRequest request);
 
     /**
+     * Execute the PATCH.
+     *
+     * @param request
+     */
+    public void doPatch(BaseRequest request);
+
+    /**
      * Adds the authentication
      * 
      * @param creds
