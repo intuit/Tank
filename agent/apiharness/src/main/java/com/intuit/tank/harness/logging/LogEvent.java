@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -67,7 +68,7 @@ public class LogEvent implements Serializable {
     private BaseRequest request;
     private Variables variables; // all static and dynamic parameters set by the user
     private String validationStatus; // if validation is not set then the field can contain value = "NA"
-    private String transactionId; // Transaction Id
+    private UUID transactionId; // Transaction Id
     private String stepGroupName; // Step group name
 
     public LogEvent() {
@@ -84,7 +85,7 @@ public class LogEvent implements Serializable {
     	Map<String, String> map = new TreeMap<>();
         appendField(map, LogFields.EventType, eventType.name());
         appendField(map, LogFields.SourceType, sourceType.name());
-        appendField(map, LogFields.TransactionId, transactionId);
+        appendField(map, LogFields.TransactionId, getTransactionId().toString());
         appendField(map, LogFields.LoggingKey, loggingKey);
         appendField(map, LogFields.TestPlanName, testPlan != null ? testPlan.getTestPlanName() : null);
         appendField(map, LogFields.GroupName, group != null ? group.getName() : null);
@@ -228,11 +229,11 @@ public class LogEvent implements Serializable {
         this.stepGroupName = stepGroupName;
     }
 
-    public String getTransactionId() {
-        return transactionId;
+    public UUID getTransactionId() {
+        return transactionId = (transactionId == null) ? UUID.randomUUID() : transactionId;
     }
 
-    public void setTransactionId(String transactionId) {
+    public void setTransactionId(UUID transactionId) {
         this.transactionId = transactionId;
     }
 
