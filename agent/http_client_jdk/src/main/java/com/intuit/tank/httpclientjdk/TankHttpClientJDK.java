@@ -343,18 +343,18 @@ public class TankHttpClientJDK implements TankHttpClient {
                 }
             }
 
-            // Extract Istio response/service time header
-            List<String> istioResponseTimeHeaders = headers.map().get("x-envoy-upstream-service-time");
-            if (istioResponseTimeHeaders != null && !istioResponseTimeHeaders.isEmpty()) {
+            // Extract Proxy response/service time header
+            List<String> proxyResponseTimeHeaders = headers.map().get("x-envoy-upstream-service-time");
+            if (proxyResponseTimeHeaders != null && !proxyResponseTimeHeaders.isEmpty()) {
                 try {
-                    long istioResponseTime = Long.parseLong(istioResponseTimeHeaders.get(0));
-                    response.setIstioResponseTime(istioResponseTime);
+                    long proxyResponseTime = Long.parseLong(proxyResponseTimeHeaders.get(0));
+                    response.setProxyResponseTime(proxyResponseTime);
                 } catch (NumberFormatException e) {
-                    LOG.warn("could not parse istio service time header: " + istioResponseTimeHeaders.get(0));
-                    response.setIstioResponseTime(-1);
+                    LOG.warn("could not parse proxy service time header: " + proxyResponseTimeHeaders.get(0));
+                    response.setProxyResponseTime(-1);
                 }
             } else {
-                response.setIstioResponseTime(-1);
+                response.setProxyResponseTime(-1);
             }
 
             List<HttpCookie> cookies = cookieManager.getCookieStore().getCookies();

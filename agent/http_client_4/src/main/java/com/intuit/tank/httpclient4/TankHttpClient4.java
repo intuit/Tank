@@ -410,18 +410,18 @@ public class TankHttpClient4 implements TankHttpClient {
                 response.setHeader(header.getName(), header.getValue());
             }
 
-            // Extract Istio response/service time header
-            String istioResponseTimeHeader = response.getHttpHeader("x-envoy-upstream-service-time");
-            if (istioResponseTimeHeader != null) {
+            // Extract proxy response/service time header
+            String proxyResponseTimeHeader = response.getHttpHeader("x-envoy-upstream-service-time");
+            if (proxyResponseTimeHeader != null) {
                 try {
-                    long istioResponseTime = Long.parseLong(istioResponseTimeHeader);
-                    response.setIstioResponseTime(istioResponseTime);
+                    long proxyResponseTime = Long.parseLong(proxyResponseTimeHeader);
+                    response.setProxyResponseTime(proxyResponseTime);
                 } catch (NumberFormatException e) {
-                    LOG.warn("could not parse istio service time header: " + istioResponseTimeHeader);
-                    response.setIstioResponseTime(-1);
+                    LOG.warn("could not parse proxy service time header: " + proxyResponseTimeHeader);
+                    response.setProxyResponseTime(-1);
                 }
             } else {
-                response.setIstioResponseTime(-1);
+                response.setProxyResponseTime(-1);
             }
 
             if (context.getCookieStore().getCookies() != null) {

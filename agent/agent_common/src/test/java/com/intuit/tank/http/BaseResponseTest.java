@@ -443,7 +443,7 @@ public class BaseResponseTest {
             throws Exception {
         BaseResponse fixture = new MockResponse();
         fixture.responseTime = 1L;
-        fixture.istioResponseTime = 1L;
+        fixture.proxyResponseTime = 1L;
         fixture.httpCode = 1;
         fixture.response = "";
         fixture.responseByteArray = new byte[] {};
@@ -452,7 +452,7 @@ public class BaseResponseTest {
         assertEquals("RESPONSE HTTP CODE: 1\n" +
                 "RESPONSE HTTP MSG: \n" +
                 "RESPONSE TIME: 1\n" +
-                "ISTIO RESPONSE TIME: 1\n" +
+                "PROXY RESPONSE TIME: 1\n" +
                 "RESPONSE SIZE: 0\n" +
                 "RESPONSE BODY: not logged because null is not a content-type.\n", fixture.getLogMsg());
     }
@@ -468,7 +468,7 @@ public class BaseResponseTest {
         assertEquals("RESPONSE HTTP CODE: -1\n" +
                 "RESPONSE HTTP MSG: \n" +
                 "RESPONSE TIME: -1\n" +
-                "ISTIO RESPONSE TIME: -1\n" +
+                "PROXY RESPONSE TIME: -1\n" +
                 "RESPONSE SIZE: 12\n" +
                 "RESPONSE HEADER: content-type = text/html\n" +
                 "RESPONSE COOKIE: testHeadersKey = testHeadersValue\n" +

@@ -1014,7 +1014,7 @@ public class AgentDebuggerFrame extends JFrame {
 
     public void exportCSV(File csvOutputFile) {
         try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
-            pw.println("URL,HTTP Code,HTTP Msg,Response Time,Istio Response Time,Response Size,Headers...,Cookies...");
+            pw.println("URL,HTTP Code,HTTP Msg,Response Time,Proxy Response Time,Response Size,Headers...,Cookies...");
             steps.stream()
                     .filter(step -> step.getResponse() != null)
                     .forEach(step -> {
