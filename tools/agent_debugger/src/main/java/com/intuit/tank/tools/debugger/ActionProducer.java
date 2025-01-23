@@ -836,7 +836,7 @@ public class ActionProducer {
         Action ret = actionMap.get(ACTION_EXPORT);
         if (ret == null) {
             jFileChooser = new JFileChooser();
-            ret = new AbstractAction(ACTION_EXPORT, getIcon("database_tabs.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_EXPORT, getIcon("database_table.png", IconSize.SMALL)) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
