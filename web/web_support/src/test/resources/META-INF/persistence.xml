@@ -43,7 +43,7 @@
       <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver" />
       <property name="jakarta.persistence.jdbc.user" value="sa" />
       <property name="jakarta.persistence.jdbc.password" value="" />
-      <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:mem:wats" />
+      <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:mem:tank;MODE=MYSQL;NON_KEYWORDS=USER,END,VALUE" />
 
       <!-- JDBC connection pool (use the built-in) -->
       <property name="connection.pool_size" value="10" />
