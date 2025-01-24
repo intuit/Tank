@@ -14,9 +14,9 @@ import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.models.*;
 import com.intuit.tank.script.RequestDataPhase;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -329,7 +329,7 @@ public class ScriptServiceUtil {
             JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
             return (ScriptTO) ctx.createUnmarshaller().unmarshal(xmlSource);
         } catch (ParserConfigurationException | JAXBException | SAXException e) {
-            LOG.error("Error unmarshalling script: " + e.getMessage() , e);
+            LOG.error("Error unmarshalling script: {}", e.getMessage(), e);
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             IOUtils.closeQuietly(inputStream);
