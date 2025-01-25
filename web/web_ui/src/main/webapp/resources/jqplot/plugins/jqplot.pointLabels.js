@@ -2,9 +2,10 @@
  * jqPlot
  * Pure JavaScript plotting plugin using jQuery
  *
- * Version: 1.0.0b2_r1012
+ * Version: 1.0.9
+ * Revision: d96a669
  *
- * Copyright (c) 2009-2011 Chris Leonello
+ * Copyright (c) 2009-2016 Chris Leonello
  * jqPlot is currently available for use in all personal or commercial projects 
  * under both the MIT (http://www.opensource.org/licenses/mit-license.php) and GPL 
  * version 2.0 (http://www.gnu.org/licenses/gpl-2.0.html) licenses. This means that you can 
@@ -154,7 +155,7 @@
             labelIdx = p.seriesLabelIndex;
         }
         else if (this.renderer.constructor === $.jqplot.BarRenderer && this.barDirection === 'horizontal') {
-            labelIdx = 0;
+           labelIdx = (this._plotData[0].length < 3) ? 0 : this._plotData[0].length -1;
         }
         else {
             labelIdx = (this._plotData.length === 0) ? 0 : this._plotData[0].length -1;
@@ -170,7 +171,8 @@
                 }
             }
             else {
-                var d = this._plotData;
+                // var d = this._plotData;
+                var d = this.data;
                 if (this.renderer.constructor === $.jqplot.BarRenderer && this.waterfall) {
                     d = this._data;
                 }
@@ -271,7 +273,9 @@
         for (var i=0; i<p._elems.length; i++) {
             // Memory Leaks patch
             // p._elems[i].remove();
-            p._elems[i].emptyForce();
+            if(p._elems[i]) {
+                p._elems[i].emptyForce();
+            }
         }
         p._elems.splice(0, p._elems.length);
 
@@ -284,6 +288,7 @@
             }
         
             var pd = this._plotData;
+            var ppd = this._prevPlotData;
             var xax = this._xaxis;
             var yax = this._yaxis;
             var elem, helem;
@@ -291,13 +296,11 @@
             for (var i=0, l=p._labels.length; i < l; i++) {
                 var label = p._labels[i];
                 
-                if (p.hideZeros && parseInt(p._labels[i], 10) == 0) {
-                    label = '';
+                if (label == null || (p.hideZeros && parseFloat(label) == 0)) {
+                    continue;
                 }
                 
-                if (label != null) {
-                    label = p.formatter(p.formatString, label);
-                } 
+                label = p.formatter(p.formatString, label);
 
                 helem = document.createElement('div');
                 p._elems[i] = $(helem);
@@ -319,8 +322,22 @@
                 if ((this.fillToZero && pd[i][1] < 0) || (this.fillToZero && this._type === 'bar' && this.barDirection === 'horizontal' && pd[i][0] < 0) || (this.waterfall && parseInt(label, 10)) < 0) {
                     location = oppositeLocations[locationIndicies[location]];
                 }
+
+
                 var ell = xax.u2p(pd[i][0]) + p.xOffset(elem, location);
                 var elt = yax.u2p(pd[i][1]) + p.yOffset(elem, location);
+
+                // we have stacked chart but are not showing stacked values,
+                // place labels in center.
+                if (this._stack && !p.stackedValue) {
+                    if (this.barDirection === "vertical") {
+                        elt = (this._barPoints[i][0][1] + this._barPoints[i][1][1]) / 2 + plot._gridPadding.top - 0.5 * elem.outerHeight(true);
+                    }
+                    else {
+                        ell = (this._barPoints[i][2][0] + this._barPoints[i][0][0]) / 2 + plot._gridPadding.left - 0.5 * elem.outerWidth(true);
+                    }
+                }
+
                 if (this.renderer.constructor == $.jqplot.BarRenderer) {
                     if (this.barDirection == "vertical") {
                         ell += this._barNudge;

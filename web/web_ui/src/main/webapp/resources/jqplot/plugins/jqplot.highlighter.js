@@ -2,10 +2,10 @@
  * jqPlot
  * Pure JavaScript plotting plugin using jQuery
  *
- * Version: @VERSION
- * Revision: @REVISION
+ * Version: 1.0.9
+ * Revision: d96a669
  *
- * Copyright (c) 2009-2011 Chris Leonello
+ * Copyright (c) 2009-2016 Chris Leonello
  * jqPlot is currently available for use in all personal or commercial projects 
  * under both the MIT (http://www.opensource.org/licenses/mit-license.php) and GPL 
  * version 2.0 (http://www.gnu.org/licenses/gpl-2.0.html) licenses. This means that you can 
@@ -44,7 +44,7 @@
      * To disable the tooltip, set "showTooltip" to false.
      * 
      * You can control what data is displayed in the tooltip with various
-     * options.  The "tooltipAxes" option controls wether the x, y or both
+     * options.  The "tooltipAxes" option controls whether the x, y or both
      * data values are displayed.
      * 
      * Some chart types (e.g. hi-low-close) have more than one y value per
@@ -111,16 +111,7 @@
         // prop: tooltipAxes
         // Which axes to display in tooltip, 'x', 'y' or 'both', 'xy' or 'yx'
         // 'both' and 'xy' are equivalent, 'yx' reverses order of labels.
-	// NEW: axes for pie charts: 'pieref' and for zoomed bar charts: 'xyref' or 'yref'
         this.tooltipAxes = 'both';
-	// NEW:
-	// prop: tooltipAxisX
-	// Position where the tooltip is going to be in X axis
-	this.tooltipAxisX = 0;
-	// NEW:
-	// prop: tooltipAxisY
-	// Position where the tooltip is going to be in Y axis
-	this.tooltipAxisY = 0;
         // prop; tooltipSeparator
         // String to use to separate x and y axes in tooltip.
         this.tooltipSeparator = ', ';
@@ -292,7 +283,6 @@
                             str += opts.tooltipSeparator + ystrs[i];
                         }
                         break;
-                    case 'yref':
                     case 'yx':
                         str = '';
                         for (var i=0; i<ystrs.length; i++) {
@@ -305,13 +295,6 @@
                         break;
                     case 'y':
                         str = ystrs.join(opts.tooltipSeparator);
-                        break;
-                    case 'xyref':
-                        str = xstr;
-                        for (var i=0; i<ystrs.length; i++) {
-                            str += hl.tooltipSeparator + ystrs[i];
-                        }
-                        str = str + opts.tooltipSeparator + plot.series[neighbor.seriesIndex].label; 
                         break;
                     default: // same as 'xy'
                         str = xstr;
@@ -328,9 +311,6 @@
             if (typeof opts.formatString ===  'string') {
                 str = $.jqplot.sprintf.apply($.jqplot.sprintf, [opts.formatString].concat(neighbor.data));
             }
-            if (typeof opts.barFormatString ===  'string') {
-                str = $.jqplot.sprintf.apply($.jqplot.sprintf, [opts.barFormatString].concat([plot.series[neighbor.seriesIndex].label, neighbor.data[1]]));
-            }
 
             else {
                 if (opts.tooltipAxes == 'both' || opts.tooltipAxes == 'xy') {
@@ -344,17 +324,6 @@
                 }
                 else if (opts.tooltipAxes == 'y') {
                     str = $.jqplot.sprintf(opts.tooltipFormatString, neighbor.data[1]);
-                } 
-                else if (opts.tooltipAxes == 'pieref') { //er: added to handle pie chart reference tooltips
-                    str = $.jqplot.sprintf(opts.tooltipFormatString, neighbor.data[0]);
-                } 
-                else if (opts.tooltipAxes == 'yref') { //er: added to handle bar chart reference tooltips
-                    //str = $.jqplot.sprintf(opts.tooltipFormatString, neighbor.data[0]) + opts.tooltipSeparator + $.jqplot.sprintf(opts.tooltipFormatString, neighbor.data[1]);
-                    str = $.jqplot.sprintf(opts.tooltipFormatString, plot.series[neighbor.seriesIndex].label) + opts.tooltipSeparator + $.jqplot.sprintf(opts.tooltipFormatString, neighbor.data[1]);
-                } 
-                else if (opts.tooltipAxes == 'xyref') { //er: added to handle bar chart reference tooltips
-                    str = $.jqplot.sprintf(opts.tooltipFormatString, neighbor.data[0]) + opts.tooltipSeparator + $.jqplot.sprintf(opts.tooltipFormatString, neighbor.data[1]);
-                    str = str + opts.tooltipSeparator + plot.series[neighbor.seriesIndex].label;
                 } 
             }
         }
@@ -370,66 +339,50 @@
         if (series.markerRenderer.show == true) { 
             ms = (series.markerRenderer.size + opts.sizeAdjust)/2;
         }
-		
-		var loc = locations;
-		if (series.fillToZero && series.fill && neighbor.data[1] < 0) {
-			loc = oppositeLocations;
-		}
-		
-		
-		if (opts.tooltipAxes == 'pieref')
-		{
-			var x = opts.tooltipAxisX;
-			var y = opts.tooltipAxisY;
-		}
-		else if (opts.tooltipAxes == 'yref')
-		{
-			var x = plot._gridPadding.left + neighbor.points[0][0];
-		     	var y = gridpos.y + plot._gridPadding.top - elem.outerHeight(true) -2 ;
-		     	if (y < 0) y = -15;
-		
-		}
-		else
-		{        
-			switch (loc[locationIndicies[opts.tooltipLocation]]) {
-		        case 'nw':
-		            var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true) - opts.tooltipOffset - fact * ms;
-		            var y = gridpos.y + plot._gridPadding.top - opts.tooltipOffset - elem.outerHeight(true) - fact * ms;
-		            break;
-		        case 'n':
-		            var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true)/2;
-		            var y = gridpos.y + plot._gridPadding.top - opts.tooltipOffset - elem.outerHeight(true) - ms;
-		            break;
-		        case 'ne':
-		            var x = gridpos.x + plot._gridPadding.left + opts.tooltipOffset + fact * ms;
-		            var y = gridpos.y + plot._gridPadding.top - opts.tooltipOffset - elem.outerHeight(true) - fact * ms;
-		            break;
-		        case 'e':
-		            var x = gridpos.x + plot._gridPadding.left + opts.tooltipOffset + ms;
-		            var y = gridpos.y + plot._gridPadding.top - elem.outerHeight(true)/2;
-		            break;
-		        case 'se':
-		            var x = gridpos.x + plot._gridPadding.left + opts.tooltipOffset + fact * ms;
-		            var y = gridpos.y + plot._gridPadding.top + opts.tooltipOffset + fact * ms;
-		            break;
-		        case 's':
-		            var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true)/2;
-		            var y = gridpos.y + plot._gridPadding.top + opts.tooltipOffset + ms;
-		            break;
-		        case 'sw':
-		            var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true) - opts.tooltipOffset - fact * ms;
-		            var y = gridpos.y + plot._gridPadding.top + opts.tooltipOffset + fact * ms;
-		            break;
-		        case 'w':
-		            var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true) - opts.tooltipOffset - ms;
-		            var y = gridpos.y + plot._gridPadding.top - elem.outerHeight(true)/2;
-		            break;
-		        default: // same as 'nw'
-		            var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true) - opts.tooltipOffset - fact * ms;
-		            var y = gridpos.y + plot._gridPadding.top - opts.tooltipOffset - elem.outerHeight(true) - fact * ms;
-		            break;
-		    }
-		}
+
+        var loc = locations;
+        if (series.fillToZero && series.fill && neighbor.data[1] < 0) {
+          loc = oppositeLocations;
+        }
+
+        switch (loc[locationIndicies[opts.tooltipLocation]]) {
+            case 'nw':
+                var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true) - opts.tooltipOffset - fact * ms;
+                var y = gridpos.y + plot._gridPadding.top - opts.tooltipOffset - elem.outerHeight(true) - fact * ms;
+                break;
+            case 'n':
+                var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true)/2;
+                var y = gridpos.y + plot._gridPadding.top - opts.tooltipOffset - elem.outerHeight(true) - ms;
+                break;
+            case 'ne':
+                var x = gridpos.x + plot._gridPadding.left + opts.tooltipOffset + fact * ms;
+                var y = gridpos.y + plot._gridPadding.top - opts.tooltipOffset - elem.outerHeight(true) - fact * ms;
+                break;
+            case 'e':
+                var x = gridpos.x + plot._gridPadding.left + opts.tooltipOffset + ms;
+                var y = gridpos.y + plot._gridPadding.top - elem.outerHeight(true)/2;
+                break;
+            case 'se':
+                var x = gridpos.x + plot._gridPadding.left + opts.tooltipOffset + fact * ms;
+                var y = gridpos.y + plot._gridPadding.top + opts.tooltipOffset + fact * ms;
+                break;
+            case 's':
+                var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true)/2;
+                var y = gridpos.y + plot._gridPadding.top + opts.tooltipOffset + ms;
+                break;
+            case 'sw':
+                var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true) - opts.tooltipOffset - fact * ms;
+                var y = gridpos.y + plot._gridPadding.top + opts.tooltipOffset + fact * ms;
+                break;
+            case 'w':
+                var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true) - opts.tooltipOffset - ms;
+                var y = gridpos.y + plot._gridPadding.top - elem.outerHeight(true)/2;
+                break;
+            default: // same as 'nw'
+                var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true) - opts.tooltipOffset - fact * ms;
+                var y = gridpos.y + plot._gridPadding.top - opts.tooltipOffset - elem.outerHeight(true) - fact * ms;
+                break;
+        }
         elem.css('left', x);
         elem.css('top', y);
         if (opts.fadeTooltip) {
@@ -466,7 +419,7 @@
                 hl.currentNeighbor = null;
                 ctx = null;
             }
-            else if (neighbor != null && ((plot.series[neighbor.seriesIndex].showHighlight && !hl.isHighlighting) || hl.tooltipAxes == 'pieref'|| hl.tooltipAxes == 'yref')) {
+            else if (neighbor != null && plot.series[neighbor.seriesIndex].showHighlight && !hl.isHighlighting) {
                 var evt = jQuery.Event('jqplotHighlighterHighlight');
                 evt.which = ev.which;
                 evt.pageX = ev.pageX;
@@ -479,33 +432,12 @@
                 if (hl.showMarker) {
                     draw(plot, neighbor);
                 }
-                if (hl.showTooltip && (!c || !c._zoom.started)) {
+                if (plot.series[neighbor.seriesIndex].show && hl.showTooltip && (!c || !c._zoom.started)) {
                     showTooltip(plot, plot.series[neighbor.seriesIndex], neighbor);
                 }
                 if (hl.bringSeriesToFront) {
                     plot.moveSeriesToFront(neighbor.seriesIndex);
                 }
-				if (series_visible && plot.series[neighbor.seriesIndex].canvas._elem.css('display') != 'none')
-            	{
-            		series_visible[neighbor.seriesIndex] = true;
-            		
-            		hl.isHighlighting = true;
-	                if (hl.showMarker) {
-	                    draw(plot, neighbor);
-	                }
-	                if (hl.showTooltip && (!c || !c._zoom.started)) {
-	                    showTooltip(plot, plot.series[neighbor.seriesIndex], neighbor);
-	                    
-	                }
-	                if (hl.bringSeriesToFront) {
-	                    plot.moveSeriesToFront(neighbor.seriesIndex);
-	                }
-            	}
-            	else
-            	{
-            		series_visible[neighbor.seriesIndex] = false;	
-            		plot.moveSeriesToBack(neighbor.seriesIndex);
-            	}
             }
             // check to see if we're highlighting the wrong point.
             else if (neighbor != null && hl.isHighlighting && hl.currentNeighbor != neighbor) {
@@ -520,7 +452,7 @@
                     if (hl.showMarker) {
                         draw(plot, neighbor);
                     }
-                    if (hl.showTooltip && (!c || !c._zoom.started)) {
+                    if (plot.series[neighbor.seriesIndex].show && hl.showTooltip && (!c || !c._zoom.started)) {
                         showTooltip(plot, plot.series[neighbor.seriesIndex], neighbor);
                     }
                     if (hl.bringSeriesToFront) {
