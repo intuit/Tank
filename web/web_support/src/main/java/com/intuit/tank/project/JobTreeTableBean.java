@@ -221,7 +221,8 @@ public abstract class JobTreeTableBean implements Serializable {
 
     private void initChartModel() {
         LOG.info("Initializing user chart model...");
-        Iterator<String> lineColor= Iterables.cycle(List.of("rgb(255, 99, 132)","rgb(75, 192, 192)","rgb(255, 205, 86)","rgb(201, 203, 207)","rgb(54, 162, 235)")).iterator();
+        Iterator<String> lineColor= Iterables.cycle(
+                List.of("rgb(54, 162, 235)","rgb(255, 99, 132)","rgb(75, 192, 192)","rgb(255, 205, 86)","rgb(201, 203, 207)")).iterator();
         chartModel = null;
         if (currentJobInstance != null && currentJobInstance.getStatusDetailMap() != null) {
             List<String> labels = new ArrayList<>();
@@ -274,7 +275,8 @@ public abstract class JobTreeTableBean implements Serializable {
     private void initializeTpsModel() {
         LOG.info("Initializing TPS chart model...");
         AWSXRay.beginSubsegment("Initialize TpsModel");
-        Iterator<String> lineColor= Iterables.cycle(List.of("rgb(255, 99, 132)","rgb(75, 192, 192)","rgb(255, 205, 86)","rgb(201, 203, 207)","rgb(54, 162, 235)")).iterator();
+        Iterator<String> lineColor= Iterables.cycle(
+                List.of("rgb(54, 162, 235)","rgb(255, 99, 132)","rgb(75, 192, 192)","rgb(255, 205, 86)","rgb(201, 203, 207)")).iterator();
         tpsChartModel = null;
         if (currentJobInstance != null) {
             List<String> labels = new ArrayList<>();
