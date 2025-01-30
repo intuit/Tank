@@ -13,6 +13,9 @@ package com.intuit.tank.project;
  * #L%
  */
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 import com.amazonaws.xray.AWSXRay;
@@ -24,7 +27,6 @@ import com.intuit.tank.dao.ProjectDao;
 import com.intuit.tank.job.ProjectNodeBean;
 import com.intuit.tank.util.Messages;
 import com.intuit.tank.vm.vmManager.models.UserDetail;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -406,15 +408,18 @@ public class JobTreeTableBeanTest {
         details3.add(new UserDetail("script1", 40));
         details3.add(new UserDetail("script2", 30));
         details3.add(new UserDetail("script3", 20));
-        Map<Date, List<UserDetail>> statusDetails = Map.of(new Date(), details,
-                new DateTime(new Date()).minusMinutes(5).toDate(), details2,
-                new DateTime(new Date()).minusMinutes(10).toDate(), details3);
+        LocalDateTime now = LocalDateTime.of(2023, 12, 25, 10, 30);
+        Map<Date, List<UserDetail>> statusDetails = Map.of(
+                Date.from(Instant.from(now.atZone(ZoneId.systemDefault()))), details,
+                Date.from(Instant.from(now.minusSeconds(30).atZone(ZoneId.systemDefault()))), details2,
+                Date.from(Instant.from(now.minusSeconds(60).atZone(ZoneId.systemDefault()))), details3);
 
         ProjectNodeBean pnb = new ProjectNodeBean(new Project());
         pnb.setStatusDetailMap(statusDetails);
         fixture.setCurrentJobInstanceForUser(pnb);
 
         assertEquals(3, fixture.getChartModel().getData().getDataSet().size());
+        assertEquals("[10:29:00, 10:29:30, 10:30:00]", fixture.getChartModel().getData().getLabels().toString());
     }
 
     @Test

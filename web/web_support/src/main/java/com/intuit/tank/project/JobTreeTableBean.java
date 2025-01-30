@@ -226,16 +226,14 @@ public abstract class JobTreeTableBean implements Serializable {
             Map<Date, List<UserDetail>> detailMap = currentJobInstance.getStatusDetailMap();
             System.out.println(detailMap);
             detailMap.keySet().stream().sorted()
-                    .forEach(d -> detailMap.get(d)
-                            .forEach(detail -> {
-                                ArrayList<Object> dataset = datasetMap.get(detail.getScript());
-                                if (dataset == null) {
-                                    dataset = new ArrayList<>();
-                                    labels.add(sdf.format(d.getTime()));
-                                    datasetMap.put(detail.getScript(), dataset);
-                                }
-                                dataset.add(detail.getUsers());
-                            }));
+                    .forEach(d -> {
+                        labels.add(sdf.format(d.getTime()));
+                        detailMap.get(d)
+                                .forEach(detail -> {
+                                    ArrayList<Object> dataset = datasetMap.computeIfAbsent(detail.getScript(), k -> new ArrayList<>());
+                                    dataset.add(detail.getUsers());
+                                });
+                    });
             chartModel = new LineChartModel();
             ChartData lineData = new ChartData();
             datasetMap.forEach((key, value) -> {
@@ -269,17 +267,15 @@ public abstract class JobTreeTableBean implements Serializable {
             Map<String, ArrayList<Object>> datasetMap = new HashMap<>();
             Map<Date, Map<String, TPSInfo>> tpsDetailMap = getTpsMap();
             tpsDetailMap.keySet().stream().sorted()
-                    .forEach(d -> tpsDetailMap.get(d).values()
-                            .forEach(info -> {
-                                ArrayList<Object> dataset = datasetMap.get(info.getKey());
-                                if (dataset == null) {
-                                    dataset = new ArrayList<>();
-                                    labels.add(info.getKey());
-                                    datasetMap.put(info.getKey(), dataset);
-                                }
-                                dataset.add(info.getTPS());
-                                datasetMap.get(TOTAL_TPS_SERIES_KEY).add(info.getTPS());
-                            }));
+                    .forEach(d -> {
+                        labels.add(sdf.format(d.getTime()));
+                        tpsDetailMap.get(d).values()
+                                .forEach(info -> {
+                                    ArrayList<Object> dataset = datasetMap.computeIfAbsent(info.getKey(), k -> new ArrayList<>());
+                                    dataset.add(info.getTPS());
+                                    datasetMap.get(TOTAL_TPS_SERIES_KEY).add(info.getTPS());
+                                });
+                    });
 
             ArrayList<Object> total = new ArrayList<>();
             datasetMap.forEach((key, value) -> value
