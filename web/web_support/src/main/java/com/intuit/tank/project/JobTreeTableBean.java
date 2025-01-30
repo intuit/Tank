@@ -256,7 +256,7 @@ public abstract class JobTreeTableBean implements Serializable {
         if (currentJobInstance != null && currentJobInstance.getStatusDetailMap() != null) {
             List<String> labels = new ArrayList<>();
             Map<String, ArrayList<Object>> datasetMap = new HashMap<>();
-            Map<Date, List<UserDetail>> detailMap = testDetailMap(); //currentJobInstance.getStatusDetailMap();
+            Map<Date, List<UserDetail>> detailMap = currentJobInstance.getStatusDetailMap();
             detailMap.keySet().stream().sorted()
                     .forEach(d -> detailMap.get(d)
                             .forEach(detail -> {
@@ -289,24 +289,6 @@ public abstract class JobTreeTableBean implements Serializable {
             chartModel.setOptions(options);
             chartModel.setData(lineData);
         }
-    }
-
-    private Map<Date, List<UserDetail>> testDetailMap() {
-        List<UserDetail> details = new ArrayList<>();
-        details.add(new UserDetail("script1", 10));
-        details.add(new UserDetail("script2", 20));
-        details.add(new UserDetail("script3", 30));
-        List<UserDetail> details2 = new ArrayList<>();
-        details2.add(new UserDetail("script1", 40));
-        details2.add(new UserDetail("script2", 50));
-        details2.add(new UserDetail("script3", 60));
-        List<UserDetail> details3 = new ArrayList<>();
-        details3.add(new UserDetail("script1", 40));
-        details3.add(new UserDetail("script2", 30));
-        details3.add(new UserDetail("script3", 20));
-        return Map.of(new Date(), details,
-                new DateTime(new Date()).minusMinutes(5).toDate(), details2,
-                new DateTime(new Date()).minusMinutes(10).toDate(), details3);
     }
 
     private void initializeTpsModel() {
