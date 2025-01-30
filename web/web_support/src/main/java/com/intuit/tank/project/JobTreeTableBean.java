@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Iterables;
 import com.intuit.tank.vm.vmManager.models.*;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
@@ -75,7 +76,6 @@ public abstract class JobTreeTableBean implements Serializable {
     private static final String TOTAL_TPS_SERIES_KEY = "Total TPS";
     private static final long serialVersionUID = 1L;
     private static final String DEFAULT_TIME_ZONE = "America/Los_Angeles";
-    private Stack<String> lineColor = new Stack<>();
     private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
     private static final int MIN_REFRESH = 10;
@@ -218,7 +218,7 @@ public abstract class JobTreeTableBean implements Serializable {
 
     private void initChartModel() {
         LOG.info("Initializing user chart model...");
-        lineColor.addAll(Set.of("rgb(255, 99, 132)","rgb(75, 192, 192)","rgb(255, 205, 86)","rgb(201, 203, 207)","rgb(54, 162, 235)"));
+        Iterator<String> lineColor= Iterables.cycle(List.of("rgb(255, 99, 132)","rgb(75, 192, 192)","rgb(255, 205, 86)","rgb(201, 203, 207)","rgb(54, 162, 235)")).iterator();
         chartModel = null;
         if (currentJobInstance != null && currentJobInstance.getStatusDetailMap() != null) {
             List<String> labels = new ArrayList<>();
@@ -233,6 +233,11 @@ public abstract class JobTreeTableBean implements Serializable {
                                     ArrayList<Object> dataset = datasetMap.computeIfAbsent(detail.getScript(), k -> new ArrayList<>());
                                     dataset.add(detail.getUsers());
                                 });
+                        datasetMap.forEach((key, value) -> {
+                            while (value.size() < labels.size()) {
+                                value.add(null);
+                            }
+                        });
                     });
             chartModel = new LineChartModel();
             ChartData lineData = new ChartData();
@@ -240,8 +245,8 @@ public abstract class JobTreeTableBean implements Serializable {
                 LineChartDataSet lineDataSet = new LineChartDataSet();
                 lineDataSet.setData(value);
                 lineDataSet.setLabel(key);
-                lineDataSet.setBorderColor(lineColor.pop());
-                lineDataSet.setTension(0.3);
+                lineDataSet.setBorderColor(lineColor.next());
+                lineDataSet.setTension(0.1);
                 lineDataSet.setFill(false);
                 lineData.addChartDataSet(lineDataSet);
             });
@@ -260,7 +265,7 @@ public abstract class JobTreeTableBean implements Serializable {
     private void initializeTpsModel() {
         LOG.info("Initializing TPS chart model...");
         AWSXRay.beginSubsegment("Initialize TpsModel");
-        lineColor.addAll(Set.of("rgb(255, 99, 132)","rgb(75, 192, 192)","rgb(255, 205, 86)","rgb(201, 203, 207)","rgb(54, 162, 235)"));
+        Iterator<String> lineColor= Iterables.cycle(List.of("rgb(255, 99, 132)","rgb(75, 192, 192)","rgb(255, 205, 86)","rgb(201, 203, 207)","rgb(54, 162, 235)")).iterator();
         tpsChartModel = null;
         if (currentJobInstance != null) {
             List<String> labels = new ArrayList<>();
@@ -275,6 +280,11 @@ public abstract class JobTreeTableBean implements Serializable {
                                     dataset.add(info.getTPS());
                                     datasetMap.get(TOTAL_TPS_SERIES_KEY).add(info.getTPS());
                                 });
+                        datasetMap.forEach((key, value) -> {
+                            while (value.size() < labels.size()) {
+                                value.add(null);
+                            }
+                        });
                     });
 
             ArrayList<Object> total = new ArrayList<>();
@@ -291,8 +301,8 @@ public abstract class JobTreeTableBean implements Serializable {
                 LineChartDataSet lineDataSet = new LineChartDataSet();
                 lineDataSet.setData(value);
                 lineDataSet.setLabel(key);
-                lineDataSet.setBorderColor(lineColor.pop());
-                lineDataSet.setTension(0.3);
+                lineDataSet.setBorderColor(lineColor.next());
+                lineDataSet.setTension(0.1);
                 lineDataSet.setFill(false);
                 lineData.addChartDataSet(lineDataSet);
             });

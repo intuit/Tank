@@ -412,14 +412,15 @@ public class JobTreeTableBeanTest {
         Map<Date, List<UserDetail>> statusDetails = Map.of(
                 Date.from(Instant.from(now.atZone(ZoneId.systemDefault()))), details,
                 Date.from(Instant.from(now.minusSeconds(30).atZone(ZoneId.systemDefault()))), details2,
-                Date.from(Instant.from(now.minusSeconds(60).atZone(ZoneId.systemDefault()))), details3);
+                Date.from(Instant.from(now.minusSeconds(60).atZone(ZoneId.systemDefault()))), new ArrayList<>(),
+                Date.from(Instant.from(now.minusSeconds(120).atZone(ZoneId.systemDefault()))), details3);
 
         ProjectNodeBean pnb = new ProjectNodeBean(new Project());
         pnb.setStatusDetailMap(statusDetails);
         fixture.setCurrentJobInstanceForUser(pnb);
 
         assertEquals(3, fixture.getChartModel().getData().getDataSet().size());
-        assertEquals("[10:29:00, 10:29:30, 10:30:00]", fixture.getChartModel().getData().getLabels().toString());
+        assertEquals("[10:28:00, 10:29:00, 10:29:30, 10:30:00]", fixture.getChartModel().getData().getLabels().toString());
     }
 
     @Test
