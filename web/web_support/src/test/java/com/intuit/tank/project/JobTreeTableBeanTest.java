@@ -13,9 +13,7 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.PreferencesBean;
@@ -25,6 +23,8 @@ import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.ProjectDao;
 import com.intuit.tank.job.ProjectNodeBean;
 import com.intuit.tank.util.Messages;
+import com.intuit.tank.vm.vmManager.models.UserDetail;
+import org.joda.time.DateTime;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -478,12 +478,32 @@ public class JobTreeTableBeanTest {
 
     @Test
     public void testCurrentJobInstanceForTPS() {
-        fixture.setCurrentJobInstance(new ProjectNodeBean(new Project()));
+        fixture.setCurrentJobInstanceForTPS(new ProjectNodeBean(new Project()));
     }
 
     @Test
     public void testCurrentJobInstanceForUser() {
-        fixture.setCurrentJobInstanceForUser(new ProjectNodeBean(new Project()));
+        List<UserDetail> details = new ArrayList<>();
+        details.add(new UserDetail("script1", 10));
+        details.add(new UserDetail("script2", 20));
+        details.add(new UserDetail("script3", 30));
+        List<UserDetail> details2 = new ArrayList<>();
+        details2.add(new UserDetail("script1", 40));
+        details2.add(new UserDetail("script2", 50));
+        details2.add(new UserDetail("script3", 60));
+        List<UserDetail> details3 = new ArrayList<>();
+        details3.add(new UserDetail("script1", 40));
+        details3.add(new UserDetail("script2", 30));
+        details3.add(new UserDetail("script3", 20));
+        Map<Date, List<UserDetail>> statusDetails = Map.of(new Date(), details,
+                new DateTime(new Date()).minusMinutes(5).toDate(), details2,
+                new DateTime(new Date()).minusMinutes(10).toDate(), details3);
+
+        ProjectNodeBean pnb = new ProjectNodeBean(new Project());
+        pnb.setStatusDetailMap(statusDetails);
+        fixture.setCurrentJobInstanceForUser(pnb);
+
+        assertEquals(3, fixture.getChartModel().getData().getDataSet().size());
     }
 
     @Test

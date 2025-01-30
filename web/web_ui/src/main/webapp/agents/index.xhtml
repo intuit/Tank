@@ -344,100 +344,7 @@
 
           <div class="vertical-spacer" />
           <h:panelGroup rendered="#{jobQueueManager.chartModel ne null}" id="chartScript">
-            <script type="text/javascript">
-      //<![CDATA[
-     if( $.jqplot)
-       $.jqplot.config.enablePlugins = true;
-
-      var userDetailsExtender = function() {
-          var myoptions = {
-
-            axes: {
-                xaxis: {
-                renderer: $.jqplot.DateAxisRenderer,
-                min: #{jobQueueManager.chartModel.min},
-                max: #{jobQueueManager.chartModel.max},
-                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-                tickOptions: {
-                    formatString: '%H:%M',
-                        angle: -45
-                    }
-                },
-                yaxis: {
-                    min:0,
-                    tickOptions: {
-                        formatString: '%.0f'
-                    }
-                }
-            },
-            seriesDefaults: {
-                lineWidth: 0.9,
-                markerOptions: {
-                    show: true,
-                    size: 2,
-                    shadow: false
-                }
-            },
-            cursor:{
-                show: true,
-                zoom: true,
-                showTooltip: false,
-                showVerticalLine: true,
-                showHorizontalLine: true,
-                dblClickReset: true
-              },
-            legend: {
-                show: true,
-                placement: 'outsideGrid',
-                location: 'e'
-              },
-            highlighter: {
-                show: true,
-                tooltipAxes: 'xy',
-                showTooltip: true,
-                sizeAdjust: 10,
-                showMarker: true,
-                tooltipLocation: 'se',
-                //bringSeriesToFront: true,
-                useAxesFormatters: false,
-                // You can customize the tooltip format string of the highlighter
-                // to include any arbitrary text or html and use format string
-                // placeholders (%s here) to represent x and y values.
-                //tooltipFormatString:  '%.1f',
-                //formatString:'<span style="display:none;">%s</span><span class="graph-point-label"> %d</span>'
-                tooltipContentEditor: function (str, seriesIndex, pointIndex, plot) {
-
-                    var date = new Date(plot.data[seriesIndex][pointIndex][0]);
-                    var value = plot.data[seriesIndex][pointIndex][1];
-                    var seriesName = plot.series[seriesIndex].label;
-                    var seriesColor = plot.seriesColors[seriesIndex];
-                    //debug examine the console object to get other values
-                    //console.log(plot);
-                    var html = "<div class='chartTip'><span class='chartTipTitle' style='color: " + seriesColor + ";'>";
-                    html += "Script Name: " + seriesName;
-                    html += "</span>  <br/><span class='chartTipLabel'>Time : </span><span class='chartTipValue'>";
-                    html += dateFormat(date, "HH:MM:ss");
-                    html += "</span>  <br/><span class='chartTipLabel'>Number of Users : </span><span class='chartTipValue'>";
-                    html += value;
-                    html += "  </span></div>";
-
-                    return html;
-                }
-              }
-
-
-          }
-          //do a deep merge
-          $.extend(true, this.cfg, myoptions);
-      }
-
-
-
-
-
-      //]]>
-      </script>
-            <p:chart type="line" model="#{jobQueueManager.chartModel}"  style="height:400px"
+            <p:lineChart model="#{jobQueueManager.chartModel}"  style="height:400px"
               title="User Details over Time" extender="userDetailsExtender" />
           </h:panelGroup>
           <div class="vertical-spacer" />
@@ -489,97 +396,8 @@
           </div>
           <div class="vertical-spacer" />
 
-          <h:panelGroup rendered="#{jobQueueManager.tpsChartModel ne null}" id="chartScript">
-            <script type="text/javascript">
-      //<![CDATA[
-     if( $.jqplot)
-       $.jqplot.config.enablePlugins = true;
-    
-      var tpsDetailsExtender = function() {
-          var myoptions = {
-                 
-            axes: {
-                xaxis: {
-                renderer: $.jqplot.DateAxisRenderer,
-                min: #{jobQueueManager.tpsChartModel.min},
-                max: #{jobQueueManager.tpsChartModel.max},
-                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-                tickOptions: {
-                    formatString: '%H:%M',
-                        angle: -45
-                    }
-                },
-                yaxis: {
-                    min:0,
-                    tickOptions: {
-                        formatString: '%.0f'
-                    }
-                }
-            },
-            seriesDefaults: {
-                lineWidth: 0.9,
-                markerOptions: {
-                    show: true,
-                    size: 5, 
-                    shadow: false
-                }
-            },
-            legend: {
-                show: true,
-                placement: 'outsideGrid',
-                location: 'e'
-              },
-            cursor:{ 
-                show: true,
-                zoom: true,
-                showTooltip: false,
-                showVerticalLine: true,
-                showHorizontalLine: true,
-                dblClickReset: true
-                
-              },
-            highlighter: {
-                show: true,
-                tooltipAxes: 'xy',
-                showTooltip: true, 
-                sizeAdjust: 10,
-                showMarker: true,
-                tooltipLocation: 'se',
-                //bringSeriesToFront: true, 
-                useAxesFormatters: false,
-                // You can customize the tooltip format string of the highlighter
-                // to include any arbitrary text or html and use format string
-                // placeholders (%s here) to represent x and y values.
-                //tooltipFormatString:  '%.1f',
-                //formatString:'<span style="display:none;">%s</span><span class="graph-point-label"> %d</span>'
-                tooltipContentEditor: function (str, seriesIndex, pointIndex, plot) {
-
-                    var date = new Date(plot.data[seriesIndex][pointIndex][0]);
-                    var value = plot.data[seriesIndex][pointIndex][1];
-                    var seriesName = plot.series[seriesIndex].label;
-                    var seriesColor = plot.seriesColors[seriesIndex];
-                    //debug examine the console object to get other values
-                    //console.log(plot);
-                    var html = "<div class='chartTip'><span class='chartTipTitle' style='color: " + seriesColor + ";'>";
-                    html += seriesName;
-                    html += "</span>  <br/><span class='chartTipLabel'>Time : </span><span class='chartTipValue'>";
-                    html += dateFormat(date, "HH:MM:ss");
-                    html += "</span>  <br/><span class='chartTipLabel'>TPS : </span><span class='chartTipValue'>";
-                    html += value;
-                    html += "  </span></div>";
-        
-                    return html;
-                }
-              } 
-            
-            
-          }
-          //do a deep merge
-          $.extend(true, this.cfg, myoptions);
-      }
-      //]]>
-      </script>
-            <p:chart type="line" model="#{jobQueueManager.tpsChartModel}" style="height:400px"
+          <h:panelGroup rendered="#{jobQueueManager.tpsChartModel ne null}" id="tpschartScript">
+            <p:lineChart model="#{jobQueueManager.tpsChartModel}" style="height:400px"
               title="TPS Details over Time" extender="tpsDetailsExtender" />
           </h:panelGroup>
           <div class="vertical-spacer" />
@@ -592,17 +410,6 @@
 
     <h:outputScript library="primefaces" name="core.js" target="head" />
     <h:outputScript library="primefaces" name="components.js" target="head" />
-
-    <h:outputScript target="head" library="primefaces" name="charts/charts.js" />
-    <h:outputStylesheet target="head" library="primefaces" name="charts/charts.css" />
-    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.highlighter.js" />
-    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.canvasOverlay.js" />
-    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.cursor.js" />
-    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.categoryAxisRenderer.js" />
-    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.canvasAxisLabelRenderer.js" />
-    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.canvasTextRenderer.js" />
-    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.barRenderer.js" />
-    <h:outputScript target="head" library="jqplot" name="plugins/jqplot.dateAxisRenderer.js" />
   </ui:define>
 
 </ui:composition>
