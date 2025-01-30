@@ -263,6 +263,10 @@ public abstract class JobTreeTableBean implements Serializable {
 
             CartesianScales cScales = new CartesianScales();
             CartesianLinearAxes linearAxes = new CartesianLinearAxes();
+            CartesianLinearTicks ticks = new CartesianLinearTicks();
+            ticks.setMinRotation(10);
+            ticks.setMaxRotation(80);
+            linearAxes.setTicks(ticks);
             linearAxes.setBeginAtZero(true);
             cScales.addYAxesData(linearAxes);
             options.setScales(cScales);
@@ -327,6 +331,10 @@ public abstract class JobTreeTableBean implements Serializable {
 
             CartesianScales cScales = new CartesianScales();
             CartesianLinearAxes linearAxes = new CartesianLinearAxes();
+            CartesianLinearTicks ticks = new CartesianLinearTicks();
+            ticks.setMinRotation(10);
+            ticks.setMaxRotation(80);
+            linearAxes.setTicks(ticks);
             linearAxes.setBeginAtZero(true);
             cScales.addYAxesData(linearAxes);
             options.setScales(cScales);
