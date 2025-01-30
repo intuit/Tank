@@ -618,18 +618,6 @@
           <h:panelGroup
             rendered="#{projectJobQueueManager.tpsChartModel ne null and projectJobQueueManager.tpsChartModel.getData().getDataSet().size() ne 0}"
             id="tpschartScript">
-            <div class="formRow">
-              <div class="smallFormLabelDiv">
-                <h:outputLabel for="keysSelectCB" value="KeysToShow" styleClass="formLabel" />
-              </div>
-              <div class="smallFormInputDiv">
-                <p:selectCheckboxMenu id="keysSelectCB"  value="#{projectJobQueueManager.selectedTpsKeys}"
-                  style="width:300px;" filterMatchMode="contains" filter="true" label="Select Keys To Display">
-                  <f:selectItems value="#{projectJobQueueManager.allTpsKeys}" />
-                  <p:ajax event="change" listener="#{projectJobQueueManager.keysChanged}" update="@form" />
-                </p:selectCheckboxMenu>
-              </div>
-            </div>
             <p:lineChart model="#{projectJobQueueManager.tpsChartModel}" style="height:400px"
               title="Tps Details over Time"  />
           </h:panelGroup>

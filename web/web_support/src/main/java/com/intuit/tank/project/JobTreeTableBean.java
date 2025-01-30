@@ -33,7 +33,6 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.intuit.tank.util.Messages;
-import org.joda.time.DateTime;
 import org.primefaces.event.NodeCollapseEvent;
 import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.model.DefaultTreeNode;
@@ -110,8 +109,6 @@ public abstract class JobTreeTableBean implements Serializable {
     private JobNodeBean currentJobInstance;
     private LineChartModel chartModel;
     private LineChartModel tpsChartModel;
-    private List<String> allTpsKeys;
-    private Map<String, List<String>> selectedTpsKeys = new HashMap<String, List<String>>();
 
     protected abstract Integer getRootJobId();
 
@@ -205,36 +202,6 @@ public abstract class JobTreeTableBean implements Serializable {
         initializeTpsModel();
     }
 
-    public void keysChanged() {
-        initializeTpsModel();
-    }
-
-    /**
-     * @return the allTpsKeys
-     */
-    public List<String> getAllTpsKeys() {
-        return allTpsKeys;
-    }
-
-    /**
-     * @return the selectedTpsKeys
-     */
-    public List<String> getSelectedTpsKeys() {
-        if (currentJobInstance != null) {
-            return selectedTpsKeys.get(currentJobInstance.getName());
-        }
-        return null;
-    }
-
-    /**
-     * @return the selectedTpsKeys
-     */
-    public void setSelectedTpsKeys(List<String> keys) {
-        if (currentJobInstance != null) {
-            selectedTpsKeys.put(currentJobInstance.getName(), keys);
-        }
-    }
-
     /**
      * @return the chartModel
      */
@@ -257,6 +224,7 @@ public abstract class JobTreeTableBean implements Serializable {
             List<String> labels = new ArrayList<>();
             Map<String, ArrayList<Object>> datasetMap = new HashMap<>();
             Map<Date, List<UserDetail>> detailMap = currentJobInstance.getStatusDetailMap();
+            System.out.println(detailMap);
             detailMap.keySet().stream().sorted()
                     .forEach(d -> detailMap.get(d)
                             .forEach(detail -> {

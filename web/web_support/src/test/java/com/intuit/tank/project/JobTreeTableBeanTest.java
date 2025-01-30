@@ -77,22 +77,6 @@ public class JobTreeTableBeanTest {
     }
 
     /**
-     * Run the List<String> getAllTpsKeys() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testGetAllTpsKeys_1() {
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        List<String> result = fixture.getAllTpsKeys();
-
-    }
-
-    /**
      * Run the int getRefreshInterval() method test.
      * 
      * @throws Exception
@@ -246,31 +230,6 @@ public class JobTreeTableBeanTest {
     }
 
     /**
-     * Run the void keysChanged() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testKeysChanged_1() {
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        AWSXRay.beginSegment("test");
-        fixture.keysChanged();
-        AWSXRay.endSegment();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.dao.BaseDao.<init>(BaseDao.java:56)
-        // at com.intuit.tank.dao.OwnableDao.<init>(OwnableDao.java:27)
-        // at com.intuit.tank.dao.ProjectDao.<init>(ProjectDao.java:29)
-        // at com.intuit.tank.project.JobTreeTableBean.<init>(JobTreeTableBean.java:96)
-        // at com.intuit.tank.project.JobQueueManager.<init>(JobQueueManager.java:8)
-    }
-
-    /**
      * Run the void observe(JobQueue) method test.
      * 
      * @throws Exception
@@ -404,54 +363,6 @@ public class JobTreeTableBeanTest {
         String refreshTimeSeconds = "";
 
         fixture.setRefreshTimeSeconds(refreshTimeSeconds);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.dao.BaseDao.<init>(BaseDao.java:56)
-        // at com.intuit.tank.dao.OwnableDao.<init>(OwnableDao.java:27)
-        // at com.intuit.tank.dao.ProjectDao.<init>(ProjectDao.java:29)
-        // at com.intuit.tank.project.JobTreeTableBean.<init>(JobTreeTableBean.java:96)
-        // at com.intuit.tank.project.JobQueueManager.<init>(JobQueueManager.java:8)
-    }
-
-    /**
-     * Run the void setSelectedTpsKeys(List<String>) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testSetSelectedTpsKeys_1() {
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        List<String> keys = new LinkedList();
-
-        fixture.setSelectedTpsKeys(keys);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.dao.BaseDao.<init>(BaseDao.java:56)
-        // at com.intuit.tank.dao.OwnableDao.<init>(OwnableDao.java:27)
-        // at com.intuit.tank.dao.ProjectDao.<init>(ProjectDao.java:29)
-        // at com.intuit.tank.project.JobTreeTableBean.<init>(JobTreeTableBean.java:96)
-        // at com.intuit.tank.project.JobQueueManager.<init>(JobQueueManager.java:8)
-    }
-
-    /**
-     * Run the void setSelectedTpsKeys(List<String>) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testSetSelectedTpsKeys_2() {
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        List<String> keys = new LinkedList();
-
-        fixture.setSelectedTpsKeys(keys);
 
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
