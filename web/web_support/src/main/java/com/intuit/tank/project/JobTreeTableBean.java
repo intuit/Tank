@@ -59,6 +59,9 @@ import com.intuit.tank.reporting.api.TPSInfo;
 import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.util.ExceptionHandler;
 import org.primefaces.model.charts.ChartData;
+import org.primefaces.model.charts.axes.cartesian.CartesianScales;
+import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearAxes;
+import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearTicks;
 import org.primefaces.model.charts.line.LineChartDataSet;
 import org.primefaces.model.charts.line.LineChartModel;
 import org.primefaces.model.charts.line.LineChartOptions;
@@ -224,7 +227,6 @@ public abstract class JobTreeTableBean implements Serializable {
             List<String> labels = new ArrayList<>();
             Map<String, ArrayList<Object>> datasetMap = new HashMap<>();
             Map<Date, List<UserDetail>> detailMap = currentJobInstance.getStatusDetailMap();
-            System.out.println(detailMap);
             detailMap.keySet().stream().sorted()
                     .forEach(d -> {
                         labels.add(sdf.format(d.getTime()));
@@ -246,7 +248,7 @@ public abstract class JobTreeTableBean implements Serializable {
                 lineDataSet.setData(value);
                 lineDataSet.setLabel(key);
                 lineDataSet.setBorderColor(lineColor.next());
-                lineDataSet.setTension(0.1);
+                lineDataSet.setTension(0.2);
                 lineDataSet.setFill(false);
                 lineData.addChartDataSet(lineDataSet);
             });
@@ -257,6 +259,13 @@ public abstract class JobTreeTableBean implements Serializable {
             Legend legend = new Legend();
             legend.setPosition("right");
             options.setLegend(legend);
+
+            CartesianScales cScales = new CartesianScales();
+            CartesianLinearAxes linearAxes = new CartesianLinearAxes();
+            linearAxes.setBeginAtZero(true);
+            cScales.addYAxesData(linearAxes);
+            options.setScales(cScales);
+
             chartModel.setOptions(options);
             chartModel.setData(lineData);
         }
@@ -302,7 +311,7 @@ public abstract class JobTreeTableBean implements Serializable {
                 lineDataSet.setData(value);
                 lineDataSet.setLabel(key);
                 lineDataSet.setBorderColor(lineColor.next());
-                lineDataSet.setTension(0.1);
+                lineDataSet.setTension(0.2);
                 lineDataSet.setFill(false);
                 lineData.addChartDataSet(lineDataSet);
             });
@@ -313,6 +322,13 @@ public abstract class JobTreeTableBean implements Serializable {
             Legend legend = new Legend();
             legend.setPosition("right");
             options.setLegend(legend);
+
+            CartesianScales cScales = new CartesianScales();
+            CartesianLinearAxes linearAxes = new CartesianLinearAxes();
+            linearAxes.setBeginAtZero(true);
+            cScales.addYAxesData(linearAxes);
+            options.setScales(cScales);
+
             tpsChartModel.setOptions(options);
             tpsChartModel.setData(lineData);
         } else {

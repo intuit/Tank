@@ -20,13 +20,16 @@ import java.util.*;
 
 import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.PreferencesBean;
+import com.intuit.tank.job.ActJobNodeBean;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.ProjectDao;
 import com.intuit.tank.job.ProjectNodeBean;
 import com.intuit.tank.util.Messages;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.vm.vmManager.models.UserDetail;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -391,7 +394,10 @@ public class JobTreeTableBeanTest {
 
     @Test
     public void testCurrentJobInstanceForTPS() {
-        fixture.setCurrentJobInstanceForTPS(new ProjectNodeBean(new Project()));
+        ProjectNodeBean pnb = new ProjectNodeBean(new Project());
+        pnb.addJob(new ActJobNodeBean("1", new CloudVmStatusContainer(), FastDateFormat.getInstance()));
+        pnb.addJob(new ActJobNodeBean("2", new CloudVmStatusContainer(), FastDateFormat.getInstance()));
+        fixture.setCurrentJobInstanceForTPS(pnb);
     }
 
     @Test
