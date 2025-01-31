@@ -17,17 +17,12 @@ package com.intuit.tank.project;
  */
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Iterables;
+import com.intuit.tank.vm.vmManager.models.*;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
@@ -43,17 +38,11 @@ import org.primefaces.event.NodeCollapseEvent;
 import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
-import org.primefaces.model.chart.ChartSeries;
 
 import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.PropertyComparer;
 import com.intuit.tank.PropertyComparer.SortOrder;
 import com.intuit.tank.vm.vmManager.VMTracker;
-import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
-import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
-import com.intuit.tank.vm.vmManager.models.ProjectStatusContainer;
-import com.intuit.tank.vm.vmManager.models.UserDetail;
-import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.JobQueueDao;
@@ -69,6 +58,14 @@ import com.intuit.tank.reporting.api.ResultsReader;
 import com.intuit.tank.reporting.api.TPSInfo;
 import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.util.ExceptionHandler;
+import org.primefaces.model.charts.ChartData;
+import org.primefaces.model.charts.axes.cartesian.CartesianScales;
+import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearAxes;
+import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearTicks;
+import org.primefaces.model.charts.line.LineChartDataSet;
+import org.primefaces.model.charts.line.LineChartModel;
+import org.primefaces.model.charts.line.LineChartOptions;
+import org.primefaces.model.charts.optionconfig.legend.Legend;
 
 /**
  * JobTreeTableBean
@@ -82,6 +79,7 @@ public abstract class JobTreeTableBean implements Serializable {
     private static final String TOTAL_TPS_SERIES_KEY = "Total TPS";
     private static final long serialVersionUID = 1L;
     private static final String DEFAULT_TIME_ZONE = "America/Los_Angeles";
+    private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
     private static final int MIN_REFRESH = 10;
     private static final int INITIAL_SIZE = 10;
@@ -112,10 +110,8 @@ public abstract class JobTreeTableBean implements Serializable {
     private int refreshInterval;
 
     private JobNodeBean currentJobInstance;
-    private TrackingCartesianChartModel chartModel;
-    private TrackingCartesianChartModel tpsChartModel;
-    private List<String> allTpsKeys;
-    private Map<String, List<String>> selectedTpsKeys = new HashMap<String, List<String>>();
+    private LineChartModel chartModel;
+    private LineChartModel tpsChartModel;
 
     protected abstract Integer getRootJobId();
 
@@ -206,133 +202,145 @@ public abstract class JobTreeTableBean implements Serializable {
 
     public void setCurrentJobInstanceForTPS(JobNodeBean currentJobInstance) {
         setCurrentJobInstance(currentJobInstance);
-//        tpsMap.clear();
-//        lastDate = new Date(0);
         initializeTpsModel();
-    }
-
-    public void keysChanged() {
-        initializeTpsModel();
-    }
-
-    /**
-     * @return the allTpsKeys
-     */
-    public List<String> getAllTpsKeys() {
-        return allTpsKeys;
-    }
-
-    /**
-     * @return the selectedTpsKeys
-     */
-    public List<String> getSelectedTpsKeys() {
-        if (currentJobInstance != null) {
-            return selectedTpsKeys.get(currentJobInstance.getName());
-        }
-        return null;
-    }
-
-    /**
-     * @return the selectedTpsKeys
-     */
-    public void setSelectedTpsKeys(List<String> keys) {
-        if (currentJobInstance != null) {
-            selectedTpsKeys.put(currentJobInstance.getName(), keys);
-        }
     }
 
     /**
      * @return the chartModel
      */
-    public TrackingCartesianChartModel getChartModel() {
+    public LineChartModel getChartModel() {
         return chartModel;
     }
 
     /**
      * @return the tpsChartModel
      */
-    public TrackingCartesianChartModel getTpsChartModel() {
+    public LineChartModel getTpsChartModel() {
         return tpsChartModel;
     }
 
     private void initChartModel() {
         LOG.info("Initializing user chart model...");
+        Iterator<String> lineColor= Iterables.cycle(
+                List.of("rgb(54, 162, 235)","rgb(255, 99, 132)","rgb(75, 192, 192)","rgb(255, 205, 86)","rgb(201, 203, 207)")).iterator();
         chartModel = null;
         if (currentJobInstance != null && currentJobInstance.getStatusDetailMap() != null) {
-            chartModel = new TrackingCartesianChartModel();
-
-            Map<String, ChartSeries> seriesMap = new HashMap<String, ChartSeries>();
+            List<String> labels = new ArrayList<>();
+            Map<String, ArrayList<Object>> datasetMap = new HashMap<>();
             Map<Date, List<UserDetail>> detailMap = currentJobInstance.getStatusDetailMap();
-            List<Date> dateList = new ArrayList<Date>(detailMap.keySet());
-            Collections.sort(dateList);
-            for (Date d : dateList) {
-                for (UserDetail detail : detailMap.get(d)) {
-                    ChartSeries series = seriesMap.get(detail.getScript());
-                    if (series == null) {
-                        series = new ChartSeries(detail.getScript());
-                        chartModel.addSeries(series);
-                        seriesMap.put(detail.getScript(), series);
-                    }
-                    series.set(d.getTime(), detail.getUsers());
-                    chartModel.addDate(d);
-                }
-            }
-            chartModel.setExtender("userDetailsExtender");
-        }
+            detailMap.keySet().stream().sorted()
+                    .forEach(d -> {
+                        labels.add(sdf.format(d.getTime()));
+                        detailMap.get(d)
+                                .forEach(detail -> {
+                                    ArrayList<Object> dataset = datasetMap.computeIfAbsent(detail.getScript(), k -> new ArrayList<>());
+                                    dataset.add(detail.getUsers());
+                                });
+                        datasetMap.forEach((key, value) -> {
+                            while (value.size() < labels.size()) {
+                                value.add(null);
+                            }
+                        });
+                    });
+            chartModel = new LineChartModel();
+            ChartData lineData = new ChartData();
+            datasetMap.forEach((key, value) -> {
+                LineChartDataSet lineDataSet = new LineChartDataSet();
+                lineDataSet.setData(value);
+                lineDataSet.setLabel(key);
+                lineDataSet.setBorderColor(lineColor.next());
+                lineDataSet.setTension(0.2);
+                lineDataSet.setFill(false);
+                lineData.addChartDataSet(lineDataSet);
+            });
+            lineData.setLabels(labels);
 
+            //Options
+            LineChartOptions options = new LineChartOptions();
+            Legend legend = new Legend();
+            legend.setPosition("right");
+            options.setLegend(legend);
+
+            CartesianScales cScales = new CartesianScales();
+            CartesianLinearAxes linearAxes = new CartesianLinearAxes();
+            CartesianLinearTicks ticks = new CartesianLinearTicks();
+            ticks.setMinRotation(10);
+            ticks.setMaxRotation(80);
+            linearAxes.setTicks(ticks);
+            linearAxes.setBeginAtZero(true);
+            cScales.addYAxesData(linearAxes);
+            options.setScales(cScales);
+
+            chartModel.setOptions(options);
+            chartModel.setData(lineData);
+        }
     }
 
     private void initializeTpsModel() {
         LOG.info("Initializing TPS chart model...");
         AWSXRay.beginSubsegment("Initialize TpsModel");
+        Iterator<String> lineColor= Iterables.cycle(
+                List.of("rgb(54, 162, 235)","rgb(255, 99, 132)","rgb(75, 192, 192)","rgb(255, 205, 86)","rgb(201, 203, 207)")).iterator();
         tpsChartModel = null;
         if (currentJobInstance != null) {
-            Set<String> keySet = new HashSet<String>();
-            List<String> list = selectedTpsKeys.get(currentJobInstance.getName());
-            boolean initKeys = false;
-            if (list == null) {
-                list = new ArrayList<String>();
-                list.add(TOTAL_TPS_SERIES_KEY);
-                selectedTpsKeys.put(currentJobInstance.getName(), list);
-                initKeys = true;
-            }
-            tpsChartModel = new TrackingCartesianChartModel();
-            tpsChartModel.setExtender("tpsDetailsExtender");
-            Map<String, ChartSeries> seriesMap = new HashMap<String, ChartSeries>();
+            List<String> labels = new ArrayList<>();
+            Map<String, ArrayList<Object>> datasetMap = new HashMap<>();
             Map<Date, Map<String, TPSInfo>> tpsDetailMap = getTpsMap();
-            List<Date> dateList = new ArrayList<Date>(tpsDetailMap.keySet());
-            Collections.sort(dateList);
-//            if (dateList.size() > 0) {
-//                lastDate = new Date(dateList.get(dateList.size() - 1).getTime() + 1000);
-//            }
-            ChartSeries totalSeries = new ChartSeries(TOTAL_TPS_SERIES_KEY);
-            for (Date d : dateList) {
-                int total = 0;
-                for (TPSInfo info : tpsDetailMap.get(d).values()) {
-                    if (initKeys && list.size() < INITIAL_SIZE) {
-                        list.add(info.getKey());
-                    }
-                    keySet.add(info.getKey());
-                    if (list.contains(info.getKey())) {
-                        ChartSeries series = seriesMap.get(info.getKey());
-                        if (series == null) {
-                            series = new ChartSeries(info.getKey());
-                            tpsChartModel.addSeries(series);
-                            seriesMap.put(info.getKey(), series);
-                        }
-                        series.set(d.getTime(), info.getTPS());
-                    }
-                    total += info.getTPS();
-                    tpsChartModel.addDate(d);
-                }
-                totalSeries.set(d.getTime(), total);
-            }
-            if (list.contains(TOTAL_TPS_SERIES_KEY) && totalSeries.getData().size() > 0) {
-                tpsChartModel.addSeries(totalSeries);
-            }
-            allTpsKeys = new ArrayList<String>(keySet);
-            Collections.sort(allTpsKeys);
-            allTpsKeys.add(0, TOTAL_TPS_SERIES_KEY);
+            tpsDetailMap.keySet().stream().sorted()
+                    .forEach(d -> {
+                        labels.add(sdf.format(d.getTime()));
+                        tpsDetailMap.get(d).values()
+                                .forEach(info -> {
+                                    ArrayList<Object> dataset = datasetMap.computeIfAbsent(info.getKey(), k -> new ArrayList<>());
+                                    dataset.add(info.getTPS());
+                                    datasetMap.get(TOTAL_TPS_SERIES_KEY).add(info.getTPS());
+                                });
+                        datasetMap.forEach((key, value) -> {
+                            while (value.size() < labels.size()) {
+                                value.add(null);
+                            }
+                        });
+                    });
+
+            ArrayList<Object> total = new ArrayList<>();
+            datasetMap.forEach((key, value) -> value
+                    .forEach(v -> {
+                        if (total.size() < value.size()) { total.add(0); }
+                        total.set(value.indexOf(v), (int) total.get(value.indexOf(v)) + (int) v);
+            }));
+            datasetMap.put(TOTAL_TPS_SERIES_KEY, total);
+
+            tpsChartModel = new LineChartModel();
+            ChartData lineData = new ChartData();
+            datasetMap.forEach((key, value) -> {
+                LineChartDataSet lineDataSet = new LineChartDataSet();
+                lineDataSet.setData(value);
+                lineDataSet.setLabel(key);
+                lineDataSet.setBorderColor(lineColor.next());
+                lineDataSet.setTension(0.2);
+                lineDataSet.setFill(false);
+                lineData.addChartDataSet(lineDataSet);
+            });
+            lineData.setLabels(labels);
+
+            //Options
+            LineChartOptions options = new LineChartOptions();
+            Legend legend = new Legend();
+            legend.setPosition("right");
+            options.setLegend(legend);
+
+            CartesianScales cScales = new CartesianScales();
+            CartesianLinearAxes linearAxes = new CartesianLinearAxes();
+            CartesianLinearTicks ticks = new CartesianLinearTicks();
+            ticks.setMinRotation(10);
+            ticks.setMaxRotation(80);
+            linearAxes.setTicks(ticks);
+            linearAxes.setBeginAtZero(true);
+            cScales.addYAxesData(linearAxes);
+            options.setScales(cScales);
+
+            tpsChartModel.setOptions(options);
+            tpsChartModel.setData(lineData);
         } else {
             LOG.info("currentJobInstance is null");
         }
