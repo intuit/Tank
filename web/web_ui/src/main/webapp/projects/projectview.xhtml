@@ -5,6 +5,7 @@
   xmlns:h="http://xmlns.jcp.org/jsf/html"
   xmlns:ts="http://xmlns.jcp.org/jsf/composite/tag"
   xmlns:p="http://primefaces.org/ui"
+  xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
   template="/WEB-INF/templates/tank.xhtml">
 
   <ui:define name="content">
@@ -336,7 +337,7 @@
             </div>
             <div class="float-left" style="width: 300px;">
               <h:inputText id="ScriptGroupTF" value="#{workloadScripts.currentScriptGroup.name}"
-                styleClass="formInput inputWidthMedium defaultFocus" />
+                styleClass="formInput inputWidthMedium defaultFocus" pt:placeholder="Script Group Name"/>
             </div>
           </div>
 
@@ -370,9 +371,8 @@
               <h:outputLabel for="testPlanPopupTF" value="Test Plan Name" styleClass="formLabel required" />
             </div>
             <div class="float-left" style="width: 300px;">
-              <h:inputText id="testPlanPopupTF" value="#{addTestPlan.name}" required="true"
+              <h:inputText id="testPlanPopupTF" value="#{addTestPlan.name}" required="true" pt:placeholder="Test Plan Name"
                 requiredMessage="Name is required" styleClass="formInput inputWidthMedium defaultFocus" />
-              <p:watermark for="testPlanPopupTF" value="Test Plan Name" />
             </div>
           </div>
 
