@@ -173,7 +173,7 @@
               <h:panelGroup>
 
                 <p:commandLink title="Delete #{filterEnvelope.entity.name}" oncomplete="PF('confirmDelete').show();" ajax="true"
-                  action="#{filterBean.setSelectedFilter(filterEnvelope)}" update=":confirmDeleteFilterDialog, ">
+                  action="#{filterBean.setSelectedFilter(filterEnvelope)}" update=":confirmDeleteFilterDialog">
                   <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
                 </p:commandLink>
 
