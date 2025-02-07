@@ -434,6 +434,7 @@ public class RequestRunner implements Runner {
         }
 
         for (AssignmentData assignmentData : bodyVariable) {
+            variables.addVariable("RESPONSE_BODY", reqResponse.getResponseBody());
             String value = stripEquals(assignmentData.getValue());
             String realValue = null;
             if (ValidationUtil.isFunction(value)) {
@@ -447,6 +448,7 @@ public class RequestRunner implements Runner {
             }
             variables.addVariable(assignmentData.getKey(), realValue);
             LOG.debug("Setting variable " + assignmentData.getKey() + "=" + realValue);
+            variables.removeVariable("RESPONSE_BODY");
         }
     }
 
