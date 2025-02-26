@@ -48,6 +48,24 @@ public class AmazonInstanceTest {
     }
 
     @Test
+    public void createTest_SINGLE() {
+        InstanceDescription instanceDescription = new TankConfig().getVmManagerConfig().getInstanceForRegionAndType(VMRegion.US_WEST_2, VMImageType.AGENT);
+        VMRequest vmRequest = new VMInstanceRequest(VMProvider.Amazon, VMRegion.US_WEST_2, "m.xlarge",
+                VMImageType.AGENT, 1, false, "testZone", instanceDescription);
+        when(_mockEc2AsyncClient.runInstances((RunInstancesRequest) any())).thenReturn(CompletableFuture.completedFuture(RunInstancesResponse.builder().build()));
+
+        AWSXRay.beginSegment("TEST");
+        amazonInstance.create(vmRequest);
+        AWSXRay.endSegment();
+
+        ArgumentCaptor<RunInstancesRequest> argumentCaptor = ArgumentCaptor.forClass(RunInstancesRequest.class);
+        verify(_mockEc2AsyncClient, times(1)).runInstances(argumentCaptor.capture());
+        List<RunInstancesRequest> requests = argumentCaptor.getAllValues();
+        assertEquals("[m8g.xlarge:1]",
+                requests.stream().map(request -> request.instanceType() + ":" + request.maxCount() ).toList().toString());
+    }
+
+    @Test
     public void createTest_SUCCESS() {
         InstanceDescription instanceDescription = new TankConfig().getVmManagerConfig().getInstanceForRegionAndType(VMRegion.US_WEST_2, VMImageType.AGENT);
         VMRequest vmRequest = new VMInstanceRequest(VMProvider.Amazon, VMRegion.US_WEST_2, "m.xlarge",
@@ -81,7 +99,6 @@ public class AmazonInstanceTest {
 
         ArgumentCaptor<RunInstancesRequest> argumentCaptor = ArgumentCaptor.forClass(RunInstancesRequest.class);
         verify(_mockEc2AsyncClient, times(4)).runInstances(argumentCaptor.capture());
-
         List<RunInstancesRequest> requests = argumentCaptor.getAllValues();
         assertEquals("[m8g.xlarge:8, m7g.xlarge:8, m8g.xlarge:8, m8g.xlarge:7]",
                 requests.stream().map(request -> request.instanceType() + ":" + request.maxCount() ).toList().toString());
@@ -93,12 +110,16 @@ public class AmazonInstanceTest {
         VMRequest vmRequest = new VMInstanceRequest(VMProvider.Amazon, VMRegion.US_WEST_2, "m.xlarge",
                 VMImageType.AGENT, 23, false, "testZone", instanceDescription);
         when(_mockEc2AsyncClient.runInstances((RunInstancesRequest) any()))
-                .thenReturn(CompletableFuture.failedFuture(Ec2Exception.builder().build()))
-                .thenReturn(CompletableFuture.failedFuture(Ec2Exception.builder().build()))
-                .thenReturn(CompletableFuture.completedFuture(RunInstancesResponse.builder().build()));
+                .thenReturn(CompletableFuture.failedFuture(Ec2Exception.builder().build()));
 
         AWSXRay.beginSegment("TEST");
         assertThrows(RuntimeException.class, () -> amazonInstance.create(vmRequest));
         AWSXRay.endSegment();
+
+        ArgumentCaptor<RunInstancesRequest> argumentCaptor = ArgumentCaptor.forClass(RunInstancesRequest.class);
+        verify(_mockEc2AsyncClient, times(6)).runInstances(argumentCaptor.capture());
+        List<RunInstancesRequest> requests = argumentCaptor.getAllValues();
+        assertEquals("[m8g.xlarge:8, m7g.xlarge:8, m8g.xlarge:8, m7g.xlarge:8, m8g.xlarge:7, m7g.xlarge:7]",
+                requests.stream().map(request -> request.instanceType() + ":" + request.maxCount() ).toList().toString());
     }
 }
