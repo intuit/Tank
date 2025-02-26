@@ -325,7 +325,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                         .minCount(1).maxCount(requestCount).build())
                 .exceptionally(ex -> {
                     if (ex instanceof Ec2Exception) {
-                        LOG.error("Error requesting instance type: {} : {}", instanceType, ex.getMessage(), ex);
+                        LOG.error("Error requesting instance type: {} : {}", instanceType, ex.getMessage());
                         return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes).join();
                     } else {
                         LOG.error("Error requesting instances: {}", ex.getMessage(), ex);
