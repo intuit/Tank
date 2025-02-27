@@ -294,10 +294,10 @@ public class AmazonInstance implements IEnvironmentInstance {
             }
 
         } catch (SdkException ae) {
-            LOG.error("Amazon issue starting instances: {}", ae.getMessage(), ae);
+            LOG.error("Amazon issue starting instances: {} : {}", vmRegion, ae.getMessage(), ae);
             throw new RuntimeException(ae);
         } catch (Exception ex) {
-            LOG.error("Error starting instances: {}", ex.getMessage(), ex);
+            LOG.error("Error starting instances: {} : {}", vmRegion, ex.getMessage(), ex);
             throw new RuntimeException(ex);
         } finally {
             AWSXRay.endSubsegment();
@@ -326,10 +326,10 @@ public class AmazonInstance implements IEnvironmentInstance {
                         .minCount(1).maxCount(requestCount).build())
                 .exceptionally(ex -> {
                     if (ex instanceof Ec2Exception) { //TODO: Filter on exact capacity exception message
-                        LOG.warn("Error requesting instance type: {} : {}", instanceType, ex.getMessage());
+                        LOG.warn("Failure requesting instance type: {} : {} : {}", instanceType, vmRegion,  ex.getMessage());
                         return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes).join();
                     } else {
-                        LOG.error("Error requesting instances: {}", ex.getMessage(), ex);
+                        LOG.error("Error requesting instances: {}: {}", vmRegion, ex.getMessage(), ex);
                     }
                     throw new RuntimeException(ex);
                 })
