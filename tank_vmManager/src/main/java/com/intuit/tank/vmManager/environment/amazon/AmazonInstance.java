@@ -311,7 +311,8 @@ public class AmazonInstance implements IEnvironmentInstance {
      * @param requestCount
      * @return
      */
-    private CompletableFuture<RunInstancesResponse> requestInstances(RunInstancesRequest.Builder runInstancesRequestTemplate, String subnetId, int requestCount, List<String> instanceTypes) {
+    private CompletableFuture<RunInstancesResponse> requestInstances(
+            RunInstancesRequest.Builder runInstancesRequestTemplate, String subnetId, int requestCount, List<String> instanceTypes) {
         RunInstancesRequest.Builder runInstancesRequest = runInstancesRequestTemplate.copy();
         if (instanceTypes.isEmpty()) {
             return CompletableFuture.failedFuture(new RuntimeException("No instance types available"));
@@ -322,15 +323,22 @@ public class AmazonInstance implements IEnvironmentInstance {
                 runInstancesRequest
                         .instanceType(instanceType)
                         .subnetId(subnetId)
-                        .minCount(requestCount).maxCount(requestCount).build())
+                        .minCount(1).maxCount(requestCount).build())
                 .exceptionally(ex -> {
-                    if (ex instanceof Ec2Exception) {
+                    if (ex instanceof Ec2Exception) { //TODO: Filter on exact capacity exception message
                         LOG.error("Error requesting instance type: {} : {}", instanceType, ex.getMessage());
                         return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes).join();
                     } else {
                         LOG.error("Error requesting instances: {}", ex.getMessage(), ex);
                     }
                     throw new RuntimeException(ex);
+                })
+                .thenApply(response -> {
+                    if (response.instances().size() < requestCount) {
+                        RunInstancesResponse res = requestInstances(runInstancesRequestTemplate, subnetId, requestCount - response.instances().size(), remainingTypes).join();
+                        return response.toBuilder().instances(res.instances()).build();
+                    }
+                    return response;
                 });
     }
 
