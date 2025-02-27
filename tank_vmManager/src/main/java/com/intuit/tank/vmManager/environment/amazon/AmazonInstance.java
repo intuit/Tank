@@ -21,6 +21,8 @@ import com.intuit.tank.vm.vmManager.VMInstanceRequest;
 import com.intuit.tank.vm.vmManager.VMKillRequest;
 import com.intuit.tank.vm.vmManager.VMRequest;
 import com.intuit.tank.vmManager.environment.IEnvironmentInstance;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
@@ -248,6 +250,8 @@ public class AmazonInstance implements IEnvironmentInstance {
                 futures.stream().map(CompletableFuture::join).forEach(response -> {
                     result.addAll(AmazonDataConverter.processReservation(response.requesterId(), response.instances(), vmRegion));
                 });
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Successfully provision " + result.size() + " instances", "region: " + vmRegion));
 
                 if (instanceRequest.isUseEips()) {
                     Set<Address> availableEips = new HashSet<Address>();
@@ -297,7 +301,9 @@ public class AmazonInstance implements IEnvironmentInstance {
             LOG.error("Amazon issue starting instances: {}", ae.getMessage(), ae);
             throw new RuntimeException(ae);
         } catch (Exception ex) {
-            LOG.error("Error starting instances: {}", ex.getMessage(), ex);
+            LOG.error("Error starting instances: {} : {}", vmRegion, ex.getMessage(), ex);
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Failed to provision instances in " + vmRegion, "ex.getMessage()"));
             throw new RuntimeException(ex);
         } finally {
             AWSXRay.endSubsegment();
@@ -326,10 +332,12 @@ public class AmazonInstance implements IEnvironmentInstance {
                         .minCount(1).maxCount(requestCount).build())
                 .exceptionally(ex -> {
                     if (ex instanceof Ec2Exception) { //TODO: Filter on exact capacity exception message
-                        LOG.warn("Error requesting instance type: {} : {}", instanceType, ex.getMessage());
+                        LOG.warn("Failed to provision instance type: {} : {} : {}", instanceType, vmRegion, ex.getMessage());
+                        FacesContext.getCurrentInstance().addMessage(null,
+                                new FacesMessage(FacesMessage.SEVERITY_WARN, "Failed to provision :" + instanceType , ", subnet: " + subnetId + ", region: " + vmRegion));
                         return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes).join();
                     } else {
-                        LOG.error("Error requesting instances: {}", ex.getMessage(), ex);
+                        LOG.error("Error requesting instances: {} : {}", vmRegion, ex.getMessage(), ex);
                     }
                     throw new RuntimeException(ex);
                 })
@@ -410,7 +418,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         // Filter instanceId list to only instances in the client defined region.
         ec2AsyncClient.describeInstances().whenCompleteAsync((response, exception) -> {
                     if (exception != null) {
-                        throw new RuntimeException("Failed to describe running EC2 instances.", exception);
+                        throw new RuntimeException("Failed to describe running EC2 instances in " + vmRegion, exception);
                     } else if (response == null || response.reservations().isEmpty()) {
                         throw new RuntimeException("No running EC2 instances found.");
                     } else {
@@ -421,6 +429,8 @@ public class AmazonInstance implements IEnvironmentInstance {
                                 .collect(Collectors.toList());
                         if (!instanceIdsInRegion.isEmpty()) {
                             ec2AsyncClient.terminateInstances(TerminateInstancesRequest.builder().instanceIds(instanceIdsInRegion).build());
+                            FacesContext.getCurrentInstance().addMessage(null,
+                                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Killing " + instanceIdsInRegion.size() + " instances", "region: " + vmRegion));
                         }
                     }
         });
