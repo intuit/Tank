@@ -148,9 +148,9 @@ public class AmazonInstance implements IEnvironmentInstance {
             // Get the required data
             if (instanceRequest.getReuseStoppedInstance()) {
                 List<VMInformation> instances = findAllInstancesOfType(this.vmRegion, instanceRequest.getImage());
-                LOG.info("looking for stopped instance with ami-id of " + instanceRequest.getImage());
+                LOG.debug("looking for stopped instance with ami-id of {}", instanceRequest.getImage());
                 for (VMInformation vmInfo : instances) {
-                    LOG.info("found instance with id " + vmInfo.getInstanceId() + " with state of " + vmInfo.getState());
+                    LOG.debug("found instance with id {} with state of {}", vmInfo.getInstanceId(), vmInfo.getState());
                     if ("stopped".equalsIgnoreCase(vmInfo.getState())) {
                         StartInstancesRequest startInstancesRequest = StartInstancesRequest.builder().instanceIds(vmInfo.getInstanceId()).build();
                         // restart this instance
@@ -170,7 +170,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Setting reporting mode to " + instanceRequest.getReportingMode())));
                     instanceRequest.addUserData(TankConstants.KEY_REPORTING_MODE, instanceRequest.getReportingMode());
                 } else {
-                    LOG.warn("Reporting mode not set.");
+                    LOG.debug("Reporting mode not set.");
                 }
                 if (vmType.getJvmArgs() != null) {
                     instanceRequest.addUserData(TankConstants.KEY_JVM_ARGS, vmType.getJvmArgs());
@@ -192,13 +192,13 @@ public class AmazonInstance implements IEnvironmentInstance {
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Setting loggingProfile to " + instanceRequest.getLoggingProfile())));
                     instanceRequest.addUserData(TankConstants.KEY_LOGGING_PROFILE, instanceRequest.getLoggingProfile());
                 } else {
-                    LOG.warn("Logging  profile not set.");
+                    LOG.debug("Logging  profile not set.");
                 }
                 if (instanceRequest.getStopBehavior() != null) {
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Setting stopBehavior to " + instanceRequest.getStopBehavior())));
                     instanceRequest.addUserData(TankConstants.KEY_STOP_BEHAVIOR, instanceRequest.getStopBehavior());
                 } else {
-                    LOG.warn("stop Behavior not set.");
+                    LOG.debug("stop Behavior not set.");
                 }
 
                 String userData = buildUserData(instanceRequest.getUserData());
@@ -326,7 +326,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                         .minCount(1).maxCount(requestCount).build())
                 .exceptionally(ex -> {
                     if (ex instanceof Ec2Exception) { //TODO: Filter on exact capacity exception message
-                        LOG.error("Error requesting instance type: {} : {}", instanceType, ex.getMessage());
+                        LOG.warn("Error requesting instance type: {} : {}", instanceType, ex.getMessage());
                         return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes).join();
                     } else {
                         LOG.error("Error requesting instances: {}", ex.getMessage(), ex);
@@ -489,7 +489,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 GetParameterResponse response = ssmClient.getParameter(GetParameterRequest.builder().name(name).build());
                 return response.parameter().value();
             } catch (Exception e) {
-                LOG.error("Error retriveing AMI from SSM with name {}, default to InstanceRequest", name, e);
+                LOG.error("Error retrieving AMI from SSM with name {}, default to InstanceRequest", name, e);
             }
         }
         return instanceDescription.getAmi();
@@ -619,5 +619,4 @@ public class AmazonInstance implements IEnvironmentInstance {
         }
         return Optional.empty();
     }
-
 }
