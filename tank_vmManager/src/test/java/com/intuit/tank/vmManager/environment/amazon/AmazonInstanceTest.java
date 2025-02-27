@@ -9,11 +9,12 @@ import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.vmManager.VMInformation;
 import com.intuit.tank.vm.vmManager.VMInstanceRequest;
 import com.intuit.tank.vm.vmManager.VMRequest;
-import jakarta.faces.context.FacesContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.services.ec2.Ec2AsyncClient;
 import software.amazon.awssdk.services.ec2.model.*;
@@ -31,9 +32,6 @@ public class AmazonInstanceTest {
 
     @Mock
     private Ec2AsyncClient _mockEc2AsyncClient;
-
-    @Mock
-    FacesContext _mockedfacesContext;
 
     AmazonInstance amazonInstance;
 
@@ -57,16 +55,11 @@ public class AmazonInstanceTest {
                 .thenReturn(CompletableFuture.completedFuture(RunInstancesResponse.builder()
                         .instances(Instance.builder().state(InstanceState.builder().build()).build()).build()));
 
-        try (MockedStatic<FacesContext> mockedFacesContext = Mockito.mockStatic(FacesContext.class)) {
-            mockedFacesContext.when(FacesContext::getCurrentInstance).thenReturn(_mockedfacesContext);
+        AWSXRay.beginSegment("TEST");
+        List<VMInformation> vmInfo = amazonInstance.create(vmRequest);
+        AWSXRay.endSegment();
 
-            AWSXRay.beginSegment("TEST");
-            List<VMInformation> vmInfo = amazonInstance.create(vmRequest);
-            AWSXRay.endSegment();
-            assertEquals(1, vmInfo.size());
-        }
-
-        verify(_mockedfacesContext, times(1)).addMessage(any(), any());
+        assertEquals(1, vmInfo.size());
         ArgumentCaptor<RunInstancesRequest> argumentCaptor = ArgumentCaptor.forClass(RunInstancesRequest.class);
         verify(_mockEc2AsyncClient, times(1)).runInstances(argumentCaptor.capture());
         List<RunInstancesRequest> requests = argumentCaptor.getAllValues();
@@ -86,16 +79,11 @@ public class AmazonInstanceTest {
                                 Instance.builder().state(InstanceState.builder().build()).build(),
                                 Instance.builder().state(InstanceState.builder().build()).build())).build()));
 
-        try (MockedStatic<FacesContext> mockedFacesContext = Mockito.mockStatic(FacesContext.class)) {
-            mockedFacesContext.when(FacesContext::getCurrentInstance).thenReturn(_mockedfacesContext);
+        AWSXRay.beginSegment("TEST");
+        List<VMInformation> vmInfo = amazonInstance.create(vmRequest);
+        AWSXRay.endSegment();
 
-            AWSXRay.beginSegment("TEST");
-            List<VMInformation> vmInfo = amazonInstance.create(vmRequest);
-            AWSXRay.endSegment();
-            assertEquals(9, vmInfo.size());
-        }
-
-        verify(_mockedfacesContext, times(1)).addMessage(any(), any());
+        assertEquals(9, vmInfo.size());
         ArgumentCaptor<RunInstancesRequest> argumentCaptor = ArgumentCaptor.forClass(RunInstancesRequest.class);
         verify(_mockEc2AsyncClient, times(3)).runInstances(argumentCaptor.capture());
 
@@ -117,16 +105,11 @@ public class AmazonInstanceTest {
                                 Instance.builder().state(InstanceState.builder().build()).build(),
                                 Instance.builder().state(InstanceState.builder().build()).build())).build()));
 
-        try (MockedStatic<FacesContext> mockedFacesContext = Mockito.mockStatic(FacesContext.class)) {
-            mockedFacesContext.when(FacesContext::getCurrentInstance).thenReturn(_mockedfacesContext);
+        AWSXRay.beginSegment("TEST");
+        List<VMInformation> vmInfo = amazonInstance.create(vmRequest);
+        AWSXRay.endSegment();
 
-            AWSXRay.beginSegment("TEST");
-            List<VMInformation> vmInfo = amazonInstance.create(vmRequest);
-            AWSXRay.endSegment();
-            assertEquals(9, vmInfo.size());
-        }
-
-        verify(_mockedfacesContext, times(2)).addMessage(any(), any());
+        assertEquals(9, vmInfo.size());
         ArgumentCaptor<RunInstancesRequest> argumentCaptor = ArgumentCaptor.forClass(RunInstancesRequest.class);
         verify(_mockEc2AsyncClient, times(4)).runInstances(argumentCaptor.capture());
         List<RunInstancesRequest> requests = argumentCaptor.getAllValues();
@@ -148,16 +131,11 @@ public class AmazonInstanceTest {
                                 Instance.builder().state(InstanceState.builder().build()).build(),
                                 Instance.builder().state(InstanceState.builder().build()).build())).build()));
 
-        try (MockedStatic<FacesContext> mockedFacesContext = Mockito.mockStatic(FacesContext.class)) {
-            mockedFacesContext.when(FacesContext::getCurrentInstance).thenReturn(_mockedfacesContext);
+        AWSXRay.beginSegment("TEST");
+        List<VMInformation> vmInfo = amazonInstance.create(vmRequest);
+        AWSXRay.endSegment();
 
-            AWSXRay.beginSegment("TEST");
-            List<VMInformation> vmInfo = amazonInstance.create(vmRequest);
-            AWSXRay.endSegment();
-            assertEquals(9, vmInfo.size());
-        }
-
-        verify(_mockedfacesContext, times(1)).addMessage(any(), any());
+        assertEquals(9, vmInfo.size());
         ArgumentCaptor<RunInstancesRequest> argumentCaptor = ArgumentCaptor.forClass(RunInstancesRequest.class);
         verify(_mockEc2AsyncClient, times(4)).runInstances(argumentCaptor.capture());
         List<RunInstancesRequest> requests = argumentCaptor.getAllValues();
@@ -173,14 +151,10 @@ public class AmazonInstanceTest {
         when(_mockEc2AsyncClient.runInstances((RunInstancesRequest) any()))
                 .thenReturn(CompletableFuture.failedFuture(Ec2Exception.builder().build()));
 
-        try (MockedStatic<FacesContext> mockedFacesContext = Mockito.mockStatic(FacesContext.class)) {
-            mockedFacesContext.when(FacesContext::getCurrentInstance).thenReturn(_mockedfacesContext);
+        AWSXRay.beginSegment("TEST");
+        assertThrows(RuntimeException.class, () -> amazonInstance.create(vmRequest));
+        AWSXRay.endSegment();
 
-            AWSXRay.beginSegment("TEST");
-            assertThrows(RuntimeException.class, () -> amazonInstance.create(vmRequest));
-            AWSXRay.endSegment();
-        }
-        verify(_mockedfacesContext, times(7)).addMessage(any(), any());
         ArgumentCaptor<RunInstancesRequest> argumentCaptor = ArgumentCaptor.forClass(RunInstancesRequest.class);
         verify(_mockEc2AsyncClient, times(6)).runInstances(argumentCaptor.capture());
         List<RunInstancesRequest> requests = argumentCaptor.getAllValues();

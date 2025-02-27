@@ -64,17 +64,15 @@
       <groupId>software.amazon.awssdk</groupId>
       <artifactId>netty-nio-client</artifactId>
     </dependency>
+
     <dependency>
       <groupId>xalan</groupId>
       <artifactId>xalan</artifactId>
     </dependency>
+
     <dependency>
       <groupId>xalan</groupId>
       <artifactId>serializer</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.faces</groupId>
-      <artifactId>jakarta.faces-api</artifactId>
     </dependency>
 
   </dependencies>
