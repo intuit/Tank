@@ -21,7 +21,6 @@ import com.intuit.tank.vm.vmManager.VMInstanceRequest;
 import com.intuit.tank.vm.vmManager.VMKillRequest;
 import com.intuit.tank.vm.vmManager.VMRequest;
 import com.intuit.tank.vmManager.environment.IEnvironmentInstance;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
@@ -531,7 +530,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     private String buildUserData(@Nonnull Map<String, String> userDataMap) {
         try {
             String sb = new ObjectMapper().writeValueAsString(userDataMap);
-            return Base64.encodeBase64String(sb.getBytes());
+            return Base64.getEncoder().encodeToString(sb.getBytes());
         } catch (JsonProcessingException e) {
             LOG.error("Failed to convert userDataMap to Json: " + e.getMessage() );
         }

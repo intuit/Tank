@@ -21,16 +21,10 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Random;
-import java.util.Stack;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -486,7 +480,7 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
     public String toBase64(String toEncode) {
         try {
             byte[] bytes = toEncode.getBytes();
-            return new String(Base64.encodeBase64(bytes), StandardCharsets.UTF_8).trim();
+            return Base64.getEncoder().encodeToString(bytes).trim();
         } catch (Exception e) {
             LOG.error("Error base64 encoding " + toEncode + ": " + e);
         }
@@ -502,7 +496,7 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
      */
     public String fromBase64(String toDecode) {
         try {
-            byte[] bytes = Base64.decodeBase64(toDecode.trim());
+            byte[] bytes = Base64.getDecoder().decode(toDecode.trim());
             return new String(bytes, StandardCharsets.UTF_8);
         } catch (Exception e) {
             LOG.error("Error base64 decoding " + toDecode + ": " + e);
@@ -517,7 +511,7 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
      * @return a base64 string
      */
     public String byteArrayToBase64(byte[] bytes) {
-        return Base64.encodeBase64String(bytes);
+        return Base64.getEncoder().encodeToString(bytes);
     }
 
     /**
