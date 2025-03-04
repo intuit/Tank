@@ -59,6 +59,7 @@ public class ActionProducer {
 
     private static final String DEBUGGER_PROPERTIES = "debugger.properties";
     private static final String TS_INSTANCE_START = "tank.instance.";
+    private static final String TS_INSTANCE_TOKEN = "tank.token.";
     public static final String ACTION_OPEN = "Open File";
     public static final String ACTION_CHOOSE_SCRIPT = "Choose Script";
     public static final String ACTION_CHOOSE_DATAFILE = "Choose Datafile";
@@ -369,7 +370,8 @@ public class ActionProducer {
         if (ret == null) {
             ret = new AbstractAction(ACTION_SELECT_TANK) {
                 private static final long serialVersionUID = 1L;
-                JComboBox<String> comboBox = getComboBox();
+                Map<String, String> propertiesMap = new HashMap<>();
+                JComboBox<String> comboBox = getComboBox(propertiesMap);
                 @Override
                 public void actionPerformed(ActionEvent event) {
                     JPanel panel = new JPanel();
@@ -412,6 +414,18 @@ public class ActionProducer {
                                             + ". \nExample: http://tank.mysite.com/");
                                 }
                             }
+                        } else {
+                            String selectedItem = (String) comboBox.getSelectedItem();
+                            if(selectedItem != null){
+                                int startInd = selectedItem.indexOf('(');
+                                if(startInd != -1){
+                                    String name = selectedItem.substring(0,startInd).trim();
+                                    String tokenKey = "tank.token." + name;
+                                    if(propertiesMap.containsKey(tokenKey)){
+                                        tokenField.setText(propertiesMap.get(tokenKey));
+                                    }
+                                }
+                            }
                         }
                     } catch (HeadlessException e) {
                         showError("Error opening file: " + e);
@@ -445,7 +459,7 @@ public class ActionProducer {
         }
     }
 
-    private static JComboBox<String> getComboBox() {
+    private static JComboBox<String> getComboBox(Map<String, String> propertiesMap) {
         JComboBox<String> cb = new JComboBox<String>();
         cb.setEditable(true);
         Properties props = new Properties();
@@ -462,11 +476,12 @@ public class ActionProducer {
             props.load(in);
             for (Object o : props.keySet()) {
                 String key = (String) o;
+                String value = props.getProperty(key);
                 if (key.startsWith(TS_INSTANCE_START)) {
                     String name = key.substring(TS_INSTANCE_START.length());
-                    String value = props.getProperty(key);
                     cb.addItem(name + " (" + value + ")");
                 }
+                propertiesMap.put(key,value);
             }
         } catch (Exception e) {
             LOG.error("Cannot read properties: " + e, e);
