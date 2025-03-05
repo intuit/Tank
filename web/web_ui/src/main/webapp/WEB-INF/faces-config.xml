@@ -90,7 +90,7 @@
   <navigation-rule>
     <from-view-id>*</from-view-id>
     <navigation-case>
-        <from-action>#{identity.logout}</from-action>
+        <from-action>#{tsAuthenticator.logout}</from-action>
         <if>#{true}</if>
         <to-view-id>/login.xhtml</to-view-id>
     </navigation-case>
@@ -268,31 +268,14 @@
   <navigation-rule>
     <from-view-id>/login.xhtml</from-view-id>
     <navigation-case>
-      <from-action>#{identity.login}</from-action>
+      <from-action>#{tsAuthenticator.login}</from-action>
       <from-outcome>failed</from-outcome>
       <to-view-id>/login.xhtml</to-view-id>
     </navigation-case>
-  </navigation-rule>
-  
-  <!-- cases for turboreport ui -->
-  <navigation-rule>
-    <from-view-id>/turboreport/index.xhtml</from-view-id>
     <navigation-case>
-      <from-action>#{turboReport.sampleReport}</from-action>
-      <from-outcome>sample-report</from-outcome>
-      <to-view-id>/turboreport/sample-report.xhtml</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>sample-chart</from-outcome>
-      <to-view-id>/turboreport/sample-chart.xhtml</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>custom-chart</from-outcome>
-      <to-view-id>/turboreport/custom-chart.xhtml</to-view-id>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>custom-report</from-outcome>
-      <to-view-id>/turboreport/custom-report.xhtml</to-view-id>
+      <from-action>#{tsAuthenticator.login}</from-action>
+      <from-outcome>success</from-outcome>
+      <to-view-id>/projects/index.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
