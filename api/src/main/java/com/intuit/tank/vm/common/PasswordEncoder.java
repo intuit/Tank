@@ -16,10 +16,9 @@ package com.intuit.tank.vm.common;
  * #L%
  */
 
-import org.apache.commons.codec.binary.Base64;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 import jakarta.annotation.Nonnull;
 
@@ -50,7 +49,7 @@ public class PasswordEncoder {
     public static final String encodePassword(String password) {
         try {
             byte[] digest = MessageDigest.getInstance(DEFAULT_ALGORITHM).digest(password.getBytes());
-            return new String(Base64.encodeBase64(digest));
+            return Base64.getEncoder().encodeToString(digest);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }

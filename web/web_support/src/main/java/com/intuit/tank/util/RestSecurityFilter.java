@@ -15,6 +15,7 @@ package com.intuit.tank.util;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 import jakarta.inject.Inject;
 import jakarta.servlet.Filter;
@@ -28,7 +29,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import com.intuit.tank.auth.TankSecurityContext;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -79,7 +79,7 @@ public class RestSecurityFilter implements Filter {
                 if (authHeader != null) {
                     String[] split = StringUtils.split(authHeader, ' ');
                     if (split.length == 2) {
-                        String s = new String(Base64.decodeBase64(split[1]), StandardCharsets.UTF_8);
+                        String s = new String(Base64.getDecoder().decode(split[1]), StandardCharsets.UTF_8);
                         String[] upass = StringUtils.split(s, ":", 2);
                         if (upass.length == 2) {
                             String name = upass[0];
