@@ -21,7 +21,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@WebFilter(urlPatterns = {"/login.jsf", "/admin/*", "/projects/*", "/scripts/*", "/filters/*", "/agents/*", "/datafiles/*", "/tools/*"}, asyncSupported = true)
+@WebFilter(urlPatterns = {"/admin/*", "/projects/*", "/scripts/*", "/filters/*", "/agents/*", "/datafiles/*", "/tools/*"}, asyncSupported = true)
 public class LoginFilter extends HttpFilter {
 	private static final Logger LOG = LogManager.getLogger(LoginFilter.class);
 
@@ -37,29 +37,24 @@ public class LoginFilter extends HttpFilter {
 	@Override
 	public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		String path = request.getServletPath();
 		String authorizationCode = request.getParameter(OidcConstants.AUTH_CODE_PARAMETER_KEY);
 
-		// Handle Redirect From Authorization Server
-		if (path.equalsIgnoreCase("/login.jsf")) {
-			if (authorizationCode != null) {
-				try {
-					_tankSsoHandler.HandleSsoAuthorization(authorizationCode);
-				} catch (IllegalArgumentException e) {
-					LOG.error("Failed SSO due to missing argument", e);
-					InvalidateAndRedirect(request, response);
-				} catch (Exception e) {
-					LOG.error("Failed SSO due to unhandled exception", e);
-					InvalidateAndRedirect(request, response);
-				}
-				OidcSsoConfig oidcSsoConfig = _tankConfig.getOidcSsoConfig();
-				if (Objects.requireNonNull(oidcSsoConfig).getConfiguration() != null) {
-					String REDIRECT_URL_VALUE = oidcSsoConfig.getRedirectUrl();
-					response.sendRedirect(REDIRECT_URL_VALUE);
-				}
-            } else {
-				chain.doFilter(request, response);
-            }
+		// Handle Redirect From SSO Authorization Server
+		if (authorizationCode != null) {
+			try {
+				_tankSsoHandler.HandleSsoAuthorization(authorizationCode);
+			} catch (IllegalArgumentException e) {
+				LOG.error("Failed SSO due to missing argument", e);
+				InvalidateAndRedirect(request, response);
+			} catch (Exception e) {
+				LOG.error("Failed SSO due to unhandled exception", e);
+				InvalidateAndRedirect(request, response);
+			}
+			OidcSsoConfig oidcSsoConfig = _tankConfig.getOidcSsoConfig();
+			if (Objects.requireNonNull(oidcSsoConfig).getConfiguration() != null) {
+				String REDIRECT_URL_VALUE = oidcSsoConfig.getRedirectUrl();
+				response.sendRedirect(REDIRECT_URL_VALUE);
+			}
             return;
         }
 
