@@ -269,7 +269,7 @@
     <from-view-id>/login.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{tsAuthenticator.login}</from-action>
-      <from-outcome>failed</from-outcome>
+      <from-outcome>failure</from-outcome>
       <to-view-id>/login.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>

@@ -76,8 +76,7 @@ public class LoginFilterTest {
         when(_oidcSsoConfigMock.getConfiguration()).thenReturn(null);
         when(_tankSecurityContextMock.getCallerPrincipal()).thenReturn(null);
         when(_httpServletRequestMock.getSession()).thenReturn(_mockHttpSession);
-        when(_httpServletRequestMock.getContextPath()).thenReturn(CONTEXT_PATH_STUB);
-        when(_httpServletRequestMock.getRequestURI()).thenReturn(CONTEXT_PATH_STUB);
+        when(_httpServletRequestMock.getServletPath()).thenReturn(CONTEXT_PATH_STUB);
         // Act
         _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
 
@@ -92,8 +91,7 @@ public class LoginFilterTest {
         when(_httpServletRequestMock.getParameter(any(String.class))).thenReturn(AUTH_CODE_STUB);
         when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
         when(_oidcSsoConfigMock.getConfiguration()).thenReturn(_hierarchicalConfigurationMock);
-        when(_httpServletRequestMock.getContextPath()).thenReturn(CONTEXT_PATH_STUB);
-        when(_httpServletRequestMock.getRequestURI()).thenReturn(CONTEXT_PATH_STUB);
+        when(_httpServletRequestMock.getServletPath()).thenReturn("/login.jsf");
 
         // Act
         _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
@@ -106,8 +104,7 @@ public class LoginFilterTest {
     public void DoFilter_With_No_Authorization_Code_Parameter_Does_Not_Call_SSO_Handler() throws IOException, ServletException {
         // Arrange
         when(_tankSecurityContextMock.getCallerPrincipal()).thenReturn(_principalMock);
-        when(_httpServletRequestMock.getContextPath()).thenReturn(CONTEXT_PATH_STUB);
-        when(_httpServletRequestMock.getRequestURI()).thenReturn(CONTEXT_PATH_STUB);
+        when(_httpServletRequestMock.getServletPath()).thenReturn(CONTEXT_PATH_STUB);
 
         // Act
         _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
@@ -123,8 +120,7 @@ public class LoginFilterTest {
         when(_tankSecurityContextMock.getCallerPrincipal()).thenReturn(_principalMock);
         when(_httpServletRequestMock.getParameter(any(String.class))).thenReturn(AUTH_CODE_STUB);
         when(_httpServletRequestMock.getSession()).thenReturn(_mockHttpSession);
-        when(_httpServletRequestMock.getContextPath()).thenReturn(CONTEXT_PATH_STUB);
-        when(_httpServletRequestMock.getRequestURI()).thenReturn(CONTEXT_PATH_STUB);
+        when(_httpServletRequestMock.getServletPath()).thenReturn("/login.jsf");
         doThrow(new IllegalArgumentException()).when(_tankSsoHandlerMock).HandleSsoAuthorization(any(String.class));
 
         // Act
