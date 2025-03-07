@@ -14,88 +14,73 @@ package com.intuit.tank.util;
  */
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
+import com.intuit.tank.auth.TankSecurityContext;
 import jakarta.inject.Inject;
-import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import com.intuit.tank.auth.TankSecurityContext;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.dao.UserDao;
-import com.intuit.tank.project.User;
 import com.intuit.tank.vm.settings.TankConfig;
 
-@WebFilter(urlPatterns = "/rest/*")
-public class RestSecurityFilter implements Filter {
-
+@WebFilter(urlPatterns = "/v2/*", asyncSupported = true)
+public class RestSecurityFilter extends HttpFilter {
     private static final Logger LOG = LogManager.getLogger(RestSecurityFilter.class);
-
-    private TankConfig config;
 
     @Inject
     private TankSecurityContext securityContext;
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        config = new TankConfig();
-    }
+    @Inject
+    private TankConfig tankConfig;
+
+    @Inject
+    private UserDao userDao;
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-            ServletException {
-        if (config.isRestSecurityEnabled()) {
-            User user = getUser((HttpServletRequest) request);
-            if (user == null) {
-                // send 401 unauthorized and return
-                HttpServletResponse resp = (HttpServletResponse) response;
-                resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                return; // break filter chain, requested JSP/servlet will not be executed
+    public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        if (tankConfig.isRestSecurityEnabled()) {
+            // check bearer token
+            String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+            if (authHeader != null && authHeader.toLowerCase().startsWith("bearer ")) {
+                try {
+                    String token = authHeader.substring(7);
+                    // check agent token
+                    if (token.equals(tankConfig.getAgentConfig().getAgentToken())) {
+                        chain.doFilter(request, response);
+                        return;
+                    }
+                    // check user token
+                    if (validateToken(token)) {
+                        chain.doFilter(request, response);
+                        return;
+                    }
+                } catch (Exception e) {
+                    LOG.error("Error authenticating user", e);
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized access");
+                }
             }
+
+            // check if user is logged in
+            if (securityContext.getCallerPrincipal() != null) {
+                chain.doFilter(request, response);
+                return;
+            }
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized access");
+            return;
         }
         chain.doFilter(request, response);
     }
 
-    public User getUser(HttpServletRequest req) {
-        User user = null;
-        // first try the session
-        if (securityContext.getCallerPrincipal() != null) {
-            user = new UserDao().findByUserName(securityContext.getCallerPrincipal().getName());
-        }
-        if (user == null) {
-            String authHeader = req.getHeader("authorization");
-            try {
-                if (authHeader != null) {
-                    String[] split = StringUtils.split(authHeader, ' ');
-                    if (split.length == 2) {
-                        String s = new String(Base64.decodeBase64(split[1]), StandardCharsets.UTF_8);
-                        String[] upass = StringUtils.split(s, ":", 2);
-                        if (upass.length == 2) {
-                            String name = upass[0];
-                            String token = upass[1];
-                            UserDao userDao = new UserDao();
-                            user = userDao.findByApiToken(token);
-                            if (user == null || user.getName().equals(name)) {
-                                user = userDao.authenticate(name, token);
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                LOG.error("Error getting user: " + e, e);
-            }
-        }
-        return user;
+    private boolean validateToken(String token) {
+        return userDao.findByApiToken(token) != null;
     }
 }
