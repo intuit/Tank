@@ -21,15 +21,9 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -148,7 +142,7 @@ public class OwaspReader implements RecordedScriptReader {
                         || ScriptConstants.PLAIN_TEXT_TYPE.equalsIgnoreCase(entry.getReqFormat())) {
                     entry.setPayload(bodyAsString);
                 } else if (ScriptConstants.MULTI_PART_TYPE.equalsIgnoreCase(entry.getReqFormat())) {
-                    entry.setPayload(new String(Base64.encodeBase64(fromXml.getRequest().getBody())));
+                    entry.setPayload(Base64.getEncoder().encodeToString(fromXml.getRequest().getBody()));
                 } else {
                     entry.setPostDatas(formDataToSet(requestParser
                             .getPostParameters(bodyAsString),

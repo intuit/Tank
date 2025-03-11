@@ -6,12 +6,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -80,7 +76,7 @@ public class TankHttpUtil {
     
     public static List<PartHolder> getPartsFromBody(BaseRequest request) {
     	List<PartHolder> parameters = new ArrayList<PartHolder>();
-        String s = new String(Base64.decodeBase64(request.getBody()));
+        String s = new String(Base64.getDecoder().decode(request.getBody()), StandardCharsets.UTF_8);
         if (StringUtils.isNotBlank(s)) {
 	        String boundary = StringUtils.substringBefore(s, "\r\n").substring(2);
 	        request.setBody(s);
