@@ -76,7 +76,7 @@ public class TankHttpUtil {
     
     public static List<PartHolder> getPartsFromBody(BaseRequest request) {
     	List<PartHolder> parameters = new ArrayList<PartHolder>();
-        String s = new String(Base64.getDecoder().decode(request.getBody()));
+        String s = new String(Base64.getDecoder().decode(request.getBody()), StandardCharsets.UTF_8);
         if (StringUtils.isNotBlank(s)) {
 	        String boundary = StringUtils.substringBefore(s, "\r\n").substring(2);
 	        request.setBody(s);

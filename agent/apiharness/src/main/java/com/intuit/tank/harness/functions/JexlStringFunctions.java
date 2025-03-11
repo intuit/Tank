@@ -482,7 +482,7 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
             byte[] bytes = toEncode.getBytes();
             return Base64.getEncoder().encodeToString(bytes).trim();
         } catch (Exception e) {
-            LOG.error("Error base64 encoding " + toEncode + ": " + e);
+            LOG.error("Error base64 encoding {}: {}", toEncode, e);
         }
         return toEncode;
     }
@@ -496,10 +496,9 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
      */
     public String fromBase64(String toDecode) {
         try {
-            byte[] bytes = Base64.getDecoder().decode(toDecode.trim());
-            return new String(bytes, StandardCharsets.UTF_8);
+            return new String(Base64.getDecoder().decode(toDecode.trim()), StandardCharsets.UTF_8);
         } catch (Exception e) {
-            LOG.error("Error base64 decoding " + toDecode + ": " + e);
+            LOG.error("Error base64 decoding {}: {}", toDecode, e);
         }
         return toDecode;
     }
@@ -523,9 +522,9 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
      */
     public String urlEncode(String toEncode) {
         try {
-            return URLEncoder.encode(toEncode, StandardCharsets.UTF_8.toString());
+            return URLEncoder.encode(toEncode, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            LOG.error("Error url encoding " + toEncode + ": " + e);
+            LOG.error("Error url encoding {}: {}", toEncode, e);
         }
         return toEncode;
     }
@@ -539,9 +538,9 @@ public class JexlStringFunctions implements ExpressionContextVisitor {
      */
     public String urlDecode(String toDecode) {
         try {
-            return URLDecoder.decode(toDecode, StandardCharsets.UTF_8.toString());
+            return URLDecoder.decode(toDecode, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            LOG.error("Error url decoding " + toDecode + ": " + e);
+            LOG.error("Error url decoding {}: {}", toDecode, e);
         }
         return toDecode;
     }
