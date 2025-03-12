@@ -160,6 +160,7 @@ public abstract class JobTreeTableBean implements Serializable {
     public void deleteJobInstance(JobNodeBean bean) {
         if (bean.isDeleteable()) {
             try {
+                LOG.info("Starting deletion of job: {}", bean.getId());
                 JobInstance jobInstance = new JobInstanceDao().findById(Integer.valueOf(bean.getId()));
                 Workload workload = new WorkloadDao().findById(jobInstance.getWorkloadId());
                 JobQueue queue = jobQueueDao.findOrCreateForProjectId(workload.getProject().getId());
@@ -168,6 +169,7 @@ public abstract class JobTreeTableBean implements Serializable {
                     queue.getJobs().remove(instance);
                     jobQueueDao.saveOrUpdate(queue);
                 }
+                LOG.info("Job deleted from database, refreshing data");
                 refreshData();
                 messages.info("Job " + jobInstance.getName() + " has been deleted.");
             } catch (Exception e) {
@@ -497,6 +499,16 @@ public abstract class JobTreeTableBean implements Serializable {
                 }
             }
             if (!trackerJobs.isEmpty()) {
+                LOG.info("Processing {} orphaned jobs in tracker", trackerJobs.size());
+                // Log details about these orphaned jobs
+                for (String jobId : trackerJobs) {
+                    CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
+                    if (container != null) {
+                        LOG.info("Orphaned job {}: endTime={}, status={}, instances={}",
+                                jobId, container.getEndTime(),
+                                container.getStatus(), container.getStatuses().size());
+                    }
+                }
                 TreeNode unknownNode = new DefaultTreeNode(new ProjectNodeBean("unknown"), null);
                 for (String id : trackerJobs) {// left over nodes that the tracker is tracking
                     // create job nodes now
@@ -686,7 +698,13 @@ public abstract class JobTreeTableBean implements Serializable {
      */
     private Set<String> getTrackerJobIds() {
         Set<CloudVmStatusContainer> allJobs = vmTracker.getAllJobs();
-        return allJobs.stream().map(CloudVmStatusContainer::getJobId).collect(Collectors.toSet());
+        Set<String> jobIds = allJobs.stream()
+                .map(CloudVmStatusContainer::getJobId)
+                .collect(Collectors.toSet());
+
+        LOG.info("Tracker jobs: " + jobIds);
+        vmTracker.getAllJobs().forEach(job -> LOG.info("getTrackerJobIds - VMTracker Current Job: " + job.getJobId()));
+        return jobIds;
     }
 
     private List<VMNodeBean> getVMStatus(@Nonnull CloudVmStatusContainer container, boolean hasRights) {

@@ -19,11 +19,7 @@ package com.intuit.tank.vmManager;
 import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_EVENT_TIME_KEY;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -195,12 +191,14 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     private String getProjectForJobId(String jobId) {
+        LOG.info("Looking up project for job: {}", jobId);
         String ret = jobToProjectIdMap.get(jobId);
         if (ret == null) {
             try {
                 JobInstance jobInstance = jobInstanceDao.get().findById(Integer.valueOf(jobId));
                 Workload wkld = workloadDaoInstance.get().findById(jobInstance.getWorkloadId());
                 ret = Integer.toString(wkld.getProject().getId());
+                LOG.info("Found project {} for job: {}", ret, jobId);
             } catch (Exception e) {
                 LOG.error("cannot get projectId for jobId " + jobId + ": " + e.toString(), e);
                 ret = "";
@@ -255,6 +253,7 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void removeStatusForJob(String jobId) {
+        LOG.info("Removing status for job: {}, jobMap {}", jobId, jobMap.toString());
         CloudVmStatusContainer cloudVmStatusContainer = jobMap.get(jobId);
         if (cloudVmStatusContainer != null) {
             for (CloudVmStatus s : cloudVmStatusContainer.getStatuses()) {
@@ -262,6 +261,7 @@ public class VMTrackerImpl implements VMTracker {
             }
             jobMap.remove(jobId);
         }
+        LOG.info("Removed status for job: {}, jobMap {}", jobId, jobMap.toString());
     }
 
     /**
@@ -362,7 +362,7 @@ public class VMTrackerImpl implements VMTracker {
                 }
             }
 
-            LOG.trace("Setting Container for job=" + status.getJobId() + " newStatus to " + newStatus);
+            LOG.info("Setting Container for job=" + status.getJobId() + " newStatus to " + newStatus);
             job.setStatus(newStatus);
             jobInstanceDao.get().saveOrUpdate(job);
 

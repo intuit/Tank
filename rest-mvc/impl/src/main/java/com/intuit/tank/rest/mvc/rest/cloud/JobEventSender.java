@@ -101,6 +101,10 @@ public class JobEventSender {
      * If no instances can be found, set jobStatus to Completed
      */
     public void killJob(String jobId, boolean fireEvent) {
+        LOG.info("JobEventSender - Killing job: " + jobId);
+        LOG.info("Before kill - VMTracker state: " +
+                "Number of Jobs tracked: " + vmTracker.getAllJobs().size());
+        vmTracker.getAllJobs().forEach(job -> LOG.info("Before kill - Current Job: " + job.getJobId()));
         List<String> instanceIds = getInstancesForJob(jobId);
         vmTracker.stopJob(jobId);
         if (instanceIds.isEmpty()) {
@@ -113,11 +117,15 @@ public class JobEventSender {
             }
         } else {
             killInstances(instanceIds);
+            LOG.info("Kill instances command sent for job: {}, instances: {}", jobId, instanceIds);
         }
 
         if (fireEvent) {
             jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_KILLED));
         }
+        LOG.info("After kill - VMTracker state: " +
+                "Number of Jobs tracked: " + vmTracker.getAllJobs().size());
+        vmTracker.getAllJobs().forEach(job -> LOG.info("After kill - Current Job: " + job.getJobId()));
     }
 
     public void killJob(String jobId) {
@@ -136,7 +144,13 @@ public class JobEventSender {
     public void killInstance(String instanceId) { killInstances(Collections.singletonList(instanceId)); }
 
     public void killInstances(List<String> instanceIds) {
-        agentChannel.killAgents(instanceIds);
+        LOG.info("Calling agentChannel.killAgents with instanceIds: " + Arrays.toString(instanceIds.toArray()));
+        try {
+            agentChannel.killAgents(instanceIds);
+            LOG.info("Successfully sent kill command to agents: {}", Arrays.toString(instanceIds.toArray()));
+        } catch (Exception e) {
+            LOG.error("Error sending kill command to agents: {}", e.getMessage(), e);
+        }
 
         if (!vmTracker.isDevMode()) {
             for (VMRegion region : new TankConfig().getVmManagerConfig().getRegions()) {
