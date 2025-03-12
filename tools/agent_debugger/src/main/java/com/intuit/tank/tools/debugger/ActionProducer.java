@@ -59,6 +59,7 @@ public class ActionProducer {
 
     private static final String DEBUGGER_PROPERTIES = "debugger.properties";
     private static final String TS_INSTANCE_START = "tank.instance.";
+    private static final String TS_INSTANCE_TOKEN = "tank.token.";
     public static final String ACTION_OPEN = "Open File";
     public static final String ACTION_CHOOSE_SCRIPT = "Choose Script";
     public static final String ACTION_CHOOSE_DATAFILE = "Choose Datafile";
@@ -369,7 +370,10 @@ public class ActionProducer {
         if (ret == null) {
             ret = new AbstractAction(ACTION_SELECT_TANK) {
                 private static final long serialVersionUID = 1L;
-                JComboBox<String> comboBox = getComboBox();
+                Map<String, String> propertiesMap = new HashMap<>();
+                JComboBox<String> comboBox = getComboBox(propertiesMap);
+                JTextField tokenField = new JTextField();
+
                 @Override
                 public void actionPerformed(ActionEvent event) {
                     JPanel panel = new JPanel();
@@ -381,8 +385,26 @@ public class ActionProducer {
                     comboBox.setPreferredSize(new Dimension(375,25));
                     tokenPanel.setBorder(BorderFactory.createTitledBorder("Intuit/Tank Token*"));
                     tokenPanel.setToolTipText("Generate a Tank API token by logging into Tank and going to 'Account Settings' on the upper right to create a token for this specific host. ");
-                    final JTextField tokenField = new JTextField();
                     tokenField.setPreferredSize(new Dimension(375,25));
+
+                    // adds a listener to update token field when base URL selection changes
+                    comboBox.addActionListener(e -> {
+                        String selectedItem = (String) comboBox.getSelectedItem();
+                        if (selectedItem != null) {
+                            int startInd = selectedItem.indexOf('(');
+                            if (startInd != -1) {
+                                String name = selectedItem.substring(0, startInd).trim();
+                                String tokenKey = TS_INSTANCE_TOKEN + name;
+                                if (propertiesMap.containsKey(tokenKey)) {
+                                    tokenField.setText(propertiesMap.get(tokenKey));
+                                } else {
+                                    tokenField.setText("");
+                                }
+                            }
+                        }
+                    });
+                    comboBox.setSelectedItem(comboBox.getSelectedItem());
+
                     baseURLPanel.add(comboBox);
                     panel.add(baseURLPanel);
                     tokenPanel.add(tokenField);
@@ -407,6 +429,17 @@ public class ActionProducer {
                                 try {
                                     new ScriptClient(url, token).ping();
                                     setServiceUrl(url, token);
+                                    if (StringUtils.isNotBlank(token)) {
+                                        String selectedItem = (String) comboBox.getSelectedItem();
+                                        if (selectedItem != null) {
+                                            int startTokenInd = selectedItem.indexOf('(');
+                                            if (startTokenInd != -1) {
+                                                String name = selectedItem.substring(0, startTokenInd).trim();
+                                                String tokenKey = TS_INSTANCE_TOKEN + name;
+                                                saveTokenToProperties(name, token);
+                                            }
+                                        }
+                                    }
                                 } catch (Exception e) {
                                     showError("Cannot connect to Tank at the url " + url
                                             + ". \nExample: http://tank.mysite.com/");
@@ -423,8 +456,25 @@ public class ActionProducer {
         }
         return ret;
     }
-   
-    
+
+    private void saveTokenToProperties(String instanceName, String token) {
+        Properties props = new Properties();
+        File f = new File(DEBUGGER_PROPERTIES);
+        try {
+            if (f.exists()) {
+                try (InputStream in = new FileInputStream(f)) {
+                    props.load(in);
+                }
+            }
+            props.setProperty(TS_INSTANCE_TOKEN + instanceName, token);
+            try (OutputStream out = new FileOutputStream(f)) {
+                props.store(out, "Updated by Debugger");
+            }
+        } catch (Exception e) {
+            LOG.error("Cannot save token to properties: " + e, e);
+        }
+    }
+
     public void setChoiceComboBoxOptions(JComboBox<TankClientChoice> cb) {
         cb.removeAllItems();
         try {
@@ -445,7 +495,7 @@ public class ActionProducer {
         }
     }
 
-    private static JComboBox<String> getComboBox() {
+    private static JComboBox<String> getComboBox(Map<String, String> propertiesMap) {
         JComboBox<String> cb = new JComboBox<String>();
         cb.setEditable(true);
         Properties props = new Properties();
@@ -462,11 +512,12 @@ public class ActionProducer {
             props.load(in);
             for (Object o : props.keySet()) {
                 String key = (String) o;
+                String value = props.getProperty(key);
                 if (key.startsWith(TS_INSTANCE_START)) {
                     String name = key.substring(TS_INSTANCE_START.length());
-                    String value = props.getProperty(key);
                     cb.addItem(name + " (" + value + ")");
                 }
+                propertiesMap.put(key,value);
             }
         } catch (Exception e) {
             LOG.error("Cannot read properties: " + e, e);
