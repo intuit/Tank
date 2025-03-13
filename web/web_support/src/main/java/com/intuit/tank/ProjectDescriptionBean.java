@@ -19,6 +19,8 @@ import java.util.List;
 import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.event.Event;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
@@ -72,14 +74,8 @@ public class ProjectDescriptionBean extends SelectableBean<Project> implements S
     public void init() {
         tablePrefs = new TablePreferences(userPrefs.getPreferences().getProjectTableColumns());
         tablePrefs.registerListener(userPrefs);
-    }
-
-    public String getBannerMessage() {
-        return tankConfig.getTextBanner();
-    }
-
-    public boolean isBannerVisible() {
-        return !tankConfig.getTextBanner().isEmpty();
+        if (!tankConfig.getTextBanner().isEmpty())
+            FacesContext.getCurrentInstance().addMessage("banner", new FacesMessage(FacesMessage.SEVERITY_INFO,  "NOTICE:", tankConfig.getTextBanner()));
     }
 
     public void deleteSelectedProject() {
