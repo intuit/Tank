@@ -15,15 +15,11 @@ package com.intuit.tank.script;
 
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
-
 import static org.junit.jupiter.api.Assertions.*;
-
-import org.primefaces.model.file.CommonsUploadedFile;
 import org.primefaces.model.file.UploadedFile;
-
-import com.intuit.tank.script.TestUploadBean;
-
+import org.primefaces.model.file.UploadedFileWrapper;
 import jakarta.inject.Inject;
+
 
 /**
  * The class <code>TestUploadBeanTest</code> contains tests for the class <code>{@link TestUploadBean}</code>.
@@ -56,7 +52,7 @@ public class TestUploadBeanTest {
     @Test
     public void testGetFile_1()
         throws Exception {
-        testUploadBean.setFile(new CommonsUploadedFile());
+        testUploadBean.setFile(new UploadedFileWrapper());
 
         UploadedFile result = testUploadBean.getFile();
 
@@ -77,8 +73,8 @@ public class TestUploadBeanTest {
     @Test
     public void testSetFile_1()
         throws Exception {
-        testUploadBean.setFile(new CommonsUploadedFile());
-        UploadedFile file = new CommonsUploadedFile();
+        testUploadBean.setFile(new UploadedFileWrapper());
+        UploadedFile file = new UploadedFileWrapper();
 
         testUploadBean.setFile(file);
 
