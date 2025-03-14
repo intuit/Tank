@@ -22,7 +22,10 @@ import java.util.stream.Collectors;
 
 import com.amazonaws.xray.AWSXRay;
 import com.google.common.collect.ImmutableMap;
+import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.logging.ControllerLoggingConfig;
+import com.intuit.tank.project.JobInstance;
+import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -154,6 +157,20 @@ public class AgentWatchdog implements Runnable {
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message","All Agents Reported back for job " + jobId + ".")));
                     vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(),
                             "All Agents Reported Back and are ready to start load.", JobLifecycleEvent.AGENT_REPORTED));
+
+                    CloudVmStatusContainer container = vmTracker.getVmStatusForJob(instanceRequest.getJobId());
+                    if (container != null) {
+                        // Update job status to Running
+                        JobInstanceDao dao = new JobInstanceDao();
+                        JobInstance job = dao.findById(Integer.parseInt(instanceRequest.getJobId()));
+                        if (job != null && job.getStatus() == JobQueueStatus.Starting) {
+                            job.setStatus(JobQueueStatus.Running);
+                            dao.saveOrUpdate(job);
+                            LOG.info(new ObjectMessage(ImmutableMap.of("Message",
+                                    "Updated job status from Starting to Running for job " + jobId)));
+                        }
+                    }
+
                     stopped = true;
                 }
             }
