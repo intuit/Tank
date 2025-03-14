@@ -158,17 +158,9 @@ public class AgentWatchdog implements Runnable {
                     vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(),
                             "All Agents Reported Back and are ready to start load.", JobLifecycleEvent.AGENT_REPORTED));
 
-                    CloudVmStatusContainer container = vmTracker.getVmStatusForJob(instanceRequest.getJobId());
-                    if (container != null) {
-                        // Update job status to Running
-                        JobInstanceDao dao = new JobInstanceDao();
-                        JobInstance job = dao.findById(Integer.parseInt(instanceRequest.getJobId()));
-                        if (job != null && job.getStatus() == JobQueueStatus.Starting) {
-                            job.setStatus(JobQueueStatus.Running);
-                            dao.saveOrUpdate(job);
-                            LOG.info(new ObjectMessage(ImmutableMap.of("Message",
-                                    "Updated job status from Starting to Running for job " + jobId)));
-                        }
+                    CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
+                    if (container != null && container.getStatuses().size() == expectedInstanceCount) {
+                        updateJobStatusWhenReady(jobId);
                     }
 
                     stopped = true;
@@ -180,6 +172,26 @@ public class AgentWatchdog implements Runnable {
         } finally {
             LOG.info(new ObjectMessage(ImmutableMap.of("Message","Exiting Watchdog " + this.toString())));
             AWSXRay.endSegment();
+        }
+    }
+
+    /**
+     *  Updates Job Status to Running once all Agents are checked in.
+     * @param jobId
+     */
+    private void updateJobStatusWhenReady(String jobId) {
+        try {
+            JobInstanceDao dao = new JobInstanceDao();
+            JobInstance job = dao.findById(Integer.parseInt(jobId));
+            if (job != null && job.getStatus() == JobQueueStatus.Starting) {
+                LOG.info(new ObjectMessage(ImmutableMap.of("Message",
+                        "All agents have reported for job " + jobId + ". Updating job status from Starting to Running.")));
+                job.setStatus(JobQueueStatus.Running);
+                dao.saveOrUpdate(job);
+            }
+        } catch (Exception e) {
+            LOG.error(new ObjectMessage(ImmutableMap.of("Message",
+                    "Error updating job status for " + jobId + ": " + e.getMessage())), e);
         }
     }
 

@@ -77,6 +77,7 @@ public class JobManager implements Serializable {
 
     private static final int MAX_RETRIES = 60;
     private static final long RETRY_SLEEP = 30 * 1000; // 30 second
+    private boolean westAgentFailureTested = false;
 
     @Inject
     private VMTracker vmTracker;
@@ -159,8 +160,11 @@ public class JobManager implements Serializable {
         LOG.info(new ObjectMessage(ImmutableMap.of("Message","Received Agent Ready call from " + agentData.getInstanceId() + " with Agent Data: " + agentData)));
         AgentTestStartData ret = null;
         JobInfo jobInfo = jobInfoMapLocalCache.get(agentData.getJobId());
-        if (jobInfo != null && agentData.getRegion().equals(VMRegion.US_WEST_2)) {
-            LOG.info("SLEEPING WEST AGENT TO SIMULATE SLOW AGENT");
+        LOG.info("WEST AGENT TESTED STATE: " + westAgentFailureTested);
+        if (jobInfo != null && agentData.getRegion().equals(VMRegion.US_WEST_2 ) && !westAgentFailureTested) {
+            westAgentFailureTested = true;  // Set the flag so we only target one agent
+            LOG.info(new ObjectMessage(ImmutableMap.of("Message",
+                    "TEST CONDITION: Sleeping agent " + agentData.getInstanceId() + " for 5 minutes to simulate failure")));
             try {
                 Thread.sleep(5 * 60 * 1000); // Sleep for 5 minutes, enough to trigger watchdog
             } catch (InterruptedException e) {
