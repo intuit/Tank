@@ -159,6 +159,14 @@ public class JobManager implements Serializable {
         LOG.info(new ObjectMessage(ImmutableMap.of("Message","Received Agent Ready call from " + agentData.getInstanceId() + " with Agent Data: " + agentData)));
         AgentTestStartData ret = null;
         JobInfo jobInfo = jobInfoMapLocalCache.get(agentData.getJobId());
+        if (jobInfo != null && agentData.getRegion().equals(VMRegion.US_WEST_2)) {
+            LOG.info("SLEEPING WEST AGENT TO SIMULATE SLOW AGENT");
+            try {
+                Thread.sleep(5 * 60 * 1000); // Sleep for 5 minutes, enough to trigger watchdog
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+        }
         // TODO: figure out controller restarts
         if (jobInfo != null) {
             synchronized (jobInfo) {
