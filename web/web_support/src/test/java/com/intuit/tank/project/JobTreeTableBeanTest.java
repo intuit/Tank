@@ -398,6 +398,10 @@ public class JobTreeTableBeanTest {
         pnb.addJob(new ActJobNodeBean("1", new CloudVmStatusContainer(), FastDateFormat.getInstance()));
         pnb.addJob(new ActJobNodeBean("2", new CloudVmStatusContainer(), FastDateFormat.getInstance()));
         fixture.setCurrentJobInstanceForTPS(pnb);
+
+        assertEquals("{\"data\":" +
+                "{\"datasets\":[{\"label\":\"Total TPS\",\"lineTension\":0.2}]}," +
+                "\"options\":{\"responsive\":true,\"maintainAspectRatio\":false,\"plugins\":{\"title\":{\"display\":true,\"text\":\"TPS Chart\"},\"legend\":{\"position\":\"right\"}},\"scales\":{\"y\":{\"type\":\"linear\",\"beginAtZero\":true}}},\"type\":\"line\"}", fixture.getTpsChartModel());
     }
 
     @Test
@@ -428,10 +432,10 @@ public class JobTreeTableBeanTest {
         fixture.setCurrentJobInstanceForUser(pnb);
 
         assertEquals("{\"data\":" +
-                "{\"labels\":[\"10:30:00\",\"10:30:30\",\"10:31:00\",\"10:31:30\",\"10:32:00\",\"10:32:30\"]," +
-                "\"datasets\":[{\"data\":[null,10,null,40,40,null],\"label\":\"script1\",\"lineTension\":0.2}," +
-                "{\"data\":[null,20,null,50,30,null],\"label\":\"script2\",\"lineTension\":0.2}," +
-                "{\"data\":[null,30,null,60,20,null],\"label\":\"script3\",\"lineTension\":0.2}]}," +
+                "{\"labels\":[\"10:30:30\",\"10:31:00\",\"10:31:30\",\"10:32:00\",\"10:32:30\"],\"datasets\":[" +
+                "{\"data\":[10,null,40,40,null],\"label\":\"script1\",\"lineTension\":0.2}," +
+                "{\"data\":[20,null,50,30,null],\"label\":\"script2\",\"lineTension\":0.2}," +
+                "{\"data\":[30,null,60,20,null],\"label\":\"script3\",\"lineTension\":0.2}]}," +
                 "\"options\":{\"responsive\":true,\"maintainAspectRatio\":false,\"plugins\":{\"title\":{\"display\":true,\"text\":\"Users Chart\"},\"legend\":{\"position\":\"right\"}},\"scales\":{\"y\":{\"type\":\"linear\",\"beginAtZero\":true}}},\"type\":\"line\"}", fixture.getChartModel());
 
     }

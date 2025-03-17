@@ -228,14 +228,12 @@ public abstract class JobTreeTableBean implements Serializable {
             Map<Date, List<UserDetail>> detailMap = currentJobInstance.getStatusDetailMap();
             detailMap.keySet().stream().sorted()
                     .forEach(d -> {
-                        labels.add(sdf.format(d.getTime()));
                         detailMap.get(d)
                                 .forEach(detail -> {
-                                    List<Number> dataset = datasetMap.computeIfAbsent(
-                                            detail.getScript(),
-                                            k -> new ArrayList<>(Collections.nCopies(labels.size()-1, null)));
-                                    dataset.add(labels.size()-1, detail.getUsers());
+                                    datasetMap.computeIfAbsent(detail.getScript(),k -> new ArrayList<>())
+                                            .add(detail.getUsers());
                                 });
+                        if (!datasetMap.isEmpty()) labels.add(sdf.format(d.getTime()));
                         datasetMap.forEach((key, value) -> {
                             while (value.size() < labels.size()) {
                                 value.add(null);
@@ -276,15 +274,13 @@ public abstract class JobTreeTableBean implements Serializable {
             Map<Date, Map<String, TPSInfo>> tpsDetailMap = getTpsMap();
             tpsDetailMap.keySet().stream().sorted()
                     .forEach(d -> {
-                        labels.add(sdf.format(d.getTime()));
                         tpsDetailMap.get(d).values()
                                 .forEach(info -> {
-                                    List<Number> dataset = datasetMap.computeIfAbsent(
-                                            info.getKey(),
-                                            k -> new ArrayList<>(Collections.nCopies(labels.size()-1, null)));
-                                    dataset.add(labels.size()-1, info.getTPS());
+                                    datasetMap.computeIfAbsent(info.getKey(),k -> new ArrayList<>())
+                                            .add(labels.size()-1, info.getTPS());
                                     datasetMap.get(TOTAL_TPS_SERIES_KEY).add(info.getTPS());
                                 });
+                        if (!datasetMap.isEmpty()) labels.add(sdf.format(d.getTime()));
                         datasetMap.forEach((key, value) -> {
                             while (value.size() < labels.size()) {
                                 value.add(null);
