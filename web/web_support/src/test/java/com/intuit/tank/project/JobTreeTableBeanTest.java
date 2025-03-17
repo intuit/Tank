@@ -425,7 +425,7 @@ public class JobTreeTableBeanTest {
         pnb.setStatusDetailMap(statusDetails);
         fixture.setCurrentJobInstanceForUser(pnb);
 
-        assertEquals("{\"data\":{\"labels\":[\"10:28:00\",\"10:29:00\",\"10:29:30\",\"10:30:00\"],\"datasets\":[{\"data\":[40,null,40,10],\"label\":\"script1\",\"lineTension\":0.5},{\"data\":[30,null,50,20],\"label\":\"script2\",\"lineTension\":0.5},{\"data\":[20,null,60,30],\"label\":\"script3\",\"lineTension\":0.5}]},\"options\":{\"responsive\":true,\"maintainAspectRatio\":false,\"plugins\":{\"title\":{\"display\":true,\"text\":\"TPS Chart\"},\"legend\":{\"position\":\"right\"}},\"scales\":{}},\"type\":\"line\"}", fixture.getChartModel());
+        assertEquals("{\"data\":{\"labels\":[\"10:28:00\",\"10:29:00\",\"10:29:30\",\"10:30:00\"],\"datasets\":[{\"data\":[40,null,40,10],\"label\":\"script1\",\"lineTension\":0.2},{\"data\":[30,null,50,20],\"label\":\"script2\",\"lineTension\":0.2},{\"data\":[20,null,60,30],\"label\":\"script3\",\"lineTension\":0.2}]},\"options\":{\"responsive\":true,\"maintainAspectRatio\":false,\"plugins\":{\"title\":{\"display\":true,\"text\":\"Users Chart\"},\"legend\":{\"position\":\"right\"}},\"scales\":{}},\"type\":\"line\"}", fixture.getChartModel());
 
     }
 
