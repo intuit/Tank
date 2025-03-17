@@ -262,8 +262,8 @@ public abstract class JobTreeTableBean implements Serializable {
                                             .setText("Users Chart")))
                             .setScales(new Scales().addScale(Scales.ScaleAxis.Y,
                                     new LinearScaleOptions().setBeginAtZero(true)))
-                    )
-                    .toJson();
+                    ).toJson();
+        }
     }
 
     private void initializeTpsModel() {
