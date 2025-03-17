@@ -40,8 +40,8 @@
     <version.enunciate>2.15.1</version.enunciate>
 
     <version.faces>4.1.2</version.faces>
-    <version.primefaces>15.0.1</version.primefaces>
-    <version.primefaces-ext>15.0.1</version.primefaces-ext>
+    <version.primefaces>14.0.12</version.primefaces>
+    <version.primefaces-ext>14.0.12</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>3.2.5</version.surefire>
     <version.junit>5.11.4</version.junit>
@@ -948,6 +948,7 @@
           <version>${version.compiler.plugin}</version>
           <configuration>
             <compilerArgs>
+            <!-- frameworks like Spring, which rely on parameter names -->
               <arg>-parameters</arg>
             </compilerArgs>
           </configuration>

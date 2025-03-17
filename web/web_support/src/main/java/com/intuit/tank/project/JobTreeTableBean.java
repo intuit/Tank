@@ -244,7 +244,7 @@ public abstract class JobTreeTableBean implements Serializable {
                 lineData.addDataset(new LineDataset()
                         .setData(value)
                         .setLabel(key)
-                        .setLineTension(0.5f));
+                        .setLineTension(0.2f));
                     });
             chartModel = new LineChart()
                     .setData(lineData)
@@ -298,7 +298,7 @@ public abstract class JobTreeTableBean implements Serializable {
                 lineData.addDataset(new LineDataset()
                         .setData(value)
                         .setLabel(key)
-                        .setLineTension(0.5f));
+                        .setLineTension(0.2f));
             });
             tpsChartModel = new LineChart()
                     .setData(lineData)
