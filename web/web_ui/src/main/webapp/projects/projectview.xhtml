@@ -562,7 +562,7 @@
 
           <div class="vertical-spacer" />
           <h:panelGroup
-            rendered="#{projectJobQueueManager.chartModel ne null and projectJobQueueManager.chartModel.getData().getDataSet().size() ne 0}"
+            rendered="#{projectJobQueueManager.chartModel ne null}"
             id="chartScript">
             <p:chart value="#{projectJobQueueManager.chartModel}" style="height:400px"
               title="User Details over Time" />
@@ -616,7 +616,7 @@
 
           <div class="vertical-spacer" />
           <h:panelGroup
-            rendered="#{projectJobQueueManager.tpsChartModel ne null and projectJobQueueManager.tpsChartModel.getData().getDataSet().size() ne 0}"
+            rendered="#{projectJobQueueManager.tpsChartModel ne null}"
             id="tpschartScript">
             <p:chart value="#{projectJobQueueManager.tpsChartModel}" style="height:400px"
               title="Tps Details over Time"  />
