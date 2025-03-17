@@ -64,6 +64,8 @@ import software.xdev.chartjs.model.options.LegendOptions;
 import software.xdev.chartjs.model.options.LineOptions;
 import software.xdev.chartjs.model.options.Plugins;
 import software.xdev.chartjs.model.options.Title;
+import software.xdev.chartjs.model.options.scale.Scales;
+import software.xdev.chartjs.model.options.scale.cartesian.linear.LinearScaleOptions;
 
 /**
  * JobTreeTableBean
@@ -222,15 +224,17 @@ public abstract class JobTreeTableBean implements Serializable {
         chartModel = null;
         if (currentJobInstance != null && currentJobInstance.getStatusDetailMap() != null) {
             List<String> labels = new ArrayList<>();
-            Map<String, ArrayList<Number>> datasetMap = new HashMap<>();
+            Map<String, List<Number>> datasetMap = new HashMap<>();
             Map<Date, List<UserDetail>> detailMap = currentJobInstance.getStatusDetailMap();
             detailMap.keySet().stream().sorted()
                     .forEach(d -> {
                         labels.add(sdf.format(d.getTime()));
                         detailMap.get(d)
                                 .forEach(detail -> {
-                                    ArrayList<Number> dataset = datasetMap.computeIfAbsent(detail.getScript(), k -> new ArrayList<>());
-                                    dataset.add(detail.getUsers());
+                                    List<Number> dataset = datasetMap.computeIfAbsent(
+                                            detail.getScript(),
+                                            k -> new ArrayList<>(Collections.nCopies(labels.size()-1, null)));
+                                    dataset.add(labels.size()-1, detail.getUsers());
                                 });
                         datasetMap.forEach((key, value) -> {
                             while (value.size() < labels.size()) {
@@ -256,8 +260,10 @@ public abstract class JobTreeTableBean implements Serializable {
                                     .setTitle(new Title()
                                             .setDisplay(true)
                                             .setText("Users Chart")))
-                    ).toJson();
-        }
+                            .setScales(new Scales().addScale(Scales.ScaleAxis.Y,
+                                    new LinearScaleOptions().setBeginAtZero(true)))
+                    )
+                    .toJson();
     }
 
     private void initializeTpsModel() {
@@ -266,15 +272,17 @@ public abstract class JobTreeTableBean implements Serializable {
         tpsChartModel = null;
         if (currentJobInstance != null) {
             List<String> labels = new ArrayList<>();
-            Map<String, ArrayList<Number>> datasetMap = new HashMap<>();
+            Map<String, List<Number>> datasetMap = new HashMap<>();
             Map<Date, Map<String, TPSInfo>> tpsDetailMap = getTpsMap();
             tpsDetailMap.keySet().stream().sorted()
                     .forEach(d -> {
                         labels.add(sdf.format(d.getTime()));
                         tpsDetailMap.get(d).values()
                                 .forEach(info -> {
-                                    ArrayList<Number> dataset = datasetMap.computeIfAbsent(info.getKey(), k -> new ArrayList<>());
-                                    dataset.add(info.getTPS());
+                                    List<Number> dataset = datasetMap.computeIfAbsent(
+                                            info.getKey(),
+                                            k -> new ArrayList<>(Collections.nCopies(labels.size()-1, null)));
+                                    dataset.add(labels.size()-1, info.getTPS());
                                     datasetMap.get(TOTAL_TPS_SERIES_KEY).add(info.getTPS());
                                 });
                         datasetMap.forEach((key, value) -> {
@@ -284,7 +292,7 @@ public abstract class JobTreeTableBean implements Serializable {
                         });
                     });
 
-            ArrayList<Number> total = new ArrayList<>();
+            List<Number> total = new ArrayList<>();
             datasetMap.forEach((key, value) -> value
                     .forEach(v -> {
                         if (total.size() < value.size()) { total.add(0); }
@@ -310,6 +318,8 @@ public abstract class JobTreeTableBean implements Serializable {
                                     .setTitle(new Title()
                                             .setDisplay(true)
                                             .setText("TPS Chart")))
+                            .setScales(new Scales().addScale(Scales.ScaleAxis.Y,
+                                    new LinearScaleOptions().setBeginAtZero(true)))
                     ).toJson();
         } else {
             LOG.info("currentJobInstance is null");
