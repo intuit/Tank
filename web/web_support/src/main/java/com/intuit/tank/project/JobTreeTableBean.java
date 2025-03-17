@@ -255,7 +255,7 @@ public abstract class JobTreeTableBean implements Serializable {
                                     .setLegend(new LegendOptions().setPosition("right"))
                                     .setTitle(new Title()
                                             .setDisplay(true)
-                                            .setText("TPS Chart")))
+                                            .setText("Users Chart")))
                     ).toJson();
         }
     }
