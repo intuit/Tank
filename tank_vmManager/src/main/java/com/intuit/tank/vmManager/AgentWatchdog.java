@@ -134,6 +134,8 @@ public class AgentWatchdog implements Runnable {
     @Override
     public void run() {
         ControllerLoggingConfig.setupThreadContext();
+        LOG.info("Thread Region: " + instanceRequest.getRegion());
+        LOG.info("Expected instance count: " + expectedInstanceCount);
         String jobId = instanceRequest.getJobId();
         LOG.info(new ObjectMessage(ImmutableMap.of("Message","Starting WatchDog: " + this.toString() + " for job " + jobId)));
         AWSXRay.getGlobalRecorder().beginNoOpSegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
@@ -160,9 +162,10 @@ public class AgentWatchdog implements Runnable {
 
                     CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
                     if (container != null && container.getStatuses().size() == expectedInstanceCount) {
-                        updateJobStatusWhenReady(jobId);
+                        if (jobId != null) {
+                            updateJobStatusWhenReady(jobId);
+                        }
                     }
-
                     stopped = true;
                 }
             }
