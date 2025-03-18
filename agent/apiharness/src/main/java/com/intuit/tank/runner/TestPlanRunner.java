@@ -199,6 +199,8 @@ public class TestPlanRunner implements Runnable {
                                 runScriptSteps(hdScriptUseCase);
                                 // If command is stop and stop behavior is end of step, exit the loop.
                                 if (shouldStop(StopBehavior.END_OF_STEP)) {
+                                    LOG.info(LogUtil.getLogMessage("Stop command received. Stop set to end of step. End of step in script "
+                                            + hdscript.getName() + " reached. Exiting..."));
                                     return;
                                 }
                             } catch (GotoScriptException e) {
