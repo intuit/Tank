@@ -68,15 +68,19 @@ public class APIMonitor implements Runnable {
     public void run() {
         LOG.info(LogUtil.getLogMessage("APIMonitor thread started."));
         while (doMonitor) {
-            updateAgentStatus();
+            updateInstanceStatus();
+            try {
+                Thread.sleep(reportInterval);
+            } catch ( InterruptedException ie) { /*Ignore*/ }
         }
         if(sendFinalUpdate) {
-            updateAgentStatus();
+            LOG.info(LogUtil.getLogMessage("Sending final instance status update..."));
+            updateInstanceStatus();
             LOG.info(LogUtil.getLogMessage("APIMonitor thread finished."));
         }
     }
 
-    private void updateAgentStatus() {
+    private void updateInstanceStatus() {
         try {
             CloudVmStatus newStatus = createStatus(APITestHarness.getInstance().getStatus());
             newStatus.setUserDetails(APITestHarness.getInstance().getUserTracker().getSnapshot());
@@ -89,10 +93,6 @@ public class APIMonitor implements Runnable {
             APITestHarness.getInstance().checkAgentThreads();
         } catch (Exception t) {
             LOG.error(LogUtil.getLogMessage("Unable to send status metrics | " + t.getMessage()), t);
-        } finally {
-            try {
-                Thread.sleep(reportInterval);
-            } catch ( InterruptedException ie) { /*Ignore*/ }
         }
     }
 
@@ -179,6 +179,8 @@ public class APIMonitor implements Runnable {
                 .header(HttpHeaders.AUTHORIZATION, "bearer " + token)
                 .PUT(HttpRequest.BodyPublishers.ofString(json))
                 .build();
+
+        LOG.debug(LogUtil.getLogMessage("Sending instance status update for instance: " + instanceId + ", Status: " + json));
         client.sendAsync(request, HttpResponse.BodyHandlers.discarding());
     }
 }
