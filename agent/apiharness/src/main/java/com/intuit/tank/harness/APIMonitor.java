@@ -46,10 +46,12 @@ public class APIMonitor implements Runnable {
     private static final Logger LOG = LogManager.getLogger(APIMonitor.class);
     private static final ObjectWriter objectWriter = new ObjectMapper().writerFor(CloudVmStatus.class).withDefaultPrettyPrinter();
     private static boolean doMonitor = true;
+    private static volatile boolean sendFinalUpdate = false;
     private static final HttpClient client = HttpClient.newHttpClient();
     private static CloudVmStatus status;
     private long reportInterval = APIMonitor.MIN_REPORT_TIME;
     private boolean isLocal;
+
 
     public APIMonitor(Boolean isLocal, CloudVmStatus vmStatus) {
         this.isLocal = isLocal;
@@ -64,25 +66,33 @@ public class APIMonitor implements Runnable {
 
     @Override
     public void run() {
-
+        LOG.info(LogUtil.getLogMessage("APIMonitor thread started."));
         while (doMonitor) {
-            try {
-                CloudVmStatus newStatus = createStatus(APITestHarness.getInstance().getStatus());
-                newStatus.setUserDetails(APITestHarness.getInstance().getUserTracker().getSnapshot());
-                TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPSMonitor().getTPSInfo();
-                if (tpsInfo != null) {
-                    newStatus.setTotalTps(tpsInfo.getTotalTps());
-                    sendTps(tpsInfo);
-                }
-                if (!isLocal) setInstanceStatus(newStatus.getInstanceId(), newStatus);
-                APITestHarness.getInstance().checkAgentThreads();
-            } catch (Exception t) {
-                LOG.error(LogUtil.getLogMessage("Unable to send status metrics | " + t.getMessage()), t);
-            } finally {
-                try {
-                    Thread.sleep(reportInterval);
-                } catch ( InterruptedException ie) { /*Ignore*/ }
+            updateAgentStatus();
+        }
+        if(sendFinalUpdate) {
+            updateAgentStatus();
+            LOG.info(LogUtil.getLogMessage("APIMonitor thread finished."));
+        }
+    }
+
+    private void updateAgentStatus() {
+        try {
+            CloudVmStatus newStatus = createStatus(APITestHarness.getInstance().getStatus());
+            newStatus.setUserDetails(APITestHarness.getInstance().getUserTracker().getSnapshot());
+            TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPSMonitor().getTPSInfo();
+            if (tpsInfo != null) {
+                newStatus.setTotalTps(tpsInfo.getTotalTps());
+                sendTps(tpsInfo);
             }
+            if (!isLocal) setInstanceStatus(newStatus.getInstanceId(), newStatus);
+            APITestHarness.getInstance().checkAgentThreads();
+        } catch (Exception t) {
+            LOG.error(LogUtil.getLogMessage("Unable to send status metrics | " + t.getMessage()), t);
+        } finally {
+            try {
+                Thread.sleep(reportInterval);
+            } catch ( InterruptedException ie) { /*Ignore*/ }
         }
     }
 
@@ -126,10 +136,16 @@ public class APIMonitor implements Runnable {
     }
 
     public static void setDoMonitor(boolean monitor) {
+        LOG.info(LogUtil.getLogMessage("Setting doMonitor to: " + monitor));
         doMonitor = monitor;
+        if(!doMonitor) {
+            LOG.info(LogUtil.getLogMessage("Setting sendFinalUpdate to true"));
+            sendFinalUpdate = true;
+        }
     }
 
     public synchronized static void setJobStatus(JobStatus jobStatus) {
+        LOG.info(LogUtil.getLogMessage("Setting job status to: " + jobStatus));
         if (status != null && status.getJobStatus() != JobStatus.Completed) {
             try {
             	VMStatus vmStatus =  jobStatus.equals(JobStatus.Stopped) ? VMStatus.stopping
