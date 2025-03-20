@@ -612,6 +612,12 @@ public class APITestHarness {
                 if (null != monitorThread) {
                     APIMonitor.setJobStatus(JobStatus.Completed);
                     APIMonitor.setDoMonitor(false);
+                    monitorThread.interrupt(); // interrupt the monitor thread, could be sleeping
+                    try {
+                        monitorThread.join(); //wait for the thread to end.
+                    } catch (InterruptedException e) {
+                        LOG.error(LogUtil.getLogMessage("Interrupted while waiting for API Monitor thread to finish."),e);
+                    }
                 }
                 sendBatchToDB(false);
             }
