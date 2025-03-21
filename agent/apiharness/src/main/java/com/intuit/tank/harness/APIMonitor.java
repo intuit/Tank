@@ -46,7 +46,6 @@ public class APIMonitor implements Runnable {
     private static final Logger LOG = LogManager.getLogger(APIMonitor.class);
     private static final ObjectWriter objectWriter = new ObjectMapper().writerFor(CloudVmStatus.class).withDefaultPrettyPrinter();
     private static boolean doMonitor = true;
-    private static volatile boolean sendFinalUpdate = false;
     private static final HttpClient client = HttpClient.newHttpClient();
     private static CloudVmStatus status;
     private long reportInterval = APIMonitor.MIN_REPORT_TIME;
@@ -73,7 +72,7 @@ public class APIMonitor implements Runnable {
                 Thread.sleep(reportInterval);
             } catch ( InterruptedException ie) { /*Ignore*/ }
         }
-        if(sendFinalUpdate) {
+        if(!doMonitor) {
             LOG.info(LogUtil.getLogMessage("Sending final instance status update..."));
             updateInstanceStatus();
             LOG.info(LogUtil.getLogMessage("APIMonitor thread finished."));
@@ -138,10 +137,6 @@ public class APIMonitor implements Runnable {
     public static void setDoMonitor(boolean monitor) {
         LOG.info(LogUtil.getLogMessage("Setting doMonitor to: " + monitor));
         doMonitor = monitor;
-        if(!doMonitor) {
-            LOG.info(LogUtil.getLogMessage("Setting sendFinalUpdate to true"));
-            sendFinalUpdate = true;
-        }
     }
 
     public synchronized static void setJobStatus(JobStatus jobStatus) {

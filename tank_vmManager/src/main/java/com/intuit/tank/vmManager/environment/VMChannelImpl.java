@@ -106,7 +106,7 @@ public class VMChannelImpl implements VMChannel {
             return instances;
         } catch (Exception e) {
             LOG.error("Error starting instances with request: {}", request, e);
-            return List.of(); // Return an empty list or handle the error appropriately
+            return List.of();
         }
     }
 
