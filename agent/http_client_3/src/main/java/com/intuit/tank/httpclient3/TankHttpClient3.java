@@ -387,20 +387,6 @@ public class TankHttpClient3 implements TankHttpClient {
                 response.setHeader(header.getName(), header.getValue());
             }
 
-            // Extract proxy response/service time header
-            String proxyResponseTimeHeader = response.getHttpHeader("x-envoy-upstream-service-time");
-            if (proxyResponseTimeHeader != null) {
-                try {
-                    long proxyResponseTime = Long.parseLong(proxyResponseTimeHeader);
-                    response.setProxyResponseTime(proxyResponseTime);
-                } catch (NumberFormatException e) {
-                    LOG.warn("could not parse proxy service time header: " + proxyResponseTimeHeader);
-                    response.setProxyResponseTime(-1);
-                }
-            } else {
-                response.setProxyResponseTime(-1);
-            }
-
             Cookie[] cookies = httpstate.getCookies();
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
