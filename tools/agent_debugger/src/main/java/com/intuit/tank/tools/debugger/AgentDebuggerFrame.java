@@ -1014,14 +1014,25 @@ public class AgentDebuggerFrame extends JFrame {
 
     public void exportCSV(File csvOutputFile) {
         try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
-            pw.println("URL,HTTP Code,HTTP Msg,Response Time,Response Size,Headers...,Cookies...");
+            pw.println("URL,HTTP Code,HTTP Msg,Response Time,Proxy Response Time,Response Size,Headers...,Cookies...");
             steps.stream()
                     .filter(step -> step.getResponse() != null)
-                    .map(step -> step.getRequest().getRequestUrl() + "," + step.getResponse().convertToCSV())
-                    .forEach(pw::println);
+                    .forEach(step -> {
+                        String escapedUrl = escapeCSV(step.getRequest().getRequestUrl());
+                        pw.println(escapedUrl + "," + step.getResponse().convertToCSV());
+                    });
         } catch ( FileNotFoundException e) {
             LOG.error("Error exporting CSV: {}", String.valueOf(e));
         }
     }
 
+    private String escapeCSV(String value) {
+        if (value == null) {
+            return "";
+        }
+        if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        return value;
+    }
 }

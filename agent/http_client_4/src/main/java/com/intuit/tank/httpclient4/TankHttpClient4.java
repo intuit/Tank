@@ -34,13 +34,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.UserTokenHandler;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.cookie.ClientCookie;
@@ -149,10 +143,14 @@ public class TankHttpClient4 implements TankHttpClient {
     @Override
     public void doPut(BaseRequest request) {
         HttpPut httpput = new HttpPut(request.getRequestUrl());
-        // Multiple calls can be expensive, so get it once
         String requestBody = request.getBody();
-        HttpEntity entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
-        httpput.setHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
+        HttpEntity entity = null;
+        if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
+            entity = buildParts(request);
+        } else {
+            entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+            httpput.setHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
+        }
         httpput.setEntity(entity);
         sendRequest(request, httpput, requestBody);
     }
@@ -215,6 +213,28 @@ public class TankHttpClient4 implements TankHttpClient {
         }
         httppost.setEntity(entity);
         sendRequest(request, httppost, requestBody);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * com.intuit.tank.httpclient3.TankHttpClient#doPatch(com.intuit.tank.http.
+     * BaseRequest)
+     */
+    @Override
+    public void doPatch(BaseRequest request) {
+        HttpPatch httpPatch = new HttpPatch(request.getRequestUrl());
+        String requestBody = request.getBody();
+        HttpEntity entity = null;
+        if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
+            entity = buildParts(request);
+        } else {
+            entity = new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
+            httpPatch.setHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
+        }
+        httpPatch.setEntity(entity);
+        sendRequest(request, httpPatch, requestBody);
     }
 
     /*
@@ -393,6 +413,20 @@ public class TankHttpClient4 implements TankHttpClient {
                 response.setHeader(header.getName(), header.getValue());
             }
 
+            // Extract proxy response/service time header
+            String proxyResponseTimeHeader = response.getHttpHeader("x-envoy-upstream-service-time");
+            if (proxyResponseTimeHeader != null) {
+                try {
+                    long proxyResponseTime = Long.parseLong(proxyResponseTimeHeader);
+                    response.setProxyResponseTime(proxyResponseTime);
+                } catch (NumberFormatException e) {
+                    LOG.warn("could not parse proxy service time header: " + proxyResponseTimeHeader);
+                    response.setProxyResponseTime(-1);
+                }
+            } else {
+                response.setProxyResponseTime(-1);
+            }
+
             if (context.getCookieStore().getCookies() != null) {
                 for (Cookie cookie : context.getCookieStore().getCookies()) {
                     response.setCookie(cookie.getName(), cookie.getValue());
@@ -433,19 +467,19 @@ public class TankHttpClient4 implements TankHttpClient {
 
     private HttpEntity buildParts(BaseRequest request) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        String contentType = request.getContentType();
+        String boundary = contentType.substring(contentType.indexOf("boundary=") + 9);
+        builder.setBoundary(boundary);
+
         for (PartHolder h : TankHttpUtil.getPartsFromBody(request)) {
+            ContentType partContentType = h.isContentTypeSet()
+                    ? ContentType.create(h.getContentType())
+                    : ContentType.DEFAULT_BINARY;
+
             if (h.getFileName() == null) {
-                if (h.isContentTypeSet()) {
-                    builder.addTextBody(h.getPartName(), h.getBodyAsString(), ContentType.create(h.getContentType()));
-                } else {
-                    builder.addTextBody(h.getPartName(), h.getBodyAsString());
-                }
+                builder.addTextBody(h.getPartName(), h.getBodyAsString(), partContentType);
             } else {
-                if (h.isContentTypeSet()) {
-                    builder.addBinaryBody(h.getPartName(), h.getBody(), ContentType.create(h.getContentType()), h.getFileName());
-                } else {
-                    builder.addBinaryBody(h.getFileName(), h.getBody());
-                }
+                builder.addBinaryBody(h.getPartName(), h.getBody(), partContentType, h.getFileName());
             }
         }
         return builder.build();

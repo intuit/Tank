@@ -13,18 +13,23 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
 import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.PreferencesBean;
+import com.intuit.tank.job.ActJobNodeBean;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.ProjectDao;
 import com.intuit.tank.job.ProjectNodeBean;
 import com.intuit.tank.util.Messages;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
+import com.intuit.tank.vm.vmManager.models.UserDetail;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,22 +79,6 @@ public class JobTreeTableBeanTest {
     @AfterEach
     void closeService() throws Exception {
         closeable.close();
-    }
-
-    /**
-     * Run the List<String> getAllTpsKeys() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testGetAllTpsKeys_1() {
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        List<String> result = fixture.getAllTpsKeys();
-
     }
 
     /**
@@ -246,31 +235,6 @@ public class JobTreeTableBeanTest {
     }
 
     /**
-     * Run the void keysChanged() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testKeysChanged_1() {
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        AWSXRay.beginSegment("test");
-        fixture.keysChanged();
-        AWSXRay.endSegment();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.dao.BaseDao.<init>(BaseDao.java:56)
-        // at com.intuit.tank.dao.OwnableDao.<init>(OwnableDao.java:27)
-        // at com.intuit.tank.dao.ProjectDao.<init>(ProjectDao.java:29)
-        // at com.intuit.tank.project.JobTreeTableBean.<init>(JobTreeTableBean.java:96)
-        // at com.intuit.tank.project.JobQueueManager.<init>(JobQueueManager.java:8)
-    }
-
-    /**
      * Run the void observe(JobQueue) method test.
      * 
      * @throws Exception
@@ -414,54 +378,6 @@ public class JobTreeTableBeanTest {
         // at com.intuit.tank.project.JobQueueManager.<init>(JobQueueManager.java:8)
     }
 
-    /**
-     * Run the void setSelectedTpsKeys(List<String>) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testSetSelectedTpsKeys_1() {
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        List<String> keys = new LinkedList();
-
-        fixture.setSelectedTpsKeys(keys);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.dao.BaseDao.<init>(BaseDao.java:56)
-        // at com.intuit.tank.dao.OwnableDao.<init>(OwnableDao.java:27)
-        // at com.intuit.tank.dao.ProjectDao.<init>(ProjectDao.java:29)
-        // at com.intuit.tank.project.JobTreeTableBean.<init>(JobTreeTableBean.java:96)
-        // at com.intuit.tank.project.JobQueueManager.<init>(JobQueueManager.java:8)
-    }
-
-    /**
-     * Run the void setSelectedTpsKeys(List<String>) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testSetSelectedTpsKeys_2() {
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        List<String> keys = new LinkedList();
-
-        fixture.setSelectedTpsKeys(keys);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.dao.BaseDao.<init>(BaseDao.java:56)
-        // at com.intuit.tank.dao.OwnableDao.<init>(OwnableDao.java:27)
-        // at com.intuit.tank.dao.ProjectDao.<init>(ProjectDao.java:29)
-        // at com.intuit.tank.project.JobTreeTableBean.<init>(JobTreeTableBean.java:96)
-        // at com.intuit.tank.project.JobQueueManager.<init>(JobQueueManager.java:8)
-    }
-
     @Test
     public void testRefreshData() {
 
@@ -478,12 +394,39 @@ public class JobTreeTableBeanTest {
 
     @Test
     public void testCurrentJobInstanceForTPS() {
-        fixture.setCurrentJobInstance(new ProjectNodeBean(new Project()));
+        ProjectNodeBean pnb = new ProjectNodeBean(new Project());
+        pnb.addJob(new ActJobNodeBean("1", new CloudVmStatusContainer(), FastDateFormat.getInstance()));
+        pnb.addJob(new ActJobNodeBean("2", new CloudVmStatusContainer(), FastDateFormat.getInstance()));
+        fixture.setCurrentJobInstanceForTPS(pnb);
     }
 
     @Test
     public void testCurrentJobInstanceForUser() {
-        fixture.setCurrentJobInstanceForUser(new ProjectNodeBean(new Project()));
+        List<UserDetail> details = new ArrayList<>();
+        details.add(new UserDetail("script1", 10));
+        details.add(new UserDetail("script2", 20));
+        details.add(new UserDetail("script3", 30));
+        List<UserDetail> details2 = new ArrayList<>();
+        details2.add(new UserDetail("script1", 40));
+        details2.add(new UserDetail("script2", 50));
+        details2.add(new UserDetail("script3", 60));
+        List<UserDetail> details3 = new ArrayList<>();
+        details3.add(new UserDetail("script1", 40));
+        details3.add(new UserDetail("script2", 30));
+        details3.add(new UserDetail("script3", 20));
+        LocalDateTime now = LocalDateTime.of(2023, 12, 25, 10, 30);
+        Map<Date, List<UserDetail>> statusDetails = Map.of(
+                Date.from(Instant.from(now.atZone(ZoneId.systemDefault()))), details,
+                Date.from(Instant.from(now.minusSeconds(30).atZone(ZoneId.systemDefault()))), details2,
+                Date.from(Instant.from(now.minusSeconds(60).atZone(ZoneId.systemDefault()))), new ArrayList<>(),
+                Date.from(Instant.from(now.minusSeconds(120).atZone(ZoneId.systemDefault()))), details3);
+
+        ProjectNodeBean pnb = new ProjectNodeBean(new Project());
+        pnb.setStatusDetailMap(statusDetails);
+        fixture.setCurrentJobInstanceForUser(pnb);
+
+        assertEquals(3, fixture.getChartModel().getData().getDataSet().size());
+        assertEquals("[10:28:00, 10:29:00, 10:29:30, 10:30:00]", fixture.getChartModel().getData().getLabels().toString());
     }
 
     @Test

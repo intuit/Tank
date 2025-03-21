@@ -178,6 +178,8 @@ public class RequestRunner implements Runner {
                 baseRequest.doPost(baseResponse);
             } else if (method.equalsIgnoreCase("PUT")) {
                 baseRequest.doPut(baseResponse);
+            } else if (method.equalsIgnoreCase("PATCH")) {
+                baseRequest.doPatch(baseResponse);
             } else if (method.equalsIgnoreCase("DELETE")) {
                 baseRequest.doDelete(baseResponse);
             } else if (method.equalsIgnoreCase("OPTIONS")) {
@@ -432,7 +434,6 @@ public class RequestRunner implements Runner {
         }
 
         for (AssignmentData assignmentData : bodyVariable) {
-            variables.addVariable("RESPONSE_BODY", reqResponse.getResponseBody());
             String value = stripEquals(assignmentData.getValue());
             String realValue = null;
             if (ValidationUtil.isFunction(value)) {
@@ -446,7 +447,6 @@ public class RequestRunner implements Runner {
             }
             variables.addVariable(assignmentData.getKey(), realValue);
             LOG.debug("Setting variable " + assignmentData.getKey() + "=" + realValue);
-            variables.removeVariable("RESPONSE_BODY");
         }
     }
 

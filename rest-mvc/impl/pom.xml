@@ -47,6 +47,11 @@
             <artifactId>tank-script-processor</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-coyote</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>

@@ -103,9 +103,15 @@ public class TankHttpClientJDK implements TankHttpClient {
     @Override
     public void doPut(BaseRequest request) {
         String requestBody = request.getBody();
-        HttpRequest.Builder httpput = HttpRequest.newBuilder(URI.create(request.getRequestUrl()))
-                .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
-                .header("Content-Type", request.getContentType());
+        HttpRequest.Builder httpput = HttpRequest.newBuilder(URI.create(request.getRequestUrl()));
+        if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
+            String boundary = new BigInteger(256, new Random()).toString();
+            httpput.PUT(ofMimeMultipartData(request, boundary))
+                    .header("Content-Type", "multipart/form-data;boundary=" + boundary);
+        } else {
+            httpput.PUT(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .header("Content-Type", request.getContentType());
+        }
         request.getHeaderInformation().forEach(httpput::header);
         sendRequest(request, httpput.build(), requestBody);
     }
@@ -160,6 +166,29 @@ public class TankHttpClientJDK implements TankHttpClient {
         }
         request.getHeaderInformation().forEach(httppost::header);
         sendRequest(request, httppost.build(), requestBody);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * com.intuit.tank.httpclient3.TankHttpClient#doPatch(com.intuit.tank.http.
+     * BaseRequest)
+     */
+    @Override
+    public void doPatch(BaseRequest request) {
+        String requestBody = request.getBody();
+        HttpRequest.Builder httpPatch = HttpRequest.newBuilder(URI.create(request.getRequestUrl()));
+        if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
+            String boundary = new BigInteger(256, new Random()).toString();
+            httpPatch.method("PATCH", ofMimeMultipartData(request, boundary))
+                    .header("Content-Type", "multipart/form-data;boundary=" + boundary);
+        } else {
+            httpPatch.method("PATCH", HttpRequest.BodyPublishers.ofString(requestBody))
+                    .header("Content-Type", request.getContentType());
+        }
+        request.getHeaderInformation().forEach(httpPatch::header);
+        sendRequest(request, httpPatch.build(), requestBody);
     }
 
     /*
@@ -315,6 +344,20 @@ public class TankHttpClientJDK implements TankHttpClient {
                 if (!header.getKey().equalsIgnoreCase(":status")) {
                     response.setHeader(header.getKey(), StringUtils.join(header.getValue(), ','));
                 }
+            }
+
+            // Extract Proxy response/service time header
+            List<String> proxyResponseTimeHeaders = headers.map().get("x-envoy-upstream-service-time");
+            if (proxyResponseTimeHeaders != null && !proxyResponseTimeHeaders.isEmpty()) {
+                try {
+                    long proxyResponseTime = Long.parseLong(proxyResponseTimeHeaders.get(0));
+                    response.setProxyResponseTime(proxyResponseTime);
+                } catch (NumberFormatException e) {
+                    LOG.warn("could not parse proxy service time header: " + proxyResponseTimeHeaders.get(0));
+                    response.setProxyResponseTime(-1);
+                }
+            } else {
+                response.setProxyResponseTime(-1);
             }
 
             List<HttpCookie> cookies = cookieManager.getCookieStore().getCookies();

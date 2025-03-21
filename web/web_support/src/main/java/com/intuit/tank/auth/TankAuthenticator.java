@@ -67,22 +67,23 @@ public class TankAuthenticator implements Serializable {
     @Inject
     private TankSsoHandler _tankSsoHandler;
 
-    public void login() throws IOException {
+    public String login() throws IOException {
 
-        switch (continueAuthentication()) {
-            case SEND_CONTINUE:
+        return switch (continueAuthentication()) {
+            case SEND_CONTINUE -> {
                 FacesContext.getCurrentInstance().responseComplete();
-                break;
-            case SEND_FAILURE:
+                yield "continue";
+            }
+            case SEND_FAILURE -> {
                 messages.error("Invalid username or password");
-                break;
-            case SUCCESS:
+                yield "failure";
+            }
+            case SUCCESS -> {
                 messages.info("You're signed in as " + username);
-                FacesContext.getCurrentInstance().getExternalContext().redirect(
-                        FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath() + "/projects/index.jsf");
-                break;
-            case NOT_DONE:
-        }
+                yield "success";
+            }
+            case NOT_DONE -> "not_done";
+        };
     }
 
     public void ssoLogin() throws IOException {
@@ -114,6 +115,7 @@ public class TankAuthenticator implements Serializable {
 
     public String logout() {
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
+        securityContext.clearCallerPrincipal();
         return "/login.xhtml?faces-redirect=true";
     }
 
