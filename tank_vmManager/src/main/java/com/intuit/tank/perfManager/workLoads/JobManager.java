@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
+import com.amazonaws.xray.AWSXRay;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -254,16 +255,21 @@ public class JobManager implements Serializable {
      * @return List of InstanceUrls
      */
     protected List<String> getInstanceUrl(List<String> instanceIds) {
-        return instanceIds.parallelStream()
-                .filter(StringUtils::isNotEmpty)
-                .map(instanceId -> jobInfoMapLocalCache.values().stream()
-                        .flatMap(info -> info.agentData.stream())
-                        .filter(data -> instanceId.equals(data.getInstanceId()))
-                        .findFirst()
-                        .orElse(findAgent(instanceId)))
-                .filter(Objects::nonNull)
-                .map(AgentData::getInstanceUrl)
-                .collect(Collectors.toList());
+        AWSXRay.beginSubsegment("Lookup.Instance.URL");
+        try {
+            return instanceIds.parallelStream()
+                    .filter(StringUtils::isNotEmpty)
+                    .map(instanceId -> jobInfoMapLocalCache.values().stream()
+                            .flatMap(info -> info.agentData.stream())
+                            .filter(data -> instanceId.equals(data.getInstanceId()))
+                            .findFirst()
+                            .orElse(findAgent(instanceId)))
+                    .filter(Objects::nonNull)
+                    .map(AgentData::getInstanceUrl)
+                    .collect(Collectors.toList());
+        } finally {
+            AWSXRay.endSubsegment();
+        }
     }
 
     /**
@@ -272,11 +278,10 @@ public class JobManager implements Serializable {
      * @return AgentData
      */
     private AgentData findAgent(String instanceId) {
-        String instanceUrl;
         for (VMRegion region : tankConfig.getVmManagerConfig().getRegions()) {
             Optional<String> instanceUrlOptional = new AmazonInstance(region).findDNSName(instanceId);
             if (instanceUrlOptional.isPresent()) {
-                instanceUrl = "http://" + instanceUrlOptional.get() + ":" + tankConfig.getAgentConfig().getAgentPort();
+                String instanceUrl = "http://" + instanceUrlOptional.get() + ":" + tankConfig.getAgentConfig().getAgentPort();
                 return new AgentData("0", instanceId, instanceUrl, 0, region, "zone");
             }
         }

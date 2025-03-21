@@ -7,6 +7,8 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.scripts;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Subsegment;
 import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.dao.ExternalScriptDao;
@@ -244,6 +246,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
 
     @Override
     public Map<String, StreamingResponseBody> downloadHarnessScript(Integer scriptId){
+        Subsegment subsegment = AWSXRay.beginSubsegment("Download.Harness." + scriptId);
         try {
             StreamingResponseBody streamingResponse;
             Map<String, StreamingResponseBody> payload = new HashMap<String, StreamingResponseBody>();
@@ -259,8 +262,11 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                 return payload;
             }
         } catch (Exception e) {
-            LOGGER.error("Error downloading Tank Harness script file: " + e.getMessage(), e);
+            LOGGER.error("Error downloading Tank Harness script file: {}", e.getMessage(), e);
+            subsegment.addException(e);
             throw new GenericServiceResourceNotFoundException("scripts", "Tank Harness script file", e);
+        } finally {
+            AWSXRay.endSubsegment();
         }
     }
 

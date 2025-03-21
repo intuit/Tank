@@ -92,11 +92,16 @@ public class ConverterUtil {
         hdScriptGroup.setName("Group-1");
         hdScriptGroup.setDescription("autoGen");
 
-        HDScript testGroup = new HDScript();
-        hdScriptGroup.getGroupSteps().add(testGroup);
-        testGroup.setName(script.getName());
-        testGroup.setLoop(1);
-        testGroup.getUseCase().addAll(convertScript(script.getScriptSteps(), new StepCounter()));
+        HDScript hdScript = new HDScript();
+        hdScriptGroup.getGroupSteps().add(hdScript);
+        hdScript.setName(script.getName());
+        hdScript.setLoop(1);
+        AWSXRay.createSubsegment("Convert.Script", (subsegment) -> {
+            subsegment.putAnnotation("scriptName", script.getName());
+            subsegment.putAnnotation("scriptId", script.getId());
+            subsegment.putAnnotation("scriptSize", script.getScriptSteps().size());
+            hdScript.getUseCase().addAll(convertScript(script.getScriptSteps(), new StepCounter()));
+        });
 
         return hdWorkload;
 
