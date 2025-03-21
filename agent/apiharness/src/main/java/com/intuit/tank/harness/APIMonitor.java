@@ -51,7 +51,6 @@ public class APIMonitor implements Runnable {
     private long reportInterval = APIMonitor.MIN_REPORT_TIME;
     private boolean isLocal;
 
-
     public APIMonitor(Boolean isLocal, CloudVmStatus vmStatus) {
         this.isLocal = isLocal;
         status = vmStatus;
