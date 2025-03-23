@@ -31,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.amazonaws.xray.entities.Entity;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -141,12 +142,11 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void setStatus(@Nonnull final CloudVmStatus status) {
-        Runnable task = () -> setStatusThread(status);
-        EXECUTOR.execute(task);
+        EXECUTOR.execute(() -> setStatusThread(status, AWSXRay.getTraceEntity()));
     }
 
-    private void setStatusThread(@Nonnull final CloudVmStatus status) {
-        AWSXRay.getGlobalRecorder().beginNoOpSegment();  //initiation call has already returned 204
+    private void setStatusThread(@Nonnull final CloudVmStatus status, Entity traceEntity) {
+        AWSXRay.setTraceEntity(traceEntity);
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
             CloudVmStatus currentStatus = getStatus(status.getInstanceId());
@@ -191,7 +191,6 @@ public class VMTrackerImpl implements VMTracker {
                 projectStatusContainer.addStatusContainer(cloudVmStatusContainer);
             }
         }
-        AWSXRay.endSegment();
     }
 
     private String getProjectForJobId(String jobId) {
