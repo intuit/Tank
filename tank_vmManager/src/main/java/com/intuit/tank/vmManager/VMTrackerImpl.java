@@ -142,11 +142,11 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void setStatus(@Nonnull final CloudVmStatus status) {
-        EXECUTOR.execute(() -> setStatusThread(status, AWSXRay.getTraceEntity()));
+        EXECUTOR.execute(() -> setStatusThread(status, AWSXRay.getGlobalRecorder().getTraceEntity()));
     }
 
     private void setStatusThread(@Nonnull final CloudVmStatus status, Entity traceEntity) {
-        AWSXRay.setTraceEntity(traceEntity);
+        AWSXRay.getGlobalRecorder().setTraceEntity(traceEntity);
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
             CloudVmStatus currentStatus = getStatus(status.getInstanceId());
