@@ -64,7 +64,7 @@ public class APIMonitor implements Runnable {
 
     @Override
     public void run() {
-        LOG.info(LogUtil.getLogMessage("APIMonitor thread started."));
+        LOG.debug(LogUtil.getLogMessage("APIMonitor thread started."));
         while (doMonitor) {
             updateInstanceStatus();
             try {
@@ -72,9 +72,7 @@ public class APIMonitor implements Runnable {
             } catch ( InterruptedException ie) { /*Ignore*/ }
         }
         if(!doMonitor) {
-            LOG.info(LogUtil.getLogMessage("Sending final instance status update..."));
             updateInstanceStatus();
-            LOG.info(LogUtil.getLogMessage("APIMonitor thread finished."));
         }
     }
 
@@ -134,12 +132,12 @@ public class APIMonitor implements Runnable {
     }
 
     public static void setDoMonitor(boolean monitor) {
-        LOG.info(LogUtil.getLogMessage("Setting doMonitor to: " + monitor));
+        LOG.debug(LogUtil.getLogMessage("Setting doMonitor to: " + monitor));
         doMonitor = monitor;
     }
 
     public synchronized static void setJobStatus(JobStatus jobStatus) {
-        LOG.info(LogUtil.getLogMessage("Setting job status to: " + jobStatus));
+        LOG.debug(LogUtil.getLogMessage("Setting job status to: " + jobStatus));
         if (status != null && status.getJobStatus() != JobStatus.Completed) {
             try {
             	VMStatus vmStatus =  jobStatus.equals(JobStatus.Stopped) ? VMStatus.stopping
