@@ -30,6 +30,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.zip.GZIPInputStream;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Segment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.http.TankHttpClient;
@@ -357,12 +359,15 @@ public class APITestHarness {
      * 
      */
     public void writeXmlToFile(String scriptUrl, String token) {
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(scriptUrl))
-                .headers("Accept-Encoding", "gzip", "Authorization", "bearer "+token).build();
         File script = new File("script.xml");
         int retryCount = 0;
         while (true) {
-            try {
+            try (Segment segment = AWSXRay.getGlobalRecorder().beginSegment("Download.ScriptXmlToFile")){
+                HttpRequest request = HttpRequest.newBuilder().uri(URI.create(scriptUrl))
+                        .headers("Accept-Encoding", "gzip",
+                                "Authorization", "bearer "+token,
+                                "X-Amzn-Trace-Id", "Root=" + segment.getId() + ";Parent=" + segment.getParentId() + ";Sampled=1")
+                        .build();
                 HttpResponse<InputStream> response = client.send(request, BodyHandlers.ofInputStream());
                 try ( InputStream stream =
                             ("gzip".equals(response.headers().firstValue("Content-Encoding").orElse("")))
