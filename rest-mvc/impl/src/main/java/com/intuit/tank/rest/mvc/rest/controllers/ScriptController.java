@@ -80,10 +80,8 @@ public class ScriptController {
     })
     public ResponseEntity<ScriptDescription> getScript(@PathVariable @Parameter(description = "Script ID", required = true) Integer scriptId) {
         ScriptDescription script = scriptService.getScript(scriptId);
-        if (script != null){
-            return new ResponseEntity<>(script, HttpStatus.OK);
-        }
-        return ResponseEntity.notFound().build();
+        if (script == null) return ResponseEntity.notFound().build();
+        return new ResponseEntity<>(script, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST)
@@ -129,9 +127,8 @@ public class ScriptController {
     })
     public ResponseEntity<StreamingResponseBody> downloadScript(@PathVariable @Parameter(description = "Script ID", required = true) Integer scriptId) throws IOException {
         Map<String, StreamingResponseBody> response = scriptService.downloadScript(scriptId);
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
+        if (response == null) return ResponseEntity.notFound().build();
+
         String filename = response.keySet().iterator().next();
         StreamingResponseBody responseBody = response.get(filename);
 
@@ -144,7 +141,7 @@ public class ScriptController {
                 .body(responseBody);
     }
 
-    @RequestMapping(value = "/harness/download/{scriptId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/harness/download/{scriptId}", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
     @Operation(description = "Downloads the Tank Harness file for a script with the corresponding script ID", summary = "Download the Tank Harness script file")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully downloaded the Tank Harness script file", content = @Content),
@@ -152,18 +149,14 @@ public class ScriptController {
     })
     public ResponseEntity<StreamingResponseBody> downloadHarnessScript(@PathVariable @Parameter(description = "Script ID", required = true) Integer scriptId) throws IOException {
         Map<String, StreamingResponseBody> response = scriptService.downloadHarnessScript(scriptId);
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
+        if (response == null) return ResponseEntity.notFound().build();
+
         String filename = response.keySet().iterator().next();
         StreamingResponseBody responseBody = response.get(filename);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
-
         return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.APPLICATION_XML)
                 .body(responseBody);
     }
 
@@ -201,10 +194,8 @@ public class ScriptController {
     })
     public ResponseEntity<ExternalScriptTO> getExternalScript(@PathVariable @Parameter(description = "External Script ID", required = true) Integer externalScriptId) {
         ExternalScriptTO script = scriptService.getExternalScript(externalScriptId);
-        if (script != null){
-            return new ResponseEntity<>(script, HttpStatus.OK);
-        }
-        return ResponseEntity.notFound().build();
+        if (script == null) return ResponseEntity.notFound().build();
+        return new ResponseEntity<>(script, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/external", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
@@ -222,7 +213,7 @@ public class ScriptController {
         return new ResponseEntity<>(savedScript, responseHeaders, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/external/download/{externalScriptId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/external/download/{externalScriptId}", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
     @Operation(description = "Downloads the Tank XML file for an external script with the corresponding external script ID", summary = "Download an external script")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully downloaded the Tank XML external script file", content = @Content),
@@ -230,18 +221,14 @@ public class ScriptController {
     })
     public ResponseEntity<StreamingResponseBody> downloadExternalScript(@PathVariable @Parameter(description = "External Script ID", required = true) Integer externalScriptId) throws IOException {
         Map<String, StreamingResponseBody> response = scriptService.downloadExternalScript(externalScriptId);
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
+        if (response == null) return ResponseEntity.notFound().build();
+
         String filename = response.keySet().iterator().next();
         StreamingResponseBody responseBody = response.get(filename);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
-
         return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.APPLICATION_XML)
                 .body(responseBody);
     }
 
