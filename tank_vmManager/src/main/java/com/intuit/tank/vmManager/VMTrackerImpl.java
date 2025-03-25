@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.Segment;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -142,54 +142,54 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void setStatus(@Nonnull final CloudVmStatus status) {
-        EXECUTOR.execute(() -> setStatusThread(status, AWSXRay.getGlobalRecorder().getTraceEntity()));
+        EXECUTOR.execute(() -> setStatusThread(status));
     }
 
-    private void setStatusThread(@Nonnull final CloudVmStatus status, Entity traceEntity) {
-        LOG.error("TRACE ENTITY: {}", traceEntity);
-        AWSXRay.getGlobalRecorder().setTraceEntity(traceEntity);
-        synchronized (getCacheSyncObject(status.getJobId())) {
-            status.setReportTime(new Date());
-            CloudVmStatus currentStatus = getStatus(status.getInstanceId());
-            if (shouldUpdateStatus(currentStatus)) {
-                statusMap.put(status.getInstanceId(), status);
-                if (status.getVmStatus() == VMStatus.running
-                		&& (status.getJobStatus() == JobStatus.Completed)
-                		&& !isDevMode()) {
-	                        AmazonInstance amzInstance = new AmazonInstance(status.getVmRegion());
-	                        amzInstance.killInstances(Collections.singletonList(status.getInstanceId()));
-                }
-            }
-            String jobId = status.getJobId();
-            CloudVmStatusContainer cloudVmStatusContainer = jobMap.get(jobId);
-            if (cloudVmStatusContainer == null) {
-                cloudVmStatusContainer = new CloudVmStatusContainer();
-                cloudVmStatusContainer.setJobId(jobId);
-
-                jobMap.put(jobId, cloudVmStatusContainer);
-                JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(jobId));
-                if (job != null) {
-                    JobQueueStatus newStatus = getQueueStatus(job.getStatus(), status.getJobStatus());
-                    cloudVmStatusContainer.setStatus(newStatus);
-                    if (newStatus != job.getStatus()) {
-                        job.setStatus(newStatus);
-                        new JobInstanceDao().saveOrUpdate(job);
+    private void setStatusThread(@Nonnull final CloudVmStatus status) {
+        try (Segment noOpSegment = AWSXRay.getGlobalRecorder().beginNoOpSegment()) {
+            synchronized (getCacheSyncObject(status.getJobId())) {
+                status.setReportTime(new Date());
+                CloudVmStatus currentStatus = getStatus(status.getInstanceId());
+                if (shouldUpdateStatus(currentStatus)) {
+                    statusMap.put(status.getInstanceId(), status);
+                    if (status.getVmStatus() == VMStatus.running
+                            && (status.getJobStatus() == JobStatus.Completed)
+                            && !isDevMode()) {
+                        AmazonInstance amzInstance = new AmazonInstance(status.getVmRegion());
+                        amzInstance.killInstances(Collections.singletonList(status.getInstanceId()));
                     }
-                } else {
-                    JobQueueStatus newStatus = getQueueStatus(cloudVmStatusContainer.getStatus(), status.getJobStatus());
-                    cloudVmStatusContainer.setStatus(newStatus);
                 }
-            }
-            cloudVmStatusContainer.setReportTime(status.getReportTime());
-            addStatusToJobContainer(status, cloudVmStatusContainer);
-            String projectId = getProjectForJobId(jobId);
-            if (projectId != null) {
-                ProjectStatusContainer projectStatusContainer = getProjectStatusContainer(projectId);
-                if (projectStatusContainer == null) {
-                    projectStatusContainer = new ProjectStatusContainer();
-                    projectContainerMap.put(projectId, projectStatusContainer);
+                String jobId = status.getJobId();
+                CloudVmStatusContainer cloudVmStatusContainer = jobMap.get(jobId);
+                if (cloudVmStatusContainer == null) {
+                    cloudVmStatusContainer = new CloudVmStatusContainer();
+                    cloudVmStatusContainer.setJobId(jobId);
+
+                    jobMap.put(jobId, cloudVmStatusContainer);
+                    JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(jobId));
+                    if (job != null) {
+                        JobQueueStatus newStatus = getQueueStatus(job.getStatus(), status.getJobStatus());
+                        cloudVmStatusContainer.setStatus(newStatus);
+                        if (newStatus != job.getStatus()) {
+                            job.setStatus(newStatus);
+                            new JobInstanceDao().saveOrUpdate(job);
+                        }
+                    } else {
+                        JobQueueStatus newStatus = getQueueStatus(cloudVmStatusContainer.getStatus(), status.getJobStatus());
+                        cloudVmStatusContainer.setStatus(newStatus);
+                    }
                 }
-                projectStatusContainer.addStatusContainer(cloudVmStatusContainer);
+                cloudVmStatusContainer.setReportTime(status.getReportTime());
+                addStatusToJobContainer(status, cloudVmStatusContainer);
+                String projectId = getProjectForJobId(jobId);
+                if (projectId != null) {
+                    ProjectStatusContainer projectStatusContainer = getProjectStatusContainer(projectId);
+                    if (projectStatusContainer == null) {
+                        projectStatusContainer = new ProjectStatusContainer();
+                        projectContainerMap.put(projectId, projectStatusContainer);
+                    }
+                    projectStatusContainer.addStatusContainer(cloudVmStatusContainer);
+                }
             }
         }
     }
