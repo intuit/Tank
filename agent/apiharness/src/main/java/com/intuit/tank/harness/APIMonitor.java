@@ -158,16 +158,16 @@ public class APIMonitor implements Runnable {
     private static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException, JsonProcessingException {
         String json = objectWriter.writeValueAsString(VmStatus);
         String token = APITestHarness.getInstance().getTankConfig().getAgentConfig().getAgentToken();
-        Segment segment = AWSXRay.beginSegment("Report.Agent.Status");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(APITestHarness.getInstance().getTankConfig().getControllerBase() + "/v2/agent/instance/status/" + instanceId))
-                .header(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
-                .header(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
-                .header(HttpHeaders.AUTHORIZATION, "bearer " + token)
-                .header("X-Amzn-Trace-Id", "Root=" + segment.getId() + ";Parent=" + segment.getParentId() + ";Sampled=1")
-                .PUT(HttpRequest.BodyPublishers.ofString(json))
-                .build();
-        client.sendAsync(request, HttpResponse.BodyHandlers.discarding());
-        AWSXRay.endSegment();
+        try (Segment segment = AWSXRay.beginSegment("Agent.Status")) {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(APITestHarness.getInstance().getTankConfig().getControllerBase() + "/v2/agent/instance/status/" + instanceId))
+                    .header(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
+                    .header(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
+                    .header(HttpHeaders.AUTHORIZATION, "bearer " + token)
+                    .header("X-Amzn-Trace-Id", "Root=" + segment.getId() + ";Parent=" + segment.getParentId() + ";Sampled=1")
+                    .PUT(HttpRequest.BodyPublishers.ofString(json))
+                    .build();
+            client.sendAsync(request, HttpResponse.BodyHandlers.discarding());
+        }
     }
 }

@@ -362,7 +362,7 @@ public class APITestHarness {
         File script = new File("script.xml");
         int retryCount = 0;
         while (true) {
-            try (Segment segment = AWSXRay.getGlobalRecorder().beginSegment("Download.ScriptXmlToFile")){
+            try (Segment segment = AWSXRay.beginSegment("Agent.ScriptXmlToFile")) {
                 HttpRequest request = HttpRequest.newBuilder().uri(URI.create(scriptUrl))
                         .headers("Accept-Encoding", "gzip",
                                 "Authorization", "bearer "+token,
