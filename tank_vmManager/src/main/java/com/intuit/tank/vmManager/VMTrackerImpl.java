@@ -312,11 +312,19 @@ public class VMTrackerImpl implements VMTracker {
         boolean rampPaused = true;
         boolean stopped = true;
         boolean running = true;
+        int activeAgentCount = 0;
+
+        LOG.debug(new ObjectMessage(ImmutableMap.of("jobId", cloudVmStatusContainer.getJobId(), "message", "DEBUG: Starting aggregation loop", "totalStatuses", cloudVmStatusContainer.getStatuses().size())));
 
         // look up the job
         JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(status.getJobId()));
         for (CloudVmStatus s : cloudVmStatusContainer.getStatuses()) {
             JobStatus jobStatus = s.getJobStatus();
+            boolean isActive = (s.getEndTime() == null && s.getVmStatus() != VMStatus.terminated);
+            if (isActive) {
+                activeAgentCount++; // track active agents (tracking agent restarts)
+            }
+
             if (jobStatus != JobStatus.Completed) {  // If no VMs are Completed
                 isFinished = false;
             }
@@ -329,10 +337,23 @@ public class VMTrackerImpl implements VMTracker {
             if (jobStatus != JobStatus.Stopped) {  // If no VMs are Stopped
                 stopped = false;
             }
-            if (jobStatus != JobStatus.Running) {  // If no VMs are Running
-                running = false;
+            if (jobStatus != JobStatus.Running) {
+                if (isActive) {
+                    running = false;
+                     LOG.debug(new ObjectMessage(ImmutableMap.of("jobId", cloudVmStatusContainer.getJobId(), "message", "DEBUG: Active agent not Running, setting overall running=false", "instanceId", s.getInstanceId(), "agentJobStatus", jobStatus)));
+                } else {
+                     // ignore terminated agent for running flag
+                     LOG.debug(new ObjectMessage(ImmutableMap.of("jobId", cloudVmStatusContainer.getJobId(), "message", "DEBUG: Ignoring terminated agent status for 'running' flag check", "instanceId", s.getInstanceId(), "agentJobStatus", jobStatus)));
+                }
             }
         }
+
+        if (activeAgentCount == 0) {
+            // correcting running flag for zero active agents
+             LOG.debug(new ObjectMessage(ImmutableMap.of("jobId", cloudVmStatusContainer.getJobId(), "message", "DEBUG: No active agents found after loop, forcing running=false")));
+            running = false;
+        }
+
         if (isFinished) {
             LOG.info(new ObjectMessage(ImmutableMap.of("Message","Setting end time on container " + cloudVmStatusContainer.getJobId())));
             if (cloudVmStatusContainer.getEndTime() == null) {
