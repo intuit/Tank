@@ -22,10 +22,7 @@ import java.util.stream.Collectors;
 
 import com.amazonaws.xray.AWSXRay;
 import com.google.common.collect.ImmutableMap;
-import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.logging.ControllerLoggingConfig;
-import com.intuit.tank.project.JobInstance;
-import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -134,8 +131,6 @@ public class AgentWatchdog implements Runnable {
     @Override
     public void run() {
         ControllerLoggingConfig.setupThreadContext();
-        LOG.info("Thread Region: " + instanceRequest.getRegion());
-        LOG.info("Expected instance count: " + expectedInstanceCount);
         String jobId = instanceRequest.getJobId();
         LOG.info(new ObjectMessage(ImmutableMap.of("Message","Starting WatchDog: " + this.toString() + " for job " + jobId)));
         AWSXRay.getGlobalRecorder().beginNoOpSegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
@@ -159,13 +154,6 @@ public class AgentWatchdog implements Runnable {
                     LOG.info(new ObjectMessage(ImmutableMap.of("Message","All Agents Reported back for job " + jobId + ".")));
                     vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(),
                             "All Agents Reported Back and are ready to start load.", JobLifecycleEvent.AGENT_REPORTED));
-
-                    CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
-                    if (container != null && container.getStatuses().size() == expectedInstanceCount) {
-                        if (jobId != null) {
-                            updateJobStatusWhenReady(jobId);
-                        }
-                    }
                     stopped = true;
                 }
             }
@@ -175,26 +163,6 @@ public class AgentWatchdog implements Runnable {
         } finally {
             LOG.info(new ObjectMessage(ImmutableMap.of("Message","Exiting Watchdog " + this.toString())));
             AWSXRay.endSegment();
-        }
-    }
-
-    /**
-     *  Updates Job Status to Running once all Agents are checked in.
-     * @param jobId
-     */
-    private void updateJobStatusWhenReady(String jobId) {
-        try {
-            JobInstanceDao dao = new JobInstanceDao();
-            JobInstance job = dao.findById(Integer.parseInt(jobId));
-            if (job != null && job.getStatus() == JobQueueStatus.Starting) {
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message",
-                        "All agents have reported for job " + jobId + ". Updating job status from Starting to Running.")));
-                job.setStatus(JobQueueStatus.Running);
-                dao.saveOrUpdate(job);
-            }
-        } catch (Exception e) {
-            LOG.error(new ObjectMessage(ImmutableMap.of("Message",
-                    "Error updating job status for " + jobId + ": " + e.getMessage())), e);
         }
     }
 
