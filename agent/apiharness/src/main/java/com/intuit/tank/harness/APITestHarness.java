@@ -253,7 +253,7 @@ public class APITestHarness {
         System.out.println("-t:  Turns trace on to print each request");
     }
 
-    private void startHttp(String baseUrl, String token) throws InterruptedException {
+    private void startHttp(String baseUrl, String token)  {
         isLocal = false;
         HostInfo hostInfo = new HostInfo();
         CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
@@ -300,7 +300,9 @@ public class APITestHarness {
         if (simulateFailure) {
             LOG.debug("TEST FAILURE SIMULATION: Intentionally delaying agent startup via sleep - agent {}", data.getInstanceId());
             long sleepDurationMillis = 10 * 60 * 1000;
-            Thread.sleep(sleepDurationMillis);
+            try {
+                Thread.sleep(sleepDurationMillis);
+            } catch (InterruptedException e) {};
             LOG.warn("TEST FAILURE SIMULATION: Finished sleeping.");
         }
 
