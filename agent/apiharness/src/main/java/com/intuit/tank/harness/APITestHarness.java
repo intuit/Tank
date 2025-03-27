@@ -253,7 +253,7 @@ public class APITestHarness {
         System.out.println("-t:  Turns trace on to print each request");
     }
 
-    private void startHttp(String baseUrl, String token)  {
+    private void startHttp(String baseUrl, String token) {
         isLocal = false;
         HostInfo hostInfo = new HostInfo();
         CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
@@ -294,19 +294,6 @@ public class APITestHarness {
 
         AgentData data = new AgentData(agentRunData.getJobId(), instanceId, instanceUrl, capacity,
                 AmazonUtil.getVMRegion(), AmazonUtil.getZone());
-
-        boolean simulateFailure = data.getRegion() != null && data.getRegion().equals(VMRegion.US_WEST_2);
-
-        if (simulateFailure) {
-            LOG.debug("TEST FAILURE SIMULATION: Intentionally delaying agent startup via sleep - agent {}", data.getInstanceId());
-            long sleepDurationMillis = 10 * 60 * 1000;
-            try {
-                Thread.sleep(sleepDurationMillis);
-            } catch (InterruptedException e) {};
-            LOG.warn("TEST FAILURE SIMULATION: Finished sleeping.");
-        }
-
-
         try {
             AgentTestStartData startData = null;
             int count = 0;
