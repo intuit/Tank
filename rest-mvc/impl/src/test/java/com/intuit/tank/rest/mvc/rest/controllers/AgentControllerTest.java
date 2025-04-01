@@ -167,7 +167,7 @@ public class AgentControllerTest {
                 VMImageType.AGENT, VMRegion.US_WEST_2, null, null, 0, 0, null, null);
 
         ResponseEntity<Void> result = agentController.setInstanceStatus("testInstanceStatusIdAPIV2", testStatus);
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(202, result.getStatusCodeValue());
         verify(agentService).setInstanceStatus("testInstanceStatusIdAPIV2", testStatus);
     }
 
