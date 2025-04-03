@@ -169,7 +169,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                     instanceRequest.addUserData(TankConstants.KEY_JOB_ID, instanceRequest.getJobId());
                 }
                 if (instanceRequest.getReportingMode() != null) {
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Setting reporting mode to " + instanceRequest.getReportingMode())));
+                    LOG.debug("Setting reporting mode to {}", instanceRequest.getReportingMode());
                     instanceRequest.addUserData(TankConstants.KEY_REPORTING_MODE, instanceRequest.getReportingMode());
                 } else {
                     LOG.debug("Reporting mode not set.");
@@ -191,13 +191,13 @@ public class AmazonInstance implements IEnvironmentInstance {
                     instanceRequest.addUserData(TankConstants.KEY_USING_BIND_EIP, Boolean.TRUE.toString());
                 }
                 if (instanceRequest.getLoggingProfile() != null) {
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Setting loggingProfile to " + instanceRequest.getLoggingProfile())));
+                    LOG.debug("Setting loggingProfile to {}", instanceRequest.getLoggingProfile());
                     instanceRequest.addUserData(TankConstants.KEY_LOGGING_PROFILE, instanceRequest.getLoggingProfile());
                 } else {
                     LOG.debug("Logging  profile not set.");
                 }
                 if (instanceRequest.getStopBehavior() != null) {
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Setting stopBehavior to " + instanceRequest.getStopBehavior())));
+                    LOG.debug("Setting stopBehavior to {}", instanceRequest.getStopBehavior());
                     instanceRequest.addUserData(TankConstants.KEY_STOP_BEHAVIOR, instanceRequest.getStopBehavior());
                 } else {
                     LOG.debug("stop Behavior not set.");
@@ -207,7 +207,7 @@ public class AmazonInstance implements IEnvironmentInstance {
 
                 int totalInstanceRequest = instanceRequest.getNumberOfInstances();
                 String image = getAMI(instanceDescription);
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message","Requesting " + totalInstanceRequest + " instances in " + vmRegion.getName() + " with AMI=" + image)));
+                LOG.info("Requesting {} instances in {} with AMI={}", totalInstanceRequest, vmRegion.getName(), image);
 
                 RunInstancesRequest.Builder runInstancesRequestTemplate = RunInstancesRequest.builder();
                 runInstancesRequestTemplate.metadataOptions(
@@ -221,7 +221,7 @@ public class AmazonInstance implements IEnvironmentInstance {
 
                 Collection<String> c = instanceDescription.getSecurityGroupIds();
                 if (!c.isEmpty()) {
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message","Security Group IDs " + c.toString())));
+                    LOG.debug("Security Group IDs {}", c.toString());
                     runInstancesRequestTemplate.securityGroupIds(c);
                 } else {
                     runInstancesRequestTemplate.securityGroups(instanceDescription.getSecurityGroup());
@@ -332,7 +332,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                         LOG.warn("Failure requesting instance type: {} : {} : {}", instanceType, vmRegion,  cause.getMessage());
                         return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes).join();
                     } else {
-                        LOG.error("Error requesting instances: {}: {}", vmRegion, cause.getMessage(), cause);
+                        LOG.error("Error requesting instances: {}: {}", vmRegion, cause.getMessage());
                     }
                     throw new RuntimeException(cause);
                 })
