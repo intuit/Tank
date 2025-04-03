@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 
 public class AmazonInstance implements IEnvironmentInstance {
 
-    protected static String INSUFFICIENT_INSTANCE_CAPACITY = "InsufficientInstanceCapacity";
+    protected static String INSUFFICIENT_INSTANCE_CAPACITY = "Server.InsufficientInstanceCapacity";
     protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 2;// 2 minutes
     private static final Logger LOG = LogManager.getLogger(AmazonInstance.class);
 
