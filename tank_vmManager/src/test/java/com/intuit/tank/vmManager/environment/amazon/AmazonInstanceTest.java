@@ -175,7 +175,7 @@ public class AmazonInstanceTest {
         VMRequest vmRequest = new VMInstanceRequest(VMProvider.Amazon, VMRegion.US_WEST_2, "m.xlarge",
                 VMImageType.AGENT, 23, false, "testZone", instanceDescription);
         when(_mockEc2AsyncClient.runInstances((RunInstancesRequest) any()))
-                .thenReturn(CompletableFuture.failedFuture(Ec2Exception.builder().build()));
+                .thenReturn(CompletableFuture.failedFuture(new CompletionException(Ec2Exception.builder().build())));
 
         AWSXRay.beginSegment("TEST");
         assertThrows(RuntimeException.class, () -> amazonInstance.create(vmRequest));
