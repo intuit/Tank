@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
 
 public class AmazonInstance implements IEnvironmentInstance {
 
+    protected static String INSUFFICIENT_INSTANCE_CAPACITY = "InsufficientInstanceCapacity";
     protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 2;// 2 minutes
     private static final Logger LOG = LogManager.getLogger(AmazonInstance.class);
 
@@ -325,14 +326,15 @@ public class AmazonInstance implements IEnvironmentInstance {
                         .instanceType(instanceType)
                         .subnetId(subnetId)
                         .minCount(1).maxCount(requestCount).build())
-                .exceptionally(ex -> {
-                    if (ex instanceof Ec2Exception) { //TODO: Filter on exact capacity exception message
-                        LOG.warn("Failure requesting instance type: {} : {} : {}", instanceType, vmRegion,  ex.getMessage());
+                .exceptionally(completionException -> {
+                    Throwable cause = completionException.getCause();
+                    if (cause instanceof Ec2Exception && ((Ec2Exception)cause).awsErrorDetails().errorCode().equals(INSUFFICIENT_INSTANCE_CAPACITY)) {
+                        LOG.warn("Failure requesting instance type: {} : {} : {}", instanceType, vmRegion,  cause.getMessage());
                         return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes).join();
                     } else {
-                        LOG.error("Error requesting instances: {}: {}", vmRegion, ex.getMessage(), ex);
+                        LOG.error("Error requesting instances: {}: {}", vmRegion, cause.getMessage(), cause);
                     }
-                    throw new RuntimeException(ex);
+                    throw new RuntimeException(cause);
                 })
                 .thenApply(response -> {
                     if (response.instances().size() < requestCount) {
