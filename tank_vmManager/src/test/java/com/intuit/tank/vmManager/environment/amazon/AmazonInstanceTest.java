@@ -102,7 +102,7 @@ public class AmazonInstanceTest {
                 VMImageType.AGENT, 8, false, "testZone", instanceDescription);
         when(_mockEc2AsyncClient.runInstances((RunInstancesRequest) any()))
                 .thenReturn(CompletableFuture.failedFuture(new CompletionException(Ec2Exception.builder()
-                        .awsErrorDetails(AwsErrorDetails.builder().errorCode("InsufficientInstanceCapacity").build())
+                        .awsErrorDetails(AwsErrorDetails.builder().errorCode(INSUFFICIENT_INSTANCE_CAPACITY).build())
                         .build())))
                 .thenReturn(CompletableFuture.completedFuture(RunInstancesResponse.builder()
                         .instances(List.of(
