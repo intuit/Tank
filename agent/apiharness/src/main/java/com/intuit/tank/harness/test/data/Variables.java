@@ -108,7 +108,7 @@ public class Variables {
 	                            LogEventType.Validation, LoggingProfile.USER_VARIABLE));
 	                    throw new KillScriptException("CSV file (" + group + ") has no more data.");
 	                }
-	                s = StringUtils.replace(s, match, result != null ? result : "");
+                    s = s.replace(match, result != null ? result : "");
 	            }
 	        }
     	}

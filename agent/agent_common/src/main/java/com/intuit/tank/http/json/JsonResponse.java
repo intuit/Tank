@@ -16,6 +16,7 @@ package com.intuit.tank.http.json;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,11 +81,7 @@ public class JsonResponse extends BaseResponse {
     }
 
     private String cleanString(String input) {
-        try {
-            return StringUtils.remove(input.trim(),"(\r\n)+");
-        } catch (Exception ex) {
-            return input;
-        }
+        return input.replaceAll("[\\t\\n]", "");
     }
 
     private void initialize() {
@@ -92,10 +89,10 @@ public class JsonResponse extends BaseResponse {
             if (!StringUtils.isEmpty(this.response)) {
                 this.jsonMap = new ObjectMapper().readValue(this.response, HashMap.class);
             } else {
-                this.jsonMap = new HashMap();
+                this.jsonMap = Collections.emptyMap();;
             }
         } catch (IOException ex) {
-            logger.warn("Unable to parse the response string as a JSON object: " + this.response, ex);
+            logger.warn("Unable to parse the response string as a JSON object: {}", this.response, ex);
         }
     }
 

@@ -26,6 +26,8 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -54,22 +56,25 @@ public class TankHttpClientJDK implements TankHttpClient {
     private final CookieManager cookieManager = new CookieManager();
     private final Collection<String> mimeTypes = new TankConfig().getAgentConfig().getTextMimeTypeRegex();
 
-
     /**
      * no-arg constructor for client
      */
     public TankHttpClientJDK() {
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+    }
+
+    public Object createHttpClient() { return Executors.newCachedThreadPool(); }
+
+    public void setHttpClient(Object executor) {
+        ExecutorService executorService = (executor instanceof ExecutorService) ?
+                (ExecutorService) executor : Executors.newCachedThreadPool();
         httpclientBuilder = HttpClient.newBuilder()
                 .cookieHandler(cookieManager)
+                .executor(executorService)
                 .connectTimeout(Duration.ofSeconds(30))
                 .followRedirects(HttpClient.Redirect.ALWAYS);
         httpclient = httpclientBuilder.build();
     }
-
-    public Object createHttpClient() { return null; }
-
-    public void setHttpClient(Object httpClient) {}
 
     public void setConnectionTimeout(long connectionTimeout) {
         httpclientBuilder.connectTimeout(Duration.ofMillis(connectionTimeout));
@@ -263,11 +268,11 @@ public class TankHttpClientJDK implements TankHttpClient {
             waitTime = System.currentTimeMillis() - startTime;
             processResponse(responseBody, waitTime, request, response.version().name(), response.statusCode(), response.headers());
         } catch (UnknownHostException uhex) {
-            LOG.error(request.getLogUtil().getLogMessage("UnknownHostException to url: " + uri + " |  error: " + uhex.toString(), LogEventType.IO), uhex);
+            LOG.error(request.getLogUtil().getLogMessage("UnknownHostException to url: " + uri + " |  error: " + uhex.toString(), LogEventType.IO));
         } catch (SocketException sex) {
-            LOG.error(request.getLogUtil().getLogMessage("SocketException to url: " + uri + " |  error: " + sex.toString(), LogEventType.IO), sex);
+            LOG.error(request.getLogUtil().getLogMessage("SocketException to url: " + uri + " |  error: " + sex.toString(), LogEventType.IO));
         } catch (Exception ex) {
-            LOG.error(request.getLogUtil().getLogMessage("Could not do " + method.method() + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO), ex);
+            LOG.error(request.getLogUtil().getLogMessage("Could not do " + method.method() + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO));
             throw new RuntimeException(ex);
         } finally {
             if (method.method().equalsIgnoreCase("post") && request.getLogUtil().getAgentConfig().getLogPostResponse()) {

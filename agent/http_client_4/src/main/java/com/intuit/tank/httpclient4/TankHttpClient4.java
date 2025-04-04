@@ -106,11 +106,8 @@ public class TankHttpClient4 implements TankHttpClient {
     }
 
     public void setHttpClient(Object httpClient) {
-        if (httpClient instanceof CloseableHttpClient) {
-            this.httpclient = (CloseableHttpClient) httpClient;
-        } else {
-            this.httpclient = (CloseableHttpClient) createHttpClient();
-        }
+        this.httpclient = (httpClient instanceof CloseableHttpClient) ?
+                (CloseableHttpClient) httpClient : (CloseableHttpClient) createHttpClient();
     }
 
     public void setConnectionTimeout(long connectionTimeout) {
