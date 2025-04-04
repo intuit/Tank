@@ -61,6 +61,10 @@ public class TankHttpClientJDK implements TankHttpClient {
      */
     public TankHttpClientJDK() {
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+        httpclientBuilder = HttpClient.newBuilder()
+                .cookieHandler(cookieManager)
+                .connectTimeout(Duration.ofSeconds(30))
+                .followRedirects(HttpClient.Redirect.ALWAYS);
     }
 
     public Object createHttpClient() { return Executors.newCachedThreadPool(); }
@@ -68,17 +72,12 @@ public class TankHttpClientJDK implements TankHttpClient {
     public void setHttpClient(Object executor) {
         ExecutorService executorService = (executor instanceof ExecutorService) ?
                 (ExecutorService) executor : Executors.newCachedThreadPool();
-        httpclientBuilder = HttpClient.newBuilder()
-                .cookieHandler(cookieManager)
-                .executor(executorService)
-                .connectTimeout(Duration.ofSeconds(30))
-                .followRedirects(HttpClient.Redirect.ALWAYS);
+        httpclientBuilder.executor(executorService);
         httpclient = httpclientBuilder.build();
     }
 
     public void setConnectionTimeout(long connectionTimeout) {
         httpclientBuilder.connectTimeout(Duration.ofMillis(connectionTimeout));
-        httpclient = httpclientBuilder.build();
     }
 
     /*

@@ -388,7 +388,7 @@ public class TestPlanRunner implements Runnable {
             }
             return tankhttpclient;
         } catch (Exception e) {
-            LOG.error(LogUtil.getLogMessage("TankHttpClient specified incorrectly: " + e),e);
+            LOG.error(LogUtil.getLogMessage("TankHttpClient specified incorrectly: " + e));
             throw new RuntimeException(e);
         }
     }
