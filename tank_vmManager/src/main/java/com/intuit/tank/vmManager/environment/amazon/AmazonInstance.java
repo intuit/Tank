@@ -338,6 +338,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 })
                 .thenApply(response -> {
                     if (response.instances().size() < requestCount) {
+                        LOG.warn("Partial instance request: {} : {} : {}", response.instances().size(), instanceType, vmRegion);
                         RunInstancesResponse res = requestInstances(runInstancesRequestTemplate, subnetId, requestCount - response.instances().size(), remainingTypes).join();
                         return response.toBuilder().instances(res.instances()).build();
                     }
