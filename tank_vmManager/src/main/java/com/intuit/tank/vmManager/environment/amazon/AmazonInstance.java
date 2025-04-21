@@ -50,6 +50,7 @@ import java.util.stream.Collectors;
 public class AmazonInstance implements IEnvironmentInstance {
 
     protected static String INSUFFICIENT_INSTANCE_CAPACITY = "InsufficientInstanceCapacity";
+    protected static String REQUEST_LIMIT_EXCEEDED = "RequestLimitExceeded";
     protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 2;// 2 minutes
     private static final Logger LOG = LogManager.getLogger(AmazonInstance.class);
 
@@ -326,9 +327,17 @@ public class AmazonInstance implements IEnvironmentInstance {
                         .minCount(1).maxCount(requestCount).build())
                 .exceptionally(completionException -> {
                     Throwable cause = completionException.getCause();
-                    if (cause instanceof Ec2Exception && ((Ec2Exception)cause).awsErrorDetails().errorCode().equals(INSUFFICIENT_INSTANCE_CAPACITY)) {
-                        LOG.warn("Failure requesting instance type: {} : {} : {}", instanceType, vmRegion,  cause.getMessage());
-                        return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes).join();
+                    if (cause instanceof Ec2Exception) {
+                        String errorCode = ((Ec2Exception)cause).awsErrorDetails().errorCode();
+                        if ( errorCode.equals(INSUFFICIENT_INSTANCE_CAPACITY) ) {
+                            LOG.warn("Failure requesting instance type: {} : {} : {}", instanceType, vmRegion, cause.getMessage());
+                            return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes).join();
+                        }
+                        else if ( errorCode.equals(REQUEST_LIMIT_EXCEEDED) ) {
+                            LOG.warn("Exceeded request limit: {} : {} : {}", instanceType, vmRegion, cause.getMessage());
+                            try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                            return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, instanceTypes).join();
+                        }
                     } else {
                         LOG.error("Error requesting instances: {}: {}", vmRegion, cause.getMessage());
                     }
