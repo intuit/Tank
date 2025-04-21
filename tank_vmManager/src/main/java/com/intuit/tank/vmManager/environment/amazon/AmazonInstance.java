@@ -332,8 +332,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                         if ( errorCode.equals(INSUFFICIENT_INSTANCE_CAPACITY) ) {
                             LOG.warn("Failure requesting instance type: {} : {} : {}", instanceType, vmRegion, cause.getMessage());
                             return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes).join();
-                        }
-                        else if ( errorCode.equals(REQUEST_LIMIT_EXCEEDED) ) {
+                        } else if ( errorCode.equals(REQUEST_LIMIT_EXCEEDED) ) {
                             LOG.warn("Exceeded request limit: {} : {} : {}", instanceType, vmRegion, cause.getMessage());
                             try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
                             return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, instanceTypes).join();
