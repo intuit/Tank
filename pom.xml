@@ -30,31 +30,31 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>6.5.3.Final</version.hibernate>
-    <version.software.amazon.awssdk>2.29.52</version.software.amazon.awssdk>
+    <version.software.amazon.awssdk>2.31.25</version.software.amazon.awssdk>
     <version.aws-xray-sdk-bom>2.18.2</version.aws-xray-sdk-bom>
 
-    <version.tomcat>11.0.5</version.tomcat>
-    <weld.version>5.1.4.Final</weld.version>
+    <version.tomcat>11.0.6</version.tomcat>
+    <weld.version>6.0.2.Final</weld.version>
     <cdi.version>4.1.0</cdi.version>
 
     <version.enunciate>2.15.1</version.enunciate>
 
     <version.faces>4.1.2</version.faces>
-    <version.primefaces>14.0.11</version.primefaces>
-    <version.primefaces-ext>14.0.11</version.primefaces-ext>
+    <version.primefaces>14.0.12</version.primefaces>
+    <version.primefaces-ext>14.0.15</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
-    <version.surefire>3.2.5</version.surefire>
-    <version.junit>5.11.4</version.junit>
+    <version.surefire>3.5.3</version.surefire>
+    <version.junit>5.12.2</version.junit>
     <version.mockito>5.14.2</version.mockito>
     <version.httpclient>4.5.14</version.httpclient>
     <version.lucene>9.8.0</version.lucene>
     <version.jaxb>4.0.2</version.jaxb>
-    <version.spring-webflux>6.2.1</version.spring-webflux>
-    <version.wiremock>3.10.0</version.wiremock>
-    <version.jackson>2.18.2</version.jackson>
+    <version.spring-webflux>6.2.6</version.spring-webflux>
+    <version.wiremock>3.12.1</version.wiremock>
+    <version.jackson>2.18.3</version.jackson>
 
     <!-- maven-compiler-plugin -->
-    <version.compiler.plugin>3.13.0</version.compiler.plugin>
+    <version.compiler.plugin>3.14.0</version.compiler.plugin>
     <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
@@ -297,7 +297,7 @@
     <dependency>
       <groupId>org.jboss.weld</groupId>
       <artifactId>weld-junit5</artifactId>
-      <version>4.0.3.Final</version>
+      <version>5.0.0.Final</version>
       <scope>test</scope>
     </dependency>
 
@@ -760,7 +760,7 @@
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
-        <version>1.18.34</version>
+        <version>1.18.38</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -1004,6 +1004,14 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
       </plugin>
 
       <plugin>
