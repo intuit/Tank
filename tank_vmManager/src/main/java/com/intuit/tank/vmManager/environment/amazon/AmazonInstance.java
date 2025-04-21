@@ -4,7 +4,6 @@ import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Subsegment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import com.intuit.tank.project.JobInstance;
@@ -26,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.message.ObjectMessage;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -51,7 +49,7 @@ import java.util.stream.Collectors;
 
 public class AmazonInstance implements IEnvironmentInstance {
 
-    protected static String INSUFFICIENT_INSTANCE_CAPACITY = "Server.InsufficientInstanceCapacity";
+    protected static String INSUFFICIENT_INSTANCE_CAPACITY = "InsufficientInstanceCapacity";
     protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 2;// 2 minutes
     private static final Logger LOG = LogManager.getLogger(AmazonInstance.class);
 
