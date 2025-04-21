@@ -16,12 +16,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
 import software.amazon.awssdk.services.ec2.Ec2AsyncClient;
 import software.amazon.awssdk.services.ec2.model.*;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
+import static com.intuit.tank.vmManager.environment.amazon.AmazonInstance.INSUFFICIENT_INSTANCE_CAPACITY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -98,7 +101,9 @@ public class AmazonInstanceTest {
         VMRequest vmRequest = new VMInstanceRequest(VMProvider.Amazon, VMRegion.US_WEST_2, "m.xlarge",
                 VMImageType.AGENT, 8, false, "testZone", instanceDescription);
         when(_mockEc2AsyncClient.runInstances((RunInstancesRequest) any()))
-                .thenReturn(CompletableFuture.failedFuture(Ec2Exception.builder().build()))
+                .thenReturn(CompletableFuture.failedFuture(new CompletionException(Ec2Exception.builder()
+                        .awsErrorDetails(AwsErrorDetails.builder().errorCode(INSUFFICIENT_INSTANCE_CAPACITY).build())
+                        .build())))
                 .thenReturn(CompletableFuture.completedFuture(RunInstancesResponse.builder()
                         .instances(List.of(
                                 Instance.builder().state(InstanceState.builder().build()).build(),
@@ -144,12 +149,14 @@ public class AmazonInstanceTest {
     }
 
     @Test
-    public void createTest_FAILURE() {
+    public void createTest_ICE_FAILURE() {
         InstanceDescription instanceDescription = new TankConfig().getVmManagerConfig().getInstanceForRegionAndType(VMRegion.US_WEST_2, VMImageType.AGENT);
         VMRequest vmRequest = new VMInstanceRequest(VMProvider.Amazon, VMRegion.US_WEST_2, "m.xlarge",
                 VMImageType.AGENT, 23, false, "testZone", instanceDescription);
         when(_mockEc2AsyncClient.runInstances((RunInstancesRequest) any()))
-                .thenReturn(CompletableFuture.failedFuture(Ec2Exception.builder().build()));
+                .thenReturn(CompletableFuture.failedFuture(new CompletionException(Ec2Exception.builder()
+                        .awsErrorDetails(AwsErrorDetails.builder().errorCode(INSUFFICIENT_INSTANCE_CAPACITY).build())
+                        .build())));
 
         AWSXRay.beginSegment("TEST");
         assertThrows(RuntimeException.class, () -> amazonInstance.create(vmRequest));
@@ -159,6 +166,25 @@ public class AmazonInstanceTest {
         verify(_mockEc2AsyncClient, times(6)).runInstances(argumentCaptor.capture());
         List<RunInstancesRequest> requests = argumentCaptor.getAllValues();
         assertEquals("[m8g.xlarge:8, m7g.xlarge:8, m8g.xlarge:8, m7g.xlarge:8, m8g.xlarge:7, m7g.xlarge:7]",
+                requests.stream().map(request -> request.instanceType() + ":" + request.maxCount() ).toList().toString());
+    }
+
+    @Test
+    public void createTest_OTHER_FAILURE() {
+        InstanceDescription instanceDescription = new TankConfig().getVmManagerConfig().getInstanceForRegionAndType(VMRegion.US_WEST_2, VMImageType.AGENT);
+        VMRequest vmRequest = new VMInstanceRequest(VMProvider.Amazon, VMRegion.US_WEST_2, "m.xlarge",
+                VMImageType.AGENT, 23, false, "testZone", instanceDescription);
+        when(_mockEc2AsyncClient.runInstances((RunInstancesRequest) any()))
+                .thenReturn(CompletableFuture.failedFuture(new CompletionException(Ec2Exception.builder().build())));
+
+        AWSXRay.beginSegment("TEST");
+        assertThrows(RuntimeException.class, () -> amazonInstance.create(vmRequest));
+        AWSXRay.endSegment();
+
+        ArgumentCaptor<RunInstancesRequest> argumentCaptor = ArgumentCaptor.forClass(RunInstancesRequest.class);
+        verify(_mockEc2AsyncClient, times(3)).runInstances(argumentCaptor.capture());
+        List<RunInstancesRequest> requests = argumentCaptor.getAllValues();
+        assertEquals("[m8g.xlarge:8, m8g.xlarge:8, m8g.xlarge:7]",
                 requests.stream().map(request -> request.instanceType() + ":" + request.maxCount() ).toList().toString());
     }
 }
