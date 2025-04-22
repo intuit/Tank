@@ -29,7 +29,7 @@ public class LogController {
     @Resource
     private LogServiceV2 logServiceV2;
 
-    @RequestMapping(value = "/{filename}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{filename}", method = RequestMethod.GET, produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
     @Operation(description = "Retrieves a specific log file from logs", summary = "Get streaming log file output", hidden = true)
     public ResponseEntity<StreamingResponseBody> getFile(@PathVariable String filename, @RequestParam(required = false) String from) throws IOException {
         StreamingResponseBody response = logServiceV2.getFile(filename, from);

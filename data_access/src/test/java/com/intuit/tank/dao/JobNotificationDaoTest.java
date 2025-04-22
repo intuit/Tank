@@ -44,7 +44,6 @@ public class JobNotificationDaoTest {
     @Tag(TestGroups.FUNCTIONAL)
     public void testFindRevisions() throws Exception {
         JobNotification jobnotification = new JobNotification();
-        jobnotification.setId(1);
         jobnotification.setBody("Test");
         JobNotification result = dao.saveOrUpdate(jobnotification);
         assertEquals(jobnotification.getBody(), result.getBody());

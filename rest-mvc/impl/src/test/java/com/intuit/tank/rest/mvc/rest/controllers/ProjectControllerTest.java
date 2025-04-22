@@ -160,7 +160,7 @@ public class ProjectControllerTest {
         payload.put(filename, streamingResponse);
         when(projectService.downloadTestScriptForProject(4)).thenReturn(payload);
         ResponseEntity<StreamingResponseBody> result = projectController.downloadTestScriptForProject(4);
-        assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
+        assertEquals(MediaType.APPLICATION_XML, result.getHeaders().getContentType());
         assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
         assertEquals(200, result.getStatusCode().value());
         verify(projectService).downloadTestScriptForProject(4);

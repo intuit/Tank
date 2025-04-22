@@ -196,6 +196,7 @@ public class JobControllerTest {
                     "csv, 3, 4\n" +
                     "file, 5, 6\n", out.toString());
         }
+        assertEquals(MediaType.APPLICATION_XML, result.getHeaders().getContentType());
         assertEquals(200, result.getStatusCode().value());
         verify(jobService).getTestScriptForJob(2);
     }
@@ -211,7 +212,7 @@ public class JobControllerTest {
         payload.put(filename, responseBody);
         when(jobService.downloadTestScriptForJob(2)).thenReturn(payload);
         ResponseEntity<StreamingResponseBody> result = jobController.downloadTestScriptForJob(2);
-        assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
+        assertEquals(MediaType.APPLICATION_XML, result.getHeaders().getContentType());
         assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
         assertEquals(200, result.getStatusCode().value());
         verify(jobService).downloadTestScriptForJob(2);

@@ -215,6 +215,12 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- Weld servlet, EL and JSP required for testing CDI injections -->
     <dependency>
       <groupId>org.jboss.weld.servlet</groupId>

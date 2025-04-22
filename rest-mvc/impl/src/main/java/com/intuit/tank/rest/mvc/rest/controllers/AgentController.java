@@ -70,11 +70,8 @@ public class AgentController {
         File supportFiles = agentService.getSupportFiles();
         InputStreamResource resource = new InputStreamResource(new FileInputStream(supportFiles));
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + supportFiles.getName() + "\"");
-
         return ResponseEntity.ok()
-                .headers(headers)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + supportFiles.getName() + "\"")
                 .contentLength(supportFiles.length())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
@@ -132,10 +129,8 @@ public class AgentController {
     })
     public ResponseEntity<CloudVmStatus> getInstanceStatus(@PathVariable @Parameter(description = "The instance ID associated with the instance", required = true) String instanceId) {
         CloudVmStatus status = agentService.getInstanceStatus(instanceId);
-        if (status != null) {
-            return new ResponseEntity<CloudVmStatus>(status, HttpStatus.OK);
-        }
-        return ResponseEntity.notFound().build();
+        if (status == null) return ResponseEntity.notFound().build();
+        return new ResponseEntity<CloudVmStatus>(status, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/instance/status/{instanceId}", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_JSON_VALUE })
