@@ -37,7 +37,7 @@
     <weld.version>6.0.2.Final</weld.version>
     <cdi.version>4.1.0</cdi.version>
 
-    <version.enunciate>2.15.1</version.enunciate>
+    <version.enunciate>2.18.1</version.enunciate>
 
     <version.faces>4.1.2</version.faces>
     <version.primefaces>14.0.12</version.primefaces>
