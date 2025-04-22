@@ -257,7 +257,7 @@ public class ScriptControllerTest {
         payload.put(filename, streamingResponse);
         when(scriptService.downloadHarnessScript(4)).thenReturn(payload);
         ResponseEntity<StreamingResponseBody> result = scriptController.downloadHarnessScript(4);
-        assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
+        assertEquals(MediaType.APPLICATION_XML, result.getHeaders().getContentType());
         assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
         assertEquals(200, result.getStatusCode().value());
         verify(scriptService).downloadHarnessScript(4);
@@ -348,7 +348,7 @@ public class ScriptControllerTest {
         payload.put(filename, streamingResponse);
         when(scriptService.downloadExternalScript(5)).thenReturn(payload);
         ResponseEntity<StreamingResponseBody> result = scriptController.downloadExternalScript(5);
-        assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
+        assertEquals(MediaType.APPLICATION_XML, result.getHeaders().getContentType());
         assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
         assertEquals(200, result.getStatusCode().value());
         verify(scriptService).downloadExternalScript(5);
