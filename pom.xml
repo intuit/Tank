@@ -29,7 +29,7 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>6.5.3.Final</version.hibernate>
+    <version.hibernate>6.6.13.Final</version.hibernate>
     <version.software.amazon.awssdk>2.31.25</version.software.amazon.awssdk>
     <version.aws-xray-sdk-bom>2.18.2</version.aws-xray-sdk-bom>
 
