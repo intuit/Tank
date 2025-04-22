@@ -9,7 +9,7 @@ env:
 phases:
   install:
     runtime-versions:
-      java: corretto17
+      java: corretto23
   build:
     commands:
       - java -version
