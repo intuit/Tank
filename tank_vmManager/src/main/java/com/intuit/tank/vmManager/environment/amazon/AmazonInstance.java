@@ -334,13 +334,13 @@ public class AmazonInstance implements IEnvironmentInstance {
                             return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes).join();
                         } else if ( errorCode.equals(REQUEST_LIMIT_EXCEEDED) ) {
                             LOG.warn("Exceeded request limit: {} : {} : {}", instanceType, vmRegion, cause.getMessage());
-                            try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                            try { Thread.sleep(new Random().nextInt(1000) + 500); } catch (InterruptedException ignored) {}
                             return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, instanceTypes).join();
                         }
                     } else {
-                        LOG.error("Error requesting instances: {}: {}", vmRegion, cause.getMessage());
+                        LOG.error("Error requesting instances: {}: {}", vmRegion, cause.getMessage(), cause);
                     }
-                    throw new RuntimeException(cause);
+                    return RunInstancesResponse.builder().build();
                 })
                 .thenApply(response -> {
                     if (response.instances().size() < requestCount) {
