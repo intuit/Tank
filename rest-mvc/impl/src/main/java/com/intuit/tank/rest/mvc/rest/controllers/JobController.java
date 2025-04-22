@@ -116,10 +116,8 @@ public class JobController {
     })
     public ResponseEntity<List<Map<String, String>>> getAllJobStatus() {
         List<Map<String, String>> status = jobService.getAllJobStatus();
-        if (status != null){
-            return new ResponseEntity<>(status, HttpStatus.OK);
-        }
-        return ResponseEntity.notFound().build();
+        if (status == null) return ResponseEntity.notFound().build();
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/status/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE })
@@ -130,10 +128,8 @@ public class JobController {
     })
     public ResponseEntity<String> getJobStatus(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {
         String status = jobService.getJobStatus(jobId);
-        if (status != null){
-            return new ResponseEntity<>(status, HttpStatus.OK);
-        }
-        return ResponseEntity.notFound().build();
+        if (status == null) return ResponseEntity.notFound().build();
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/instance-status/{jobId}", method = RequestMethod.GET)
@@ -144,10 +140,8 @@ public class JobController {
     })
     public ResponseEntity<CloudVmStatusContainer> getJobVMStatuses(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) String jobId) {
         CloudVmStatusContainer status = jobService.getJobVMStatus(jobId);
-        if (status != null){
-            return new ResponseEntity<>(status, HttpStatus.OK);
-        }
-        return ResponseEntity.notFound().build();
+        if (status == null) return ResponseEntity.notFound().build();
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/script/{jobId}", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
@@ -158,10 +152,10 @@ public class JobController {
     })
     public ResponseEntity<StreamingResponseBody> getTestScriptForJob(@PathVariable @Parameter(description = "Job ID", required = true) Integer jobId) throws IOException {
         StreamingResponseBody response = jobService.getTestScriptForJob(jobId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_XML).body(response);
     }
 
-    @RequestMapping(value = "/download/{jobId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/download/{jobId}", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
     @Operation(description = "Downloads a job's harness XML file", summary = "Download the job's harness file")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully downloaded job's harness file", content = @Content),
@@ -169,18 +163,14 @@ public class JobController {
     })
     public ResponseEntity<StreamingResponseBody> downloadTestScriptForJob(@PathVariable @Parameter(description = "Job ID", required = true) Integer jobId) throws IOException {
         Map<String, StreamingResponseBody> response = jobService.downloadTestScriptForJob(jobId);
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
+        if (response == null) return ResponseEntity.notFound().build();
+
         String filename = response.keySet().iterator().next();
         StreamingResponseBody responseBody = response.get(filename);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
-
         return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.APPLICATION_XML)
                 .body(responseBody);
     }
 
