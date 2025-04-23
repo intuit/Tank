@@ -3,7 +3,7 @@
 [![Build Status](https://api.travis-ci.com/intuit/Tank.svg?branch=master)](https://app.travis-ci.com/intuit/Tank)
 ![Build Status](https://codebuild.us-east-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiT1Nuc1prblk5Y0E3a05mRjF0QUtBblI0Rk1zTjZyZi9NMWNCaFg4cGlzL1dFN0xVMHgzcGt1ZCtBdFZjNWpMRkhXbGN2T1ZKSmpZbGQ3YjhyaWkzdkJBPSIsIml2UGFyYW1ldGVyU3BlYyI6IlpGbU5vTHM2cHQrbUowOVkiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 [![GitHub release](https://img.shields.io/github/release/intuit/tank.svg)](https://github.com/intuit/Tank/releases)
-[![java](https://img.shields.io/badge/java-17%20%7C%2021-blue.svg)](https://aws.amazon.com/corretto/)
+[![java](https://img.shields.io/badge/java-17%20%7C%2021%20%7C%2023-blue.svg)](https://aws.amazon.com/corretto/)
 [![tomcat](https://img.shields.io/badge/tomcat-10.1%20%7C%2011.0-blue.svg)](http://tomcat.apache.org/)
 # Intuit Tank
 
