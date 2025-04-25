@@ -79,6 +79,10 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
         return config.getInt("proxy-port", 8888);
     }
 
+    public String getProxyHost() {
+        return config.getString("proxy-host", "localhost");
+    }
+
     /**
      * {@inheritDoc}
      */

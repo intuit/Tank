@@ -28,6 +28,7 @@ import java.util.Set;
 public class FixedProxyConfiguration implements ProxyConfiguration {
 
     private int port = 8888;
+    private String proxyHost = "localhost";
     private String outputFile = "recordedOutput.xml";
     private String certificateAuthorityPath = "auto_generated_ca.p12";
     private Set<ConfigInclusionExclusionRule> exclusions = new HashSet<ConfigInclusionExclusionRule>();
@@ -52,6 +53,11 @@ public class FixedProxyConfiguration implements ProxyConfiguration {
     @Override
     public int getPort() {
         return port;
+    }
+
+    @Override
+    public String getProxyHost() {
+        return proxyHost;
     }
 
     /**

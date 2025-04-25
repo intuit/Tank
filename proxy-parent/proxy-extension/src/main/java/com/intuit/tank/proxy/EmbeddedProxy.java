@@ -106,7 +106,7 @@ public class EmbeddedProxy implements TransactionRecordedListener {
 
 			InetSocketAddress listen;
 			try {
-				listen = new InetSocketAddress("localhost", config.getPort());
+				listen = new InetSocketAddress(config.getProxyHost(), config.getPort());
 			} catch (NumberFormatException nfe) {
 				return;
 			}
