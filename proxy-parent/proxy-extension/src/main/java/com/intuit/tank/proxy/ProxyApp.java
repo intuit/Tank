@@ -189,7 +189,7 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
             isDirty = false;
             InetSocketAddress listen;
             String proxy = "DIRECT";
-            listen = new InetSocketAddress("localhost", config.getPort());
+            listen = new InetSocketAddress(config.getProxyHost(), config.getPort());
 
             final ProxySelector ps = Main.getProxySelector(proxy);
 

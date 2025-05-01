@@ -28,9 +28,7 @@ public class WebHttpClient {
                         .build();
     }
 
-    public HttpResponse<String> Post(String requestUri, Map<Object, Object> requestParameters) throws IOException {
-        HttpResponse<String> response = null;
-
+    public HttpResponse<String> Post(String requestUri, Map<Object, Object> requestParameters)  {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(requestUri))
@@ -38,20 +36,18 @@ public class WebHttpClient {
                     .header("Content-Type", "application/x-www-form-urlencoded")
                     .build();
 
-            LOG.info("Web POST Request: " + request.toString());
-            response = _httpclient.send(request, HttpResponse.BodyHandlers.ofString());
-            LOG.info("Web POST Response: " + response.toString());
+            LOG.debug("Web POST Request: {}", request.toString());
+            return _httpclient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch(Exception e) {
             LOG.error("Web Post Exception", e);
         }
-
-        return response;
+        return null;
     }
 
     public static HttpRequest.BodyPublisher formBodyPublisher(Map<Object, Object> requestParameters) {
-        var builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         for (Map.Entry<Object, Object> entry : requestParameters.entrySet()) {
-            if (builder.length() > 0) {
+            if (!builder.isEmpty()) {
                 builder.append("&");
             }
             builder.append(URLEncoder.encode(entry.getKey().toString(), StandardCharsets.UTF_8));

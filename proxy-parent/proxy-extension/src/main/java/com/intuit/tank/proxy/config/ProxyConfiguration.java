@@ -31,6 +31,8 @@ public interface ProxyConfiguration {
      */
     public abstract int getPort();
 
+    public abstract String getProxyHost();
+
     /**
      * @return the port
      */
