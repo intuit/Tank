@@ -35,6 +35,8 @@ import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -47,7 +49,7 @@ class APIMonitorTest {
     @Mock private TankConfig mockTankConfig;
     @Mock private AgentConfig mockAgentConfig;
     @Mock private WatsAgentStatusResponse mockAgentStatusResponse;
-    @Mock private CloudVmStatus mockInitialVmStatus; // For constructor
+    @Mock private CloudVmStatus mockInitialVmStatus;
     @Mock private AgentRunData mockAgentRunData;
     @Mock private LoggingProfile mockLoggingProfile;
     @Mock private ResultsReporter mockResultsReporter;
@@ -82,9 +84,14 @@ class APIMonitorTest {
         lenient().when(mockUserTracker.getSnapshot()).thenReturn(mockUserSnapshot);
         lenient().when(mockAgentConfig.getAgentToken()).thenReturn("dummy-token-123");
         lenient().when(mockTankConfig.getControllerBase()).thenReturn("http://dummy.controller:8080");
+        lenient().when(mockApiTestHarnessInstance.getTPSMonitor()).thenReturn(mockTpsMonitor);
+        lenient().when(mockApiTestHarnessInstance.getCmd()).thenReturn(AgentCommand.run);
+        lenient().doNothing().when(mockApiTestHarnessInstance).checkAgentThreads();
+        lenient().when(mockAgentRunData.getJobId()).thenReturn("4141");
+        lenient().when(mockAgentRunData.getInstanceId()).thenReturn("i-4214219841");
         when(mockApiTestHarnessInstance.getTankConfig()).thenReturn(mockTankConfig);
         when(mockTankConfig.getAgentConfig()).thenReturn(mockAgentConfig);
-        when(mockAgentConfig.getStatusReportIntervalMilis(anyLong()))
+        lenient().when(mockAgentConfig.getStatusReportIntervalMilis(anyLong()))
                 .thenReturn(DEFAULT_REPORT_INTERVAL);
 
         lenient().when(mockApiTestHarnessInstance.getResultsReporter()).thenReturn(mockResultsReporter);
@@ -96,6 +103,7 @@ class APIMonitorTest {
     void tearDown() throws Exception {
         mockedApiHarness.close();
         restoreStaticStatus();
+        APIMonitor.setDoMonitor(true);
     }
 
     private void invokeUpdateInstanceStatus(APIMonitor instance) throws Exception {
@@ -128,6 +136,14 @@ class APIMonitorTest {
             reportIntervalField.setAccessible(true);
         }
         return (long) reportIntervalField.get(instance);
+    }
+
+    private void setReportInterval(APIMonitor instance, long interval) throws Exception {
+        if (reportIntervalField == null) {
+            reportIntervalField = APIMonitor.class.getDeclaredField("reportInterval");
+            reportIntervalField.setAccessible(true);
+        }
+        reportIntervalField.set(instance, interval);
     }
 
     private static void setStaticStatus(CloudVmStatus newStatus) throws Exception {
@@ -188,6 +204,89 @@ class APIMonitorTest {
         assertNotNull(instance, "Instance should be created even if config fetch fails");
         assertEquals(MIN_REPORT_TIME_CONST, getReportInterval(instance),
                 "reportInterval should retain MIN_REPORT_TIME if fetching fails");
+    }
+
+    @Nested
+    @DisplayName("run Method Tests")
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    class RunTests {
+
+        private AtomicInteger getStatusCount;
+        private AtomicInteger checkThreadsCount;
+
+        @BeforeEach
+        void setupRunTests() throws Exception {
+            getStatusCount = new AtomicInteger(0);
+            checkThreadsCount = new AtomicInteger(0);
+
+            apiMonitorInstance = new APIMonitor(true, mockInitialVmStatus);
+            setReportInterval(apiMonitorInstance, 1L);
+            assertEquals(1L, getReportInterval(apiMonitorInstance), "Verify interval is set short");
+
+            when(mockStaticStatus.getInstanceId()).thenReturn("i-run-test-local");
+            when(mockStaticStatus.getJobId()).thenReturn("job-run-test-local");
+            when(mockStaticStatus.getSecurityGroup()).thenReturn("sg-run-test");
+            when(mockStaticStatus.getJobStatus()).thenReturn(JobStatus.Running);
+            when(mockStaticStatus.getRole()).thenReturn(VMImageType.AGENT);
+            when(mockStaticStatus.getVmRegion()).thenReturn(VMRegion.US_EAST_2);
+            when(mockStaticStatus.getVmStatus()).thenReturn(VMStatus.running);
+            when(mockStaticStatus.getStartTime()).thenReturn(new Date());
+            when(mockStaticStatus.getEndTime()).thenReturn(null);
+            setStaticStatus(mockStaticStatus);
+
+            when(mockAgentStatusResponse.getKills()).thenReturn(0);
+            when(mockAgentStatusResponse.getAborts()).thenReturn(0);
+            when(mockAgentStatusResponse.getGotos()).thenReturn(0);
+            when(mockAgentStatusResponse.getSkips()).thenReturn(0);
+            when(mockAgentStatusResponse.getSkipGroups()).thenReturn(0);
+            when(mockAgentStatusResponse.getRestarts()).thenReturn(0);
+            when(mockAgentStatusResponse.getMaxVirtualUsers()).thenReturn(100);
+            when(mockAgentStatusResponse.getCurrentNumberUsers()).thenReturn(50);
+
+            when(mockTpsMonitor.getTPSInfo()).thenReturn(null);
+
+            lenient().when(mockApiTestHarnessInstance.getStatus()).thenAnswer(invocation -> {
+                getStatusCount.incrementAndGet();
+                return mockAgentStatusResponse;
+            });
+            lenient().doAnswer(invocation -> {
+                checkThreadsCount.incrementAndGet();
+                return null;
+            }).when(mockApiTestHarnessInstance).checkAgentThreads();
+        }
+
+        @Test
+        @DisplayName("Should perform one loop iteration and final update when doMonitor becomes false")
+        void run_PerformsOneLoopAndFinalUpdate() throws Exception {
+            APIMonitor.setDoMonitor(true);
+            AtomicBoolean stopped = new AtomicBoolean(false);
+            
+            doAnswer(invocation -> {
+                checkThreadsCount.incrementAndGet();
+                if (stopped.compareAndSet(false, true)) {
+                    APIMonitor.setDoMonitor(false);
+                }
+                return null;
+            }).when(mockApiTestHarnessInstance).checkAgentThreads();
+
+            apiMonitorInstance.run();
+
+            assertEquals(2, getStatusCount.get(), "getStatus should be called twice");
+            assertEquals(2, checkThreadsCount.get(), "checkAgentThreads should be called twice");
+        }
+
+        @Test
+        @DisplayName("Should run only final updateInstanceStatus if doMonitor starts false (isLocal=true)")
+        void run_DoesNotLoopIfDoMonitorIsFalseInitially() throws Exception {
+            APIMonitor.setDoMonitor(false);
+            getStatusCount.set(0);
+            checkThreadsCount.set(0);
+
+            apiMonitorInstance.run();
+
+            assertEquals(1, getStatusCount.get(), "getStatus should be called once");
+            assertEquals(1, checkThreadsCount.get(), "checkAgentThreads should be called once");
+        }
     }
 
     @Nested
@@ -327,7 +426,7 @@ class APIMonitorTest {
         when(mockStaticStatus.getInstanceId()).thenReturn(expectedInstanceId);
         when(mockStaticStatus.getJobId()).thenReturn(expectedJobId);
         when(mockStaticStatus.getSecurityGroup()).thenReturn(expectedSecurityGroup);
-        when(mockStaticStatus.getJobStatus()).thenReturn(initialJobStatus); //
+        when(mockStaticStatus.getJobStatus()).thenReturn(initialJobStatus);
         when(mockStaticStatus.getRole()).thenReturn(expectedRole);
         when(mockStaticStatus.getVmRegion()).thenReturn(expectedRegion);
         when(mockStaticStatus.getVmStatus()).thenReturn(expectedVmStatus);
@@ -586,6 +685,169 @@ class APIMonitorTest {
             assertTrue(cause.getMessage().contains("Illegal character in authority") || cause.getMessage().contains("Illegal character in URL"),
                     "Cause message should indicate the syntax error. Actual: " + cause.getMessage());
         }
+    }
 
+    @Nested
+    @DisplayName("updateInstanceStatus Tests")
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    class UpdateInstanceStatusTests {
+
+        private MockedStatic<APIMonitor> mockedApiMonitor;
+        private volatile boolean setInstanceStatusIntercepted;
+        private volatile String interceptedInstanceId;
+        private volatile CloudVmStatus interceptedStatus;
+        private APIMonitor apiMonitorInstance;
+
+        @BeforeEach
+        void setupUpdateStatusTests() throws Exception {
+            setInstanceStatusIntercepted = false;
+            interceptedInstanceId = null;
+            interceptedStatus = null;
+
+            apiMonitorInstance = new APIMonitor(false, mockInitialVmStatus);
+
+            mockedApiMonitor = Mockito.mockStatic(APIMonitor.class);
+            mockedApiMonitor.when(() -> APIMonitor.setJobStatus(any(JobStatus.class))).thenCallRealMethod();
+            mockedApiMonitor.when(() -> APIMonitor.setDoMonitor(anyBoolean())).thenCallRealMethod();
+
+            mockedApiMonitor.when(() -> APIMonitor.setInstanceStatus(anyString(), any(CloudVmStatus.class)))
+                    .thenAnswer(invocation -> {
+                        this.setInstanceStatusIntercepted = true;
+                        this.interceptedInstanceId = invocation.getArgument(0);
+                        this.interceptedStatus = invocation.getArgument(1);
+                        return null;
+                    });
+
+            when(mockStaticStatus.getInstanceId()).thenReturn("i-531543124");
+            when(mockStaticStatus.getJobStatus()).thenReturn(JobStatus.Running);
+            when(mockStaticStatus.getJobId()).thenReturn("5644");
+            when(mockStaticStatus.getSecurityGroup()).thenReturn("sg-321421");
+            when(mockStaticStatus.getRole()).thenReturn(VMImageType.AGENT);
+            when(mockStaticStatus.getVmRegion()).thenReturn(VMRegion.US_EAST_2);
+            when(mockStaticStatus.getVmStatus()).thenReturn(VMStatus.running);
+            when(mockStaticStatus.getStartTime()).thenReturn(new Date());
+            setStaticStatus(mockStaticStatus);
+        }
+
+        @AfterEach
+        void tearDownUpdateStatusTests() {
+            if (mockedApiMonitor != null) mockedApiMonitor.close();
+        }
+
+        @Test
+        @DisplayName("isLocal=true, no TPS info")
+        void updateInstanceStatus_Local_NoTps() throws Exception {
+            apiMonitorInstance = new APIMonitor(true, mockInitialVmStatus);
+            when(mockTpsMonitor.getTPSInfo()).thenReturn(null);
+
+            invokeUpdateInstanceStatus(apiMonitorInstance);
+
+            verify(mockApiTestHarnessInstance).getStatus();
+            verify(mockApiTestHarnessInstance).getUserTracker();
+            verify(mockUserTracker).getSnapshot();
+            verify(mockApiTestHarnessInstance).getTPSMonitor();
+            verify(mockTpsMonitor).getTPSInfo();
+            verify(mockApiTestHarnessInstance).checkAgentThreads();
+            verify(mockResultsReporter, never()).sendTpsResults(anyString(), anyString(), any(), anyBoolean());
+
+            assertFalse(setInstanceStatusIntercepted, "setInstanceStatus should not have been called");
+        }
+
+        @Test
+        @DisplayName("isLocal=true, with TPS info")
+        void updateInstanceStatus_Local_WithTps() throws Exception {
+            apiMonitorInstance = new APIMonitor(true, mockInitialVmStatus);
+            when(mockTpsMonitor.getTPSInfo()).thenReturn(mockTpsInfoContainer);
+            when(mockTpsInfoContainer.getTotalTps()).thenReturn(123);
+
+            when(mockAgentRunData.getJobId()).thenReturn("4241");
+            when(mockAgentRunData.getInstanceId()).thenReturn("i-421521421");
+
+            invokeUpdateInstanceStatus(apiMonitorInstance);
+
+            verify(mockApiTestHarnessInstance).getStatus();
+            verify(mockApiTestHarnessInstance).getUserTracker();
+            verify(mockUserTracker).getSnapshot();
+            verify(mockApiTestHarnessInstance).getTPSMonitor();
+            verify(mockTpsMonitor).getTPSInfo();
+            verify(mockTpsInfoContainer).getTotalTps();
+            verify(mockApiTestHarnessInstance).checkAgentThreads();
+            verify(mockResultsReporter, times(1)).sendTpsResults(
+                    eq("4241"), eq("i-421521421"), eq(mockTpsInfoContainer), eq(true)
+            );
+
+            assertFalse(setInstanceStatusIntercepted, "setInstanceStatus should not have been called");
+        }
+
+        @Test
+        @DisplayName("isLocal=false, no TPS info")
+        void updateInstanceStatus_Remote_NoTps() throws Exception {
+            String expectedInstanceId = "i-531543124";
+            when(mockTpsMonitor.getTPSInfo()).thenReturn(null);
+
+            invokeUpdateInstanceStatus(apiMonitorInstance);
+
+            verify(mockApiTestHarnessInstance).getStatus();
+            verify(mockApiTestHarnessInstance).getUserTracker();
+            verify(mockUserTracker).getSnapshot();
+            verify(mockApiTestHarnessInstance).getTPSMonitor();
+            verify(mockTpsMonitor).getTPSInfo();
+            verify(mockApiTestHarnessInstance).checkAgentThreads();
+            verify(mockResultsReporter, never()).sendTpsResults(anyString(), anyString(), any(), anyBoolean());
+
+            assertTrue(setInstanceStatusIntercepted, "setInstanceStatus should have been called");
+            assertEquals(expectedInstanceId, interceptedInstanceId);
+            assertNotNull(interceptedStatus);
+            assertEquals(mockUserSnapshot, interceptedStatus.getUserDetails());
+        }
+
+        @Test
+        @DisplayName("isLocal=false, with TPS info")
+        void updateInstanceStatus_Remote_WithTps() throws Exception {
+            String expectedInstanceId = "i-531543124";
+            int expectedTps = 45;
+            when(mockTpsMonitor.getTPSInfo()).thenReturn(mockTpsInfoContainer);
+            when(mockTpsInfoContainer.getTotalTps()).thenReturn(expectedTps);
+            when(mockAgentRunData.getInstanceId()).thenReturn(expectedInstanceId);
+            when(mockAgentRunData.getJobId()).thenReturn("job-update");
+
+            invokeUpdateInstanceStatus(apiMonitorInstance);
+
+            verify(mockApiTestHarnessInstance).getStatus();
+            verify(mockApiTestHarnessInstance).getUserTracker();
+            verify(mockUserTracker).getSnapshot();
+            verify(mockApiTestHarnessInstance).getTPSMonitor();
+            verify(mockTpsMonitor).getTPSInfo();
+            verify(mockTpsInfoContainer).getTotalTps();
+            verify(mockApiTestHarnessInstance).checkAgentThreads();
+            verify(mockResultsReporter, times(1)).sendTpsResults(
+                    eq("job-update"), eq(expectedInstanceId), eq(mockTpsInfoContainer), eq(true)
+            );
+
+            assertTrue(setInstanceStatusIntercepted, "setInstanceStatus should have been called");
+            assertEquals(expectedInstanceId, interceptedInstanceId);
+            assertNotNull(interceptedStatus);
+            assertEquals(mockUserSnapshot, interceptedStatus.getUserDetails());
+            assertEquals(expectedTps, interceptedStatus.getTotalTps());
+        }
+
+        @Test
+        @DisplayName("Should handle exception during processing gracefully")
+        void updateInstanceStatus_HandlesInternalException() throws Exception {
+            RuntimeException internalError = new RuntimeException("Failed to get user snapshot");
+            when(mockApiTestHarnessInstance.getUserTracker()).thenThrow(internalError);
+
+            assertDoesNotThrow(
+                    () -> invokeUpdateInstanceStatus(apiMonitorInstance),
+                    "updateInstanceStatus should catch internal exceptions"
+            );
+
+            verify(mockApiTestHarnessInstance).getStatus();
+            verify(mockApiTestHarnessInstance).getUserTracker();
+            verify(mockTpsMonitor, never()).getTPSInfo();
+            verify(mockApiTestHarnessInstance, never()).checkAgentThreads();
+
+            assertFalse(setInstanceStatusIntercepted, "setInstanceStatus should not have been called");
+        }
     }
 }
