@@ -125,7 +125,7 @@ public class VariablesTest {
         variables.addVariable("other", "Sue King");
         variables.addVariable("adjective", "cool");
         String evaluated = variables.evaluate(expression);
-        assertEquals(evaluated, expected);
+        assertEquals(expected, evaluated);
     }
 
     public static String concat(String... s) {
