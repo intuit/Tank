@@ -96,7 +96,7 @@ public class JexlStringFunctionsTest {
     @MethodSource("replaceBetween")
     public void testReplaceBetween(String expression, String expected) {
         String evaluated = variables.evaluate(expression);
-        assertEquals(evaluated, expected);
+        assertEquals(expected, evaluated);
     }
 
     @ParameterizedTest
@@ -104,7 +104,7 @@ public class JexlStringFunctionsTest {
     @MethodSource("substrings")
     public void testSubstringBetween(String expression, String expected) {
         String evaluated = variables.evaluate(expression);
-        assertEquals(evaluated, expected);
+        assertEquals(expected, evaluated);
     }
 
     @ParameterizedTest
@@ -112,7 +112,7 @@ public class JexlStringFunctionsTest {
     @MethodSource("concats")
     public void testConcat(String expression, String expected) {
         String evaluated = variables.evaluate(expression);
-        assertEquals(evaluated, expected);
+        assertEquals(expected, evaluated);
     }
 
     @ParameterizedTest
@@ -124,22 +124,22 @@ public class JexlStringFunctionsTest {
         int expLength = expLen.intValue();
 
         String returned = variables.evaluate("#{stringFunctions.randomAlphaLower(" + length + ")}");
-        assertEquals(returned.length(), expLength);
+        assertEquals(expLength, returned.length());
 
         returned = variables.evaluate("#{stringFunctions.randomAlphaUpper(" + length + ")}");
-        assertEquals(returned.length(), expLength);
+        assertEquals(expLength, returned.length());
 
         returned = variables.evaluate("#{stringFunctions.randomAlphaMixed(" + length + ")}");
-        assertEquals(returned.length(), expLength);
+        assertEquals(expLength, returned.length());
 
         returned = variables.evaluate("#{stringFunctions.randomAlphaMixed(" + length + ")}");
-        assertEquals(returned.length(), expLength);
+        assertEquals(expLength, returned.length());
 
         returned = variables.evaluate("#{stringFunctions.randomAlphaMixedNumeric(" + length + ")}");
-        assertEquals(returned.length(), expLength);
+        assertEquals(expLength, returned.length());
 
         returned = variables.evaluate("#{stringFunctions.randomAlphaMixedSpecial(" + length + ")}");
-        assertEquals(returned.length(), expLength);
+        assertEquals(expLength, returned.length());
 
     }
 
@@ -147,9 +147,9 @@ public class JexlStringFunctionsTest {
     @Tag(TestGroups.FUNCTIONAL)
     public void testBase64() {
         String evaluated = variables.evaluate("#{stringFunctions.toBase64('hello')}");
-        assertNotNull(evaluated);
+        assertEquals("aGVsbG8=", evaluated);
         String decoded = variables.evaluate("#{stringFunctions.fromBase64('" + evaluated + "')}");
-        assertEquals(decoded, "hello");
+        assertEquals("hello", decoded);
     }
 
     @Test
@@ -158,7 +158,7 @@ public class JexlStringFunctionsTest {
         String evaluated = variables.evaluate("#{stringFunctions.urlEncode('&hello')}");
         assertNotNull(evaluated);
         String decoded = variables.evaluate("#{stringFunctions.urlDecode('" + evaluated + "')}");
-        assertEquals(decoded, "&hello");
+        assertEquals("&hello", decoded);
     }
     
     @Test

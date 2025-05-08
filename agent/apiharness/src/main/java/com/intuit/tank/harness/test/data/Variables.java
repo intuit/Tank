@@ -24,6 +24,7 @@ import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.MapContext;
+import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,7 +53,10 @@ public class Variables {
 
     private HashMap<String, VariableValue> variables = null;
     private boolean doLog = false;
-    private static JexlEngine jexl = new JexlBuilder().cache(1024).silent(true).strict(false).create();
+    private static final JexlEngine jexl = new JexlBuilder()
+            .permissions(JexlPermissions.parse("com.intuit.tank.harness.*"))
+            .cache(1024).silent(true).strict(false)
+            .create();
 
     private static final Pattern p = Pattern.compile(TankConstants.EXPRESSION_REGEX);
 

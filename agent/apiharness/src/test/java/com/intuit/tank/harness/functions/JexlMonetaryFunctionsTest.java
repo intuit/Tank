@@ -42,7 +42,7 @@ public class JexlMonetaryFunctionsTest {
     public void testRandomPositiveNumber() {
         String random = variables.evaluate("#{monetaryFunctions.randomPositive(4)}");
         assertNotNull(random);
-        assertTrue(random.length() == 7);
+        assertEquals(7, random.length());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class JexlMonetaryFunctionsTest {
     public void testRandomNegativeNumber() {
         String random = variables.evaluate("#{monetaryFunctions.randomNegative(5)}");
         assertNotNull(random);
-        assertTrue(random.length() == 9);
+        assertEquals(9, random.length());
     }
 
 }
