@@ -16,6 +16,7 @@ package com.intuit.tank.script;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.Conversation;
@@ -165,8 +166,7 @@ public class ScriptEditor implements Serializable {
             orderList = new ArrayList<ScriptStepHolder>(steps.size());
             for (int i = 0; i < steps.size(); i++) {
                 ScriptStep step = steps.get(i);
-                orderList.add(new ScriptStepHolder(i + 1, step.getUuid(), step
-                        .getLabel()));
+                orderList.add(new ScriptStepHolder(i + 1, step.getUuid(), step.getLabel()));
             }
         }
         return orderList;
@@ -201,14 +201,9 @@ public class ScriptEditor implements Serializable {
     }
 
     public void setOrderList(List<ScriptStepHolder> list) {
-        Map<String, ScriptStep> map = new HashMap<String, ScriptStep>();
-        for (ScriptStep step : steps) {
-            map.put(step.getUuid(), step);
-        }
+        Map<String, ScriptStep> map = steps.stream().collect(Collectors.toMap(ScriptStep::getUuid, step -> step));
         steps.clear();
-        for (ScriptStepHolder h : list) {
-            steps.add(map.get(h.getUuid()));
-        }
+        list.forEach(holder -> steps.add(map.get(holder.getUuid())));
         clearOrderList();
     }
 
@@ -216,9 +211,8 @@ public class ScriptEditor implements Serializable {
         if (StringUtils.isNotBlank(s)) {
             if (StringUtils.containsIgnoreCase(mimetype, "json")) {
                 try {
-                    JsonParser parser = new JsonParser();
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                    JsonElement el = parser.parse(s);
+                    JsonElement el = JsonParser.parseString(s);
                     s = gson.toJson(el); // done
                 } catch (JsonSyntaxException e) {
                     LOG.warn("Cannot format json string: " + e);
@@ -347,18 +341,9 @@ public class ScriptEditor implements Serializable {
     }
 
     public List<String> complete(String query) {
-        List<String> suggestions = null;
-        if (StringUtils.isEmpty(query)) {
-            suggestions = gotoGroupList;
-        } else {
-            suggestions = new ArrayList<String>();
-            for (String s : gotoGroupList) {
-                if (s.startsWith(query)) {
-                    suggestions.add(s);
-                }
-            }
-        }
-        return suggestions;
+        return (StringUtils.isEmpty(query))
+                ? gotoGroupList
+                : gotoGroupList.stream().filter(s -> s.startsWith(query)).collect(Collectors.toList());
     }
 
     public void populateGroupList() {
@@ -500,8 +485,6 @@ public class ScriptEditor implements Serializable {
         AWSXRay.createSubsegment("Save.Script." + script.getName(), (subsegment) -> {
             new ScriptDao().saveOrUpdate(script);
         });
-        // ScriptSearchService s3 = new ScriptSearchService();
-        // s3.saveScript(script);
         scriptEvent.fire(new ModifiedScriptMessage(script, this));
         messages.info("Script " + script.getName() + " has been saved.");
     }
@@ -808,11 +791,8 @@ public class ScriptEditor implements Serializable {
 
 
     public void deleteSelected() {
-        for (ScriptStep step : selectedSteps) {
-            doDelete(step);
-        }
-        messages.info("Deleted " + selectedSteps.size()
-                + " selected Script Steps.");
+        selectedSteps.forEach(this::doDelete);
+        messages.info("Deleted " + selectedSteps.size() + " selected Script Steps.");
         selectedSteps.clear();
     }
 

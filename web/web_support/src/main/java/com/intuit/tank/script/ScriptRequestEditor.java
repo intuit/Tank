@@ -35,7 +35,7 @@ public class ScriptRequestEditor implements Serializable {
     @Inject
     private ScriptEditor scriptEditor;
     private ScriptStep step;
-    private boolean editMode;
+    protected boolean editMode;
 
     private String gotoGroup;
     private String buttonLabel = ADD_LABEL;
@@ -56,8 +56,8 @@ public class ScriptRequestEditor implements Serializable {
     private QueryStringEditor queryStringEditor;
 
     public void insertRequest() {
-        this.step = new ScriptStep();
-        step.setType(ScriptConstants.REQUEST);
+
+        this.step = ScriptStep.builder().type(ScriptConstants.REQUEST).build();
         requestHeaderEditor.editRequestHeaders(step.getRequestheaders());
         responseHeaderEditor.editResponseHeaders(step.getResponseheaders());
         requestCookiesEditor.editRequestCookies(step.getRequestCookies());
@@ -154,10 +154,7 @@ public class ScriptRequestEditor implements Serializable {
      * @return the step
      */
     public ScriptStep getStep() {
-        if (step == null) {
-            step = new ScriptStep();
-        }
-        return step;
+        return (step == null) ? ScriptStep.builder().build() : step;
     }
 
     /**

@@ -28,6 +28,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import javax.script.ScriptEngineManager;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import com.intuit.tank.util.Messages;
 
@@ -57,16 +59,31 @@ public class LogicStepEditor implements Serializable {
     @Inject
     private Messages messages;
 
+    @Getter
+    @Setter
     private String script;
+
+    @Getter
+    @Setter
     private String name;
+
+    @Getter
     private String output;
+
+    @Getter
+    @Setter
     private String groupName;
+
+    @Getter
     private LogicTestData logicTestData;
     private ScriptStep step;
+
+    @Getter
+    @Setter
     private String buttonLabel = ADD_LABEL;
     private ScriptStep previousRequest = null;
 
-    private boolean editMode;
+    protected boolean editMode;
 
     public void editLogicStep(ScriptStep step) {
         this.step = step;
@@ -145,13 +162,11 @@ public class LogicStepEditor implements Serializable {
     }
 
     private boolean validate() {
-        boolean retVal = true;
-
         if (StringUtils.isBlank(name)) {
-            retVal = false;
             messages.error("Name cannot be empty");
+            return false;
         }
-        return retVal;
+        return true;
     }
 
     public void testScript() {
@@ -225,80 +240,6 @@ public class LogicStepEditor implements Serializable {
                 outputLogger.logLine(entry.getKey() + " = " + entry.getValue());
             }
         }
-    }
-
-    /**
-     * @return the buttonLabel
-     */
-    public String getButtonLabel() {
-        return buttonLabel;
-    }
-
-    /**
-     * @param buttonLabel
-     *            the buttonLabel to set
-     */
-    public void setButtonLabel(String buttonLabel) {
-        this.buttonLabel = buttonLabel;
-    }
-
-    /**
-     * @return the script
-     */
-    public String getScript() {
-        return script;
-    }
-
-    /**
-     * @param script
-     *            the script to set
-     */
-    public void setScript(String script) {
-        this.script = script;
-    }
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @return the output
-     */
-    public String getOutput() {
-        return output;
-    }
-
-    /**
-     * @param name
-     *            the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return the groupName
-     */
-    public String getGroupName() {
-        return groupName;
-    }
-
-    /**
-     * @param groupName
-     *            the groupName to set
-     */
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
-    }
-
-    /**
-     * @return the logicTestData
-     */
-    public LogicTestData getLogicTestData() {
-        return logicTestData;
     }
 
 }
