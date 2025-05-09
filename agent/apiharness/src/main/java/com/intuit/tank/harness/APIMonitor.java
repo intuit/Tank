@@ -71,9 +71,7 @@ public class APIMonitor implements Runnable {
                 Thread.sleep(reportInterval);
             } catch ( InterruptedException ie) { /*Ignore*/ }
         }
-        if(!doMonitor) {
-            updateInstanceStatus();
-        }
+        updateInstanceStatus();
     }
 
     private void updateInstanceStatus() {
