@@ -10,10 +10,7 @@
   <h:panelGroup layout="block">
     <p:commandButton ajax="true" value="Add Notification" immediate="true" id="addNotBt"
       action="#{notificationsEditor.addNotification()}" update=":mainForm:projectTabPanelID:notificationTable,"
-      style=" background-image: url(#{resource['gfx:16/application_add.png']});
-                    background-repeat: no-repeat;
-                    background-position: 3px 5px;
-                    border-radius:5px;"
+      icon="ui-icon-plus" style="margin: 0 5px 0 5px; border-radius:5px"
       styleClass="icon-button h-space" />
   </h:panelGroup>
 

@@ -34,19 +34,13 @@
           <p:commandButton id="projectTotalBt" value="User Details" disabled="true"
             action="#{projectJobQueueManager.setCurrentJobInstanceForUser(projectJobQueueManager.rootNode.data)}" oncomplete="PF('userDetailsPopup').show();"
             update=":userDetailsForm:userDetailsContent, :tpsForm:tpsDetailsContent"
-            style=" background-image: url(#{resource['gfx:16/chart_curve.png']});
-                                  background-repeat: no-repeat;
-                                  background-position: 3px 5px;
-                                  border-radius:5px;"
+            icon="ui-icon-image" style="margin: 0 5px 0 5px; border-radius:5px"
             styleClass="icon-button h-space" />
 
           <p:commandButton id="projectTotalTPSBt" value="TPS Details" disabled="true"
             action="#{projectJobQueueManager.setCurrentJobInstanceForTPS(projectJobQueueManager.rootNode.data)}" oncomplete="PF('tpsDetailsPopup').show();"
             update=":userDetailsForm:userDetailsContent, :tpsForm:tpsDetailsContent"
-            style=" background-image: url(#{resource['gfx:16/chart_curve.png']});
-                                  background-repeat: no-repeat;
-                                  background-position: 3px 5px;
-                                  border-radius:5px;"
+            icon="ui-icon-image" style="margin: 0 5px 0 5px; border-radius:5px"
             styleClass="icon-button h-space" />
           
         </h:panelGroup>
