@@ -120,7 +120,11 @@ public class AmazonInstance implements IEnvironmentInstance {
                     .flatMap(reservationDescription -> reservationDescription.instances()
                             .stream()
                             .filter(instance -> instanceIds.contains(instance.instanceId()))
-                            .map(instance -> AmazonDataConverter.instanceToVmInformation(reservationDescription.requesterId(), instance, vmRegion)))
+                            .map(instance -> {
+                                LOG.info("Instance {} has public IP: {}, private IP: {}", 
+                                         instance.instanceId(), instance.publicIpAddress(), instance.privateIpAddress());
+                                return AmazonDataConverter.instanceToVmInformation(reservationDescription.requesterId(), instance, vmRegion);
+                            }))
                     .collect(Collectors.toList());
         } catch (ExecutionException | InterruptedException error) {
             LOG.error("Error getting instances: {}", error.toString(), error);
@@ -216,6 +220,8 @@ public class AmazonInstance implements IEnvironmentInstance {
                         .placement(Placement.builder().tenancy(tenancy).build())
                         .monitoring(RunInstancesMonitoringEnabled.builder().build())
                         .userData(userData);
+
+                runInstancesRequestTemplate.networkInterfaces(List.of(InstanceNetworkInterfaceSpecification.builder().associatePublicIpAddress(true).build()));
 
                 Collection<String> c = instanceDescription.getSecurityGroupIds();
                 if (!c.isEmpty()) {
@@ -314,15 +320,37 @@ public class AmazonInstance implements IEnvironmentInstance {
     private CompletableFuture<RunInstancesResponse> requestInstances(
             RunInstancesRequest.Builder runInstancesRequestTemplate, String subnetId, int requestCount, List<String> instanceTypes) {
         RunInstancesRequest.Builder runInstancesRequest = runInstancesRequestTemplate.copy();
+        
+        // Update network interface with subnet information
+        if (!runInstancesRequest.build().networkInterfaces().isEmpty()) {
+            Collection<String> securityGroups = !runInstancesRequest.build().securityGroupIds().isEmpty() 
+                ? runInstancesRequest.build().securityGroupIds() 
+                : runInstancesRequest.build().securityGroups();
+            
+            runInstancesRequest.networkInterfaces(List.of(
+                InstanceNetworkInterfaceSpecification.builder()
+                    .deviceIndex(0)
+                    .subnetId(subnetId)
+                    .groups(securityGroups)
+                    .associatePublicIpAddress(true)
+                    .build()
+            ));
+            
+            // Clear these as they're now in the network interface
+            runInstancesRequest.subnetId(null).securityGroupIds(Collections.emptyList()).securityGroups(Collections.emptyList());
+        } else {
+            runInstancesRequest.subnetId(subnetId);
+        }
+        
         if (instanceTypes.isEmpty()) {
             return CompletableFuture.failedFuture(new RuntimeException("No instance types available"));
         }
         String instanceType = instanceTypes.get(0);
         List<String> remainingTypes = instanceTypes.subList(1, instanceTypes.size());
+        LOG.info("Requesting instances with public IPs in region {} for subnet {}", vmRegion.getName(), subnetId);
         return ec2AsyncClient.runInstances(
                 runInstancesRequest
                         .instanceType(instanceType)
-                        .subnetId(subnetId)
                         .minCount(1).maxCount(requestCount).build())
                 .exceptionally(completionException -> {
                     Throwable cause = completionException.getCause();
@@ -342,6 +370,8 @@ public class AmazonInstance implements IEnvironmentInstance {
                     return RunInstancesResponse.builder().build();
                 })
                 .thenApply(response -> {
+                    LOG.info("Created instances with network config: publicIP=true, subnet={}, count={}", 
+                             subnetId, response.instances().size());
                     if (response.instances().size() < requestCount) {
                         LOG.warn("Partial instance request: {} : {} : {}", response.instances().size(), instanceType, vmRegion);
                         RunInstancesResponse res = requestInstances(runInstancesRequestTemplate, subnetId, requestCount - response.instances().size(), remainingTypes).join();
