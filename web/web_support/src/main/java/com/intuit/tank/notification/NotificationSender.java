@@ -20,15 +20,11 @@ import java.io.Serializable;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.vm.vmManager.VMTracker;
-import com.intuit.tank.mail.MailService;
 import com.intuit.tank.vm.event.JobEvent;
 
 /**
@@ -45,17 +41,7 @@ public class NotificationSender implements Serializable {
 
     private static final Logger LOG = LogManager.getLogger(NotificationSender.class);
 
-    @Inject
-    private Instance<MailService> mailServiceFactory;
-
-    @Inject
-    private VMTracker vmTracker;
-
     public void observerJobEvents(@Observes final JobEvent jobEvent) {
-        LOG.info("Got Job Event: " + jobEvent);
-        Thread t = new Thread(new NotificationRunner(jobEvent, mailServiceFactory.get(), vmTracker));
-        t.setDaemon(true);
-        t.setPriority(Thread.MIN_PRIORITY);
-        t.start();
+        LOG.info("Got Job Event: " + jobEvent + ". Ignoring for now.");
     }
 }

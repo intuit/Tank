@@ -125,15 +125,6 @@ There are additional properties that be configured for a Project. Expand the sec
            <figcaption>Upload Data Files</figcaption>
         </figure>
 
-    === "Notifications"        
-        Email Notifications can be attached to different lifecycle events. An email will be sent when the event happens.  
-        Use the `Add Notification` button to add a notification.   
-        Enter the email address(es) seperated by commas.Then select the lifecycle events that this notificaiton should listen for.  
-        <figure markdown>
-           ![Add Notification](../assets/projects/projects_10.png){ width="600" }
-           <figcaption>Add Notification</figcaption>
-        </figure>
-
     === "Variables" 
         A Project can be configured with `Global variables`.   
         
