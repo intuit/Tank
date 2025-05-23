@@ -44,6 +44,7 @@
     <version.primefaces-ext>14.0.15</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>3.5.3</version.surefire>
+    <version.jacoco>0.8.11</version.jacoco>
     <version.junit>5.12.2</version.junit>
     <version.mockito>5.14.2</version.mockito>
     <version.httpclient>4.5.14</version.httpclient>
@@ -114,27 +115,31 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${version.jacoco}</version>
             <configuration>
               <excludes>
                 <exclude>org/fife/**/*</exclude>
               </excludes>
             </configuration>
             <executions>
+              <!-- Unit test coverage -->
               <execution>
-                <id>default-prepare-agent</id>
+                <id>prepare-agent</id>
                 <goals>
                   <goal>prepare-agent</goal>
                 </goals>
               </execution>
               <execution>
-                <id>default-report</id>
+                <id>report</id>
                 <phase>test</phase>
                 <goals>
                   <goal>report</goal>
                 </goals>
               </execution>
+
+              <!-- Check rules -->
               <execution>
-                <id>default-check</id>
+                <id>check</id>
                 <goals>
                   <goal>check</goal>
                 </goals>
@@ -863,9 +868,6 @@
                 <goal>report</goal>
               </goals>
               <configuration>
-                <reportsDirectories>
-                  <reportsDirectory>${project.build.directory}/surefire-reports/unit</reportsDirectory>
-                </reportsDirectories>
                 <outputName>unit-test-report</outputName>
               </configuration>
             </execution>
@@ -876,9 +878,6 @@
                 <goal>report</goal>
               </goals>
               <configuration>
-                <reportsDirectories>
-                  <reportsDirectory>${project.build.directory}/surefire-reports/integration</reportsDirectory>
-                </reportsDirectories>
                 <outputName>integration-test-report</outputName>
               </configuration>
             </execution>
@@ -1077,19 +1076,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <!-- Sets the VM argument line used when unit tests are run. -->
-          <argLine>${argLine}</argLine>
-          <excludedGroups>manual,integration,experimental</excludedGroups>
-          <includes>
-            <include>**/*Test.java</include>
-            <include>**/*Spec.groovy</include>
-          </includes>
-        </configuration>
-      </plugin>
 
       <!-- Unit Tests Configuration -->
       <plugin>
@@ -1097,16 +1083,19 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${version.surefire}</version>
         <configuration>
+          <!-- Sets the VM argument line used when unit tests are run. -->
+          <argLine>${argLine}</argLine>
           <includes>
             <include>**/*Test.java</include>
+            <include>**/*Spec.groovy</include>
           </includes>
           <excludes>
             <exclude>**/*IT.java</exclude>
             <exclude>**/integration/**/*.java</exclude>
           </excludes>
+          <excludedGroups>manual,integration,experimental</excludedGroups>
         </configuration>
       </plugin>
-
       <!-- Integration Tests Configuration -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -1127,47 +1116,8 @@
           </includes>
         </configuration>
       </plugin>
-
-      <!-- JaCoCo Configuration -->
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.11</version>
-        <executions>
-          <!-- Unit Test Coverage -->
-          <execution>
-            <id>prepare-agent</id>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>report</id>
-            <phase>test</phase>
-            <goals>
-              <goal>report</goal>
-            </goals>
-          </execution>
-          <!-- Integration Test Coverage -->
-          <execution>
-            <id>prepare-agent-integration</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>prepare-agent-integration</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>report-integration</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>report-integration</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
-
 
   <reporting>
     <outputDirectory>${project.build.directory}/site</outputDirectory>

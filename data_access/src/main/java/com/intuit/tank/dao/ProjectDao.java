@@ -43,9 +43,8 @@ import org.hibernate.jpa.QueryHints;
 
 /**
  * ProductDao
- * 
+ *
  * @author dangleton
- * 
  */
 public class ProjectDao extends OwnableDao<Project> {
     private static final Logger LOG = LogManager.getLogger(ProjectDao.class);
@@ -62,25 +61,25 @@ public class ProjectDao extends OwnableDao<Project> {
      * @return
      */
     public Project findByName(@Nonnull String name) {
-    	Project project = null;
-    	EntityManager em = getEntityManager();
-    	try {
-    		begin();
-    		CriteriaBuilder cb = em.getCriteriaBuilder();
-	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
-	        Root<Project> root = query.from(Project.class);
-	        query.select(root);
-	        query.where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
-	        project = em.createQuery(query).getSingleResult();
-    		commit();
+        Project project = null;
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Project> query = cb.createQuery(Project.class);
+            Root<Project> root = query.from(Project.class);
+            query.select(root);
+            query.where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
+            project = em.createQuery(query).getSingleResult();
+            commit();
         } catch (Exception e) {
-        	rollback();
+            rollback();
             e.printStackTrace();
             throw new RuntimeException(e);
-    	} finally {
-    		cleanup();
-    	}
-    	return project;
+        } finally {
+            cleanup();
+        }
+        return project;
     }
 
     /**
@@ -107,71 +106,69 @@ public class ProjectDao extends OwnableDao<Project> {
         entity.setModified(new Date());
         return super.saveOrUpdate(entity);
     }
-    
+
     /**
      * Deep lookup of full project, initiate eager loading when needed.
-     * 
-     * @param id
-     *            the primary key
+     *
+     * @param id the primary key
      * @return the entity or null
      */
     @Nullable
     public Project findByIdEager(@Nonnull Integer id) {
-    	Project project = null;
-    	try {
-    		begin();
-    		project = getEntityManager().find(Project.class, id);
-			Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
-			Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
-    		commit();
+        Project project = null;
+        try {
+            begin();
+            project = getEntityManager().find(Project.class, id);
+            Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
+            Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
+            commit();
         } catch (Exception e) {
-        	rollback();
+            rollback();
             LOG.info("No entities for Project id " + id);
-    	} finally {
-    		cleanup();
-    	}
-    	return project;
+        } finally {
+            cleanup();
+        }
+        return project;
     }
 
     /**
      * Override BaseDao to deep lookup finaAll Projects
      * This is very slow, thousands of queries, don't use this.
-     * 
+     *
      * @return the nonnull list of entities
-     * @throws HibernateException
-     *             if there is an error in persistence
+     * @throws HibernateException if there is an error in persistence
      */
     @Nonnull
     @Override
     public List<Project> findAll() throws HibernateException {
-    	List<Project> results = Collections.emptyList();
-    	EntityManager em = getEntityManager();
-    	try {
-    		begin();
-	        CriteriaBuilder cb = em.getCriteriaBuilder();
-	        CriteriaQuery<Project> query = cb.createQuery(Project.class);
-	        Root<Project> root = query.from(Project.class);
-	        Fetch<Project, Workload>  wl = root.fetch(Project.PROPERTY_WORKLOADS);
-	        wl.fetch(Workload.PROPERTY_JOB_CONFIGURATION);
-	        query.select(root);
-	        results = em.createQuery(query).getResultList();
-	        commit();
+        List<Project> results = Collections.emptyList();
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Project> query = cb.createQuery(Project.class);
+            Root<Project> root = query.from(Project.class);
+            Fetch<Project, Workload> wl = root.fetch(Project.PROPERTY_WORKLOADS);
+            wl.fetch(Workload.PROPERTY_JOB_CONFIGURATION);
+            wl.fetch(Workload.PROPERTY_TEST_PLANS);
+            query.select(root);
+            results = em.createQuery(query).getResultList();
+            commit();
         } catch (Exception e) {
-        	rollback();
+            rollback();
             e.printStackTrace();
             LOG.info("No entities found at all for Project");
-    	} finally {
-    		cleanup();
-    	}
-    	return results;
+        } finally {
+            cleanup();
+        }
+        return results;
     }
 
     /**
      * Shallow find of all Projects, used for debugger request.
      *
      * @return the nonnull list of entities
-     * @throws HibernateException
-     *             if there is an error in persistence
+     * @throws HibernateException if there is an error in persistence
      */
     @Nonnull
     public List<Project> findAllFast() throws HibernateException {
@@ -194,11 +191,11 @@ public class ProjectDao extends OwnableDao<Project> {
         }
         return results;
     }
-    
+
     @Nullable
     public Project loadScripts(Integer ProjectId) {
-    	Project project = findByIdEager(ProjectId);
-    	if (project != null) {
+        Project project = findByIdEager(ProjectId);
+        if (project != null) {
             ScriptDao dao = new ScriptDao();
             for (TestPlan testPlan : project.getWorkloads().get(0).getTestPlans()) {
                 for (ScriptGroup scriptGroup : testPlan.getScriptGroups()) {
