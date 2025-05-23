@@ -868,9 +868,6 @@
                 <goal>report</goal>
               </goals>
               <configuration>
-                <reportsDirectories>
-                  <reportsDirectory>${project.build.directory}/surefire-reports/unit</reportsDirectory>
-                </reportsDirectories>
                 <outputName>unit-test-report</outputName>
               </configuration>
             </execution>
@@ -881,9 +878,6 @@
                 <goal>report</goal>
               </goals>
               <configuration>
-                <reportsDirectories>
-                  <reportsDirectory>${project.build.directory}/surefire-reports/integration</reportsDirectory>
-                </reportsDirectories>
                 <outputName>integration-test-report</outputName>
               </configuration>
             </execution>
