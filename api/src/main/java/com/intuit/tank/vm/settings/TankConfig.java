@@ -47,7 +47,6 @@ public class TankConfig extends BaseCommonsXmlConfig {
     private static final String KEY_TMP_FILE_STORAGE = "tmp-file-storage";
     private static final String KEY_JAR_FILE_STORAGE = "jar-file-storage";
     private static final String KEY_TIMING_FILE_STORAGE = "timing-file-storage";
-    private static final String KEY_MAIL_NODE = "mail";
     private static final String KEY_STANDALONE = "standalone";
     private static final String KEY_ENCRYPT_S3 = "s3-encrypt";
     private static final String CONFIG_NAME = "settings.xml";
@@ -82,7 +81,6 @@ public class TankConfig extends BaseCommonsXmlConfig {
     private VmManagerConfig vmManagerConfig;
     private ProductConfig productConfig;
     private LocationsConfig locationsConfig;
-    private MailConfig mailConfig;
     private SecurityConfig securityConfig;
     private LogicStepConfig logicStepConfig;
     private ReportingConfig reportingConfig;
@@ -210,14 +208,6 @@ public class TankConfig extends BaseCommonsXmlConfig {
     }
 
     /**
-     * @return the vmManagerConfig
-     */
-    public MailConfig getMailConfig() {
-        checkReload();
-        return mailConfig;
-    }
-
-    /**
      * @return the locationsConfig
      */
     public LocationsConfig getLocationsConfig() {
@@ -268,7 +258,6 @@ public class TankConfig extends BaseCommonsXmlConfig {
                 BaseCommonsXmlConfig.getChildConfigurationAt(configuration, KEY_PRODUCTS_NODE));
         locationsConfig = new LocationsConfig(BaseCommonsXmlConfig.getChildConfigurationAt(configuration,
                 KEY_LOCATIONS_NODE));
-        mailConfig = new MailConfig(BaseCommonsXmlConfig.getChildConfigurationAt(configuration, KEY_MAIL_NODE));
         securityConfig = new SecurityConfig(BaseCommonsXmlConfig.getChildConfigurationAt(configuration,
                 KEY_SECURITY_NODE));
         logicStepConfig = new LogicStepConfig(BaseCommonsXmlConfig.getChildConfigurationAt(configuration,
