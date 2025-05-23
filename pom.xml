@@ -899,12 +899,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>3.5.0</version>
+          <version>3.6.0</version>
           <dependencies>
             <dependency>
               <groupId>${project.groupId}</groupId>
               <artifactId>test-support</artifactId>
-              <version>4.1.1-SNAPSHOT</version>
+              <version>${project.version}</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -1076,12 +1076,10 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-        <version>3.0.5</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.3.1</version>
         <reportSets>
           <reportSet>
             <reports>
@@ -1093,7 +1091,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.4.1</version>
       </plugin>
     </plugins>
   </reporting>
