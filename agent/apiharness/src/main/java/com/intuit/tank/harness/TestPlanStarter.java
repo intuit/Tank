@@ -14,7 +14,6 @@ package com.intuit.tank.harness;
  */
 
 import com.intuit.tank.harness.data.*;
-import com.intuit.tank.reporting.api.TPSInfoContainer;
 import com.intuit.tank.runner.TestPlanRunner;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.commons.lang3.time.DateUtils;
@@ -23,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
+import com.intuit.tank.reporting.models.TPSInfoContainer;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;

@@ -16,6 +16,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>cloudwatch</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>script-engine</artifactId>
       <version>${project.version}</version>

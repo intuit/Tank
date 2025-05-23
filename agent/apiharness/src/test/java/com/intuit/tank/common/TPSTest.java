@@ -24,10 +24,10 @@ import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.persistence.databases.AmazonDynamoDatabaseDocApi;
 import com.intuit.tank.persistence.databases.DatabaseKeys;
-import com.intuit.tank.reporting.api.TPSInfo;
-import com.intuit.tank.reporting.api.TPSInfoContainer;
 import com.intuit.tank.reporting.databases.Attribute;
 import com.intuit.tank.reporting.databases.IDatabase;
+import com.intuit.tank.reporting.models.TPSInfo;
+import com.intuit.tank.reporting.models.TPSInfoContainer;
 import com.intuit.tank.test.TestGroups;
 import com.intuit.tank.vm.common.util.ReportUtil;
 import org.junit.jupiter.api.BeforeAll;
