@@ -14,7 +14,7 @@ phases:
     commands:
       - java -version
       # Run the complete build with both unit and integration tests
-      - mvn clean install surefire-report:report jacoco:report jacoco:report-integration -P release,coverage
+      - mvn clean install surefire-report:report -P release,coverage
 
 reports:
   UnitTestReports:
@@ -33,7 +33,7 @@ reports:
     base-directory: '.'
   IntegrationTestCoverage:
     files:
-      - '**/target/site/jacoco-integration/**/*'
+      - '**/target/site/jacoco-it/**/*'
     base-directory: '.'
 
 artifacts:
