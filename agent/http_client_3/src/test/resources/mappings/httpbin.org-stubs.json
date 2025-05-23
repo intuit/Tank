@@ -1164,7 +1164,12 @@
       "method" : "POST"
     },
     "response" : {
-      "status" : 200
+      "status" : 200,
+      "body" : "{\n  \"key\" : \"value\"\n}",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-envoy-upstream-service-time": "NumberFormatException"
+      }
     },
     "uuid" : "62f1251b-62e1-453f-86ae-3568c80feaa6",
     "persistent" : true,
@@ -1524,7 +1529,12 @@
       "method" : "GET"
     },
     "response" : {
-      "status" : 200
+      "status" : 200,
+      "body" : "{ \"message\": \"The request's query parameters.\"}",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-envoy-upstream-service-time": "123456"
+      }
     },
     "uuid" : "eb4cd338-b7d5-411b-9c59-56d8a53b8e42",
     "persistent" : true,
@@ -2664,5 +2674,29 @@
       }
     },
     "insertionIndex" : 109
+  }, {
+    "id" : "eb4cd338-b7d5-411b-9c59-56d8a53b8e43",
+    "name" : "The request's options. - 204",
+    "request" : {
+      "urlPath" : "/options",
+      "method" : "OPTIONS"
+    },
+    "response" : {
+      "status" : 204
+    },
+    "uuid" : "eb4cd338-b7d5-411b-9c59-56d8a53b8e43",
+    "persistent" : true,
+    "metadata" : {
+      "mocklab" : {
+        "created" : {
+          "at" : "2023-03-28T09:23:52.398583Z",
+          "via" : "OAS3_IMPORT"
+        },
+        "oas" : {
+          "operationId" : "(none)"
+        }
+      }
+    },
+    "insertionIndex" : 110
   } ]
 }
