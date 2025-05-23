@@ -91,7 +91,6 @@
         <module>tank_common</module>
         <module>proxy-parent</module>
         <module>script_processor</module>
-        <module>mail</module>
         <module>harness_data</module>
         <module>search</module>
         <module>reporting</module>
@@ -187,7 +186,6 @@
         <module>proxy-parent</module>
         <module>script_processor</module>
         <module>tank_common</module>
-        <module>mail</module>
         <module>harness_data</module>
         <module>search</module>
         <module>reporting</module>
@@ -214,7 +212,6 @@
         <module>proxy-parent</module>
         <module>script_processor</module>
         <module>tank_common</module>
-        <module>mail</module>
         <module>harness_data</module>
         <module>search</module>
         <module>reporting</module>
@@ -731,6 +728,12 @@
         <groupId>jakarta.servlet.jsp.jstl</groupId>
         <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
         <version>3.0.2</version>
+        <exclusions>
+          <exclusion>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.springdoc</groupId>

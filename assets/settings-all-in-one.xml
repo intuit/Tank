@@ -33,12 +33,6 @@
     <location displayName="Unspecified" name="unspecified"/>
     <location displayName="San Diego\, CA" name="san_diego"/>
   </locations>
-<!-- mail configuration for notifications -->
-<mail>
-    <mail.smtp.host>localhost</mail.smtp.host>
-    <mail.smtp.port>25</mail.smtp.port>
-    <from-email>do_not_reply@mydomain.com</from-email>
-  </mail>
 <reporting>
     <!-- Reporter that uses key value database. currently DynamoDB -->
     <!--<provider>
