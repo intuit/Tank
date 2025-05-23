@@ -122,6 +122,7 @@
               </excludes>
             </configuration>
             <executions>
+              <!-- Unit test coverage -->
               <execution>
                 <id>prepare-agent</id>
                 <goals>
@@ -135,20 +136,8 @@
                   <goal>report</goal>
                 </goals>
               </execution>
-              <execution>
-                <id>prepare-agent-integration</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>prepare-agent-integration</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>report-integration</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>report-integration</goal>
-                </goals>
-              </execution>
+
+              <!-- Check rules -->
               <execution>
                 <id>check</id>
                 <goals>

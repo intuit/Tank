@@ -27,13 +27,9 @@ reports:
       - '**/target/failsafe-reports/TEST-*.xml'
       - '**/target/failsafe-reports/*.txt'
     base-directory: '.'
-  UnitTestCoverage:
+  AggregatedUnitTestCoverage:
     files:
-      - '**/target/site/jacoco/**/*'
-    base-directory: '.'
-  IntegrationTestCoverage:
-    files:
-      - '**/target/site/jacoco-it/**/*'
+      - '**/jacoco-report-aggregator/target/site/jacoco-aggregate/**/*'
     base-directory: '.'
 
 artifacts:
