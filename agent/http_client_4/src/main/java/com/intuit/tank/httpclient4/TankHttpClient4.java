@@ -284,16 +284,10 @@ public class TankHttpClient4 implements TankHttpClient {
 
     @Override
     public void setProxy(String proxyhost, int proxyport) {
-        if (StringUtils.isNotBlank(proxyhost)) {
-            HttpHost proxy = new HttpHost(proxyhost, proxyport);
-            RequestConfig requestConfig =
-                    context.getRequestConfig().custom().setProxy(proxy).build();
-            context.setRequestConfig(requestConfig);
-        } else {
-            RequestConfig requestConfig =
-                    context.getRequestConfig().custom().setProxy(null).build();
-            context.setRequestConfig(requestConfig);
-        }
+        RequestConfig requestConfig = (StringUtils.isNotBlank(proxyhost))
+                ? context.getRequestConfig().custom().setProxy(new HttpHost(proxyhost, proxyport)).build()
+                : context.getRequestConfig().custom().setProxy(null).build();
+        context.setRequestConfig(requestConfig);
     }
 
     private void sendRequest(BaseRequest request, @Nonnull HttpRequestBase method, String requestBody) {
@@ -453,17 +447,13 @@ public class TankHttpClient4 implements TankHttpClient {
     @SuppressWarnings("rawtypes")
     private void setHeaders(BaseRequest request, HttpRequestBase method, HashMap<String, String> headerInformation) {
         try {
-            Set set = headerInformation.entrySet();
-
-            for (Object aSet : set) {
-                Map.Entry mapEntry = (Map.Entry) aSet;
-                method.setHeader((String) mapEntry.getKey(), (String) mapEntry.getValue());
-            }
+            headerInformation.entrySet().forEach(entry -> {
+                method.setHeader((String) ((Map.Entry) entry).getKey(), (String) ((Map.Entry) entry).getValue());
+            });
         } catch (Exception ex) {
             LOG.warn(request.getLogUtil().getLogMessage("Unable to set header: " + ex.getMessage(), LogEventType.System));
         }
     }
-
 
     private HttpEntity buildParts(BaseRequest request) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();

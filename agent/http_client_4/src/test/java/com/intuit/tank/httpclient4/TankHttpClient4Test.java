@@ -1,12 +1,15 @@
 package com.intuit.tank.httpclient4;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.net.UnknownHostException;
 import java.util.Base64;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
@@ -17,13 +20,17 @@ import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.http.TankCookie;
 import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.test.TestGroups;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.mockito.Mockito.when;
 
 public class TankHttpClient4Test {
 
@@ -46,7 +53,7 @@ public class TankHttpClient4Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testBasicAuth() {
-        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/basic-auth/test/test_pass");
+        BaseRequest request = getRequest(new TankHttpClient4(), null, wireMockServer.baseUrl() + "/basic-auth/test/test_pass");
         request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withRealm("bogus").withScheme(AuthScheme.Basic).build());
         request.addHeader("X-Test-Mode", "Fail");
 
@@ -55,7 +62,7 @@ public class TankHttpClient4Test {
         assertNotNull(response);
         assertEquals(401, response.getHttpCode());
 
-        request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/basic-auth/test/test_pass");
+        request = getRequest(new TankHttpClient4(), null, wireMockServer.baseUrl() + "/basic-auth/test/test_pass");
         request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withHost("localhost").withRealm("Fake Realm").withScheme(AuthScheme.Basic).build());
         request.addHeader("X-Test-Mode", "Pass");
 
@@ -70,7 +77,7 @@ public class TankHttpClient4Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testDigestAuth() {
-        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/digest-auth/auth/test/test_pass");
+        BaseRequest request = getRequest(new TankHttpClient4(), null, wireMockServer.baseUrl() + "/digest-auth/auth/test/test_pass");
         request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withRealm("bogus").withScheme(AuthScheme.Digest).build());
         request.addHeader("X-Test-Mode", "Fail");
 
@@ -79,7 +86,7 @@ public class TankHttpClient4Test {
         assertNotNull(response);
         assertEquals(401, response.getHttpCode());
 
-        request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/digest-auth/auth/test/test_pass");
+        request = getRequest(new TankHttpClient4(), null, wireMockServer.baseUrl() + "/digest-auth/auth/test/test_pass");
         request.getHttpclient().addAuth(AuthCredentials.builder().withUserName("test").withPassword("test_pass").withHost("httpbin.org").withScheme(AuthScheme.Digest).build());
         request.addHeader("X-Test-Mode", "Pass");
 
@@ -95,7 +102,8 @@ public class TankHttpClient4Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void doDelete() {
-        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/delete");
+        BaseRequest request = getRequest(new TankHttpClient4(), null, wireMockServer.baseUrl() + "/delete");
+        request.getLogUtil().getAgentConfig().getLogPostResponse();
         request.doDelete(null);
         BaseResponse response = request.getResponse();
         verify(exactly(1), deleteRequestedFor(urlEqualTo("/delete")));
@@ -106,7 +114,7 @@ public class TankHttpClient4Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void doGet() {
-        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/get");
+        BaseRequest request = getRequest(new TankHttpClient4(), null, wireMockServer.baseUrl() + "/get");
         request.doGet(null);
         BaseResponse response = request.getResponse();
         verify(exactly(1), getRequestedFor(urlEqualTo("/get")));
@@ -117,8 +125,43 @@ public class TankHttpClient4Test {
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
+    public void doGetException() throws IOException {
+        CloseableHttpClient mockHttpClient = Mockito.mock(CloseableHttpClient.class);
+        when(mockHttpClient
+                .execute(ArgumentMatchers.any(HttpRequestBase.class), ArgumentMatchers.any(HttpClientContext.class)))
+                .thenThrow(new UnknownHostException("Mocked UnknownHost exception"));
+        BaseRequest request = getRequest(new TankHttpClient4(), mockHttpClient, wireMockServer.baseUrl() + "/get");
+        request.doGet(null);
+        assertNull(request.getResponse());
+
+        when(mockHttpClient
+                .execute(ArgumentMatchers.any(HttpRequestBase.class), ArgumentMatchers.any(HttpClientContext.class)))
+                .thenThrow(new SocketException("Mocked Socket Exception"));
+        request.doGet(null);
+        assertNull(request.getResponse());
+
+        when(mockHttpClient
+                .execute(ArgumentMatchers.any(HttpRequestBase.class), ArgumentMatchers.any(HttpClientContext.class)))
+                .thenThrow(new RuntimeException("Mocked Exception"));
+        assertThrows(RuntimeException.class, () -> request.doGet(null));
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void doOptions() {
+        BaseRequest request = getRequest(new TankHttpClient4(), null,wireMockServer.baseUrl() + "/options");
+        request.doOptions(null);
+        BaseResponse response = request.getResponse();
+        verify(exactly(1), optionsRequestedFor(urlEqualTo("/options")));
+        assertNotNull(response);
+        assertEquals(204, response.getHttpCode());
+        assertNotNull(response.getBody());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void doPost() {
-        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/post");
+        BaseRequest request = getRequest(new TankHttpClient4(), null,wireMockServer.baseUrl() + "/post");
         request.setBody("{\"title\":\"Direct deposit with Credit Karma Money™ checking account¹\"}");
         request.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         request.doPost(null);
@@ -133,8 +176,20 @@ public class TankHttpClient4Test {
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
+    public void doPatch() {
+        BaseRequest request = getRequest(new TankHttpClient4(), null,wireMockServer.baseUrl() + "/patch");
+        request.doPatch(null);
+        BaseResponse response = request.getResponse();
+        verify(exactly(1), patchRequestedFor(urlEqualTo("/patch")));
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotNull(response.getBody());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void doPut() {
-        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/put");
+        BaseRequest request = getRequest(new TankHttpClient4(), null,wireMockServer.baseUrl() + "/put");
         request.setBody("{\"title\":\"Direct deposit with Credit Karma Money™ checking account¹\"}");
         request.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         request.doPut(null);
@@ -165,7 +220,7 @@ public class TankHttpClient4Test {
                 .atPriority(2)
         );
 
-        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/cookies");
+        BaseRequest request = getRequest(new TankHttpClient4(),null, wireMockServer.baseUrl() + "/cookies");
         request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("localhost").withPath("/").build());
         request.doGet(null);
         BaseResponse response = request.getResponse();
@@ -192,7 +247,7 @@ public class TankHttpClient4Test {
                 .atPriority(1)
         );
 
-        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/cookies");
+        BaseRequest request = getRequest(new TankHttpClient4(), null,wireMockServer.baseUrl() + "/cookies");
         request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("localhost").withPath("/").build());
         request.doGet(null);
         BaseResponse response = request.getResponse();
@@ -205,8 +260,7 @@ public class TankHttpClient4Test {
     @Disabled
     @Tag(TestGroups.FUNCTIONAL)
     public void setProxy() {
-         BaseRequest request = getRequest(new TankHttpClient4(),
-         "http://httpbin.org/ip");
+         BaseRequest request = getRequest(new TankHttpClient4(), null, wireMockServer.baseUrl() + "/get");
          request.getHttpclient().setProxy("168.9.128.152", 8080);
          request.doGet(null);
          BaseResponse response = request.getResponse();
@@ -232,7 +286,7 @@ public class TankHttpClient4Test {
     @Test
     @Tag(TestGroups.MANUAL)
     public void testSSL() {
-        BaseRequest request = getRequest(new TankHttpClient4(), "https://turbotax.intuit.com/");
+        BaseRequest request = getRequest(new TankHttpClient4(), null,"https://turbotax.intuit.com/");
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
@@ -243,7 +297,7 @@ public class TankHttpClient4Test {
     @Disabled
     @Tag(TestGroups.FUNCTIONAL)
     public void doPostMultipart() throws IOException {
-        BaseRequest request = getRequest(new TankHttpClient4(), "http://httpbin.org/post");
+        BaseRequest request = getRequest(new TankHttpClient4(), null, "http://httpbin.org/post");
         request.setContentType(BaseRequest.CONTENT_TYPE_MULTIPART);
         request.setBody(createMultiPartBody());
         request.doPost(null);
@@ -256,7 +310,7 @@ public class TankHttpClient4Test {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void doPostMultipartwithFile() throws IOException {
-        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/post");
+        BaseRequest request = getRequest(new TankHttpClient4(), null, wireMockServer.baseUrl() + "/post");
         request.setContentType(BaseRequest.CONTENT_TYPE_MULTIPART);
         request.setBody(
                 "LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0xNzI2MTE1MzQ5Mjk4MjYNCkNvbnRlbnQtRGlzcG9zaXRpb246IGZvcm0tZGF0YTsgbmFtZT0iY3JlYXRlTmV3"
@@ -324,18 +378,13 @@ public class TankHttpClient4Test {
         HttpEntity entity = MultipartEntityBuilder.create().addTextBody("textPart", "<xml>here is sample xml</xml>", ContentType.APPLICATION_XML).build();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         entity.writeTo(byteArrayOutputStream);
-        String ret = new String(byteArrayOutputStream.toByteArray());
-
-        System.out.println(ret);
-        ret = toBase64(byteArrayOutputStream.toByteArray());
-        System.out.println(ret);
-        return ret;
+        return Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()).trim();
     }
 
-    private BaseRequest getRequest(TankHttpClient client, String url) {
+    private BaseRequest getRequest(TankHttpClient client, CloseableHttpClient httpclient, String url) {
         try {
             URL u = new URL(url);
-            client.setHttpClient(null);
+            client.setHttpClient(httpclient);
             BaseRequest request = new MockBaseRequest(client);
             request.setHost(u.getHost());
             request.setPath(u.getPath());
@@ -347,19 +396,4 @@ public class TankHttpClient4Test {
             throw new RuntimeException(e);
         }
     }
-
-    /**
-     * Returns a string's base64 encoding
-     *
-     * @param bytes
-     * @return base64 string
-     */
-    public String toBase64(byte[] bytes) {
-        try {
-            return Base64.getEncoder().encodeToString(bytes).trim();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 }

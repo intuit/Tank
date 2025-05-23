@@ -79,6 +79,13 @@ public class TankHttpClient3 implements TankHttpClient {
         httpclient.setState(new HttpState());
     }
 
+    /**
+     * constructor for test
+     */
+    public TankHttpClient3(HttpClient httpclient) {
+        this.httpclient = httpclient;
+    }
+
     public Object createHttpClient() { return null; }
 
     public void setHttpClient(Object httpClient) {}
@@ -434,18 +441,13 @@ public class TankHttpClient3 implements TankHttpClient {
     @SuppressWarnings("rawtypes")
     private void setHeaders(BaseRequest request, HttpMethod method, HashMap<String, String> headerInformation) {
         try {
-            Set set = headerInformation.entrySet();
-
-            for (Object aSet : set) {
-                Map.Entry mapEntry = (Map.Entry) aSet;
-                method.setRequestHeader((String) mapEntry.getKey(), (String) mapEntry.getValue());
-            }
+            headerInformation.entrySet().forEach(entry -> {
+                method.setRequestHeader((String) ((Map.Entry) entry).getKey(), (String) ((Map.Entry) entry).getValue());
+            });
         } catch (Exception ex) {
             LOG.warn(request.getLogUtil().getLogMessage("Unable to set header: " + ex.getMessage(), LogEventType.System));
         }
     }
-
-    
 
     private List<Part> buildParts(BaseRequest request) {
         List<Part> parts = new ArrayList<Part>();
