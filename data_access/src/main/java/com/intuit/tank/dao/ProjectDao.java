@@ -150,7 +150,6 @@ public class ProjectDao extends OwnableDao<Project> {
             Root<Project> root = query.from(Project.class);
             Fetch<Project, Workload> wl = root.fetch(Project.PROPERTY_WORKLOADS);
             wl.fetch(Workload.PROPERTY_JOB_CONFIGURATION);
-            wl.fetch(Workload.PROPERTY_TEST_PLANS);
             query.select(root);
             results = em.createQuery(query).getResultList();
             commit();
