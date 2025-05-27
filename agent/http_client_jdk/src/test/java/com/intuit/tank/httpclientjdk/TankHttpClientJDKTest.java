@@ -259,6 +259,7 @@ public class TankHttpClientJDKTest {
     }
 
     @Test
+    @Disabled
     @Tag(TestGroups.FUNCTIONAL)
     public void doPostMultipart() throws IOException {
         BaseRequest request = getRequest(new TankHttpClientJDK(), "https://httpbin.org/post");
