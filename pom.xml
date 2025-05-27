@@ -124,13 +124,13 @@
             <executions>
               <!-- Unit test coverage -->
               <execution>
-                <id>prepare-agent</id>
+                <id>default-prepare-agent</id>
                 <goals>
                   <goal>prepare-agent</goal>
                 </goals>
               </execution>
               <execution>
-                <id>report</id>
+                <id>default-report</id>
                 <phase>test</phase>
                 <goals>
                   <goal>report</goal>
@@ -139,7 +139,7 @@
 
               <!-- Check rules -->
               <execution>
-                <id>check</id>
+                <id>default-check</id>
                 <goals>
                   <goal>check</goal>
                 </goals>
