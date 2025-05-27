@@ -72,14 +72,14 @@ public class BaseIT {
 
                 String token = props.getProperty(API_TOKEN_PROPERTY);
                 if (token != null && !token.isEmpty()) {
-                    LOG.debug("Using API token from properties file");
+                    LOG.info("Using API token from properties file");
                     return token;
                 }
             } else {
-                LOG.debug("Properties file not found: " + CONFIG_FILE);
+                LOG.info("Properties file not found: " + CONFIG_FILE);
             }
         } catch (IOException e) {
-            LOG.debug("Error loading properties file: " + e.getMessage());
+            LOG.info("Error loading properties file: " + e.getMessage());
         }
 
         return null;
@@ -106,7 +106,7 @@ public class BaseIT {
                 }
             }
         } catch (Exception e) {
-            LOG.debug("Error retrieving token from SSM: " + e.getMessage());
+            LOG.info("Error retrieving token from SSM: " + e.getMessage());
         }
 
         return null;
