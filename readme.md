@@ -29,7 +29,7 @@ There are several profiles (for the initial build you should build the release p
 * coverage -- runs jacoco code coverage.
 * static-analysis -- runs checkstyle and findbugs.
 
-mvn clean install will run all unit tests and integration tests by default under their respective maven stages - `test` and `verify`.
+`mvn clean install` runs all unit tests and integration tests by default under their respective maven stages - `test` and `verify`.
 
 There are several artifacts that are important.
 * web/web_ui/target/tank.war -- the main deployment file. Intended for deployment to a tomcat web server.

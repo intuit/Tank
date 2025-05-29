@@ -47,15 +47,14 @@ The tests automatically fetch the token from AWS SSM Parameter Store:
 
 ### Prerequisites
 1. Valid API token (see Configuration section)
-2. Network access to Tank QA environment
-3. Maven 3.6+ and Java 17+
+2. Access to Tank QA environment with a valid API token
 
 ### Execute Tests
 
 ```bash
 # Run all integration tests
 By default, `mvn clean install` will run both unit and integration tests.
-You can run individual tests directly on IntelliJ
+You can run individual tests directly on IntelliJ/ or your preferred IDE.
 ```
 
 ### Test Tags

@@ -27,11 +27,9 @@ public class ProjectApiIT extends BaseIT {
                 .timeout(Duration.ofSeconds(30))
                 .GET()
                 .build();
-        
-        // Act
+
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
-        
-        // Assert
+
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> projectNames = objectMapper.readValue(response.body(), Map.class);
