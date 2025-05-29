@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 public class BaseIT {
 
-    private static final Logger LOG = LogManager.getLogger(BaseIT.class.getName());
+    private static final Logger LOG = LogManager.getLogger(BaseIT.class);
     private static final String SSM_PARAMETER_NAME = "/Tank/qa/integration-tests/api/token";
     private static final String CONFIG_FILE = "test-config.properties";
     private static final String API_TOKEN_PROPERTY = "tank.api.token";
@@ -48,7 +48,7 @@ public class BaseIT {
         String token = getTokenFromProperties();
 
         if (token == null || token.isEmpty()) {
-            LOG.debug("Token not found in properties file, trying SSM Parameter Store");
+            // If not found in properties, try SSM
             token = getTokenFromSSM();
         }
 
@@ -72,14 +72,13 @@ public class BaseIT {
 
                 String token = props.getProperty(API_TOKEN_PROPERTY);
                 if (token != null && !token.isEmpty()) {
-                    LOG.info("Using API token from properties file");
                     return token;
                 }
             } else {
-                LOG.info("Properties file not found: " + CONFIG_FILE);
+                // Properties file not found : test-config.properties is not in resources, ignore
             }
         } catch (IOException e) {
-            LOG.info("Error loading properties file: " + e.getMessage());
+            // Error reading properties file, ignore
         }
 
         return null;
@@ -101,12 +100,11 @@ public class BaseIT {
 
                 String token = response.parameter().value();
                 if (token != null && !token.isEmpty()) {
-                    LOG.info("Using API token from SSM Parameter Store");
                     return token;
                 }
             }
         } catch (Exception e) {
-            LOG.info("Error retrieving token from SSM: " + e.getMessage());
+            LOG.error("Error retrieving token from SSM: " + e.getMessage());
         }
 
         return null;
