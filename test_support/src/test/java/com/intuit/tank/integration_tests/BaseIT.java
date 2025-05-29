@@ -75,10 +75,10 @@ public class BaseIT {
                     return token;
                 }
             } else {
-                // Properties file not found : test-config.properties is not in resources, ignore
+                LOG.debug("Properties file not found: " + CONFIG_FILE);
             }
         } catch (IOException e) {
-            // Error reading properties file, ignore
+            LOG.debug("Error loading properties file: {}", e.getMessage());
         }
 
         return null;
