@@ -48,7 +48,7 @@ public class BaseIT {
         String token = getTokenFromProperties();
 
         if (token == null || token.isEmpty()) {
-            LOG.debug("Token not found in properties file, trying SSM Parameter Store");
+            // If not found in properties, try SSM
             token = getTokenFromSSM();
         }
 
@@ -72,14 +72,13 @@ public class BaseIT {
 
                 String token = props.getProperty(API_TOKEN_PROPERTY);
                 if (token != null && !token.isEmpty()) {
-                    LOG.info("Using API token from properties file");
                     return token;
                 }
             } else {
-                LOG.info("Properties file not found: " + CONFIG_FILE);
+                LOG.debug("Properties file not found: " + CONFIG_FILE);
             }
         } catch (IOException e) {
-            LOG.info("Error loading properties file: " + e.getMessage());
+            LOG.debug("Error loading properties file: {}", e.getMessage());
         }
 
         return null;
@@ -101,12 +100,11 @@ public class BaseIT {
 
                 String token = response.parameter().value();
                 if (token != null && !token.isEmpty()) {
-                    LOG.info("Using API token from SSM Parameter Store");
                     return token;
                 }
             }
         } catch (Exception e) {
-            LOG.info("Error retrieving token from SSM: " + e.getMessage());
+            LOG.error("Error retrieving token from SSM: " + e.getMessage());
         }
 
         return null;
