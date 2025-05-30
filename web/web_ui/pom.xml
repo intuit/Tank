@@ -136,12 +136,6 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>tank-mail</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>web-support</artifactId>
       <version>${project.version}</version>
     </dependency>

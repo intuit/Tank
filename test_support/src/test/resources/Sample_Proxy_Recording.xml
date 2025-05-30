@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<conversations xmlns="urn:proxy/conversation/v1">
+    <session id="session-1" startTime="2024-01-15T10:30:00.000Z">
+        <transaction id="txn-1" startTime="2024-01-15T10:30:01.000Z" endTime="2024-01-15T10:30:01.250Z">
+            <request>
+                <method>GET</method>
+                <url>https://api.example.com/health</url>
+                <protocol>HTTP/1.1</protocol>
+                <headers>
+                    <header name="Host" value="api.example.com"/>
+                    <header name="User-Agent" value="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"/>
+                    <header name="Accept" value="application/json"/>
+                    <header name="Accept-Language" value="en-US,en;q=0.9"/>
+                    <header name="Accept-Encoding" value="gzip, deflate, br"/>
+                    <header name="Connection" value="keep-alive"/>
+                </headers>
+            </request>
+            <response>
+                <statusCode>200</statusCode>
+                <statusMessage>OK</statusMessage>
+                <headers>
+                    <header name="Content-Type" value="application/json"/>
+                    <header name="Content-Length" value="25"/>
+                    <header name="Server" value="nginx/1.18.0"/>
+                    <header name="Date" value="Mon, 15 Jan 2024 10:30:01 GMT"/>
+                    <header name="Connection" value="keep-alive"/>
+                </headers>
+                <body>{"status":"healthy"}</body>
+            </response>
+        </transaction>
+        
+        <transaction id="txn-2" startTime="2024-01-15T10:30:02.000Z" endTime="2024-01-15T10:30:02.450Z">
+            <request>
+                <method>POST</method>
+                <url>https://api.example.com/auth/login</url>
+                <protocol>HTTP/1.1</protocol>
+                <headers>
+                    <header name="Host" value="api.example.com"/>
+                    <header name="User-Agent" value="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"/>
+                    <header name="Accept" value="application/json"/>
+                    <header name="Content-Type" value="application/json"/>
+                    <header name="Content-Length" value="45"/>
+                    <header name="Accept-Encoding" value="gzip, deflate, br"/>
+                    <header name="Connection" value="keep-alive"/>
+                </headers>
+                <body>{"username":"testuser","password":"testpass"}</body>
+            </request>
+            <response>
+                <statusCode>200</statusCode>
+                <statusMessage>OK</statusMessage>
+                <headers>
+                    <header name="Content-Type" value="application/json"/>
+                    <header name="Content-Length" value="85"/>
+                    <header name="Server" value="nginx/1.18.0"/>
+                    <header name="Date" value="Mon, 15 Jan 2024 10:30:02 GMT"/>
+                    <header name="Set-Cookie" value="session_id=abc123def456; Path=/; HttpOnly; Secure"/>
+                    <header name="Connection" value="keep-alive"/>
+                </headers>
+                <body>{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9","expires_in":3600}</body>
+            </response>
+        </transaction>
+        
+        <transaction id="txn-3" startTime="2024-01-15T10:30:03.000Z" endTime="2024-01-15T10:30:03.180Z">
+            <request>
+                <method>GET</method>
+                <url>https://api.example.com/user/profile</url>
+                <protocol>HTTP/1.1</protocol>
+                <headers>
+                    <header name="Host" value="api.example.com"/>
+                    <header name="User-Agent" value="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"/>
+                    <header name="Accept" value="application/json"/>
+                    <header name="Authorization" value="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"/>
+                    <header name="Cookie" value="session_id=abc123def456"/>
+                    <header name="Accept-Encoding" value="gzip, deflate, br"/>
+                    <header name="Connection" value="keep-alive"/>
+                </headers>
+            </request>
+            <response>
+                <statusCode>200</statusCode>
+                <statusMessage>OK</statusMessage>
+                <headers>
+                    <header name="Content-Type" value="application/json"/>
+                    <header name="Content-Length" value="120"/>
+                    <header name="Server" value="nginx/1.18.0"/>
+                    <header name="Date" value="Mon, 15 Jan 2024 10:30:03 GMT"/>
+                    <header name="Cache-Control" value="no-cache, no-store, must-revalidate"/>
+                    <header name="Connection" value="keep-alive"/>
+                </headers>
+                <body>{"id":12345,"username":"testuser","email":"testuser@example.com","firstName":"Test","lastName":"User"}</body>
+            </response>
+        </transaction>
+        
+        <transaction id="txn-4" startTime="2024-01-15T10:30:04.000Z" endTime="2024-01-15T10:30:04.320Z">
+            <request>
+                <method>PUT</method>
+                <url>https://api.example.com/user/profile</url>
+                <protocol>HTTP/1.1</protocol>
+                <headers>
+                    <header name="Host" value="api.example.com"/>
+                    <header name="User-Agent" value="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"/>
+                    <header name="Accept" value="application/json"/>
+                    <header name="Content-Type" value="application/json"/>
+                    <header name="Content-Length" value="65"/>
+                    <header name="Authorization" value="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"/>
+                    <header name="Cookie" value="session_id=abc123def456"/>
+                    <header name="Accept-Encoding" value="gzip, deflate, br"/>
+                    <header name="Connection" value="keep-alive"/>
+                </headers>
+                <body>{"firstName":"Updated","lastName":"User","email":"updated@example.com"}</body>
+            </request>
+            <response>
+                <statusCode>200</statusCode>
+                <statusMessage>OK</statusMessage>
+                <headers>
+                    <header name="Content-Type" value="application/json"/>
+                    <header name="Content-Length" value="125"/>
+                    <header name="Server" value="nginx/1.18.0"/>
+                    <header name="Date" value="Mon, 15 Jan 2024 10:30:04 GMT"/>
+                    <header name="Connection" value="keep-alive"/>
+                </headers>
+                <body>{"id":12345,"username":"testuser","email":"updated@example.com","firstName":"Updated","lastName":"User"}</body>
+            </response>
+        </transaction>
+        
+        <transaction id="txn-5" startTime="2024-01-15T10:30:05.000Z" endTime="2024-01-15T10:30:05.150Z">
+            <request>
+                <method>POST</method>
+                <url>https://api.example.com/auth/logout</url>
+                <protocol>HTTP/1.1</protocol>
+                <headers>
+                    <header name="Host" value="api.example.com"/>
+                    <header name="User-Agent" value="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"/>
+                    <header name="Accept" value="application/json"/>
+                    <header name="Authorization" value="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"/>
+                    <header name="Cookie" value="session_id=abc123def456"/>
+                    <header name="Accept-Encoding" value="gzip, deflate, br"/>
+                    <header name="Connection" value="keep-alive"/>
+                </headers>
+            </request>
+            <response>
+                <statusCode>200</statusCode>
+                <statusMessage>OK</statusMessage>
+                <headers>
+                    <header name="Content-Type" value="application/json"/>
+                    <header name="Content-Length" value="30"/>
+                    <header name="Server" value="nginx/1.18.0"/>
+                    <header name="Date" value="Mon, 15 Jan 2024 10:30:05 GMT"/>
+                    <header name="Set-Cookie" value="session_id=; Path=/; HttpOnly; Secure; Expires=Thu, 01 Jan 1970 00:00:00 GMT"/>
+                    <header name="Connection" value="keep-alive"/>
+                </headers>
+                <body>{"message":"Logged out successfully"}</body>
+            </response>
+        </transaction>
+    </session>
+</conversations>
