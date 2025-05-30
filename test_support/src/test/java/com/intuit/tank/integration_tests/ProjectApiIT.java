@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ProjectApiIT extends BaseIT {
 
     private static final String PROJECTS_ENDPOINT = "/v2/projects";
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final List<Integer> createdProjectIds = new ArrayList<>();
 
     @AfterEach
@@ -240,7 +239,6 @@ public class ProjectApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        System.out.println(response.body());
         assertEquals(201, response.statusCode(), "Should return HTTP 201 Created");
 
         Map<String, String> responseBody = objectMapper.readValue(response.body(), Map.class);

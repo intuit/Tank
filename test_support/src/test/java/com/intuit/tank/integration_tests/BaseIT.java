@@ -1,5 +1,6 @@
 package com.intuit.tank.integration_tests;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
@@ -29,6 +30,8 @@ public class BaseIT {
     protected static final String ACCEPT_HEADER = "Accept";
     protected static final String ACCEPT_VALUE = "application/json";
     protected static final HttpClient httpClient = getHttpClient();
+
+    protected final ObjectMapper objectMapper = new ObjectMapper();
 
 
     protected static HttpClient getHttpClient() {
@@ -108,5 +111,15 @@ public class BaseIT {
         }
 
         return null;
+    }
+
+    // Helper method to load file as bytes (like curl @filename)
+    protected byte[] loadResourceFileAsBytes(String filename) throws IOException {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(filename)) {
+            if (is == null) {
+                throw new IOException("Resource file not found: " + filename);
+            }
+            return is.readAllBytes();
+        }
     }
 }
