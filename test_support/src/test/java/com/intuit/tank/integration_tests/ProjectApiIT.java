@@ -1,8 +1,10 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -20,7 +22,9 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -113,7 +117,6 @@ public class ProjectApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
-        ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> projectNames = objectMapper.readValue(response.body(), Map.class);
         assertTrue(projectNames.containsValue("Simple Endurance Project"),
                 "Response should contain 'Simple Endurance Project'");
