@@ -3,9 +3,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.intuit.tank</groupId>
-  <artifactId>test-support</artifactId>
-  <version>4.1.1-SNAPSHOT</version>
+  <parent>
+    <groupId>com.intuit.tank</groupId>
+    <artifactId>tank-parent</artifactId>
+    <version>4.1.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>tank-test-support</artifactId>
 
   <packaging>jar</packaging>
   <description>Intuit Tank Test Support module</description>
@@ -29,6 +33,7 @@
   <properties>
     <version.surefire>3.5.3</version.surefire>
     <version.jaxb>4.0.2</version.jaxb>
+    <version.junit>5.12.2</version.junit>
     <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     <maven.compiler.release>17</maven.compiler.release>
@@ -72,21 +77,68 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${version.surefire}</version>
         </plugin>
+        <!-- Integration Tests Configuration -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${version.surefire}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <includes>
+              <include>**/*IT.java</include>
+              <include>**/integration/**/*.java</include>
+            </includes>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
 
   <dependencies>
     <dependency>
-        <groupId>jakarta.xml.bind</groupId>
-        <artifactId>jakarta.xml.bind-api</artifactId>
-        <version>${version.jaxb}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.glassfish.jaxb</groupId>
-        <artifactId>jaxb-runtime</artifactId>
-        <version>${version.jaxb}</version>
-      </dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>${version.jaxb}</version>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>ssm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>${version.jaxb}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${version.junit}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${version.junit}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${version.junit}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>

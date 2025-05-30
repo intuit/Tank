@@ -13,13 +13,20 @@ phases:
   build:
     commands:
       - java -version
+      # Run the complete build with both unit and integration tests
       - mvn clean install surefire-report:report -P release
 
 reports:
-  SurefireReports: # CodeBuild will create a report group called "SurefireReports".
-    files: #Store all of the files
-      - '**/*'
-    base-directory: 'web/web_support/target/surefire-reports' # Location of the reports
+  UnitTestReports:
+    files:
+      - '**/target/surefire-reports/TEST-*.xml'
+      - '**/target/surefire-reports/*.txt'
+    base-directory: '.'
+  IntegrationTestReports:
+    files:
+      - '**/target/failsafe-reports/TEST-*.xml'
+      - '**/target/failsafe-reports/*.txt'
+    base-directory: '.'
 
 artifacts:
   files:
