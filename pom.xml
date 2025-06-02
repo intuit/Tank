@@ -44,6 +44,7 @@
     <version.primefaces-ext>14.0.15</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>3.5.3</version.surefire>
+    <version.jacoco>0.8.11</version.jacoco>
     <version.junit>5.12.2</version.junit>
     <version.mockito>5.14.2</version.mockito>
     <version.httpclient>4.5.14</version.httpclient>
@@ -114,12 +115,14 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${version.jacoco}</version>
             <configuration>
               <excludes>
                 <exclude>org/fife/**/*</exclude>
               </excludes>
             </configuration>
             <executions>
+              <!-- Unit test coverage -->
               <execution>
                 <id>default-prepare-agent</id>
                 <goals>
@@ -133,6 +136,8 @@
                   <goal>report</goal>
                 </goals>
               </execution>
+
+              <!-- Check rules -->
               <execution>
                 <id>default-check</id>
                 <goals>
@@ -855,6 +860,28 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-report-plugin</artifactId>
           <version>${version.surefire}</version>
+          <executions>
+            <execution>
+              <id>unit-test-report</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>report</goal>
+              </goals>
+              <configuration>
+                <outputName>unit-test-report</outputName>
+              </configuration>
+            </execution>
+            <execution>
+              <id>integration-test-report</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>report</goal>
+              </goals>
+              <configuration>
+                <outputName>integration-test-report</outputName>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
 
         <plugin>
@@ -1013,6 +1040,7 @@
             <path>
               <groupId>org.projectlombok</groupId>
               <artifactId>lombok</artifactId>
+              <version>1.18.38</version>
             </path>
           </annotationProcessorPaths>
         </configuration>
@@ -1048,22 +1076,48 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
       </plugin>
+
+      <!-- Unit Tests Configuration -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>${version.surefire}</version>
         <configuration>
           <!-- Sets the VM argument line used when unit tests are run. -->
           <argLine>${argLine}</argLine>
-          <excludedGroups>manual,integration,experimental</excludedGroups>
           <includes>
             <include>**/*Test.java</include>
             <include>**/*Spec.groovy</include>
+          </includes>
+          <excludes>
+            <exclude>**/*IT.java</exclude>
+            <exclude>**/integration/**/*.java</exclude>
+          </excludes>
+          <excludedGroups>manual,integration,experimental</excludedGroups>
+        </configuration>
+      </plugin>
+      <!-- Integration Tests Configuration -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${version.surefire}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <includes>
+            <include>**/*IT.java</include>
+            <include>**/integration/**/*.java</include>
           </includes>
         </configuration>
       </plugin>
     </plugins>
   </build>
-
 
   <reporting>
     <outputDirectory>${project.build.directory}/site</outputDirectory>

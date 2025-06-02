@@ -29,13 +29,14 @@ There are several profiles (for the initial build you should build the release p
 * coverage -- runs jacoco code coverage.
 * static-analysis -- runs checkstyle and findbugs.
 
+`mvn clean install` runs all unit tests and integration tests by default under their respective maven stages - `test` and `verify`.
 
 There are several artifacts that are important.
 * web/web_ui/target/tank.war -- the main deployment file. Intended for deployment to a tomcat web server.
 * agent/agentManager_pkg/target/agent-startup-pkg.zip -- the agent app that gets started when the agent starts and manages communicating with the tank controller and coordinating the tests.
 * tools/agent_debugger_pkg/target/Tank-Debugger-all.jar -- the visual debugger jar. can be launched to debug scripts or projects.
 * tools/script_filter_pkg/target/Tank-Script-Runner-all.jar -- the visual script filter tool for writing scripts to filter or manipulate scripts on import.
-* proxy-parent/proxy_pkg/target/Tank-Proxy-pkg.jar -- the proxy recording tool. A Tool to record scripts using your browser. 
+* proxy-parent/proxy_pkg/target/Tank-Proxy-pkg.jar -- the proxy recording tool. A Tool to record scripts using your browser.
 
 ## Quickstart
 There is a shell script to install and configure a standalone controller and agent and configured with a java database for 
@@ -43,6 +44,11 @@ Mac and Linux. Windows users should install some POSIX tooling such as [Babun](h
 It can be downloaded from our [public site](http://tank-public.s3-website-us-east-1.amazonaws.com/all-in-one.sh) or 
 in the root of the distribution. You can use this version for small tests to try out the tools but should not use 
 it for large scale or production testing.
+
+## Integration Tests
+
+The integration tests are located in the `test_support` module. They are designed to test the REST API endpoints against the QA Tank environment.
+You can find more information in the [README](test_support/README.md) file in that module.
 
 ## Guides
 Installation guide and User guide can be found in the docs folder and are built with the source. and can also be found on our [wiki](https://github.com/intuit/Tank/wiki).
