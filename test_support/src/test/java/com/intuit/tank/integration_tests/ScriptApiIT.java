@@ -222,7 +222,7 @@ public class ScriptApiIT extends BaseIT {
         String suffix = "100";
 
         // Load the sample proxy recording file from resources
-        byte[] fileContent = loadResourceFileAsBytes("Sample_Proxy_Recording.xml");
+        byte[] fileContent = loadResourceFileAsBytes("testfiles/Sample_Proxy_Recording.xml");
 
         // Create multipart body directly (like curl -F "file=@filename")
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();
@@ -267,7 +267,7 @@ public class ScriptApiIT extends BaseIT {
         String scriptName = "Sample_Proxy_Recording_Gzipped_Java_Test_" + System.currentTimeMillis();
         String suffix = "100";
 
-        byte[] gzippedFileContent = loadResourceFileAsBytes("Sample_Proxy_Recording.xml.gz");
+        byte[] gzippedFileContent = loadResourceFileAsBytes("testfiles/Sample_Proxy_Recording.xml.gz");
 
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -316,7 +316,7 @@ public class ScriptApiIT extends BaseIT {
     @Test
     @Tag("integration")
     public void testUploadTankScriptGzipped() throws Exception {
-        byte[] gzippedFileContent = loadResourceFileAsBytes("Sample_TS.xml.gz");
+        byte[] gzippedFileContent = loadResourceFileAsBytes("testfiles/Sample_TS.xml.gz");
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -551,7 +551,7 @@ public class ScriptApiIT extends BaseIT {
 
     private int createTestScriptFromSample() throws Exception {
         // Load the sample Tank script file from resources (like testUploadTankScript)
-        byte[] fileContent = loadResourceFileAsBytes("Sample_TS.xml");
+        byte[] fileContent = loadResourceFileAsBytes("testfiles/Sample_TS.xml");
 
         // Create multipart body directly (like curl -F "file=@filename")
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();
