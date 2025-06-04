@@ -182,15 +182,12 @@ public class ScriptApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        if (response.statusCode() == 200) {
-            JsonNode script = objectMapper.readTree(response.body());
-            assertEquals(scriptId, script.get("id").asInt(), "Should return correct script ID");
-            assertTrue(script.has("name"), "Script should have name field");
-            assertTrue(script.has("creator"), "Script should have creator field");
-            assertTrue(script.has("created"), "Script should have created field");
-        } else {
-            assertEquals(404, response.statusCode(), "Should return 404 if script doesn't exist");
-        }
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK for existing script");
+        JsonNode script = objectMapper.readTree(response.body());
+        assertEquals(scriptId, script.get("id").asInt(), "Should return correct script ID");
+        assertTrue(script.has("name"), "Script should have name field");
+        assertTrue(script.has("creator"), "Script should have creator field");
+        assertTrue(script.has("created"), "Script should have created field");
     }
 
     @Test
@@ -222,7 +219,7 @@ public class ScriptApiIT extends BaseIT {
         String suffix = "100";
 
         // Load the sample proxy recording file from resources
-        byte[] fileContent = loadResourceFileAsBytes("Sample_Proxy_Recording.xml");
+        byte[] fileContent = loadResourceFileAsBytes("testfiles/Sample_Proxy_Recording.xml");
 
         // Create multipart body directly (like curl -F "file=@filename")
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();
@@ -267,7 +264,7 @@ public class ScriptApiIT extends BaseIT {
         String scriptName = "Sample_Proxy_Recording_Gzipped_Java_Test_" + System.currentTimeMillis();
         String suffix = "100";
 
-        byte[] gzippedFileContent = loadResourceFileAsBytes("Sample_Proxy_Recording.xml.gz");
+        byte[] gzippedFileContent = loadResourceFileAsBytes("testfiles/Sample_Proxy_Recording.xml.gz");
 
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -316,7 +313,7 @@ public class ScriptApiIT extends BaseIT {
     @Test
     @Tag("integration")
     public void testUploadTankScriptGzipped() throws Exception {
-        byte[] gzippedFileContent = loadResourceFileAsBytes("Sample_TS.xml.gz");
+        byte[] gzippedFileContent = loadResourceFileAsBytes("testfiles/Sample_TS.xml.gz");
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -551,7 +548,7 @@ public class ScriptApiIT extends BaseIT {
 
     private int createTestScriptFromSample() throws Exception {
         // Load the sample Tank script file from resources (like testUploadTankScript)
-        byte[] fileContent = loadResourceFileAsBytes("Sample_TS.xml");
+        byte[] fileContent = loadResourceFileAsBytes("testfiles/Sample_TS.xml");
 
         // Create multipart body directly (like curl -F "file=@filename")
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();
