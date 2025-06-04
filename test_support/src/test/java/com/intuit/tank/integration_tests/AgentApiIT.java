@@ -78,12 +78,9 @@ public class AgentApiIT extends BaseIT {
 
         // Assert
         assertTrue(response.statusCode() == 200, "Should return HTTP 200 OK");
-
-        if (response.statusCode() == 200) {
-            assertEquals("application/xml;charset=UTF-8", response.headers().firstValue("Content-Type").orElse(""),
-                        "Should return XML content type");
-            assertTrue(response.body().contains("<turboScale-settings>"), "Response should contain XML content");
-        }
+        assertEquals("application/xml;charset=UTF-8", response.headers().firstValue("Content-Type").orElse(""),
+                    "Should return XML content type");
+        assertTrue(response.body().contains("<turboScale-settings>"), "Response should contain XML content");
     }
 
     @Test
@@ -103,14 +100,12 @@ public class AgentApiIT extends BaseIT {
         // Assert
         assertTrue(response.statusCode() == 200, "Should return HTTP 200 OK");
 
-        if (response.statusCode() == 200) {
-            assertEquals("application/octet-stream", 
-                        response.headers().firstValue("Content-Type").orElse(""),
-                        "Should return application/octet-stream content type");
-            assertTrue(response.headers().firstValue("Content-Disposition").isPresent(),
-                      "Should have Content-Disposition header for download");
-            assertNotNull(response.body(), "Support files content should not be null");
-        }
+        assertEquals("application/octet-stream",
+                    response.headers().firstValue("Content-Type").orElse(""),
+                    "Should return application/octet-stream content type");
+        assertTrue(response.headers().firstValue("Content-Disposition").isPresent(),
+                  "Should have Content-Disposition header for download");
+        assertNotNull(response.body(), "Support files content should not be null");
     }
 
     @Test
@@ -131,12 +126,10 @@ public class AgentApiIT extends BaseIT {
         // Assert
         assertTrue(response.statusCode() == 200,"Should return HTTP 200 OK");
 
-        if (response.statusCode() == 200) {
-            assertEquals("application/xml", response.headers().firstValue("Content-Type").orElse(""),
-                        "Should return XML content type");
-            assertTrue(response.body().contains("<?xml"), "Response should contain XML content");
-            assertTrue(response.body().contains("headers"), "Response should contain headers element");
-        }
+        assertEquals("application/xml", response.headers().firstValue("Content-Type").orElse(""),
+                    "Should return XML content type");
+        assertTrue(response.body().contains("<?xml"), "Response should contain XML content");
+        assertTrue(response.body().contains("headers"), "Response should contain headers element");
     }
 
     @Test
@@ -156,13 +149,10 @@ public class AgentApiIT extends BaseIT {
 
         // Assert
         assertTrue(response.statusCode() == 200, "Should return HTTP 200 OK");
-
-        if (response.statusCode() == 200) {
-            assertEquals("application/xml", response.headers().firstValue("Content-Type").orElse(""),
-                        "Should return XML content type");
-            assertTrue(response.body().contains("<?xml"), "Response should contain XML content");
-            assertTrue(response.body().contains("client"), "Response should contain client definitions");
-        }
+        assertEquals("application/xml", response.headers().firstValue("Content-Type").orElse(""),
+                    "Should return XML content type");
+        assertTrue(response.body().contains("<?xml"), "Response should contain XML content");
+        assertTrue(response.body().contains("client"), "Response should contain client definitions");
     }
 
     @Test
@@ -266,20 +256,17 @@ public class AgentApiIT extends BaseIT {
 
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
-        assertTrue(response.statusCode() == 200 || response.statusCode() == 404,
-                  "Should return HTTP 200 OK or 404 if instance status not found");
+        assertTrue(response.statusCode() == 200,"Should return HTTP 200 OK");
 
-        if (response.statusCode() == 200) {
-            JsonNode instanceStatus = objectMapper.readTree(response.body());
-            assertTrue(instanceStatus.has("instanceId"), "Response should contain instanceId");
-            assertTrue(instanceStatus.has("jobId"), "Response should contain jobId");
-            assertTrue(instanceStatus.has("jobStatus"), "Response should contain jobStatus");
-            assertTrue(instanceStatus.has("vmStatus"), "Response should contain vmStatus");
-            assertTrue(instanceStatus.has("vmRegion"), "Response should contain vmRegion");
+        JsonNode instanceStatus = objectMapper.readTree(response.body());
+        assertTrue(instanceStatus.has("instanceId"), "Response should contain instanceId");
+        assertTrue(instanceStatus.has("jobId"), "Response should contain jobId");
+        assertTrue(instanceStatus.has("jobStatus"), "Response should contain jobStatus");
+        assertTrue(instanceStatus.has("vmStatus"), "Response should contain vmStatus");
+        assertTrue(instanceStatus.has("vmRegion"), "Response should contain vmRegion");
 
-            assertEquals(instanceId, instanceStatus.get("instanceId").asText(),
-                        "Instance ID should match requested ID");
-        }
+        assertEquals(instanceId, instanceStatus.get("instanceId").asText(),
+                    "Instance ID should match requested ID");
     }
 
     private void testInstanceLifecycleOperations(String instanceId) throws Exception {
@@ -311,10 +298,7 @@ public class AgentApiIT extends BaseIT {
         assertTrue(resumeResponse.statusCode() == 200 || resumeResponse.statusCode() == 400,
                   "Should return HTTP 200 OK or 400 for resume operation");
 
-        if (resumeResponse.statusCode() == 200) {
-            assertNotNull(resumeResponse.body(), "Resume response should not be null");
-        }
-
+        assertNotNull(resumeResponse.body(), "Resume response should not be null");
         // Test stop instance
         HttpRequest stopRequest = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + AGENT_ENDPOINT + "/instance/stop/" + instanceId))
@@ -324,12 +308,9 @@ public class AgentApiIT extends BaseIT {
                 .build();
 
         HttpResponse<String> stopResponse = httpClient.send(stopRequest, BodyHandlers.ofString());
-        assertTrue(stopResponse.statusCode() == 200 || stopResponse.statusCode() == 400,
-                  "Should return HTTP 200 OK or 400 for stop operation");
+        assertTrue(stopResponse.statusCode() == 200);
 
-        if (stopResponse.statusCode() == 200) {
-            assertNotNull(stopResponse.body(), "Stop response should not be null");
-        }
+        assertNotNull(stopResponse.body(), "Stop response should not be null");
     }
 
     @Test
@@ -363,8 +344,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 202 || response.statusCode() == 400,
-                  "Should return HTTP 202 Accepted or 400 if status update fails");
+        assertTrue(response.statusCode() == 202);
     }
 
     @Test
@@ -384,8 +364,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200 || response.statusCode() == 400,
-                  "Should return HTTP 200 OK or 400 for non-existent instance kill");
+        assertEquals(response.statusCode(), 400);
     }
 
     @Test

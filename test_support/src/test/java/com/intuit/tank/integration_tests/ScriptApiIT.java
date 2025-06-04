@@ -182,15 +182,12 @@ public class ScriptApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        if (response.statusCode() == 200) {
-            JsonNode script = objectMapper.readTree(response.body());
-            assertEquals(scriptId, script.get("id").asInt(), "Should return correct script ID");
-            assertTrue(script.has("name"), "Script should have name field");
-            assertTrue(script.has("creator"), "Script should have creator field");
-            assertTrue(script.has("created"), "Script should have created field");
-        } else {
-            assertEquals(404, response.statusCode(), "Should return 404 if script doesn't exist");
-        }
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK for existing script");
+        JsonNode script = objectMapper.readTree(response.body());
+        assertEquals(scriptId, script.get("id").asInt(), "Should return correct script ID");
+        assertTrue(script.has("name"), "Script should have name field");
+        assertTrue(script.has("creator"), "Script should have creator field");
+        assertTrue(script.has("created"), "Script should have created field");
     }
 
     @Test

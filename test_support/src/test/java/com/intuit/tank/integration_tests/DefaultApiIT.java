@@ -98,8 +98,6 @@ public class DefaultApiIT extends BaseIT {
         // Response time should be reasonable (less than 5 seconds for a simple ping)
         assertTrue(responseTime < 5000, 
                   "Ping response time should be less than 5 seconds, was: " + responseTime + "ms");
-        
-        System.out.println("Ping response time: " + responseTime + "ms");
     }
 
     @Test
@@ -127,8 +125,6 @@ public class DefaultApiIT extends BaseIT {
                         response.headers().firstValue("Content-Type").orElse(""),
                         "Request " + (i + 1) + " should return text/plain content type");
         }
-        
-        System.out.println("Successfully completed " + numberOfRequests + " consecutive ping requests");
     }
 
     @Test
@@ -216,8 +212,6 @@ public class DefaultApiIT extends BaseIT {
         for (int i = 0; i < numberOfThreads; i++) {
             assertTrue(results[i], "Concurrent request " + (i + 1) + " should succeed");
         }
-        
-        System.out.println("Successfully completed " + numberOfThreads + " concurrent ping requests");
     }
 
     @Test
@@ -243,10 +237,5 @@ public class DefaultApiIT extends BaseIT {
         assertEquals("text/plain;charset=UTF-8", 
                     response.headers().firstValue("Content-Type").orElse(""),
                     "Content-Type should be text/plain");
-        
-        // Check for common security headers (may or may not be present)
-        System.out.println("Response headers:");
-        response.headers().map().forEach((key, values) -> 
-            System.out.println("  " + key + ": " + String.join(", ", values)));
     }
 }

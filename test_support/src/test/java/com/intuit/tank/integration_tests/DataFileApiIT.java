@@ -85,30 +85,29 @@ public class DataFileApiIT extends BaseIT {
         JsonNode dataFiles = responseBody.get("dataFiles");
         assertTrue(dataFiles.isArray(), "DataFiles should be an array");
 
-        if (dataFiles.size() > 0) {
-            // Validate data file structure based on provided sample
-            JsonNode firstDataFile = dataFiles.get(0);
-            assertTrue(firstDataFile.has("id"), "DataFile should have 'id' field");
-            assertTrue(firstDataFile.has("created"), "DataFile should have 'created' field");
-            assertTrue(firstDataFile.has("modified"), "DataFile should have 'modified' field");
-            assertTrue(firstDataFile.has("creator"), "DataFile should have 'creator' field");
-            assertTrue(firstDataFile.has("name"), "DataFile should have 'name' field");
-            assertTrue(firstDataFile.has("dataUrl"), "DataFile should have 'dataUrl' field");
-            assertTrue(firstDataFile.has("comments"), "DataFile should have 'comments' field");
-            
-            // Validate data types
-            assertTrue(firstDataFile.get("id").isInt(), "DataFile ID should be integer");
-            assertTrue(firstDataFile.get("name").isTextual(), "DataFile name should be string");
-            assertTrue(firstDataFile.get("creator").isTextual(), "DataFile creator should be string");
-            
-            // Validate dataUrl format
-            String dataUrl = firstDataFile.get("dataUrl").asText();
-            assertTrue(dataUrl.contains("/v2/datafiles/content?id="), "DataUrl should contain correct endpoint");
-            
-            // Validate that dataUrl contains the same ID as the data file
-            int dataFileId = firstDataFile.get("id").asInt();
-            assertTrue(dataUrl.contains("id=" + dataFileId), "DataUrl should contain matching data file ID");
-        }
+        assertTrue(dataFiles.size() > 0, "Should have at least one data file to test with");
+        // Validate data file structure based on provided sample
+        JsonNode firstDataFile = dataFiles.get(0);
+        assertTrue(firstDataFile.has("id"), "DataFile should have 'id' field");
+        assertTrue(firstDataFile.has("created"), "DataFile should have 'created' field");
+        assertTrue(firstDataFile.has("modified"), "DataFile should have 'modified' field");
+        assertTrue(firstDataFile.has("creator"), "DataFile should have 'creator' field");
+        assertTrue(firstDataFile.has("name"), "DataFile should have 'name' field");
+        assertTrue(firstDataFile.has("dataUrl"), "DataFile should have 'dataUrl' field");
+        assertTrue(firstDataFile.has("comments"), "DataFile should have 'comments' field");
+
+        // Validate data types
+        assertTrue(firstDataFile.get("id").isInt(), "DataFile ID should be integer");
+        assertTrue(firstDataFile.get("name").isTextual(), "DataFile name should be string");
+        assertTrue(firstDataFile.get("creator").isTextual(), "DataFile creator should be string");
+
+        // Validate dataUrl format
+        String dataUrl = firstDataFile.get("dataUrl").asText();
+        assertTrue(dataUrl.contains("/v2/datafiles/content?id="), "DataUrl should contain correct endpoint");
+
+        // Validate that dataUrl contains the same ID as the data file
+        int dataFileId = firstDataFile.get("id").asInt();
+        assertTrue(dataUrl.contains("id=" + dataFileId), "DataUrl should contain matching data file ID");
     }
 
     @Test
@@ -131,15 +130,14 @@ public class DataFileApiIT extends BaseIT {
 
         Map<String, String> dataFileNames = objectMapper.readValue(response.body(), Map.class);
         assertNotNull(dataFileNames, "DataFile names map should not be null");
-        
-        if (!dataFileNames.isEmpty()) {
-            // Validate that keys are numeric (data file IDs) and values are strings (names)
-            for (Map.Entry<String, String> entry : dataFileNames.entrySet()) {
-                assertDoesNotThrow(() -> Integer.parseInt(entry.getKey()), 
-                                  "Key should be a valid integer (data file ID)");
-                assertNotNull(entry.getValue(), "Data file name should not be null");
-                assertFalse(entry.getValue().trim().isEmpty(), "Data file name should not be empty");
-            }
+
+        assertTrue(dataFileNames.size() > 0, "Should have at least one data file to test with");
+        // Validate that keys are numeric (data file IDs) and values are strings (names)
+        for (Map.Entry<String, String> entry : dataFileNames.entrySet()) {
+            assertDoesNotThrow(() -> Integer.parseInt(entry.getKey()),
+                              "Key should be a valid integer (data file ID)");
+            assertNotNull(entry.getValue(), "Data file name should not be null");
+            assertFalse(entry.getValue().trim().isEmpty(), "Data file name should not be empty");
         }
     }
 
@@ -161,32 +159,31 @@ public class DataFileApiIT extends BaseIT {
         JsonNode responseBody = objectMapper.readTree(getAllResponse.body());
         JsonNode dataFiles = responseBody.get("dataFiles");
         
-        if (dataFiles.size() > 0) {
-            int dataFileId = dataFiles.get(0).get("id").asInt();
-            String expectedName = dataFiles.get(0).get("name").asText();
+        assertTrue(dataFiles.size() > 0, "Should have at least one data file to test with");
+        int dataFileId = dataFiles.get(0).get("id").asInt();
+        String expectedName = dataFiles.get(0).get("name").asText();
 
-            // Act - Get specific data file
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(QA_BASE_URL + DATAFILES_ENDPOINT + "/" + dataFileId))
-                    .header(ACCEPT_HEADER, ACCEPT_VALUE)
-                    .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
-                    .timeout(Duration.ofSeconds(30))
-                    .GET()
-                    .build();
+        // Act - Get specific data file
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + DATAFILES_ENDPOINT + "/" + dataFileId))
+                .header(ACCEPT_HEADER, ACCEPT_VALUE)
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
 
-            HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
-            // Assert
-            assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
+        // Assert
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-            JsonNode dataFile = objectMapper.readTree(response.body());
-            assertEquals(dataFileId, dataFile.get("id").asInt(), "Should return correct data file ID");
-            assertEquals(expectedName, dataFile.get("name").asText(), "Should return correct data file name");
-            assertTrue(dataFile.has("created"), "DataFile should have created timestamp");
-            assertTrue(dataFile.has("modified"), "DataFile should have modified timestamp");
-            assertTrue(dataFile.has("creator"), "DataFile should have creator");
-            assertTrue(dataFile.has("dataUrl"), "DataFile should have dataUrl");
-        }
+        JsonNode dataFile = objectMapper.readTree(response.body());
+        assertEquals(dataFileId, dataFile.get("id").asInt(), "Should return correct data file ID");
+        assertEquals(expectedName, dataFile.get("name").asText(), "Should return correct data file name");
+        assertTrue(dataFile.has("created"), "DataFile should have created timestamp");
+        assertTrue(dataFile.has("modified"), "DataFile should have modified timestamp");
+        assertTrue(dataFile.has("creator"), "DataFile should have creator");
+        assertTrue(dataFile.has("dataUrl"), "DataFile should have dataUrl");
     }
 
     @Test
@@ -226,14 +223,11 @@ public class DataFileApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200 || response.statusCode() == 404,
-                  "Should return HTTP 200 OK or 404 if content not found");
+        assertEquals(response.statusCode(), 200);
 
-        if (response.statusCode() == 200) {
-            assertNotNull(response.body(), "Content should not be null");
-            assertEquals("text/plain;charset=UTF-8", response.headers().firstValue("Content-Type").orElse(""),
-                        "Should return text/plain;charset=UTF-8 content type");
-        }
+        assertNotNull(response.body(), "Content should not be null");
+        assertEquals("text/plain;charset=UTF-8", response.headers().firstValue("Content-Type").orElse(""),
+                    "Should return text/plain;charset=UTF-8 content type");
     }
 
     @Test
@@ -253,25 +247,21 @@ public class DataFileApiIT extends BaseIT {
         System.out.println(response.body());
 
         // Assert
-        assertTrue(response.statusCode() == 200 || response.statusCode() == 404,
-                  "Should return HTTP 200 OK or 404 if file not found");
+        assertEquals(response.statusCode(), 200);
+        assertEquals("application/octet-stream",
+                   response.headers().firstValue("Content-Type").orElse(""),
+                   "Should return application/octet-stream content type");
 
-        if (response.statusCode() == 200) {
-            assertEquals("application/octet-stream",
-                       response.headers().firstValue("Content-Type").orElse(""),
-                       "Should return application/octet-stream content type");
+        assertTrue(response.headers().firstValue("Content-Disposition").isPresent(),
+                  "Should have Content-Disposition header for download");
 
-            assertTrue(response.headers().firstValue("Content-Disposition").isPresent(),
-                      "Should have Content-Disposition header for download");
+        String contentDisposition = response.headers().firstValue("Content-Disposition").orElse("");
+        assertTrue(contentDisposition.contains("attachment"),
+                  "Content-Disposition should indicate attachment");
+        assertTrue(contentDisposition.contains("filename="),
+                  "Content-Disposition should contain filename");
 
-            String contentDisposition = response.headers().firstValue("Content-Disposition").orElse("");
-            assertTrue(contentDisposition.contains("attachment"),
-                      "Content-Disposition should indicate attachment");
-            assertTrue(contentDisposition.contains("filename="),
-                      "Content-Disposition should contain filename");
-
-            assertNotNull(response.body(), "Downloaded content should not be null");
-        }
+        assertNotNull(response.body(), "Downloaded content should not be null");
     }
 
     @Test

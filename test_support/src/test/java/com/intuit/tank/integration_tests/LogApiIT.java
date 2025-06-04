@@ -59,21 +59,14 @@ public class LogApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200 || response.statusCode() == 404,
-                  "Should return HTTP 200 OK if log file exists or 404 if not found");
+        assertEquals(response.statusCode(), 200);
+        assertEquals("application/octet-stream",
+                    response.headers().firstValue("Content-Type").orElse(""),
+                    "Should return application/octet-stream content type");
+        assertNotNull(response.body(), "Log file content should not be null");
 
-        if (response.statusCode() == 200) {
-            assertEquals("application/octet-stream", 
-                        response.headers().firstValue("Content-Type").orElse(""),
-                        "Should return application/octet-stream content type");
-            assertNotNull(response.body(), "Log file content should not be null");
-            
-            String logContent = response.body();
-            System.out.println("Log file content from position " + fromPosition + 
-                             ", size: " + logContent.length() + " characters");
-        } else if (response.statusCode() == 404) {
-            System.out.println("Log file " + TEST_LOG_FILENAME + " not found on server");
-        }
+        String logContent = response.body();
+        assertFalse(logContent.isEmpty(), "Log file should not be empty");
     }
 
     @Test

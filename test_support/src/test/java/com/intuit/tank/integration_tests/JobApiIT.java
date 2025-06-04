@@ -183,7 +183,13 @@ public class JobApiIT extends BaseIT {
         createdJobIds.add(jobId);
 
         // Verify job was created
-        verifyJobExists(jobId, jobName);
+        verifyJobExists(jobId, jobName, 100);
+
+        // Verify job appears in getJobsByProject response
+        verifyJobInProjectList(jobId, 298);
+
+        // Verify job appears in getAllJobs response
+        verifyJobInAllJobs(jobId);
     }
 
     @Test
@@ -255,18 +261,15 @@ public class JobApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200 || response.statusCode() == 404, 
-                  "Should return HTTP 200 OK or 404 if no jobs exist");
+        assertTrue(response.statusCode() == 200);
 
-        if (response.statusCode() == 200) {
-            List<Map<String, String>> statuses = objectMapper.readValue(response.body(), List.class);
-            assertNotNull(statuses, "Status list should not be null");
-            
-            if (!statuses.isEmpty()) {
-                Map<String, String> firstStatus = statuses.get(0);
-                assertTrue(firstStatus.containsKey("jobId"), "Status should contain jobId");
-                assertTrue(firstStatus.containsKey("status"), "Status should contain status");
-            }
+        List<Map<String, String>> statuses = objectMapper.readValue(response.body(), List.class);
+        assertNotNull(statuses, "Status list should not be null");
+
+        if (!statuses.isEmpty()) {
+            Map<String, String> firstStatus = statuses.get(0);
+            assertTrue(firstStatus.containsKey("jobId"), "Status should contain jobId");
+            assertTrue(firstStatus.containsKey("status"), "Status should contain status");
         }
     }
 
@@ -319,8 +322,62 @@ public class JobApiIT extends BaseIT {
         return jobId;
     }
 
+    // Helper method to verify job appears in project jobs list
+    private void verifyJobInProjectList(int jobId, int projectId) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + JOBS_ENDPOINT + "/project/" + projectId))
+                .header(ACCEPT_HEADER, ACCEPT_VALUE)
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
+
+        JsonNode responseBody = objectMapper.readTree(response.body());
+        JsonNode jobs = responseBody.get("jobs");
+
+        boolean jobFound = false;
+        for (JsonNode job : jobs) {
+            if (job.get("id").asInt() == jobId) {
+                jobFound = true;
+                break;
+            }
+        }
+
+        assertTrue(jobFound, "Newly created job should appear in getJobsByProject response");
+    }
+
+    // Helper method to verify job appears in all jobs list
+    private void verifyJobInAllJobs(int jobId) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + JOBS_ENDPOINT))
+                .header(ACCEPT_HEADER, ACCEPT_VALUE)
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
+
+        JsonNode responseBody = objectMapper.readTree(response.body());
+        JsonNode jobs = responseBody.get("jobs");
+
+        boolean jobFound = false;
+        for (JsonNode job : jobs) {
+            if (job.get("id").asInt() == jobId) {
+                jobFound = true;
+                break;
+            }
+        }
+
+        assertTrue(jobFound, "Newly created job should appear in getAllJobs response");
+    }
+
     // Helper method to verify job exists
-    private void verifyJobExists(int jobId, String expectedName) throws Exception {
+    private void verifyJobExists(int jobId, String expectedName, int numUsers) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + JOBS_ENDPOINT + "/" + jobId))
                 .header(ACCEPT_HEADER, ACCEPT_VALUE)
@@ -331,10 +388,13 @@ public class JobApiIT extends BaseIT {
 
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
         assertEquals(200, response.statusCode(), "Job should exist after creation");
+        System.out.println(response.body());
 
         JsonNode job = objectMapper.readTree(response.body());
         assertEquals(jobId, job.get("id").asInt(), "Job ID should match");
         assertEquals(expectedName, job.get("name").asText(), "Job name should match");
+        assertEquals(job.get("status").asText(), "Created", "Job status should be 'Created'");
+        assertEquals(job.get("numUsers").asInt(), numUsers, "Job numUsers should match expected value");
     }
 
     @Test
@@ -354,16 +414,14 @@ public class JobApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200 || response.statusCode() == 404,
-                  "Should return HTTP 200 OK or 404 if job status not found");
+        assertEquals(response.statusCode(), 200);
 
-        if (response.statusCode() == 200) {
-            String status = response.body();
-            assertNotNull(status, "Status should not be null");
-            assertFalse(status.trim().isEmpty(), "Status should not be empty");
-            // Common job statuses: Created, Starting, Running, Stopped, Completed, etc.
-            assertTrue(status.matches("\\w+"), "Status should be a valid word");
-        }
+        String status = response.body();
+        assertNotNull(status, "Status should not be null");
+        assertFalse(status.trim().isEmpty(), "Status should not be empty");
+        // Common job statuses: Created, Starting, Running, Stopped, Completed, etc.
+        assertTrue(status.matches("\\w+"), "Status should be a valid word");
+
     }
 
     @Test
@@ -385,9 +443,9 @@ public class JobApiIT extends BaseIT {
 
         // Assert
         assertTrue(response.statusCode() == 200 || response.statusCode() == 404,
-                  "Should return HTTP 200 OK or 404 if VM statuses not found");
-
+                     "Should return HTTP 200 OK or 404 Not Found for job VM statuses");
         if (response.statusCode() == 200) {
+
             JsonNode vmStatuses = objectMapper.readTree(response.body());
             assertTrue(vmStatuses.has("vmStatuses"), "Response should contain vmStatuses field");
             assertTrue(vmStatuses.get("vmStatuses").isArray(), "VM statuses should be an array");
@@ -411,16 +469,12 @@ public class JobApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200 || response.statusCode() == 404,
-                  "Should return HTTP 200 OK or 404 if harness file not found");
-
-        if (response.statusCode() == 200) {
-            assertEquals("application/xml", response.headers().firstValue("Content-Type").orElse(""),
-                        "Should return XML content type");
-            assertTrue(response.headers().firstValue("Content-Disposition").isPresent(),
-                      "Should have Content-Disposition header for download");
-            assertTrue(response.body().contains("<?xml"), "Response should contain XML content");
-        }
+        assertEquals(response.statusCode(), 200);
+        assertEquals("application/xml", response.headers().firstValue("Content-Type").orElse(""),
+                    "Should return XML content type");
+        assertTrue(response.headers().firstValue("Content-Disposition").isPresent(),
+                  "Should have Content-Disposition header for download");
+        assertTrue(response.body().contains("<?xml"), "Response should contain XML content");
     }
 
     @Test
@@ -541,6 +595,6 @@ public class JobApiIT extends BaseIT {
         createdJobIds.add(jobId);
 
         // Verify job was created
-        verifyJobExists(jobId, jobName);
+        verifyJobExists(jobId, jobName, 50);
     }
 }

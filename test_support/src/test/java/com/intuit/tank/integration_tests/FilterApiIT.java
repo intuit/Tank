@@ -17,7 +17,6 @@ public class FilterApiIT extends BaseIT {
 
     private static final String FILTERS_ENDPOINT = "/v2/filters";
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final static String COVERAGE_CLASS = "FilterController";
 
     @Test
     @Tag("integration")
