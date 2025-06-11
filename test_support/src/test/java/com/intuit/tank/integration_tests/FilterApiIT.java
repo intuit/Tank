@@ -20,7 +20,7 @@ public class FilterApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testPingFilterService() throws Exception {
+    public void testPingFilterService_shouldReturnPongResponse() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + FILTERS_ENDPOINT + "/ping"))
@@ -338,7 +338,7 @@ public class FilterApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testApplyFiltersToScript() throws Exception {
+    public void testApplyFiltersToScript_shouldTransformScript() throws Exception {
         // Step 1: Copy an existing script to create a test script
         int sourceScriptId = 1620; // UC1PWScript.RAW (known existing script)
         String copiedScriptName = "Filter_Test_Copy_" + System.currentTimeMillis();

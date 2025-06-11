@@ -44,7 +44,7 @@ public class AgentApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testPingAgentService() throws Exception {
+    public void testPingAgentService_shouldReturnPongResponse() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + AGENT_ENDPOINT + "/ping"))
@@ -225,7 +225,7 @@ public class AgentApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testAgentInstanceOperationsWithRunningJob() throws Exception {
+    public void testAgentInstanceOperationsWithRunningJob_shouldManageInstanceLifecycle() throws Exception {
         // Arrange - First create and start a job to get real instance IDs
         int jobId = createAndStartTestJob();
 

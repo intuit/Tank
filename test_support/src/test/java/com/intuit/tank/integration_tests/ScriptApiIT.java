@@ -39,7 +39,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testPingScriptService() throws Exception {
+    public void testPingScriptService_shouldReturnPongResponse() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/ping"))
@@ -58,7 +58,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetAllScripts() throws Exception {
+    public void testGetAllScripts_shouldReturnScriptsList() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT))
@@ -90,7 +90,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetAllScriptNames() throws Exception {
+    public void testGetAllScriptNames_shouldReturnScriptNamesMap() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/names"))
@@ -213,7 +213,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testUploadTankProxyRecording() throws Exception {
+    public void testUploadTankProxyRecording_shouldCreateScriptFromRecording() throws Exception {
         // Arrange
         String scriptName = "Sample_Proxy_Recording_Integration_Test_" + System.currentTimeMillis();
         String suffix = "100";
@@ -260,7 +260,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testUploadTankProxyRecordingGzipped() throws Exception {
+    public void testUploadTankProxyRecordingGzipped_shouldCreateScriptFromGzippedRecording() throws Exception {
         String scriptName = "Sample_Proxy_Recording_Gzipped_Java_Test_" + System.currentTimeMillis();
         String suffix = "100";
 
@@ -304,7 +304,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testUploadTankScript() throws Exception {
+    public void testUploadTankScript_shouldCreateScriptFromXml() throws Exception {
         int scriptId = createTestScriptFromSample();
 
         verifyScriptExists(scriptId, "Sample Tank Script");
@@ -312,7 +312,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testUploadTankScriptGzipped() throws Exception {
+    public void testUploadTankScriptGzipped_shouldCreateScriptFromGzippedXml() throws Exception {
         byte[] gzippedFileContent = loadResourceFileAsBytes("testfiles/Sample_TS.xml.gz");
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -363,7 +363,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testCopyExistingScript() throws Exception {
+    public void testCopyExistingScript_shouldCreateScriptCopy() throws Exception {
         // Arrange - First create a script to copy from using Sample_TS.xml
         int originalScriptId = createTestScriptFromSample();
         String copiedScriptName = "Copied_Script_Sample_TS" + originalScriptId;
@@ -403,7 +403,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testUploadInvalidScript() throws Exception {
+    public void testUploadInvalidScript_shouldReturnValidationError() throws Exception {
         // Arrange
         String invalidXml = "This is not valid XML content";
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();

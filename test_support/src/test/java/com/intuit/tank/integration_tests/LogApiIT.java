@@ -17,7 +17,7 @@ public class LogApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetLogFile() throws Exception {
+    public void testGetLogFile_shouldReturnLogFileContent() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + LOGS_ENDPOINT + "/" + TEST_LOG_FILENAME))
@@ -44,7 +44,7 @@ public class LogApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetLogFileWithFromParameter() throws Exception {
+    public void testGetLogFileWithFromParameter_shouldReturnPartialContent() throws Exception {
         // Arrange - Test with 'from' parameter to get log content starting from a specific position
         String fromPosition = "100"; // Start from position 100
         
@@ -71,7 +71,7 @@ public class LogApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetNonExistentLogFile() throws Exception {
+    public void testGetNonExistentLogFile_shouldReturn404NotFound() throws Exception {
         // Arrange
         String nonExistentFilename = "non-existent-log-" + System.currentTimeMillis() + ".log";
         
@@ -92,7 +92,7 @@ public class LogApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetLogFileWithInvalidPath() throws Exception {
+    public void testGetLogFileWithInvalidPath_shouldRejectPathTraversal() throws Exception {
         // Arrange - Test with path traversal attempt (should be blocked)
         String invalidFilename = "../../../etc/passwd";
         
@@ -113,7 +113,7 @@ public class LogApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetLogFileWithLargeFromParameter() throws Exception {
+    public void testGetLogFileWithLargeFromParameter_shouldHandleLargeOffset() throws Exception {
         // Arrange - Test with very large 'from' parameter (beyond file size)
         String largeFromPosition = "999999999";
         
@@ -137,7 +137,7 @@ public class LogApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetLogFileWithoutAuthorization() throws Exception {
+    public void testGetLogFileWithoutAuthorization_shouldRequireAuth() throws Exception {
         // Arrange - Test without authorization header
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + LOGS_ENDPOINT + "/" + TEST_LOG_FILENAME))
@@ -155,7 +155,7 @@ public class LogApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetLogFileWithInvalidAuthorization() throws Exception {
+    public void testGetLogFileWithInvalidAuthorization_shouldRejectInvalidToken() throws Exception {
         // Arrange - Test with invalid authorization token
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + LOGS_ENDPOINT + "/" + TEST_LOG_FILENAME))

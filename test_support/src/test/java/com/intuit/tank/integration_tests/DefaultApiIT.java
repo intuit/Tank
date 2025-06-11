@@ -16,7 +16,7 @@ public class DefaultApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testPingEndpoint() throws Exception {
+    public void testPingEndpoint_shouldReturnPongResponse() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + PING_ENDPOINT))
@@ -75,7 +75,7 @@ public class DefaultApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testPingEndpointResponseTime() throws Exception {
+    public void testPingEndpointPerformance_shouldRespondQuickly() throws Exception {
         // Arrange
         long startTime = System.currentTimeMillis();
         
@@ -102,7 +102,7 @@ public class DefaultApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testPingEndpointMultipleRequests() throws Exception {
+    public void testPingEndpointMultipleRequests_shouldReturnConsistentResponses() throws Exception {
         // Test multiple consecutive requests to ensure consistency
         int numberOfRequests = 5;
         
@@ -129,7 +129,7 @@ public class DefaultApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testPingEndpointWithCustomHeaders() throws Exception {
+    public void testPingEndpointWithCustomHeaders_shouldAcceptCustomHeaders() throws Exception {
         // Arrange - Test with additional custom headers
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + PING_ENDPOINT))
@@ -150,7 +150,7 @@ public class DefaultApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testPingEndpointWithQueryParameters() throws Exception {
+    public void testPingEndpointWithQueryParameters_shouldIgnoreQueryParams() throws Exception {
         // Arrange - Test with query parameters (should be ignored)
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + PING_ENDPOINT + "?test=value&another=param"))
@@ -170,7 +170,7 @@ public class DefaultApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testPingEndpointConcurrentRequests() throws Exception {
+    public void testPingEndpointConcurrentRequests_shouldHandleConcurrency() throws Exception {
         // Test concurrent requests to ensure thread safety
         int numberOfThreads = 3;
         Thread[] threads = new Thread[numberOfThreads];
@@ -216,7 +216,7 @@ public class DefaultApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testPingEndpointResponseHeaders() throws Exception {
+    public void testPingEndpointResponseHeaders_shouldReturnCorrectHeaders() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + PING_ENDPOINT))

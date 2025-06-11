@@ -42,7 +42,7 @@ public class JobApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testPingJobService() throws Exception {
+    public void testPingJobService_shouldReturnPongResponse() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + JOBS_ENDPOINT + "/ping"))
@@ -61,7 +61,7 @@ public class JobApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetAllJobs() throws Exception {
+    public void testGetAllJobs_shouldReturnJobsList() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + JOBS_ENDPOINT))
@@ -135,7 +135,7 @@ public class JobApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testCreateJob() throws Exception {
+    public void testCreateJob_shouldCreateAndReturnJobId() throws Exception {
         // Arrange - Create job request for project 298 (Simple Endurance Project)
         String jobName = "Integration_Test_Job_" + System.currentTimeMillis();
         
@@ -194,7 +194,7 @@ public class JobApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testCreateJobWithInvalidRequest() throws Exception {
+    public void testCreateJobWithInvalidRequest_shouldReturn400BadRequest() throws Exception {
         // Arrange - Invalid request with missing required fields
         String invalidRequestBody = """
             {
@@ -220,7 +220,7 @@ public class JobApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetSpecificJob() throws Exception {
+    public void testGetSpecificJob_shouldReturnJobDetails() throws Exception {
         // Arrange - First create a job to test with
         int jobId = createTestJob();
 
@@ -247,7 +247,7 @@ public class JobApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetAllJobStatus() throws Exception {
+    public void testGetAllJobStatus_shouldReturnStatusList() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + JOBS_ENDPOINT + "/status"))
@@ -399,7 +399,7 @@ public class JobApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetJobStatus() throws Exception {
+    public void testGetJobStatus_shouldReturnStatusForSpecificJob() throws Exception {
         // Arrange - First create a job to test with
         int jobId = createTestJob();
 
@@ -426,7 +426,7 @@ public class JobApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetJobVMStatuses() throws Exception {
+    public void testGetJobVMStatuses_shouldReturnVMStatusesForJob() throws Exception {
         // Arrange - First create a job to test with
         int jobId = createTestJob();
 
@@ -454,7 +454,7 @@ public class JobApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testDownloadJobHarnessFile() throws Exception {
+    public void testDownloadJobHarnessFile_shouldReturnHarnessFile() throws Exception {
         // Arrange - First create a job to test with
         int jobId = createTestJob();
 
@@ -480,7 +480,7 @@ public class JobApiIT extends BaseIT {
     @Test
     //@Disabled
     @Tag("integration")
-    public void testJobLifecycleOperations() throws Exception {
+    public void testJobLifecycleOperations_shouldManageJobLifecycle() throws Exception {
         // Arrange - First create a job to test lifecycle operations
         int jobId = createTestJob();
 
@@ -546,7 +546,7 @@ public class JobApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testCreateJobWithDifferentWorkloadTypes() throws Exception {
+    public void testCreateJobWithDifferentWorkloadTypes_shouldCreateStandardWorkload() throws Exception {
         // Test creating job with standard (nonlinear) workload
         String jobName = "Standard_Workload_Job_" + System.currentTimeMillis();
 

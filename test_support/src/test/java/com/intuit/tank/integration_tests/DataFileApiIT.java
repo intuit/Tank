@@ -44,7 +44,7 @@ public class DataFileApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testPingDataFileService() throws Exception {
+    public void testPingDataFileService_shouldReturnPongResponse() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + DATAFILES_ENDPOINT + "/ping"))
@@ -63,7 +63,7 @@ public class DataFileApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetAllDataFiles() throws Exception {
+    public void testGetAllDataFiles_shouldReturnDataFilesList() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + DATAFILES_ENDPOINT))
@@ -112,7 +112,7 @@ public class DataFileApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetAllDataFileNames() throws Exception {
+    public void testGetAllDataFileNames_shouldReturnDataFileNamesMap() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + DATAFILES_ENDPOINT + "/names"))
@@ -286,7 +286,7 @@ public class DataFileApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testUploadDataFile() throws Exception {
+    public void testUploadDataFile_shouldCreateNewDataFile() throws Exception {
         // Arrange - Create test CSV content
         String testFileName = "test_datafile_" + System.currentTimeMillis() + ".csv";
         String testContent = "id,name,email\n1,John Doe,john@example.com\n2,Jane Smith,jane@example.com\n";
@@ -323,7 +323,7 @@ public class DataFileApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testUploadDataFileWithExistingId() throws Exception {
+    public void testUploadDataFileWithExistingId_shouldOverwriteDataFile() throws Exception {
         // Arrange - First create a data file
         String testFileName = "test_overwrite_datafile_" + System.currentTimeMillis() + ".csv";
         String originalContent = "id,name\n1,Original\n";
@@ -375,7 +375,7 @@ public class DataFileApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testDeleteDataFile() throws Exception {
+    public void testDeleteDataFile_shouldRemoveDataFile() throws Exception {
         // Arrange - First create a data file to delete
         String testFileName = "test_delete_datafile_" + System.currentTimeMillis() + ".csv";
         String testContent = "id,name\n1,Test\n";
@@ -445,7 +445,7 @@ public class DataFileApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testUploadInvalidDataFile() throws Exception {
+    public void testUploadInvalidDataFile_shouldReturnValidationError() throws Exception {
         // Arrange - Create invalid multipart request (missing file parameter)
         String boundary = "----WebKitFormBoundary" + System.currentTimeMillis();
         String invalidMultipartBody = "--" + boundary + "\r\n" +
