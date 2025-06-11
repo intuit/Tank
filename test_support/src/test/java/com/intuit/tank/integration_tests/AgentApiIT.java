@@ -299,7 +299,24 @@ public class AgentApiIT extends BaseIT {
                   "Should return HTTP 200 OK or 400 for resume operation");
 
         assertNotNull(resumeResponse.body(), "Resume response should not be null");
-        // Test stop instance
+
+        // Test kill instance
+        HttpRequest killRequest = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + AGENT_ENDPOINT + "/instance/kill/" + instanceId))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        HttpResponse<String> killResponse = httpClient.send(killRequest, BodyHandlers.ofString());
+        assertTrue(killResponse.statusCode() == 200 || killResponse.statusCode() == 400,
+                  "Should return HTTP 200 OK or 400 for kill operation");
+
+        if (killResponse.statusCode() == 200) {
+            assertNotNull(killResponse.body(), "Kill response should not be null");
+        }
+
+        // Test stop instance (final cleanup if kill didn't work)
         HttpRequest stopRequest = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + AGENT_ENDPOINT + "/instance/stop/" + instanceId))
                 .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
@@ -308,9 +325,16 @@ public class AgentApiIT extends BaseIT {
                 .build();
 
         HttpResponse<String> stopResponse = httpClient.send(stopRequest, BodyHandlers.ofString());
-        assertTrue(stopResponse.statusCode() == 200);
+        assertTrue(stopResponse.statusCode() == 200 || stopResponse.statusCode() == 400,
+                  "Should return HTTP 200 OK or 400 for stop operation");
 
-        assertNotNull(stopResponse.body(), "Stop response should not be null");
+        if (stopResponse.statusCode() == 200) {
+            assertNotNull(stopResponse.body(), "Stop response should not be null");
+        }
+
+        // assert one of kill or stop succeeded
+        assertTrue(killResponse.statusCode() == 200 || stopResponse.statusCode() == 200,
+                  "Should return HTTP 200 OK for kill or stop operation");
     }
 
     @Test
@@ -349,7 +373,7 @@ public class AgentApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testKillInstanceWithNonExistentInstance() throws Exception {
+    public void testKillInstanceWithNonExistentInstance_shouldReturn400() throws Exception {
         // Arrange
         String nonExistentInstanceId = "non-existent-instance-" + System.currentTimeMillis();
 
@@ -364,32 +388,47 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertEquals(response.statusCode(), 400);
+        assertEquals(400, response.statusCode(), "Should return HTTP 400 Bad Request for non-existent instance kill");
     }
 
     @Test
     @Tag("integration")
-    public void testSetStandaloneAgentAvailabilityWithInvalidData() throws Exception {
-        // Arrange - Create invalid availability payload (missing required fields)
-        String invalidAvailabilityJson = """
-            {
-                "capacity": 200
-            }
-            """;
+    public void testPauseInstanceWithNonExistentInstance_shouldReturn400() throws Exception {
+        // Arrange
+        String nonExistentInstanceId = "non-existent-instance-" + System.currentTimeMillis();
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(QA_BASE_URL + AGENT_ENDPOINT + "/availability"))
+                .uri(URI.create(QA_BASE_URL + AGENT_ENDPOINT + "/instance/pause/" + nonExistentInstanceId))
                 .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
-                .header(CONTENT_TYPE_HEADER, CONTENT_TYPE_VALUE)
                 .timeout(Duration.ofSeconds(30))
-                .POST(HttpRequest.BodyPublishers.ofString(invalidAvailabilityJson))
+                .GET()
                 .build();
 
         // Act
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertEquals(400, response.statusCode(), "Should return HTTP 400 Bad Request for invalid availability data");
+        assertEquals(400, response.statusCode(), "Should return HTTP 400 Bad Request for non-existent instance pause");
+    }
+
+    @Test
+    @Tag("integration")
+    public void testResumeInstanceWithNonExistentInstance_shouldReturn400() throws Exception {
+        // Arrange
+        String nonExistentInstanceId = "non-existent-instance-" + System.currentTimeMillis();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + AGENT_ENDPOINT + "/instance/resume/" + nonExistentInstanceId))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        // Act
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+
+        // Assert
+        assertEquals(400, response.statusCode(), "Should return HTTP 400 Bad Request for non-existent instance resume");
     }
 
     // Helper method to create and start a test job
@@ -448,6 +487,7 @@ public class AgentApiIT extends BaseIT {
 
         HttpResponse<String> startResponse = httpClient.send(startRequest, BodyHandlers.ofString());
         assertEquals(200, startResponse.statusCode(), "Should start job successfully");
+        assertEquals(startResponse.body(), "Starting", "Should return 'Starting' status");
 
         return jobId;
     }

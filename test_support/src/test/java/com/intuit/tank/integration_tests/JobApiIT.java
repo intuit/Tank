@@ -454,6 +454,54 @@ public class JobApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
+    public void testGetJobHarnessScript_shouldReturnStreamingHarnessXml() throws Exception {
+        // Arrange - First create a job to test with
+        int jobId = createTestJob();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + JOBS_ENDPOINT + "/script/" + jobId))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        // Act
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+
+        // Assert
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK for streaming harness");
+        assertEquals("application/xml", response.headers().firstValue("Content-Type").orElse(""),
+                    "Should return XML content type");
+        // Note: Streaming endpoint should NOT have Content-Disposition header (unlike download)
+        assertFalse(response.headers().firstValue("Content-Disposition").isPresent(),
+                   "Streaming endpoint should not have Content-Disposition header");
+        assertTrue(response.body().contains("<?xml"), "Response should contain XML content");
+        assertTrue(response.body().contains("workload") || response.body().contains("testPlan"),
+                  "Response should contain workload or testPlan XML structure");
+    }
+
+    @Test
+    @Tag("integration")
+    public void testGetJobHarnessScriptNonExistent_shouldReturn404() throws Exception {
+        // Arrange
+        int nonExistentJobId = 999999;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + JOBS_ENDPOINT + "/script/" + nonExistentJobId))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        // Act
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+
+        // Assert
+        assertEquals(404, response.statusCode(), "Should return HTTP 404 Not Found for non-existent job harness");
+    }
+
+    @Test
+    @Tag("integration")
     public void testDownloadJobHarnessFile_shouldReturnHarnessFile() throws Exception {
         // Arrange - First create a job to test with
         int jobId = createTestJob();
@@ -475,6 +523,26 @@ public class JobApiIT extends BaseIT {
         assertTrue(response.headers().firstValue("Content-Disposition").isPresent(),
                   "Should have Content-Disposition header for download");
         assertTrue(response.body().contains("<?xml"), "Response should contain XML content");
+    }
+
+    @Test
+    @Tag("integration")
+    public void testDownloadJobHarnessFileNonExistent_shouldReturn404() throws Exception {
+        // Arrange
+        int nonExistentJobId = 999999;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + JOBS_ENDPOINT + "/download/" + nonExistentJobId))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        // Act
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+
+        // Assert
+        assertEquals(404, response.statusCode(), "Should return HTTP 404 Not Found for non-existent job harness download");
     }
 
     @Test
