@@ -28,7 +28,13 @@ public class ScriptApiIT extends BaseIT {
         // Clean up any scripts created during tests
         for (Integer scriptId : createdScriptIds) {
             try {
-                deleteScript(scriptId);
+                if (scriptId < 0) {
+                    // Negative IDs represent external scripts
+                    deleteExternalScript(-scriptId);
+                } else {
+                    // Positive IDs represent regular scripts
+                    deleteScript(scriptId);
+                }
             } catch (Exception e) {
                 // Log but don't fail the test if cleanup fails
                 System.err.println("Failed to cleanup script " + scriptId + ": " + e.getMessage());
@@ -39,7 +45,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testPingScriptService() throws Exception {
+    public void testPingScriptService_shouldReturnPongResponse() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/ping"))
@@ -58,7 +64,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetAllScripts() throws Exception {
+    public void testGetAllScripts_shouldReturnScriptsList() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT))
@@ -90,7 +96,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetAllScriptNames() throws Exception {
+    public void testGetAllScriptNames_shouldReturnScriptNamesMap() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/names"))
@@ -182,15 +188,12 @@ public class ScriptApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        if (response.statusCode() == 200) {
-            JsonNode script = objectMapper.readTree(response.body());
-            assertEquals(scriptId, script.get("id").asInt(), "Should return correct script ID");
-            assertTrue(script.has("name"), "Script should have name field");
-            assertTrue(script.has("creator"), "Script should have creator field");
-            assertTrue(script.has("created"), "Script should have created field");
-        } else {
-            assertEquals(404, response.statusCode(), "Should return 404 if script doesn't exist");
-        }
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK for existing script");
+        JsonNode script = objectMapper.readTree(response.body());
+        assertEquals(scriptId, script.get("id").asInt(), "Should return correct script ID");
+        assertTrue(script.has("name"), "Script should have name field");
+        assertTrue(script.has("creator"), "Script should have creator field");
+        assertTrue(script.has("created"), "Script should have created field");
     }
 
     @Test
@@ -216,13 +219,13 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testUploadTankProxyRecording() throws Exception {
+    public void testUploadTankProxyRecording_shouldCreateScriptFromRecording() throws Exception {
         // Arrange
         String scriptName = "Sample_Proxy_Recording_Integration_Test_" + System.currentTimeMillis();
         String suffix = "100";
 
         // Load the sample proxy recording file from resources
-        byte[] fileContent = loadResourceFileAsBytes("Sample_Proxy_Recording.xml");
+        byte[] fileContent = loadResourceFileAsBytes("testfiles/Sample_Proxy_Recording.xml");
 
         // Create multipart body directly (like curl -F "file=@filename")
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();
@@ -263,11 +266,11 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testUploadTankProxyRecordingGzipped() throws Exception {
+    public void testUploadTankProxyRecordingGzipped_shouldCreateScriptFromGzippedRecording() throws Exception {
         String scriptName = "Sample_Proxy_Recording_Gzipped_Java_Test_" + System.currentTimeMillis();
         String suffix = "100";
 
-        byte[] gzippedFileContent = loadResourceFileAsBytes("Sample_Proxy_Recording.xml.gz");
+        byte[] gzippedFileContent = loadResourceFileAsBytes("testfiles/Sample_Proxy_Recording.xml.gz");
 
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -307,7 +310,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testUploadTankScript() throws Exception {
+    public void testUploadTankScript_shouldCreateScriptFromXml() throws Exception {
         int scriptId = createTestScriptFromSample();
 
         verifyScriptExists(scriptId, "Sample Tank Script");
@@ -315,8 +318,8 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testUploadTankScriptGzipped() throws Exception {
-        byte[] gzippedFileContent = loadResourceFileAsBytes("Sample_TS.xml.gz");
+    public void testUploadTankScriptGzipped_shouldCreateScriptFromGzippedXml() throws Exception {
+        byte[] gzippedFileContent = loadResourceFileAsBytes("testfiles/Sample_TS.xml.gz");
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -366,7 +369,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testCopyExistingScript() throws Exception {
+    public void testCopyExistingScript_shouldCreateScriptCopy() throws Exception {
         // Arrange - First create a script to copy from using Sample_TS.xml
         int originalScriptId = createTestScriptFromSample();
         String copiedScriptName = "Copied_Script_Sample_TS" + originalScriptId;
@@ -406,7 +409,7 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testUploadInvalidScript() throws Exception {
+    public void testUploadInvalidScript_shouldReturnValidationError() throws Exception {
         // Arrange
         String invalidXml = "This is not valid XML content";
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();
@@ -454,7 +457,8 @@ public class ScriptApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testDownloadHarnessScript() throws Exception {
+    public void testDownloadHarnessScript_shouldReturnHarnessXml() throws Exception {
+        // Arrange - Use a known script ID that should have harness
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/harness/download/" + 1634))
                 .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
@@ -472,6 +476,26 @@ public class ScriptApiIT extends BaseIT {
         assertTrue(response.headers().firstValue("Content-Disposition").isPresent(),
                   "Should have Content-Disposition header");
         assertTrue(response.body().contains("<?xml"), "Response should contain XML content");
+    }
+
+    @Test
+    @Tag("integration")
+    public void testDownloadHarnessScriptNonExistent_shouldReturn404() throws Exception {
+        // Arrange
+        int nonExistentScriptId = 999999;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/harness/download/" + nonExistentScriptId))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        // Act
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+
+        // Assert
+        assertEquals(404, response.statusCode(), "Should return HTTP 404 Not Found for non-existent script harness");
     }
 
     @Test
@@ -551,7 +575,7 @@ public class ScriptApiIT extends BaseIT {
 
     private int createTestScriptFromSample() throws Exception {
         // Load the sample Tank script file from resources (like testUploadTankScript)
-        byte[] fileContent = loadResourceFileAsBytes("Sample_TS.xml");
+        byte[] fileContent = loadResourceFileAsBytes("testfiles/Sample_TS.xml");
 
         // Create multipart body directly (like curl -F "file=@filename")
         String boundary = "----IntegrationTestBoundary" + System.currentTimeMillis();
@@ -624,9 +648,325 @@ public class ScriptApiIT extends BaseIT {
         assertEquals(404, response.statusCode(), "Script should be deleted and return 404");
     }
 
+    // ========== EXTERNAL SCRIPTS TESTS ==========
+
+    @Test
+    @Tag("integration")
+    public void testGetAllExternalScripts_shouldReturnExternalScriptsList() throws Exception {
+        // Arrange
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/external"))
+                .header(ACCEPT_HEADER, ACCEPT_VALUE)
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        // Act
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+
+        // Assert
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
+
+        JsonNode responseBody = objectMapper.readTree(response.body());
+        System.out.println(responseBody);
+        assertTrue(responseBody.has("scripts"), "Response should contain 'scripts' field");
+
+        JsonNode externalScripts = responseBody.get("scripts");
+        assertTrue(externalScripts.isArray(), "scripts should be an array");
+
+        // If there are external scripts, validate structure
+        if (externalScripts.size() > 0) {
+            JsonNode firstScript = externalScripts.get(0);
+            assertTrue(firstScript.has("id"), "External script should have 'id' field");
+            assertTrue(firstScript.has("name"), "External script should have 'name' field");
+            assertTrue(firstScript.has("creator"), "External script should have 'creator' field");
+            assertTrue(firstScript.has("created"), "External script should have 'created' field");
+            assertTrue(firstScript.has("modified"), "External script should have 'modified' field");
+            assertTrue(firstScript.has("script"), "External script should have 'script' field");
+            assertTrue(firstScript.has("productName"), "External script should have 'productName' field");
+        }
+    }
+
+    @Test
+    @Tag("integration")
+    public void testCreateExternalScript_shouldCreateNewExternalScript() throws Exception {
+        // Arrange
+        String scriptName = "Test_External_Script_" + System.currentTimeMillis();
+        String externalScriptJson = String.format("""
+            {
+                "name": "%s",
+                "creator": "integration-test",
+                "comments": "Integration test external script",
+                "script": "#!/bin/bash\\necho 'Hello from external script'\\nexit 0"
+            }
+            """, scriptName);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/external"))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .header(CONTENT_TYPE_HEADER, CONTENT_TYPE_VALUE)
+                .timeout(Duration.ofSeconds(30))
+                .POST(HttpRequest.BodyPublishers.ofString(externalScriptJson))
+                .build();
+
+        // Act
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+
+        // Assert
+        assertEquals(201, response.statusCode(), "Should return HTTP 201 Created");
+        assertTrue(response.headers().firstValue("Location").isPresent(),
+                  "Should have Location header for created resource");
+
+        JsonNode responseBody = objectMapper.readTree(response.body());
+        assertTrue(responseBody.has("id"), "Response should contain external script ID");
+        assertEquals(scriptName, responseBody.get("name").asText(), "Should return correct script name");
+        assertEquals("integration-test", responseBody.get("creator").asText(), "Should return correct creator");
+
+        // Store for cleanup
+        int externalScriptId = responseBody.get("id").asInt();
+        createdScriptIds.add(-externalScriptId); // Use negative ID to distinguish external scripts in cleanup
+
+        // Verify external script was created
+        verifyExternalScriptExists(externalScriptId, scriptName);
+    }
+
+    @Test
+    @Tag("integration")
+    public void testCreateExternalScriptWithInvalidJson_shouldReturnBadRequest() throws Exception {
+        // Arrange
+        String invalidJson = "{ invalid json structure }";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/external"))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .header(CONTENT_TYPE_HEADER, CONTENT_TYPE_VALUE)
+                .timeout(Duration.ofSeconds(30))
+                .POST(HttpRequest.BodyPublishers.ofString(invalidJson))
+                .build();
+
+        // Act
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+
+        // Assert
+        assertEquals(400, response.statusCode(), "Should return HTTP 400 Bad Request for invalid JSON");
+    }
+
+    @Test
+    @Tag("integration")
+    public void testGetSpecificExternalScript_shouldReturnExternalScript() throws Exception {
+        // Arrange - First create an external script
+        int externalScriptId = createTestExternalScript();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/external/" + externalScriptId))
+                .header(ACCEPT_HEADER, ACCEPT_VALUE)
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        // Act
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+
+        // Assert
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK for existing external script");
+        JsonNode script = objectMapper.readTree(response.body());
+        assertEquals(externalScriptId, script.get("id").asInt(), "Should return correct external script ID");
+        assertTrue(script.has("name"), "External script should have name field");
+        assertTrue(script.has("creator"), "External script should have creator field");
+        assertTrue(script.has("script"), "External script should have script content field");
+    }
+
+    @Test
+    @Tag("integration")
+    public void testGetNonExistentExternalScript_shouldReturn404() throws Exception {
+        // Arrange
+        int nonExistentExternalScriptId = 999999;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/external/" + nonExistentExternalScriptId))
+                .header(ACCEPT_HEADER, ACCEPT_VALUE)
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        // Act
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+
+        // Assert
+        assertEquals(404, response.statusCode(), "Should return HTTP 404 Not Found for non-existent external script");
+    }
+
+    @Test
+    @Tag("integration")
+    public void testDownloadExternalScript_shouldReturnScriptContent() throws Exception {
+        // Arrange - First create an external script
+        int externalScriptId = createTestExternalScript();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/external/download/" + externalScriptId))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        // Act
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+
+        // Assert
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK for external script download");
+        assertEquals("application/xml", response.headers().firstValue("Content-Type").orElse(""),
+                    "Should return XML content type");
+        assertTrue(response.headers().firstValue("Content-Disposition").isPresent(),
+                  "Should have Content-Disposition header");
+        assertTrue(response.body().contains("#!/bin/bash"), "Response should contain script content");
+        assertTrue(response.body().contains("Hello from external script"), "Response should contain expected script text");
+    }
+
+    @Test
+    @Tag("integration")
+    public void testDownloadNonExistentExternalScript_shouldReturn404() throws Exception {
+        // Arrange
+        int nonExistentExternalScriptId = 999999;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/external/download/" + nonExistentExternalScriptId))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        // Act
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+
+        // Assert
+        assertEquals(404, response.statusCode(), "Should return HTTP 404 Not Found for non-existent external script");
+    }
+
+    @Test
+    @Tag("integration")
+    public void testDeleteExternalScript_shouldDeleteSuccessfully() throws Exception {
+        // Arrange - First create an external script
+        int externalScriptId = createTestExternalScript();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/external/" + externalScriptId))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .DELETE()
+                .build();
+
+        // Act
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+
+        // Assert
+        assertEquals(204, response.statusCode(), "Should return HTTP 204 No Content");
+
+        // Remove from cleanup list since it's already deleted
+        createdScriptIds.remove(Integer.valueOf(-externalScriptId));
+
+        // Verify external script was deleted
+        verifyExternalScriptDeleted(externalScriptId);
+    }
+
+    @Test
+    @Tag("integration")
+    public void testDeleteNonExistentExternalScript_shouldReturn404() throws Exception {
+        // Arrange
+        int nonExistentExternalScriptId = 999999;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/external/" + nonExistentExternalScriptId))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .DELETE()
+                .build();
+
+        // Act
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+
+        // Assert
+        assertEquals(404, response.statusCode(), "Should return HTTP 404 Not Found for non-existent external script");
+    }
+
+    // ========== HELPER METHODS ==========
+
+    private int createTestExternalScript() throws Exception {
+        String scriptName = "Test_External_Script_" + System.currentTimeMillis();
+        String externalScriptJson = String.format("""
+            {
+                "name": "%s",
+                "creator": "integration-test",
+                "comments": "Integration test external script",
+                "script": "#!/bin/bash\\necho 'Hello from external script'\\nexit 0"
+            }
+            """, scriptName);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/external"))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .header(CONTENT_TYPE_HEADER, CONTENT_TYPE_VALUE)
+                .timeout(Duration.ofSeconds(30))
+                .POST(HttpRequest.BodyPublishers.ofString(externalScriptJson))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+        assertEquals(201, response.statusCode(), "Should create external script successfully");
+
+        JsonNode responseBody = objectMapper.readTree(response.body());
+        int externalScriptId = responseBody.get("id").asInt();
+
+        createdScriptIds.add(-externalScriptId); // Use negative ID to distinguish external scripts
+        return externalScriptId;
+    }
+
+    private void verifyExternalScriptExists(int externalScriptId, String expectedName) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/external/" + externalScriptId))
+                .header(ACCEPT_HEADER, ACCEPT_VALUE)
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+        assertEquals(200, response.statusCode(), "External script should exist");
+
+        JsonNode script = objectMapper.readTree(response.body());
+        assertEquals(externalScriptId, script.get("id").asInt(), "Should return correct external script ID");
+        assertEquals(expectedName, script.get("name").asText(), "Should return correct external script name");
+    }
+
+    private void verifyExternalScriptDeleted(int externalScriptId) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/external/" + externalScriptId))
+                .header(ACCEPT_HEADER, ACCEPT_VALUE)
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+        assertEquals(404, response.statusCode(), "External script should be deleted and return 404");
+    }
+
     private void deleteScript(int scriptId) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/" + scriptId))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .timeout(Duration.ofSeconds(30))
+                .DELETE()
+                .build();
+
+        httpClient.send(request, BodyHandlers.ofString());
+        // Don't assert status code here since this is cleanup - script might already be deleted
+    }
+
+    private void deleteExternalScript(int externalScriptId) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + SCRIPTS_ENDPOINT + "/external/" + externalScriptId))
                 .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
                 .timeout(Duration.ofSeconds(30))
                 .DELETE()

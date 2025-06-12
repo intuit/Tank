@@ -50,7 +50,7 @@ public class ProjectApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testPingProjectService() throws Exception {
+    public void testPingProjectService_shouldReturnPongResponse() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + PROJECTS_ENDPOINT + "/ping"))
@@ -72,7 +72,7 @@ public class ProjectApiIT extends BaseIT {
     @Tag("integration")
     // This test does not work as there is an issue with findAll() method
     // It lazily fetches test plans, however, it accesses test plans after closing the session, causing an exception
-    public void testGetAllProjects() throws Exception {
+    public void testGetAllProjects_shouldReturnProjectsList() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + PROJECTS_ENDPOINT))
@@ -104,7 +104,7 @@ public class ProjectApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetProjectNames() throws Exception {
+    public void testGetProjectNames_shouldReturnProjectNamesMap() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + "/v2/projects/names"))
                 .header(ACCEPT_HEADER, ACCEPT_VALUE)
@@ -141,7 +141,7 @@ public class ProjectApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testGetSpecificProject() throws Exception {
+    public void testGetProjectById_shouldReturnSpecificProject() throws Exception {
         // Arrange - Use a known project ID
         int projectId = 298; // Simple Endurance Project
 
@@ -190,7 +190,7 @@ public class ProjectApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testCreateProject() throws Exception {
+    public void testCreateProject_shouldCreateAndReturnProject() throws Exception {
         // Arrange
         String projectName = "Integration Test Project " + System.currentTimeMillis();
         String requestBody = createProjectRequestJson(projectName);
@@ -224,7 +224,7 @@ public class ProjectApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testCreateProjectWithComplexConfiguration() throws Exception {
+    public void testCreateProjectWithComplexConfiguration_shouldCreateComplexProject() throws Exception {
         // Arrange
         String projectName = "Complex Integration Test Project " + System.currentTimeMillis();
         String requestBody = createComplexProjectRequestJson(projectName);
@@ -257,7 +257,7 @@ public class ProjectApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testUpdateProject() throws Exception {
+    public void testUpdateProject_shouldUpdateExistingProject() throws Exception {
         // Arrange - First create a project
         String originalName = "Update Test Project " + System.currentTimeMillis();
         int projectId = createTestProject(originalName);
@@ -313,7 +313,7 @@ public class ProjectApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testDownloadProjectHarnessFile() throws Exception {
+    public void testGetProjectWorkload_shouldReturnWorkloadXml() throws Exception {
         // Arrange - Use a known project ID that has test plans
         int projectId = 298; // Simple Endurance Project
 
@@ -369,7 +369,7 @@ public class ProjectApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
-    public void testDownloadNonExistentProjectHarnessFile() throws Exception {
+    public void testGetProjectHarnessXml_shouldReturnHarnessXml() throws Exception {
         // Arrange
         int nonExistentProjectId = 999999;
 
