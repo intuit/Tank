@@ -293,12 +293,6 @@ This document provides an overview of all integration test files, the controller
 ### **Missing API Details:**
 - **AgentController**: `POST /v2/agent/availability` - Standalone agent availability
 
-### **Coverage Quality Metrics:**
-- **Controllers with 100% coverage**: 7 out of 8 (87.5%)
-- **Controllers with 90%+ coverage**: 8 out of 8 (100%)
-- **Average coverage per controller**: 98.5%
-- **Error handling coverage**: Comprehensive 404/400 scenarios across all controllers
-
 ## Base Test Infrastructure
 
 **BaseIT.java** - Provides common functionality:
