@@ -107,16 +107,13 @@ public class UserServiceImpl implements UserService {
             jobStatus.put("status", "IN_PROGRESS");
             LOG.info("Starting deletion for user: {} (jobId: {})", userIdentifier, jobId);
             
-            // First count records
-            long recordCount = userDao.countUserRecords(userIdentifier);
+            // Perform deletion directly
+            long deletedCount = userDao.deleteUserData(userIdentifier);
             
-            if (recordCount == 0) {
+            if (deletedCount == 0) {
                 jobStatus.put("status", "NO_DATA");
                 jobStatus.put("message", "No data found for user");
             } else {
-                // Perform deletion
-                long deletedCount = userDao.deleteUserData(userIdentifier);
-                
                 jobStatus.put("status", "SUCCESS");
                 jobStatus.put("recordsAffected", deletedCount);
                 jobStatus.put("message", "User data successfully anonymized");

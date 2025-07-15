@@ -127,4 +127,88 @@ public class UserDao extends BaseDao<User> {
         return user;
     }
 
+    /**
+     * Finds user by name or email for access/delete requests
+     *
+     * @param userIdentifier
+     *            the user name or email to search
+     * @return the user or null if not found
+     */
+    @Nullable
+    private User findUserByIdentifier(@Nonnull String userIdentifier) {
+        User user = findByUserName(userIdentifier);
+        if (user == null) {
+            user = findByEmail(userIdentifier);
+        }
+        return user;
+    }
+
+    /**
+     * Exports user data for access requests
+     * Returns only name, email, created, and modified dates.
+     *
+     * @param userIdentifier
+     *            the user name or email to export
+     * @return Map containing user data or empty map if user not found
+     */
+    @Nonnull
+    public java.util.Map<String, Object> exportUserData(@Nonnull String userIdentifier) {
+        User user = findUserByIdentifier(userIdentifier);
+        if (user == null) {
+            LOG.warn("No user found for identifier: {}", userIdentifier);
+            return new java.util.HashMap<>();
+        }
+
+        java.util.Map<String, Object> userData = new java.util.HashMap<>();
+        userData.put("name", user.getName());
+        userData.put("email", user.getEmail());
+        userData.put("created", user.getCreated());
+        userData.put("modified", user.getModified());
+
+        LOG.info("Exported user data for: {}", userIdentifier);
+        return userData;
+    }
+
+    /**
+     * Deletes/anonymizes user data for deletion requests
+     * Sets name to "deleted_user", email to "deleted_users@deleted.com",
+     * and timestamps to default values.
+     *
+     * @param userIdentifier
+     *            the user name or email to anonymize
+     * @return 1 if user was found and anonymized, 0 if not found
+     */
+    public long deleteUserData(@Nonnull String userIdentifier) {
+        User user = findUserByIdentifier(userIdentifier);
+        if (user == null) {
+            LOG.warn("No user found for identifier: {}", userIdentifier);
+            return 0;
+        }
+
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+            user = em.find(User.class, user.getId());
+            if (user != null) {
+                // Use native SQL to bypass JPA lifecycle callbacks and anonymize timestamps and token
+                // Note: created and modified cannot be NULL due to database constraints, so we set them to epoch time
+                String sql = "UPDATE user SET name = ?, email = ?, created = '1970-01-01 00:00:00', modified = '1970-01-01 00:00:00', token = NULL WHERE id = ?";
+                em.createNativeQuery(sql)
+                    .setParameter(1, "deleted_user_" + user.getId())
+                    .setParameter(2, "deleted_users@deleted.com")
+                    .setParameter(3, user.getId())
+                    .executeUpdate();
+                LOG.info("Anonymized user data for: {}", userIdentifier);
+            }
+            commit();
+            return 1;
+        } catch (Exception e) {
+            rollback();
+            LOG.error("Error anonymizing user data for: {}", userIdentifier, e);
+            throw new RuntimeException(e);
+        } finally {
+            cleanup();
+        }
+    }
+
 }
