@@ -31,6 +31,7 @@ import com.intuit.tank.project.UserProperty;
 import com.intuit.tank.vm.common.PasswordEncoder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import java.util.List;
 
 /**
  * UserDao
@@ -190,15 +191,59 @@ public class UserDao extends BaseDao<User> {
             begin();
             user = em.find(User.class, user.getId());
             if (user != null) {
+                String anonymizedName = "deleted_user_" + user.getId();
+
                 // Use native SQL to bypass JPA lifecycle callbacks and anonymize timestamps and token
                 // Note: created and modified cannot be NULL due to database constraints, so we set them to epoch time
                 String sql = "UPDATE user SET name = ?, email = ?, created = '1970-01-01 00:00:00', modified = '1970-01-01 00:00:00', token = NULL WHERE id = ?";
                 em.createNativeQuery(sql)
-                    .setParameter(1, "deleted_user_" + user.getId())
+                    .setParameter(1, anonymizedName)
                     .setParameter(2, "deleted_users@deleted.com")
                     .setParameter(3, user.getId())
                     .executeUpdate();
                 LOG.info("Anonymized user data for: {}", userIdentifier);
+
+                // Dynamically find all tables with 'creator' column and update them
+                List<String> tables = em.createNativeQuery(
+                    "SELECT TABLE_NAME FROM information_schema.COLUMNS " +
+                    "WHERE COLUMN_NAME = 'creator' AND TABLE_SCHEMA = DATABASE()")
+                    .getResultList();
+
+                for (String table : tables) {
+                    String updateSql = "UPDATE " + table + " SET creator = ? WHERE creator = ?";
+                    int rowsUpdated = em.createNativeQuery(updateSql)
+                        .setParameter(1, anonymizedName)
+                        .setParameter(2, user.getName())
+                        .executeUpdate();
+                    LOG.info("Updated {} rows in table {} for user {}", rowsUpdated, table, userIdentifier);
+                }
+
+                // Handle revision_info table separately as it uses user_name instead of creator
+                String revisionSql = "UPDATE revision_info SET user_name = ? WHERE user_name = ?";
+                int revisionRows = em.createNativeQuery(revisionSql)
+                    .setParameter(1, anonymizedName)
+                    .setParameter(2, user.getName())
+                    .executeUpdate();
+                LOG.info("Updated {} rows in revision_info table for user {}", revisionRows, userIdentifier);
+
+                // Set user to guest group only
+                // First, clear all existing group memberships
+                String clearGroupsSql = "DELETE FROM user_user_group WHERE group_id = ?";
+                int clearedGroups = em.createNativeQuery(clearGroupsSql)
+                    .setParameter(1, user.getId())
+                    .executeUpdate();
+                LOG.info("Cleared {} group memberships for user {}", clearedGroups, userIdentifier);
+
+                // Then add user to guest group (find guest group ID)
+                String guestGroupIdSql = "SELECT id FROM user_group WHERE name = 'guest'";
+                Integer guestGroupId = (Integer) em.createNativeQuery(guestGroupIdSql).getSingleResult();
+
+                String addGuestGroupSql = "INSERT INTO user_user_group (group_id, user_id) VALUES (?, ?)";
+                em.createNativeQuery(addGuestGroupSql)
+                    .setParameter(1, user.getId())
+                    .setParameter(2, guestGroupId)
+                    .executeUpdate();
+                LOG.info("Added user {} to guest group", userIdentifier);
             }
             commit();
             return 1;
