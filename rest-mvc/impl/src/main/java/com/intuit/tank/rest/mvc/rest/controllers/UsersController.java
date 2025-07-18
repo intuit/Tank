@@ -1,5 +1,6 @@
 package com.intuit.tank.rest.mvc.rest.controllers;
 
+import com.intuit.tank.rest.mvc.rest.services.AdminTokenService;
 import com.intuit.tank.rest.mvc.rest.services.user.UserService;
 import com.intuit.tank.user.model.ExportRequest;
 import com.intuit.tank.user.model.DeleteRequest;
@@ -27,150 +28,137 @@ import java.util.Map;
 public class UsersController {
 
     private static final Logger LOG = LogManager.getLogger(UsersController.class);
-    
+
     @Resource
     private UserService userService;
 
-    @PostMapping(value = "/export", consumes = { MediaType.APPLICATION_JSON_VALUE })
-    @Operation(summary = "Export User Data", description = "Exports all user data for compliance purposes.", hidden = true)
+    @Resource
+    private AdminTokenService adminTokenService;
+
+    @PostMapping("/export")
+    @Operation(summary = "Export user data", description = "Exports user data from Tank")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Export request accepted",
-                    content = @Content),
-            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
-            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Export request acknowledged"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "400", description = "Invalid request")
     })
     public ResponseEntity<UserOperationResponse> exportUserData(
-            @RequestHeader("Authorization") String authHeader,
-            @Valid @RequestBody @Parameter(description = "Export request payload", required = true) ExportRequest request) {
+            @Parameter(description = "Admin token for authentication") @RequestHeader("admin-token") String adminToken,
+            @Valid @RequestBody ExportRequest request) {
         
-
-        if (!isValidAdminToken(authHeader)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        LOG.info("Export request received for user: {} with token: {}", request.getUserIdentifier(), maskToken(adminToken));
         
         try {
+            // Validate admin token
+            if (!adminTokenService.isValidAdminToken(adminToken)) {
+                LOG.warn("Export request REJECTED: Invalid admin token for user: {}", request.getUserIdentifier());
+                UserOperationResponse errorResponse = new UserOperationResponse();
+                errorResponse.setStatus("error");
+                errorResponse.setMessage("Invalid admin token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            }
+            
+            // Process export request
             String jobId = userService.processExportRequest(request.getUserIdentifier());
+            LOG.info("Export request processed successfully for user: {} with jobId: {}", request.getUserIdentifier(), jobId);
             
-            UserOperationResponse response = new UserOperationResponse(
-                jobId, 
-                "ACKNOWLEDGED", 
-                "Export request received and is being processed",
-                null,
-                null
-            );
-            
-            LOG.info("Export request processed for user: {} with jobId: {}", request.getUserIdentifier(), jobId);
+            UserOperationResponse response = new UserOperationResponse(jobId, "acknowledged", 
+                    "Export request acknowledged", null, null);
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            LOG.error("Error processing export request for user: {}", request.getUserIdentifier(), e);
-            UserOperationResponse errorResponse = new UserOperationResponse(
-                null,
-                "FAILED",
-                "Failed to process export request: " + e.getMessage(),
-                null,
-                null
-            );
+            LOG.error("Export request FAILED for user: {} - Error: {}", request.getUserIdentifier(), e.getMessage(), e);
+            UserOperationResponse errorResponse = new UserOperationResponse();
+            errorResponse.setStatus("error");
+            errorResponse.setMessage("Internal server error");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
-    @PostMapping(value = "/delete", consumes = { MediaType.APPLICATION_JSON_VALUE })
-    @Operation(summary = "Delete User Data", description = "Deletes/anonymizes all user data for compliance purposes.", hidden = true)
+    @PostMapping("/delete")
+    @Operation(summary = "Delete user data", description = "Deletes/anonymizes user data from Tank")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Delete request accepted",
-                    content = @Content),
-            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
-            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Delete request acknowledged"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "400", description = "Invalid request")
     })
     public ResponseEntity<UserOperationResponse> deleteUserData(
-            @RequestHeader("Authorization") String authHeader,
-            @Valid @RequestBody @Parameter(description = "Delete request payload", required = true) DeleteRequest request) {
+            @Parameter(description = "Admin token for authentication") @RequestHeader("admin-token") String adminToken,
+            @Valid @RequestBody DeleteRequest request) {
         
-
-        if (!isValidAdminToken(authHeader)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        LOG.info("Delete request received for user: {} with token: {}", request.getUserIdentifier(), maskToken(adminToken));
         
         try {
+            // Validate admin token
+            if (!adminTokenService.isValidAdminToken(adminToken)) {
+                LOG.warn("Delete request REJECTED: Invalid admin token for user: {}", request.getUserIdentifier());
+                UserOperationResponse errorResponse = new UserOperationResponse();
+                errorResponse.setStatus("error");
+                errorResponse.setMessage("Invalid admin token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            }
+            
+            // Process delete request
             String jobId = userService.processDeleteRequest(request.getUserIdentifier());
+            LOG.info("Delete request processed successfully for user: {} with jobId: {}", request.getUserIdentifier(), jobId);
             
-            UserOperationResponse response = new UserOperationResponse(
-                jobId, 
-                "ACKNOWLEDGED", 
-                "Delete request received and is being processed",
-                null,
-                null
-            );
-            
-            LOG.info("Delete request processed for user: {} with jobId: {}", request.getUserIdentifier(), jobId);
+            UserOperationResponse response = new UserOperationResponse(jobId, "acknowledged", 
+                    "Delete request acknowledged", null, null);
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            LOG.error("Error processing delete request for user: {}", request.getUserIdentifier(), e);
-            UserOperationResponse errorResponse = new UserOperationResponse(
-                null,
-                "FAILED",
-                "Failed to process delete request: " + e.getMessage(),
-                null,
-                null
-            );
+            LOG.error("Delete request FAILED for user: {} - Error: {}", request.getUserIdentifier(), e.getMessage(), e);
+            UserOperationResponse errorResponse = new UserOperationResponse();
+            errorResponse.setStatus("error");
+            errorResponse.setMessage("Internal server error");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
     @GetMapping("/status/{jobId}")
-    @Operation(summary = "Get Job Status", description = "Returns job status and result for the given jobId.", hidden = true)
+    @Operation(summary = "Get operation status", description = "Gets the status of an export or delete operation")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Status retrieved",
-                    content = @Content),
-            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Job not found", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Status retrieved"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "404", description = "Job not found")
     })
-    public ResponseEntity<UserOperationResponse> getJobStatus(
-            @RequestHeader("Authorization") String authHeader,
-            @PathVariable("jobId") @Parameter(description = "Job ID", required = true) String jobId) {
+    public ResponseEntity<Map<String, Object>> getOperationStatus(
+            @Parameter(description = "Admin token for authentication") @RequestHeader("admin-token") String adminToken,
+            @Parameter(description = "Job ID to check status for") @PathVariable String jobId) {
         
-        // Basic admin token validation
-        if (!isValidAdminToken(authHeader)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        LOG.info("Status request received for jobId: {} with token: {}", jobId, maskToken(adminToken));
         
         try {
-            Map<String, Object> jobStatus = userService.getJobStatus(jobId);
-            if (jobStatus == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            // Validate admin token
+            if (!adminTokenService.isValidAdminToken(adminToken)) {
+                LOG.warn("Status request REJECTED: Invalid admin token for jobId: {}", jobId);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
             
-            // Convert Map to UserOperationResponse
-            UserOperationResponse response = new UserOperationResponse();
-            response.setJobId(jobId);
-            response.setStatus((String) jobStatus.get("status"));
-            response.setMessage((String) jobStatus.get("message"));
-            response.setData((Map<String, Object>) jobStatus.get("data"));
-            response.setRecordsAffected((Long) jobStatus.get("recordsAffected"));
+            // Get job status
+            Map<String, Object> status = userService.getJobStatus(jobId);
             
-            return ResponseEntity.ok(response);
+            if (status == null) {
+                LOG.warn("Job not found: {}", jobId);
+                return ResponseEntity.notFound().build();
+            }
+            
+            LOG.info("Status retrieved successfully for jobId: {} - Status: {}", jobId, status.get("status"));
+            return ResponseEntity.ok(status);
             
         } catch (Exception e) {
-            LOG.error("Error retrieving job status for jobId: {}", jobId, e);
-            UserOperationResponse errorResponse = new UserOperationResponse(
-                jobId,
-                "FAILED",
-                "Failed to retrieve job status: " + e.getMessage(),
-                null,
-                null
-            );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            LOG.error("Status request FAILED for jobId: {} - Error: {}", jobId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-    
-    private boolean isValidAdminToken(String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return false;
+
+    /**
+     * Masks a token for safe logging by showing only first 4 and last 4 characters
+     */
+    private String maskToken(String token) {
+        if (token == null || token.length() < 8) {
+            return "****";
         }
-        
-        String token = authHeader.substring(7);
-        return "admin-token".equals(token);
+        return token.substring(0, 4) + "****" + token.substring(token.length() - 4);
     }
 }
