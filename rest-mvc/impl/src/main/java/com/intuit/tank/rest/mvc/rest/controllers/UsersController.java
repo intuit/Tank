@@ -7,12 +7,13 @@ import com.intuit.tank.user.model.DeleteRequest;
 import com.intuit.tank.user.model.UserOperationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.apache.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,9 @@ public class UsersController {
     @Resource
     private AdminTokenService adminTokenService;
 
+    @Resource
+    private HttpServletRequest request;
+
     @PostMapping("/export")
     @Operation(summary = "Export user data", description = "Exports user data from Tank")
     @ApiResponses(value = {
@@ -43,14 +47,13 @@ public class UsersController {
             @ApiResponse(responseCode = "400", description = "Invalid request")
     })
     public ResponseEntity<UserOperationResponse> exportUserData(
-            @Parameter(description = "Admin token for authentication") @RequestHeader("admin-token") String adminToken,
             @Valid @RequestBody ExportRequest request) {
         
-        LOG.info("Export request received for user: {} with token: {}", request.getUserIdentifier(), maskToken(adminToken));
+        LOG.info("Export request received for user: {}", request.getUserIdentifier());
         
         try {
-            // Validate admin token
-            if (!adminTokenService.isValidAdminToken(adminToken)) {
+            // Validate that the current user's token matches the admin token from SSM
+            if (!isValidAdminToken()) {
                 LOG.warn("Export request REJECTED: Invalid admin token for user: {}", request.getUserIdentifier());
                 UserOperationResponse errorResponse = new UserOperationResponse();
                 errorResponse.setStatus("error");
@@ -83,14 +86,13 @@ public class UsersController {
             @ApiResponse(responseCode = "400", description = "Invalid request")
     })
     public ResponseEntity<UserOperationResponse> deleteUserData(
-            @Parameter(description = "Admin token for authentication") @RequestHeader("admin-token") String adminToken,
             @Valid @RequestBody DeleteRequest request) {
         
-        LOG.info("Delete request received for user: {} with token: {}", request.getUserIdentifier(), maskToken(adminToken));
+        LOG.info("Delete request received for user: {}", request.getUserIdentifier());
         
         try {
-            // Validate admin token
-            if (!adminTokenService.isValidAdminToken(adminToken)) {
+            // Validate that the current user's token matches the admin token from SSM
+            if (!isValidAdminToken()) {
                 LOG.warn("Delete request REJECTED: Invalid admin token for user: {}", request.getUserIdentifier());
                 UserOperationResponse errorResponse = new UserOperationResponse();
                 errorResponse.setStatus("error");
@@ -123,14 +125,13 @@ public class UsersController {
             @ApiResponse(responseCode = "404", description = "Job not found")
     })
     public ResponseEntity<Map<String, Object>> getOperationStatus(
-            @Parameter(description = "Admin token for authentication") @RequestHeader("admin-token") String adminToken,
             @Parameter(description = "Job ID to check status for") @PathVariable String jobId) {
         
-        LOG.info("Status request received for jobId: {} with token: {}", jobId, maskToken(adminToken));
+        LOG.info("Status request received for jobId: {}", jobId);
         
         try {
-            // Validate admin token
-            if (!adminTokenService.isValidAdminToken(adminToken)) {
+            // Validate that the current user's token matches the admin token from SSM
+            if (!isValidAdminToken()) {
                 LOG.warn("Status request REJECTED: Invalid admin token for jobId: {}", jobId);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
@@ -151,14 +152,31 @@ public class UsersController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
+    
     /**
-     * Masks a token for safe logging by showing only first 4 and last 4 characters
+     * Validates that the current user's token matches the admin token from SSM.
+     * Uses Tank's existing authentication system to get the current user's token.
+     * 
+     * @return true if current user's token matches admin token from SSM, false otherwise
      */
-    private String maskToken(String token) {
-        if (token == null || token.length() < 8) {
-            return "****";
+    private boolean isValidAdminToken() {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        
+        if (authHeader == null || !authHeader.toLowerCase().startsWith("bearer ")) {
+            LOG.debug("No valid Authorization header found");
+            return false;
         }
-        return token.substring(0, 4) + "****" + token.substring(token.length() - 4);
+        
+        try {
+            // Extract token from "Bearer <token>" format (same as RestSecurityFilter)
+            String token = authHeader.substring(7);
+            
+            // Use AdminTokenService to validate that this token matches the admin token from SSM
+            return adminTokenService.isValidAdminToken(token);
+            
+        } catch (Exception e) {
+            LOG.error("Error validating admin token", e);
+            return false;
+        }
     }
 }
