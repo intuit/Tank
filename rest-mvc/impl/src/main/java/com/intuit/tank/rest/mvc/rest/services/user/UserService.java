@@ -1,30 +1,48 @@
 package com.intuit.tank.rest.mvc.rest.services.user;
 
+import java.util.List;
 import java.util.Map;
 
 /**
  * Service interface for user data operations
  */
 public interface UserService {
-    
+
     /**
-     * Processes user data export request
-     * @param userIdentifier user email or username
-     * @return job ID for tracking
+     * Processes an export request for user data
+     * 
+     * @param jobId       The job ID for tracking
+     * @param identifiers List of user identifiers to process
+     * @param tid         The transaction ID for tracking
+     * @return The job ID for tracking
      */
-    String processExportRequest(String userIdentifier);
-    
+    String processExportRequest(String jobId, List<String> identifiers, String tid);
+
     /**
-     * Processes user data deletion request
-     * @param userIdentifier user email or username
-     * @return job ID for tracking
+     * Processes a delete request for user data
+     * 
+     * @param jobId       The job ID for tracking
+     * @param identifiers List of user identifiers to process
+     * @param tid         The transaction ID for tracking
+     * @return The job ID for tracking
      */
-    String processDeleteRequest(String userIdentifier);
-    
+    String processDeleteRequest(String jobId, List<String> identifiers, String tid);
+
     /**
-     * Gets the status and result of a job
-     * @param jobId the job ID
-     * @return job status and result
+     * Validates whether user data can be safely deleted
+     * 
+     * @param jobId          The job ID for tracking
+     * @param userIdentifier The user identifier to validate
+     * @return Map containing validation result with "canDelete" boolean and
+     *         "reason" string
+     */
+    Map<String, Object> validateDeletion(String jobId, String userIdentifier);
+
+    /**
+     * Gets the current status of a job
+     * 
+     * @param jobId The job ID to check
+     * @return Map containing job status information
      */
     Map<String, Object> getJobStatus(String jobId);
-} 
+}
