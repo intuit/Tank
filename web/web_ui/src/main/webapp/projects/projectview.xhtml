@@ -436,7 +436,7 @@
         <div class="vertical-spacer" />
         <p:commandButton widgetVar="submitJobBT" rendered="#{jobMaker.isValid()}" onclick="PF('submitJobBT').disable();"
           value="Add Job To Queue" action="#{jobMaker.addJobToQueue()}" ajax="true"
-          disabled="#{not projectBean.canEditProject()}" onsuccess="PF('createJobPopup').hide();PF('projectTabPanel').select(6)" />
+          disabled="#{not projectBean.canEditProject()}" onsuccess="PF('createJobPopup').hide();PF('projectTabPanel').select(5)" />
         <p:commandButton value="Cancel" type="button" styleClass="h-space" onclick="PF('createJobPopup').hide();" />
       </h:form>
     </p:dialog>
