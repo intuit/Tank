@@ -15,7 +15,6 @@ package com.intuit.tank.runner;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import com.intuit.tank.harness.StopBehavior;
 import org.apache.commons.lang3.StringUtils;
@@ -276,7 +275,6 @@ public class TestPlanRunner implements Runnable {
             }
             TestStep testStep = scriptSteps.get(i);
             logEvent.setStep(testStep);
-            logEvent.setTransactionId(UUID.randomUUID().toString());
             testStep.setParent(hdScriptUseCase);
             if (gotoGroup != null) {
                 if (testStep instanceof RequestStep) {

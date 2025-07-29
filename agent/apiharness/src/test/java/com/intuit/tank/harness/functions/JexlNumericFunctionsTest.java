@@ -41,10 +41,10 @@ public class JexlNumericFunctionsTest {
     public void testRandomPositiveWhole() {
         String random = variables.evaluate("#{numericFunctions.randomPositiveWhole(4)}");
         assertNotNull(random);
-        assertTrue(random.length() == 4);
+        assertEquals(4, random.length());
         random = variables.evaluate("#{numericFunctions.randomPositiveWhole(two_int)}");
         assertNotNull(random);
-        assertTrue(random.length() == 2);
+        assertEquals(2, random.length());
     }
 
     @Test
@@ -52,10 +52,10 @@ public class JexlNumericFunctionsTest {
     public void testRandomNegativeWhole() {
         String random = variables.evaluate("#{numericFunctions.randomNegativeWhole(5)}");
         assertNotNull(random);
-        assertTrue(random.length() == 6);
+        assertEquals(6, random.length());
         random = variables.evaluate("#{numericFunctions.randomNegativeWhole(two_int)}");
         assertNotNull(random);
-        assertTrue(random.length() == 3);
+        assertEquals(3, random.length());
     }
 
     @Test
@@ -63,10 +63,10 @@ public class JexlNumericFunctionsTest {
     public void testRandomPositiveFloat() {
         String random = variables.evaluate("#{numericFunctions.randomPositiveFloat(5, 3)}");
         assertNotNull(random);
-        assertTrue(random.length() == 9);
+        assertEquals(9, random.length());
         random = variables.evaluate("#{numericFunctions.randomPositiveFloat(two_int, three_float)}");
         assertNotNull(random);
-        assertTrue(random.length() == 6);
+        assertEquals(6, random.length());
     }
 
     @Test
@@ -74,10 +74,10 @@ public class JexlNumericFunctionsTest {
     public void testRandomNegativeFloat() {
         String random = variables.evaluate("#{numericFunctions.randomNegativeFloat(6, 4)}");
         assertNotNull(random);
-        assertEquals(random.length(), 12);
+        assertEquals(12, random.length());
         random = variables.evaluate("#{numericFunctions.randomNegativeFloat(two_int, three_float)}");
         assertNotNull(random);
-        assertEquals(random.length(), 7);
+        assertEquals(7, random.length());
     }
 
     @Test

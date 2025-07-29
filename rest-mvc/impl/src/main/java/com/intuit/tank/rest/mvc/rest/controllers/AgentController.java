@@ -70,11 +70,8 @@ public class AgentController {
         File supportFiles = agentService.getSupportFiles();
         InputStreamResource resource = new InputStreamResource(new FileInputStream(supportFiles));
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + supportFiles.getName() + "\"");
-
         return ResponseEntity.ok()
-                .headers(headers)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + supportFiles.getName() + "\"")
                 .contentLength(supportFiles.length())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
@@ -132,22 +129,20 @@ public class AgentController {
     })
     public ResponseEntity<CloudVmStatus> getInstanceStatus(@PathVariable @Parameter(description = "The instance ID associated with the instance", required = true) String instanceId) {
         CloudVmStatus status = agentService.getInstanceStatus(instanceId);
-        if (status != null) {
-            return new ResponseEntity<CloudVmStatus>(status, HttpStatus.OK);
-        }
-        return ResponseEntity.notFound().build();
+        if (status == null) return ResponseEntity.notFound().build();
+        return new ResponseEntity<CloudVmStatus>(status, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/instance/status/{instanceId}", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_JSON_VALUE })
     @Operation(description = "Sets the agent instance status via instanceID and CloudVMStatus payload", summary = "Set the agent instance status", hidden = true)
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully set agent instance status"),
+            @ApiResponse(responseCode = "202", description = "Successfully accepted agent instance status"),
             @ApiResponse(responseCode = "400", description = "Could not update agent instance status due to bad request", content = @Content)
     })
     public ResponseEntity<Void> setInstanceStatus(@PathVariable @Parameter(description = "The instance ID associated with the instance", required = true) String instanceId,
                                                   @RequestBody @Parameter(description = "CloudVmStatus object that contains updated content", required = true) CloudVmStatus status) {
         agentService.setInstanceStatus(instanceId, status);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.accepted().build();
     }
 
     @RequestMapping(value = "/instance/stop/{instanceId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )

@@ -13,22 +13,17 @@ package com.intuit.tank.harness;
  * #L%
  */
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.BindException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 
-import com.google.common.collect.ImmutableMap;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import org.apache.http.protocol.HTTP;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.message.ObjectMessage;
 
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
@@ -79,7 +74,7 @@ public class CommandListener {
 
     private static void handleRequest(HttpExchange exchange) {
         try {
-            String response = "unknown path";
+            String response = "Not Found";
             String path = exchange.getRequestURI().getPath();
             if (path.equals(AgentCommand.start.getPath()) || path.equals(AgentCommand.run.getPath())) {
                 response = "Received command " + path + ", Starting Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
@@ -107,7 +102,11 @@ public class CommandListener {
 
             exchange.getResponseHeaders().set(HTTP.CONTENT_TYPE, "text/plain");
             exchange.getResponseHeaders().set(HTTP.SERVER_HEADER,"Intuit Tank Agent/4.0.0");
-            exchange.sendResponseHeaders(200, response.length());
+            if (response.equalsIgnoreCase("Not Found")) {
+                exchange.sendResponseHeaders(404, response.length());
+            } else {
+                exchange.sendResponseHeaders(202, response.length());
+            }
             OutputStream os = exchange.getResponseBody();
             os.write(response.getBytes());
             os.close();

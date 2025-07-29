@@ -115,12 +115,12 @@ public class UserDao extends BaseDao<User> {
             commit();
         } catch (NoResultException nre) {
             rollback();
-            LOG.info("No entity matching " + userProperty.value + ": " + userIdentifier, nre);
+            LOG.warn("No entity matching {}: {}", userProperty.value, userIdentifier, nre);
         } catch (Exception e) {
             rollback();
             String printQuery = (query != null) ? query.toString()
                     : "Failed to connect to database: ";
-            LOG.info("no entity matching query: " + printQuery, e);
+            LOG.warn("no entity matching query: {}", printQuery, e);
         } finally {
             cleanup();
         }

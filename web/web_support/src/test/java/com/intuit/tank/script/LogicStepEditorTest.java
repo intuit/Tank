@@ -13,28 +13,80 @@ package com.intuit.tank.script;
  * #L%
  */
 
+import com.intuit.tank.project.Script;
+import com.intuit.tank.util.Messages;
+import jakarta.enterprise.context.ConversationScoped;
+import org.jboss.weld.junit5.auto.ActivateScopes;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.LogicStepEditor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-/**
- * The class <code>LogicStepEditorTest</code> contains tests for the class <code>{@link LogicStepEditor}</code>.
- *
- * @generatedBy CodePro at 12/15/14 3:54 PM
- */
+@EnableAutoWeld
+@ActivateScopes(ConversationScoped.class)
 public class LogicStepEditorTest {
-    /**
-     * Run the LogicStepEditor() constructor test.
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
+
+    @InjectMocks
+    private LogicStepEditor logicStepEditor;
+
+    @Mock
+    private ScriptEditor scriptEditor;
+
+    @Mock
+    private Messages messages;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void initService() { closeable = MockitoAnnotations.openMocks(this); }
+
+    @AfterEach
+    void closeService() throws Exception { closeable.close(); }
+
     @Test
-    public void testLogicStepEditor_1()
-        throws Exception {
-        LogicStepEditor result = new LogicStepEditor();
-        assertNotNull(result);
+    public void testTestScript() {
+        assertFalse(logicStepEditor.editMode);
+        when(scriptEditor.getScript()).thenReturn(Script.builder().name("TestScript").build());
+        logicStepEditor.editLogicStep(ScriptStep.builder().name("ScriptStep").build());
+        assertEquals("ScriptStep", logicStepEditor.getName());
+        assertTrue(logicStepEditor.editMode);
+
+        logicStepEditor.testScript();
+        String expected = "------------- Variables -------------\n" +
+                "mode = test\n" +
+                "THREAD_ID = 1\n" +
+                "------------- script -------------\n" +
+                "Starting scriptEngine...\n" +
+                "Finished scriptEngine...\n" +
+                "------------- Variables -------------\n" +
+                "mode = test\n" +
+                "THREAD_ID = 1\n";
+        assertEquals(expected, logicStepEditor.getOutput());
+    }
+
+    @Test
+    public void testAddToScript() {
+        logicStepEditor.addToScript(); // validate()
+        when(scriptEditor.getScript()).thenReturn(Script.builder().name("TestScript").build());
+        logicStepEditor.editLogicStep(ScriptStep.builder().name("ScriptStep").build());
+        logicStepEditor.setValuesFromPrevious();
+        logicStepEditor.addToScript(); // insert()
+        logicStepEditor.editLogicStep(ScriptStep.builder().name("ScriptStep").build());
+        logicStepEditor.editMode = false;
+        logicStepEditor.addToScript();  // done()
+    }
+
+    @Test
+    public void testInsertLogicStep() {
+        when(scriptEditor.getScript()).thenReturn(Script.builder().name("TestScript").build());
+        logicStepEditor.insertLogicStep();
+        assertFalse(logicStepEditor.editMode);
+        assertNotNull(logicStepEditor.getLogicTestData());
     }
 }

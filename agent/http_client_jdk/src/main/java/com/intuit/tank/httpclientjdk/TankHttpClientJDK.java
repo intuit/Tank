@@ -343,6 +343,20 @@ public class TankHttpClientJDK implements TankHttpClient {
                 }
             }
 
+            // Extract Proxy response/service time header
+            List<String> proxyResponseTimeHeaders = headers.map().get("x-envoy-upstream-service-time");
+            if (proxyResponseTimeHeaders != null && !proxyResponseTimeHeaders.isEmpty()) {
+                try {
+                    long proxyResponseTime = Long.parseLong(proxyResponseTimeHeaders.get(0));
+                    response.setProxyResponseTime(proxyResponseTime);
+                } catch (NumberFormatException e) {
+                    LOG.warn("could not parse proxy service time header: " + proxyResponseTimeHeaders.get(0));
+                    response.setProxyResponseTime(-1);
+                }
+            } else {
+                response.setProxyResponseTime(-1);
+            }
+
             List<HttpCookie> cookies = cookieManager.getCookieStore().getCookies();
             if (!cookies.isEmpty()) {
                 for (HttpCookie cookie : cookies) {

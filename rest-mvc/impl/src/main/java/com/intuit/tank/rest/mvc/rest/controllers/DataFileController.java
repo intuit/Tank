@@ -76,10 +76,8 @@ public class DataFileController {
     })
     public ResponseEntity<DataFileDescriptor> getDatafile(@PathVariable @Parameter(description = "Datafile ID", required = true) Integer datafileId) {
         DataFileDescriptor datafile = dataFileService.getDatafile(datafileId);
-        if (datafile != null){
-            return new ResponseEntity<>(datafile, HttpStatus.OK);
-        }
-        return ResponseEntity.notFound().build();
+        if (datafile == null) return ResponseEntity.notFound().build();
+        return new ResponseEntity<>(datafile, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/content", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
@@ -100,7 +98,7 @@ public class DataFileController {
         return ResponseEntity.notFound().build();
     }
 
-    @RequestMapping(value = "/download/{datafileId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/download/{datafileId}", method = RequestMethod.GET, produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
     @Operation(description = "Downloads a datafile with the corresponding datafile ID", summary = "Download a datafile")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully downloaded the datafile", content = @Content),
@@ -108,9 +106,8 @@ public class DataFileController {
     })
     public ResponseEntity<StreamingResponseBody> downloadDatafile(@PathVariable @Parameter(description = "Datafile ID", required = true) Integer datafileId) throws IOException {
         Map<String, StreamingResponseBody> response = dataFileService.downloadDatafile(datafileId);
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
+        if (response == null) return ResponseEntity.notFound().build();
+
         String filename = response.keySet().iterator().next();
         StreamingResponseBody responseBody = response.get(filename);
 

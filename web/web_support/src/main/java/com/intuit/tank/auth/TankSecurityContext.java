@@ -31,6 +31,10 @@ public class TankSecurityContext implements SecurityContext, Serializable {
         return principal;
     }
 
+    public void clearCallerPrincipal() {
+        principal = null;
+    }
+
     @Override
     public <T extends Principal> Set<T> getPrincipalsByType(Class<T> aClass) {
         return null;

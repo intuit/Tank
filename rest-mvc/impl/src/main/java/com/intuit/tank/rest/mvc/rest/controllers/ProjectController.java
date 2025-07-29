@@ -132,7 +132,7 @@ public class ProjectController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/download/{projectId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/download/{projectId}", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
     @Operation(description = "Downloads a project's harness XML file", summary = "Download the project's harness file")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully downloaded project's harness file", content = @Content),
@@ -140,18 +140,14 @@ public class ProjectController {
     })
     public ResponseEntity<StreamingResponseBody> downloadTestScriptForProject(@PathVariable @Parameter(description = "Project ID", required = true) Integer projectId) throws IOException {
         Map<String, StreamingResponseBody> response = projectService.downloadTestScriptForProject(projectId);
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
+        if (response == null) return ResponseEntity.notFound().build();
+
         String filename = response.keySet().iterator().next();
         StreamingResponseBody responseBody = response.get(filename);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
-
         return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.APPLICATION_XML)
                 .body(responseBody);
     }
 

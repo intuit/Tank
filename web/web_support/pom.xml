@@ -108,6 +108,11 @@
     </dependency>
 
     <dependency>
+      <groupId>jakarta.enterprise</groupId>
+      <artifactId>jakarta.enterprise.cdi-el-api</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
     </dependency>
@@ -182,7 +187,11 @@
       <scope>runtime</scope>
     </dependency>
 
-
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-coyote</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
   </dependencies>
 </project>

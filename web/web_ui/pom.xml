@@ -136,12 +136,6 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>tank-mail</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>web-support</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -215,6 +209,12 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- Weld servlet, EL and JSP required for testing CDI injections -->
     <dependency>
       <groupId>org.jboss.weld.servlet</groupId>
@@ -234,11 +234,6 @@
     <dependency>
       <groupId>org.jdom</groupId>
       <artifactId>jdom2</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
     </dependency>
 
     <dependency>

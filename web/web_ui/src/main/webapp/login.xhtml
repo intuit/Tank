@@ -36,7 +36,7 @@
        -->
     </h:form>
 
-    <h:form rendered="#{tsAuthenticator.loggedIn}">
+    <h:form rendered="#{tsAuthenticator.isloggedIn()}">
       <p>You are logged in as #{security.getName()}.</p>
       <h:commandLink action="#{tsAuthenticator.logout}" value="Logout" />
     </h:form>

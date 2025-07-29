@@ -29,33 +29,34 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>6.5.1.Final</version.hibernate>
-    <version.software.amazon.awssdk>2.29.35</version.software.amazon.awssdk>
+    <version.hibernate>6.6.13.Final</version.hibernate>
+    <version.software.amazon.awssdk>2.31.25</version.software.amazon.awssdk>
     <version.aws-xray-sdk-bom>2.18.2</version.aws-xray-sdk-bom>
 
-    <version.tomcat>11.0.2</version.tomcat>
-    <weld.version>5.1.3.Final</weld.version>
+    <version.tomcat>11.0.9</version.tomcat>
+    <weld.version>6.0.2.Final</weld.version>
     <cdi.version>4.1.0</cdi.version>
 
-    <version.enunciate>2.15.1</version.enunciate>
+    <version.enunciate>2.18.1</version.enunciate>
 
-    <version.faces>4.0.1</version.faces>
-    <version.primefaces>12.0.0</version.primefaces>
-    <version.primefaces-ext>12.0.11</version.primefaces-ext>
+    <version.faces>4.1.2</version.faces>
+    <version.primefaces>14.0.12</version.primefaces>
+    <version.primefaces-ext>14.0.15</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
-    <version.surefire>3.2.5</version.surefire>
-    <version.junit>5.11.1</version.junit>
-    <version.mockito>5.13.0</version.mockito>
+    <version.surefire>3.5.3</version.surefire>
+    <version.jacoco>0.8.11</version.jacoco>
+    <version.junit>5.12.2</version.junit>
+    <version.mockito>5.14.2</version.mockito>
     <version.httpclient>4.5.14</version.httpclient>
-    <version.lucene>9.11.1</version.lucene>
+    <version.lucene>9.8.0</version.lucene>
     <version.jaxb>4.0.2</version.jaxb>
-    <version.spring-webflux>6.1.13</version.spring-webflux>
-    <version.wiremock>3.9.1</version.wiremock>
-    <version.jackson>2.17.2</version.jackson>
+    <version.spring-webflux>6.2.6</version.spring-webflux>
+    <version.wiremock>3.12.1</version.wiremock>
+    <version.jackson>2.18.3</version.jackson>
 
     <!-- maven-compiler-plugin -->
-    <version.compiler.plugin>3.13.0</version.compiler.plugin>
-    <maven.compiler.release>11</maven.compiler.release>
+    <version.compiler.plugin>3.14.0</version.compiler.plugin>
+    <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
   <issueManagement>
@@ -91,7 +92,6 @@
         <module>tank_common</module>
         <module>proxy-parent</module>
         <module>script_processor</module>
-        <module>mail</module>
         <module>harness_data</module>
         <module>search</module>
         <module>reporting</module>
@@ -115,12 +115,14 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${version.jacoco}</version>
             <configuration>
               <excludes>
                 <exclude>org/fife/**/*</exclude>
               </excludes>
             </configuration>
             <executions>
+              <!-- Unit test coverage -->
               <execution>
                 <id>default-prepare-agent</id>
                 <goals>
@@ -134,6 +136,8 @@
                   <goal>report</goal>
                 </goals>
               </execution>
+
+              <!-- Check rules -->
               <execution>
                 <id>default-check</id>
                 <goals>
@@ -187,7 +191,6 @@
         <module>proxy-parent</module>
         <module>script_processor</module>
         <module>tank_common</module>
-        <module>mail</module>
         <module>harness_data</module>
         <module>search</module>
         <module>reporting</module>
@@ -214,7 +217,6 @@
         <module>proxy-parent</module>
         <module>script_processor</module>
         <module>tank_common</module>
-        <module>mail</module>
         <module>harness_data</module>
         <module>search</module>
         <module>reporting</module>
@@ -297,7 +299,7 @@
     <dependency>
       <groupId>org.jboss.weld</groupId>
       <artifactId>weld-junit5</artifactId>
-      <version>4.0.1.Final</version>
+      <version>5.0.0.Final</version>
       <scope>test</scope>
     </dependency>
 
@@ -305,28 +307,6 @@
       <groupId>org.jboss.weld.servlet</groupId>
       <artifactId>weld-servlet-core</artifactId>
       <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.tomcat.embed</groupId>
-      <artifactId>tomcat-embed-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.tomcat</groupId>
-      <artifactId>tomcat-catalina</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.tomcat</groupId>
-      <artifactId>tomcat-coyote</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.tomcat</groupId>
-      <artifactId>tomcat-jasper</artifactId>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
 
@@ -425,13 +405,13 @@
       <dependency>
         <groupId>org.glassfish</groupId>
         <artifactId>jakarta.faces</artifactId>
-        <version>4.0.5</version>
+        <version>${version.faces}</version>
       </dependency>
 
       <dependency>
         <groupId>jakarta.validation</groupId>
         <artifactId>jakarta.validation-api</artifactId>
-        <version>3.0.2</version>
+        <version>3.1.0</version>
       </dependency>
 
       <dependency>
@@ -451,17 +431,17 @@
       <dependency>
         <groupId>org.primefaces.themes</groupId>
         <artifactId>redmond</artifactId>
-        <version>1.0.10</version>
+        <version>1.1.0</version>
       </dependency>
 
       <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
-        <version>1.4.200</version>
+        <version>2.3.232</version>
       </dependency>
 
       <dependency>
-        <groupId>org.hibernate</groupId>
+        <groupId>org.hibernate.orm</groupId>
         <artifactId>hibernate-envers</artifactId>
         <version>${version.hibernate}</version>
       </dependency>
@@ -481,7 +461,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.26.0</version>
+        <version>1.27.1</version>
       </dependency>
 
       <dependency>
@@ -517,25 +497,25 @@
       <dependency>
         <groupId>commons-jxpath</groupId>
         <artifactId>commons-jxpath</artifactId>
-        <version>1.3</version>
+        <version>1.4.0</version>
       </dependency>
 
       <dependency>
         <groupId>com.opencsv</groupId>
         <artifactId>opencsv</artifactId>
-        <version>5.2</version>
+        <version>5.11</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-jexl3</artifactId>
-        <version>3.2.1</version>
+        <version>3.5.0</version>
       </dependency>
 
       <dependency>
         <groupId>jakarta.annotation</groupId>
         <artifactId>jakarta.annotation-api</artifactId>
-        <version>2.1.1</version>
+        <version>3.0.0</version>
       </dependency>
 
       <dependency>
@@ -546,17 +526,17 @@
       <dependency>
         <groupId>commons-fileupload</groupId>
         <artifactId>commons-fileupload</artifactId>
-        <version>1.5</version>
+        <version>1.6.0</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.15.1</version>
+        <version>2.19.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-        <version>3.14.0</version>
+        <version>3.18.0</version>
       </dependency>
       <dependency>
         <groupId>com.sun.mail</groupId>
@@ -603,11 +583,6 @@
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
         <version>20240205</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>1.15</version>
       </dependency>
       <dependency>
         <groupId>xalan</groupId>
@@ -662,6 +637,11 @@
         <version>${cdi.version}</version>
       </dependency>
       <dependency>
+        <groupId>jakarta.enterprise</groupId>
+        <artifactId>jakarta.enterprise.cdi-el-api</artifactId>
+        <version>${cdi.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>
         <version>${version.junit}</version>
@@ -683,6 +663,12 @@
         <groupId>org.mockito</groupId>
         <artifactId>mockito-junit-jupiter</artifactId>
         <version>${version.mockito}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-inline</artifactId>
+        <version>${mockito.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -708,7 +694,11 @@
         <version>3.0.2</version>
         <scope>provided</scope>
       </dependency>
-
+      <dependency>
+        <groupId>jakarta.ws.rs</groupId>
+        <artifactId>jakarta.ws.rs-api</artifactId>
+        <version>4.0.0</version>
+      </dependency>
       <dependency>
         <groupId>jakarta.xml.bind</groupId>
         <artifactId>jakarta.xml.bind-api</artifactId>
@@ -732,7 +722,7 @@
       <dependency>
         <groupId>org.jruby</groupId>
         <artifactId>jruby</artifactId>
-        <version>9.4.6.0</version>
+        <version>9.4.12.1</version>
       </dependency>
       <dependency>
         <groupId>org.openjdk.nashorn</groupId>
@@ -743,6 +733,12 @@
         <groupId>jakarta.servlet.jsp.jstl</groupId>
         <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
         <version>3.0.2</version>
+        <exclusions>
+          <exclusion>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.springdoc</groupId>
@@ -773,7 +769,7 @@
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
-        <version>1.18.34</version>
+        <version>1.18.38</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -864,6 +860,28 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-report-plugin</artifactId>
           <version>${version.surefire}</version>
+          <executions>
+            <execution>
+              <id>unit-test-report</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>report</goal>
+              </goals>
+              <configuration>
+                <outputName>unit-test-report</outputName>
+              </configuration>
+            </execution>
+            <execution>
+              <id>integration-test-report</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>report</goal>
+              </goals>
+              <configuration>
+                <outputName>integration-test-report</outputName>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
 
         <plugin>
@@ -908,12 +926,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>3.5.0</version>
+          <version>3.6.0</version>
           <dependencies>
             <dependency>
               <groupId>${project.groupId}</groupId>
               <artifactId>test-support</artifactId>
-              <version>4.1.1-SNAPSHOT</version>
+              <version>${project.version}</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -1017,6 +1035,15 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>1.18.38</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -1049,22 +1076,48 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
       </plugin>
+
+      <!-- Unit Tests Configuration -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>${version.surefire}</version>
         <configuration>
           <!-- Sets the VM argument line used when unit tests are run. -->
           <argLine>${argLine}</argLine>
-          <excludedGroups>manual,integration,experimental</excludedGroups>
           <includes>
             <include>**/*Test.java</include>
             <include>**/*Spec.groovy</include>
+          </includes>
+          <excludes>
+            <exclude>**/*IT.java</exclude>
+            <exclude>**/integration/**/*.java</exclude>
+          </excludes>
+          <excludedGroups>manual,integration,experimental</excludedGroups>
+        </configuration>
+      </plugin>
+      <!-- Integration Tests Configuration -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${version.surefire}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <includes>
+            <include>**/*IT.java</include>
+            <include>**/integration/**/*.java</include>
           </includes>
         </configuration>
       </plugin>
     </plugins>
   </build>
-
 
   <reporting>
     <outputDirectory>${project.build.directory}/site</outputDirectory>
@@ -1077,12 +1130,10 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-        <version>3.0.5</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.3.1</version>
         <reportSets>
           <reportSet>
             <reports>
@@ -1094,7 +1145,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.4.1</version>
       </plugin>
     </plugins>
   </reporting>
