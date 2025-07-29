@@ -79,7 +79,7 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
     }
 
     public String getProxyHost() {
-        return config.getString("proxy-host", "localhost");
+        return XMLConfig.getString("proxy-host", "localhost");
     }
 
     /**

@@ -113,7 +113,7 @@ public class VmManagerConfig implements Serializable {
                     // example: <type name="m.large" types="m6g.large" cost=".105" users="500" cpus="2" ecus="7" mem="3.75" />
                     VmInstanceType type = VmInstanceType.builder()
                             .withName(instanceTypeConfig.getString("@name"))
-                            .withTypes(instanceTypeConfig.getList("@types"))
+                            .withTypes(instanceTypeConfig.getString("@types").split(","))
                             .withCost(instanceTypeConfig.getDouble("@cost", 0D))
                             .withMemory(instanceTypeConfig.getDouble("@mem", 0D))
                             .withJvmArgs(instanceTypeConfig.getString("@jvmArgs"))
