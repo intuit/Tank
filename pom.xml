@@ -201,7 +201,55 @@
         <module>tank_vmManager</module>
         <module>web</module>
       </modules>
+    </profile>
 
+    <profile>
+      <id>integration</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <modules>
+        <module>doc</module>
+        <module>agent</module>
+        <module>tools</module>
+        <module>rest-mvc</module>
+        <module>proxy-parent</module>
+        <module>script_processor</module>
+        <module>tank_common</module>
+        <module>harness_data</module>
+        <module>search</module>
+        <module>reporting</module>
+        <module>test_support</module>
+        <module>api</module>
+        <module>data_model</module>
+        <module>data_access</module>
+        <module>tank_vmManager</module>
+        <module>web</module>
+      </modules>
+      <build>
+        <plugins>
+          <!-- Integration Tests Configuration -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <version>${version.surefire}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <includes>
+                <include>**/*IT.java</include>
+                <include>**/integration/**/*.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
 
     <profile>
@@ -1094,26 +1142,6 @@
             <exclude>**/integration/**/*.java</exclude>
           </excludes>
           <excludedGroups>manual,integration,experimental</excludedGroups>
-        </configuration>
-      </plugin>
-      <!-- Integration Tests Configuration -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>${version.surefire}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <includes>
-            <include>**/*IT.java</include>
-            <include>**/integration/**/*.java</include>
-          </includes>
         </configuration>
       </plugin>
     </plugins>
