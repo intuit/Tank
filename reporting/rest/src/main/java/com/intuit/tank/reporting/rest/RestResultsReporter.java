@@ -81,7 +81,7 @@ public class RestResultsReporter implements ResultsReporter {
     }
 
     @Override
-    public void config(HierarchicalConfiguration config) {
+    public void config(HierarchicalConfiguration<ImmutableNode> config) {
         try {
         } catch (Exception e) {
             LOG.error("Config not correct. Using default options.");

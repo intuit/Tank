@@ -16,6 +16,7 @@ package com.intuit.tank.vm.settings;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.BasicConfigurationBuilder;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,8 +40,8 @@ public class ReportingInstanceCpTest {
     @Test
     public void testReportingInstance_1()
             throws Exception {
-        HierarchicalConfiguration config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
-        HierarchicalConfiguration defaultInstance = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
+        HierarchicalConfiguration<ImmutableNode> defaultInstance = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         ReportingInstance result = new ReportingInstance(config, defaultInstance);
 

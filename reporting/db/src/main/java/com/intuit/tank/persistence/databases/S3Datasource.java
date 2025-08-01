@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import com.intuit.tank.vm.settings.CloudCredentials;
 import com.intuit.tank.vm.settings.CloudProvider;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,7 +55,7 @@ public class S3Datasource implements IDatabase {
 	private String tags = "";
 	private String bucketName = "";
 
-	private HierarchicalConfiguration resultsProviderConfig =
+	private HierarchicalConfiguration<ImmutableNode> resultsProviderConfig =
 			new TankConfig().getVmManagerConfig().getResultsProviderConfig();
 
 	public S3Datasource() {

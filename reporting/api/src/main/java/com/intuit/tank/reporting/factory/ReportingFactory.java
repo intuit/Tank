@@ -1,6 +1,7 @@
 package com.intuit.tank.reporting.factory;
 
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,7 +29,7 @@ public final class ReportingFactory {
             ReportingConfig config = new TankConfig().getReportingConfig();
             String providerClass = config.getReporterClass();
             ret = (ResultsReporter) Class.forName(providerClass).newInstance();
-            HierarchicalConfiguration providerConfig = config.getProviderConfig();
+            HierarchicalConfiguration<ImmutableNode> providerConfig = config.getProviderConfig();
             ret.config(providerConfig);
         } catch (Exception e) {
             LOG.error("Error instantiating reporter");
@@ -46,7 +47,7 @@ public final class ReportingFactory {
             ReportingConfig config = new TankConfig().getReportingConfig();
             String providerClass = config.getReaderClass();
             ret = (ResultsReader) Class.forName(providerClass).newInstance();
-            HierarchicalConfiguration providerConfig = config.getProviderConfig();
+            HierarchicalConfiguration<ImmutableNode> providerConfig = config.getProviderConfig();
             ret.config(providerConfig);
         } catch (Exception e) {
             LOG.error("Error instantiating reporter");

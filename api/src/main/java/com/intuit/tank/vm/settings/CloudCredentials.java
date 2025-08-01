@@ -17,6 +17,7 @@ package com.intuit.tank.vm.settings;
  */
 
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.lang3.StringUtils;
 
 import com.intuit.tank.harness.AmazonUtil;
@@ -29,13 +30,13 @@ import com.intuit.tank.harness.AmazonUtil;
  */
 public class CloudCredentials {
 
-    private HierarchicalConfiguration config;
+    private HierarchicalConfiguration<ImmutableNode> config;
 
     /**
      * 
      * @param config
      */
-    public CloudCredentials(HierarchicalConfiguration config) {
+    public CloudCredentials(HierarchicalConfiguration<ImmutableNode> config) {
         this.config = config;
     }
 

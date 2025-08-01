@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import jakarta.annotation.Nonnull;
 
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 
 /**
  * SecurityConfig <code>
@@ -42,11 +43,10 @@ public class SecurityConfig {
 
     private Map<String, List<String>> restrictionMap = new HashMap<String, List<String>>();
 
-    @SuppressWarnings("unchecked")
-    public SecurityConfig(@Nonnull HierarchicalConfiguration config) {
+    public SecurityConfig(@Nonnull HierarchicalConfiguration<ImmutableNode> config) {
         if (config != null) {
-            List<HierarchicalConfiguration> sizes = config.configurationsAt("groups/group");
-            for (HierarchicalConfiguration sizeConfig : sizes) {
+            List<HierarchicalConfiguration<ImmutableNode>> sizes = config.configurationsAt("groups/group");
+            for (HierarchicalConfiguration<ImmutableNode> sizeConfig : sizes) {
                 String group = sizeConfig.getString("");
                 if (sizeConfig.getBoolean("@isDefault", false)) {
                     defaultGroups.add(group);
@@ -54,16 +54,16 @@ public class SecurityConfig {
                 groups.add(group);
             }
 
-            List<HierarchicalConfiguration> restrictionConfigs = config.configurationsAt("restrictions/restriction");
-            for (HierarchicalConfiguration restrictionConfig : restrictionConfigs) {
-                List<HierarchicalConfiguration> restrictionGroups = restrictionConfig.configurationsAt("groups/group");
+            List<HierarchicalConfiguration<ImmutableNode>> restrictionConfigs = config.configurationsAt("restrictions/restriction");
+            for (HierarchicalConfiguration<ImmutableNode> restrictionConfig : restrictionConfigs) {
+                List<HierarchicalConfiguration<ImmutableNode>> restrictionGroups = restrictionConfig.configurationsAt("groups/group");
                 String key = restrictionConfig.getString("@operation");
                 List<String> value = restrictionGroups.stream().map(restrictionGroupConfig -> restrictionGroupConfig.getString("")).collect(Collectors.toList());
                 restrictionMap.put(key, value);
             }
 
-            List<HierarchicalConfiguration> userConfigs = config.configurationsAt("users/user");
-            for (HierarchicalConfiguration userConfig : userConfigs) {
+            List<HierarchicalConfiguration<ImmutableNode>> userConfigs = config.configurationsAt("users/user");
+            for (HierarchicalConfiguration<ImmutableNode> userConfig : userConfigs) {
                 users.add(new DefaultUser(userConfig));
             }
         }

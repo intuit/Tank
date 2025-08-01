@@ -20,6 +20,7 @@ import java.util.Map;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.BasicConfigurationBuilder;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.junit.jupiter.api.*;
 
 
@@ -41,7 +42,7 @@ public class AgentConfigCpTest {
     @Test
     public void testAgentConfig_1()
             throws Exception {
-        HierarchicalConfiguration config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         AgentConfig result = new AgentConfig(config);
         Map<String, String> empty = new HashMap<String, String>();

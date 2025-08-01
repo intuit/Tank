@@ -14,6 +14,7 @@ package com.intuit.tank.vm.settings;
  */
 
 import java.io.*;
+import java.net.URL;
 import java.util.List;
 
 import jakarta.annotation.Nonnull;
@@ -24,6 +25,7 @@ import org.apache.commons.configuration2.builder.ReloadingFileBasedConfiguration
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.tree.ExpressionEngine;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.configuration2.tree.xpath.XPathExpressionEngine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,8 +56,19 @@ public abstract class BaseCommonsXmlConfig implements Serializable {
             File dataDirConfigFile = new File(configPath);
 
             if (!dataDirConfigFile.exists()) {
+                // Load a default from the classpath:
+                // Note: we don't let new XMLConfiguration() lookup the resource
+                // url directly because it may not be able to find the desired
+                // classloader to load the URL from.
+                URL configResourceUrl = this.getClass().getClassLoader().getResource(configPath);
+                if (configResourceUrl == null) {
+                    throw new RuntimeException("unable to load resource: " + configPath);
+                }
+
                 XMLConfiguration tmpConfig = new ReloadingFileBasedConfigurationBuilder<>(XMLConfiguration.class)
-                        .configure(new Parameters().fileBased().setFile(dataDirConfigFile))
+                        .configure(new Parameters().xml()
+                                .setURL(configResourceUrl)
+                                .setExpressionEngine(new XPathExpressionEngine()))
                         .getConfiguration();
 
                 // Copy over a default configuration since none exists:
@@ -70,7 +83,9 @@ public abstract class BaseCommonsXmlConfig implements Serializable {
 
             if (dataDirConfigFile.exists()) {
                 XMLConfig = new ReloadingFileBasedConfigurationBuilder<>(XMLConfiguration.class)
-                        .configure(new Parameters().fileBased().setFile(dataDirConfigFile))
+                        .configure(new Parameters().xml()
+                                .setFile(dataDirConfigFile)
+                                .setExpressionEngine(new XPathExpressionEngine()))
                         .getConfiguration();
             } else {
                 // extract from jar and write to
@@ -93,18 +108,17 @@ public abstract class BaseCommonsXmlConfig implements Serializable {
         return configFile;
     }
 
-    @SuppressWarnings("unchecked")
-    public static HierarchicalConfiguration getChildConfigurationAt(HierarchicalConfiguration config, String key) {
+    public static HierarchicalConfiguration<ImmutableNode> getChildConfigurationAt(HierarchicalConfiguration<ImmutableNode> config, String key) {
         if (config == null) {
             return null;
         }
-        List<HierarchicalConfiguration> configs = config.configurationsAt(key);
+        List<HierarchicalConfiguration<ImmutableNode>> configs = config.configurationsAt(key);
         if (configs.size() > 1) {
-            LOG.warn("Child configuration with key " + key + " matches more than one node.");
-        } else if (configs.size() == 0) {
-            LOG.warn("Child configuration with key " + key + " has no entry in config file.");
+            LOG.warn("Child configuration with key {} matches more than one node.", key);
+        } else if (configs.isEmpty()) {
+            LOG.warn("Child configuration with key {} has no entry in config file.", key);
         }
-        return configs.size() != 0 ? configs.get(0) : null;
+        return !configs.isEmpty() ? configs.get(0) : null;
     }
 
     /**
@@ -122,7 +136,7 @@ public abstract class BaseCommonsXmlConfig implements Serializable {
     protected abstract String getConfigName();
 
     /**
-     * initialize the configuration form the passed in config.
+     * initialize the configuration from the passed in config.
      * 
      * @param configuration
      *            the configuration to initialize from

@@ -17,6 +17,7 @@ package com.intuit.tank.vm.settings;
  */
 
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.intuit.tank.vm.api.enumerated.VMRegion;
@@ -29,7 +30,7 @@ import com.intuit.tank.vm.api.enumerated.VMRegion;
  */
 public class ReportingInstance extends InstanceDescription {
 
-    public ReportingInstance(HierarchicalConfiguration config, HierarchicalConfiguration defaultInstance) {
+    public ReportingInstance(HierarchicalConfiguration<ImmutableNode> config, HierarchicalConfiguration<ImmutableNode> defaultInstance) {
         super(config, defaultInstance);
     }
 

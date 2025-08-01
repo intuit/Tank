@@ -30,6 +30,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,7 +49,7 @@ public class VmManagerConfig implements Serializable {
 
     private static final Logger LOG = LogManager.getLogger(VmManagerConfig.class);
 
-    private HierarchicalConfiguration config;
+    private HierarchicalConfiguration<ImmutableNode> config;
     private Set<String> reservedElasticIps = new HashSet<String>();
     private Map<CloudProvider, CloudCredentials> credentialsMap = new HashMap<CloudProvider, CloudCredentials>();
     private Map<VMRegion, Map<VMImageType, InstanceDescription>> regionMap = new HashMap<VMRegion, Map<VMImageType, InstanceDescription>>();
@@ -60,20 +61,20 @@ public class VmManagerConfig implements Serializable {
      * @param config
      */
     @SuppressWarnings("unchecked")
-    public VmManagerConfig(@Nonnull HierarchicalConfiguration config) {
+    public VmManagerConfig(@Nonnull HierarchicalConfiguration<ImmutableNode> config) {
         this.config = config;
         if (this.config != null) {
-            List<HierarchicalConfiguration> creds = config.configurationsAt("credentials");
+            List<HierarchicalConfiguration<ImmutableNode>> creds = config.configurationsAt("credentials");
             if (creds != null) {
-                for (HierarchicalConfiguration credentialsConfig : creds) {
+                for (HierarchicalConfiguration<ImmutableNode> credentialsConfig : creds) {
                     CloudCredentials cloudCredentials = new CloudCredentials(credentialsConfig);
                     credentialsMap.put(cloudCredentials.getType(), cloudCredentials);
                 }
             }
             
-            List<HierarchicalConfiguration> tags = config.configurationsAt("tags/tag");
+            List<HierarchicalConfiguration<ImmutableNode>> tags = config.configurationsAt("tags/tag");
             if (tags != null) {
-                for (HierarchicalConfiguration tagsConfig : tags) {
+                for (HierarchicalConfiguration<ImmutableNode> tagsConfig : tags) {
                     InstanceTag tag = new InstanceTag(tagsConfig.getString("@name"), tagsConfig.getString(""));
                     if (tag.isValid()) {
                         tagList.add(tag);
@@ -81,16 +82,16 @@ public class VmManagerConfig implements Serializable {
                 }
             }
 
-            HierarchicalConfiguration defaultInstance = config.configurationAt("default-instance-description");
-            List<HierarchicalConfiguration> regionConfigs = config.configurationsAt("instance-descriptions");
+            HierarchicalConfiguration<ImmutableNode> defaultInstance = config.configurationAt("default-instance-description");
+            List<HierarchicalConfiguration<ImmutableNode>> regionConfigs = config.configurationsAt("instance-descriptions");
             if (regionConfigs != null) {
-                for (HierarchicalConfiguration regionConfig : regionConfigs) {
+                for (HierarchicalConfiguration<ImmutableNode> regionConfig : regionConfigs) {
                     VMRegion region = VMRegion.valueOf(regionConfig.getString("@region"));
                     Map<VMImageType, InstanceDescription> instanceMap = new HashMap<VMImageType, InstanceDescription>();
                     regionMap.put(region, instanceMap);
-                    List<HierarchicalConfiguration> instanceConfigs = regionConfig
+                    List<HierarchicalConfiguration<ImmutableNode>> instanceConfigs = regionConfig
                             .configurationsAt("instance-description");
-                    for (HierarchicalConfiguration instanceConfig : instanceConfigs) {
+                    for (HierarchicalConfiguration<ImmutableNode> instanceConfig : instanceConfigs) {
                         InstanceDescription description = new InstanceDescription(instanceConfig, defaultInstance);
                         instanceMap.put(description.getType(), description);
                     }
@@ -99,17 +100,17 @@ public class VmManagerConfig implements Serializable {
             }
 
             // get reserved elastic ips
-            List<HierarchicalConfiguration> eipConfig = config.configurationsAt("reserved-elastic-ips/eip");
+            List<HierarchicalConfiguration<ImmutableNode>> eipConfig = config.configurationsAt("reserved-elastic-ips/eip");
             if (eipConfig != null) {
-                for (HierarchicalConfiguration eip : eipConfig) {
+                for (HierarchicalConfiguration<ImmutableNode> eip : eipConfig) {
                     reservedElasticIps.add(eip.getString(""));
                 }
             }
             // get instance type definitions
-            List<HierarchicalConfiguration> instanceTypesConfig = config.configurationsAt("instance-types/type");
+            List<HierarchicalConfiguration<ImmutableNode>> instanceTypesConfig = config.configurationsAt("instance-types/type");
             instanceTypes = new ArrayList<VmInstanceType>();
             if (instanceTypesConfig != null) {
-                for (HierarchicalConfiguration instanceTypeConfig : instanceTypesConfig) {
+                for (HierarchicalConfiguration<ImmutableNode> instanceTypeConfig : instanceTypesConfig) {
                     // example: <type name="m.large" types="m6g.large" cost=".105" users="500" cpus="2" ecus="7" mem="3.75" />
                     VmInstanceType type = VmInstanceType.builder()
                             .withName(instanceTypeConfig.getString("@name"))
@@ -239,7 +240,7 @@ public class VmManagerConfig implements Serializable {
     /**
      * @return the read capacity for dynamoDB tables.
      */
-    public HierarchicalConfiguration getResultsProviderConfig() {
+    public HierarchicalConfiguration<ImmutableNode> getResultsProviderConfig() {
 
         return config.configurationAt("results/config");
     }
@@ -327,7 +328,7 @@ public class VmManagerConfig implements Serializable {
      * @return
      */
     InstanceDescriptionDefaults getInstanceDefaults() {
-        HierarchicalConfiguration c = config.configurationAt("default-instance-description");
+        HierarchicalConfiguration<ImmutableNode> c = config.configurationAt("default-instance-description");
         return new InstanceDescriptionDefaults(c, c);
     }
 

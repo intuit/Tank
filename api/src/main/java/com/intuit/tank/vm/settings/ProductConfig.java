@@ -24,6 +24,7 @@ import java.util.List;
 import jakarta.annotation.Nonnull;
 
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 
 /**
  * ProductConfig
@@ -38,19 +39,18 @@ public class ProductConfig implements Serializable {
     private static final String KEY_PRODUCT = "product";
 
     private List<SelectableItem> products;
-    private HierarchicalConfiguration config;
+    private HierarchicalConfiguration<ImmutableNode> config;
 
-    public ProductConfig(@Nonnull HierarchicalConfiguration config) {
+    public ProductConfig(@Nonnull HierarchicalConfiguration<ImmutableNode> config) {
         this.config = config;
         initConfig();
     }
 
-    @SuppressWarnings("unchecked")
     private void initConfig() {
         products = new ArrayList<SelectableItem>();
         if (config != null) {
-            List<HierarchicalConfiguration> productEntries = config.configurationsAt(KEY_PRODUCT);
-            for (HierarchicalConfiguration c : productEntries) {
+            List<HierarchicalConfiguration<ImmutableNode>> productEntries = config.configurationsAt(KEY_PRODUCT);
+            for (HierarchicalConfiguration<ImmutableNode> c : productEntries) {
                 products.add(new SelectableItem(c.getString(""), c.getString("@name")));
             }
         }

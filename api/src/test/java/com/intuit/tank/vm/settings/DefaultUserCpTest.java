@@ -18,6 +18,7 @@ import java.util.Set;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.BasicConfigurationBuilder;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,7 +39,7 @@ public class DefaultUserCpTest {
     @Test
     public void testDefaultUser_1()
             throws Exception {
-        HierarchicalConfiguration config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         DefaultUser result = new DefaultUser(config);
 
@@ -60,7 +61,7 @@ public class DefaultUserCpTest {
     @Test
     public void testDefaultUser_2()
             throws Exception {
-        HierarchicalConfiguration config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         DefaultUser result = new DefaultUser(config);
 

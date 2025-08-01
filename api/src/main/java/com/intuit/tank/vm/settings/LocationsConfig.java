@@ -24,6 +24,7 @@ import java.util.List;
 import jakarta.annotation.Nonnull;
 
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 
 /**
  * ProductConfig
@@ -43,20 +44,19 @@ public class LocationsConfig implements Serializable {
     private static final String KEY_DISPLAY_NAME = "@displayName";
 
     private List<SelectableItem> locations;
-    private HierarchicalConfiguration config;
+    private HierarchicalConfiguration<ImmutableNode> config;
 
-    public LocationsConfig(@Nonnull HierarchicalConfiguration config) {
+    public LocationsConfig(@Nonnull HierarchicalConfiguration<ImmutableNode> config) {
         this.config = config;
         initConfig();
     }
 
-    @SuppressWarnings("unchecked")
     private void initConfig() {
         locations = new ArrayList<SelectableItem>();
         if (config != null) {
-            List<HierarchicalConfiguration> e = config.configurationsAt(KEY_LOCATION);
+            List<HierarchicalConfiguration<ImmutableNode>> e = config.configurationsAt(KEY_LOCATION);
             if (e != null) {
-                for (HierarchicalConfiguration c : e) {
+                for (HierarchicalConfiguration<ImmutableNode> c : e) {
                     locations.add(new SelectableItem(c.getString(KEY_DISPLAY_NAME), c.getString(KEY_NAME)));
                 }
             }

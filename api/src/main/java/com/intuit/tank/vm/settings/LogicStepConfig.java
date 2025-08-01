@@ -21,6 +21,7 @@ import java.io.Serializable;
 import jakarta.annotation.Nonnull;
 
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 
 /**
  * <logic-step> <insert-before></insert-before> <append-after></append-after> </logic-step>
@@ -35,9 +36,9 @@ public class LogicStepConfig implements Serializable {
     private static final String KEY_INSERT_BEFORE = "insert-before";
     private static final String KEY_APPEND_AFTER = "append-after";
 
-    private HierarchicalConfiguration config;
+    private HierarchicalConfiguration<ImmutableNode> config;
 
-    public LogicStepConfig(@Nonnull HierarchicalConfiguration config) {
+    public LogicStepConfig(@Nonnull HierarchicalConfiguration<ImmutableNode> config) {
         this.config = config;
     }
 

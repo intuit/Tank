@@ -20,6 +20,7 @@ import java.io.Serializable;
 import jakarta.annotation.Nonnull;
 
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,9 +42,9 @@ public class ReportingConfig implements Serializable {
     private static final String DEFAULT_REPORTER = "com.intuit.tank.reporting.db.DatabaseResultsReporter";
     private static final String DEFAULT_READER = "com.intuit.tank.reporting.db.DatabaseResultsReader";
 
-    private HierarchicalConfiguration config;
+    private HierarchicalConfiguration<ImmutableNode> config;
 
-    public ReportingConfig(@Nonnull HierarchicalConfiguration config) {
+    public ReportingConfig(@Nonnull HierarchicalConfiguration<ImmutableNode> config) {
         this.config = config;
     }
 
@@ -54,15 +55,15 @@ public class ReportingConfig implements Serializable {
         String ret = DEFAULT_REPORTER;
         if (config != null) {
             try {
-                HierarchicalConfiguration configurationAt = config.configurationAt(KEY_REPORTER);
+                HierarchicalConfiguration<ImmutableNode> configurationAt = config.configurationAt(KEY_REPORTER);
                 String string = configurationAt.getString("");
                 if (StringUtils.isNotBlank(string)) {
                     ret = string;
                 } else {
-                    LOG.warn("Reporter not configured. Using default of " + ret);
+                    LOG.warn("Reporter not configured. Using default of {}", ret);
                 }
             } catch (Exception e) {
-                LOG.warn("Reporter specified more than once. Using default of " + ret);
+                LOG.warn("Reporter specified more than once. Using default of {}", ret);
             }
         }
         return ret;
@@ -75,15 +76,15 @@ public class ReportingConfig implements Serializable {
         String ret = DEFAULT_READER;
         if (config != null) {
             try {
-                HierarchicalConfiguration configurationAt = config.configurationAt(KEY_READER);
+                HierarchicalConfiguration<ImmutableNode> configurationAt = config.configurationAt(KEY_READER);
                 String string = configurationAt.getString("");
                 if (StringUtils.isNotBlank(string)) {
                     ret = string;
                 } else {
-                    LOG.warn("Reader not configured. Using default of " + ret);
+                    LOG.warn("Reader not configured. Using default of {}", ret);
                 }
             } catch (Exception e) {
-                LOG.warn("Reader specified more than once. Using default of " + ret);
+                LOG.warn("Reader specified more than once. Using default of {}", ret);
             }
         }
         return ret;
@@ -92,13 +93,13 @@ public class ReportingConfig implements Serializable {
     /**
      * @return the products
      */
-    public HierarchicalConfiguration getProviderConfig() {
-        HierarchicalConfiguration ret = null;
+    public HierarchicalConfiguration<ImmutableNode> getProviderConfig() {
+        HierarchicalConfiguration<ImmutableNode> ret = null;
         if (config != null) {
             try {
                 ret = config.configurationAt(KEY_CONFIG);
             } catch (Exception e) {
-                LOG.error("Provider config not specified or specifed more than once.");
+                LOG.error("Provider config not specified or specified more than once.");
             }
         }
         return ret;

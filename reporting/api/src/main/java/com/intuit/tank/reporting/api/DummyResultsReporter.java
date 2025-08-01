@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 
 import com.intuit.tank.results.TankResult;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 
 /**
  * DummyResultsReporter
@@ -37,7 +38,7 @@ public class DummyResultsReporter implements ResultsReporter {
      * {@inheritDoc}
      */
     @Override
-    public void config(HierarchicalConfiguration config) {
+    public void config(HierarchicalConfiguration<ImmutableNode> config) {
         // do nothing
 
     }

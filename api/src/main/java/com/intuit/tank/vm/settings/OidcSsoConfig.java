@@ -1,6 +1,7 @@
 package com.intuit.tank.vm.settings;
 
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 
 /**
  * OidcSsoConfig
@@ -16,9 +17,9 @@ public class OidcSsoConfig {
     private static final String KEY_REDIRECT_URL = "redirect-url";
     private static final String KEY_TOKEN_ENDPOINT = "token-endpoint";
 
-    private final HierarchicalConfiguration config;
+    private final HierarchicalConfiguration<ImmutableNode> config;
 
-    public OidcSsoConfig(HierarchicalConfiguration config) {
+    public OidcSsoConfig(HierarchicalConfiguration<ImmutableNode> config) {
         this.config = config;
     }
 
@@ -45,7 +46,7 @@ public class OidcSsoConfig {
     /**
      * @return Hierarchical Config
      */
-    public HierarchicalConfiguration getConfiguration() { return config; }
+    public HierarchicalConfiguration<ImmutableNode> getConfiguration() { return config; }
 
     /**
      * @return Issuer

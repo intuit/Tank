@@ -146,10 +146,12 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
             if (configFile.exists() && configFile.isFile()) {
                 try {
                     XMLConfig = new ReloadingFileBasedConfigurationBuilder<>(XMLConfiguration.class)
-                            .configure(new Parameters().xml().setFile(configFile).setExpressionEngine(expressionEngine))
+                            .configure(new Parameters().xml()
+                                    .setFile(configFile)
+                                    .setExpressionEngine(expressionEngine))
                             .getConfiguration();
                 } catch (Exception e) {
-                    LOG.error("Error parsing configFile " + configFile.getAbsolutePath() + ": " + e, e);
+                    LOG.error("Error parsing configFile {}: {}", configFile.getAbsolutePath(), e, e);
                 }
             }
             if (XMLConfig == null) {
@@ -163,7 +165,9 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
                     throw new RuntimeException("unable to load resource: " + configPath);
                 }
                 XMLConfig = new ReloadingFileBasedConfigurationBuilder<>(XMLConfiguration.class)
-                        .configure(new Parameters().xml().setURL(configResourceUrl).setExpressionEngine(expressionEngine))
+                        .configure(new Parameters().xml()
+                                .setURL(configResourceUrl)
+                                .setExpressionEngine(expressionEngine))
                         .getConfiguration();
             }
             initConfig();
@@ -205,7 +209,7 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
      * @param c
      * @return
      */
-    private MatchType getMatchType(HierarchicalConfiguration c) {
+    private MatchType getMatchType(HierarchicalConfiguration<ImmutableNode> c) {
         MatchType ret = MatchType.contains;
         String string = c.getString("@match");
         if (string != null) {
@@ -222,7 +226,7 @@ public class CommonsProxyConfiguration implements ProxyConfiguration {
      * @param c
      * @return
      */
-    private TransactionPart getTransactionPart(HierarchicalConfiguration c) {
+    private TransactionPart getTransactionPart(HierarchicalConfiguration<ImmutableNode> c) {
         TransactionPart ret = TransactionPart.both;
         String string = c.getString("@check");
         if (string != null) {

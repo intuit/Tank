@@ -9,6 +9,7 @@ import jakarta.annotation.Nonnull;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 
 import com.intuit.tank.results.TankResult;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 
 public interface ResultsReader {
 
@@ -82,6 +83,6 @@ public interface ResultsReader {
      * @param config
      *            the config
      */
-    public void config(HierarchicalConfiguration config);
+    public void config(HierarchicalConfiguration<ImmutableNode> config);
 
 }

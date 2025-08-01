@@ -24,6 +24,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
 
+import javax.annotation.Nonnull;
+
 /**
  * CnrComConfig configurator for the beans config file.
  * 
@@ -243,7 +245,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
      * {@inheritDoc}
      */
     @Override
-    protected void initConfig(XMLConfiguration configuration) {
+    protected void initConfig(@Nonnull XMLConfiguration configuration) {
         vmManagerConfig = new VmManagerConfig(BaseCommonsXmlConfig.getChildConfigurationAt(configuration,
                 KEY_VM_MANAGER_NODE));
         agentConfig = new AgentConfig(BaseCommonsXmlConfig.getChildConfigurationAt(configuration, KEY_AGENT_NODE));

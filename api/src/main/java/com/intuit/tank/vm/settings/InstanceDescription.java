@@ -19,6 +19,7 @@ package com.intuit.tank.vm.settings;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 
 import com.intuit.tank.vm.api.enumerated.VMImageType;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 
 /**
  * InstanceDescription
@@ -28,7 +29,7 @@ import com.intuit.tank.vm.api.enumerated.VMImageType;
  */
 public class InstanceDescription extends InstanceDescriptionDefaults {
 
-    public InstanceDescription(HierarchicalConfiguration config, HierarchicalConfiguration defaultInstance) {
+    public InstanceDescription(HierarchicalConfiguration<ImmutableNode> config, HierarchicalConfiguration<ImmutableNode> defaultInstance) {
         super(config, defaultInstance);
     }
 

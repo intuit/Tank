@@ -5,6 +5,7 @@ import com.intuit.tank.auth.sso.TankSsoHandler;
 import com.intuit.tank.vm.settings.OidcSsoConfig;
 import com.intuit.tank.vm.settings.TankConfig;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,7 @@ public class LoginFilterTest {
     @Mock
     private TankSecurityContext _tankSecurityContextMock;
     @Mock
-    private HierarchicalConfiguration _hierarchicalConfigurationMock;
+    private HierarchicalConfiguration<ImmutableNode> _hierarchicalConfigurationMock;
     @Mock
     private TankSsoHandler _tankSsoHandlerMock;
     @Mock

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -41,13 +42,12 @@ public class DefaultUser implements Serializable {
     private boolean admin;
     private Set<String> groups = new HashSet<String>();
 
-    @SuppressWarnings("unchecked")
-    public DefaultUser(HierarchicalConfiguration config) {
+    public DefaultUser(HierarchicalConfiguration<ImmutableNode> config) {
         this.name = config.getString("name");
         this.email = config.getString("email");
         this.password = config.getString("password");
         this.admin = config.getBoolean("admin", false);
-        for (HierarchicalConfiguration c : (List<HierarchicalConfiguration>) config.configurationsAt("group")) {
+        for (HierarchicalConfiguration<ImmutableNode> c : config.configurationsAt("group")) {
             groups.add(c.getString(""));
         }
     }

@@ -18,6 +18,7 @@ import java.util.List;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.BasicConfigurationBuilder;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.settings.LocationsConfig;
@@ -41,7 +42,7 @@ public class LocationsConfigCpTest {
     @Test
     public void testLocationsConfig_1()
             throws Exception {
-        HierarchicalConfiguration config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         LocationsConfig result = new LocationsConfig(config);
 

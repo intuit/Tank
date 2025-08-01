@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 
 import com.intuit.tank.results.TankResult;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 
 /**
  * DummyResultsReader
@@ -73,7 +74,7 @@ public class DummyResultsReader implements ResultsReader {
      * {@inheritDoc}
      */
     @Override
-    public void config(HierarchicalConfiguration config) {
+    public void config(HierarchicalConfiguration<ImmutableNode> config) {
         // no-op
     }
 
