@@ -14,7 +14,6 @@ package com.intuit.tank.vm.settings;
  */
 
 import java.io.*;
-import java.net.URL;
 import java.util.List;
 
 import jakarta.annotation.Nonnull;
@@ -24,7 +23,6 @@ import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.ReloadingFileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.apache.commons.configuration2.reloading.ReloadingController;
 import org.apache.commons.configuration2.tree.ExpressionEngine;
 import org.apache.commons.configuration2.tree.xpath.XPathExpressionEngine;
 import org.apache.logging.log4j.LogManager;
@@ -53,21 +51,11 @@ public abstract class BaseCommonsXmlConfig implements Serializable {
         try {
             ExpressionEngine expressionEngine = new XPathExpressionEngine();
             String configPath = getConfigName();
-
             File dataDirConfigFile = new File(configPath);
-//            LOG.info("Reading settings from " + dataDirConfigFile.getAbsolutePath());
-            if (!dataDirConfigFile.exists()) {
-                // Load a default from the classpath:
-                // Note: we don't let new XMLConfiguration() lookup the resource
-                // url directly because it may not be able to find the desired
-                // classloader to load the URL from.
-                URL configResourceUrl = this.getClass().getClassLoader().getResource(configPath);
-                if (configResourceUrl == null) {
-                    throw new RuntimeException("unable to load resource: " + configPath);
-                }
 
-                XMLConfiguration tmpConfig = new ReloadingFileBasedConfigurationBuilder<XMLConfiguration>(XMLConfiguration.class)
-                        .configure(new Parameters().xml().setURL(configResourceUrl))
+            if (!dataDirConfigFile.exists()) {
+                XMLConfiguration tmpConfig = new ReloadingFileBasedConfigurationBuilder<>(XMLConfiguration.class)
+                        .configure(new Parameters().fileBased().setFile(dataDirConfigFile))
                         .getConfiguration();
 
                 // Copy over a default configuration since none exists:
@@ -77,12 +65,12 @@ public abstract class BaseCommonsXmlConfig implements Serializable {
                     throw new RuntimeException("could not create directories.");
                 }
                 tmpConfig.write(new FileWriter(dataDirConfigFile));
-                LOG.info("Saving settings file to " + dataDirConfigFile.getAbsolutePath());
+                LOG.info("Saving settings file to {}", dataDirConfigFile.getAbsolutePath());
             }
 
             if (dataDirConfigFile.exists()) {
-                XMLConfig = new ReloadingFileBasedConfigurationBuilder<XMLConfiguration>(XMLConfiguration.class)
-                        .configure(new Parameters().xml().setFile(dataDirConfigFile))
+                XMLConfig = new ReloadingFileBasedConfigurationBuilder<>(XMLConfiguration.class)
+                        .configure(new Parameters().fileBased().setFile(dataDirConfigFile))
                         .getConfiguration();
             } else {
                 // extract from jar and write to
@@ -94,7 +82,7 @@ public abstract class BaseCommonsXmlConfig implements Serializable {
             configFile = dataDirConfigFile;
             initConfig(XMLConfig);
         } catch (ConfigurationException e) {
-            LOG.error("Error reading settings file: " + e, e);
+            LOG.error("Error reading settings file: {}", e, e);
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
