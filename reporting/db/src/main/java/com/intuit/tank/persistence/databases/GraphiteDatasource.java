@@ -10,7 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
@@ -40,7 +41,7 @@ public class GraphiteDatasource implements IDatabase {
     private int interval = 15; // SECONDS
     
     private TankConfig config = new TankConfig();
-	private HierarchicalConfiguration resultsProviderConfig = config.getVmManagerConfig().getResultsProviderConfig();
+	private HierarchicalConfiguration<ImmutableNode> resultsProviderConfig = config.getVmManagerConfig().getResultsProviderConfig();
 
 	@Override
 	public void initNamespace(String tableName) {

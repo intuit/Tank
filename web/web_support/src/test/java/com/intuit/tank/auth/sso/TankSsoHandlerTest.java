@@ -8,7 +8,8 @@ import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.User;
 import com.intuit.tank.vm.settings.OidcSsoConfig;
 import com.intuit.tank.vm.settings.TankConfig;
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ public class TankSsoHandlerTest {
     @Mock
     private OidcSsoConfig _oidcSsoConfigMock;
     @Mock
-    private HierarchicalConfiguration _hierarchicalConfigurationMock;
+    private HierarchicalConfiguration<ImmutableNode> _hierarchicalConfigurationMock;
     @Mock
     private TankOidcAuthorization _tankOidcAuthorizationMock;
     @Mock

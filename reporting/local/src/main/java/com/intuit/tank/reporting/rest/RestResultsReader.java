@@ -7,13 +7,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
 
 import com.intuit.tank.reporting.api.PagedTimingResults;
 import com.intuit.tank.reporting.api.ResultsReader;
 import com.intuit.tank.reporting.api.TPSInfo;
 import com.intuit.tank.reporting.local.ResultsStorage;
 import com.intuit.tank.results.TankResult;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 
 /**
  * RestResultsReader
@@ -54,7 +55,7 @@ public class RestResultsReader implements ResultsReader {
     }
 
     @Override
-    public void config(HierarchicalConfiguration config) {
+    public void config(HierarchicalConfiguration<ImmutableNode> config) {
         // nothing to do
     }
 

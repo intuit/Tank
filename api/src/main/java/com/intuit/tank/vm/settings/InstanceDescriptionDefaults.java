@@ -19,7 +19,8 @@ package com.intuit.tank.vm.settings;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 
 /**
  * InstanceDescription
@@ -29,10 +30,10 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  */
 public class InstanceDescriptionDefaults {
 
-    private HierarchicalConfiguration config;
-    private HierarchicalConfiguration defaultInstance;
+    private HierarchicalConfiguration<ImmutableNode> config;
+    private HierarchicalConfiguration<ImmutableNode> defaultInstance;
 
-    public InstanceDescriptionDefaults(HierarchicalConfiguration config, HierarchicalConfiguration defaultInstance) {
+    public InstanceDescriptionDefaults(HierarchicalConfiguration<ImmutableNode> config, HierarchicalConfiguration<ImmutableNode> defaultInstance) {
         this.config = config;
         this.defaultInstance = defaultInstance;
     }

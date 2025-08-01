@@ -17,7 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.builder.BasicConfigurationBuilder;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.junit.jupiter.api.*;
 
 import com.intuit.tank.vm.settings.DefaultUser;
@@ -41,7 +44,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_1()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -58,7 +61,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_2()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -75,7 +78,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_3()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -92,7 +95,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_4()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -109,7 +112,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_5()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -126,7 +129,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_6()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -143,7 +146,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_7()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -160,7 +163,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_8()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -177,7 +180,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_9()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -194,7 +197,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_10()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -211,7 +214,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_11()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -228,7 +231,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_12()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -245,7 +248,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_13()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -262,7 +265,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_14()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -279,7 +282,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_15()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -296,7 +299,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testSecurityConfig_16()
             throws Exception {
-        HierarchicalConfiguration config = null;
+        HierarchicalConfiguration<ImmutableNode> config = null;
 
         SecurityConfig result = new SecurityConfig(config);
 
@@ -313,7 +316,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testGetDefaultGroups_1()
             throws Exception {
-        SecurityConfig fixture = new SecurityConfig(new HierarchicalConfiguration());
+        SecurityConfig fixture = new SecurityConfig(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         Set<String> result = fixture.getDefaultGroups();
 
@@ -331,7 +334,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testGetDefaultUsers_1()
             throws Exception {
-        SecurityConfig fixture = new SecurityConfig(new HierarchicalConfiguration());
+        SecurityConfig fixture = new SecurityConfig(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         Set<DefaultUser> result = fixture.getDefaultUsers();
 
@@ -349,7 +352,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testGetGroups_1()
             throws Exception {
-        SecurityConfig fixture = new SecurityConfig(new HierarchicalConfiguration());
+        SecurityConfig fixture = new SecurityConfig(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         Set<String> result = fixture.getGroups();
 
@@ -367,7 +370,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testGetRestrictionMap_1()
             throws Exception {
-        SecurityConfig fixture = new SecurityConfig(new HierarchicalConfiguration());
+        SecurityConfig fixture = new SecurityConfig(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         Map<String, List<String>> result = fixture.getRestrictionMap();
 
@@ -385,7 +388,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testIsDefaultGroup_1()
             throws Exception {
-        SecurityConfig fixture = new SecurityConfig(new HierarchicalConfiguration());
+        SecurityConfig fixture = new SecurityConfig(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
         String groupName = "";
 
         boolean result = fixture.isDefaultGroup(groupName);
@@ -403,7 +406,7 @@ public class SecurityConfigCpTest {
     @Test
     public void testIsDefaultGroup_2()
             throws Exception {
-        SecurityConfig fixture = new SecurityConfig(new HierarchicalConfiguration());
+        SecurityConfig fixture = new SecurityConfig(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
         String groupName = "";
 
         boolean result = fixture.isDefaultGroup(groupName);

@@ -15,6 +15,7 @@ package com.intuit.tank.vm.settings;
 
 import java.io.Serializable;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -143,8 +144,8 @@ public class VmInstanceType implements Serializable {
             return this;
         }
 
-        public Builder withTypes(List<Object> aValue) {
-            instance.types = aValue.stream().map(Object::toString).toList();
+        public Builder withTypes(String[] aValue) {
+            instance.types = Arrays.asList(aValue);
             return this;
         }
 

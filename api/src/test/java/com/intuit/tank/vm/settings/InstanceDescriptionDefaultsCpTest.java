@@ -13,7 +13,10 @@ package com.intuit.tank.vm.settings;
  * #L%
  */
 import java.util.*;
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.builder.BasicConfigurationBuilder;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,8 +38,8 @@ public class InstanceDescriptionDefaultsCpTest {
     @Test
     public void testInstanceDescriptionDefaults_1()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
-        HierarchicalConfiguration defaultInstance = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
+        HierarchicalConfiguration<ImmutableNode> defaultInstance = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         InstanceDescriptionDefaults result = new InstanceDescriptionDefaults(config, defaultInstance);
 
@@ -58,7 +61,7 @@ public class InstanceDescriptionDefaultsCpTest {
     @Test
     public void testGet_1()
             throws Exception {
-        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration(),
                 (HierarchicalConfiguration) null);
         String key = "";
 
@@ -77,8 +80,8 @@ public class InstanceDescriptionDefaultsCpTest {
     @Test
     public void testGet_2()
             throws Exception {
-        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
-                new HierarchicalConfiguration());
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration(),
+                new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
         String key = "";
 
         String result = fixture.get(key);
@@ -96,8 +99,8 @@ public class InstanceDescriptionDefaultsCpTest {
     @Test
     public void testGetKeypair_1()
             throws Exception {
-        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
-                new HierarchicalConfiguration());
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration(),
+                new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         String result = fixture.getKeypair();
 
@@ -114,8 +117,8 @@ public class InstanceDescriptionDefaultsCpTest {
     @Test
     public void testGetLocation_1()
             throws Exception {
-        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
-                new HierarchicalConfiguration());
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration(),
+                new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         String result = fixture.getLocation();
 
@@ -132,8 +135,8 @@ public class InstanceDescriptionDefaultsCpTest {
     @Test
     public void testGetSecurityGroup_1()
             throws Exception {
-        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
-                new HierarchicalConfiguration());
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration(),
+                new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         String result = fixture.getSecurityGroup();
 
@@ -151,8 +154,8 @@ public class InstanceDescriptionDefaultsCpTest {
     @Test
     public void testGetSubnetId_1()
             throws Exception {
-        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
-                new HierarchicalConfiguration());
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration(),
+                new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         List<String> result = fixture.getSubnetIds();
         List<String> expected = Arrays.asList();
@@ -163,8 +166,8 @@ public class InstanceDescriptionDefaultsCpTest {
     @Test
     public void testGetSecurityGroupIds_1()
             throws Exception {
-        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
-                new HierarchicalConfiguration());
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration(),
+                new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         List<String> result = fixture.getSecurityGroupIds();
         List<String> expected = Arrays.asList();
@@ -175,8 +178,8 @@ public class InstanceDescriptionDefaultsCpTest {
     @Test
     public void testGetIamRole_1()
             throws Exception {
-        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
-                new HierarchicalConfiguration());
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration(),
+                new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         String result = fixture.getIamRole();
 
@@ -186,8 +189,8 @@ public class InstanceDescriptionDefaultsCpTest {
     @Test
     public void testIsVPC_1()
             throws Exception {
-        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
-                new HierarchicalConfiguration());
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration(),
+                new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         Boolean result = fixture.isVPC();
 
@@ -197,8 +200,8 @@ public class InstanceDescriptionDefaultsCpTest {
     @Test
     public void testGetTenancy_1()
             throws Exception {
-        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
-                new HierarchicalConfiguration());
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration(),
+                new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         String result = fixture.getTenancy();
 
@@ -215,8 +218,8 @@ public class InstanceDescriptionDefaultsCpTest {
     @Test
     public void testGetZone_1()
             throws Exception {
-        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new HierarchicalConfiguration(),
-                new HierarchicalConfiguration());
+        InstanceDescriptionDefaults fixture = new InstanceDescriptionDefaults(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration(),
+                new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         String result = fixture.getZone();
 

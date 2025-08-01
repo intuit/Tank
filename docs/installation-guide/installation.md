@@ -267,7 +267,7 @@ Configuration is achieved via an XML file called `settings.xml`. The default is 
                 <!-- Locations used for informational purposes only. -->
                 <locations>
                 <location name="unspecified" displayName="Unspecified" />
-                <location name="san_diego" displayName="San Diego\, CA" />
+                <location name="san_diego" displayName="San Diego, CA" />
                 </locations>
                 
                 <reporting>

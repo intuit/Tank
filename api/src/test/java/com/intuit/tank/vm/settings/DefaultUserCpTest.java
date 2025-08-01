@@ -15,10 +15,11 @@ package com.intuit.tank.vm.settings;
 
 import java.util.Set;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.builder.BasicConfigurationBuilder;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.vm.settings.DefaultUser;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,7 +39,7 @@ public class DefaultUserCpTest {
     @Test
     public void testDefaultUser_1()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         DefaultUser result = new DefaultUser(config);
 
@@ -60,7 +61,7 @@ public class DefaultUserCpTest {
     @Test
     public void testDefaultUser_2()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         DefaultUser result = new DefaultUser(config);
 
@@ -82,7 +83,7 @@ public class DefaultUserCpTest {
     @Test
     public void testEquals_1()
             throws Exception {
-        DefaultUser fixture = new DefaultUser(new HierarchicalConfiguration());
+        DefaultUser fixture = new DefaultUser(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
         Object obj = new Object();
 
         boolean result = fixture.equals(obj);
@@ -100,8 +101,8 @@ public class DefaultUserCpTest {
     @Test
     public void testEquals_2()
             throws Exception {
-        DefaultUser fixture = new DefaultUser(new HierarchicalConfiguration());
-        Object obj = new DefaultUser(new HierarchicalConfiguration());
+        DefaultUser fixture = new DefaultUser(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
+        Object obj = new DefaultUser(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         boolean result = fixture.equals(obj);
 
@@ -118,8 +119,8 @@ public class DefaultUserCpTest {
     @Test
     public void testEquals_3()
             throws Exception {
-        DefaultUser fixture = new DefaultUser(new HierarchicalConfiguration());
-        Object obj = new DefaultUser(new HierarchicalConfiguration());
+        DefaultUser fixture = new DefaultUser(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
+        Object obj = new DefaultUser(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         boolean result = fixture.equals(obj);
 
@@ -136,7 +137,7 @@ public class DefaultUserCpTest {
     @Test
     public void testGetEmail_1()
             throws Exception {
-        DefaultUser fixture = new DefaultUser(new HierarchicalConfiguration());
+        DefaultUser fixture = new DefaultUser(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         String result = fixture.getEmail();
 
@@ -153,7 +154,7 @@ public class DefaultUserCpTest {
     @Test
     public void testGetGroups_1()
             throws Exception {
-        DefaultUser fixture = new DefaultUser(new HierarchicalConfiguration());
+        DefaultUser fixture = new DefaultUser(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         Set<String> result = fixture.getGroups();
 
@@ -171,7 +172,7 @@ public class DefaultUserCpTest {
     @Test
     public void testGetName_1()
             throws Exception {
-        DefaultUser fixture = new DefaultUser(new HierarchicalConfiguration());
+        DefaultUser fixture = new DefaultUser(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         String result = fixture.getName();
 
@@ -188,7 +189,7 @@ public class DefaultUserCpTest {
     @Test
     public void testGetPassword_1()
             throws Exception {
-        DefaultUser fixture = new DefaultUser(new HierarchicalConfiguration());
+        DefaultUser fixture = new DefaultUser(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         String result = fixture.getPassword();
 
@@ -205,7 +206,7 @@ public class DefaultUserCpTest {
     @Test
     public void testHashCode_1()
             throws Exception {
-        DefaultUser fixture = new DefaultUser(new HierarchicalConfiguration());
+        DefaultUser fixture = new DefaultUser(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         int result = fixture.hashCode();
 
@@ -222,7 +223,7 @@ public class DefaultUserCpTest {
     @Test
     public void testIsAdmin_1()
             throws Exception {
-        DefaultUser fixture = new DefaultUser(new HierarchicalConfiguration());
+        DefaultUser fixture = new DefaultUser(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         boolean result = fixture.isAdmin();
 
@@ -239,7 +240,7 @@ public class DefaultUserCpTest {
     @Test
     public void testIsAdmin_2()
             throws Exception {
-        DefaultUser fixture = new DefaultUser(new HierarchicalConfiguration());
+        DefaultUser fixture = new DefaultUser(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         boolean result = fixture.isAdmin();
 
@@ -256,7 +257,7 @@ public class DefaultUserCpTest {
     @Test
     public void testToString_1()
             throws Exception {
-        DefaultUser fixture = new DefaultUser(new HierarchicalConfiguration());
+        DefaultUser fixture = new DefaultUser(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         String result = fixture.toString();
 
