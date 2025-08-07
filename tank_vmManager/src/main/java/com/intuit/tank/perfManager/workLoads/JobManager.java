@@ -260,7 +260,7 @@ public class JobManager implements Serializable {
                         .flatMap(info -> info.agentData.stream())
                         .filter(data -> instanceId.equals(data.getInstanceId()))
                         .findFirst()
-                        .orElse(findAgent(instanceId)))
+                        .orElseGet(() -> findAgent(instanceId)))
                 .filter(Objects::nonNull)
                 .map(AgentData::getInstanceUrl)
                 .collect(Collectors.toList());
