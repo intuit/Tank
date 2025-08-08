@@ -71,8 +71,10 @@ public class IncreasingWorkLoad implements Runnable {
 
         // start the non region dependent reporting resources if needed
         ArrayList<AgentMngrAPIRequest.UserRequest> urList = new ArrayList<AgentMngrAPIRequest.UserRequest>();
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         Entity segment = AWSXRay.getGlobalRecorder().getTraceEntity();
         job.getRegions().parallelStream().forEach(jobRegion -> segment.run(() -> {
+            Thread.currentThread().setContextClassLoader(classLoader);
             int users;
             if(job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
                 users = JobUtil.parseUserString(jobRegion.getUsers());

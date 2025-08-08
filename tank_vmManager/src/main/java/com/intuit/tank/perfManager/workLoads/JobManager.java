@@ -160,7 +160,7 @@ public class JobManager implements Serializable {
         AgentTestStartData ret = null;
         JobInfo jobInfo = jobInfoMapLocalCache.get(agentData.getJobId());
         // TODO: figure out controller restarts
-        if (jobInfo != null) {
+        if (jobInfo != null) { // jobInfo is null if the controller has been restarted
             synchronized (jobInfo) {
                 ret = new AgentTestStartData(jobInfo.scripts, jobInfo.getUsers(agentData), jobInfo.jobRequest.getRampTime());
                 ret.setAgentInstanceNum(jobInfo.agentData.size());
@@ -238,14 +238,11 @@ public class JobManager implements Serializable {
      */
     public List<CompletableFuture<?>> sendCommand(List<String> instanceIds, AgentCommand cmd) {
         List<String> instanceUrls = getInstanceUrl(instanceIds);
-        if (!instanceUrls.isEmpty()) {
-            return instanceUrls.parallelStream()
-                    .map(instanceUrl -> instanceUrl + cmd.getPath())
-                    .map(URI::create)
-                    .map(uri -> sendCommand(uri, 0))
-                    .collect(Collectors.toList());
-        }
-        return Collections.emptyList();
+        return instanceUrls.parallelStream()
+                .map(instanceUrl -> instanceUrl + cmd.getPath())
+                .map(URI::create)
+                .map(uri -> sendCommand(uri, 0))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -254,13 +251,18 @@ public class JobManager implements Serializable {
      * @return List of InstanceUrls
      */
     protected List<String> getInstanceUrl(List<String> instanceIds) {
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         return instanceIds.parallelStream()
                 .filter(StringUtils::isNotEmpty)
                 .map(instanceId -> jobInfoMapLocalCache.values().stream()
                         .flatMap(info -> info.agentData.stream())
                         .filter(data -> instanceId.equals(data.getInstanceId()))
                         .findFirst()
-                        .orElseGet(() -> findAgent(instanceId)))
+                        .orElseGet(() -> {
+                            Thread.currentThread().setContextClassLoader(classLoader);
+                            return findAgent(instanceId);
+                        })
+                )
                 .filter(Objects::nonNull)
                 .map(AgentData::getInstanceUrl)
                 .collect(Collectors.toList());
