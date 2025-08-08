@@ -1,19 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context>
-    <Resource name="jdbc/watsDS"
-              auth="Container"
-              type="javax.sql.DataSource"
-              factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
-              maxWait="10000"
-              username="root"  password="!wtttr0x"
-              testOnBorrow="true"
-              validationQuery="SELECT 1"
-              removeAbandonedOnBorrow="true"
-              removeAbandonedOnMaintenance="true"
-              removeAbandonedTimeout="60"
-              driverClassName="com.mysql.cj.jdbc.Driver"
-              url="jdbc:mysql://localhost:3306/tank?serverTimezone=UTC"/>
-
     <Resource 
         name="BeanManager"
         auth="Container"

@@ -91,6 +91,9 @@ public abstract class BaseCommonsXmlConfig implements Serializable {
                 // extract from jar and write to
                 throw new IllegalStateException("Config file does not exist or cannot be created");
             }
+            if (expressionEngine != null) {
+                XMLConfig.setExpressionEngine(expressionEngine);
+            }
             configFile = dataDirConfigFile;
             initConfig(XMLConfig);
         } catch (ConfigurationException e) {
