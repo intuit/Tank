@@ -45,17 +45,17 @@ public class UserAutoDeletionService {
     }
 
     /**
-     * Runs once on server startup to check for and delete inactive users.
+     * Runs once on server startup to check for and potentially delete inactive users.
+     * - If auto-deletion is DISABLED: Runs in DRY RUN mode to show what would be deleted
+     * - If auto-deletion is ENABLED: Performs actual deletion
      * Uses @PostConstruct to ensure it runs after all dependencies are initialized.
      */
     @PostConstruct
     public void performStartupUserDeletion() {
-        if (!isAutoDeletionEnabled()) {
-            LOG.debug("User auto-deletion is disabled, skipping startup execution");
-            return;
-        }
+        boolean isEnabled = isAutoDeletionEnabled();
+        String mode = isEnabled ? "DELETION" : "DRY RUN";
 
-        LOG.info("=== Starting user auto-deletion on server startup ===");
+        LOG.info("=== Starting user auto-deletion check on server startup ({} MODE) ===", mode);
         
         try {
             int retentionDays = getRetentionDays();
@@ -63,34 +63,45 @@ public class UserAutoDeletionService {
             
             if (totalEligible == 0) {
                 LOG.info("No users found eligible for auto-deletion (retention period: {} days)", retentionDays);
+                LOG.info("=== Completed user auto-deletion check ({} MODE) ===", mode);
                 return;
             }
             
             LOG.info("Found {} users eligible for auto-deletion (inactive for {}+ days)", totalEligible, retentionDays);
             
-            // TEMPORARY: Just log what would be deleted without actually doing it
-            logEligibleUsers(retentionDays);
+            // Always log what will be or would be deleted
+            logEligibleUsers(retentionDays, !isEnabled);
             
-            // COMMENTED OUT FOR TESTING: int deletedCount = processUserDeletionBatches(retentionDays);
-            int deletedCount = 0; // Temporary: don't actually delete
-            
-            LOG.info("DRY RUN COMPLETED: {} users would be processed (no actual deletion)", deletedCount);
+            if (isEnabled) {
+                // ACTUAL DELETION MODE
+                LOG.info("Auto-deletion is ENABLED - proceeding with actual deletion");
+                int deletedCount = processUserDeletionBatches(retentionDays);
+                LOG.info("Successfully deleted {} inactive users", deletedCount);
+            } else {
+                // DRY RUN MODE
+                LOG.info("Auto-deletion is DISABLED - running in DRY RUN mode (no actual deletion)");
+            }
             
         } catch (Exception e) {
             LOG.error("Error during startup user auto-deletion process", e);
         }
         
-        LOG.info("=== Completed startup user auto-deletion process (DRY RUN) ===");
+        LOG.info("=== Completed user auto-deletion check ({} MODE) ===", mode);
     }
 
     /**
-     * TEMPORARY: Log eligible users without deleting them
+     * Log eligible users showing what will be (or would be) deleted.
+     *
+     * @param retentionDays the retention period in days
+     * @param isDryRun true if running in DRY RUN mode, false for actual deletion mode
      */
-    private void logEligibleUsers(int retentionDays) {
+    private void logEligibleUsers(int retentionDays, boolean isDryRun) {
         UserDao userDao = new UserDao();
         List<User> eligibleUsers = userDao.findUsersEligibleForDeletion(retentionDays);
         
-        LOG.info("=== DRY RUN: Users that would be deleted ===");
+        String prefix = isDryRun ? "DRY RUN" : "DELETION";
+        LOG.info("=== {}: Users that {} deleted ===", prefix, isDryRun ? "would be" : "will be");
+
         for (User user : eligibleUsers) {
             String lastLoginStr = user.getLastLoginTs() != null 
                 ? formatter.format(user.getLastLoginTs())
@@ -123,12 +134,12 @@ public class UserAutoDeletionService {
                     protectionReason = "PROTECTED (unknown reason)";
                 }
             }
-            String status = isProtected ? protectionReason : "WOULD BE DELETED";
+            String status = isProtected ? protectionReason : (isDryRun ? "WOULD BE DELETED" : "WILL BE DELETED");
             
-            LOG.info("DRY RUN: {} (ID: {}, Last Login: {}, Reason: {}) - {}", 
-                    user.getName(), user.getId(), lastLoginStr, reason, status);
+            LOG.info("{}: {} (ID: {}, Last Login: {}, Reason: {}) - {}",
+                    prefix, user.getName(), user.getId(), lastLoginStr, reason, status);
         }
-        LOG.info("=== DRY RUN: End of eligible users list ===");
+        LOG.info("=== {}: End of eligible users list ===", prefix);
     }
 
     /**
@@ -232,12 +243,6 @@ public class UserAutoDeletionService {
      * @return true if auto-deletion is enabled
      */
     private boolean isAutoDeletionEnabled() {
-        // TEMPORARY: Hardcode to true for testing
-        LOG.info("TEMPORARY: Auto-deletion hardcoded to ENABLED for testing");
-        return true;
-        
-        // Production code (commented out for testing):
-        /*
         // Check TankConfig first
         boolean tankConfigEnabled = tankConfig.isUserAutoDeletionEnabled();
         if (tankConfigEnabled) {
@@ -248,19 +253,26 @@ public class UserAutoDeletionService {
         // Fallback to system property
         String sysProp = System.getProperty("tank.user.auto-deletion.enabled");
         if (sysProp != null) {
-            return Boolean.parseBoolean(sysProp);
+            boolean enabled = Boolean.parseBoolean(sysProp);
+            if (enabled) {
+                LOG.debug("Auto-deletion enabled via system property");
+            }
+            return enabled;
         }
         
         // Fallback to environment variable
         String envVar = System.getenv("TANK_USER_AUTO_DELETION_ENABLED");
         if (envVar != null) {
-            return Boolean.parseBoolean(envVar);
+            boolean enabled = Boolean.parseBoolean(envVar);
+            if (enabled) {
+                LOG.debug("Auto-deletion enabled via environment variable");
+            }
+            return enabled;
         }
         
         // Default to false for safety - must be explicitly enabled
-        LOG.debug("Auto-deletion not explicitly enabled via TankConfig, system properties, or environment variables");
+        LOG.debug("Auto-deletion not explicitly enabled - will run in DRY RUN mode");
         return false;
-        */
     }
 
     /**
@@ -270,43 +282,36 @@ public class UserAutoDeletionService {
      * @return retention period in days (default: 730 days = 2 years)
      */
     private int getRetentionDays() {
-        // TEMPORARY: Hardcode to 730 days (2 years) for production-like testing
-        LOG.info("TEMPORARY: Retention period hardcoded to 730 days (2 years) for testing");
-        return 730;
-        
-        // Production code (commented out for testing):
-        /*
-        // Check TankConfig first
+        // Check TankConfig first (returns 730 by default)
         int tankConfigRetention = tankConfig.getUserAutoDeletionRetentionDays();
-        if (tankConfigRetention > 0) {
-            LOG.debug("Using retention period from TankConfig: {} days", tankConfigRetention);
-            return tankConfigRetention;
-        }
         
-        // Fallback to system property
+        // Check system property override
         String sysProp = System.getProperty("tank.user.auto-deletion.retention-days");
         if (sysProp != null) {
             try {
-                return Integer.parseInt(sysProp);
+                int sysPropDays = Integer.parseInt(sysProp);
+                LOG.debug("Using retention period from system property: {} days", sysPropDays);
+                return sysPropDays;
             } catch (NumberFormatException e) {
-                LOG.warn("Invalid retention days system property value: {}, using default: {}", sysProp, 730);
+                LOG.warn("Invalid retention days system property value: {}, using TankConfig value: {}", sysProp, tankConfigRetention);
             }
         }
         
-        // Fallback to environment variable
+        // Check environment variable override
         String envVar = System.getenv("TANK_USER_AUTO_DELETION_RETENTION_DAYS");
         if (envVar != null) {
             try {
-                return Integer.parseInt(envVar);
+                int envVarDays = Integer.parseInt(envVar);
+                LOG.debug("Using retention period from environment variable: {} days", envVarDays);
+                return envVarDays;
             } catch (NumberFormatException e) {
-                LOG.warn("Invalid retention days environment variable value: {}, using default: {}", envVar, 730);
+                LOG.warn("Invalid retention days environment variable value: {}, using TankConfig value: {}", envVar, tankConfigRetention);
             }
         }
         
-        // Return default
-        LOG.debug("Using default retention period: {} days", 730);
-        return 730;
-        */
+        // Use TankConfig value (which defaults to 730)
+        LOG.debug("Using retention period from TankConfig: {} days", tankConfigRetention);
+        return tankConfigRetention;
     }
 
     /**
