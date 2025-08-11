@@ -214,13 +214,17 @@ public class JobManager implements Serializable {
                 .map(agentData -> agentData.getInstanceUrl() + AgentCommand.start.getPath())
                 .map(URI::create)
                 .map(uri -> sendCommand(uri, MAX_RETRIES))
-                .filter(Objects::nonNull)
                 .forEach(future -> {
                     HttpResponse response = (HttpResponse) future.join();
-                    if (response.statusCode() == HttpStatus.SC_OK) {
-                        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Start Command to " + response.uri() + " was SUCCESSFUL for job " + jobId)));
+                    if (response != null && Set.of(HttpStatus.SC_OK, HttpStatus.SC_ACCEPTED).contains(response.statusCode())) {
+                        LOG.info(new ObjectMessage(ImmutableMap.of(
+                                "Message","Start Command to " + response.uri() + " was SUCCESSFUL for job " + jobId)));
+                    } else if (response != null) {
+                        LOG.error(new ObjectMessage(ImmutableMap.of(
+                                "Message","Start Command to " + response.uri() + " returned statusCode " + response.statusCode() + " for job " + jobId)));
                     } else {
-                        LOG.error(new ObjectMessage(ImmutableMap.of("Message","Start Command to " + response.uri() + " returned statusCode " + response.statusCode() + " for job " + jobId)));
+                        LOG.error(new ObjectMessage(ImmutableMap.of(
+                                "Message","Start Command to returned null response for job " + jobId)));
                     }
                 });
     }
