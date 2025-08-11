@@ -14,8 +14,10 @@ package com.intuit.tank.util;
  */
 
 import java.io.IOException;
+import java.time.Instant;
 
 import com.intuit.tank.auth.TankSecurityContext;
+import com.intuit.tank.project.User;
 import jakarta.inject.Inject;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -81,6 +83,14 @@ public class RestSecurityFilter extends HttpFilter {
     }
 
     private boolean validateToken(String token) {
-        return userDao.findByApiToken(token) != null;
+        User user = userDao.findByApiToken(token);
+        if (user != null) {
+            // Update last login timestamp for API token usage
+            user.setLastLoginTs(Instant.now());
+            userDao.saveOrUpdate(user);
+            LOG.debug("Updated last login timestamp for user: {} via API token", user.getName());
+            return true;
+        }
+        return false;
     }
 }

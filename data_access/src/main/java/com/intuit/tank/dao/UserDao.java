@@ -195,7 +195,8 @@ public class UserDao extends BaseDao<User> {
 
                 // Use native SQL to bypass JPA lifecycle callbacks and anonymize timestamps and token
                 // Note: created and modified cannot be NULL due to database constraints, so we set them to epoch time
-                String sql = "UPDATE user SET name = ?, email = ?, created = '1970-01-01 00:00:00', modified = '1970-01-01 00:00:00', token = NULL WHERE id = ?";
+                // Also set last_login_ts to epoch time to prevent re-deletion of anonymized users
+                String sql = "UPDATE user SET name = ?, email = ?, created = '1970-01-01 00:00:00', modified = '1970-01-01 00:00:00', last_login_ts = '1970-01-01 00:00:00', token = NULL WHERE id = ?";
                 em.createNativeQuery(sql)
                     .setParameter(1, anonymizedName)
                     .setParameter(2, "deleted_users@deleted.com")
@@ -251,6 +252,82 @@ public class UserDao extends BaseDao<User> {
             rollback();
             LOG.error("Error anonymizing user data for: {}", userIdentifier, e);
             throw new RuntimeException(e);
+        } finally {
+            cleanup();
+        }
+    }
+
+    /**
+     * Find users eligible for auto-deletion based on last login timestamp.
+     * Returns users who haven't logged in for the specified number of days,
+     * including users who have never logged in (using created date for retention).
+     *
+     * @param retentionDays number of days after which inactive users should be deleted
+     * @return list of users eligible for deletion
+     */
+    @SuppressWarnings("unchecked")
+    public List<User> findUsersEligibleForDeletion(int retentionDays) {
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+
+            // Calculate the cutoff date
+            java.time.Instant cutoffDate = java.time.Instant.now().minus(retentionDays, java.time.temporal.ChronoUnit.DAYS);
+
+            // Find users who either:
+            // 1. Have never logged in (lastLoginTs IS NULL) AND were created before cutoff date, OR
+            // 2. Haven't logged in since the cutoff date (lastLoginTs < cutoffDate)
+            String jpql = "FROM User u WHERE " +
+                "(u.lastLoginTs IS NULL AND u.created < :cutoffDate) OR " +
+                "(u.lastLoginTs IS NOT NULL AND u.lastLoginTs < :cutoffDate) " +
+                "ORDER BY u.lastLoginTs ASC, u.created ASC";
+
+            List<User> eligibleUsers = em.createQuery(jpql, User.class)
+                .setParameter("cutoffDate", cutoffDate)
+                .getResultList();
+
+            commit();
+            LOG.debug("Found {} users eligible for deletion (retention period: {} days)", eligibleUsers.size(), retentionDays);
+            return eligibleUsers;
+
+        } catch (Exception e) {
+            rollback();
+            LOG.error("Error finding users eligible for deletion: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to find users eligible for deletion", e);
+        } finally {
+            cleanup();
+        }
+    }
+
+    /**
+     * Count users eligible for auto-deletion without loading the full entities.
+     * More efficient for reporting and metrics.
+     *
+     * @param retentionDays number of days after which inactive users should be deleted
+     * @return count of users eligible for deletion
+     */
+    public long countUsersEligibleForDeletion(int retentionDays) {
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+
+            java.time.Instant cutoffDate = java.time.Instant.now().minus(retentionDays, java.time.temporal.ChronoUnit.DAYS);
+
+            String jpql = "SELECT COUNT(u) FROM User u WHERE " +
+                "(u.lastLoginTs IS NULL AND u.created < :cutoffDate) OR " +
+                "(u.lastLoginTs IS NOT NULL AND u.lastLoginTs < :cutoffDate)";
+
+            Long count = em.createQuery(jpql, Long.class)
+                .setParameter("cutoffDate", cutoffDate)
+                .getSingleResult();
+
+            commit();
+            return count != null ? count : 0L;
+
+        } catch (Exception e) {
+            rollback();
+            LOG.error("Error counting users eligible for deletion: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to count users eligible for deletion", e);
         } finally {
             cleanup();
         }

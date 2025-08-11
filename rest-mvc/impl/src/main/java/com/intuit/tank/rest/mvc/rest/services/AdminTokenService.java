@@ -1,6 +1,7 @@
 package com.intuit.tank.rest.mvc.rest.services;
 
 import com.intuit.tank.dao.UserDao;
+import com.intuit.tank.project.User;
 import com.intuit.tank.vm.settings.TankConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
+import java.time.Instant;
 
 import jakarta.annotation.PostConstruct;
 
@@ -39,7 +41,8 @@ public class AdminTokenService {
         }
         
         // First check if token corresponds to a valid user
-        if (userDao.findByApiToken(token) == null) {
+        User user = userDao.findByApiToken(token);
+        if (user == null) {
             LOG.warn("Admin token validation failed: no user found for token {}", maskToken(token));
             return false;
         }
@@ -53,7 +56,10 @@ public class AdminTokenService {
         
         boolean tokensMatch = token.equals(ssmAdminToken);
         if (tokensMatch) {
-            LOG.info("Admin token validation successful for token: {}", maskToken(token));
+            // Update last login timestamp for successful API token authentication
+            user.setLastLoginTs(Instant.now());
+            userDao.saveOrUpdate(user);
+            LOG.info("Admin token validation successful for user: {} with token: {}", user.getName(), maskToken(token));
         } else {
             LOG.warn("Admin token validation failed: token does not match SSM admin token");
         }

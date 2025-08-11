@@ -30,6 +30,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.time.Instant;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -49,7 +50,8 @@ import org.hibernate.envers.Audited;
 @Table(name = "user",
         indexes = { @Index(name = "IDX_USER_NAME", columnList = User.PROPERTY_NAME),
                     @Index(name = "IDX_USER_EMAIL", columnList = User.PROPERTY_EMAIL),
-                    @Index(name = "IDX_USER_TOKEN", columnList = "token")})
+                    @Index(name = "IDX_USER_TOKEN", columnList = "token"),
+                    @Index(name = "IDX_USER_LAST_LOGIN", columnList = "last_login_ts")})
 
 public class User extends BaseEntity {
 
@@ -82,6 +84,9 @@ public class User extends BaseEntity {
 
     @Column(name = "token")
     private String apiToken;
+
+    @Column(name = "last_login_ts")
+    private Instant lastLoginTs;
 
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinTable(joinColumns = @JoinColumn(name = "group_id"),
@@ -189,6 +194,20 @@ public class User extends BaseEntity {
     }
 
     /**
+     * @return the lastLoginTs
+     */
+    public Instant getLastLoginTs() {
+        return lastLoginTs;
+    }
+
+    /**
+     * @param lastLoginTs the lastLoginTs to set
+     */
+    public void setLastLoginTs(Instant lastLoginTs) {
+        this.lastLoginTs = lastLoginTs;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -288,6 +307,13 @@ public class User extends BaseEntity {
         @SuppressWarnings("unchecked")
         public GeneratorT generateApiToken() {
             instance.generateApiToken();
+
+            return (GeneratorT) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT lastLoginTs(Instant aValue) {
+            instance.setLastLoginTs(aValue);
 
             return (GeneratorT) this;
         }
