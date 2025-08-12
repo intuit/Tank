@@ -103,11 +103,12 @@ public class UserAutoDeletionService {
         LOG.info("=== {}: Users that {} deleted ===", prefix, isDryRun ? "would be" : "will be");
 
         for (User user : eligibleUsers) {
-            String lastLoginStr = user.getLastLoginTs() != null 
+            boolean hasLoggedIn = !isNeverLoggedIn(user);
+            String lastLoginStr = hasLoggedIn
                 ? formatter.format(user.getLastLoginTs())
                 : "Never logged in";
                 
-            String reason = user.getLastLoginTs() != null 
+            String reason = hasLoggedIn
                 ? "inactive since last login"
                 : "never logged in (created " + formatter.format(user.getCreated().toInstant()) + ")";
                 
@@ -201,11 +202,12 @@ public class UserAutoDeletionService {
      * @param userDao the UserDao instance to use
      */
     private void deleteInactiveUser(User user, UserDao userDao) {
-        String lastLoginStr = user.getLastLoginTs() != null 
+        boolean hasLoggedIn = !isNeverLoggedIn(user);
+        String lastLoginStr = hasLoggedIn
             ? formatter.format(user.getLastLoginTs())
             : "Never logged in";
             
-        String reason = user.getLastLoginTs() != null 
+        String reason = hasLoggedIn
             ? "inactive since last login"
             : "never logged in (created " + formatter.format(user.getCreated().toInstant()) + ")";
             
@@ -312,6 +314,24 @@ public class UserAutoDeletionService {
         // Use TankConfig value (which defaults to 730)
         LOG.debug("Using retention period from TankConfig: {} days", tankConfigRetention);
         return tankConfigRetention;
+    }
+
+    /**
+     * Check if a user has never logged in by comparing last_login_ts with creation time.
+     * Since last_login_ts defaults to creation time, they'll be equal if never logged in.
+     *
+     * @param user the user to check
+     * @return true if the user has never logged in
+     */
+    private boolean isNeverLoggedIn(User user) {
+        if (user.getLastLoginTs() == null || user.getCreated() == null) {
+            return true;
+        }
+
+        long createdMillis = user.getCreated().getTime();
+        long lastLoginMillis = user.getLastLoginTs().toEpochMilli();
+
+        return Math.abs(createdMillis - lastLoginMillis) < 1000;
     }
 
     /**

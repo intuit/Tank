@@ -274,12 +274,9 @@ public class UserDao extends BaseDao<User> {
             // Calculate the cutoff date
             java.time.Instant cutoffDate = java.time.Instant.now().minus(retentionDays, java.time.temporal.ChronoUnit.DAYS);
 
-            // Find users who either:
-            // 1. Have never logged in (lastLoginTs IS NULL) AND were created before cutoff date, OR
-            // 2. Haven't logged in since the cutoff date (lastLoginTs < cutoffDate)
-            String jpql = "FROM User u WHERE " +
-                "(u.lastLoginTs IS NULL AND u.created < :cutoffDate) OR " +
-                "(u.lastLoginTs IS NOT NULL AND u.lastLoginTs < :cutoffDate) " +
+            // Find users who haven't logged in since the cutoff date
+            // Note: lastLoginTs is now always set (defaults to creation time)
+            String jpql = "FROM User u WHERE u.lastLoginTs < :cutoffDate " +
                 "ORDER BY u.lastLoginTs ASC, u.created ASC";
 
             List<User> eligibleUsers = em.createQuery(jpql, User.class)
@@ -313,9 +310,7 @@ public class UserDao extends BaseDao<User> {
 
             java.time.Instant cutoffDate = java.time.Instant.now().minus(retentionDays, java.time.temporal.ChronoUnit.DAYS);
 
-            String jpql = "SELECT COUNT(u) FROM User u WHERE " +
-                "(u.lastLoginTs IS NULL AND u.created < :cutoffDate) OR " +
-                "(u.lastLoginTs IS NOT NULL AND u.lastLoginTs < :cutoffDate)";
+            String jpql = "SELECT COUNT(u) FROM User u WHERE u.lastLoginTs < :cutoffDate";
 
             Long count = em.createQuery(jpql, Long.class)
                 .setParameter("cutoffDate", cutoffDate)

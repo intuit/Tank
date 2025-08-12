@@ -27,6 +27,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -85,8 +86,8 @@ public class User extends BaseEntity {
     @Column(name = "token")
     private String apiToken;
 
-    @Column(name = "last_login_ts")
-    private Instant lastLoginTs;
+    @Column(name = "last_login_ts", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private Instant lastLoginTs = Instant.now();
 
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinTable(joinColumns = @JoinColumn(name = "group_id"),
@@ -95,6 +96,13 @@ public class User extends BaseEntity {
     private Set<Group> groups = new HashSet<Group>();
 
     public User() {
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (lastLoginTs == null) {
+            lastLoginTs = Instant.now();
+        }
     }
 
     /**
