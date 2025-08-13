@@ -17,7 +17,8 @@ import java.io.File;
 
 import jakarta.annotation.Nonnull;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.lang3.StringUtils;
 
 public class SearchConfig {
@@ -26,18 +27,18 @@ public class SearchConfig {
 
     private static final String KEY_SEARCH_LOCATION = "index-location";
 
-    private HierarchicalConfiguration config;
+    private HierarchicalConfiguration<ImmutableNode> config;
 
     private String searchLocation;
 
-    public SearchConfig(@Nonnull HierarchicalConfiguration config) {
+    public SearchConfig(@Nonnull HierarchicalConfiguration<ImmutableNode> config) {
         this.config = config;
         initConfig();
     }
 
     private void initConfig() {
         if (config != null) {
-            HierarchicalConfiguration searchLocationConfig = config.configurationAt(KEY_SEARCH_LOCATION);
+            HierarchicalConfiguration<ImmutableNode> searchLocationConfig = config.configurationAt(KEY_SEARCH_LOCATION);
             searchLocation = searchLocationConfig.getString("");
         }
         if (StringUtils.isEmpty(searchLocation)) {

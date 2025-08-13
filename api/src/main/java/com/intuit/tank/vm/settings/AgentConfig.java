@@ -27,7 +27,8 @@ import java.util.Set;
 
 import jakarta.annotation.Nonnull;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -76,7 +77,7 @@ public class AgentConfig implements Serializable {
     private static final String KEY_FOR = "@for";
     private static final String KEY_NAME = "@name";
 
-    private HierarchicalConfiguration config;
+    private HierarchicalConfiguration<ImmutableNode> config;
     private Set<String> validMimeTypes;
     private Map<String, String> resultsProviderMap;
     private Map<String, String> tankClientMap;
@@ -86,13 +87,12 @@ public class AgentConfig implements Serializable {
     private Map<String, Range> minMaxMap;
     private Range defaultRange = new Range(50L, 300L);
 
-    @SuppressWarnings("unchecked")
-    public AgentConfig(@Nonnull HierarchicalConfiguration config) {
+    public AgentConfig(@Nonnull HierarchicalConfiguration<ImmutableNode> config) {
         this.config = config;
         validMimeTypes = new HashSet<String>();
-        List<HierarchicalConfiguration> validMimes = config.configurationsAt(KEY_VALID_MIME_TYPES);
+        List<HierarchicalConfiguration<ImmutableNode>> validMimes = config.configurationsAt(KEY_VALID_MIME_TYPES);
         if (validMimes != null) {
-            for (HierarchicalConfiguration c : validMimes) {
+            for (HierarchicalConfiguration<ImmutableNode> c : validMimes) {
                 validMimeTypes.add(c.getString(""));
             }
         }
@@ -103,9 +103,9 @@ public class AgentConfig implements Serializable {
         // <tank-client name="apache HttpClient
         // 4.5">com.intuit.tank.httpclient4.TankHttpClient4</tank-client>
         // <tank-http-clients>
-        List<HierarchicalConfiguration> tankClients = config.configurationsAt(KEY_TANK_HTTP_CLIENTS);
+        List<HierarchicalConfiguration<ImmutableNode>> tankClients = config.configurationsAt(KEY_TANK_HTTP_CLIENTS);
         if (tankClients != null) {
-            for (HierarchicalConfiguration c : tankClients) {
+            for (HierarchicalConfiguration<ImmutableNode> c : tankClients) {
                 tankClientMap.put(c.getString(KEY_NAME), c.getString(""));
             }
         }
@@ -117,17 +117,17 @@ public class AgentConfig implements Serializable {
         resultsProviderMap = new HashMap<String, String>();
         resultsTypeMap = new HashMap<String, String>();
         requestHeaderMap = new HashMap<String, String>();
-        List<HierarchicalConfiguration> requestHeaders = config.configurationsAt(KEY_REQUEST_HEADERS);
+        List<HierarchicalConfiguration<ImmutableNode>> requestHeaders = config.configurationsAt(KEY_REQUEST_HEADERS);
         if (requestHeaders != null) {
-            for (HierarchicalConfiguration c : requestHeaders) {
+            for (HierarchicalConfiguration<ImmutableNode> c : requestHeaders) {
                 String key = c.getString(KEY_HEADER_KEY);
                 requestHeaderMap.put(key, c.getString(""));
             }
         }
         minMaxMap = new HashMap<String, Range>();
-        List<HierarchicalConfiguration> durations = config.configurationsAt(KEY_DURATION_SIMULATION);
+        List<HierarchicalConfiguration<ImmutableNode>> durations = config.configurationsAt(KEY_DURATION_SIMULATION);
         if (durations != null) {
-            for (HierarchicalConfiguration c : durations) {
+            for (HierarchicalConfiguration<ImmutableNode> c : durations) {
                 try {
                     String key = c.getString(KEY_FOR).trim();
                     int min = c.getInt(KEY_MIN);
