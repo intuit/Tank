@@ -50,8 +50,6 @@ import org.hibernate.envers.Audited;
 @Audited
 @Table(name = "user",
         indexes = { @Index(name = "IDX_USER_NAME", columnList = User.PROPERTY_NAME),
-                    @Index(name = "IDX_USER_EMAIL", columnList = User.PROPERTY_EMAIL),
-                    @Index(name = "IDX_USER_TOKEN", columnList = "token"),
                     @Index(name = "IDX_USER_LAST_LOGIN", columnList = "last_login_ts")})
 
 public class User extends BaseEntity {
