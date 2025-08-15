@@ -31,6 +31,7 @@ import com.intuit.tank.project.UserProperty;
 import com.intuit.tank.vm.common.PasswordEncoder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -265,27 +266,26 @@ public class UserDao extends BaseDao<User> {
      * @param retentionDays number of days after which inactive users should be deleted
      * @return list of users eligible for deletion
      */
-    @SuppressWarnings("unchecked")
     public List<User> findUsersEligibleForDeletion(int retentionDays) {
+        List<User> eligibleUsers = null;
         EntityManager em = getEntityManager();
         try {
             begin();
 
-            // Calculate the cutoff date
             java.time.Instant cutoffDate = java.time.Instant.now().minus(retentionDays, java.time.temporal.ChronoUnit.DAYS);
 
-            // Find users who haven't logged in since the cutoff date
-            // Note: lastLoginTs is now always set (defaults to creation time)
-            String jpql = "FROM User u WHERE u.lastLoginTs < :cutoffDate " +
-                "ORDER BY u.lastLoginTs ASC, u.created ASC";
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<User> query = cb.createQuery(User.class);
+            Root<User> root = query.from(User.class);
 
-            List<User> eligibleUsers = em.createQuery(jpql, User.class)
-                .setParameter("cutoffDate", cutoffDate)
-                .getResultList();
+            query.select(root)
+                .where(cb.lessThan(root.get("lastLoginTs"), cutoffDate))
+                .orderBy(cb.asc(root.get("lastLoginTs")), cb.asc(root.get("created")));
+
+            eligibleUsers = em.createQuery(query).getResultList();
 
             commit();
             LOG.debug("Found {} users eligible for deletion (retention period: {} days)", eligibleUsers.size(), retentionDays);
-            return eligibleUsers;
 
         } catch (Exception e) {
             rollback();
@@ -294,6 +294,7 @@ public class UserDao extends BaseDao<User> {
         } finally {
             cleanup();
         }
+        return eligibleUsers != null ? eligibleUsers : new ArrayList<>();
     }
 
     /**
@@ -304,20 +305,23 @@ public class UserDao extends BaseDao<User> {
      * @return count of users eligible for deletion
      */
     public long countUsersEligibleForDeletion(int retentionDays) {
+        Long count = 0L;
         EntityManager em = getEntityManager();
         try {
             begin();
 
             java.time.Instant cutoffDate = java.time.Instant.now().minus(retentionDays, java.time.temporal.ChronoUnit.DAYS);
 
-            String jpql = "SELECT COUNT(u) FROM User u WHERE u.lastLoginTs < :cutoffDate";
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Long> query = cb.createQuery(Long.class);
+            Root<User> root = query.from(User.class);
 
-            Long count = em.createQuery(jpql, Long.class)
-                .setParameter("cutoffDate", cutoffDate)
-                .getSingleResult();
+            query.select(cb.count(root))
+                .where(cb.lessThan(root.get("lastLoginTs"), cutoffDate));
+
+            count = em.createQuery(query).getSingleResult();
 
             commit();
-            return count != null ? count : 0L;
 
         } catch (Exception e) {
             rollback();
@@ -326,6 +330,7 @@ public class UserDao extends BaseDao<User> {
         } finally {
             cleanup();
         }
+        return count != null ? count : 0L;
     }
 
 }
