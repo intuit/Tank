@@ -61,7 +61,7 @@
     <!-- Locations used for informational purposes only. -->
     <locations>
       <location name="unspecified" displayName="Unspecified" />
-      <location name="san_diego" displayName="San Diego\, CA" />
+      <location name="san_diego" displayName="San Diego, CA" />
     </locations>
     
     <!-- mail configuration for notifications -->

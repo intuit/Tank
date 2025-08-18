@@ -160,7 +160,7 @@ public class JobManager implements Serializable {
         AgentTestStartData ret = null;
         JobInfo jobInfo = jobInfoMapLocalCache.get(agentData.getJobId());
         // TODO: figure out controller restarts
-        if (jobInfo != null) {
+        if (jobInfo != null) { // jobInfo is null if the controller has been restarted
             synchronized (jobInfo) {
                 ret = new AgentTestStartData(jobInfo.scripts, jobInfo.getUsers(agentData), jobInfo.jobRequest.getRampTime());
                 ret.setAgentInstanceNum(jobInfo.agentData.size());
@@ -214,13 +214,17 @@ public class JobManager implements Serializable {
                 .map(agentData -> agentData.getInstanceUrl() + AgentCommand.start.getPath())
                 .map(URI::create)
                 .map(uri -> sendCommand(uri, MAX_RETRIES))
-                .filter(Objects::nonNull)
                 .forEach(future -> {
                     HttpResponse response = (HttpResponse) future.join();
-                    if (response.statusCode() == HttpStatus.SC_OK) {
-                        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Start Command to " + response.uri() + " was SUCCESSFUL for job " + jobId)));
+                    if (response != null && Set.of(HttpStatus.SC_OK, HttpStatus.SC_ACCEPTED).contains(response.statusCode())) {
+                        LOG.info(new ObjectMessage(ImmutableMap.of(
+                                "Message","Start Command to " + response.uri() + " was SUCCESSFUL for job " + jobId)));
+                    } else if (response != null) {
+                        LOG.error(new ObjectMessage(ImmutableMap.of(
+                                "Message","Start Command to " + response.uri() + " returned statusCode " + response.statusCode() + " for job " + jobId)));
                     } else {
-                        LOG.error(new ObjectMessage(ImmutableMap.of("Message","Start Command to " + response.uri() + " returned statusCode " + response.statusCode() + " for job " + jobId)));
+                        LOG.error(new ObjectMessage(ImmutableMap.of(
+                                "Message","Start Command to returned null response for job " + jobId)));
                     }
                 });
     }
@@ -238,14 +242,11 @@ public class JobManager implements Serializable {
      */
     public List<CompletableFuture<?>> sendCommand(List<String> instanceIds, AgentCommand cmd) {
         List<String> instanceUrls = getInstanceUrl(instanceIds);
-        if (!instanceUrls.isEmpty()) {
-            return instanceUrls.parallelStream()
-                    .map(instanceUrl -> instanceUrl + cmd.getPath())
-                    .map(URI::create)
-                    .map(uri -> sendCommand(uri, 0))
-                    .collect(Collectors.toList());
-        }
-        return Collections.emptyList();
+        return instanceUrls.parallelStream()
+                .map(instanceUrl -> instanceUrl + cmd.getPath())
+                .map(URI::create)
+                .map(uri -> sendCommand(uri, 0))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -254,13 +255,18 @@ public class JobManager implements Serializable {
      * @return List of InstanceUrls
      */
     protected List<String> getInstanceUrl(List<String> instanceIds) {
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         return instanceIds.parallelStream()
                 .filter(StringUtils::isNotEmpty)
                 .map(instanceId -> jobInfoMapLocalCache.values().stream()
                         .flatMap(info -> info.agentData.stream())
                         .filter(data -> instanceId.equals(data.getInstanceId()))
                         .findFirst()
-                        .orElse(findAgent(instanceId)))
+                        .orElseGet(() -> {
+                            Thread.currentThread().setContextClassLoader(classLoader);
+                            return findAgent(instanceId);
+                        })
+                )
                 .filter(Objects::nonNull)
                 .map(AgentData::getInstanceUrl)
                 .collect(Collectors.toList());

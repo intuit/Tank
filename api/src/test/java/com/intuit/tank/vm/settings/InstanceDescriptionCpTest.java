@@ -13,7 +13,10 @@ package com.intuit.tank.vm.settings;
  * #L%
  */
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.builder.BasicConfigurationBuilder;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,8 +41,8 @@ public class InstanceDescriptionCpTest {
     @Test
     public void testInstanceDescription_1()
             throws Exception {
-        HierarchicalConfiguration config = new HierarchicalConfiguration();
-        HierarchicalConfiguration defaultInstance = new HierarchicalConfiguration();
+        HierarchicalConfiguration<ImmutableNode> config = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
+        HierarchicalConfiguration<ImmutableNode> defaultInstance = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
 
         InstanceDescription result = new InstanceDescription(config, defaultInstance);
 
@@ -63,8 +66,8 @@ public class InstanceDescriptionCpTest {
     @Test
     public void testGetAmi_1()
             throws Exception {
-        InstanceDescription fixture = new InstanceDescription(new HierarchicalConfiguration(),
-                new HierarchicalConfiguration());
+        InstanceDescription fixture = new InstanceDescription(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration(),
+                new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         String result = fixture.getAmi();
 
@@ -81,8 +84,8 @@ public class InstanceDescriptionCpTest {
     @Test
     public void testGetPublicIp_1()
             throws Exception {
-        InstanceDescription fixture = new InstanceDescription(new HierarchicalConfiguration(),
-                new HierarchicalConfiguration());
+        InstanceDescription fixture = new InstanceDescription(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration(),
+                new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         String result = fixture.getPublicIp();
 

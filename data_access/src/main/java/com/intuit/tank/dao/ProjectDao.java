@@ -23,6 +23,7 @@ import java.util.List;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Fetch;
@@ -72,6 +73,9 @@ public class ProjectDao extends OwnableDao<Project> {
             query.where(cb.equal(root.<String>get(Project.PROPERTY_NAME), name));
             project = em.createQuery(query).getSingleResult();
             commit();
+        } catch (NoResultException e) {
+            rollback();
+            LOG.error("No entities for Project {} in findByName()", name);
         } catch (Exception e) {
             rollback();
             e.printStackTrace();
