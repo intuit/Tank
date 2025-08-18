@@ -28,6 +28,7 @@ import jakarta.persistence.criteria.Root;
 
 import com.intuit.tank.project.User;
 import com.intuit.tank.project.UserProperty;
+import com.intuit.tank.project.Group;
 import com.intuit.tank.vm.common.PasswordEncoder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -192,60 +193,27 @@ public class UserDao extends BaseDao<User> {
             begin();
             user = em.find(User.class, user.getId());
             if (user != null) {
+                String originalName = user.getName();
                 String anonymizedName = "deleted_user_" + user.getId();
+                java.util.Date epochDate = new java.util.Date(0L);
+                java.time.Instant epochInstant = java.time.Instant.EPOCH;
 
-                // Use native SQL to bypass JPA lifecycle callbacks and anonymize timestamps and token
-                // Note: created and modified cannot be NULL due to database constraints, so we set them to epoch time
-                // Also set last_login_ts to epoch time to prevent re-deletion of anonymized users
-                String sql = "UPDATE user SET name = ?, email = ?, created = '1970-01-01 00:00:00', modified = '1970-01-01 00:00:00', last_login_ts = '1970-01-01 00:00:00', token = NULL WHERE id = ?";
-                em.createNativeQuery(sql)
-                    .setParameter(1, anonymizedName)
-                    .setParameter(2, "deleted_users@deleted.com")
-                    .setParameter(3, user.getId())
-                    .executeUpdate();
+                user.setName(anonymizedName);
+                user.setEmail("deleted_users@deleted.com");
+                user.deleteApiToken();
+                user.setCreated(epochDate);
+                user.setModified(epochDate);
+                user.setLastLoginTs(epochInstant);
+
+                em.merge(user);
+                em.flush();
                 LOG.info("Anonymized user data for: {}", userIdentifier);
 
-                // Dynamically find all tables with 'creator' column and update them
-                List<String> tables = em.createNativeQuery(
-                    "SELECT TABLE_NAME FROM information_schema.COLUMNS " +
-                    "WHERE COLUMN_NAME = 'creator' AND TABLE_SCHEMA = DATABASE()")
-                    .getResultList();
+                updateCreatorFieldsForOwnableEntities(em, originalName, anonymizedName);
 
-                for (String table : tables) {
-                    String updateSql = "UPDATE " + table + " SET creator = ? WHERE creator = ?";
-                    int rowsUpdated = em.createNativeQuery(updateSql)
-                        .setParameter(1, anonymizedName)
-                        .setParameter(2, user.getName())
-                        .executeUpdate();
-                    LOG.info("Updated {} rows in table {} for user {}", rowsUpdated, table, userIdentifier);
-                }
+                updateRevisionInfo(em, originalName, anonymizedName);
 
-                // Handle revision_info table separately as it uses user_name instead of creator
-                String revisionSql = "UPDATE revision_info SET user_name = ? WHERE user_name = ?";
-                int revisionRows = em.createNativeQuery(revisionSql)
-                    .setParameter(1, anonymizedName)
-                    .setParameter(2, user.getName())
-                    .executeUpdate();
-                LOG.info("Updated {} rows in revision_info table for user {}", revisionRows, userIdentifier);
-
-                // Set user to guest group only
-                // First, clear all existing group memberships
-                String clearGroupsSql = "DELETE FROM user_user_group WHERE group_id = ?";
-                int clearedGroups = em.createNativeQuery(clearGroupsSql)
-                    .setParameter(1, user.getId())
-                    .executeUpdate();
-                LOG.info("Cleared {} group memberships for user {}", clearedGroups, userIdentifier);
-
-                // Then add user to guest group (find guest group ID)
-                String guestGroupIdSql = "SELECT id FROM user_group WHERE name = 'guest'";
-                Integer guestGroupId = (Integer) em.createNativeQuery(guestGroupIdSql).getSingleResult();
-
-                String addGuestGroupSql = "INSERT INTO user_user_group (group_id, user_id) VALUES (?, ?)";
-                em.createNativeQuery(addGuestGroupSql)
-                    .setParameter(1, user.getId())
-                    .setParameter(2, guestGroupId)
-                    .executeUpdate();
-                LOG.info("Added user {} to guest group", userIdentifier);
+                updateUserGroups(em, user);
             }
             commit();
             return 1;
@@ -256,6 +224,111 @@ public class UserDao extends BaseDao<User> {
         } finally {
             cleanup();
         }
+    }
+
+    /**
+     * Updates creator fields for all OwnableEntity subclasses
+     */
+    private void updateCreatorFieldsForOwnableEntities(EntityManager em, String originalName, String anonymizedName) {
+        updateOwnableEntities(em, originalName, anonymizedName, com.intuit.tank.project.Project.class);
+        updateOwnableEntities(em, originalName, anonymizedName, com.intuit.tank.project.Script.class);
+        updateOwnableEntities(em, originalName, anonymizedName, com.intuit.tank.project.ScriptFilter.class);
+        updateOwnableEntities(em, originalName, anonymizedName, com.intuit.tank.project.ScriptFilterGroup.class);
+        updateOwnableEntities(em, originalName, anonymizedName, com.intuit.tank.project.DataFile.class);
+        updateOwnableEntities(em, originalName, anonymizedName, com.intuit.tank.project.ExternalScript.class);
+
+        try {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<com.intuit.tank.project.JobInstance> query = cb.createQuery(com.intuit.tank.project.JobInstance.class);
+            Root<com.intuit.tank.project.JobInstance> root = query.from(com.intuit.tank.project.JobInstance.class);
+            query.select(root).where(cb.equal(root.get("creator"), originalName));
+
+            java.util.List<com.intuit.tank.project.JobInstance> jobInstances = em.createQuery(query).getResultList();
+            for (com.intuit.tank.project.JobInstance jobInstance : jobInstances) {
+                jobInstance.setCreator(anonymizedName);
+                em.merge(jobInstance);
+            }
+
+            if (!jobInstances.isEmpty()) {
+                LOG.info("Updated {} JobInstance entities for user {}", jobInstances.size(), originalName);
+            }
+        } catch (Exception e) {
+            LOG.warn("Could not update creator for JobInstance entities: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Helper method to update OwnableEntity instances
+     */
+    private <T extends com.intuit.tank.project.OwnableEntity> void updateOwnableEntities(
+            EntityManager em, String originalName, String anonymizedName, Class<T> entityClass) {
+        try {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<T> query = cb.createQuery(entityClass);
+            Root<T> root = query.from(entityClass);
+            query.select(root).where(cb.equal(root.get("creator"), originalName));
+
+            java.util.List<T> entities = em.createQuery(query).getResultList();
+            for (T entity : entities) {
+                entity.setCreator(anonymizedName);
+                em.merge(entity);
+            }
+
+            if (!entities.isEmpty()) {
+                LOG.info("Updated {} {} entities for user {}", entities.size(), entityClass.getSimpleName(), originalName);
+            }
+        } catch (Exception e) {
+            LOG.warn("Could not update creator for entity type {}: {}", entityClass.getSimpleName(), e.getMessage());
+        }
+    }
+
+    /**
+     * Updates revision_info table entries
+     */
+    private void updateRevisionInfo(EntityManager em, String originalName, String anonymizedName) {
+        try {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<com.intuit.tank.project.TankRevisionInfo> query = cb.createQuery(com.intuit.tank.project.TankRevisionInfo.class);
+            Root<com.intuit.tank.project.TankRevisionInfo> root = query.from(com.intuit.tank.project.TankRevisionInfo.class);
+            query.select(root).where(cb.equal(root.get("username"), originalName));
+
+            java.util.List<com.intuit.tank.project.TankRevisionInfo> revisions = em.createQuery(query).getResultList();
+            for (com.intuit.tank.project.TankRevisionInfo revision : revisions) {
+                revision.setUsername(anonymizedName);
+                em.merge(revision);
+            }
+
+            if (!revisions.isEmpty()) {
+                LOG.info("Updated {} revision_info entries for user {}", revisions.size(), originalName);
+            }
+        } catch (Exception e) {
+            LOG.warn("Could not update revision_info entries: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Updates user group memberships - removes all groups and adds only guest group
+     */
+    private void updateUserGroups(EntityManager em, User user) {
+        user.getGroups().clear();
+
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Group> query = cb.createQuery(Group.class);
+        Root<Group> root = query.from(Group.class);
+        query.select(root).where(cb.equal(root.get("name"), "guest"));
+
+        Group guestGroup = null;
+        try {
+            guestGroup = em.createQuery(query).getSingleResult();
+        } catch (NoResultException e) {
+            guestGroup = new Group("guest");
+            em.persist(guestGroup);
+            LOG.info("Created guest group");
+        }
+
+        user.addGroup(guestGroup);
+        em.merge(user);
+        LOG.info("Set user {} to guest group only", user.getName());
     }
 
     /**
