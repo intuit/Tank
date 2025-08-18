@@ -105,6 +105,19 @@
 
         <div class="formRow">
           <div class="formLabelDiv">
+            <h:outputLabel for="lastLogin" value="Last Login"
+              styleClass="formLabel" />
+          </div>
+          <div class="formInputDiv">
+            <h:outputText id="lastLogin" value="#{userEdit.user.lastLoginTs}" converter="instantConverter">
+              <f:attribute name="pattern" value="MMM dd, yyyy HH:mm:ss" />
+            </h:outputText>
+            <h:outputText value=" (Never logged in)" rendered="#{userEdit.user.lastLoginTs eq null}" styleClass="text-muted" />
+          </div>
+        </div>
+
+        <div class="formRow">
+          <div class="formLabelDiv">
             <h:outputLabel for="groupsList" value="Groups"
               styleClass="formLabel required" />
           </div>

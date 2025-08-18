@@ -27,9 +27,11 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.time.Instant;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -48,8 +50,7 @@ import org.hibernate.envers.Audited;
 @Audited
 @Table(name = "user",
         indexes = { @Index(name = "IDX_USER_NAME", columnList = User.PROPERTY_NAME),
-                    @Index(name = "IDX_USER_EMAIL", columnList = User.PROPERTY_EMAIL),
-                    @Index(name = "IDX_USER_TOKEN", columnList = "token")})
+                    @Index(name = "IDX_USER_TOKEN", columnList = "token"),})
 
 public class User extends BaseEntity {
 
@@ -83,6 +84,9 @@ public class User extends BaseEntity {
     @Column(name = "token")
     private String apiToken;
 
+    @Column(name = "last_login_ts", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private Instant lastLoginTs = Instant.now();
+
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
     @JoinTable(joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
@@ -90,6 +94,13 @@ public class User extends BaseEntity {
     private Set<Group> groups = new HashSet<Group>();
 
     public User() {
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (lastLoginTs == null) {
+            lastLoginTs = Instant.now();
+        }
     }
 
     /**
@@ -186,6 +197,20 @@ public class User extends BaseEntity {
      */
     public Set<Group> getGroups() {
         return groups;
+    }
+
+    /**
+     * @return the lastLoginTs
+     */
+    public Instant getLastLoginTs() {
+        return lastLoginTs;
+    }
+
+    /**
+     * @param lastLoginTs the lastLoginTs to set
+     */
+    public void setLastLoginTs(Instant lastLoginTs) {
+        this.lastLoginTs = lastLoginTs;
     }
 
     /**
@@ -288,6 +313,13 @@ public class User extends BaseEntity {
         @SuppressWarnings("unchecked")
         public GeneratorT generateApiToken() {
             instance.generateApiToken();
+
+            return (GeneratorT) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public GeneratorT lastLoginTs(Instant aValue) {
+            instance.setLastLoginTs(aValue);
 
             return (GeneratorT) this;
         }

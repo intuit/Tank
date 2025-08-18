@@ -349,7 +349,7 @@ public class TestPlanRunner implements Runnable {
                     throw new KillScriptException("Killing " + tsc.getTestStep());
                 } else if (onFail.equalsIgnoreCase(TankConstants.HTTP_CASE_SKIPGROUP)) {
                     APITestHarness.getInstance().addSkipGroup();
-                    throw new NextScriptGroupException("Skilling test group at " + tsc.getTestStep());
+                    throw new NextScriptGroupException("Skipping test group at " + tsc.getTestStep());
                 } else if (onFail.equalsIgnoreCase(TankConstants.HTTP_CASE_ABORT)) {
                     APITestHarness.getInstance().addAbort();
                     throw new AbortScriptException("Aborting " + tsc.getTestStep());
