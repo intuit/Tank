@@ -139,21 +139,21 @@ public class TankConfig extends BaseCommonsXmlConfig {
      * @return true if user auto-deletion is enabled
      */
     public boolean isUserAutoDeletionEnabled() {
-        return config.getBoolean(KEY_USER_AUTO_DELETION_ENABLED, false);
+        return XMLConfig.getBoolean(KEY_USER_AUTO_DELETION_ENABLED, false);
     }
 
     /**
      * @return the retention period in days for user auto-deletion
      */
     public int getUserAutoDeletionRetentionDays() {
-        return config.getInt(KEY_USER_AUTO_DELETION_RETENTION_DAYS, 730);
+        return XMLConfig.getInt(KEY_USER_AUTO_DELETION_RETENTION_DAYS, 730);
     }
 
     /**
      * @return the list of permitted users that should not be auto-deleted
      */
     public List<String> getUserAutoDeletionPermittedUsers() {
-        String users = config.getString(KEY_USER_AUTO_DELETION_PERMITTED_USERS, "");
+        String users = XMLConfig.getString(KEY_USER_AUTO_DELETION_PERMITTED_USERS, "");
         if (users == null || users.trim().isEmpty()) {
             return new ArrayList<>();
         }
