@@ -3,13 +3,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>com.intuit.tank</groupId>
-    <artifactId>tank-parent</artifactId>
-    <version>4.1.1-SNAPSHOT</version>
-  </parent>
-
-  <artifactId>tank-test-support</artifactId>
+  <groupId>com.intuit.tank</groupId>
+  <artifactId>test-support</artifactId>
+  <version>4.2.1-SNAPSHOT</version>
 
   <packaging>jar</packaging>
   <description>Intuit Tank Test Support module</description>
@@ -34,6 +30,8 @@
     <version.surefire>3.5.3</version.surefire>
     <version.jaxb>4.0.2</version.jaxb>
     <version.junit>5.12.2</version.junit>
+    <version.jackson>2.18.3</version.jackson>
+    <version.software.amazon.awssdk>2.31.25</version.software.amazon.awssdk>
     <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     <maven.compiler.release>17</maven.compiler.release>
@@ -102,6 +100,11 @@
   </build>
 
   <dependencies>
+      <dependency>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-core</artifactId>
+          <version>2.22.0</version>
+      </dependency>
     <dependency>
       <groupId>jakarta.xml.bind</groupId>
       <artifactId>jakarta.xml.bind-api</artifactId>
@@ -110,10 +113,12 @@
     <dependency>
       <groupId>software.amazon.awssdk</groupId>
       <artifactId>ssm</artifactId>
+        <version>${version.software.amazon.awssdk}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
+        <version>${version.jackson}</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jaxb</groupId>

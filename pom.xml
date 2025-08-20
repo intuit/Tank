@@ -6,7 +6,7 @@
 
   <groupId>com.intuit.tank</groupId>
   <artifactId>tank-parent</artifactId>
-  <version>4.1.1-SNAPSHOT</version>
+  <version>4.2.1-SNAPSHOT</version>
 
   <packaging>pom</packaging>
   <name>Tank Parent</name>
@@ -33,7 +33,7 @@
     <version.software.amazon.awssdk>2.31.25</version.software.amazon.awssdk>
     <version.aws-xray-sdk-bom>2.18.2</version.aws-xray-sdk-bom>
 
-    <version.tomcat>11.0.9</version.tomcat>
+    <version.tomcat>11.0.10</version.tomcat>
     <weld.version>6.0.2.Final</weld.version>
     <cdi.version>4.1.0</cdi.version>
 
@@ -480,6 +480,12 @@
         <groupId>org.primefaces.themes</groupId>
         <artifactId>redmond</artifactId>
         <version>1.1.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>software.xdev</groupId>
+        <artifactId>chartjs-java-model</artifactId>
+        <version>2.8.0</version>
       </dependency>
 
       <dependency>

@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>web-parent</artifactId>
-    <version>4.1.1-SNAPSHOT</version>
+    <version>4.2.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>web-support</artifactId>
@@ -138,11 +138,14 @@
       <artifactId>primefaces</artifactId>
       <classifier>jakarta</classifier>
     </dependency>
-    
     <dependency>
       <groupId>org.primefaces.extensions</groupId>
       <artifactId>primefaces-extensions</artifactId>
       <classifier>jakarta</classifier>
+    </dependency>
+    <dependency>
+      <groupId>software.xdev</groupId>
+      <artifactId>chartjs-java-model</artifactId>
     </dependency>
 
     <!-- Bean Validation API (JSR 303) -->

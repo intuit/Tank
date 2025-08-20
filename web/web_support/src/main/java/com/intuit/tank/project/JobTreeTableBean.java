@@ -21,7 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Iterables;
 import com.intuit.tank.vm.vmManager.models.*;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
@@ -58,14 +57,15 @@ import com.intuit.tank.reporting.api.ResultsReader;
 import com.intuit.tank.reporting.api.TPSInfo;
 import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.util.ExceptionHandler;
-import org.primefaces.model.charts.ChartData;
-import org.primefaces.model.charts.axes.cartesian.CartesianScales;
-import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearAxes;
-import org.primefaces.model.charts.axes.cartesian.linear.CartesianLinearTicks;
-import org.primefaces.model.charts.line.LineChartDataSet;
-import org.primefaces.model.charts.line.LineChartModel;
-import org.primefaces.model.charts.line.LineChartOptions;
-import org.primefaces.model.charts.optionconfig.legend.Legend;
+import software.xdev.chartjs.model.charts.LineChart;
+import software.xdev.chartjs.model.data.LineData;
+import software.xdev.chartjs.model.dataset.LineDataset;
+import software.xdev.chartjs.model.options.LegendOptions;
+import software.xdev.chartjs.model.options.LineOptions;
+import software.xdev.chartjs.model.options.Plugins;
+import software.xdev.chartjs.model.options.Title;
+import software.xdev.chartjs.model.options.scale.Scales;
+import software.xdev.chartjs.model.options.scale.cartesian.linear.LinearScaleOptions;
 
 /**
  * JobTreeTableBean
@@ -110,8 +110,8 @@ public abstract class JobTreeTableBean implements Serializable {
     private int refreshInterval;
 
     private JobNodeBean currentJobInstance;
-    private LineChartModel chartModel;
-    private LineChartModel tpsChartModel;
+    private String chartModel;
+    private String tpsChartModel;
 
     protected abstract Integer getRootJobId();
 
@@ -208,93 +208,79 @@ public abstract class JobTreeTableBean implements Serializable {
     /**
      * @return the chartModel
      */
-    public LineChartModel getChartModel() {
+    public String getChartModel() {
         return chartModel;
     }
 
     /**
      * @return the tpsChartModel
      */
-    public LineChartModel getTpsChartModel() {
+    public String getTpsChartModel() {
         return tpsChartModel;
     }
 
     private void initChartModel() {
         LOG.info("Initializing user chart model...");
-        Iterator<String> lineColor= Iterables.cycle(
-                List.of("rgb(54, 162, 235)","rgb(255, 99, 132)","rgb(75, 192, 192)","rgb(255, 205, 86)","rgb(201, 203, 207)")).iterator();
         chartModel = null;
         if (currentJobInstance != null && currentJobInstance.getStatusDetailMap() != null) {
             List<String> labels = new ArrayList<>();
-            Map<String, ArrayList<Object>> datasetMap = new HashMap<>();
+            Map<String, List<Number>> datasetMap = new HashMap<>();
             Map<Date, List<UserDetail>> detailMap = currentJobInstance.getStatusDetailMap();
             detailMap.keySet().stream().sorted()
                     .forEach(d -> {
-                        labels.add(sdf.format(d.getTime()));
                         detailMap.get(d)
                                 .forEach(detail -> {
-                                    ArrayList<Object> dataset = datasetMap.computeIfAbsent(detail.getScript(), k -> new ArrayList<>());
-                                    dataset.add(detail.getUsers());
+                                    datasetMap.computeIfAbsent(detail.getScript(),k -> new ArrayList<>())
+                                            .add(detail.getUsers());
                                 });
+                        if (!datasetMap.isEmpty()) labels.add(sdf.format(d.getTime()));
                         datasetMap.forEach((key, value) -> {
                             while (value.size() < labels.size()) {
                                 value.add(null);
                             }
                         });
                     });
-            chartModel = new LineChartModel();
-            ChartData lineData = new ChartData();
-            datasetMap.forEach((key, value) -> {
-                LineChartDataSet lineDataSet = new LineChartDataSet();
-                lineDataSet.setData(value);
-                lineDataSet.setLabel(key);
-                lineDataSet.setBorderColor(lineColor.next());
-                lineDataSet.setTension(0.2);
-                lineDataSet.setFill(false);
-                lineData.addChartDataSet(lineDataSet);
-            });
+            LineData lineData = new LineData();
             lineData.setLabels(labels);
-
-            //Options
-            LineChartOptions options = new LineChartOptions();
-            Legend legend = new Legend();
-            legend.setPosition("right");
-            options.setLegend(legend);
-
-            CartesianScales cScales = new CartesianScales();
-            CartesianLinearAxes linearAxes = new CartesianLinearAxes();
-            CartesianLinearTicks ticks = new CartesianLinearTicks();
-            ticks.setMinRotation(10);
-            ticks.setMaxRotation(80);
-            linearAxes.setTicks(ticks);
-            linearAxes.setBeginAtZero(true);
-            cScales.addYAxesData(linearAxes);
-            options.setScales(cScales);
-
-            chartModel.setOptions(options);
-            chartModel.setData(lineData);
+            datasetMap.forEach((key, value) -> {
+                lineData.addDataset(new LineDataset()
+                        .setData(value)
+                        .setLabel(key)
+                        .setLineTension(0.2f));
+            });
+            chartModel = new LineChart()
+                    .setData(lineData)
+                    .setOptions(new LineOptions()
+                            .setResponsive(true)
+                            .setMaintainAspectRatio(false)
+                            .setPlugins(new Plugins()
+                                    .setLegend(new LegendOptions().setPosition("right"))
+                                    .setTitle(new Title()
+                                            .setDisplay(true)
+                                            .setText("Users Chart")))
+                            .setScales(new Scales().addScale(Scales.ScaleAxis.Y,
+                                    new LinearScaleOptions().setBeginAtZero(true)))
+                    ).toJson();
         }
     }
 
     private void initializeTpsModel() {
         LOG.info("Initializing TPS chart model...");
         AWSXRay.beginSubsegment("Initialize TpsModel");
-        Iterator<String> lineColor= Iterables.cycle(
-                List.of("rgb(54, 162, 235)","rgb(255, 99, 132)","rgb(75, 192, 192)","rgb(255, 205, 86)","rgb(201, 203, 207)")).iterator();
         tpsChartModel = null;
         if (currentJobInstance != null) {
             List<String> labels = new ArrayList<>();
-            Map<String, ArrayList<Object>> datasetMap = new HashMap<>();
+            Map<String, List<Number>> datasetMap = new HashMap<>();
             Map<Date, Map<String, TPSInfo>> tpsDetailMap = getTpsMap();
             tpsDetailMap.keySet().stream().sorted()
                     .forEach(d -> {
-                        labels.add(sdf.format(d.getTime()));
                         tpsDetailMap.get(d).values()
                                 .forEach(info -> {
-                                    ArrayList<Object> dataset = datasetMap.computeIfAbsent(info.getKey(), k -> new ArrayList<>());
-                                    dataset.add(info.getTPS());
+                                    datasetMap.computeIfAbsent(info.getKey(),k -> new ArrayList<>())
+                                            .add(labels.size()-1, info.getTPS());
                                     datasetMap.get(TOTAL_TPS_SERIES_KEY).add(info.getTPS());
                                 });
+                        if (!datasetMap.isEmpty()) labels.add(sdf.format(d.getTime()));
                         datasetMap.forEach((key, value) -> {
                             while (value.size() < labels.size()) {
                                 value.add(null);
@@ -302,45 +288,35 @@ public abstract class JobTreeTableBean implements Serializable {
                         });
                     });
 
-            ArrayList<Object> total = new ArrayList<>();
+            List<Number> total = new ArrayList<>();
             datasetMap.forEach((key, value) -> value
                     .forEach(v -> {
                         if (total.size() < value.size()) { total.add(0); }
                         total.set(value.indexOf(v), (int) total.get(value.indexOf(v)) + (int) v);
-            }));
+                    }));
             datasetMap.put(TOTAL_TPS_SERIES_KEY, total);
 
-            tpsChartModel = new LineChartModel();
-            ChartData lineData = new ChartData();
-            datasetMap.forEach((key, value) -> {
-                LineChartDataSet lineDataSet = new LineChartDataSet();
-                lineDataSet.setData(value);
-                lineDataSet.setLabel(key);
-                lineDataSet.setBorderColor(lineColor.next());
-                lineDataSet.setTension(0.2);
-                lineDataSet.setFill(false);
-                lineData.addChartDataSet(lineDataSet);
-            });
+            LineData lineData = new LineData();
             lineData.setLabels(labels);
-
-            //Options
-            LineChartOptions options = new LineChartOptions();
-            Legend legend = new Legend();
-            legend.setPosition("right");
-            options.setLegend(legend);
-
-            CartesianScales cScales = new CartesianScales();
-            CartesianLinearAxes linearAxes = new CartesianLinearAxes();
-            CartesianLinearTicks ticks = new CartesianLinearTicks();
-            ticks.setMinRotation(10);
-            ticks.setMaxRotation(80);
-            linearAxes.setTicks(ticks);
-            linearAxes.setBeginAtZero(true);
-            cScales.addYAxesData(linearAxes);
-            options.setScales(cScales);
-
-            tpsChartModel.setOptions(options);
-            tpsChartModel.setData(lineData);
+            datasetMap.forEach((key, value) -> {
+                lineData.addDataset(new LineDataset()
+                        .setData(value)
+                        .setLabel(key)
+                        .setLineTension(0.2f));
+            });
+            tpsChartModel = new LineChart()
+                    .setData(lineData)
+                    .setOptions(new LineOptions()
+                            .setResponsive(true)
+                            .setMaintainAspectRatio(false)
+                            .setPlugins(new Plugins()
+                                    .setLegend(new LegendOptions().setPosition("right"))
+                                    .setTitle(new Title()
+                                            .setDisplay(true)
+                                            .setText("TPS Chart")))
+                            .setScales(new Scales().addScale(Scales.ScaleAxis.Y,
+                                    new LinearScaleOptions().setBeginAtZero(true)))
+                    ).toJson();
         } else {
             LOG.info("currentJobInstance is null");
         }
