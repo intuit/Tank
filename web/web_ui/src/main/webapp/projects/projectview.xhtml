@@ -559,8 +559,7 @@
 
           <div class="vertical-spacer" />
           <h:panelGroup
-            rendered="#{projectJobQueueManager.chartModel ne null}"
-            id="chartScript">
+            rendered="#{projectJobQueueManager.chartModel ne null}" id="chartScript">
             <p:chart value="#{projectJobQueueManager.chartModel}" style="height:400px"
               title="User Details over Time" />
           </h:panelGroup>
