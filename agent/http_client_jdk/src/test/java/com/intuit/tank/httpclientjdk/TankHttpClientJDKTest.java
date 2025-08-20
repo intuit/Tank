@@ -1,8 +1,12 @@
 package com.intuit.tank.httpclientjdk;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 import com.intuit.tank.http.AuthCredentials;
 import com.intuit.tank.http.AuthScheme;
@@ -16,8 +20,12 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 public class TankHttpClientJDKTest {
 
@@ -109,6 +117,41 @@ public class TankHttpClientJDKTest {
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
+    public void doGetException() throws IOException, InterruptedException {
+        HttpClient mockHttpClient = Mockito.mock(HttpClient.class);
+        when(mockHttpClient
+                .send(ArgumentMatchers.any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream())))
+                .thenThrow(new UnknownHostException("Mocked UnknownHost exception"));
+        BaseRequest request = getRequest(new TankHttpClientJDK(mockHttpClient), wireMockServer.baseUrl() + "/get");
+        request.doGet(null);
+        assertNull(request.getResponse());
+
+        when(mockHttpClient
+                .send(ArgumentMatchers.any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream())))
+                .thenThrow(new SocketException("Mocked Socket Exception"));
+        request.doGet(null);
+        assertNull(request.getResponse());
+
+        when(mockHttpClient
+                .send(ArgumentMatchers.any(HttpRequest.class), eq(HttpResponse.BodyHandlers.ofInputStream())))
+                .thenThrow(new RuntimeException("Mocked Exception"));
+        assertThrows(RuntimeException.class, () -> request.doGet(null));
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void doOptions() {
+        BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/options");
+        request.doOptions(null);
+        BaseResponse response = request.getResponse();
+        verify(exactly(1), optionsRequestedFor(urlEqualTo("/options")));
+        assertNotNull(response);
+        assertEquals(204, response.getHttpCode());
+        assertNotNull(response.getBody());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void doPost() {
         BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/post");
         request.setBody("{\"title\":\"Direct deposit with Credit Karma Money™ checking account¹\"}");
@@ -118,6 +161,18 @@ public class TankHttpClientJDKTest {
         verify(exactly(1), postRequestedFor(urlEqualTo("/post"))
                 .withHeader("Content-Type", equalTo("application/json"))
                 .withRequestBody(containing("Money™")));
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotNull(response.getBody());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void doPatch() {
+        BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/patch");
+        request.doPatch(null);
+        BaseResponse response = request.getResponse();
+        verify(exactly(1), patchRequestedFor(urlEqualTo("/patch")));
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
         assertNotNull(response.getBody());
