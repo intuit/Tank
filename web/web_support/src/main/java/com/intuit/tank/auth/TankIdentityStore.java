@@ -6,6 +6,7 @@ import com.intuit.tank.project.User;
 import com.intuit.tank.service.InitializeEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import java.time.Instant;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -40,8 +41,13 @@ public class TankIdentityStore implements IdentityStore {
         UsernamePasswordCredential login = (UsernamePasswordCredential) credential;
 
         LOG.info("Attempting to login {}", login.getCaller());
-        User user = new UserDao().authenticate(login.getCaller(), login.getPasswordAsString());
+        UserDao userDao = new UserDao();
+        User user = userDao.authenticate(login.getCaller(), login.getPasswordAsString());
         if (user != null) {
+            // Update last login timestamp for auto-deletion tracking
+            user.setLastLoginTs(Instant.now());
+            userDao.saveOrUpdate(user);
+
             Set<String> userRoles = user.getGroups().stream().map(Group::getName).collect(Collectors.toSet());
             loginEventSrc.fire(user);
             LOG.info("Successfully logged in {}", login.getCaller());
@@ -53,6 +59,10 @@ public class TankIdentityStore implements IdentityStore {
 
     public CredentialValidationResult validateSSOUser(User user) {
         try {
+            // Update last login timestamp for auto-deletion tracking
+            user.setLastLoginTs(Instant.now());
+            new UserDao().saveOrUpdate(user);
+
             Set<String> userRoles = user.getGroups().stream().map(Group::getName).collect(Collectors.toSet());
             loginEventSrc.fire(user);
             return new CredentialValidationResult(user.getName(), userRoles);

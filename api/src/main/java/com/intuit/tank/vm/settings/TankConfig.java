@@ -14,6 +14,10 @@ package com.intuit.tank.vm.settings;
  */
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
@@ -60,6 +64,9 @@ public class TankConfig extends BaseCommonsXmlConfig {
     private static final String KEY_OIDC_SSO_NODE = "oidc-sso";
 
     private static final String KEY_BANNER_TEXT = "banner-text";
+    private static final String KEY_USER_AUTO_DELETION_ENABLED = "user-auto-deletion-enabled";
+    private static final String KEY_USER_AUTO_DELETION_RETENTION_DAYS = "user-auto-deletion-retention-days";
+    private static final String KEY_USER_AUTO_DELETION_PERMITTED_USERS = "user-auto-deletion-permitted-users";
 
     private static String configName = CONFIG_NAME;
 
@@ -126,6 +133,35 @@ public class TankConfig extends BaseCommonsXmlConfig {
      */
     public String getTextBanner() {
         return XMLConfig.getString(KEY_BANNER_TEXT, "");
+    }
+
+    /**
+     * @return true if user auto-deletion is enabled
+     */
+    public boolean isUserAutoDeletionEnabled() {
+        return XMLConfig.getBoolean(KEY_USER_AUTO_DELETION_ENABLED, false);
+    }
+
+    /**
+     * @return the retention period in days for user auto-deletion
+     */
+    public int getUserAutoDeletionRetentionDays() {
+        return XMLConfig.getInt(KEY_USER_AUTO_DELETION_RETENTION_DAYS, 730);
+    }
+
+    /**
+     * @return the list of permitted users that should not be auto-deleted
+     */
+    public List<String> getUserAutoDeletionPermittedUsers() {
+        String users = XMLConfig.getString(KEY_USER_AUTO_DELETION_PERMITTED_USERS, "");
+        if (users == null || users.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return Arrays.asList(users.split(","))
+            .stream()
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toList());
     }
 
     /**
