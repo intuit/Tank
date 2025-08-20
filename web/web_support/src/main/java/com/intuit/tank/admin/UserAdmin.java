@@ -133,11 +133,11 @@ public class UserAdmin extends SelectableBean<User> implements Serializable, Mul
     }
 
     /**
-     * Deletes a user by anonymizing their personal data while preserving referential integrity.
-     * The user's name becomes "deleted_user_[id]", email becomes "deleted_users@deleted.com",
-     * and all resources they own have their creator field updated to the anonymized name.
-     * 
-     * @param user the user to delete/anonymize
+     * Deletes a user using a two-step process:
+     * 1. First anonymizes all user resources (projects, scripts, etc.) to preserve referential integrity
+     * 2. Then removes the user from the database
+     *
+     * @param user the user to delete
      */
     public void delete(User user) {
         try {
@@ -150,7 +150,7 @@ public class UserAdmin extends SelectableBean<User> implements Serializable, Mul
                 for (java.util.Map.Entry<String, java.util.List<String>> entry : ownedResources.entrySet()) {
                     String resourceType = entry.getKey();
                     java.util.List<String> resourceNames = entry.getValue();
-                    errorMsg.append("> ").append(resourceType).append(": ");
+                    errorMsg.append(resourceType).append(": ");
                     errorMsg.append(String.join(", ", resourceNames)).append("  ");
                 }
 
@@ -160,23 +160,32 @@ public class UserAdmin extends SelectableBean<User> implements Serializable, Mul
                 return;
             }
 
-            // Use UserDao's anonymization method instead of hard delete
-            // This preserves referential integrity while removing user data
+            // Use UserDao's anonymization method to clean up all user resources first
+            // This preserves referential integrity by updating all owned resources
             UserDao userDao = new UserDao();
             long result = userDao.deleteUserData(user.getName());
 
             if (result > 0) {
-                userEvent.fire(new ModifiedUserMessage(user, this));
-                messages.info("User " + user.getName() + " has been deleted successfully.");
+                // Now that all resources are anonymized, we can safely delete the user
+                try {
+                    userDao.delete(user);
+                    userEvent.fire(new ModifiedUserMessage(user, this));
+                    messages.info("User " + user.getName() + " has been deleted successfully.");
+                } catch (Exception deleteException) {
+                    // If deletion fails, at least the user is anonymized
+                    LOG.warn("User {} was anonymized but could not be deleted from database: {}", user.getName(), deleteException.getMessage());
+                    messages.warn("User " + user.getName() + " was anonymized but could not be completely removed from database. This is usually safe to ignore.");
+                    userEvent.fire(new ModifiedUserMessage(user, this));
+                }
             } else {
                 messages.error("Failed to delete/anonymize user '" + user.getName() + "'. User may not exist or an error occurred.");
                 return;
             }
         } catch (Exception e) {
-            String errorMsg = "Failed to delete/anonymize user '" + user.getName() +
+            String errorMsg = "Failed to delete user '" + user.getName() +
                 "'. Error: " + e.getMessage();
             messages.error(errorMsg);
-            LOG.error("Failed to delete/anonymize user " + user.getName(), e);
+            LOG.error("Failed to delete user " + user.getName(), e);
         }
     }
 
