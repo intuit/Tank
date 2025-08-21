@@ -530,6 +530,28 @@
       </varlistentry>
 
       <varlistentry>
+        <term>addDaysUTC(int days, String format)</term>
+        <listitem>
+          <para>
+            Adds days to the current date in UTC timezone.
+            <orderedlist>
+              <title>Parameters</title>
+              <listitem>
+                days: Integer The number of days. Pass in a negative value to subtract days.
+              </listitem>
+              <listitem>
+                format: String The date format string to use. Can use predefined constants like 'ISO_UTC', 'ISO_UTC_NO_MS', or custom format. If empty, will use default ISO format.
+              </listitem>
+            </orderedlist>
+            <example>
+              <code>#{dateFunctions.addDaysUTC(5,'ISO_UTC')}</code>
+              produces '2025-08-23T22:11:28.600Z' on August 18, 2025
+            </example>
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
         <term>currentDate(String format, String timeZone)</term>
         <listitem>
           <para>
@@ -547,6 +569,55 @@
               <code>#{dateFunctions.currentDate('yyyy-MM-dd', 'PST')}</code>
               produces '2011-11-15' on November 15, 2014
             </example>
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>currentDateTime(String format)</term>
+        <listitem>
+          <para>
+            Current Date and Time. Get the current date and time in local timezone.
+            <orderedlist>
+              <title>Parameters</title>
+              <listitem>
+                format: String The date and time format string to use. If empty, will use 'yyyy-MM-dd HH:mm:ss'.
+              </listitem>
+            </orderedlist>
+            <example>
+              <code>#{dateFunctions.currentDateTime('yyyy-MM-dd HH:mm:ss')}</code>
+              produces '2025-08-18 22:11:28' on August 18, 2025
+            </example>
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>currentUTC(String format)</term>
+        <listitem>
+          <para>
+            Current UTC Date and Time. Get the current date and time in UTC timezone.
+            <orderedlist>
+              <title>Parameters</title>
+              <listitem>
+                format: String The date and time format string to use. Can use predefined constants like 'ISO_UTC', 'ISO_UTC_NO_MS', or custom format. If empty, will use default ISO format.
+              </listitem>
+            </orderedlist>
+            <example>
+              <code>#{dateFunctions.currentUTC('ISO_UTC')}</code>
+              produces '2025-08-18T22:11:28.600Z'
+            </example>
+            <para>
+              <emphasis>Predefined UTC Format Constants:</emphasis>
+              <itemizedlist>
+                <listitem>ISO_UTC: <code>yyyy-MM-dd'T'HH:mm:ss.SSS'Z'</code> (e.g., 2025-08-18T22:11:28.600Z)</listitem>
+                <listitem>ISO_UTC_NO_MS: <code>yyyy-MM-dd'T'HH:mm:ss'Z'</code> (e.g., 2025-08-18T22:11:28Z)</listitem>
+                <listitem>ISO_UTC_OFFSET: <code>yyyy-MM-dd'T'HH:mm:ss.SSSXXX</code> (e.g., 2025-08-18T22:11:28.600+00:00)</listitem>
+                <listitem>ISO_UTC_DATE: <code>yyyy-MM-dd</code> (e.g., 2025-08-18)</listitem>
+                <listitem>ISO_UTC_TIME: <code>HH:mm:ss.SSS'Z'</code> (e.g., 22:11:28.600Z)</listitem>
+                <listitem>RFC_1123: <code>EEE, dd MMM yyyy HH:mm:ss zzz</code> (e.g., Mon, 18 Aug 2025 22:11:28 GMT)</listitem>
+              </itemizedlist>
+            </para>
           </para>
         </listitem>
       </varlistentry>
