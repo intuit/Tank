@@ -84,7 +84,7 @@ public class ScriptGroupStepTest {
     public void testEquals_1()
         throws Exception {
         ScriptGroupStep fixture = new ScriptGroupStep();
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setScriptGroup(new ScriptGroup());
         fixture.setLoop(1);
         fixture.setScript(new Script());
@@ -106,7 +106,7 @@ public class ScriptGroupStepTest {
     public void testEquals_2()
         throws Exception {
         ScriptGroupStep fixture = new ScriptGroupStep();
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setScriptGroup(new ScriptGroup());
         fixture.setLoop(1);
         fixture.setScript(new Script());
@@ -128,7 +128,7 @@ public class ScriptGroupStepTest {
     public void testEquals_3()
         throws Exception {
         ScriptGroupStep fixture = new ScriptGroupStep();
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setScriptGroup(new ScriptGroup());
         fixture.setLoop(1);
         fixture.setScript(new Script());
@@ -150,7 +150,7 @@ public class ScriptGroupStepTest {
     public void testGetLoop_1()
         throws Exception {
         ScriptGroupStep fixture = new ScriptGroupStep();
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setScriptGroup(new ScriptGroup());
         fixture.setLoop(1);
         fixture.setScript(new Script());
@@ -171,7 +171,7 @@ public class ScriptGroupStepTest {
     public void testGetPosition_1()
         throws Exception {
         ScriptGroupStep fixture = new ScriptGroupStep();
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setScriptGroup(new ScriptGroup());
         fixture.setLoop(1);
         fixture.setScript(new Script());
@@ -199,7 +199,7 @@ public class ScriptGroupStepTest {
     public void testGetScript_1()
         throws Exception {
         ScriptGroupStep fixture = new ScriptGroupStep();
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setScriptGroup(new ScriptGroup());
         fixture.setLoop(1);
         fixture.setScript(new Script());
@@ -230,7 +230,7 @@ public class ScriptGroupStepTest {
     public void testGetScriptGroup_1()
         throws Exception {
         ScriptGroupStep fixture = new ScriptGroupStep();
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setScriptGroup(new ScriptGroup());
         fixture.setLoop(1);
         fixture.setScript(new Script());
@@ -258,7 +258,7 @@ public class ScriptGroupStepTest {
     public void testHashCode_1()
         throws Exception {
         ScriptGroupStep fixture = new ScriptGroupStep();
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setScriptGroup(new ScriptGroup());
         fixture.setLoop(1);
         fixture.setScript(new Script());
@@ -279,7 +279,7 @@ public class ScriptGroupStepTest {
     public void testSetLoop_1()
         throws Exception {
         ScriptGroupStep fixture = new ScriptGroupStep();
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setScriptGroup(new ScriptGroup());
         fixture.setLoop(1);
         fixture.setScript(new Script());
@@ -300,7 +300,7 @@ public class ScriptGroupStepTest {
     public void testSetParent_1()
         throws Exception {
         ScriptGroupStep fixture = new ScriptGroupStep();
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setScriptGroup(new ScriptGroup());
         fixture.setLoop(1);
         fixture.setScript(new Script());
@@ -321,11 +321,11 @@ public class ScriptGroupStepTest {
     public void testSetPosition_1()
         throws Exception {
         ScriptGroupStep fixture = new ScriptGroupStep();
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setScriptGroup(new ScriptGroup());
         fixture.setLoop(1);
         fixture.setScript(new Script());
-        Integer position = new Integer(1);
+        Integer position = Integer.valueOf(1);
 
         fixture.setPosition(position);
 
@@ -342,7 +342,7 @@ public class ScriptGroupStepTest {
     public void testSetScript_1()
         throws Exception {
         ScriptGroupStep fixture = new ScriptGroupStep();
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setScriptGroup(new ScriptGroup());
         fixture.setLoop(1);
         fixture.setScript(new Script());
@@ -363,7 +363,7 @@ public class ScriptGroupStepTest {
     public void testSetScriptGroup_1()
         throws Exception {
         ScriptGroupStep fixture = new ScriptGroupStep();
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setScriptGroup(new ScriptGroup());
         fixture.setLoop(1);
         fixture.setScript(new Script());
@@ -384,7 +384,7 @@ public class ScriptGroupStepTest {
     public void testToString_1()
         throws Exception {
         ScriptGroupStep fixture = new ScriptGroupStep();
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setScriptGroup(new ScriptGroup());
         fixture.setLoop(1);
         fixture.setScript(new Script());

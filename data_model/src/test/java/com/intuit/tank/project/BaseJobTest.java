@@ -405,7 +405,7 @@ public class BaseJobTest {
     public void testSetExecutionTime_1()
         throws Exception {
         BaseJob fixture = new JobConfiguration();
-        Long executionTime = new Long(1L);
+        Long executionTime = Long.valueOf(1L);
 
         fixture.setExecutionTime(executionTime);
     }

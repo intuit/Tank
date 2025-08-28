@@ -56,7 +56,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -81,7 +81,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -106,7 +106,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -131,7 +131,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -157,7 +157,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -183,7 +183,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -209,7 +209,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -235,7 +235,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -260,7 +260,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(false);
         fixture.setName("");
@@ -285,7 +285,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -311,7 +311,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -343,7 +343,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -372,7 +372,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -401,7 +401,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -426,7 +426,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -451,7 +451,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(false);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -476,7 +476,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -501,7 +501,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -526,7 +526,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -551,7 +551,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -576,7 +576,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -601,14 +601,14 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
         fixture.setFilterType(ScriptFilterType.EXTERNAL);
         fixture.setProductName("");
         fixture.setConditions(new HashSet());
-        Integer externalScriptId = new Integer(1);
+        Integer externalScriptId = Integer.valueOf(1);
 
         fixture.setExternalScriptId(externalScriptId);
 
@@ -626,7 +626,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -651,7 +651,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -676,7 +676,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -701,7 +701,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");
@@ -726,7 +726,7 @@ public class ScriptFilterTest {
         throws Exception {
         ScriptFilter fixture = new ScriptFilter();
         fixture.setActions(new HashSet());
-        fixture.setExternalScriptId(new Integer(1));
+        fixture.setExternalScriptId(Integer.valueOf(1));
         fixture.setPersist(true);
         fixture.setAllConditionsMustPass(true);
         fixture.setName("");

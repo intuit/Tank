@@ -56,7 +56,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
         ScriptGroupStep step = new ScriptGroupStep();
@@ -111,7 +111,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
         ScriptGroup o = null;
@@ -134,11 +134,11 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
         ScriptGroup o = new ScriptGroup();
-        o.setPosition(new Integer(1));
+        o.setPosition(Integer.valueOf(1));
 
         int result = fixture.compareTo(o);
 
@@ -158,7 +158,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
         Object obj = new Object();
@@ -181,7 +181,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
         Object obj = new ScriptGroup();
@@ -204,7 +204,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
         Object obj = new ScriptGroup();
@@ -227,7 +227,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
 
@@ -249,7 +249,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
 
@@ -271,7 +271,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
 
@@ -300,7 +300,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
 
@@ -323,7 +323,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
 
@@ -352,7 +352,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
 
@@ -374,7 +374,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
         int loop = 1;
@@ -396,7 +396,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
         String name = "";
@@ -418,7 +418,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
         TestPlan w = new TestPlan();
@@ -440,10 +440,10 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
-        Integer position = new Integer(1);
+        Integer position = Integer.valueOf(1);
 
         fixture.setPosition(position);
 
@@ -462,7 +462,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
         List<ScriptGroupStep> scripts = new LinkedList();
@@ -484,7 +484,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
         TestPlan testPlan = new TestPlan();
@@ -506,7 +506,7 @@ public class ScriptGroupTest {
         ScriptGroup fixture = new ScriptGroup();
         fixture.setLoop(1);
         fixture.setScriptGroupSteps(new LinkedList());
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         fixture.setTestPlan(new TestPlan());
         fixture.setName("");
 

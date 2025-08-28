@@ -60,7 +60,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         TestPlan testPlan = new TestPlan();
         int index = -1;
 
@@ -82,7 +82,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         TestPlan testPlan = new TestPlan();
         int index = 1;
 
@@ -104,7 +104,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         TestPlan testPlan = new TestPlan();
         int index = 1;
 
@@ -126,7 +126,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         TestPlan plan = new TestPlan();
 
         fixture.addTestPlan(plan);
@@ -178,7 +178,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         Object obj = new Object();
 
         boolean result = fixture.equals(obj);
@@ -199,7 +199,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         Object obj = new Workload();
 
         boolean result = fixture.equals(obj);
@@ -221,7 +221,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         Object obj = new Workload();
 
         boolean result = fixture.equals(obj);
@@ -243,7 +243,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
 
         JobConfiguration result = fixture.getJobConfiguration();
         assertNotNull(result);
@@ -264,7 +264,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
 
         String result = fixture.getName();
         assertNotNull(result);
@@ -285,7 +285,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
 
         Integer result = fixture.getPosition();
         assertNotNull(result);
@@ -306,7 +306,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
 
         Project result = fixture.getProject();
         assertNotNull(result);
@@ -327,7 +327,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
 
         List<TestPlan> result = fixture.getTestPlans();
         assertNotNull(result);
@@ -348,7 +348,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
 
         int result = fixture.hashCode();
     }
@@ -368,7 +368,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         JobConfiguration jobConfiguration = new JobConfiguration();
 
         fixture.setJobConfiguration(jobConfiguration);
@@ -389,7 +389,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         String name = "";
 
         fixture.setName(name);
@@ -410,7 +410,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         Project myProject = new Project();
 
         fixture.setParent(myProject);
@@ -431,8 +431,8 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
-        Integer position = new Integer(1);
+        fixture.setPosition(Integer.valueOf(1));
+        Integer position = Integer.valueOf(1);
 
         fixture.setPosition(position);
     }
@@ -452,7 +452,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         Project myProject = new Project();
 
         fixture.setProject(myProject);
@@ -473,7 +473,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         List<TestPlan> plans = new LinkedList();
 
         fixture.setTestPlan(plans);
@@ -494,7 +494,7 @@ public class WorkloadTest {
         fixture.setJobConfiguration(new JobConfiguration());
         fixture.setParent(new Project());
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
 
         String result = fixture.toString();
         assertNotNull(result);

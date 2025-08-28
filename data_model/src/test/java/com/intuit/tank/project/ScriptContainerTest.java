@@ -78,7 +78,7 @@ public class ScriptContainerTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals(1, result.getRuntime());
-        assertEquals(new Integer(0), result.getId());
+        assertEquals(Integer.valueOf(0), result.getId());
         assertEquals(null, result.getModified());
         assertEquals(null, result.getCreated());
         assertEquals(null, result.getCreator());
@@ -102,7 +102,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -128,7 +128,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -154,7 +154,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -180,7 +180,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -213,7 +213,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -239,7 +239,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -265,7 +265,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -291,7 +291,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -317,7 +317,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -344,7 +344,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -370,7 +370,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -396,7 +396,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -422,11 +422,11 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
-        Integer id = new Integer(1);
+        Integer id = Integer.valueOf(1);
 
         fixture.setId(id);
 
@@ -448,7 +448,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -474,7 +474,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -500,7 +500,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -526,7 +526,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -552,7 +552,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());
@@ -612,7 +612,7 @@ public class ScriptContainerTest {
         fixture.setCreator("");
         fixture.setProductName("");
         fixture.setName("");
-        fixture.setId(new Integer(1));
+        fixture.setId(Integer.valueOf(1));
         fixture.setSteps(new LinkedList());
         fixture.setCreated(new Date());
         fixture.setModified(new Date());

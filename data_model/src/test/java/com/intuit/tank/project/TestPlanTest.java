@@ -59,7 +59,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         ScriptGroup scriptGroup = new ScriptGroup();
 
         fixture.addScriptGroup(scriptGroup);
@@ -80,7 +80,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         ScriptGroup scriptGroup = new ScriptGroup();
         int index = -1;
 
@@ -102,7 +102,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         ScriptGroup scriptGroup = new ScriptGroup();
         int index = 1;
 
@@ -124,7 +124,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         ScriptGroup scriptGroup = new ScriptGroup();
         int index = 1;
 
@@ -179,7 +179,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         Object obj = new Object();
 
         boolean result = fixture.equals(obj);
@@ -200,7 +200,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         Object obj = new TestPlan();
 
         boolean result = fixture.equals(obj);
@@ -222,7 +222,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         Object obj = new TestPlan();
 
         boolean result = fixture.equals(obj);
@@ -244,7 +244,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
 
         String result = fixture.getName();
         assertNotNull(result);
@@ -265,7 +265,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
 
         Integer result = fixture.getPosition();
         assertNotNull(result);
@@ -286,7 +286,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
 
         List<ScriptGroup> result = fixture.getScriptGroups();
         assertNotNull(result);
@@ -307,7 +307,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
 
         int result = fixture.getUserPercentage();
     }
@@ -327,7 +327,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
 
         Workload result = fixture.getWorkload();
         assertNotNull(result);
@@ -348,7 +348,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
 
         int result = fixture.hashCode();
     }
@@ -368,7 +368,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         String name = "";
 
         fixture.setName(name);
@@ -389,7 +389,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         Workload w = new Workload();
 
         fixture.setParent(w);
@@ -410,8 +410,8 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
-        Integer position = new Integer(1);
+        fixture.setPosition(Integer.valueOf(1));
+        Integer position = Integer.valueOf(1);
 
         fixture.setPosition(position);
     }
@@ -431,7 +431,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         List<ScriptGroup> scriptGroups = new LinkedList();
 
         fixture.setScriptGroups(scriptGroups);
@@ -452,7 +452,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         int userPercentage = 1;
 
         fixture.setUserPercentage(userPercentage);
@@ -473,7 +473,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
         Workload workload = new Workload();
 
         fixture.setWorkload(workload);
@@ -494,7 +494,7 @@ public class TestPlanTest {
         fixture.setScriptGroups(new LinkedList());
         fixture.setUserPercentage(1);
         fixture.setName("");
-        fixture.setPosition(new Integer(1));
+        fixture.setPosition(Integer.valueOf(1));
 
         String result = fixture.toString();
         assertNotNull(result);
