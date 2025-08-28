@@ -1097,6 +1097,10 @@
               <version>1.18.38</version>
             </path>
           </annotationProcessorPaths>
+          <compilerArgs>
+            <!-- frameworks like Spring, which rely on parameter names -->
+            <arg>-parameters</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
 
