@@ -44,6 +44,7 @@
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>default</servlet-name>
+    <url-pattern>/favicon.ico</url-pattern>
     <url-pattern>/TankLogo.png</url-pattern>
     <url-pattern>/TankLogo16x16.png</url-pattern>
   </servlet-mapping>
