@@ -23,16 +23,11 @@ import jakarta.annotation.Nonnull;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
-import jakarta.persistence.QueryHint;
 import jakarta.persistence.criteria.*;
-
-import com.intuit.tank.project.JobInstance;
-import com.intuit.tank.project.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.project.JobQueue;
-import org.hibernate.annotations.QueryHints;
 
 /**
  * ProductDao

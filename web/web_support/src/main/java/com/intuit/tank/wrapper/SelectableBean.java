@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -75,12 +76,9 @@ public abstract class SelectableBean<T> implements Multiselectable<T> {
      * {@inheritDoc}
      */
     public void deleteSelected() {
-        ArrayList<SelectableWrapper<T>> copied = new ArrayList<SelectableWrapper<T>>(getSelectionList());
-        for (SelectableWrapper<T> wrapper : copied) {
-            if (wrapper.isSelected()) {
-                delete(wrapper.getEntity());
-            }
-        }
+        getSelectionList().stream()
+                .filter(SelectableWrapper::isSelected)
+                .forEach(wrapper -> delete(wrapper.getEntity()));
     }
 
     /**
@@ -113,11 +111,9 @@ public abstract class SelectableBean<T> implements Multiselectable<T> {
     @Override
     public List<SelectableWrapper<T>> getSelectionList() {
         if (selectionList == null || !isCurrent() || needsRefresh) {
-            List<T> l = getEntityList(this.viewFilterType);
-            selectionList = new ArrayList<SelectableWrapper<T>>();
-            for (T entity : l) {
-                selectionList.add(new SelectableWrapper<T>(entity));
-            }
+            selectionList = getEntityList(this.viewFilterType).stream()
+                    .map(SelectableWrapper::new)
+                    .collect(Collectors.toList());
             needsRefresh = false;
         }
         return selectionList;
