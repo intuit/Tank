@@ -55,13 +55,13 @@ public class UserDetailTest {
     public void testUserDetail_2()
         throws Exception {
         String script = "";
-        Integer users = new Integer(1);
+        Integer users = Integer.valueOf(1);
 
         UserDetail result = new UserDetail(script, users);
 
         assertNotNull(result);
         assertEquals("", result.getScript());
-        assertEquals(new Integer(1), result.getUsers());
+        assertEquals(Integer.valueOf(1), result.getUsers());
     }
 
     /**
@@ -74,8 +74,8 @@ public class UserDetailTest {
     @Test
     public void testCompareTo_1()
         throws Exception {
-        UserDetail fixture = new UserDetail("", new Integer(1));
-        UserDetail o = new UserDetail("", new Integer(1));
+        UserDetail fixture = new UserDetail("", Integer.valueOf(1));
+        UserDetail o = new UserDetail("", Integer.valueOf(1));
 
         int result = fixture.compareTo(o);
 
@@ -92,7 +92,7 @@ public class UserDetailTest {
     @Test
     public void testGetCreateTime_1()
         throws Exception {
-        UserDetail fixture = new UserDetail("", new Integer(1));
+        UserDetail fixture = new UserDetail("", Integer.valueOf(1));
 
         Date result = fixture.getCreateTime();
 
@@ -109,7 +109,7 @@ public class UserDetailTest {
     @Test
     public void testGetScript_1()
         throws Exception {
-        UserDetail fixture = new UserDetail("", new Integer(1));
+        UserDetail fixture = new UserDetail("", Integer.valueOf(1));
 
         String result = fixture.getScript();
 
@@ -126,7 +126,7 @@ public class UserDetailTest {
     @Test
     public void testGetUsers_1()
         throws Exception {
-        UserDetail fixture = new UserDetail("", new Integer(1));
+        UserDetail fixture = new UserDetail("", Integer.valueOf(1));
 
         Integer result = fixture.getUsers();
 

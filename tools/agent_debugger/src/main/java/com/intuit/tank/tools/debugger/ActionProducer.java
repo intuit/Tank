@@ -238,7 +238,7 @@ public class ActionProducer {
             };
             ret.putValue(Action.SHORT_DESCRIPTION, "Find in script.");
             ret.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke('F', menuActionMods));
-            ret.putValue(Action.MNEMONIC_KEY, new Integer('F'));
+            ret.putValue(Action.MNEMONIC_KEY, Integer.valueOf('F'));
             ret.setEnabled(false);
             actionMap.put(ACTION_FIND, ret);
         }
@@ -292,7 +292,7 @@ public class ActionProducer {
             };
             ret.putValue(Action.SHORT_DESCRIPTION, "Open Agent xml from filesystem.");
             ret.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke('O', menuActionMods));
-            ret.putValue(Action.MNEMONIC_KEY, new Integer('O'));
+            ret.putValue(Action.MNEMONIC_KEY, Integer.valueOf('O'));
             actionMap.put(ACTION_OPEN, ret);
         }
         return ret;
@@ -354,7 +354,7 @@ public class ActionProducer {
             };
             ret.putValue(Action.SHORT_DESCRIPTION, "Reload scrpt from source.");
             ret.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke('R', menuActionMods));
-            ret.putValue(Action.MNEMONIC_KEY, new Integer('R'));
+            ret.putValue(Action.MNEMONIC_KEY, Integer.valueOf('R'));
             ret.setEnabled(false);
             actionMap.put(ACTION_RELOAD, ret);
         }
@@ -726,7 +726,7 @@ public class ActionProducer {
                 }
             };
             ret.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(Character.valueOf('Q'), menuActionMods));
-            ret.putValue(Action.MNEMONIC_KEY, new Integer('Q'));
+            ret.putValue(Action.MNEMONIC_KEY, Integer.valueOf('Q'));
             actionMap.put(ACTION_QUIT, ret);
         }
         return ret;

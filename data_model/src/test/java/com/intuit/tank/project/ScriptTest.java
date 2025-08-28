@@ -60,7 +60,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
         ScriptStep step = new ScriptStep();
 
@@ -116,7 +116,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
         Script o = new Script();
         o.setName("");
@@ -141,7 +141,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
         Script o = new Script();
         o.setName((String) null);
@@ -180,7 +180,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
         Object obj = new Object();
 
@@ -204,7 +204,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
         Object obj = new Script();
 
@@ -228,7 +228,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
         Object obj = new Script();
 
@@ -252,7 +252,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
 
         String result = fixture.getComments();
@@ -275,7 +275,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
 
         String result = fixture.getName();
@@ -298,7 +298,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
 
         String result = fixture.getProductName();
@@ -321,7 +321,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
 
         int result = fixture.getRuntime();
@@ -344,7 +344,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
 
         List<ScriptStep> result = fixture.getScriptSteps();
@@ -368,7 +368,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
 
         Integer result = fixture.getSerializedScriptStepId();
@@ -398,7 +398,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
 
         List<ScriptStep> result = fixture.getSteps();
@@ -422,7 +422,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
 
         int result = fixture.hashCode();
@@ -445,7 +445,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
         String comments = "";
 
@@ -468,7 +468,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
         String name = "";
 
@@ -491,7 +491,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
         String productName = "";
 
@@ -514,7 +514,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
         int runtime = 1;
 
@@ -537,7 +537,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
         List<ScriptStep> steps = new LinkedList();
 
@@ -560,9 +560,9 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
-        Integer serializedScriptStepId = new Integer(1);
+        Integer serializedScriptStepId = Integer.valueOf(1);
 
         fixture.setSerializedScriptStepId(serializedScriptStepId);
 
@@ -583,7 +583,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
         SerializedScriptStep serializedSteps = new SerializedScriptStep();
 
@@ -606,7 +606,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
         List<ScriptStep> steps = new LinkedList();
 
@@ -629,7 +629,7 @@ public class ScriptTest {
         fixture.setComments("");
         fixture.setSteps(new LinkedList());
         fixture.setProductName("");
-        fixture.setSerializedScriptStepId(new Integer(1));
+        fixture.setSerializedScriptStepId(Integer.valueOf(1));
         fixture.setRuntime(1);
 
         String result = fixture.toString();
