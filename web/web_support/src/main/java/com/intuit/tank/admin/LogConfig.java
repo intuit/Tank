@@ -42,11 +42,8 @@ public class LogConfig {
         Level l = Level.toLevel(level);
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
-        Collection<LoggerConfig> loggerConfigs = config.getLoggers().values();
-        for ( LoggerConfig loggerConfig : loggerConfigs ) {
-        	loggerConfig.setLevel(l);
-        }
-        LOG.debug("Log level changed to " + l);
-        LOG.info("Log level changed to " + l);
+        config.getLoggers().values().forEach(loggerConfig -> loggerConfig.setLevel(l));
+        LOG.debug("Log level changed to {}", l);
+        LOG.info("Log level changed to {}", l);
     }
 }
