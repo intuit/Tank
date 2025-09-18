@@ -68,3 +68,15 @@
 .ui-treetable-scrollable-body {
   position: relative;
 }
+.ui-paginator-first {
+  background-position: -80px -160px;
+}
+.ui-paginator-prev {
+  background-position: -48px -160px;
+}
+.ui-paginator-next {
+  background-position: -72px -160px;
+}
+.ui-paginator-end {
+    background-position: -64px -160px;
+}
