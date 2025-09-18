@@ -104,4 +104,13 @@ public class RunnerFactoryTest {
 
         assertEquals(MockRunner.class, result.getClass());
     }
+
+    @Test
+    public void testGetRunner_WebSocket() {
+        TestStepContext tsc = new TestStepContext(new WebSocketStep(), new Variables(), "", "", new TimerMap(), testPlanRunner);
+
+        Runner result = RunnerFactory.getRunner(tsc);
+
+        assertEquals(WebSocketRunner.class, result.getClass());
+    }
 }

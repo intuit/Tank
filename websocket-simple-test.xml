@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workload xmlns:ns2="urn:com/intuit/tank/harness/data/v1" name="Local WebSocket Test" description="Tank WebSocket test against local ws://localhost:8080 service">
+    <client-class>com.intuit.tank.httpclientjdk.TankHttpClientJDK</client-class>
+    <plan testPlanName="Main" userPercentage="100">
+        <testSuite name="Group-1" description="autoGen" loop="1">
+            <testGroup name="Local WebSocket Test" loop="1">
+                <useCase>
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep" name="Connect" action="connect" connectionId="echo" onFail="abort">
+                        <stepIndex>0</stepIndex>
+                        <request>
+                            <url>ws://localhost:8080/ws/test</url>
+                            <timeoutMs>5000</timeoutMs>
+                        </request>
+                    </testStep>
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep" name="Send Message" action="send" connectionId="echo" onFail="abort">
+                        <stepIndex>1</stepIndex>
+                        <request>
+                            <payload>Hello WebSocket!</payload>
+                            <timeoutMs>3000</timeoutMs>
+                        </request>
+                    </testStep>
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep" name="Expect Echo" action="expect" connectionId="echo" onFail="abort">
+                        <stepIndex>2</stepIndex>
+                        <response>
+                            <timeoutMs>5000</timeoutMs>
+                            <expectedContent>Echo: Hello WebSocket!</expectedContent>
+                            <saveVariable>echoResult</saveVariable>
+                            <optional>false</optional>
+                        </response>
+                    </testStep>
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep" name="Disconnect" action="disconnect" connectionId="echo" onFail="continue">
+                        <stepIndex>3</stepIndex>
+                    </testStep>
+                </useCase>
+            </testGroup>
+        </testSuite>
+    </plan>
+</ns2:workload>

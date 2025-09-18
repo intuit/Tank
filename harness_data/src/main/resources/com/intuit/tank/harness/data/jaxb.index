@@ -26,3 +26,8 @@ ValidationData
 VariableStep
 TimerStep
 ClearCookiesStep
+WebSocketStep
+WebSocketRequest
+WebSocketResponse
+WebSocketAction
+WebSocketMessageType

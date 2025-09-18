@@ -16,11 +16,12 @@
     <Loggers>
 		<Logger name="com" level="info" additivity="false">
 			<appender-ref ref="debbuggerAppender" level="info"/>
+			<appender-ref ref="agent"/>
 		</Logger>
 		<Logger name="org" level="info" additivity="false">
 			<appender-ref ref="debbuggerAppender" level="info"/>
 		</Logger>
-        <Root level="error">
+        <Root level="info">
             <AppenderRef ref="debbuggerAppender"/>
             <AppenderRef ref="agent"/>
         </Root>

@@ -41,6 +41,8 @@ public class RunnerFactory {
             runner = new SetCookieRunner(tsc);
         } else if (testStep instanceof MockStep) {
             runner = new MockRunner(tsc);
+        } else if (testStep instanceof WebSocketStep) {
+            runner = new WebSocketRunner(tsc);
         } else {
             runner = new RequestRunner(tsc);
         }
