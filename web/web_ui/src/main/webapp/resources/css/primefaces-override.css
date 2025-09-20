@@ -68,3 +68,39 @@
 .ui-treetable-scrollable-body {
   position: relative;
 }
+
+body .ui-paginator .ui-paginator-first,body .ui-paginator .ui-paginator-prev,body .ui-paginator .ui-paginator-next,body .ui-paginator .ui-paginator-last {
+    border: 1px solid rgba(0,0,0,0);
+}
+
+body .ui-paginator .ui-paginator-first {
+    font-family: "primeicons" !important;
+    background: none;
+}
+body .ui-paginator .ui-paginator-first:before {
+    content: "\e92d";
+}
+
+body .ui-paginator .ui-paginator-prev {
+    font-family: "primeicons" !important;
+    background: none;
+}
+body .ui-paginator .ui-paginator-prev:before {
+    content: "\e931";
+}
+
+body .ui-paginator .ui-paginator-next {
+    font-family: "primeicons" !important;
+    background: none;
+}
+body .ui-paginator .ui-paginator-next:before {
+    content: "\e932";
+}
+
+body .ui-paginator .ui-paginator-last {
+    font-family: "primeicons" !important;
+    background: none;
+}
+body .ui-paginator .ui-paginator-last:before {
+    content: "\e92e";
+}

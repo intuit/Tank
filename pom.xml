@@ -40,8 +40,8 @@
     <version.enunciate>2.18.1</version.enunciate>
 
     <version.faces>4.1.2</version.faces>
-    <version.primefaces>15.0.6</version.primefaces>
-    <version.primefaces-ext>15.0.6</version.primefaces-ext>
+    <version.primefaces>15.0.7</version.primefaces>
+    <version.primefaces-ext>15.0.7</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>3.5.3</version.surefire>
     <version.jacoco>0.8.13</version.jacoco>
