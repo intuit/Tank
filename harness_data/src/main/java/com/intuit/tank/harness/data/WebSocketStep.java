@@ -20,6 +20,8 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * WebSocketStep represents a WebSocket operation in a Tank script.
  */
@@ -143,7 +145,13 @@ public class WebSocketStep extends TestStep implements FailableStep {
      * @param connectionId the connectionId to set
      */
     public void setConnectionId(String connectionId) {
+        String previousConnectionId = this.connectionId;
         this.connectionId = connectionId;
+        if (StringUtils.isBlank(this.comments)
+                || StringUtils.equals(this.comments, previousConnectionId)
+                || StringUtils.equals(this.comments, "Connection: " + previousConnectionId)) {
+            this.comments = StringUtils.isNotBlank(connectionId) ? connectionId : null;
+        }
     }
 
     /**

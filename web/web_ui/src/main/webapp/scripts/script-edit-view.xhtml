@@ -146,6 +146,9 @@
                   <p:menuitem value="Sleep Time" action="#{sleepTimeEditor.insertSleepTime()}"
                     oncomplete="PF('sleepTimeDialog').show();" update=":sleepTimeDialogId" ajax="true" icon="ui-icon-pause">
                   </p:menuitem>
+                  <p:menuitem value="WebSocket" action="#{scriptEditor.insertWebSocketStep()}"
+                    oncomplete="PF('webSocketDialog').show();" update=":webSocketDialogId" ajax="true" icon="ui-icon-transferthick-e-w">
+                  </p:menuitem>
                   <p:menuitem value="Request" update=":requestDialogId" action="#{scriptRequestEditor.insertRequest()}"
                     oncomplete="PF('requestDialog').show();" ajax="true" icon="ui-icon-extlink">
                   </p:menuitem>
@@ -363,6 +366,11 @@
               oncomplete="PF('thinkTimeDialog').show();">
               <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
             </p:commandLink>
+            <p:commandLink id="linkWebSocket3" update=":webSocketForm:webSocketPanelGroup" title="Edit WebSocket"
+              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{webSocketStepEditor.editWebSocket(step)}"
+              oncomplete="PF('webSocketDialog').show();">
+              <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
+            </p:commandLink>
             <p:commandLink id="linkLogic" update=":logicForm:logicPanelGroup" title="Edit "
               rendered="#{scriptEditor.isLogicStep(step)}" action="#{scriptEditor.editLogicStep(step)}"
               oncomplete="PF('logicDialog').show();">
@@ -391,6 +399,11 @@
             <p:commandLink id="linkAggregator" update=":aggregatorForm:aggregatorPanelGroup" title="Edit Aggregator"
               rendered="#{scriptEditor.isAggregator(step)}" action="#{scriptEditor.editAggregator(step)}"
               oncomplete="PF('aggregatorDialog').show();">
+              <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
+            </p:commandLink>
+            <p:commandLink id="linkWebSocket2" update=":webSocketForm:webSocketPanelGroup" title="Edit WebSocket"
+              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{webSocketStepEditor.editWebSocket(step)}"
+              oncomplete="PF('webSocketDialog').show();">
               <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
             </p:commandLink>
           </p:column>
@@ -490,6 +503,12 @@
             <p:commandLink id="btnOpenRequest" update=":requestForm:requestPanelGroup" title="Edit Request"
               rendered="#{scriptEditor.isRequest(step)}" action="#{scriptEditor.editRequest(step)}"
               oncomplete="PF('requestDialog').show();">
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
+                style="pad2" />
+            </p:commandLink>
+            <p:commandLink id="btnOpenWebSocket3" update=":webSocketForm:webSocketPanelGroup" title="Edit WebSocket"
+              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{webSocketStepEditor.editWebSocket(step)}"
+              oncomplete="PF('webSocketDialog').show();">
               <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
@@ -624,6 +643,11 @@
               oncomplete="PF('aggregatorDialog').show();">
               <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
             </p:commandLink>
+            <p:commandLink id="linkWebSocket1" update=":webSocketForm:webSocketPanelGroup" title="Edit WebSocket"
+              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{webSocketStepEditor.editWebSocket(step)}"
+              oncomplete="PF('webSocketDialog').show();">
+              <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
+            </p:commandLink>
           </p:column>
 
           <p:column headerText="MIME Type" id="mimeColumn" styleClass="ellipsis min-column-size"
@@ -693,6 +717,12 @@
               <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
+            <p:commandLink id="btnOpenWebSocket2" update=":webSocketForm:webSocketPanelGroup" title="Edit "
+              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{scriptEditor.editWebSocketStep(step)}"
+              oncomplete="PF('webSocketDialog').show();">
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
+                style="pad2" />
+            </p:commandLink>
             <p:commandLink id="btnOpenLogic" update=":logicForm:logicPanelGroup" title="Edit "
               rendered="#{scriptEditor.isLogicStep(step)}" action="#{scriptEditor.editLogicStep(step)}"
               oncomplete="PF('logicDialog').show();">
@@ -720,6 +750,12 @@
             <p:commandLink id="btnOpenRequest" update=":requestForm:requestPanelGroup" title="Edit Request"
               rendered="#{scriptEditor.isRequest(step)}" action="#{scriptEditor.editRequest(step)}"
               oncomplete="PF('requestDialog').show();">
+              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
+                style="pad2" />
+            </p:commandLink>
+            <p:commandLink id="btnOpenWebSocket1" update=":webSocketForm:webSocketPanelGroup" title="Edit WebSocket"
+              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{webSocketStepEditor.editWebSocket(step)}"
+              oncomplete="PF('webSocketDialog').show();">
               <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
             </p:commandLink>
@@ -768,6 +804,20 @@
           <p:commandButton value="#{thinkTimeEditor.buttonLabel}" update=":scriptBrowserForm,:thinkTimeForm"
             onstart="saveScrollPos()" oncomplete="getScrollPos()" process="thinkTimePanelGroup"
             action="#{thinkTimeEditor.addToScript()}" onsuccess="PF('thinkTimeDialog').hide();">
+          </p:commandButton>
+        </h:panelGroup>
+      </h:form>
+    </p:dialog>
+
+    <p:dialog id="webSocketDialogId" header="Insert WebSocket" appendTo="@(body)" height="260" width="640"
+      dynamic="true" widgetVar="webSocketDialog" modal="true">
+      <h:form id="webSocketForm">
+        <h:panelGroup id="webSocketPanelGroup">
+          <ui:include src="./websocket-editor.xhtml"/>
+          <div class="vertical-spacer" />
+          <p:commandButton value="#{webSocketStepEditor.buttonLabel}" update=":scriptBrowserForm,:webSocketForm"
+            onstart="saveScrollPos()" oncomplete="getScrollPos()" process="webSocketPanelGroup"
+            action="#{webSocketStepEditor.addToScript()}" onsuccess="PF('webSocketDialog').hide();">
           </p:commandButton>
         </h:panelGroup>
       </h:form>

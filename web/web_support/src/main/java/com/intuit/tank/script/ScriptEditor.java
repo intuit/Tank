@@ -103,6 +103,9 @@ public class ScriptEditor implements Serializable {
     private AggregatorEditor aggregatorEditor;
 
     @Inject
+    private WebSocketStepEditor webSocketStepEditor;
+
+    @Inject
     private LogicStepEditor logicStepEditor;
 
     @Inject
@@ -524,6 +527,10 @@ public class ScriptEditor implements Serializable {
         maxThinkTime = "";
     }
 
+    public void insertWebSocketStep() {
+        webSocketStepEditor.insertWebSocket();
+    }
+
     /**
      * Does something to insert a sleep time into the script.
      */
@@ -618,6 +625,10 @@ public class ScriptEditor implements Serializable {
         return scriptStep.getType().equals(ScriptConstants.THINK_TIME);
     }
 
+    public boolean isWebSocketStep(ScriptStep scriptStep) {
+        return "websocket".equals(scriptStep.getType());
+    }
+
     /**
      * 
      * @param scriptStep
@@ -680,6 +691,11 @@ public class ScriptEditor implements Serializable {
      */
     public void editThinkTime(ScriptStep scriptStep) {
         thinkTimeEditor.editThinkTime(scriptStep);
+        clearOrderList();
+    }
+
+    public void editWebSocketStep(ScriptStep scriptStep) {
+        webSocketStepEditor.editWebSocket(scriptStep);
         clearOrderList();
     }
 

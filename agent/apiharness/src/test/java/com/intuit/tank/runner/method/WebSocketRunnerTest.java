@@ -14,6 +14,9 @@ package com.intuit.tank.runner.method;
  */
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +27,7 @@ import com.intuit.tank.harness.data.WebSocketMessageType;
 import com.intuit.tank.harness.data.WebSocketRequest;
 import com.intuit.tank.harness.data.WebSocketStep;
 import com.intuit.tank.harness.test.data.Variables;
+import com.intuit.tank.httpclientjdk.TankWebSocketClient;
 import com.intuit.tank.runner.TestPlanRunner;
 import com.intuit.tank.runner.TestStepContext;
 import com.intuit.tank.vm.common.TankConstants;
@@ -174,6 +178,58 @@ public class WebSocketRunnerTest {
 
         // Disconnect of nonexistent connection should pass (not an error)
         assertEquals(TankConstants.HTTP_CASE_PASS, result);
+    }
+
+    @Test
+    public void testConnectWithExistingClientSuccess() throws Exception {
+        WebSocketStep step = new WebSocketStep();
+        step.setName("Connect Existing Client Test");
+        step.setAction(WebSocketAction.CONNECT);
+        step.setConnectionId("conn-1");
+
+        WebSocketRequest request = new WebSocketRequest();
+        request.setUrl("wss://example/ws");
+        request.setTimeoutMs(4000);
+        step.setRequest(request);
+
+        Variables variables = new Variables();
+        TestStepContext context = new TestStepContext(
+            step, variables, "test-plan", "test-unique",
+            new TimerMap(), testPlanRunner);
+
+        TankWebSocketClient client = mock(TankWebSocketClient.class);
+        when(client.connect(4000)).thenReturn(CompletableFuture.completedFuture(true));
+        context.setWebSocketClient("conn-1", client);
+
+        WebSocketRunner runner = new WebSocketRunner(context);
+        String result = runner.execute();
+
+        assertEquals(TankConstants.HTTP_CASE_PASS, result);
+        verify(client).connect(4000);
+        assertEquals(client, context.getWebSocketClient("conn-1"));
+    }
+
+    @Test
+    public void testDisconnectExistingConnection() throws Exception {
+        WebSocketStep step = new WebSocketStep();
+        step.setName("Disconnect Existing Connection Test");
+        step.setAction(WebSocketAction.DISCONNECT);
+        step.setConnectionId("conn-1");
+
+        Variables variables = new Variables();
+        TestStepContext context = new TestStepContext(
+            step, variables, "test-plan", "test-unique",
+            new TimerMap(), testPlanRunner);
+
+        TankWebSocketClient client = mock(TankWebSocketClient.class);
+        context.setWebSocketClient("conn-1", client);
+
+        WebSocketRunner runner = new WebSocketRunner(context);
+        String result = runner.execute();
+
+        assertEquals(TankConstants.HTTP_CASE_PASS, result);
+        verify(client).disconnect();
+        assertNull(context.getWebSocketClient("conn-1"));
     }
 
     @Test

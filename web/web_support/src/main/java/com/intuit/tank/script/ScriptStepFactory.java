@@ -22,9 +22,14 @@ import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.http.AuthScheme;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.ScriptConstants;
 
 public class ScriptStepFactory {
+
+    // WebSocket constants (local definitions)
+    private static final String WEBSOCKET = "websocket";
+    private static final String WEBSOCKET_ACTION = "ws-action";
+    private static final String WEBSOCKET_URL = "ws-url";
+    private static final String WEBSOCKET_TIMEOUT_MS = "ws-timeout-ms";
 
     public static ScriptStep createVariable(String key, String value) {
         ScriptStep step = new ScriptStep();
@@ -175,6 +180,60 @@ public class ScriptStepFactory {
         // clear.setData(new HashSet<RequestData>().add(arg0))
         clear.setComments("Clear Cookies");
         return clear;
+    }
+
+    public static ScriptStep createWebSocketConnect(String connectionId, String url, Integer timeoutMs) {
+        ScriptStep step = new ScriptStep();
+        step.setType(WEBSOCKET);
+        step.setMethod("WS_CONNECT");
+        // Comments left blank as per design decision
+
+        Set<RequestData> data = new HashSet<RequestData>();
+
+        RequestData actionData = new RequestData();
+        actionData.setType(WEBSOCKET);
+        actionData.setKey(WEBSOCKET_ACTION);
+        actionData.setValue("connect");
+        data.add(actionData);
+
+        RequestData urlData = new RequestData();
+        urlData.setType(WEBSOCKET);
+        urlData.setKey(WEBSOCKET_URL);
+        urlData.setValue(url);
+        data.add(urlData);
+
+        if (timeoutMs != null) {
+            RequestData timeoutData = new RequestData();
+            timeoutData.setType(WEBSOCKET);
+            timeoutData.setKey(WEBSOCKET_TIMEOUT_MS);
+            timeoutData.setValue(timeoutMs.toString());
+            data.add(timeoutData);
+        }
+
+        step.setData(data);
+        // Set default name for WebSocket Connect
+        step.setName("WebSocket Connect");
+        return step;
+    }
+
+    public static ScriptStep createWebSocketDisconnect(String connectionId) {
+        ScriptStep step = new ScriptStep();
+        step.setType(WEBSOCKET);
+        step.setMethod("WS_DISCONNECT");
+        // Comments left blank as per design decision
+
+        Set<RequestData> data = new HashSet<RequestData>();
+
+        RequestData actionData = new RequestData();
+        actionData.setType(WEBSOCKET);
+        actionData.setKey(WEBSOCKET_ACTION);
+        actionData.setValue("disconnect");
+        data.add(actionData);
+
+        step.setData(data);
+        // Set default name for WebSocket Disconnect
+        step.setName("WebSocket Disconnect");
+        return step;
     }
 
 }

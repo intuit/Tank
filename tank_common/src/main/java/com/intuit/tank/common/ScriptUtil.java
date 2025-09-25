@@ -310,14 +310,31 @@ public class ScriptUtil {
 
             label.append(name).append(":").append(timerAction);
 
+        } else if (step.getType().equalsIgnoreCase("websocket")) {
+            // Handle WebSocket steps
+            String action = "Unknown";
+            String url = "";
+            
+            for (RequestData rd : step.getData()) {
+                if ("ws-action".equals(rd.getKey())) {
+                    action = rd.getValue();
+                } else if ("ws-url".equals(rd.getKey())) {
+                    url = rd.getValue();
+                }
+            }
+            
+            // For WebSocket steps, show only the URL in the Data column (or empty if no URL)
+            if (StringUtils.isNotBlank(url)) {
+                label.append(url);
+            }
+            // If no URL, leave label empty (don't append anything)
         }
-        return StringUtils.abbreviate(label.toString(), 1024);
+    return StringUtils.abbreviate(label.toString(), 1024);
     }
 
     /**
      * @param count
      * @param step
-     * @return
      */
 
     /*
