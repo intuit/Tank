@@ -35,7 +35,7 @@ public class AgentUtil {
     public static boolean validateTestPlans(String plans) {
         return Arrays.stream(plans.split(","))
                 .allMatch(xmlFilePath -> {
-                    if (new File(xmlFilePath).exists()) {
+                    if (!xmlFilePath.isBlank() && new File(xmlFilePath).exists()) {
                         return true;
                     }
                     LOG.error(LogUtil.getLogMessage("File not found:  " + xmlFilePath));

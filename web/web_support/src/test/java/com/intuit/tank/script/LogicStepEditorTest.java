@@ -60,13 +60,13 @@ public class LogicStepEditorTest {
         logicStepEditor.testScript();
         String expected = "------------- Variables -------------\n" +
                 "mode = test\n" +
-                "THREAD_ID = 1\n" +
+                "THREAD_ID = 3\n" +
                 "------------- script -------------\n" +
                 "Starting scriptEngine...\n" +
                 "Finished scriptEngine...\n" +
                 "------------- Variables -------------\n" +
                 "mode = test\n" +
-                "THREAD_ID = 1\n";
+                "THREAD_ID = 3\n";
         assertEquals(expected, logicStepEditor.getOutput());
     }
 
