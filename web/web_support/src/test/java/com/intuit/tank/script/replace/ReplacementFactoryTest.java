@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.script.replace.AbstractReplacement;
 import com.intuit.tank.script.replace.ReplacementFactory;
-import com.intuit.tank.search.script.Section;
+import com.intuit.tank.script.Section;
 
 /**
  * The class <code>ReplacementFactoryTest</code> contains tests for the class <code>{@link ReplacementFactory}</code>.

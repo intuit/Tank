@@ -87,12 +87,6 @@
     </dependency>
 
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>script-search</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.codehaus.jsr166-mirror</groupId>
       <artifactId>extra166y</artifactId>
     </dependency>

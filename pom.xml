@@ -48,7 +48,6 @@
     <version.junit>5.13.4</version.junit>
     <version.mockito>5.19.0</version.mockito>
     <version.httpclient>4.5.14</version.httpclient>
-    <version.lucene>10.2.2</version.lucene>
     <version.jaxb>4.0.2</version.jaxb>
     <version.spring-webmvc>6.2.10</version.spring-webmvc>
     <version.wiremock>3.13.1</version.wiremock>
@@ -93,7 +92,6 @@
         <module>proxy-parent</module>
         <module>script_processor</module>
         <module>harness_data</module>
-        <module>search</module>
         <module>reporting</module>
         <module>test_support</module>
         <module>api</module>
@@ -192,7 +190,6 @@
         <module>script_processor</module>
         <module>tank_common</module>
         <module>harness_data</module>
-        <module>search</module>
         <module>reporting</module>
         <module>test_support</module>
         <module>api</module>
@@ -217,7 +214,6 @@
         <module>script_processor</module>
         <module>tank_common</module>
         <module>harness_data</module>
-        <module>search</module>
         <module>reporting</module>
         <module>test_support</module>
         <module>api</module>
@@ -266,7 +262,6 @@
         <module>script_processor</module>
         <module>tank_common</module>
         <module>harness_data</module>
-        <module>search</module>
         <module>reporting</module>
         <module>test_support</module>
         <module>api</module>
@@ -647,21 +642,6 @@
         <groupId>xalan</groupId>
         <artifactId>serializer</artifactId>
         <version>2.7.3</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-core</artifactId>
-        <version>${version.lucene}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-analyzers-common</artifactId>
-        <version>8.11.2</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-queryparser</artifactId>
-        <version>${version.lucene}</version>
       </dependency>
       <dependency>
         <groupId>jaxen</groupId>
