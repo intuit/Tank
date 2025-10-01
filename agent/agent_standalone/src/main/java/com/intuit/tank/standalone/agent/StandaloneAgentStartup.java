@@ -27,7 +27,6 @@ import java.util.zip.ZipInputStream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -82,7 +81,7 @@ public class StandaloneAgentStartup implements Runnable {
                 URL url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SETTINGS);
                 LOG.info("Starting up: making call to tank service url to get settings.xml {}", url.toExternalForm());
                 try ( InputStream settingsStream = url.openStream() ) {
-                    String settings = IOUtils.toString(settingsStream, StandardCharsets.UTF_8);
+                    String settings = new String(settingsStream.readAllBytes(), StandardCharsets.UTF_8);
                     FileUtils.writeStringToFile(new File(TANK_AGENT_DIR, "settings.xml"), settings, StandardCharsets.UTF_8);
                     LOG.info("got settings file...");
                 }
