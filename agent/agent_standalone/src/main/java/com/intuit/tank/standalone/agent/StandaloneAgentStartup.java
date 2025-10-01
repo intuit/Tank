@@ -90,11 +90,12 @@ public class StandaloneAgentStartup implements Runnable {
                 LOG.info("Making call to tank service url to get support files {}", url.toExternalForm());
                 try( ZipInputStream zip = new ZipInputStream(url.openStream()) ) {
                     ZipEntry entry = zip.getNextEntry();
+                    Path agentDirPath = Paths.get(TANK_AGENT_DIR).toAbsolutePath().normalize();
                     while (entry != null) {
                         String filename = entry.getName();
                         LOG.info("Got file from controller: {}", filename);
-                        Path targetPath = Paths.get(TANK_AGENT_DIR).resolve(filename).toRealPath();
-                        if (!targetPath.startsWith(TANK_AGENT_DIR)) // Protect "Zip Slip"
+                        Path targetPath = agentDirPath.resolve(filename).normalize();
+                        if (!targetPath.startsWith(agentDirPath)) // Protect "Zip Slip"
                             throw new ZipException("Bad zip entry");
                         Files.write(targetPath, zip.readAllBytes());
                         entry = zip.getNextEntry();
