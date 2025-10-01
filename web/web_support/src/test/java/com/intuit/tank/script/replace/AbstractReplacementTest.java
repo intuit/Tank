@@ -28,7 +28,7 @@ import com.intuit.tank.script.replace.HostReplacement;
 import com.intuit.tank.script.replace.ReplaceEntity;
 import com.intuit.tank.script.replace.ReplaceMode;
 import com.intuit.tank.script.replace.SearchMode;
-import com.intuit.tank.search.script.Section;
+import com.intuit.tank.script.Section;
 
 /**
  * The class <code>AbstractReplacementTest</code> contains tests for the class <code>{@link AbstractReplacement}</code>.

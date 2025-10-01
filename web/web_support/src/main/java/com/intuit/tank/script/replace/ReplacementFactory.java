@@ -18,12 +18,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.intuit.tank.search.script.CommonSection;
-import com.intuit.tank.search.script.RequestStepSection;
-import com.intuit.tank.search.script.Section;
-import com.intuit.tank.search.script.SleepTimeSection;
-import com.intuit.tank.search.script.ThinkTimeSection;
-import com.intuit.tank.search.script.VariableSection;
+import com.intuit.tank.script.CommonSection;
+import com.intuit.tank.script.RequestStepSection;
+import com.intuit.tank.script.Section;
+import com.intuit.tank.script.SleepTimeSection;
+import com.intuit.tank.script.ThinkTimeSection;
+import com.intuit.tank.script.VariableSection;
 
 /**
  * @author hsomani

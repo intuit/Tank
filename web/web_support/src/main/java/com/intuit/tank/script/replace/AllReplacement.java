@@ -12,12 +12,12 @@ package com.intuit.tank.script.replace;
  * http://www.eclipse.org/legal/epl-v10.html
  * #L%
  */
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import com.intuit.tank.project.ScriptStep;
+import com.intuit.tank.script.CommonSection;
 import com.intuit.tank.script.ScriptConstants;
 
 public class AllReplacement extends AbstractReplacement {

@@ -1,8 +1,8 @@
-package com.intuit.tank.search.script;
+package com.intuit.tank.script;
 
 /*
  * #%L
- * Script Search
+ * JSF Support Beans
  * %%
  * Copyright (C) 2011 - 2015 Intuit Inc.
  * %%
@@ -13,21 +13,24 @@ package com.intuit.tank.search.script;
  * #L%
  */
 
-public enum ScriptSearchScope {
+public enum VariableSection implements Section {
 
-    all("All"),
-    request("Request"),
-    thinkTime("Think time"),
-    sleepTime("Sleep time"),
-    variable("Variable");
+    variableKey("Key"),
+    variableValue("Value");
 
-    private String value;
+    private String display;
 
-    private ScriptSearchScope(String value) {
-        this.value = value;
+    private VariableSection(String display) {
+        this.display = display;
     }
 
     public String getValue() {
-        return value;
+        return name();
     }
+
+    @Override
+    public String getDisplay() {
+        return display;
+    }
+
 }

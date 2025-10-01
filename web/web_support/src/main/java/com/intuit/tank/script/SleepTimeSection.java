@@ -1,8 +1,8 @@
-package com.intuit.tank.search.script;
+package com.intuit.tank.script;
 
 /*
  * #%L
- * Script Search
+ * JSF Support Beans
  * %%
  * Copyright (C) 2011 - 2015 Intuit Inc.
  * %%
@@ -13,14 +13,13 @@ package com.intuit.tank.search.script;
  * #L%
  */
 
-public enum VariableSection implements Section {
+public enum SleepTimeSection implements Section {
 
-    variableKey("Key"),
-    variableValue("Value");
+    sleepTime("Sleep Time");
 
     private String display;
 
-    private VariableSection(String display) {
+    private SleepTimeSection(String display) {
         this.display = display;
     }
 

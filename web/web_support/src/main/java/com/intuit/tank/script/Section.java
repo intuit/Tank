@@ -1,8 +1,8 @@
-package com.intuit.tank.search.util;
+package com.intuit.tank.script;
 
 /*
  * #%L
- * DocumentUtil
+ * JSF Support Beans
  * %%
  * Copyright (C) 2011 - 2015 Intuit Inc.
  * %%
@@ -13,11 +13,10 @@ package com.intuit.tank.search.util;
  * #L%
  */
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.util.Version;
+import java.io.Serializable;
 
-public class SearchConstants {
-    public static final Version version = Version.LATEST;
-    public static final Analyzer analyzer = new TankAnalyzer(version);
+public interface Section extends Serializable {
+    public String getValue();
 
+    public String getDisplay();
 }

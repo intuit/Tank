@@ -36,13 +36,6 @@ import com.intuit.tank.script.replace.ReplaceEntity;
 import com.intuit.tank.script.replace.ReplaceMode;
 import com.intuit.tank.script.replace.ReplacementFactory;
 import com.intuit.tank.script.replace.SearchMode;
-import com.intuit.tank.search.script.CommonSection;
-import com.intuit.tank.search.script.RequestStepSection;
-import com.intuit.tank.search.script.SearchCriteria;
-import com.intuit.tank.search.script.Section;
-import com.intuit.tank.search.script.SleepTimeSection;
-import com.intuit.tank.search.script.ThinkTimeSection;
-import com.intuit.tank.search.script.VariableSection;
 import com.intuit.tank.vm.common.util.MethodTimer;
 
 @Named
@@ -295,20 +288,6 @@ public class ScriptSearchBean implements Serializable {
             }
         }
         mt.endAndLog();
-        //
-        // ScriptSearchService s3 = new ScriptSearchService();
-        // Script script = getScript();
-        // if (s3.search(script.getId()).size() == 0) {
-        // s3.saveScript(script);
-        // }
-        // Set<Section> newList = getSelectedSectionList();
-        // criteria.setScript(script);
-        // criteria.getCriteria().clear();
-        // criteria.getCriteria().addAll(newList);
-        // criteria.setSearchQuery(searchQuery);
-        // List<String> search = s3.search(script.getId(), searchQuery,
-        // criteria);
-        // filterSteps(search);
     }
 
     private Set<Section> getSelectedSectionList() {
@@ -331,17 +310,6 @@ public class ScriptSearchBean implements Serializable {
             newList.add(CommonSection.search);
         }
         return newList;
-    }
-
-    private void filterSteps(List<String> search) {
-        List<ScriptStep> steps = getSteps();
-        for (String string : search) {
-            for (ScriptStep scriptStep : steps) {
-                if (scriptStep.getUuid().equals(string)) {
-                    searchMatch.add(scriptStep);
-                }
-            }
-        }
     }
 
     /**

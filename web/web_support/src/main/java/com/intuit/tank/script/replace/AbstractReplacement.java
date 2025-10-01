@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.search.script.Section;
+import com.intuit.tank.script.Section;
 import com.intuit.tank.vm.common.util.RegexUtil;
 
 public abstract class AbstractReplacement {

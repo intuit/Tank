@@ -15,7 +15,7 @@ package com.intuit.tank.script.replace;
 
 import java.io.Serializable;
 
-import com.intuit.tank.search.script.Section;
+import com.intuit.tank.script.Section;
 
 public class ReplaceEntity implements Serializable {
     private static final long serialVersionUID = 1L;

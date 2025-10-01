@@ -1,8 +1,8 @@
-package com.intuit.tank.search.script;
+package com.intuit.tank.script;
 
 /*
  * #%L
- * Script Search
+ * JSF Support Beans
  * %%
  * Copyright (C) 2011 - 2015 Intuit Inc.
  * %%
