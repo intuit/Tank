@@ -34,7 +34,6 @@ import jakarta.inject.Named;
 import com.amazonaws.xray.contexts.SegmentContextExecutors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.vm.api.enumerated.*;
-import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -122,7 +121,7 @@ public class JobManager implements Serializable {
                         sendRequest(a.getInstanceUrl(), standaloneAgentRequest);
                     }
                 } catch (Exception e) {
-                    LOG.error(new ObjectMessage(ImmutableMap.of("Message", "Error starting agents: " + e)), e);
+                    LOG.error(new ObjectMessage(Map.of("Message", "Error starting agents: " + e)), e);
 
                     // TODO: kill any agents that were started
                     jobInstance.setStatus(JobQueueStatus.Aborted);
@@ -156,7 +155,7 @@ public class JobManager implements Serializable {
 
     public AgentTestStartData registerAgentForJob(AgentData agentData) {
         ControllerLoggingConfig.setupThreadContext();
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Received Agent Ready call from " + agentData.getInstanceId() + " with Agent Data: " + agentData)));
+        LOG.info(new ObjectMessage(Map.of("Message","Received Agent Ready call from " + agentData.getInstanceId() + " with Agent Data: " + agentData)));
         AgentTestStartData ret = null;
         JobInfo jobInfo = jobInfoMapLocalCache.get(agentData.getJobId());
         // TODO: figure out controller restarts
@@ -189,7 +188,7 @@ public class JobManager implements Serializable {
     private void startTest(final JobInfo info) {
         ControllerLoggingConfig.setupThreadContext();
         String jobId = info.jobRequest.getId();
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Sleeping for 30 seconds before starting test, to give time for last agent to process AgentTestStartData.")));
+        LOG.info(new ObjectMessage(Map.of("Message","Sleeping for 30 seconds before starting test, to give time for last agent to process AgentTestStartData.")));
         try {
             Thread.sleep(RETRY_SLEEP);// 30 seconds
         } catch (InterruptedException ignored) { }
@@ -202,12 +201,12 @@ public class JobManager implements Serializable {
                             vmTracker.setStatus(status);
                         }
                     });
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Waiting for start agents command to start test for job " + jobId)));
+            LOG.info(new ObjectMessage(Map.of("Message", "Waiting for start agents command to start test for job " + jobId)));
             try {
                 jobInfoMapLocalCache.get(jobId).latch.await();
             } catch (InterruptedException ignored) {
             }
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Start agents command received - Sending start commands for job " + jobId + " asynchronously to following agents: " +
+            LOG.info(new ObjectMessage(Map.of("Message", "Start agents command received - Sending start commands for job " + jobId + " asynchronously to following agents: " +
                     info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)))));
         }
         info.agentData.parallelStream()
@@ -217,13 +216,13 @@ public class JobManager implements Serializable {
                 .forEach(future -> {
                     HttpResponse response = (HttpResponse) future.join();
                     if (response != null && Set.of(HttpStatus.SC_OK, HttpStatus.SC_ACCEPTED).contains(response.statusCode())) {
-                        LOG.info(new ObjectMessage(ImmutableMap.of(
+                        LOG.info(new ObjectMessage(Map.of(
                                 "Message","Start Command to " + response.uri() + " was SUCCESSFUL for job " + jobId)));
                     } else if (response != null) {
-                        LOG.error(new ObjectMessage(ImmutableMap.of(
+                        LOG.error(new ObjectMessage(Map.of(
                                 "Message","Start Command to " + response.uri() + " returned statusCode " + response.statusCode() + " for job " + jobId)));
                     } else {
-                        LOG.error(new ObjectMessage(ImmutableMap.of(
+                        LOG.error(new ObjectMessage(Map.of(
                                 "Message","Start Command to returned null response for job " + jobId)));
                     }
                 });
@@ -298,11 +297,11 @@ public class JobManager implements Serializable {
     private CompletableFuture<?> sendCommand(final URI uri, final int retry) {
         ControllerLoggingConfig.setupThreadContext();
         HttpRequest request = HttpRequest.newBuilder(uri).build();
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Sending command to url " + uri)));
+        LOG.info(new ObjectMessage(Map.of("Message","Sending command to url " + uri)));
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .whenCompleteAsync((response, t) -> {
                     if (t != null) {
-                        LOG.error(new ObjectMessage(ImmutableMap.of("Message","Error sending command to url " + request.uri() + ": " + t.getMessage())), t);
+                        LOG.error(new ObjectMessage(Map.of("Message","Error sending command to url " + request.uri() + ": " + t.getMessage())), t);
                         if (retry > 0) {
                             try {
                                 Thread.sleep(RETRY_SLEEP);// 30 seconds
@@ -312,9 +311,9 @@ public class JobManager implements Serializable {
                     }
                 }).exceptionally( ex -> {
                     if (ex.getCause().getCause() instanceof NoRouteToHostException) {
-                        LOG.error(new ObjectMessage(ImmutableMap.of("Message","No Route to Host: " + request.uri() + ", validate host connectivity")));
+                        LOG.error(new ObjectMessage(Map.of("Message","No Route to Host: " + request.uri() + ", validate host connectivity")));
                     } else {
-                        LOG.error(new ObjectMessage(ImmutableMap.of("Message","Exception sending command to url " + request.uri() + ": " + ex.getMessage())), ex);
+                        LOG.error(new ObjectMessage(Map.of("Message","Exception sending command to url " + request.uri() + ": " + ex.getMessage())), ex);
                     }
                     return null;
                 });
@@ -355,7 +354,7 @@ public class JobManager implements Serializable {
     }
 
     public void startAgents(String jobId){
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message","Sending start agents command to start test for job " + jobId)));
+        LOG.info(new ObjectMessage(Map.of("Message","Sending start agents command to start test for job " + jobId)));
         if(!jobInfoMapLocalCache.get(jobId).isStarted()){
             jobInfoMapLocalCache.get(jobId).start();
         }

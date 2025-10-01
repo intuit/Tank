@@ -22,10 +22,10 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.Nonnull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -57,7 +57,7 @@ public class AmazonUtil {
             String zone = getMetaData(CloudMetaDataType.zone);
             return VMRegion.getRegionFromZone(zone);
         } catch (IOException ioe) {
-            LOG.warn(new ObjectMessage(ImmutableMap.of("Message","Error getting region. using CUSTOM...")));
+            LOG.warn(new ObjectMessage(Map.of("Message","Error getting region. using CUSTOM...")));
         }
         return VMRegion.STANDALONE;
     }
@@ -85,7 +85,7 @@ public class AmazonUtil {
         try {
             return getMetaData(CloudMetaDataType.zone);
         } catch (IOException e) {
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message","cannot determine zone")));
+            LOG.info(new ObjectMessage(Map.of("Message","cannot determine zone")));
         }
         return "unknown";
     }
@@ -123,7 +123,7 @@ public class AmazonUtil {
         try {
             return getMetaData(CloudMetaDataType.instance_id);
         } catch (IOException e) {
-            LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Error getting instance ID: " + e.toString())));
+            LOG.warn(new ObjectMessage(Map.of("Message", "Error getting instance ID: " + e.toString())));
         }
         return "";
     }
@@ -240,6 +240,11 @@ public class AmazonUtil {
                 : "";
     }
 
+    public static boolean getEnableServer() {
+        String result = getUserDataAsMap().get(TankConstants.KEY_AGENT_SERVER);
+        return StringUtils.isNotEmpty(result) && Boolean.parseBoolean(result);
+    }
+
     /**
      * Gets the user data associated with this instance.
      * 
@@ -249,10 +254,10 @@ public class AmazonUtil {
         try {
             String userData = getResponseString(BASE + USER_DATA);
             if (StringUtils.isNotEmpty(userData)) {
-                return (Map<String,String>) new ObjectMapper().readValue(userData, Map.class);
+                return new ObjectMapper().readValue(userData, new TypeReference<Map<String, String>>() {});
             }
         } catch (IllegalArgumentException | IOException e) {
-            LOG.warn(new ObjectMessage(ImmutableMap.of("Message","Unable to parse tank json: This is normal during the bake process")));
+            LOG.warn(new ObjectMessage(Map.of("Message","Unable to parse tank json: This is normal during the bake process")));
         }
         return Collections.emptyMap();
     }
@@ -271,7 +276,7 @@ public class AmazonUtil {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) return response.body();
         } catch (InterruptedException e) {
-            LOG.error(new ObjectMessage(ImmutableMap.of("Message","Unable to read userdata/metadata: " + e.getMessage())));
+            LOG.error(new ObjectMessage(Map.of("Message","Unable to read userdata/metadata: " + e.getMessage())));
         }
         throw new IOException("Bad Response From AWS data");
     }
@@ -290,7 +295,7 @@ public class AmazonUtil {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) return response.body();
         } catch (InterruptedException e) {
-            LOG.error(new ObjectMessage(ImmutableMap.of("Message","Unable to read token: " + e.getMessage())));
+            LOG.error(new ObjectMessage(Map.of("Message","Unable to read token: " + e.getMessage())));
         }
         throw new IOException("Bad Response From AWS token");
     }
