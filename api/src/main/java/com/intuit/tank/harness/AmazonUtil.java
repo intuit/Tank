@@ -240,11 +240,6 @@ public class AmazonUtil {
                 : "";
     }
 
-    public static boolean getEnableServer() {
-        String result = getUserDataAsMap().get(TankConstants.KEY_AGENT_SERVER);
-        return StringUtils.isNotEmpty(result) && Boolean.parseBoolean(result);
-    }
-
     /**
      * Gets the user data associated with this instance.
      * 
