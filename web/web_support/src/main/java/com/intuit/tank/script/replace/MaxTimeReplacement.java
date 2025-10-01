@@ -19,7 +19,7 @@ import java.util.List;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.ScriptConstants;
-import com.intuit.tank.search.script.ThinkTimeSection;
+import com.intuit.tank.script.ThinkTimeSection;
 
 public class MaxTimeReplacement extends AbstractReplacement {
 

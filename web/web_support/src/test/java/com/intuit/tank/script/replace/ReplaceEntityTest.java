@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.script.replace.ReplaceEntity;
 import com.intuit.tank.script.replace.ReplaceMode;
-import com.intuit.tank.search.script.Section;
+import com.intuit.tank.script.Section;
 
 /**
  * The class <code>ReplaceEntityTest</code> contains tests for the class <code>{@link ReplaceEntity}</code>.
