@@ -8,6 +8,7 @@
 package com.intuit.tank.rest.mvc.rest.cloud;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -15,7 +16,6 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,7 +38,7 @@ public class JobEventListener implements Serializable {
 
     public void observerJobKillRequest(@Observes JobEvent request) {
         ControllerLoggingConfig.setupThreadContext();
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Got Job Event: " + request)));
+        LOG.info(new ObjectMessage(Map.of("Message", "Got Job Event: " + request)));
         if (request.getEvent() == JobLifecycleEvent.JOB_ABORTED) {
             controllerSource.get().killJob(request.getJobId(), false);
         } else if (request.getEvent() == JobLifecycleEvent.JOB_FINISHED ||

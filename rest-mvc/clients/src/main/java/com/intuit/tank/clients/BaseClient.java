@@ -9,7 +9,6 @@ package com.intuit.tank.clients;
 
 import com.intuit.tank.clients.util.*;
 
-import com.google.common.collect.ImmutableMap;
 import jakarta.annotation.Nullable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,6 +21,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Map;
 
 public abstract class BaseClient {
     private static final Logger LOGGER = LogManager.getLogger(BaseClient.class);
@@ -36,7 +36,7 @@ public abstract class BaseClient {
     public BaseClient(String serviceUrl, String token, final String proxyServer, final Integer proxyPort) {
         setBaseUrl(serviceUrl, token);
         client = createHttpClient(proxyServer, proxyPort);
-        LOGGER.info(new ObjectMessage(ImmutableMap.of("Message", "HttpClient created for URL " + baseUrl + ": proxy="
+        LOGGER.info(new ObjectMessage(Map.of("Message", "HttpClient created for URL " + baseUrl + ": proxy="
                 + (proxyServer != null ? proxyServer + ":" + proxyPort : "none"))));
     }
 

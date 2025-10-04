@@ -9,6 +9,7 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -131,10 +132,10 @@ public class S3FileStorage implements FileStorage, Serializable {
         System.out.println(bucketName);
         try {
             s3Client.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
-            LOG.info("Created bucket " + bucketName + " at " + "now");
+            LOG.info("Created bucket {} at now", bucketName);
         } catch (BucketAlreadyExistsException | BucketAlreadyOwnedByYouException baee) {//Good
         } catch (S3Exception | IllegalArgumentException e) {
-            LOG.error("Error creating bucket: " + bucketName + " " + e, e);
+            LOG.error("Error creating bucket: {} {}", bucketName, e, e);
         }
     }
 
@@ -149,7 +150,7 @@ public class S3FileStorage implements FileStorage, Serializable {
         } catch (NoSuchKeyException e) {
             return false;
         } catch (S3Exception e) {
-            LOG.error("Error Checking existence of S3 object: " + e, e);
+            LOG.error("Error Checking existence of S3 object: {}", e, e);
             return false;
 
         }
@@ -164,7 +165,7 @@ public class S3FileStorage implements FileStorage, Serializable {
             if (!prefix.endsWith("/")) {
                 prefix = prefix + "/";
             }
-            prefix = StringUtils.removeStart(prefix, "/");
+            prefix = Strings.CS.removeStart(prefix, "/");
             ListObjectsResponse response = s3Client.listObjects(ListObjectsRequest.builder().bucket(bucketName).prefix(prefix).delimiter("/").build());
             for (S3Object object : response.contents()) {
                 String fileName = FilenameUtils.getName(FilenameUtils.normalize(object.key()));
@@ -173,7 +174,7 @@ public class S3FileStorage implements FileStorage, Serializable {
                 }
             }
         } catch (S3Exception e) {
-            LOG.error("Error Listing Files: " + e, e);
+            LOG.error("Error Listing Files: {}", e, e);
             throw new RuntimeException(e);
         }
         return ret;

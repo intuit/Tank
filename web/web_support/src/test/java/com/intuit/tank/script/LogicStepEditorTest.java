@@ -56,17 +56,18 @@ public class LogicStepEditorTest {
         logicStepEditor.editLogicStep(ScriptStep.builder().name("ScriptStep").build());
         assertEquals("ScriptStep", logicStepEditor.getName());
         assertTrue(logicStepEditor.editMode);
+        String thread = (Integer.parseInt(System.getProperty("java.version").split("\\.")[0]) >= 25) ? "3" : "1";
 
         logicStepEditor.testScript();
         String expected = "------------- Variables -------------\n" +
                 "mode = test\n" +
-                "THREAD_ID = 3\n" +
+                "THREAD_ID = " + thread + "\n" +
                 "------------- script -------------\n" +
                 "Starting scriptEngine...\n" +
                 "Finished scriptEngine...\n" +
                 "------------- Variables -------------\n" +
                 "mode = test\n" +
-                "THREAD_ID = 3\n";
+                "THREAD_ID = " + thread + "\n";
         assertEquals(expected, logicStepEditor.getOutput());
     }
 

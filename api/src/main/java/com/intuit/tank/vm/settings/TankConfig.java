@@ -17,12 +17,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -72,7 +72,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
 
     static {
         File file = new File(configName);
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "checking file " + file.getAbsolutePath() + ": exists=" + file.exists())));
+        LOG.info(new ObjectMessage(Map.of("Message", "checking file " + file.getAbsolutePath() + ": exists=" + file.exists())));
         if (!file.exists()) {
             LOG.info("System.getenv('WATS_PROPERTIES') = '" + System.getenv("WATS_PROPERTIES") + "'");
             LOG.info("System.getProperty('WATS_PROPERTIES') = '" + System.getProperty("WATS_PROPERTIES") + "'");
@@ -82,7 +82,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
                 configName = System.getProperty("WATS_PROPERTIES") + "/" + CONFIG_NAME;
             }
         }
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Tank Configuration location = " + configName)));
+        LOG.info(new ObjectMessage(Map.of("Message", "Tank Configuration location = " + configName)));
     }
 
     private String configPath = configName;

@@ -7,7 +7,6 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.agent;
 
-import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
 import com.intuit.tank.agent.models.TankHttpClientDefinitionContainer;
@@ -92,7 +91,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         if (!supportFiles.exists()) {
             final FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getJarDir(), false);
             final File harnessJar = new File(servletContext.getRealPath("/tools/" + HARNESS_JAR));
-            LOGGER.info(new ObjectMessage(ImmutableMap.of("Message","harnessJar = " + harnessJar.getAbsolutePath())));
+            LOGGER.info(new ObjectMessage(Map.of("Message","harnessJar = " + harnessJar.getAbsolutePath())));
             final List<FileData> files = fileStorage.listFileData("");
 
             synchronized ( supportFiles ) {
@@ -141,7 +140,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     @Override
     public AgentTestStartData agentReady(AgentData data) {
         AgentTestStartData response;
-        LOGGER.info(new ObjectMessage(ImmutableMap.of("Message", "Agent ready: " + data)));
+        LOGGER.info(new ObjectMessage(Map.of("Message", "Agent ready: " + data)));
         AWSXRay.getCurrentSegment().putAnnotation("JobId", data.getJobId());
         AWSXRay.getCurrentSegment().putAnnotation("InstanceId", data.getInstanceId());
         try {

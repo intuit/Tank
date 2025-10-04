@@ -31,7 +31,6 @@ import java.util.concurrent.Semaphore;
 import java.util.zip.GZIPInputStream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.vm.api.enumerated.*;
 import org.apache.commons.io.FileUtils;
@@ -160,7 +159,7 @@ public class APITestHarness {
         String controllerBase = null;
         String token = null;
         for (String argument : args) {
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "checking arg " + argument)));
+            LOG.info(new ObjectMessage(Map.of("Message", "checking arg " + argument)));
 
             String[] values = argument.split("=");
             if (values[0].equalsIgnoreCase("-tp")) {
@@ -284,7 +283,7 @@ public class APITestHarness {
                 }
             }
         }
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "MyInstanceURL = " + instanceUrl)));
+        LOG.info(new ObjectMessage(Map.of("Message", "MyInstanceURL = " + instanceUrl)));
         if (capacity < 0) {
             capacity = AmazonUtil.getCapacity();
         }
@@ -409,23 +408,23 @@ public class APITestHarness {
                               ("gzip".equals(response.headers().firstValue("Content-Encoding").orElse("")))
                                       ? new GZIPInputStream(response.body())
                                       : response.body()) {
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message",
+                    LOG.info(new ObjectMessage(Map.of("Message",
                             "writing file " + dataFileRequest.getFileName() + " to " + dataFile.getAbsolutePath()
                                     + " from url " + dataFileRequest.getFileUrl())));
                     FileUtils.copyInputStreamToFile(stream, dataFile);
                 }
                 if (dataFileRequest.isDefaultDataFile()
                         && !dataFileRequest.getFileName().equals(TankConstants.DEFAULT_CSV_FILE_NAME)) {
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "APITestHarness - default file set to " + TankConstants.DEFAULT_CSV_FILE_NAME)));
+                    LOG.info(new ObjectMessage(Map.of("Message", "APITestHarness - default file set to " + TankConstants.DEFAULT_CSV_FILE_NAME)));
                     File defaultFile = new File(dataFileDir, TankConstants.DEFAULT_CSV_FILE_NAME);
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Copying default  file " + dataFile.getAbsolutePath() + " to "
+                    LOG.info(new ObjectMessage(Map.of("Message", "Copying default  file " + dataFile.getAbsolutePath() + " to "
                             + defaultFile.getAbsolutePath())));
 
                     FileUtils.copyFile(dataFile, defaultFile);
                 }
                 break;
             } catch (Exception e) {
-                LOG.warn(new ObjectMessage(ImmutableMap.of("Message", "Failed to download CSV file because of: " + e.toString()
+                LOG.warn(new ObjectMessage(Map.of("Message", "Failed to download CSV file because of: " + e.toString()
                         + ". Will try "
                         + (FIBONACCI.length - retryCount) + " more times.")));
                 if (retryCount < FIBONACCI.length) {
@@ -535,11 +534,11 @@ public class APITestHarness {
                             + plan.getUserPercentage()
                             + "% = " + starter.getNumThreads()));
                     if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)){
-                        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Users for Test Plan " + plan.getTestPlanName() + " at "
+                        LOG.info(new ObjectMessage(Map.of("Message", "Users for Test Plan " + plan.getTestPlanName() + " at "
                                 + plan.getUserPercentage()
                                 + "% = " + starter.getNumThreads())));
                     } else {
-                        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Test Plan " + plan.getTestPlanName() + " at "
+                        LOG.info(new ObjectMessage(Map.of("Message", "Test Plan " + plan.getTestPlanName() + " at "
                                 + plan.getUserPercentage()
                                 + "% running nonlinear workload at "
                                 + agentRunData.getTargetRampRate() * agentRunData.getTotalAgents() + " users/sec")));
@@ -594,11 +593,11 @@ public class APITestHarness {
                         numToCount++;
                     }
                     // wait for them to finish
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Linear - Ramp Complete...")));
+                    LOG.info(new ObjectMessage(Map.of("Message", "Linear - Ramp Complete...")));
 
                     doneSignal.await();
                 } else {
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Nonlinear - Ramp Complete...")));
+                    LOG.info(new ObjectMessage(Map.of("Message", "Nonlinear - Ramp Complete...")));
                     semaphore.acquire(currentNumThreads);
                 }
             }
@@ -656,12 +655,12 @@ public class APITestHarness {
             long count = doneSignal.getCount();
             // numCompletedThreads = (int) (agentRunData.getNumUsers() - count);
             if (isDebug() || count < 10) {
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining = " + currentUsers)));
+                LOG.info(new ObjectMessage(Map.of("Message", "User thread finished... Remaining = " + currentUsers)));
             }
         } else {
             semaphore.release();
             if (isDebug() || semaphore.availablePermits() < 10) {
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message", "User thread finished... Remaining = " + currentUsers)));
+                LOG.info(new ObjectMessage(Map.of("Message", "User thread finished... Remaining = " + currentUsers)));
             }
         }
     }
@@ -708,7 +707,7 @@ public class APITestHarness {
         if (!simulationTimeMet && agentRunData.getSimulationTimeMillis() > 0) {
             if (System.currentTimeMillis() > getSimulationEndTimeMillis()) {
                 if (!loggedSimTime) {
-                    LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Simulation time met")));
+                    LOG.info(new ObjectMessage(Map.of("Message", "Simulation time met")));
                     loggedSimTime = true;
                 }
                 simulationTimeMet = true;
@@ -766,7 +765,7 @@ public class APITestHarness {
     public void setCommand(AgentCommand newCommand) {
         if (cmd != AgentCommand.stop) {
             cmd = newCommand;
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Got new Command: " + newCommand + " with " + currentNumThreads
+            LOG.info(new ObjectMessage(Map.of("Message", "Got new Command: " + newCommand + " with " + currentNumThreads
                     + " User Threads running.")));
             APIMonitor.setJobStatus(cmd == AgentCommand.stop ? JobStatus.Stopped
                     : cmd == AgentCommand.pause ? JobStatus.Paused

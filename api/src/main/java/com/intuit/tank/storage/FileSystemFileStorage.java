@@ -7,15 +7,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,7 +43,7 @@ public class FileSystemFileStorage implements FileStorage, Serializable {
         this.compress = compress;
         File dir = new File(basePath);
         if (!dir.exists()) {
-            LOG.info("Creating storage dir " + dir.getAbsolutePath());
+            LOG.info("Creating storage dir {}", dir.getAbsolutePath());
         }
     }
 
@@ -54,7 +55,7 @@ public class FileSystemFileStorage implements FileStorage, Serializable {
             if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
                 throw new IllegalArgumentException("Invalid filename");
             }
-            File file = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + filename));
+            File file = Paths.get(basePath + "/" + fileData.getPath() + "/" + filename).normalize().toFile();
             if (!file.toPath().normalize().startsWith(basePath)) // Protect "Zip Slip"
                 throw new Exception("Bad zip entry");
             if (!file.getParentFile().exists()) {
@@ -63,7 +64,7 @@ public class FileSystemFileStorage implements FileStorage, Serializable {
             try (OutputStream output = compress ?
                     new GZIPOutputStream(new FileOutputStream(file)) :
                     new FileOutputStream(file)) {
-                IOUtils.copy(input, output);
+                input.transferTo(output);
             } catch (IOException e) {
                 LOG.error("Error storing file: {}", e, e);
                 throw new RuntimeException(e);
@@ -76,13 +77,13 @@ public class FileSystemFileStorage implements FileStorage, Serializable {
 
     @Override
     public InputStream readFileData(FileData fileData) {
-        File file = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + fileData.getFileName()));
+        File file = Paths.get(basePath, fileData.getPath(), fileData.getFileName()).normalize().toFile();
         try {
             return compress ?
                     new GZIPInputStream(new FileInputStream(file)) :
                     new FileInputStream(file);
         } catch (IOException e) {
-            LOG.error("Error storing file: " + e, e);
+            LOG.error("Error storing file: {}", e, e);
             throw new RuntimeException(e);
         }
     }
@@ -95,16 +96,19 @@ public class FileSystemFileStorage implements FileStorage, Serializable {
 
     @Override
     public List<FileData> listFileData(String path) {
-        File dir = new File(FilenameUtils.normalize(basePath + "/" + path));
+        File dir = Paths.get(basePath, path).normalize().toFile();
         if (dir.exists()) {
-            return Arrays.stream(dir.listFiles()).filter(File::isFile).map(f -> new FileData(path, f.getName())).collect(Collectors.toList());
+            return Arrays.stream(Objects.requireNonNull(dir.listFiles()))
+                    .filter(File::isFile)
+                    .map(f -> new FileData(path, f.getName()))
+                    .collect(Collectors.toList());
         }
         return new ArrayList<FileData>();
     }
 
     @Override
     public boolean delete(FileData fileData) {
-        File file = new File(FilenameUtils.normalize(basePath + "/" + fileData.getPath() + "/" + fileData.getFileName()));
+        File file = Paths.get(basePath, fileData.getPath(), fileData.getFileName()).normalize().toFile();
         return file.delete();
     }
 }

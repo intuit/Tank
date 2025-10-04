@@ -21,13 +21,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.google.common.net.HttpHeaders;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 
 import com.amazonaws.xray.AWSXRay;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -622,7 +622,7 @@ public class ConverterUtil {
                         && !header.equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)
                         && !header.equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH)
                         && !header.equalsIgnoreCase(HttpHeaders.CONNECTION)
-                        && !header.equalsIgnoreCase(HttpHeaders.COOKIE)
+                        && !header.equalsIgnoreCase("Cookie")
                         && !header.toLowerCase().startsWith("get ")
                         && !header.toLowerCase().startsWith("post ")
                         && !header.equalsIgnoreCase("If-None-Match")
