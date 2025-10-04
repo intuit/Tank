@@ -13,10 +13,8 @@ package com.intuit.tank.standalone.agent;
  * #L%
  */
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,7 +24,6 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -81,8 +78,7 @@ public class StandaloneAgentStartup implements Runnable {
                 URL url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SETTINGS);
                 LOG.info("Starting up: making call to tank service url to get settings.xml {}", url.toExternalForm());
                 try ( InputStream settingsStream = url.openStream() ) {
-                    String settings = new String(settingsStream.readAllBytes(), StandardCharsets.UTF_8);
-                    FileUtils.writeStringToFile(new File(TANK_AGENT_DIR, "settings.xml"), settings, StandardCharsets.UTF_8);
+                    Files.write(Paths.get(TANK_AGENT_DIR, "settings.xml"), settingsStream.readAllBytes());
                     LOG.info("got settings file...");
                 }
                 url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
