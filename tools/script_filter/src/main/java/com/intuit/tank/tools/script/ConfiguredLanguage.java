@@ -16,6 +16,7 @@ package com.intuit.tank.tools.script;
  * #L%
  */
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +27,6 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
 /**
@@ -55,18 +55,21 @@ public class ConfiguredLanguage {
 
     private static final ScriptEngineManager manager = new ScriptEngineManager();
     static {
+        System.setProperty("nashorn.args", "--language=es6");
         for (String[] row : data) {
             try {
                 ScriptEngine engineByName = manager.getEngineByName(row[0]);
                 if (engineByName == null) {
-                    ScriptEngineFactory fact = (ScriptEngineFactory) Class.forName(row[3]).newInstance();
+                    ScriptEngineFactory fact = (ScriptEngineFactory) Class.forName(row[3]).getDeclaredConstructor().newInstance();
                     manager.registerEngineName(row[0], fact);
                     engineByName = manager.getEngineByName(row[0]);
                 }
                 configuredLanguages.add(new ConfiguredLanguage(row[0], row[1], row[2], row[4]));
                 extensionSet.addAll(engineByName.getFactory().getExtensions());
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
                 System.out.println("No ScriptEngine for language " + row[0] + " in classpath.");
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
             }
             manager.getEngineFactories().stream().map(ScriptEngineFactory::getLanguageName).forEach(System.out::println);
         }
@@ -95,7 +98,7 @@ public class ConfiguredLanguage {
     public static ConfiguredLanguage getLanguageByExtension(String scriptName) {
         String extension = FilenameUtils.getExtension(scriptName);
         ScriptEngine engineByExtension = manager.getEngineByExtension(extension);
-        return configuredLanguages.stream().filter(lang -> StringUtils.equals(lang.name, engineByExtension.getFactory().getLanguageName())).findFirst().orElse(null);
+        return configuredLanguages.stream().filter(lang -> lang.name.equals(engineByExtension.getFactory().getLanguageName())).findFirst().orElse(null);
     }
 
     /**
