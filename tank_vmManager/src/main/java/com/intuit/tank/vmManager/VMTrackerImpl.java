@@ -41,7 +41,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import com.amazonaws.xray.AWSXRay;
-import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.commons.lang3.StringUtils;
@@ -334,7 +333,7 @@ public class VMTrackerImpl implements VMTracker {
             }
         }
         if (isFinished) {
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message","Setting end time on container " + cloudVmStatusContainer.getJobId())));
+            LOG.info(new ObjectMessage(Map.of("Message","Setting end time on container " + cloudVmStatusContainer.getJobId())));
             if (cloudVmStatusContainer.getEndTime() == null) {
                 jobEventProducer.fire(new JobEvent(status.getJobId(), "", JobLifecycleEvent.JOB_FINISHED)
                         .addContextEntry(NOTIFICATIONS_EVENT_EVENT_TIME_KEY,
