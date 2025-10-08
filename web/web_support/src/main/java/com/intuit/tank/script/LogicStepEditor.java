@@ -180,6 +180,7 @@ public class LogicStepEditor implements Serializable {
         inputs.put("request", createRequest());
         inputs.put("response", createResponse());
         try {
+            System.setProperty("nashorn.args", "--language=es6");
             String scriptToRun = new LogicScriptUtil().buildScript(script);
             logMap("Variables", vars.getVariableValues(), outputLogger);
             outputLogger.logLine(DASHES + " script " + DASHES);
