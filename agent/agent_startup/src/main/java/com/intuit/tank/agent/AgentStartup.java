@@ -19,13 +19,13 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -73,15 +73,14 @@ public class AgentStartup implements Runnable {
                 try (ZipInputStream zip = new ZipInputStream(
                         client.send(request, BodyHandlers.ofInputStream()).body())) {
                     ZipEntry entry = zip.getNextEntry();
+                    Path agentDirPath = Paths.get(TANK_AGENT_DIR).toAbsolutePath().normalize();
                     while (entry != null) {
-                        String name = entry.getName();
-                        logger.info("Got file from controller: " + name);
-                        File file = new File(TANK_AGENT_DIR, name);
-                        if (!file.toPath().normalize().startsWith(TANK_AGENT_DIR)) // Protect "Zip Slip"
-                            throw new Exception("Bad zip entry");
-                        try (FileOutputStream fout = FileUtils.openOutputStream(file)) {
-                            IOUtils.copy(zip, fout);
-                        }
+                        String filename = entry.getName();
+                        logger.info("Got file from controller: {}", filename);
+                        Path targetPath = agentDirPath.resolve(filename).normalize();
+                        if (!targetPath.startsWith(agentDirPath)) // Protect "Zip Slip"
+                            throw new ZipException("Bad zip entry");
+                        Files.write(targetPath, zip.readAllBytes());
                         entry = zip.getNextEntry();
                     }
                     break;

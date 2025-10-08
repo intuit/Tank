@@ -20,7 +20,6 @@ import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Entity;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.vmManager.*;
-import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +44,7 @@ public class IncreasingWorkLoad implements Runnable {
         this.job = job;
         this.agentDispatcher = agentDispatcher;
         this.channel = channel;
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Job requested with values: " + job)));
+        LOG.info(new ObjectMessage(Map.of("Message", "Job requested with values: " + job)));
     }
 
     @Override
@@ -78,13 +77,13 @@ public class IncreasingWorkLoad implements Runnable {
             int users;
             if(job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
                 users = JobUtil.parseUserString(jobRegion.getUsers());
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message","Starting " + users + " users in region " + jobRegion.getRegion().getDescription() + " for job "
+                LOG.info(new ObjectMessage(Map.of("Message","Starting " + users + " users in region " + jobRegion.getRegion().getDescription() + " for job "
                         + job.getId())));
             } else {
                 int percentage = JobUtil.parseUserString(jobRegion.getPercentage());
                 // Calculate number of agents per region split for nonlinear workloads
                 Map<RegionRequest, Integer> agentMapping = JobVmCalculator.getMachinesForAgentByUserPercentage(job.getNumAgents(), job.getRegions());
-                LOG.info(new ObjectMessage(ImmutableMap.of("Message","Starting " + percentage + "% of users in region " + jobRegion.getRegion().getDescription()
+                LOG.info(new ObjectMessage(Map.of("Message","Starting " + percentage + "% of users in region " + jobRegion.getRegion().getDescription()
                         + " with " + agentMapping.get(jobRegion) + " allocated agents for job " + job.getId())));
                 users = agentMapping.get(jobRegion); // reassign users to the number of agents allocated for this region - nonlinear
             }
