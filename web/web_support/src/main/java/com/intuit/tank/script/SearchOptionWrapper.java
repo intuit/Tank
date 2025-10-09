@@ -13,7 +13,6 @@ package com.intuit.tank.script;
  * #L%
  */
 
-import com.intuit.tank.search.script.Section;
 
 public class SearchOptionWrapper {
 

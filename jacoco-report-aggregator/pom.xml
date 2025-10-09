@@ -78,24 +78,6 @@
     </dependency>
     <dependency>
       <groupId>com.intuit.tank</groupId>
-      <artifactId>document-util</artifactId>
-      <scope>compile</scope>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.intuit.tank</groupId>
-      <artifactId>lucene-indexer</artifactId>
-      <scope>compile</scope>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.intuit.tank</groupId>
-      <artifactId>script-search</artifactId>
-      <scope>compile</scope>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.intuit.tank</groupId>
       <artifactId>tank-common</artifactId>
       <scope>compile</scope>
       <version>${project.version}</version>
