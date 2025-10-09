@@ -48,7 +48,6 @@
     <version.junit>5.13.4</version.junit>
     <version.mockito>5.19.0</version.mockito>
     <version.httpclient>4.5.14</version.httpclient>
-    <version.lucene>10.3.0</version.lucene>
     <version.jaxb>4.0.2</version.jaxb>
     <version.spring-webmvc>6.2.11</version.spring-webmvc>
     <version.wiremock>3.13.1</version.wiremock>
